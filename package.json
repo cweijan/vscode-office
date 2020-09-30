@@ -1,16 +1,28 @@
 {
 	"name": "vscode-excel",
 	"displayName": "Excel",
-	"description": "",
-	"version": "0.0.1",
+	"description": "View excel from vscode.",
+	"version": "1.0.0",
+	"publisher": "cweijan",
 	"engines": {
 		"vscode": "^1.40.0"
 	},
+	"keywords": ["excel","Excel","Spreadsheet"],
 	"categories": [
+		"Visualization",
 		"Other"
 	],
+	"bugs": {
+		"url": "https://github.com/cweijan/vscode-excel/issues",
+		"email": "cweijan@163.com"
+	},
+	"homepage": "https://github.com/cweijan/vscode-excel/blob/master/README.md",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/cweijan/vscode-excel.git"
+	},
 	"activationEvents": [
-		"*"
+		"onCustomEditor:cweijan.viewExcel"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -35,7 +47,7 @@
 		"test": "node ./out/test/runTest.js"
 	},
 	"devDependencies": {
-		"@types/vscode": "^1.49.0",
+		"@types/vscode": "^1.40.0",
 		"@types/node": "^13.11.0",
 		"typescript": "^3.8.3"
 	},
