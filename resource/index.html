@@ -15,7 +15,7 @@
 </body>
 
 <script>
-
+    document.getElementById('_defaultStyles').parentNode.removeChild(document.getElementById('_defaultStyles'))
     const vscode = typeof (acquireVsCodeApi) != "undefined" ? acquireVsCodeApi() : null;
     const postMessage = (message) => { if (vscode) { vscode.postMessage(message) } }
 
@@ -86,10 +86,6 @@
     const vscodeEvent = getVscodeEvent();
     vscodeEvent.emit("init")
     vscodeEvent.on("open", value => {
-        console.log(value)
-        // console.log(value.data)
-        // const blob = new Blob(value.data);
-        // const url = URL.createObjectURL(blob);
         open(value.data)
     })
 
