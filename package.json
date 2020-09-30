@@ -1,0 +1,45 @@
+{
+	"name": "vscode-excel",
+	"displayName": "Excel",
+	"description": "",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.40.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"*"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"customEditors": [
+			{
+				"viewType": "cweijan.viewExcel",
+				"displayName": "Excel Viewer",
+				"selector": [
+					{
+						"filenamePattern": "*.xlsx"
+					}
+				]
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"lint": "eslint src --ext ts",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.49.0",
+		"@types/node": "^13.11.0",
+		"typescript": "^3.8.3"
+	},
+	"dependencies": {
+		"date-format": "^3.0.0"
+	}
+}
