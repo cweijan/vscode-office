@@ -1,38 +1,53 @@
 {
-	"name": "vscode-excel",
-	"displayName": "Excel",
-	"description": "View excel from vscode.",
+	"name": "vscode-office",
+	"displayName": "Office Viewer",
+	"description": "View word,excel files in vscode.",
 	"version": "1.0.0",
 	"publisher": "cweijan",
 	"engines": {
 		"vscode": "^1.40.0"
 	},
-	"keywords": ["excel","Excel","Spreadsheet"],
+	"keywords": [
+		"office",
+		"word",
+		"docx",
+		"xlsx",
+		"excel"
+	],
 	"categories": [
 		"Visualization",
 		"Other"
 	],
 	"bugs": {
-		"url": "https://github.com/cweijan/vscode-excel/issues",
+		"url": "https://github.com/cweijan/vscode-office/issues",
 		"email": "cweijan@163.com"
 	},
-	"homepage": "https://github.com/cweijan/vscode-excel/blob/master/README.md",
+	"homepage": "https://github.com/cweijan/vscode-office/blob/master/README.md",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cweijan/vscode-excel.git"
+		"url": "https://github.com/cweijan/vscode-office.git"
 	},
 	"activationEvents": [
-		"onCustomEditor:cweijan.viewExcel"
+		"onCustomEditor:cweijan.viewOffice"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"customEditors": [
 			{
-				"viewType": "cweijan.viewExcel",
-				"displayName": "Excel Viewer",
+				"viewType": "cweijan.viewOffice",
+				"displayName": "Office Viewer",
 				"selector": [
 					{
 						"filenamePattern": "*.xlsx"
+					},
+					{
+						"filenamePattern": "*.xls"
+					},
+					{
+						"filenamePattern": "*.docx"
+					},
+					{
+						"filenamePattern": "*.doc"
 					}
 				]
 			}
@@ -52,6 +67,7 @@
 		"typescript": "^3.8.3"
 	},
 	"dependencies": {
-		"date-format": "^3.0.0"
+		"date-format": "^3.0.0",
+		"mammoth": "^1.4.13"
 	}
 }

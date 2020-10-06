@@ -1,3 +1,3 @@
-# vscode-excel 
+# vscode-office
 
-Support view excel in vscode.
+Support view word,excel files in vscode.

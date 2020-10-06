@@ -1,11 +1,10 @@
 import * as vscode from 'vscode';
-import { ExcelEditor } from './excelEditor';
+import { OfficeEditor } from './officeEditor';
 
 export function activate(context: vscode.ExtensionContext) {
 
-	vscode.window.registerCustomEditorProvider("cweijan.viewExcel", new ExcelEditor(context),{webviewOptions:{
-		retainContextWhenHidden:true
-	}});
+	const viewOption = { webviewOptions: { retainContextWhenHidden: true } };
+	vscode.window.registerCustomEditorProvider("cweijan.viewOffice", new OfficeEditor(context), viewOption);
 
 }
 
