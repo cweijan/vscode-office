@@ -4,6 +4,7 @@
 	"description": "View word,excel files in vscode.",
 	"version": "1.0.0",
 	"publisher": "cweijan",
+	"icon": "icon.png",
 	"engines": {
 		"vscode": "^1.40.0"
 	},
