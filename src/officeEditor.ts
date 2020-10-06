@@ -43,19 +43,11 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
                 var html = result.value;
                 var messages = result.messages; // Any messages, such as warnings during conversion
                 console.debug(messages)
-                webview.html = `<html><head>
-                <style>
-                body {
-                    background-color: #fbfbfb !important;
-                    color: #3e3838 !important;
-                    font-family: var(--vscode-font-family);
-                    font-weight: var(--vscode-font-weight);
-                    font-size: 14px;
-                    margin: 0;
-                    padding: 0 20px;
-                }
-                </style>
-                </head>${html}</html>`
+                webview.html = 
+                this.buildPath(
+                    readFileSync(this.extensionPath + "/resource/word.html", 'utf8').replace("#content",html)
+                    , webview, this.extensionPath + "/resource"
+                )
             })
             .done();
     }

@@ -1,0 +1,38 @@
+<html>
+
+<head>
+    <style>
+        body {
+            background-color: #fbfbfb !important;
+            color: #3e3838 !important;
+            font-family: var(--vscode-font-family);
+            font-weight: var(--vscode-font-weight);
+            font-size: 14px;
+            margin: 0;
+            padding: 0 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="content">
+        #content
+    </div>
+</body>
+
+<script>
+    window.onmousewheel = document.onmousewheel = e => {
+        if (!e.ctrlKey) {
+            return;
+        }
+        const zoom = document.body.style.zoom ? parseInt(document.body.style.zoom.replace("%", "")) : 100
+        if (e.deltaY > 0) {
+            document.body.style.zoom = `${zoom-5}%`;
+        } else {
+            document.body.style.zoom = `${zoom+5}%`;
+        }
+    };
+</script>
+
+
+</html>
