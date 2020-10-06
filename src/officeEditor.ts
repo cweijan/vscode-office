@@ -45,7 +45,7 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
                 console.debug(messages)
                 webview.html = 
                 this.buildPath(
-                    readFileSync(this.extensionPath + "/resource/word.html", 'utf8').replace("#content",html)
+                    readFileSync(this.extensionPath + "/resource/word.html", 'utf8').replace("{{content}}",html)
                     , webview, this.extensionPath + "/resource"
                 )
             })

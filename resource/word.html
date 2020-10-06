@@ -11,28 +11,97 @@
             margin: 0;
             padding: 0 20px;
         }
+
+
+        #content {
+            width: 100%;
+        }
+
+        #pagination-wrapper {
+            position: fixed;
+            padding: 10px;
+            top: 5%;
+            right: 60px;
+        }
+
+        #top-btn {
+            position: fixed;
+            right: 100px;
+            top: 50%;
+            border-radius: 5px;
+            width: 32px;
+            height: 32px;
+            background-color: #3e3838;
+        }
     </style>
+    <link href="word/pagination.css" rel="stylesheet" type="text/css">
+    <script src="word/jquery.min.js"></script>
+    <script src="word/pagination.min.js"></script>
 </head>
 
 <body>
-    <div id="content">
-        #content
+    <div id="pagination-wrapper">
+        <div id="pagination">
+        </div>
     </div>
+    <div id="content">
+        {{content}}
+    </div>
+    <div id="top-btn" title="Scroll to top"></div>
 </body>
 
 <script>
+
+    function createSerial(count) {
+        var result = [];
+        for (var i = 1; i <= count; i++) {
+            result.push(i);
+        }
+        return result;
+    }
+
+    function initPaginition() {
+        const total = document.body.scrollHeight / window.innerHeight
+        $('#pagination').pagination({
+            dataSource: createSerial(total),
+            pageSize: 1,
+            pageRange: null,
+            showPageNumbers: true,
+            showNavigator: true,
+            showGoInput: true,
+            showGoButton: true,
+            callback: (data, pagination) => {
+                window.scrollTo(0, window.innerHeight * data[0]);
+            }
+        })
+    }
+
+
     window.onmousewheel = document.onmousewheel = e => {
         if (!e.ctrlKey) {
             return;
         }
-        const zoom = document.body.style.zoom ? parseInt(document.body.style.zoom.replace("%", "")) : 100
+        const ele = document.getElementById('content');
+        const zoom = ele.style.zoom ? parseInt(ele.style.zoom.replace("%", "")) : 100
         if (e.deltaY > 0) {
-            document.body.style.zoom = `${zoom-5}%`;
+            ele.style.zoom = `${zoom - 5}%`;
         } else {
-            document.body.style.zoom = `${zoom+5}%`;
+            ele.style.zoom = `${zoom + 5}%`;
         }
+        initPaginition()
     };
-</script>
 
+    onload = () => {
+
+        initPaginition()
+
+        document.getElementById('top-btn').onclick = e => {
+            window.scrollTo(0, 0)
+        }
+
+
+    }
+
+</script>
 
 </html>
