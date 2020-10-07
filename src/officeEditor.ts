@@ -40,6 +40,16 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
             case ".svg":
                 this.handleSvg(uri, webview);
                 break;
+            case ".xmind":
+                webview.onDidReceiveMessage(async () => {
+                    webview.postMessage({ type: "open", content: readFileSync(uri.fsPath) })
+                });
+                webview.html =
+                    this.buildPath(
+                        readFileSync(this.extensionPath + "/resource/xmind/index.html", 'utf8'),
+                        webview, this.extensionPath + "/resource"
+                    );
+                break;
             case ".epub":
                 webview.onDidReceiveMessage(async () => webview.postMessage({ type: "open", content: webview.asWebviewUri(uri).toString() }))
                 webview.html =

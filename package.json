@@ -85,6 +85,9 @@
 					},
 					{
 						"filenamePattern": "*.epub"
+					},
+					{
+						"filenamePattern": "*.xmind"
 					}
 				]
 			}
