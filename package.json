@@ -49,6 +49,9 @@
 					},
 					{
 						"filenamePattern": "*.doc"
+					},
+					{
+						"filenamePattern": "*.psd"
 					}
 				]
 			}

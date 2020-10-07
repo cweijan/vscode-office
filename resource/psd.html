@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>PSD viewer</title>
+    <link rel="stylesheet" href="psd/font-awesome.min.css">
+    <link rel="stylesheet" href="psd/styles.css">
+    <meta name="viewport" content="width=device-width">
+</head>
+
+<body>
+    <div id="ImageContainer"></div>
+    <script src="psd/psd.js"></script>
+    <script src="js/vscode.js"></script>
+    <script>window.PSD = require('psd')</script>
+    <script src="psd/scripts.js"></script>
+    <script>
+        onload = () => {
+            const vscodeEvent = getVscodeEvent();
+            vscodeEvent.emit("init")
+            vscodeEvent.on("open", value => {
+                PSD.fromURL(value).then((psd) => {
+                    psd.parse()
+                    window.PSD_INS = psd
+                });
+            })
+        }
+    </script>
+</body>
+
+</html>

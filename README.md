@@ -1,3 +1,19 @@
 # vscode-office
 
-Support view word,excel files in vscode.
+This extension is to support the function of previewing common office file formats.
+
+It support below file now:
+- Excel: xls, xlsx
+- Word: docx
+- PhotoShop: psd
+
+# Credit
+
+- Excel
+  - [sheetjs](https://github.com/SheetJS/sheetjs)
+  - [x-spreadsheet](https://github.com/myliang/x-spreadsheet)
+- PhotoShop
+  - [psd.js](https://github.com/meltingice/psd.js)
+  - [psd-viewer](https://github.com/zenoamaro/psd-viewer)
+- Word
+  - [mammoth](https://github.com/mwilliamson/mammoth.js)

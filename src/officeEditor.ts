@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { readFileSync } from 'fs';
-import { extname } from 'path';
+import { readFileSync, readFile } from 'fs';
+import { extname, resolve } from 'path';
 const mammoth = require("mammoth");
 
 export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
@@ -18,7 +18,8 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
         const uri = document.uri;
 
         webviewPanel.webview.options = {
-            enableScripts: true
+            enableScripts: true,
+            localResourceRoots: [vscode.Uri.file(this.extensionPath), vscode.Uri.file(resolve(uri.fsPath, ".."))]
         }
 
         const ext = extname(uri.fsPath)
@@ -29,6 +30,19 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
                 break;
             case ".docx":
                 this.handleDocx(uri, webviewPanel.webview)
+                break;
+            case ".psd":
+                webviewPanel.webview.html =
+                    this.buildPath(
+                        readFileSync(this.extensionPath + "/resource/psd.html", 'utf8'), webviewPanel.webview, this.extensionPath + "/resource"
+                    )
+                webviewPanel.webview.onDidReceiveMessage(async (message) => {
+                    if (message.type == "init") {
+                        // const content = await vscode.workspace.fs.readFile(uri)
+                        // webviewPanel.webview.postMessage({ type: "open", content })
+                        webviewPanel.webview.postMessage({ type: "open", content: webviewPanel.webview.asWebviewUri(uri).toString() })
+                    }
+                })
                 break;
             default:
                 webviewPanel.webview.html = "Unsupport now!"
@@ -43,11 +57,11 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
                 var html = result.value;
                 var messages = result.messages; // Any messages, such as warnings during conversion
                 console.debug(messages)
-                webview.html = 
-                this.buildPath(
-                    readFileSync(this.extensionPath + "/resource/word.html", 'utf8').replace("{{content}}",html)
-                    , webview, this.extensionPath + "/resource"
-                )
+                webview.html =
+                    this.buildPath(
+                        readFileSync(this.extensionPath + "/resource/word.html", 'utf8').replace("{{content}}", html)
+                        , webview, this.extensionPath + "/resource"
+                    )
             })
             .done();
     }
