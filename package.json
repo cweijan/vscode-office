@@ -79,6 +79,9 @@
 					},
 					{
 						"filenamePattern": "*.psd"
+					},
+					{
+						"filenamePattern": "*.svg"
 					}
 				]
 			}

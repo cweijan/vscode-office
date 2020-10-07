@@ -6,6 +6,7 @@ It support below files now:
 - Excel: .xls, .xlsx
 - Word: .docx
 - PhotoShop: .psd
+- Svg: .svg
 - Windows Reg File: .reg
 
 # Credit

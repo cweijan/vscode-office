@@ -1,6 +1,6 @@
-import * as vscode from 'vscode';
-import { readFileSync, readFile } from 'fs';
+import { readFileSync } from 'fs';
 import { extname, resolve } from 'path';
+import * as vscode from 'vscode';
 const mammoth = require("mammoth");
 
 export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
@@ -16,50 +16,58 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
     }
     public resolveCustomEditor(document: vscode.CustomDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): void | Thenable<void> {
         const uri = document.uri;
+        const webview = webviewPanel.webview;
 
-        webviewPanel.webview.options = {
+        webview.options = {
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(this.extensionPath), vscode.Uri.file(resolve(uri.fsPath, ".."))]
         }
 
         const ext = extname(uri.fsPath)
+        let htmlPath: string | null = null;
         switch (ext) {
             case ".xlsx":
             case ".xls":
-                this.handleXlsx(uri, webviewPanel.webview)
-                break;
-            case ".docx":
-                this.handleDocx(uri, webviewPanel.webview)
+                htmlPath = this.handleXlsx(uri, webview)
                 break;
             case ".psd":
-                webviewPanel.webview.html =
-                    this.buildPath(
-                        readFileSync(this.extensionPath + "/resource/psd.html", 'utf8'), webviewPanel.webview, this.extensionPath + "/resource"
-                    )
-                webviewPanel.webview.onDidReceiveMessage(async (message) => {
-                    if (message.type == "init") {
-                        // const content = await vscode.workspace.fs.readFile(uri)
-                        // webviewPanel.webview.postMessage({ type: "open", content })
-                        webviewPanel.webview.postMessage({ type: "open", content: webviewPanel.webview.asWebviewUri(uri).toString() })
-                    }
-                })
+                webview.onDidReceiveMessage(() => webview.postMessage({ type: "open", content: webview.asWebviewUri(uri).toString() }))
+                htmlPath = "psd.html"
+                break;
+            case ".docx":
+                this.handleDocx(uri, webview)
+                break;
+            case ".svg":
+                this.handleSvg(uri, webview);
                 break;
             default:
-                webviewPanel.webview.html = "Unsupport now!"
+                webview.html = "Unsupport now!"
         }
 
+        if (htmlPath != null) {
+            webview.html = this.buildPath(readFileSync(this.extensionPath + "/resource/" + htmlPath, 'utf8'), webview, this.extensionPath + "/resource")
+        }
 
+    }
+
+    private handleSvg(uri: vscode.Uri, webview: vscode.Webview) {
+        webview.html =
+            this.buildPath(
+                readFileSync(this.extensionPath + "/resource/svg/svg.html", 'utf8')
+                    .replace("{{content}}",
+                        encodeURIComponent(readFileSync(uri.fsPath, 'utf8'))
+                    ),
+                webview, this.extensionPath + "/resource"
+            );
     }
 
     private handleDocx(uri: vscode.Uri, webview: vscode.Webview) {
         mammoth.convertToHtml({ path: uri.fsPath })
             .then((result: any) => {
-                var html = result.value;
-                var messages = result.messages; // Any messages, such as warnings during conversion
-                console.debug(messages)
+                console.debug(result.messages)
                 webview.html =
                     this.buildPath(
-                        readFileSync(this.extensionPath + "/resource/word.html", 'utf8').replace("{{content}}", html)
+                        readFileSync(this.extensionPath + "/resource/word.html", 'utf8').replace("{{content}}", result.value)
                         , webview, this.extensionPath + "/resource"
                     )
             })
@@ -73,9 +81,7 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
                 webview.postMessage({ type: "open", content })
             }
         })
-
-        webview.html = this.buildPath(readFileSync(this.extensionPath + "/resource/index.html", 'utf8'),
-            webview, this.extensionPath + "/resource")
+        return "index.html"
     }
 
     private buildPath(data: string, webview: vscode.Webview, contextPath: string): string {
