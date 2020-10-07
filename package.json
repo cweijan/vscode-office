@@ -2,7 +2,7 @@
 	"name": "vscode-office",
 	"displayName": "Office Viewer",
 	"description": "View word,excel files in vscode.",
-	"version": "1.0.1",
+	"version": "1.1.0",
 	"publisher": "cweijan",
 	"icon": "icon.png",
 	"engines": {
@@ -105,7 +105,6 @@
 	},
 	"dependencies": {
 		"date-format": "^3.0.0",
-		"mammoth": "^1.4.13",
-		"sudo-prompt": "^9.2.1"
+		"mammoth": "^1.4.13"
 	}
 }
