@@ -18,4 +18,7 @@ It support below files now:
   - [psd.js](https://github.com/meltingice/psd.js)
   - [psd-viewer](https://github.com/zenoamaro/psd-viewer)
 - Word: [mammoth](https://github.com/mwilliamson/mammoth.js)
+- Epum:
+  - [epub.js](https://github.com/futurepress/epub.js/)
+  - [ePubViewer](https://github.com/pgaskin/ePubViewer)
 - Reg: [reg-vscode](https://github.com/ionutvmi/reg-vscode)

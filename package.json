@@ -82,6 +82,9 @@
 					},
 					{
 						"filenamePattern": "*.svg"
+					},
+					{
+						"filenamePattern": "*.epub"
 					}
 				]
 			}
