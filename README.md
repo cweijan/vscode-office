@@ -2,10 +2,11 @@
 
 This extension is to support the function of previewing common office file formats.
 
-It support below file now:
-- Excel: xls, xlsx
-- Word: docx
-- PhotoShop: psd
+It support below files now:
+- Excel: .xls, .xlsx
+- Word: .docx
+- PhotoShop: .psd
+- Windows Reg File: .reg
 
 # Credit
 
@@ -15,5 +16,5 @@ It support below file now:
 - PhotoShop
   - [psd.js](https://github.com/meltingice/psd.js)
   - [psd-viewer](https://github.com/zenoamaro/psd-viewer)
-- Word
-  - [mammoth](https://github.com/mwilliamson/mammoth.js)
+- Word: [mammoth](https://github.com/mwilliamson/mammoth.js)
+- Reg: [reg-vscode](https://github.com/ionutvmi/reg-vscode)

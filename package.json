@@ -33,6 +33,33 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"languages": [
+			{
+				"id": "reg",
+				"aliases": [
+					"REG",
+					"reg"
+				],
+				"extensions": [
+					".reg",
+					".REG"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "reg",
+				"scopeName": "source.reg",
+				"path": "./syntaxes/reg.tmLanguage"
+			}
+		],
+		"commands": [
+			{
+				"command": "office.reg.jumpToKey",
+				"title": "REG: Jump to registry key"
+			}
+		],
 		"customEditors": [
 			{
 				"viewType": "cweijan.viewOffice",
@@ -72,6 +99,7 @@
 	},
 	"dependencies": {
 		"date-format": "^3.0.0",
-		"mammoth": "^1.4.13"
+		"mammoth": "^1.4.13",
+		"sudo-prompt": "^9.2.1"
 	}
 }

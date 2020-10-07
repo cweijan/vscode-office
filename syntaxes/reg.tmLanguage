@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>fileTypes</key>
+	<array>
+		<string>reg</string>
+		<string>REG</string>
+	</array>
+	<key>name</key>
+	<string>REG</string>
+	<key>patterns</key>
+	<array>
+
+		<dict>
+			<key>match</key>
+			<string>Windows Registry Editor Version 5\.00|REGEDIT4</string>
+			<key>name</key>
+			<!-- <string>meta.package.reg500.reg</string> -->
+			<string>keyword.control.import.reg</string>
+		</dict>
+
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.comment.reg</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>(;).*$</string>
+			<key>name</key>
+			<string>comment.line.semicolon.reg</string>
+		</dict>
+
+
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.section.reg</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>entity.section.reg</string>
+				</dict>
+				<key>3</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.section.reg</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>^\s*(\[(?!-))(.*?)(\])</string>
+			<key>name</key>
+			<string>entity.name.function.section.add.reg</string>
+		</dict>
+
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.section.reg</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>entity.section.reg</string>
+				</dict>
+				<key>3</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.section.reg</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>^\s*(\[-)(.*?)(\])</string>
+			<key>name</key>
+			<string>entity.name.function.section.delete.reg</string>
+		</dict>
+
+
+		<dict>
+			<key>captures</key>
+			<dict>
+<!-- 				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>meta.property.reg</string>
+				</dict>
+ -->				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.quote.reg</string>
+				</dict>
+				<key>3</key>
+				<dict>
+					<key>name</key>
+					<string>support.function.regname.ini</string>
+					<!-- <string>keyword.name.reg</string> -->
+				</dict>
+				<key>4</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.quote.reg</string>
+				</dict>
+
+
+				<key>5</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.equals.reg</string>
+				</dict>
+
+
+<!-- 				<key>6</key>
+				<dict>
+					<key>name</key>
+					<string>meta.value.reg</string>
+				</dict> -->
+
+				<key>7</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.operator.arithmetic.minus.reg</string>
+				</dict>
+
+
+<!-- 				<key>8</key>
+				<dict>
+					<key>name</key>
+					<string>meta.section.value.quotedtype</string>
+				</dict> -->
+				<key>9</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.quote.reg</string>
+				</dict>
+				<key>10</key>
+				<dict>
+					<key>name</key>
+					<string>string.name.regdata.reg</string>
+				</dict>
+				<key>11</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.quote.reg</string>
+				</dict>
+
+<!-- 				<key>12</key>
+				<dict>
+					<key>name</key>
+					<string>meta.section.value.dwordtype</string>
+				</dict> -->
+				<key>13</key>
+				<dict>
+					<key>name</key>
+					<string>support.type.dword.reg</string>
+				</dict>
+				<key>14</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.operator.arithmetic.colon.reg</string>
+				</dict>
+				<key>15</key>
+				<dict>
+					<key>name</key>
+					<string>constant.numeric.dword.reg</string>
+				</dict>
+
+
+<!-- 				<key>16</key>
+				<dict>
+					<key>name</key>
+					<string>meta.section.value.hextype</string>
+				</dict> -->
+				<key>17</key>
+				<dict>
+					<key>name</key>
+					<string>support.type.dword.reg</string>
+				</dict>
+				<key>18</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.operator.arithmetic.parenthesis.reg</string>
+				</dict>
+				<key>19</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.operator.arithmetic.parenthesis.reg</string>
+				</dict>
+				<key>20</key>
+				<dict>
+					<key>name</key>
+					<string>constant.numeric.hex.size.reg</string>
+				</dict>
+				<key>21</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.operator.arithmetic.parenthesis.reg</string>
+				</dict>
+				<key>22</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.operator.arithmetic.colon.reg</string>
+				</dict>
+				<key>23</key>
+				<dict>
+					<key>name</key>
+					<string>constant.numeric.hex.reg</string>
+				</dict>
+				<key>24</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.operator.arithmetic.linecontinuation.reg</string>
+				</dict>
+				<key>25</key>
+				<dict>
+					<key>name</key>
+					<string>comment.declarationline.semicolon.reg</string>
+				</dict>
+
+			</dict>
+			<key>match</key>
+			<string>^(\s*(["']?)(.+?)(["']?)\s*(=))?\s*((-)|((["'])(.*?)(["']))|(((?i:dword))(\:)\s*([\dabcdefABCDEF]{1,8}))|(((?i:hex))((\()([\d]*)(\)))?(\:)(.*?)(\\?)))\s*(;.*)?$</string>
+			<key>name</key>
+			<string>meta.declaration.reg</string>
+		</dict>
+
+		<dict>
+			<key>match</key>
+			<string>[0-9]+</string>
+			<key>name</key>
+			<string>constant.numeric.reg</string>
+		</dict>
+
+		<dict>
+			<key>match</key>
+			<string>[a-fA-F]+</string>
+			<key>name</key>
+			<string>constant.numeric.hex.reg</string>
+		</dict>
+
+		<dict>
+			<key>match</key>
+			<string>,+</string>
+			<key>name</key>
+			<string>constant.numeric.hex.comma.reg</string>
+		</dict>
+
+		<dict>
+			<key>match</key>
+			<string>\\</string>
+			<key>name</key>
+			<string>keyword.operator.arithmetic.linecontinuation.reg</string>
+		</dict>
+
+	</array>
+	<key>scopeName</key>
+	<string>source.reg</string>
+	<key>uuid</key>
+	<string>B7773F5B-C43A-4BB9-843A-4AC119250EBD</string>
+</dict>
+</plist>
