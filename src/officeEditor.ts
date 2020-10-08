@@ -40,23 +40,31 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
             case ".svg":
                 this.handleSvg(uri, webview);
                 break;
+            case ".pdf":
+                webview.html = this.buildPath(
+                    readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8').replace("{{content}}",
+                        JSON.stringify({
+                            path: webview.asWebviewUri(uri).toString(),
+                            defaults: {
+                                cursor: "select",
+                                scale: "auto",
+                                sidebar: true,
+                                scrollMode: "vertical",
+                                spreadMode: "none",
+                            },
+                        }).replace(/"/g, '&quot;')
+                    )
+                    , webview, this.extensionPath + "/resource/pdf"
+
+                );
+                break;
             case ".xmind":
-                webview.onDidReceiveMessage(async () => {
-                    webview.postMessage({ type: "open", content: readFileSync(uri.fsPath) })
-                });
-                webview.html =
-                    this.buildPath(
-                        readFileSync(this.extensionPath + "/resource/xmind/index.html", 'utf8'),
-                        webview, this.extensionPath + "/resource"
-                    );
+                webview.onDidReceiveMessage(async () => { webview.postMessage({ type: "open", content: readFileSync(uri.fsPath) }) });
+                webview.html = this.buildPath(readFileSync(this.extensionPath + "/resource/xmind/index.html", 'utf8'), webview, this.extensionPath + "/resource");
                 break;
             case ".epub":
                 webview.onDidReceiveMessage(async () => webview.postMessage({ type: "open", content: webview.asWebviewUri(uri).toString() }))
-                webview.html =
-                    this.buildPath(
-                        readFileSync(this.extensionPath + "/resource/epub/index.html", 'utf8'),
-                        webview, this.extensionPath + "/resource/epub"
-                    );
+                webview.html = this.buildPath(readFileSync(this.extensionPath + "/resource/epub/index.html", 'utf8'), webview, this.extensionPath + "/resource/epub");
                 break;
             default:
                 webview.html = "Unsupport now!"
@@ -103,7 +111,7 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
     }
 
     private buildPath(data: string, webview: vscode.Webview, contextPath: string): string {
-        return data.replace(/((src|href)=("|'))(.+?\.(css|js))\b/gi, "$1" + webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)) + "/$4");
+        return data.replace(/((src|href)=("|'))(.+?\.(css|js|properties))\b/gi, "$1" + webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)) + "/$4");
     }
 
 }

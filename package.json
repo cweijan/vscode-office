@@ -88,6 +88,9 @@
 					},
 					{
 						"filenamePattern": "*.xmind"
+					},
+					{
+						"filenamePattern": "*.pdf"
 					}
 				]
 			}

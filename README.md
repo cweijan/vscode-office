@@ -7,6 +7,7 @@ It support below files now:
 - Word: .docx
 - PhotoShop: .psd
 - Svg: .svg
+- Pdf: .pdf
 - Epub: .epub
 - Xmind: .xmind
 - Windows Reg File: .reg
@@ -21,6 +22,7 @@ It support below files now:
   - [psd-viewer](https://github.com/zenoamaro/psd-viewer)
 - Word: [mammoth](https://github.com/mwilliamson/mammoth.js)
 - xmind: [xmind-viewer](https://github.com/xmindltd/xmind-viewer)
+- PDF: [pdf.js](https://github.com/mozilla/pdf.js)
 - Epub:
   - [epub.js](https://github.com/futurepress/epub.js/)
   - [ePubViewer](https://github.com/pgaskin/ePubViewer)
