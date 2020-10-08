@@ -11,7 +11,7 @@ It support below files now:
 - Epub: .epub
 - Xmind: .xmind
 - PlanyUml: .puml, .pu, .plantuml
-- Windows Reg File: .reg
+- Windows Reg: .reg
 
 # Credit
 
