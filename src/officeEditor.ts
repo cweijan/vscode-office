@@ -67,7 +67,7 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
                 webview.html = this.buildPath(readFileSync(this.extensionPath + "/resource/epub/index.html", 'utf8'), webview, this.extensionPath + "/resource/epub");
                 break;
             default:
-                webview.html = "Unsupport now!"
+                vscode.commands.executeCommand('vscode.openWith', uri, "default");
         }
 
         if (htmlPath != null) {
