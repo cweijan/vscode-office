@@ -1,6 +1,11 @@
 import { readFileSync } from 'fs';
 import { extname, resolve } from 'path';
 import * as vscode from 'vscode';
+import * as util from 'util';
+import * as fs from 'fs';
+const streamPipeline = util.promisify(require('stream').pipeline);
+import fetch from 'node-fetch';
+import { MessageOptions } from 'vscode';
 const mammoth = require("mammoth");
 
 export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
@@ -41,26 +46,16 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
                 this.handleSvg(uri, webview);
                 break;
             case ".pdf":
-                webview.html = this.buildPath(
-                    readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8').replace("{{content}}",
-                        JSON.stringify({
-                            path: webview.asWebviewUri(uri).toString(),
-                            defaults: {
-                                cursor: "select",
-                                scale: "auto",
-                                sidebar: true,
-                                scrollMode: "vertical",
-                                spreadMode: "none",
-                            },
-                        }).replace(/"/g, '&quot;')
-                    )
-                    , webview, this.extensionPath + "/resource/pdf"
-
-                );
+                this.handlePdf(uri, webview);
                 break;
             case ".xmind":
                 webview.onDidReceiveMessage(async () => { webview.postMessage({ type: "open", content: readFileSync(uri.fsPath) }) });
                 webview.html = this.buildPath(readFileSync(this.extensionPath + "/resource/xmind/index.html", 'utf8'), webview, this.extensionPath + "/resource");
+                break;
+            case ".puml":
+            case ".plantuml":
+            case ".pu":
+                this.handlePuml(uri, webview);
                 break;
             case ".epub":
                 webview.onDidReceiveMessage(async () => webview.postMessage({ type: "open", content: webview.asWebviewUri(uri).toString() }))
@@ -74,6 +69,24 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
             webview.html = this.buildPath(readFileSync(this.extensionPath + "/resource/" + htmlPath, 'utf8'), webview, this.extensionPath + "/resource")
         }
 
+    }
+
+    private handlePdf(uri: vscode.Uri, webview: vscode.Webview) {
+        webview.html = this.buildPath(
+            readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8').replace("{{content}}",
+                JSON.stringify({
+                    path: webview.asWebviewUri(uri).toString(),
+                    defaults: {
+                        cursor: "select",
+                        scale: "auto",
+                        sidebar: true,
+                        scrollMode: "vertical",
+                        spreadMode: "none",
+                    },
+                }).replace(/"/g, '&quot;')
+            ),
+            webview, this.extensionPath + "/resource/pdf"
+        );
     }
 
     private handleSvg(uri: vscode.Uri, webview: vscode.Webview) {
@@ -110,8 +123,40 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
         return "index.html"
     }
 
+
     private buildPath(data: string, webview: vscode.Webview, contextPath: string): string {
         return data.replace(/((src|href)=("|'))(.+?\.(css|js|properties))\b/gi, "$1" + webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)) + "/$4");
     }
+
+
+    private handlePuml(uri: vscode.Uri, webview: vscode.Webview) {
+        webview.onDidReceiveMessage(async (message) => {
+            switch (message.type) {
+                case 'init':
+                    webview.postMessage({ type: "open", content: readFileSync(uri.fsPath, 'utf8') });
+                    break;
+                case 'edit':
+                    vscode.commands.executeCommand('vscode.openWith', uri, "default");
+                    break;
+                case 'download':
+                    vscode.window.showSaveDialog({ title: "Select download path"}).then((downloadPath) => {
+                        if (downloadPath) {
+                            (async () => {
+                                vscode.window.showInformationMessage("Start downloading...",{model:true}as MessageOptions)
+                                const response = await fetch(message.content);
+                                if (response.ok) {
+                                    vscode.window.showInformationMessage("Download success!")
+                                    return streamPipeline(response.body, fs.createWriteStream(downloadPath.fsPath));
+                                }
+                                vscode.window.showErrorMessage(`unexpected response ${response.statusText}`)
+                            })();
+                        }
+                    });
+                    break;
+            }
+        });
+        webview.html = this.buildPath(readFileSync(this.extensionPath + "/resource/plantuml/index.html", 'utf8'), webview, this.extensionPath + "/resource/plantuml");
+    }
+
 
 }

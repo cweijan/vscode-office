@@ -88,6 +88,15 @@
 					},
 					{
 						"filenamePattern": "*.pdf"
+					},
+					{
+						"filenamePattern": "*.puml"
+					},
+					{
+						"filenamePattern": "*.plantuml"
+					},
+					{
+						"filenamePattern": "*.pu"
 					}
 				]
 			}
@@ -102,12 +111,14 @@
 		"test": "node ./out/test/runTest.js"
 	},
 	"devDependencies": {
-		"@types/vscode": "^1.40.0",
 		"@types/node": "^13.11.0",
+		"@types/node-fetch": "^2.5.7",
+		"@types/vscode": "^1.40.0",
 		"typescript": "^3.8.3"
 	},
 	"dependencies": {
 		"date-format": "^3.0.0",
-		"mammoth": "^1.4.13"
+		"mammoth": "^1.4.13",
+		"node-fetch": "^2.6.1"
 	}
 }
