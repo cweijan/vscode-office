@@ -107,6 +107,7 @@
 		"compile": "tsc -p ./",
 		"lint": "eslint src --ext ts",
 		"watch": "tsc -watch -p ./",
+		"postinstall": "",
 		"pretest": "npm run compile && npm run lint",
 		"test": "node ./out/test/runTest.js"
 	},
@@ -119,6 +120,7 @@
 	"dependencies": {
 		"date-format": "^3.0.0",
 		"mammoth": "^1.4.13",
-		"node-fetch": "^2.6.1"
+		"node-fetch": "^2.6.1",
+		"pretty-markdown-pdf": "1.4.0"
 	}
 }
