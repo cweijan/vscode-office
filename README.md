@@ -10,7 +10,7 @@ It support below files now:
 - Pdf: .pdf
 - Epub: .epub
 - Xmind: .xmind
-- PlanyUml: .puml, .pu, .plantuml
+- PlantUml: .puml, .pu, .plantuml
 - Windows Reg: .reg
 
 # Credit
