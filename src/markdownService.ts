@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 
 export class MarkdownService {
 
-    private configPath;
+    private configPath:string;
 
     constructor(context: vscode.ExtensionContext) {
         this.configPath = context.globalStorageUri.fsPath+"/config.json"
@@ -17,6 +17,9 @@ export class MarkdownService {
     }
 
     public bulidConfig() {
+        // npm i light-markdown-pdf
+        // lmp.js --sourceDir ./test --targetFile test.pdf --fontName 宋体 --fontFile D:/simsun.ttf
+        // font default 10, title 14
         const config = {
             "type": [
                 "pdf"

@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import { extname, resolve } from 'path';
+import { basename, extname, resolve } from 'path';
 import * as vscode from 'vscode';
 import * as util from 'util';
 import * as fs from 'fs';
@@ -33,6 +33,7 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
         switch (ext) {
             case ".xlsx":
             case ".xls":
+            case ".csv":
                 htmlPath = this.handleXlsx(uri, webview)
                 break;
             case ".psd":
@@ -56,6 +57,28 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
             case ".plantuml":
             case ".pu":
                 this.handlePuml(uri, webview);
+                break;
+            case ".md":
+                webview.onDidReceiveMessage(async (message) => {
+                    switch (message.type) {
+                        case 'init':
+                            webview.postMessage({
+                                type: "open", content:
+                                {
+                                    title: basename(uri.fsPath),
+                                    content: readFileSync(uri.fsPath, 'utf8')
+                                }
+                            });
+                            break;
+                        case 'edit':
+                            vscode.commands.executeCommand('vscode.openWith', uri, "default");
+                            break;
+                    }
+                });
+                webview.html =
+                    this.buildPath(
+                        readFileSync(this.extensionPath + "/resource/markdown/index.html", 'utf8')
+                        , webview, this.extensionPath + "/resource/markdown");
                 break;
             case ".epub":
                 webview.onDidReceiveMessage(async () => webview.postMessage({ type: "open", content: webview.asWebviewUri(uri).toString() }))
@@ -125,7 +148,7 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
 
 
     private buildPath(data: string, webview: vscode.Webview, contextPath: string): string {
-        return data.replace(/((src|href)=("|'))(.+?\.(css|js|properties))\b/gi, "$1" + webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)) + "/$4");
+        return data.replace(/((src|href)=("|'))(.+?\.(css|js|properties|json))\b/gi, "$1" + webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)) + "/$4");
     }
 
 
@@ -139,10 +162,10 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
                     vscode.commands.executeCommand('vscode.openWith', uri, "default");
                     break;
                 case 'download':
-                    vscode.window.showSaveDialog({ title: "Select download path"}).then((downloadPath) => {
+                    vscode.window.showSaveDialog({ title: "Select download path" }).then((downloadPath) => {
                         if (downloadPath) {
                             (async () => {
-                                vscode.window.showInformationMessage("Start downloading...",{model:true}as MessageOptions)
+                                vscode.window.showInformationMessage("Start downloading...", { model: true } as MessageOptions)
                                 const response = await fetch(message.content);
                                 if (response.ok) {
                                     vscode.window.showInformationMessage("Download success!")

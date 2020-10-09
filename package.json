@@ -69,6 +69,9 @@
 						"filenamePattern": "*.xlsx"
 					},
 					{
+						"filenamePattern": "*.csv"
+					},
+					{
 						"filenamePattern": "*.xls"
 					},
 					{
@@ -97,6 +100,9 @@
 					},
 					{
 						"filenamePattern": "*.pu"
+					},
+					{
+						"filenamePattern": "*.md"
 					}
 				]
 			}
