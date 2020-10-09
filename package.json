@@ -116,20 +116,17 @@
 					}
 				]
 			}
-		]
-	},
-	"configuration": {
-		"type": "object",
-		"title": "OfficeViewer",
-		"properties": {
-			"vscode-office.markdownType": {
-				"type": [
-					"default",
-					"stackedit",
-					"marktext(UnSupport)"
-				],
-				"default": "default",
-				"description": "Set markdown viewer type."
+		],
+		"configuration": {
+			"type": "object",
+			"title": "Office",
+			"properties": {
+				"vscode-office.markdownType": {
+					"type": "string",
+					"enum": ["default", "stackedit", "marktext(UnSupport)"],
+					"default": "default",
+					"description": "Set markdown viewer type."
+				}
 			}
 		}
 	},
