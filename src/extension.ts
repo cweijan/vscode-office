@@ -7,13 +7,18 @@ import * as path from 'path';
 //     name: 'RegJump'
 // };
 import { OfficeEditor } from './officeEditor';
+import { MarkdownService } from './markdownService';
 
 export function activate(context: vscode.ExtensionContext) {
 
 	const viewOption = { webviewOptions: { retainContextWhenHidden: true } };
+	const markdownService = new MarkdownService(context);
 	context.subscriptions.push(
-        vscode.commands.registerTextEditorCommand('office.reg.jumpToKey', ()=>{})
-    );
+		vscode.commands.registerTextEditorCommand('office.reg.jumpToKey', () => { }),
+		vscode.commands.registerCommand('office.markdown.paste', () => {
+			markdownService.loadClipboardImage(vscode.window.activeTextEditor?.document)
+		})
+	);
 	vscode.window.registerCustomEditorProvider("cweijan.viewOffice", new OfficeEditor(context), viewOption);
 
 }

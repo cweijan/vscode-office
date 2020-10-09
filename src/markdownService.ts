@@ -1,19 +1,21 @@
 const prettyMdPdf = require("pretty-markdown-pdf")
-import { writeFileSync } from 'fs';
+import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import * as vscode from 'vscode';
+import { basename, resolve, parse } from 'path';
+import path = require('path');
+import { spawn } from 'child_process';
 
 export class MarkdownService {
 
-    private configPath:string;
+    private configPath: string;
 
     constructor(context: vscode.ExtensionContext) {
-        this.configPath = context.globalStorageUri.fsPath+"/config.json"
+        this.configPath = context.globalStoragePath + "/config.json"
     }
 
     public exportPdf(uri: vscode.Uri) {
         this.bulidConfig();
         prettyMdPdf.convertMdToPdf({ markdownFilePath: uri.fsPath, configFilePath: this.configPath })
-
     }
 
     public bulidConfig() {
@@ -58,6 +60,91 @@ export class MarkdownService {
 
     private getChromiumPath() {
         return "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
+    }
+
+    public async loadClipboardImage(document?: vscode.TextDocument) {
+
+        if(!document || parse(document.uri.fsPath).ext.toLowerCase()!=".md"){
+            vscode.commands.executeCommand("editor.action.clipboardPasteAction")
+            return;
+        }
+
+        if (await vscode.env.clipboard.readText() == "") {
+            const uri: vscode.Uri = document.uri
+            const rePath = `image/${parse(document.uri.fsPath).name}/${new Date().getTime()}.png`;
+            const imagePath = `${resolve(uri.fsPath, "..")}/${rePath}`.replace(/\\/g, "/");
+            const dir = path.dirname(imagePath)
+            if (!existsSync(dir)) {
+                mkdirSync(dir, { recursive: true })
+            }
+            this.saveClipboardImageToFileAndGetPath(imagePath, (savedImagePath) => {
+                if (!savedImagePath) return;
+                if (savedImagePath === 'no image') {
+                    vscode.window.showInformationMessage('There is not an image in the clipboard.');
+                    return;
+                }
+                const editor = vscode.window.activeTextEditor;
+                editor?.edit(edit => {
+                    let current = editor.selection;
+                    if (current.isEmpty) {
+                        edit.insert(current.start, `![](${rePath})`);
+                    } else {
+                        edit.replace(current, `![](${rePath})`);
+                    }
+                });
+            })
+        } else {
+            vscode.commands.executeCommand("editor.action.clipboardPasteAction")
+        }
+
+    }
+
+    private saveClipboardImageToFileAndGetPath(imagePath: string, cb: (value: string) => void) {
+        if (!imagePath) return;
+        let platform = process.platform;
+        if (platform === 'win32') {
+            // Windows
+            const scriptPath = path.join(__dirname, '../lib/pc.ps1');
+            const powershell = spawn('powershell', [
+                '-noprofile',
+                '-noninteractive',
+                '-nologo',
+                '-sta',
+                '-executionpolicy', 'unrestricted',
+                '-windowstyle', 'hidden',
+                '-file', scriptPath,
+                imagePath
+            ]);
+            powershell.on('exit', function (code, signal) {
+            });
+            powershell.stdout.on('data', function (data) {
+                cb(data.toString().trim());
+            });
+        } else if (platform === 'darwin') {
+            // Mac
+            let scriptPath = path.join(__dirname, './lib/mac.applescript');
+            let ascript = spawn('osascript', [scriptPath, imagePath]);
+            ascript.on('exit', function (code, signal) {
+            });
+            ascript.stdout.on('data', function (data) {
+                cb(data.toString().trim());
+            });
+        } else {
+            // Linux 
+            let scriptPath = path.join(__dirname, './lib/linux.sh');
+
+            let ascript = spawn('sh', [scriptPath, imagePath]);
+            ascript.on('exit', function (code, signal) {
+            });
+            ascript.stdout.on('data', function (data) {
+                let result = data.toString().trim();
+                if (result == "no xclip") {
+                    vscode.window.showInformationMessage('You need to install xclip command first.');
+                    return;
+                }
+                cb(result);
+            });
+        }
     }
 
 }

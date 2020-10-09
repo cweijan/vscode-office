@@ -29,7 +29,7 @@
 		"url": "https://github.com/cweijan/vscode-office.git"
 	},
 	"activationEvents": [
-		"onCustomEditor:cweijan.viewOffice"
+		"*"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -58,6 +58,16 @@
 			{
 				"command": "office.reg.jumpToKey",
 				"title": "REG: Jump to registry key"
+			},
+			{
+				"command": "office.markdown.paste",
+				"title": "Enhance pater in markdown"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "office.markdown.paste",
+				"key": "ctrl+v"
 			}
 		],
 		"customEditors": [
@@ -113,7 +123,11 @@
 		"title": "OfficeViewer",
 		"properties": {
 			"vscode-office.markdownType": {
-				"type": ["default","stackedit","marktext(UnSupport)"],
+				"type": [
+					"default",
+					"stackedit",
+					"marktext(UnSupport)"
+				],
 				"default": "default",
 				"description": "Set markdown viewer type."
 			}
@@ -124,7 +138,7 @@
 		"compile": "tsc -p ./",
 		"lint": "eslint src --ext ts",
 		"watch": "tsc -watch -p ./",
-		"postinstall": "",
+		"postinstall": " echo 1  ",
 		"pretest": "npm run compile && npm run lint",
 		"test": "node ./out/test/runTest.js"
 	},
