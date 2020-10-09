@@ -1,3 +1,7 @@
+## 1.4.0 2020-10-9
+- Integrate stackedit to edit markdown.
+- Add csv support.
+
 ## 1.3.0 2020-10-8
 - Add plantuml support.
 - Adjust svg css.

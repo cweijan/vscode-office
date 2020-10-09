@@ -1,4 +1,4 @@
-const prettyMdPdf = require("pretty-markdown-pdf")
+// const prettyMdPdf = require("pretty-markdown-pdf")
 import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import * as vscode from 'vscode';
 import { basename, resolve, parse } from 'path';
@@ -14,10 +14,10 @@ export class MarkdownService {
         this.configPath = context.globalStoragePath + "/config.json"
     }
 
-    public exportPdf(uri: vscode.Uri) {
-        this.bulidConfig();
-        prettyMdPdf.convertMdToPdf({ markdownFilePath: uri.fsPath, configFilePath: this.configPath })
-    }
+    // public exportPdf(uri: vscode.Uri) {
+    //     this.bulidConfig();
+    //     prettyMdPdf.convertMdToPdf({ markdownFilePath: uri.fsPath, configFilePath: this.configPath })
+    // }
 
     public bulidConfig() {
         // npm i light-markdown-pdf
