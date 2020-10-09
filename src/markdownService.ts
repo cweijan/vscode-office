@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import { basename, resolve, parse } from 'path';
 import path = require('path');
 import { spawn } from 'child_process';
+import { Holder } from './holder';
 
 export class MarkdownService {
 
@@ -63,15 +64,19 @@ export class MarkdownService {
     }
 
     public async loadClipboardImage(document?: vscode.TextDocument) {
-
-        if(!document || parse(document.uri.fsPath).ext.toLowerCase()!=".md"){
+        if (!document) {
             vscode.commands.executeCommand("editor.action.clipboardPasteAction")
-            return;
+        } else if (parse(document.uri.fsPath).ext.toLowerCase() != ".md") {
+            vscode.commands.executeCommand("editor.action.clipboardPasteAction")
+            return
         }
 
         if (await vscode.env.clipboard.readText() == "") {
-            const uri: vscode.Uri = document.uri
-            const rePath = `image/${parse(document.uri.fsPath).name}/${new Date().getTime()}.png`;
+            const uri: vscode.Uri | null = document ? document.uri : Holder.activeUrl
+            if (uri == null) {
+                return
+            }
+            const rePath = `image/${parse(uri.fsPath).name}/${new Date().getTime()}.png`;
             const imagePath = `${resolve(uri.fsPath, "..")}/${rePath}`.replace(/\\/g, "/");
             const dir = path.dirname(imagePath)
             if (!existsSync(dir)) {
@@ -84,17 +89,24 @@ export class MarkdownService {
                     return;
                 }
                 const editor = vscode.window.activeTextEditor;
-                editor?.edit(edit => {
-                    let current = editor.selection;
-                    if (current.isEmpty) {
-                        edit.insert(current.start, `![](${rePath})`);
-                    } else {
-                        edit.replace(current, `![](${rePath})`);
-                    }
-                });
+                if(editor){
+                    editor?.edit(edit => {
+                        let current = editor.selection;
+                        if (current.isEmpty) {
+                            edit.insert(current.start, `![](${rePath})`);
+                        } else {
+                            edit.replace(current, `![](${rePath})`);
+                        }
+                    });
+                }else{
+                    vscode.env.clipboard.writeText(`![](${rePath})`)
+                    vscode.commands.executeCommand("editor.action.clipboardPasteAction")
+                }
             })
         } else {
-            vscode.commands.executeCommand("editor.action.clipboardPasteAction")
+            if(document){
+                vscode.commands.executeCommand("editor.action.clipboardPasteAction")
+            }
         }
 
     }

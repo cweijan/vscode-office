@@ -6,6 +6,7 @@ import * as fs from 'fs';
 const streamPipeline = util.promisify(require('stream').pipeline);
 import fetch from 'node-fetch';
 import { MessageOptions } from 'vscode';
+import { Holder } from './holder';
 const mammoth = require("mammoth");
 
 export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
@@ -22,7 +23,6 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
     public resolveCustomEditor(document: vscode.CustomDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): void | Thenable<void> {
         const uri = document.uri;
         const webview = webviewPanel.webview;
-
         const folderPath = vscode.Uri.file(resolve(uri.fsPath, ".."));
         webview.options = {
             enableScripts: true,
@@ -65,9 +65,16 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
                     vscode.commands.executeCommand('vscode.openWith', uri, "default");
                     return;
                 }
+                webviewPanel.onDidDispose(() => {
+                    if (Holder.activeUrl == uri) {
+                        Holder.activeUrl = null
+                    }
+                })
+                webviewPanel.onDidChangeViewState(e => Holder.activeUrl = e.webviewPanel.visible ? uri : null)
                 webview.onDidReceiveMessage(async (message) => {
                     switch (message.type) {
                         case 'init':
+                            Holder.activeUrl = uri
                             webview.postMessage({
                                 type: "open", content:
                                 {

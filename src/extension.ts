@@ -11,7 +11,7 @@ import { MarkdownService } from './markdownService';
 
 export function activate(context: vscode.ExtensionContext) {
 
-	const viewOption = { webviewOptions: { retainContextWhenHidden: true } };
+	const viewOption = { webviewOptions: { retainContextWhenHidden: true,enableFindWidget:true } };
 	const markdownService = new MarkdownService(context);
 	context.subscriptions.push(
 		vscode.commands.registerTextEditorCommand('office.reg.jumpToKey', () => { }),
