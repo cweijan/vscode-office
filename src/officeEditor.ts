@@ -23,9 +23,10 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
         const uri = document.uri;
         const webview = webviewPanel.webview;
 
+        const folderPath = vscode.Uri.file(resolve(uri.fsPath, ".."));
         webview.options = {
             enableScripts: true,
-            localResourceRoots: [vscode.Uri.file(this.extensionPath), vscode.Uri.file(resolve(uri.fsPath, ".."))]
+            localResourceRoots: [vscode.Uri.file(this.extensionPath), folderPath]
         }
 
         const ext = extname(uri.fsPath)
@@ -59,6 +60,11 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
                 this.handlePuml(uri, webview);
                 break;
             case ".md":
+                const type = vscode.workspace.getConfiguration("vscode-office").get<string>("markdownType");
+                if (type == "default") {
+                    vscode.commands.executeCommand('vscode.openWith', uri, "default");
+                    return;
+                }
                 webview.onDidReceiveMessage(async (message) => {
                     switch (message.type) {
                         case 'init':
@@ -66,9 +72,13 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
                                 type: "open", content:
                                 {
                                     title: basename(uri.fsPath),
-                                    content: readFileSync(uri.fsPath, 'utf8')
+                                    content: readFileSync(uri.fsPath, 'utf8'),
+                                    folderPath: webview.asWebviewUri(folderPath).toString()
                                 }
                             });
+                            break;
+                        case 'save':
+                            fs.writeFileSync(uri.fsPath, message.content.text, { encoding: "utf8" })
                             break;
                         case 'edit':
                             vscode.commands.executeCommand('vscode.openWith', uri, "default");

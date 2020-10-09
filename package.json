@@ -108,6 +108,17 @@
 			}
 		]
 	},
+	"configuration": {
+		"type": "object",
+		"title": "OfficeViewer",
+		"properties": {
+			"vscode-office.markdownType": {
+				"type": ["default","stackedit","marktext(UnSupport)"],
+				"default": "default",
+				"description": "Set markdown viewer type."
+			}
+		}
+	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",

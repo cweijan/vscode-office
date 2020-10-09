@@ -1476,24 +1476,27 @@ var editorSvc = __WEBPACK_IMPORTED_MODULE_8_babel_runtime_core_js_object_assign_
             var imgElt = document.createElement('img');
             imgElt.style.display = 'none';
             var uri = srcElt.textContent;
-            if (!/^unsafe/.test(__WEBPACK_IMPORTED_MODULE_16__libs_htmlSanitizer__["a" /* default */].sanitizeUri(uri, true))) {
-              imgElt.onload = function () {
-                imgElt.style.display = '';
-              };
+            imgElt.onload = function () {
+              imgElt.style.display = '';
+            };
+            if (/^unsafe/.test(__WEBPACK_IMPORTED_MODULE_16__libs_htmlSanitizer__["a" /* default */].sanitizeUri(uri, true))) {
+              imgElt.src = localStorage.getItem('folderPath') + '/' + uri;
+            }else{
               imgElt.src = uri;
-
-              var sizeElt = imgTokenElt.querySelector('.token.cl-size');
-              if (sizeElt) {
-                var match = sizeElt.textContent.match(/=(\d*)x(\d*)/);
-                if (match[1]) {
-                  imgElt.width = parseInt(match[1], 10);
-                }
-                if (match[2]) {
-                  imgElt.height = parseInt(match[2], 10);
-                }
-              }
-              imgEltsToCache.push(imgElt);
             }
+
+            var sizeElt = imgTokenElt.querySelector('.token.cl-size');
+            if (sizeElt) {
+              var match = sizeElt.textContent.match(/=(\d*)x(\d*)/);
+              if (match[1]) {
+                imgElt.width = parseInt(match[1], 10);
+              }
+              if (match[2]) {
+                imgElt.height = parseInt(match[2], 10);
+              }
+            }
+            imgEltsToCache.push(imgElt);
+
             var imgTokenWrapper = document.createElement('span');
             imgTokenWrapper.className = 'token img-wrapper';
             imgTokenElt.parentNode.insertBefore(imgTokenWrapper, imgTokenElt);
@@ -8215,14 +8218,14 @@ var localDbSvc = {
   init: function init() {
     var _this7 = this;
 
-    return __WEBPACK_IMPORTED_MODULE_8_babel_runtime_helpers_asyncToGenerator___default()(__WEBPACK_IMPORTED_MODULE_6_babel_runtime_regenerator___default.a.mark(function _callee6() {
+    return __WEBPACK_IMPORTED_MODULE_8_babel_runtime_helpers_asyncToGenerator___default()(__WEBPACK_IMPORTED_MODULE_6_babel_runtime_regenerator___default.a.mark(function _callee7() {
       var vscodeEvent, hash, welcomeFileHashes;
-      return __WEBPACK_IMPORTED_MODULE_6_babel_runtime_regenerator___default.a.wrap(function _callee6$(_context6) {
+      return __WEBPACK_IMPORTED_MODULE_6_babel_runtime_regenerator___default.a.wrap(function _callee7$(_context7) {
         while (1) {
-          switch (_context6.prev = _context6.next) {
+          switch (_context7.prev = _context7.next) {
             case 0:
               if (false) {
-                _context6.next = 3;
+                _context7.next = 3;
                 break;
               }
 
@@ -8231,31 +8234,54 @@ var localDbSvc = {
 
                 vscodeEvent.emit("init");
                 vscodeEvent.on("open", function () {
-                  var _ref4 = __WEBPACK_IMPORTED_MODULE_8_babel_runtime_helpers_asyncToGenerator___default()(__WEBPACK_IMPORTED_MODULE_6_babel_runtime_regenerator___default.a.mark(function _callee4(_ref5) {
+                  var _ref4 = __WEBPACK_IMPORTED_MODULE_8_babel_runtime_helpers_asyncToGenerator___default()(__WEBPACK_IMPORTED_MODULE_6_babel_runtime_regenerator___default.a.mark(function _callee5(_ref5) {
                     var title = _ref5.title,
-                        content = _ref5.content;
+                        content = _ref5.content,
+                        folderPath = _ref5.folderPath;
                     var newFile;
-                    return __WEBPACK_IMPORTED_MODULE_6_babel_runtime_regenerator___default.a.wrap(function _callee4$(_context4) {
+                    return __WEBPACK_IMPORTED_MODULE_6_babel_runtime_regenerator___default.a.wrap(function _callee5$(_context5) {
                       while (1) {
-                        switch (_context4.prev = _context4.next) {
+                        switch (_context5.prev = _context5.next) {
                           case 0:
-                            _context4.next = 2;
+                            localStorage.setItem('folderPath', folderPath);
+                            _context5.next = 3;
                             return __WEBPACK_IMPORTED_MODULE_16__workspaceSvc__["a" /* default */].createFile({
                               name: title,
                               text: content
                             }, true);
 
-                          case 2:
-                            newFile = _context4.sent;
+                          case 3:
+                            newFile = _context5.sent;
 
                             __WEBPACK_IMPORTED_MODULE_14__store__["a" /* default */].commit('file/setCurrentId', newFile.id);
+                            __WEBPACK_IMPORTED_MODULE_13__utils__["a" /* default */].setInterval(__WEBPACK_IMPORTED_MODULE_8_babel_runtime_helpers_asyncToGenerator___default()(__WEBPACK_IMPORTED_MODULE_6_babel_runtime_regenerator___default.a.mark(function _callee4() {
+                              var result;
+                              return __WEBPACK_IMPORTED_MODULE_6_babel_runtime_regenerator___default.a.wrap(function _callee4$(_context4) {
+                                while (1) {
+                                  switch (_context4.prev = _context4.next) {
+                                    case 0:
+                                      _context4.next = 2;
+                                      return localDbSvc.loadItem(newFile.id + '/content');
 
-                          case 4:
+                                    case 2:
+                                      result = _context4.sent;
+
+                                      vscodeEvent.emit("save", result);
+
+                                    case 4:
+                                    case 'end':
+                                      return _context4.stop();
+                                  }
+                                }
+                              }, _callee4, _this7);
+                            })), 1000);
+
+                          case 6:
                           case 'end':
-                            return _context4.stop();
+                            return _context5.stop();
                         }
                       }
-                    }, _callee4, _this7);
+                    }, _callee5, _this7);
                   }));
 
                   return function (_x2) {
@@ -8263,15 +8289,15 @@ var localDbSvc = {
                   };
                 }());
               }
-              return _context6.abrupt('return');
+              return _context7.abrupt('return');
 
             case 3:
               if (!resetApp) {
-                _context6.next = 8;
+                _context7.next = 8;
                 break;
               }
 
-              _context6.next = 6;
+              _context7.next = 6;
               return __WEBPACK_IMPORTED_MODULE_7_babel_runtime_core_js_promise___default.a.all(__WEBPACK_IMPORTED_MODULE_4_babel_runtime_core_js_object_keys___default()(__WEBPACK_IMPORTED_MODULE_14__store__["a" /* default */].getters['workspace/workspacesById']).map(function (workspaceId) {
                 return __WEBPACK_IMPORTED_MODULE_16__workspaceSvc__["a" /* default */].removeWorkspace(workspaceId);
               }));
@@ -8285,7 +8311,7 @@ var localDbSvc = {
             case 8:
               _this7.connection = new Connection();
 
-              _context6.next = 11;
+              _context7.next = 11;
               return localDbSvc.sync();
 
             case 11:
@@ -8310,100 +8336,100 @@ var localDbSvc = {
 
               __WEBPACK_IMPORTED_MODULE_14__store__["a" /* default */].watch(function () {
                 return __WEBPACK_IMPORTED_MODULE_14__store__["a" /* default */].getters['file/current'].id;
-              }, __WEBPACK_IMPORTED_MODULE_8_babel_runtime_helpers_asyncToGenerator___default()(__WEBPACK_IMPORTED_MODULE_6_babel_runtime_regenerator___default.a.mark(function _callee5() {
+              }, __WEBPACK_IMPORTED_MODULE_8_babel_runtime_helpers_asyncToGenerator___default()(__WEBPACK_IMPORTED_MODULE_6_babel_runtime_regenerator___default.a.mark(function _callee6() {
                 var currentFile, recentFile, newFile, lastOpenedFile;
-                return __WEBPACK_IMPORTED_MODULE_6_babel_runtime_regenerator___default.a.wrap(function _callee5$(_context5) {
+                return __WEBPACK_IMPORTED_MODULE_6_babel_runtime_regenerator___default.a.wrap(function _callee6$(_context6) {
                   while (1) {
-                    switch (_context5.prev = _context5.next) {
+                    switch (_context6.prev = _context6.next) {
                       case 0:
                         currentFile = __WEBPACK_IMPORTED_MODULE_14__store__["a" /* default */].getters['file/current'];
 
                         if (currentFile.id) {
-                          _context5.next = 13;
+                          _context6.next = 13;
                           break;
                         }
 
                         recentFile = __WEBPACK_IMPORTED_MODULE_14__store__["a" /* default */].getters['file/lastOpened'];
 
                         if (!recentFile.id) {
-                          _context5.next = 7;
+                          _context6.next = 7;
                           break;
                         }
 
                         __WEBPACK_IMPORTED_MODULE_14__store__["a" /* default */].commit('file/setCurrentId', recentFile.id);
-                        _context5.next = 11;
+                        _context6.next = 11;
                         break;
 
                       case 7:
-                        _context5.next = 9;
+                        _context6.next = 9;
                         return __WEBPACK_IMPORTED_MODULE_16__workspaceSvc__["a" /* default */].createFile({
                           name: 'Welcome file',
                           text: __WEBPACK_IMPORTED_MODULE_15__data_welcomeFile_md___default.a
                         }, true);
 
                       case 9:
-                        newFile = _context5.sent;
+                        newFile = _context6.sent;
 
                         __WEBPACK_IMPORTED_MODULE_14__store__["a" /* default */].commit('file/setCurrentId', newFile.id);
 
                       case 11:
-                        _context5.next = 36;
+                        _context6.next = 36;
                         break;
 
                       case 13:
-                        _context5.prev = 13;
-                        _context5.next = 16;
+                        _context6.prev = 13;
+                        _context6.next = 16;
                         return localDbSvc.loadContentState(currentFile.id);
 
                       case 16:
-                        _context5.next = 18;
+                        _context6.next = 18;
                         return localDbSvc.loadSyncedContent(currentFile.id);
 
                       case 18:
-                        _context5.prev = 18;
-                        _context5.next = 21;
+                        _context6.prev = 18;
+                        _context6.next = 21;
                         return localDbSvc.loadItem(currentFile.id + '/content');
 
                       case 21:
-                        _context5.next = 28;
+                        _context6.next = 28;
                         break;
 
                       case 23:
-                        _context5.prev = 23;
-                        _context5.t0 = _context5['catch'](18);
+                        _context6.prev = 23;
+                        _context6.t0 = _context6['catch'](18);
                         lastOpenedFile = __WEBPACK_IMPORTED_MODULE_14__store__["a" /* default */].getters['file/lastOpened'];
 
                         __WEBPACK_IMPORTED_MODULE_14__store__["a" /* default */].commit('file/setCurrentId', lastOpenedFile.id);
-                        throw _context5.t0;
+                        throw _context6.t0;
 
                       case 28:
                         __WEBPACK_IMPORTED_MODULE_14__store__["a" /* default */].dispatch('data/setLastOpenedId', currentFile.id);
 
                         __WEBPACK_IMPORTED_MODULE_14__store__["a" /* default */].commit('discussion/setCurrentDiscussionId', __WEBPACK_IMPORTED_MODULE_14__store__["a" /* default */].getters['discussion/nextDiscussionId']);
-                        _context5.next = 36;
+                        _context6.next = 36;
                         break;
 
                       case 32:
-                        _context5.prev = 32;
-                        _context5.t1 = _context5['catch'](13);
+                        _context6.prev = 32;
+                        _context6.t1 = _context6['catch'](13);
 
-                        console.error(_context5.t1);
-                        __WEBPACK_IMPORTED_MODULE_14__store__["a" /* default */].dispatch('notification/error', _context5.t1);
+                        console.error(_context6.t1);
+                        __WEBPACK_IMPORTED_MODULE_14__store__["a" /* default */].dispatch('notification/error', _context6.t1);
 
                       case 36:
                       case 'end':
-                        return _context5.stop();
+                        return _context6.stop();
                     }
                   }
-                }, _callee5, _this7, [[13, 32], [18, 23]]);
+                }, _callee6, _this7, [[13, 32], [18, 23]]);
               })), { immediate: true });
 
             case 17:
             case 'end':
-              return _context6.stop();
+              return _context7.stop();
           }
         }
-      }, _callee6, _this7);
+      }, _callee7, _this7);
     }))();
   },
   getWorkspaceItems: function getWorkspaceItems(workspaceId, onItem) {
@@ -42060,4 +42086,4 @@ module.exports = function() {
 
 /***/ })
 ],[873]);
-//# sourceMappingURL=app.931fd31e3ffeec4688b0.js.map
+//# sourceMappingURL=app.df00574877b09c81461c.js.map
