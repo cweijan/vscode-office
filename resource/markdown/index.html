@@ -26,12 +26,8 @@
             background-color: white;
         }
 
-        .markdown-highlighting .cl,
-        .markdown-highlighting .hr {
-            color: black !important;
-        }
-        .keyword{
-            font-weight: unset !important;
+        .markdown-highlighting .keyword {
+            color: #6421a2 !important;
         }
     </style>
 </head>
@@ -39,6 +35,9 @@
 <body>
     <div id=app></div>
     <script src="../js/vscode.js"></script>
+    <script>
+        document.getElementById('_defaultStyles').parentNode.removeChild(document.getElementById('_defaultStyles'))
+    </script>
     <script type=text/javascript src="/static/js/manifest.83b9a74ebb3e9038a835.js"></script>
     <script type=text/javascript src="/static/js/vendor.1322bd092a54371a819a.js"></script>
     <script type=text/javascript src="/static/js/app.931fd31e3ffeec4688b0.js"></script>

@@ -9,7 +9,7 @@ import { MessageOptions } from 'vscode';
 import { Holder } from './holder';
 const mammoth = require("mammoth");
 
-export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
+export class OfficeEditor implements vscode.CustomTextEditorProvider {
 
     private extensionPath: string;
 
@@ -20,7 +20,7 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
     public openCustomDocument(uri: vscode.Uri, openContext: vscode.CustomDocumentOpenContext, token: vscode.CancellationToken): vscode.CustomDocument | Thenable<vscode.CustomDocument> {
         return { uri, dispose: (): void => { } };
     }
-    public resolveCustomEditor(document: vscode.CustomDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): void | Thenable<void> {
+    public resolveCustomTextEditor(document: vscode.TextDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): void | Thenable<void> {
         const uri = document.uri;
         const webview = webviewPanel.webview;
         const folderPath = vscode.Uri.file(resolve(uri.fsPath, ".."));
@@ -60,42 +60,7 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
                 this.handlePuml(uri, webview);
                 break;
             case ".md":
-                const type = vscode.workspace.getConfiguration("vscode-office").get<string>("markdownType");
-                if (type == "default") {
-                    vscode.commands.executeCommand('vscode.openWith', uri, "default");
-                    return;
-                }
-                webviewPanel.onDidDispose(() => {
-                    if (Holder.activeUrl == uri) {
-                        Holder.activeUrl = null
-                    }
-                })
-                webviewPanel.onDidChangeViewState(e => Holder.activeUrl = e.webviewPanel.visible ? uri : null)
-                webview.onDidReceiveMessage(async (message) => {
-                    switch (message.type) {
-                        case 'init':
-                            Holder.activeUrl = uri
-                            webview.postMessage({
-                                type: "open", content:
-                                {
-                                    title: basename(uri.fsPath),
-                                    content: readFileSync(uri.fsPath, 'utf8'),
-                                    folderPath: webview.asWebviewUri(folderPath).toString()
-                                }
-                            });
-                            break;
-                        case 'save':
-                            fs.writeFileSync(uri.fsPath, message.content.text, { encoding: "utf8" })
-                            break;
-                        case 'edit':
-                            vscode.commands.executeCommand('vscode.openWith', uri, "default");
-                            break;
-                    }
-                });
-                webview.html =
-                    this.buildPath(
-                        readFileSync(this.extensionPath + "/resource/markdown/index.html", 'utf8')
-                        , webview, this.extensionPath + "/resource/markdown");
+                this.handleMarkdown(webviewPanel, document, uri, webview, folderPath);
                 break;
             case ".epub":
                 webview.onDidReceiveMessage(async () => webview.postMessage({ type: "open", content: webview.asWebviewUri(uri).toString() }))
@@ -109,6 +74,58 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
             webview.html = this.buildPath(readFileSync(this.extensionPath + "/resource/" + htmlPath, 'utf8'), webview, this.extensionPath + "/resource")
         }
 
+    }
+
+    private handleMarkdown(webviewPanel: vscode.WebviewPanel, document: vscode.TextDocument, uri: vscode.Uri, webview: vscode.Webview, folderPath: vscode.Uri) {
+        const type = vscode.workspace.getConfiguration("vscode-office").get<string>("markdownType");
+        if (type == "default") {
+            vscode.commands.executeCommand('vscode.openWith', uri, "default");
+            return;
+        }
+        webviewPanel.onDidChangeViewState(e => Holder.activeUrl = e.webviewPanel.visible ? uri : null);
+        const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
+            if (e.document.uri.toString() === uri.toString()) {
+                webview.postMessage({
+                    type: "update", content: readFileSync(uri.fsPath, 'utf8')
+                });
+            }
+        });
+        webviewPanel.onDidDispose(() => {
+            changeDocumentSubscription.dispose()
+            if (Holder.activeUrl == uri) {
+                Holder.activeUrl = null;
+            }
+        });
+        webview.onDidReceiveMessage(async (message) => {
+            switch (message.type) {
+                case 'init':
+                    Holder.activeUrl = uri;
+                    webview.postMessage({
+                        type: "open", content: {
+                            title: basename(uri.fsPath),
+                            content: readFileSync(uri.fsPath, 'utf8'),
+                            folderPath: webview.asWebviewUri(folderPath).toString()
+                        }
+                    });
+                    break;
+                case 'save':
+                    this.updateTextDocument(document, message.content)
+                    break;
+                case 'doSave':
+                    vscode.commands.executeCommand('workbench.action.files.save');
+                    break;
+                case 'edit':
+                    vscode.commands.executeCommand('vscode.openWith', uri, "default");
+                    break;
+                case 'export':
+                    vscode.commands.executeCommand('vscode.openWith', uri, "default");
+                    break;
+            }
+        });
+        webview.html =
+            this.buildPath(
+                readFileSync(this.extensionPath + "/resource/markdown/index.html", 'utf8'),
+                webview, this.extensionPath + "/resource/markdown");
     }
 
     private handlePdf(uri: vscode.Uri, webview: vscode.Webview) {
@@ -168,6 +185,15 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
         return data.replace(/((src|href)=("|'))(.+?\.(css|js|properties|json))\b/gi, "$1" + webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)) + "/$4");
     }
 
+
+    /**
+     * Write out the json to a given document.
+     */
+    private updateTextDocument(document: vscode.TextDocument, json: any) {
+        const edit = new vscode.WorkspaceEdit();
+        edit.replace( document.uri, new vscode.Range(0, 0, document.lineCount, 0), json);
+        return vscode.workspace.applyEdit(edit);
+    }
 
     private handlePuml(uri: vscode.Uri, webview: vscode.Webview) {
         webview.onDidReceiveMessage(async (message) => {

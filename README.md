@@ -3,13 +3,14 @@
 This extension is to support the function of previewing common office file formats.
 
 It support below files now:
-- Excel: .xls, .xlsx
+- Excel: .xls, .xlsx, .csv
 - Word: .docx
 - PhotoShop: .psd
 - Svg: .svg
 - Pdf: .pdf
 - Epub: .epub
 - Xmind: .xmind
+- Markdown: .md
 - PlantUml: .puml, .pu, .plantuml
 - Windows Reg: .reg
 
@@ -24,6 +25,8 @@ It support below files now:
 - Word: [mammoth](https://github.com/mwilliamson/mammoth.js)
 - xmind: [xmind-viewer](https://github.com/xmindltd/xmind-viewer)
 - PDF: [pdf.js](https://github.com/mozilla/pdf.js)
+- Markdown:
+  - [stackedit](https://github.com/benweet/stackedit)
 - PlantUml:
   - [plantuml-editor](https://github.com/kkeisuke/plantuml-editor)
   - [plantuml-server](https://plantuml.com/)
