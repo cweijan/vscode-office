@@ -2,7 +2,7 @@
 	"name": "vscode-office",
 	"displayName": "Office Viewer",
 	"description": "View word,excel files in vscode.",
-	"version": "1.4.0",
+	"version": "1.4.2",
 	"publisher": "cweijan",
 	"icon": "icon.png",
 	"engines": {
@@ -156,7 +156,6 @@
 	"dependencies": {
 		"chrome-finder": "^1.0.7",
 		"mammoth": "^1.4.13",
-		"node-fetch": "^2.6.1",
-		"pretty-markdown-pdf": "^1.4.0"
+		"node-fetch": "^2.6.1"
 	}
 }
