@@ -14,6 +14,16 @@ It support below files now:
 - PlantUml: .puml, .pu, .plantuml
 - Windows Reg: .reg
 
+# Markdown
+
+This extension will change default markdown editor as stackedit, if you want using vscode editor, insert below json to vscode config.
+```json
+"workbench.editorAssociations": [{
+	"viewType": "default",
+	"filenamePattern": "*.md"
+}]
+```
+
 # Credit
 
 - Excel
