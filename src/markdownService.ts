@@ -1,10 +1,11 @@
-// const prettyMdPdf = require("pretty-markdown-pdf")
-import { writeFileSync, existsSync, mkdirSync } from 'fs';
-import * as vscode from 'vscode';
-import { basename, resolve, parse } from 'path';
-import path = require('path');
+const prettyMdPdf = require("pretty-markdown-pdf")
 import { spawn } from 'child_process';
+import { accessSync, existsSync, mkdirSync, writeFileSync } from 'fs';
+import { homedir } from 'os';
+import { dirname, join, parse, resolve } from 'path';
+import * as vscode from 'vscode';
 import { Holder } from './holder';
+import path = require('path');
 
 export class MarkdownService {
 
@@ -14,15 +15,13 @@ export class MarkdownService {
         this.configPath = context.globalStoragePath + "/config.json"
     }
 
-    // public exportPdf(uri: vscode.Uri) {
-    //     this.bulidConfig();
-    //     prettyMdPdf.convertMdToPdf({ markdownFilePath: uri.fsPath, configFilePath: this.configPath })
-    // }
+    public exportPdf(uri: vscode.Uri) {
+        vscode.window.showInformationMessage("Starting export markdown to pdf.")
+        this.bulidConfig();
+        prettyMdPdf.convertMd({ markdownFilePath: uri.fsPath, configFilePath: this.configPath })
+    }
 
     public bulidConfig() {
-        // npm i light-markdown-pdf
-        // lmp.js --sourceDir ./test --targetFile test.pdf --fontName 宋体 --fontFile D:/simsun.ttf
-        // font default 10, title 14
         const config = {
             "type": [
                 "pdf"
@@ -55,12 +54,39 @@ export class MarkdownService {
             },
             "omitBackground": false
         };
-        writeFileSync(this.configPath, config)
+        const dir = dirname(this.configPath)
+        if (!existsSync(dir)) {
+            mkdirSync(dir, { recursive: true })
+        }
+        const configStr = JSON.stringify(config);
+        console.debug(`export markdown config is ${configStr}`)
+        writeFileSync(this.configPath, configStr)
     }
 
 
+    private paths: { [index: string]: string } = {
+        stable: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+        beta: "C:\\Program Files (x86)\\Microsoft\\Edge Beta\\Application\\msedge.exe",
+        dev: "C:\\Program Files (x86)\\Microsoft\\Edge Dev\\Application\\msedge.exe",
+        canary: join(homedir(), "AppData\\Local\\Microsoft\\Edge SxS\\Application\\msedge.exe"),
+    }
+
     private getChromiumPath() {
-        return "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
+        for (const pathName in this.paths) {
+            const path = this.paths[pathName];
+            if (existsSync(path) && accessSync(path)) {
+                console.debug(`using edge path is ${path}`)
+                return path;
+            }
+        }
+        try{
+            const chromePath = require('chrome-finder')();
+            console.debug(`using chrome path is ${chromePath}`)
+            return chromePath;
+        }catch(e){
+            vscode.window.showErrorMessage("Not chromium found, export fail.")
+            throw new Error()
+        }
     }
 
     public async loadClipboardImage(document?: vscode.TextDocument) {
@@ -89,7 +115,7 @@ export class MarkdownService {
                     return;
                 }
                 const editor = vscode.window.activeTextEditor;
-                if(editor){
+                if (editor) {
                     editor?.edit(edit => {
                         let current = editor.selection;
                         if (current.isEmpty) {
@@ -98,13 +124,13 @@ export class MarkdownService {
                             edit.replace(current, `![](${rePath})`);
                         }
                     });
-                }else{
+                } else {
                     vscode.env.clipboard.writeText(`![](${rePath})`)
                     vscode.commands.executeCommand("editor.action.clipboardPasteAction")
                 }
             })
         } else {
-            if(document){
+            if (document) {
                 vscode.commands.executeCommand("editor.action.clipboardPasteAction")
             }
         }

@@ -123,7 +123,11 @@
 			"properties": {
 				"vscode-office.markdownType": {
 					"type": "string",
-					"enum": ["default", "stackedit", "marktext(UnSupport)"],
+					"enum": [
+						"default",
+						"stackedit",
+						"marktext(UnSupport)"
+					],
 					"default": "default",
 					"description": "Set markdown viewer type."
 				}
@@ -133,11 +137,9 @@
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
-		"lint": "eslint src --ext ts",
 		"watch": "tsc -watch -p ./",
-		"postinstall": " echo 1  ",
-		"pretest": "npm run compile && npm run lint",
-		"test": "node ./out/test/runTest.js"
+		"install": "npm i --ignore-scripts",
+		"publish": "vsce package --yarn"
 	},
 	"devDependencies": {
 		"@types/node": "^13.11.0",
@@ -146,7 +148,9 @@
 		"typescript": "^3.8.3"
 	},
 	"dependencies": {
+		"chrome-finder": "^1.0.7",
 		"mammoth": "^1.4.13",
-		"node-fetch": "^2.6.1"
+		"node-fetch": "^2.6.1",
+		"pretty-markdown-pdf": "^1.4.0"
 	}
 }

@@ -7,13 +7,14 @@ const streamPipeline = util.promisify(require('stream').pipeline);
 import fetch from 'node-fetch';
 import { MessageOptions } from 'vscode';
 import { Holder } from './holder';
+import { MarkdownService } from './markdownService';
 const mammoth = require("mammoth");
 
 export class OfficeEditor implements vscode.CustomTextEditorProvider {
 
     private extensionPath: string;
 
-    constructor(context: vscode.ExtensionContext) {
+    constructor(private context: vscode.ExtensionContext) {
         this.extensionPath = context.extensionPath;
     }
 
@@ -118,7 +119,7 @@ export class OfficeEditor implements vscode.CustomTextEditorProvider {
                     vscode.commands.executeCommand('vscode.openWith', uri, "default");
                     break;
                 case 'export':
-                    vscode.commands.executeCommand('vscode.openWith', uri, "default");
+                    new MarkdownService(this.context).exportPdf(uri)
                     break;
             }
         });
