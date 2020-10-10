@@ -110,7 +110,13 @@
 					},
 					{
 						"filenamePattern": "*.pu"
-					},
+					}
+				]
+			},
+			{
+				"viewType": "cweijan.viewMarkdown",
+				"displayName": "Markdown Viewer",
+				"selector": [
 					{
 						"filenamePattern": "*.md"
 					}

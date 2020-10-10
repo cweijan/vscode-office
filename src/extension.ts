@@ -8,6 +8,7 @@ import * as path from 'path';
 // };
 import { OfficeEditor } from './officeEditor';
 import { MarkdownService } from './markdownService';
+import { MarkdownEditor } from './markdownEditor';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -20,6 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
 		})
 	);
 	vscode.window.registerCustomEditorProvider("cweijan.viewOffice", new OfficeEditor(context), viewOption);
+	vscode.window.registerCustomEditorProvider("cweijan.viewMarkdown", new MarkdownEditor(context), viewOption);
 
 }
 
