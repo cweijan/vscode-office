@@ -67,7 +67,8 @@
 		"keybindings": [
 			{
 				"command": "office.markdown.paste",
-				"key": "ctrl+v"
+				"key": "ctrl+v",
+				"when": "!terminalFocus && !filesExplorerFocus"
 			}
 		],
 		"customEditors": [
@@ -155,6 +156,7 @@
 	},
 	"dependencies": {
 		"chrome-finder": "^1.0.7",
+		"hypermd-mermaid": "^0.1.0",
 		"mammoth": "^1.4.13",
 		"node-fetch": "^2.6.1"
 	}

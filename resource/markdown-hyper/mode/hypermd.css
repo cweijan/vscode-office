@@ -1,0 +1,73 @@
+@charset "UTF-8";
+.CodeMirror .hmd-fold-math, .CodeMirror pre.HyperMD-table-row .cm-hmd-table-sep {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.CodeMirror span.hmd-hidden-token.cm-formatting-em, .CodeMirror span.hmd-hidden-token.cm-formatting-strong, .CodeMirror span.hmd-hidden-token.cm-formatting-strikethrough, .CodeMirror span.hmd-hidden-token.cm-formatting-code, .CodeMirror span.hmd-hidden-token.cm-formatting-link {
+  display: inline;
+  font-size: 1px !important;
+  letter-spacing: -1ch;
+  font-family: monospace;
+  color: transparent;
+}
+
+.CodeMirror {
+  /* adding some CodeMirror-not-implemented styles' default style */
+  /* tooltip for addon/hover */
+  /* gutter for addon/click */
+  /* addon/fold */
+  /* addon/table-align */
+  /* addon/fold-math */
+  /* addon/fold-emoji */
+}
+.CodeMirror .cm-inline-code,
+.CodeMirror .cm-math {
+  color: #900;
+}
+.CodeMirror div.HyperMD-hover > .HyperMD-hover-content {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #000;
+  padding: 0.5em;
+}
+.CodeMirror div.HyperMD-hover > .HyperMD-hover-content p {
+  margin: 0.2em 0;
+}
+.CodeMirror .HyperMD-goback {
+  width: 1px;
+}
+.CodeMirror div.HyperMD-goback-button {
+  background-color: #ddd;
+  color: #333;
+  text-align: center;
+  cursor: pointer;
+}
+.CodeMirror .hmd-link-icon:after {
+  content: "🔗»";
+  color: #009;
+  text-shadow: 0 0 2px #69F;
+}
+.CodeMirror pre.HyperMD-table-row {
+  white-space: pre;
+}
+.CodeMirror pre.HyperMD-table-row .hmd-table-column,
+.CodeMirror pre.HyperMD-table-row .hmd-table-column-content {
+  display: inline-block;
+}
+.CodeMirror pre.HyperMD-table-row .hmd-table-column-left {
+  text-align: left;
+}
+.CodeMirror pre.HyperMD-table-row .hmd-table-column-center {
+  text-align: center;
+}
+.CodeMirror pre.HyperMD-table-row .hmd-table-column-right {
+  text-align: right;
+}
+.CodeMirror .hmd-fold-math.hmd-fold-math.math-2 {
+  width: 100%;
+}
+.CodeMirror img.hmd-emoji {
+  height: 1.2em;
+  vertical-align: middle;
+}
