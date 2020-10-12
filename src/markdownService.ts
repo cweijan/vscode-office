@@ -75,7 +75,7 @@ export class MarkdownService {
     private getChromiumPath() {
         for (const pathName in this.paths) {
             const path = this.paths[pathName];
-            if (existsSync(path) && accessSync(path)) {
+            if (existsSync(path)) {
                 console.debug(`using edge path is ${path}`)
                 return path;
             }

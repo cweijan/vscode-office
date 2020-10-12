@@ -1,15 +1,19 @@
 {
 	"compilerOptions": {
 		"module": "commonjs",
-		"target": "es6",
+		"target": "es2019",
 		"outDir": "out",
+		"experimentalDecorators": true,
 		"lib": [
 			"es6",
-			"es2017"
+			"es2017",
+			"es2019"
 		],
 		"sourceMap": true,
 		"rootDir": "src",
-		"strict": true   /* enable all strict type-checking options */
+		"resolveJsonModule": true,
+        "esModuleInterop": true,
+		"strict": false   /* enable all strict type-checking options */
 		/* Additional Checks */
 		// "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
 		// "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
