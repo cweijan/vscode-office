@@ -80,99 +80,97 @@
 			}
 		],
 		"commands": [
-			
 			{
 				"command": "rest-client.request",
 				"title": "Send Request",
 				"category": "Rest Client"
-			  },
-			  {
+			},
+			{
 				"command": "rest-client.rerun-last-request",
 				"title": "Rerun Last Request",
 				"category": "Rest Client"
-			  },
-			  {
+			},
+			{
 				"command": "rest-client.cancel-request",
 				"title": "Cancel Request",
 				"category": "Rest Client"
-			  },
-			  {
+			},
+			{
 				"command": "rest-client.switch-environment",
 				"title": "Switch Environment",
 				"category": "Rest Client"
-			  },
-			  {
+			},
+			{
 				"command": "rest-client.history",
 				"title": "View Request History",
 				"category": "Rest Client"
-			  },
-			  {
+			},
+			{
 				"command": "rest-client.clear-history",
 				"title": "Clear Request History",
 				"category": "Rest Client"
-			  },
-			  {
+			},
+			{
 				"command": "rest-client.save-response",
 				"title": "Save Full Response",
 				"icon": {
-				  "light": "./images/save.svg",
-				  "dark": "./images/save-inverse.svg"
+					"light": "./images/save.svg",
+					"dark": "./images/save-inverse.svg"
 				},
 				"category": "Rest Client"
-			  },
-			  {
+			},
+			{
 				"command": "rest-client.save-response-body",
 				"title": "Save Response Body",
 				"icon": {
-				  "light": "./images/save-body.svg",
-				  "dark": "./images/save-body-inverse.svg"
+					"light": "./images/save-body.svg",
+					"dark": "./images/save-body-inverse.svg"
 				},
 				"category": "Rest Client"
-			  },
-			  {
+			},
+			{
 				"command": "rest-client.copy-response-body",
 				"title": "Copy Response Body",
 				"icon": {
-				  "light": "./images/copy.svg",
-				  "dark": "./images/copy-inverse.svg"
+					"light": "./images/copy.svg",
+					"dark": "./images/copy-inverse.svg"
 				},
 				"category": "Rest Client"
-			  },
-			  {
+			},
+			{
 				"command": "rest-client.generate-codesnippet",
 				"title": "Generate Code Snippet",
 				"category": "Rest Client"
-			  },
-			  {
+			},
+			{
 				"command": "rest-client.copy-codesnippet",
 				"title": "Copy Code Snippet",
 				"icon": {
-				  "light": "./images/copy.svg",
-				  "dark": "./images/copy-inverse.svg"
+					"light": "./images/copy.svg",
+					"dark": "./images/copy-inverse.svg"
 				},
 				"category": "Rest Client"
-			  },
-			  {
+			},
+			{
 				"command": "rest-client.copy-request-as-curl",
 				"title": "Copy Request As cURL",
 				"category": "Rest Client"
-			  },
-			  {
+			},
+			{
 				"command": "rest-client.clear-aad-token-cache",
 				"title": "Clear Azure AD Token Cache",
 				"category": "Rest Client"
-			  },
-			  {
+			},
+			{
 				"command": "rest-client.fold-response",
 				"title": "Fold Response",
 				"category": "Rest Client"
-			  },
-			  {
+			},
+			{
 				"command": "rest-client.unfold-response",
 				"title": "Unfold Response",
 				"category": "Rest Client"
-			  }
-			,
+			},
 			{
 				"command": "office.reg.jumpToKey",
 				"title": "REG: Jump to registry key"
@@ -191,81 +189,81 @@
 		],
 		"menus": {
 			"commandPalette": [
-			  {
-				"command": "rest-client.fold-response",
-				"when": "httpResponsePreviewFocus"
-			  },
-			  {
-				"command": "rest-client.unfold-response",
-				"when": "httpResponsePreviewFocus"
-			  },
-			  {
-				"command": "rest-client.save-response",
-				"when": "httpResponsePreviewFocus"
-			  },
-			  {
-				"command": "rest-client.save-response-body",
-				"when": "httpResponsePreviewFocus"
-			  },
-			  {
-				"command": "rest-client.copy-response-body",
-				"when": "httpResponsePreviewFocus"
-			  },
-			  {
-				"command": "rest-client.copy-codesnippet",
-				"when": "codeSnippetPreviewFocus"
-			  }
+				{
+					"command": "rest-client.fold-response",
+					"when": "httpResponsePreviewFocus"
+				},
+				{
+					"command": "rest-client.unfold-response",
+					"when": "httpResponsePreviewFocus"
+				},
+				{
+					"command": "rest-client.save-response",
+					"when": "httpResponsePreviewFocus"
+				},
+				{
+					"command": "rest-client.save-response-body",
+					"when": "httpResponsePreviewFocus"
+				},
+				{
+					"command": "rest-client.copy-response-body",
+					"when": "httpResponsePreviewFocus"
+				},
+				{
+					"command": "rest-client.copy-codesnippet",
+					"when": "codeSnippetPreviewFocus"
+				}
 			],
 			"editor/title": [
-			  {
-				"when": "httpResponsePreviewFocus",
-				"command": "rest-client.save-response",
-				"group": "navigation@1"
-			  },
-			  {
-				"when": "httpResponsePreviewFocus",
-				"command": "rest-client.save-response-body",
-				"group": "navigation@2"
-			  },
-			  {
-				"when": "httpResponsePreviewFocus",
-				"command": "rest-client.copy-response-body",
-				"group": "navigation@3"
-			  },
-			  {
-				"when": "httpResponsePreviewFocus",
-				"command": "rest-client.fold-response",
-				"group": "1_rest-client@1"
-			  },
-			  {
-				"when": "httpResponsePreviewFocus",
-				"command": "rest-client.unfold-response",
-				"group": "1_rest-client@2"
-			  },
-			  {
-				"when": "codeSnippetPreviewFocus",
-				"command": "rest-client.copy-codesnippet",
-				"group": "navigation"
-			  }
+				{
+					"when": "httpResponsePreviewFocus",
+					"command": "rest-client.save-response",
+					"group": "navigation@1"
+				},
+				{
+					"when": "httpResponsePreviewFocus",
+					"command": "rest-client.save-response-body",
+					"group": "navigation@2"
+				},
+				{
+					"when": "httpResponsePreviewFocus",
+					"command": "rest-client.copy-response-body",
+					"group": "navigation@3"
+				},
+				{
+					"when": "httpResponsePreviewFocus",
+					"command": "rest-client.fold-response",
+					"group": "1_rest-client@1"
+				},
+				{
+					"when": "httpResponsePreviewFocus",
+					"command": "rest-client.unfold-response",
+					"group": "1_rest-client@2"
+				},
+				{
+					"when": "codeSnippetPreviewFocus",
+					"command": "rest-client.copy-codesnippet",
+					"group": "navigation"
+				}
 			],
 			"editor/context": [
-			  {
-				"command": "rest-client.request",
-				"when": "editorTextFocus && editorLangId == http",
-				"group": "rest-client@1"
-			  },
-			  {
-				"command": "rest-client.generate-codesnippet",
-				"when": "editorTextFocus && editorLangId == http",
-				"group": "rest-client@2"
-			  },
-			  {
-				"command": "rest-client.copy-request-as-curl",
-				"when": "editorTextFocus && editorLangId == http",
-				"group": "rest-client@3"
-			  }
+				{
+					"command": "rest-client.request",
+					"when": "editorTextFocus && editorLangId == http",
+					"group": "rest-client@1"
+				},
+				{
+					"command": "rest-client.generate-codesnippet",
+					"when": "editorTextFocus && editorLangId == http",
+					"group": "rest-client@2"
+				},
+				{
+					"command": "rest-client.copy-request-as-curl",
+					"when": "editorTextFocus && editorLangId == http",
+					"group": "rest-client@3"
+				}
 			]
-		  },
+		},
 		"customEditors": [
 			{
 				"viewType": "cweijan.viewOffice",
@@ -336,23 +334,35 @@
 		}
 	},
 	"scripts": {
-		"vscode:prepublish": "npm run compile",
+		"vscode:prepublish": "npm run build",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
 		"install": "npm i --ignore-scripts",
-		"publish": "vsce package --yarn"
+		"dev": "webpack --progress",
+		"build": "webpack -p --progress"
 	},
 	"devDependencies": {
+		"@opentelemetry/api": "^0.11.0",
+		"@opentelemetry/tracing": "^0.11.0",
 		"@types/node": "^13.11.0",
 		"@types/node-fetch": "^2.5.7",
 		"@types/vscode": "^1.40.0",
-		"typescript": "^3.8.3"
+		"css-loader": "^3.5.3",
+		"file-loader": "^6.0.0",
+		"html-webpack-plugin": "^4.3.0",
+		"style-loader": "^1.2.1",
+		"ts-loader": "^7.0.5",
+		"typescript": "^3.8.3",
+		"url-loader": "^4.1.0",
+		"webpack": "^4.43.0",
+		"webpack-cli": "^3.3.11"
 	},
 	"dependencies": {
 		"adal-node": "^0.1.26",
 		"applicationinsights": "^1.0.5",
 		"aws4": "^1.9.1",
 		"chrome-finder": "^1.0.7",
+		"clean-webpack-plugin": "^3.0.0",
 		"code-highlight-linenums": "^0.2.1",
 		"combined-stream": "^1.0.5",
 		"dayjs": "^1.8.20",
@@ -373,6 +383,7 @@
 		"mkdirp": "^1.0.4",
 		"node-fetch": "^2.6.1",
 		"pretty-data": "^0.40.0",
+		"request": "^2.79.0",
 		"tough-cookie": "^3.0.1",
 		"tough-cookie-file-store-bugfix": "Huachao/tough-cookie-file-store-bugfix",
 		"uuid": "^3.3.2",
