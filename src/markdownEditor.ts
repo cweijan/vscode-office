@@ -25,10 +25,11 @@ export class MarkdownEditor implements vscode.CustomTextEditorProvider {
 
     private handleMarkdown(webviewPanel: vscode.WebviewPanel, document: vscode.TextDocument, uri: vscode.Uri, webview: vscode.Webview, folderPath: vscode.Uri) {
         const type = vscode.workspace.getConfiguration("vscode-office").get<string>("markdownType");
-        if (type == "default") {
-            vscode.commands.executeCommand('vscode.openWith', uri, "default");
-            return;
+        let path = "markdown-hyper";
+        if (type == "stackedit") {
+            path = "markdown";
         }
+
         webviewPanel.onDidChangeViewState(e => Holder.activeUrl = e.webviewPanel.visible ? uri : null);
         const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
             if (e.document.uri.toString() === uri.toString()) {
@@ -69,10 +70,14 @@ export class MarkdownEditor implements vscode.CustomTextEditorProvider {
                     break;
             }
         });
+
+        const contextPath = `${this.extensionPath}/resource/${path}`;
         webview.html =
             this.buildPath(
-                readFileSync(this.extensionPath + "/resource/markdown/index.html", 'utf8'),
-                webview, this.extensionPath + "/resource/markdown");
+                readFileSync(`${this.extensionPath}/resource/${path}/index.html`, 'utf8')
+                    .replace("{{rootPath}}", webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)).toString()
+                    ),
+                webview, contextPath);
     }
 
     private buildPath(data: string, webview: vscode.Webview, contextPath: string): string {

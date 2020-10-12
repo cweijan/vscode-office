@@ -101,13 +101,16 @@ function load_and_update_editor(url) {
   var editor_area = document.getElementById("editor_area")
   var clzName = editor_area.className
   editor_area.className = clzName + " loading_file"
+  
 
-  // TODO change to load from vscode
-  ajax_load_file(url, function (text, url) {
+  const vscodeEvent = getVscodeEvent();
+  vscodeEvent.emit("init")
+  vscodeEvent.on("open", value => {
     editor_area.className = clzName
-    editor.setOption('hmdReadLink', { baseURI: current_baseuri }) // for images and links in Markdown
-    editor.setValue(text)
+    editor.setValue(value.content)
+    editor.setOption('hmdReadLink', { baseURI: `${document.getElementById('rootPath').value}` })
   })
+
 }
 
 /**

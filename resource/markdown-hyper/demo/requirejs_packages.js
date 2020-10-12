@@ -10,6 +10,11 @@
 // })
 //
 
+
+if (requirejs) requirejs.config({
+  baseUrl:`${document.getElementById('rootPath').value}`
+})
+
 // (This configuration is just a example / reference. Feel free to modify it)
 
 var requirejs_packages = [

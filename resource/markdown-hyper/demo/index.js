@@ -4,20 +4,13 @@ var demo_page_baseurl = window.location.href.replace(/[\?\#].*$/, '').replace(/\
 var demo_page_lib_baseurl = is_running_demo ? "https://cdn.jsdelivr.net/npm/" : (demo_page_baseurl + "node_modules/")
 var demo_filename = "README.md"
 
+
 if (requirejs) requirejs.config({
-  // baseUrl: "node_modules/",                   // using local version
-  // baseUrl: "https://cdn.jsdelivr.net/npm/",   // or use CDN
-  // baseUrl: demo_page_lib_baseurl,
-
+  baseUrl:`${document.getElementById('rootPath').value}`,
   paths: {
-    // HyperMD is not from node_modules nor CDN:
-    // "hypermd": "./",
-    "hypermd": demo_page_baseurl + ".",
+    "hypermd": `${document.getElementById('rootPath').value}/`,
   },
-
-  // Remove this line if you occur errors with CDN
   packages: requirejs_packages, // see: requirejs_packages.js
-
   waitSeconds: 15
 })
 
