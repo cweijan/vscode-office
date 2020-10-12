@@ -81,7 +81,7 @@ export class MarkdownEditor implements vscode.CustomTextEditorProvider {
     }
 
     private buildPath(data: string, webview: vscode.Webview, contextPath: string): string {
-        return data.replace(/((src|href)=("|'))(.+?\.(css|js|properties|json))\b/gi, "$1" + webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)) + "/$4");
+        return data.replace(/((src|href)=("|'))(.+?\.(css|js|properties|json|svg))\b/gi, "$1" + webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)) + "/$4");
     }
 
 

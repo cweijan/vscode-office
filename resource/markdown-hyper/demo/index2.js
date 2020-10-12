@@ -108,7 +108,7 @@ function load_and_update_editor(url) {
   vscodeEvent.on("open", value => {
     editor_area.className = clzName
     editor.setValue(value.content)
-    editor.setOption('hmdReadLink', { baseURI: `${document.getElementById('rootPath').value}` })
+    editor.setOption('hmdReadLink', { baseURI: value.folderPath })
   })
 
 }

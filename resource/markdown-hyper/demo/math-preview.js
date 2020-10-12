@@ -26,14 +26,14 @@ function init_math_preview(cm) {
       }
     }
 
-    console.log("[MathPreview] " + expr)
+    // console.log("[MathPreview] " + expr)
 
     if (!mathRenderer.isReady()) return
     mathRenderer.startRender(expr)
   }
 
   function hidePreview() {
-    console.log("[MathPreview] (exit)")
+    // console.log("[MathPreview] (exit)")
 
     win.hide()
     supressed = false

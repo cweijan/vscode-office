@@ -79,7 +79,6 @@ require([
 ], function (CodeMirror, HyperMD) {
   'use strict';
   var myTextarea = document.getElementById('demo')
-
   // HyperMD magic. See https://laobubu.net/HyperMD/docs/
   var editor = HyperMD.fromTextArea(myTextarea, {
     mode: {
