@@ -1,3 +1,7 @@
+## 1.4.3 2020-10-12
+- Fix paste fail in terminal.
+- Using hyperMD as default markdown editor.
+
 ## 1.4.0 2020-10-9
 - Integrate stackedit to edit markdown.
 - Add csv support.
