@@ -38,7 +38,7 @@ This extension will change default markdown editor as hyperMD, if you want using
 - Markdown:
   - [stackedit](https://github.com/benweet/stackedit)
   - [HyperMD](https://github.com/laobubu/HyperMD)
-  - [CodeMirror](https://github.com/codemirror/CodeMirror)[
+  - [CodeMirror](https://github.com/codemirror/CodeMirror)
 - PlantUml:
   - [plantuml-editor](https://github.com/kkeisuke/plantuml-editor)
   - [plantuml-server](https://plantuml.com/)
