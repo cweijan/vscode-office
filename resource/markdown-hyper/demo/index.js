@@ -100,11 +100,13 @@ require([
     if (changeObj.origin == "setValue") {
       return;
     }
+    // console.log(JSON.stringify(changeObj,null, 2))
     vscodeEvent.emit("hyperEdit", changeObj)
 
   })
   window.onkeypress = (e) => {
     if (e.ctrlKey && (e.key == 's' || e.key == "S")) {
+      vscodeEvent.emit("save",editor.getValue())
       vscodeEvent.emit("doSave")
     }
   }

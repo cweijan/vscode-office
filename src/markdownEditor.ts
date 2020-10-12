@@ -95,7 +95,7 @@ export class MarkdownEditor implements vscode.CustomTextEditorProvider {
 
     private updateTextDocumentByEdit(document: vscode.TextDocument, changed: any) {
         const edit = new vscode.WorkspaceEdit();
-        edit.replace(document.uri, new vscode.Range(changed.from.line, changed.from.ch, changed.to.line, changed.to.ch), changed.text[0]);
+        edit.replace(document.uri, new vscode.Range(changed.from.line, changed.from.ch, changed.to.line, changed.to.ch), changed.text.join('\n'));
         return vscode.workspace.applyEdit(edit);
     }
 
