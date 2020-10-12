@@ -282,7 +282,7 @@ body.loaded #test-box .test-item.right .test-tooltip {
 }
 
 /* SM.MS Image Hosting! */
-
+/* 
 .smms-hosted-items:before {
     content: "感谢 sm.ms 为 Demo 页提供图床";
     color: #900;
@@ -293,7 +293,7 @@ body.loaded #test-box .test-item.right .test-tooltip {
     padding: 4px 8px;
     border: 8px solid #900;
     pointer-events: none;
-}
+} */
 
 /* sponsors */
 

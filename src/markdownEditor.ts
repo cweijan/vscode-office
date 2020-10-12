@@ -59,6 +59,9 @@ export class MarkdownEditor implements vscode.CustomTextEditorProvider {
                 case 'save':
                     this.updateTextDocument(document, message.content)
                     break;
+                case 'hyperEdit':
+                    this.updateTextDocumentByEdit(document, message.content)
+                    break;
                 case 'doSave':
                     vscode.commands.executeCommand('workbench.action.files.save');
                     break;
@@ -84,13 +87,15 @@ export class MarkdownEditor implements vscode.CustomTextEditorProvider {
         return data.replace(/((src|href)=("|'))(.+?\.(css|js|properties|json|svg))\b/gi, "$1" + webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)) + "/$4");
     }
 
-
-    /**
-     * Write out the json to a given document.
-     */
-    private updateTextDocument(document: vscode.TextDocument, json: any) {
+    private updateTextDocument(document: vscode.TextDocument, content: any) {
         const edit = new vscode.WorkspaceEdit();
-        edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), json);
+        edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), content);
+        return vscode.workspace.applyEdit(edit);
+    }
+
+    private updateTextDocumentByEdit(document: vscode.TextDocument, changed: any) {
+        const edit = new vscode.WorkspaceEdit();
+        edit.replace(document.uri, new vscode.Range(changed.from.line, changed.from.ch, changed.to.line, changed.to.ch), changed.text[0]);
         return vscode.workspace.applyEdit(edit);
     }
 

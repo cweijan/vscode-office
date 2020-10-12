@@ -6,7 +6,7 @@ var demo_filename = "README.md"
 
 
 if (requirejs) requirejs.config({
-  baseUrl:`${document.getElementById('rootPath').value}`,
+  baseUrl: `${document.getElementById('rootPath').value}`,
   paths: {
     "hypermd": `${document.getElementById('rootPath').value}/`,
   },
@@ -66,7 +66,7 @@ require([
   'hypermd/powerpack/fold-emoji-with-emojione',
   // 'hypermd/powerpack/fold-emoji-with-twemoji',
 
-  'hypermd/powerpack/insert-file-with-smms',
+  // 'hypermd/powerpack/insert-file-with-smms',
 
   'hypermd/powerpack/hover-with-marked',
 
@@ -95,6 +95,19 @@ require([
       emoji: true,
     }
   })
+  const vscodeEvent = getVscodeEvent();
+  editor.on("change", (_instance, changeObj) => {
+    if (changeObj.origin == "setValue") {
+      return;
+    }
+    vscodeEvent.emit("hyperEdit", changeObj)
+
+  })
+  window.onkeypress = (e) => {
+    if (e.ctrlKey && (e.key == 's' || e.key == "S")) {
+      vscodeEvent.emit("doSave")
+    }
+  }
   editor.setSize(null, "100%") // set height
 
   // for debugging
