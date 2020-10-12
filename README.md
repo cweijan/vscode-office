@@ -11,6 +11,7 @@ It support below files now:
 - Epub: .epub
 - Xmind: .xmind
 - Markdown: .md
+- HttpRequest: .http
 - PlantUml: .puml, .pu, .plantuml
 - Windows Reg: .reg
 
@@ -35,6 +36,7 @@ This extension will change default markdown editor as hyperMD, if you want using
 - Word: [mammoth](https://github.com/mwilliamson/mammoth.js)
 - xmind: [xmind-viewer](https://github.com/xmindltd/xmind-viewer)
 - PDF: [pdf.js](https://github.com/mozilla/pdf.js)
+- HTTP: [vscode-restclient](https://github.com/Huachao/vscode-restclient)
 - Markdown:
   - [stackedit](https://github.com/benweet/stackedit)
   - [HyperMD](https://github.com/laobubu/HyperMD)

@@ -1,0 +1,86 @@
+{
+    "Get request block": {
+        "prefix": "get",
+        "body": [
+            "GET ${1:url} HTTP/1.1"
+        ],
+        "description": "GET Request"
+    },
+    "Delete request block": {
+        "prefix": "delete",
+        "body": [
+            "DELETE ${1:url} HTTP/1.1"
+        ],
+        "description": "DELETE Request"
+    },
+    "Post request block": {
+        "prefix": "post",
+        "body": [
+            "POST ${1:url} HTTP/1.1",
+            "${2:header name}: ${3:header value}",
+            "",
+            "${4:content}"
+        ],
+        "description": "POST Request"
+    },
+    "Put request block": {
+        "prefix": "put",
+        "body": [
+            "PUT ${1:url} HTTP/1.1",
+            "${2:header name}: ${3:header value}",
+            "",
+            "${4:content}"
+        ],
+        "description": "PUT Request"
+    },
+    "GraphQL request block": {
+        "prefix": "graphql",
+        "body": [
+            "POST ${1:url} HTTP/1.1",
+            "X-Request-Type: GraphQL",
+            "${2:header name}: ${3:header value}",
+            "",
+            "${4:body content}",
+            "",
+            "${5:variables content(optional)}"
+        ]
+    },
+    "SOAP request block": {
+        "prefix": "soap",
+        "body": [
+            "POST ${1:url} HTTP/1.1",
+            "Content-Type: application/soap+xml",
+            "${2:header name}: ${3:header value}",
+            "",
+            "<soap:Envelope",
+            "\txmlns:soap=\"http://www.w3.org/2001/12/soap-envelope\"",
+            "\tsoap:encodingStyle=\"http://www.w3.org/2001/12/soap-encoding\">",
+            "\t<soap:Body>",
+            "\t\t${4:content}",
+            "\t</soap:Body>",
+            "</soap:Envelope>"
+        ],
+        "description": "SOAP Request"
+    },
+    "File level custom variable": {
+        "prefix": "fv",
+        "body": [
+            "@${1:Variable_Name} = ${2:Variable_Value}"
+        ],
+        "description": "Define Custom File Variable"
+    },
+    "Request variable": {
+        "prefix": "rv",
+        "body": [
+            "# @name ${1:Request_Name}"
+        ],
+        "description": "Define Request Variable"
+    },
+    "Request confirmation": {
+        "prefix": "note",
+        "body": [
+            "# @note"
+        ],
+        "description": "Add sending request confirmation"
+    }
+}
