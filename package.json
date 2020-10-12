@@ -131,11 +131,10 @@
 				"vscode-office.markdownType": {
 					"type": "string",
 					"enum": [
-						"default",
-						"stackedit",
-						"marktext(UnSupport)"
+						"hyperMD",
+						"stackedit"
 					],
-					"default": "default",
+					"default": "hyperMD",
 					"description": "Set markdown viewer type."
 				}
 			}
