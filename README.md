@@ -16,7 +16,7 @@ It support below files now:
 
 # Markdown
 
-This extension will change default markdown editor as stackedit, if you want using vscode editor, insert below json to vscode config.
+This extension will change default markdown editor as hyperMD, if you want using vscode editor, insert below json to vscode config.
 ```json
 "workbench.editorAssociations": [{
 	"viewType": "default",
@@ -37,6 +37,8 @@ This extension will change default markdown editor as stackedit, if you want usi
 - PDF: [pdf.js](https://github.com/mozilla/pdf.js)
 - Markdown:
   - [stackedit](https://github.com/benweet/stackedit)
+  - [HyperMD](https://github.com/laobubu/HyperMD)
+  - [CodeMirror](https://github.com/codemirror/CodeMirror)[
 - PlantUml:
   - [plantuml-editor](https://github.com/kkeisuke/plantuml-editor)
   - [plantuml-server](https://plantuml.com/)
