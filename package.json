@@ -4,7 +4,7 @@
 	"description": "View word,excel files in vscode.",
 	"version": "1.4.3",
 	"publisher": "cweijan",
-	"icon": "icon.png",
+	"icon": "images/icon.png",
 	"engines": {
 		"vscode": "^1.40.0"
 	},
@@ -44,7 +44,7 @@
 					".reg",
 					".REG"
 				],
-				"configuration": "./language-configuration.json"
+				"configuration": "./language/reg-language-configuration.json"
 			},
 			{
 				"id": "http",
@@ -58,7 +58,7 @@
 					".rest"
 				],
 				"firstLine": "^(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS|CONNECT|TRACE)\\s+(.*?)HTTP/[0-9\\.]+$",
-				"configuration": "./http-language-configuration.json"
+				"configuration": "./language/http-language-configuration.json"
 			}
 		],
 		"grammars": [
