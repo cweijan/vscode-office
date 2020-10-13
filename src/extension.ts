@@ -28,7 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
 				uri = vscode.window.activeTextEditor.document.uri
 			}
 			const folderPath = vscode.Uri.file(resolve(uri.fsPath, ".."));
-			const webviewPanel=vscode.window.createWebviewPanel("cwejan.viewHtml", basename(uri.fsPath), { viewColumn: vscode.ViewColumn.Two, preserveFocus: true })
+			const webviewPanel=vscode.window.createWebviewPanel("cwejan.viewHtml", basename(uri.fsPath), { viewColumn: vscode.ViewColumn.Two, preserveFocus: true },{enableScripts:true})
 			webviewPanel.webview.html = Util.buildPath(readFileSync(uri.fsPath, 'utf8'), webviewPanel.webview, folderPath.fsPath);
 			Util.listen(webviewPanel,uri,()=>{
 				webviewPanel.webview.html = Util.buildPath(readFileSync(uri.fsPath, 'utf8'), webviewPanel.webview, folderPath.fsPath);
