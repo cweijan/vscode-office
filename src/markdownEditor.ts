@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import { basename, extname, resolve } from 'path';
 import { Holder } from './holder';
 import { MarkdownService } from './markdownService';
+import { Util } from './common/util';
 
 export class MarkdownEditor implements vscode.CustomTextEditorProvider {
 
@@ -76,15 +77,11 @@ export class MarkdownEditor implements vscode.CustomTextEditorProvider {
 
         const contextPath = `${this.extensionPath}/resource/${path}`;
         webview.html =
-            this.buildPath(
+            Util.buildPath(
                 readFileSync(`${this.extensionPath}/resource/${path}/index.html`, 'utf8')
                     .replace("{{rootPath}}", webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)).toString()
                     ),
                 webview, contextPath);
-    }
-
-    private buildPath(data: string, webview: vscode.Webview, contextPath: string): string {
-        return data.replace(/((src|href)=("|'))(.+?\.(css|js|properties|json|svg))\b/gi, "$1" + webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)) + "/$4");
     }
 
     private updateTextDocument(document: vscode.TextDocument, content: any) {

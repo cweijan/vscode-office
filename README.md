@@ -14,6 +14,7 @@ It support below files now:
 - HttpRequest: .http
 - PlantUml: .puml, .pu, .plantuml
 - Windows Reg: .reg
+- Html: Press ctrl+shift+v open live edit for html.
 
 # Markdown
 
@@ -24,6 +25,7 @@ This extension will change default markdown editor as hyperMD, if you want using
 	"filenamePattern": "*.md"
 }]
 ```
+
 
 # Credit
 

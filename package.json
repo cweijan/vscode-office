@@ -178,13 +178,22 @@
 			{
 				"command": "office.markdown.paste",
 				"title": "Enhance pater in markdown"
+			},
+			{
+				"command": "office.html.preview",
+				"title": "Preview HTML"
 			}
 		],
 		"keybindings": [
 			{
 				"command": "office.markdown.paste",
 				"key": "ctrl+v",
-				"when": "!terminalFocus && !filesExplorerFocus"
+				"when": "editorTextFocus && editorLangId == markdown"
+			},
+			{
+				"command": "office.html.preview",
+				"key": "ctrl+shift+v",
+				"when": "editorTextFocus && editorLangId == html"
 			}
 		],
 		"menus": {
@@ -247,6 +256,11 @@
 				}
 			],
 			"editor/context": [
+				{
+					"command": "office.html.preview",
+					"group": "navigation@1",
+					"when": "editorTextFocus && editorLangId == html"
+				},
 				{
 					"command": "rest-client.request",
 					"when": "editorTextFocus && editorLangId == http",
@@ -314,6 +328,15 @@
 					{
 						"filenamePattern": "*.md"
 					}
+				]
+			},
+			{
+				"viewType": "cweijan.viewHtml",
+				"displayName": "Html Viewer",
+				"priority": "option",
+				"selector": [
+					{ "filenamePattern": "*.html" },
+					{ "filenamePattern": "*.htm" }
 				]
 			}
 		],

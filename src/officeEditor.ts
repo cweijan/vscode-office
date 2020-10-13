@@ -1,13 +1,12 @@
-import { readFileSync } from 'fs';
-import { basename, extname, resolve } from 'path';
-import { Holder } from './holder';
-import { MarkdownService } from './markdownService';
-import * as vscode from 'vscode';
-import * as util from 'util';
 import * as fs from 'fs';
-const streamPipeline = util.promisify(require('stream').pipeline);
+import { readFileSync } from 'fs';
 import fetch from 'node-fetch';
+import { extname, resolve } from 'path';
+import * as util from 'util';
+import * as vscode from 'vscode';
 import { MessageOptions } from 'vscode';
+import { Util } from './common/util';
+const streamPipeline = util.promisify(require('stream').pipeline);
 const mammoth = require("mammoth");
 
 export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
@@ -53,7 +52,14 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
                 break;
             case ".xmind":
                 webview.onDidReceiveMessage(async () => { webview.postMessage({ type: "open", content: readFileSync(uri.fsPath) }) });
-                webview.html = this.buildPath(readFileSync(this.extensionPath + "/resource/xmind/index.html", 'utf8'), webview, this.extensionPath + "/resource");
+                webview.html = Util.buildPath(readFileSync(this.extensionPath + "/resource/xmind/index.html", 'utf8'), webview, this.extensionPath + "/resource");
+                break;
+            case ".htm":
+            case ".html":
+                webview.html = Util.buildPath(readFileSync(uri.fsPath, 'utf8'), webview, folderPath.fsPath);
+                Util.listen(webviewPanel,uri,()=>{
+                    webviewPanel.webview.html = Util.buildPath(readFileSync(uri.fsPath, 'utf8'), webviewPanel.webview, folderPath.fsPath);
+                })
                 break;
             case ".puml":
             case ".plantuml":
@@ -62,21 +68,21 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
                 break;
             case ".epub":
                 webview.onDidReceiveMessage(async () => webview.postMessage({ type: "open", content: webview.asWebviewUri(uri).toString() }))
-                webview.html = this.buildPath(readFileSync(this.extensionPath + "/resource/epub/index.html", 'utf8'), webview, this.extensionPath + "/resource/epub");
+                webview.html = Util.buildPath(readFileSync(this.extensionPath + "/resource/epub/index.html", 'utf8'), webview, this.extensionPath + "/resource/epub");
                 break;
             default:
                 vscode.commands.executeCommand('vscode.openWith', uri, "default");
         }
 
         if (htmlPath != null) {
-            webview.html = this.buildPath(readFileSync(this.extensionPath + "/resource/" + htmlPath, 'utf8'), webview, this.extensionPath + "/resource")
+            webview.html = Util.buildPath(readFileSync(this.extensionPath + "/resource/" + htmlPath, 'utf8'), webview, this.extensionPath + "/resource")
         }
 
     }
 
 
     private handlePdf(uri: vscode.Uri, webview: vscode.Webview) {
-        webview.html = this.buildPath(
+        webview.html = Util.buildPath(
             readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8').replace("{{content}}",
                 JSON.stringify({
                     path: webview.asWebviewUri(uri).toString(),
@@ -95,7 +101,7 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
 
     private handleSvg(uri: vscode.Uri, webview: vscode.Webview) {
         webview.html =
-            this.buildPath(
+            Util.buildPath(
                 readFileSync(this.extensionPath + "/resource/svg/svg.html", 'utf8')
                     .replace("{{content}}",
                         encodeURIComponent(readFileSync(uri.fsPath, 'utf8'))
@@ -109,7 +115,7 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
             .then((result: any) => {
                 console.debug(result.messages)
                 webview.html =
-                    this.buildPath(
+                    Util.buildPath(
                         readFileSync(this.extensionPath + "/resource/word.html", 'utf8').replace("{{content}}", result.value)
                         , webview, this.extensionPath + "/resource"
                     )
@@ -126,12 +132,6 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
         })
         return "index.html"
     }
-
-
-    private buildPath(data: string, webview: vscode.Webview, contextPath: string): string {
-        return data.replace(/((src|href)=("|'))(.+?\.(css|js|properties|json))\b/gi, "$1" + webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)) + "/$4");
-    }
-
 
     private handlePuml(uri: vscode.Uri, webview: vscode.Webview) {
         webview.onDidReceiveMessage(async (message) => {
@@ -159,7 +159,7 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
                     break;
             }
         });
-        webview.html = this.buildPath(readFileSync(this.extensionPath + "/resource/plantuml/index.html", 'utf8'), webview, this.extensionPath + "/resource/plantuml");
+        webview.html = Util.buildPath(readFileSync(this.extensionPath + "/resource/plantuml/index.html", 'utf8'), webview, this.extensionPath + "/resource/plantuml");
     }
 
 
