@@ -12,16 +12,16 @@ const iconChange = e => {
     }
 };
 
-window.onmousemove = iconChange
-window.onkeydown = iconChange
-window.onkeyup = iconChange
+// window.onmousemove = iconChange
+// window.onkeydown = iconChange
+// window.onkeyup = iconChange
 
-window.onmousedown = e => {
-    const ele = document.getElementById('main')
-    const zoom = ele.style.zoom ? parseInt(ele.style.zoom.replace("%", "")) : 100
-    if (e.ctrlKey || e.altKey) {
-        ele.style.zoom = `${zoom - 10}%`;
-    } else {
-        ele.style.zoom = `${zoom + 10}%`;
-    }
-}
+// window.onmousedown = e => {
+//     const ele = document.getElementById('main')
+//     const zoom = ele.style.zoom ? parseInt(ele.style.zoom.replace("%", "")) : 100
+//     if (e.ctrlKey || e.altKey) {
+//         ele.style.zoom = `${zoom - 10}%`;
+//     } else {
+//         ele.style.zoom = `${zoom + 10}%`;
+//     }
+// }
