@@ -8,10 +8,12 @@ module.exports = {
     mode: isProd ? 'production' : 'development',
     context: path.resolve(__dirname, './'),
     entry: {
-        app: './src/extension.ts'
+        main: './src/extension.ts'
     },
     output: {
-        filename: 'extension.js',
+        filename: ({ chunk: { name } }) => {
+            return name === 'main' ? 'extension.js': '[name].js';
+        },
         path: path.resolve(__dirname, './out'),
         libraryTarget: 'commonjs2',
         // config source map sources url

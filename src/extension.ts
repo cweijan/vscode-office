@@ -1,18 +1,16 @@
+import { readFileSync } from 'fs';
+import { basename, resolve } from 'path';
 import * as vscode from 'vscode';
-import * as path from 'path';
-
+import { Util } from './common/util';
+import { MarkdownEditor } from './markdownEditor';
+import { MarkdownService } from './markdownService';
 // const sudo = require('sudo-prompt');
 // const REG_JUMP_BIN = `${path.resolve(__dirname, '../bin/regjump.exe')} "{key}"`;
 // const sudoOptions = {
 //     name: 'RegJump'
 // };
 import { OfficeEditor } from './officeEditor';
-import { MarkdownService } from './markdownService';
-import { MarkdownEditor } from './markdownEditor';
-import { activateHttp } from './http/http';
-import { basename, resolve } from 'path';
-import { Util } from './common/util';
-import { readFileSync, utimes } from 'fs';
+
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -35,7 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
 			})
 		})
 	);
-	activateHttp(context)
+	require('./bundle/http').activateHttp(context)
 	vscode.window.registerCustomEditorProvider("cweijan.viewOffice", new OfficeEditor(context), viewOption);
 	vscode.window.registerCustomEditorProvider("cweijan.viewHtml", new OfficeEditor(context), viewOption);
 	vscode.window.registerCustomEditorProvider("cweijan.viewMarkdown", new MarkdownEditor(context), viewOption);

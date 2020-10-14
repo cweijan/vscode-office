@@ -335,8 +335,12 @@
 				"displayName": "Html Viewer",
 				"priority": "option",
 				"selector": [
-					{ "filenamePattern": "*.html" },
-					{ "filenamePattern": "*.htm" }
+					{
+						"filenamePattern": "*.html"
+					},
+					{
+						"filenamePattern": "*.htm"
+					}
 				]
 			}
 		],
@@ -365,14 +369,12 @@
 		"build": "webpack -p --progress"
 	},
 	"devDependencies": {
-		"@opentelemetry/api": "^0.11.0",
-		"@opentelemetry/tracing": "^0.11.0",
 		"@types/node": "^13.11.0",
 		"@types/node-fetch": "^2.5.7",
 		"@types/vscode": "^1.40.0",
 		"css-loader": "^3.5.3",
 		"file-loader": "^6.0.0",
-		"html-webpack-plugin": "^4.3.0",
+		"clean-webpack-plugin": "^3.0.0",
 		"style-loader": "^1.2.1",
 		"ts-loader": "^7.0.5",
 		"typescript": "^3.8.3",
@@ -381,37 +383,8 @@
 		"webpack-cli": "^3.3.11"
 	},
 	"dependencies": {
-		"adal-node": "^0.1.26",
-		"applicationinsights": "^1.0.5",
-		"aws4": "^1.9.1",
 		"chrome-finder": "^1.0.7",
-		"clean-webpack-plugin": "^3.0.0",
-		"code-highlight-linenums": "^0.2.1",
-		"combined-stream": "^1.0.5",
-		"dayjs": "^1.8.20",
-		"dotenv": "^8.2.0",
-		"encodeurl": "^1.0.1",
-		"filesize": "^3.3.0",
-		"fs-extra": "^5.0.0",
-		"got": "^9.6.0",
-		"highlight.js": "^9.6.0",
-		"http-proxy-agent": "^2.1.0",
-		"https-proxy-agent": "^2.2.3",
-		"httpsnippet": "^1.22.0",
-		"iconv-lite": "^0.4.15",
-		"jsonc-parser": "^2.0.2",
-		"jsonpath-plus": "^0.20.1",
 		"mammoth": "^1.4.13",
-		"mime-types": "^2.1.14",
-		"mkdirp": "^1.0.4",
-		"node-fetch": "^2.6.1",
-		"pretty-data": "^0.40.0",
-		"request": "^2.79.0",
-		"tough-cookie": "^3.0.1",
-		"tough-cookie-file-store-bugfix": "Huachao/tough-cookie-file-store-bugfix",
-		"uuid": "^3.3.2",
-		"xmldom": "^0.1.27",
-		"xpath": "^0.0.27",
-		"yargs-parser": "^13.1.2"
+		"node-fetch": "^2.6.1"
 	}
 }
