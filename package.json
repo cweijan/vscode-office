@@ -309,15 +309,6 @@
 					},
 					{
 						"filenamePattern": "*.pdf"
-					},
-					{
-						"filenamePattern": "*.puml"
-					},
-					{
-						"filenamePattern": "*.plantuml"
-					},
-					{
-						"filenamePattern": "*.pu"
 					}
 				]
 			},
@@ -327,6 +318,15 @@
 				"selector": [
 					{
 						"filenamePattern": "*.md"
+					},
+					{
+						"filenamePattern": "*.puml"
+					},
+					{
+						"filenamePattern": "*.plantuml"
+					},
+					{
+						"filenamePattern": "*.pu"
 					}
 				]
 			},

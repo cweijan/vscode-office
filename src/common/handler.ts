@@ -1,0 +1,38 @@
+import { EventEmitter } from "events";
+import * as vscode from 'vscode';
+import { WebviewPanel } from "vscode";
+
+export class Hanlder {
+
+    constructor(public panel: WebviewPanel, private eventEmitter: EventEmitter) { }
+
+    on(event: string, callback: (content: any) => void): this {
+        this.eventEmitter.on(event, callback)
+        return this;
+    }
+
+    emit(event: string, content?: any) {
+        this.panel.webview.postMessage({ type: event, content })
+    }
+
+    public static bind(panel: WebviewPanel,uri:vscode.Uri): Hanlder {
+        const eventEmitter = new EventEmitter();
+
+        const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
+            if (e.document.uri.toString() === uri.toString()) {
+                eventEmitter.emit("externalUpdate", e)
+            }
+        });
+        panel.onDidDispose(() => {
+            changeDocumentSubscription.dispose()
+            eventEmitter.emit("dispose")
+        });
+
+        // bind from webview
+        panel.webview.onDidReceiveMessage((message) => {
+            eventEmitter.emit(message.type, message.content)
+        })
+        return new Hanlder(panel, eventEmitter);
+    }
+
+}

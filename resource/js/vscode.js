@@ -1,8 +1,8 @@
 const vscode = typeof (acquireVsCodeApi) != "undefined" ? acquireVsCodeApi() : null;
 const postMessage = (message) => { if (vscode) { vscode.postMessage(message) } }
 let init = false;
+let events = {}
 const getVscodeEvent = () => {
-    let events = {}
     function receive({ data }) {
         if (!data)
             return;
