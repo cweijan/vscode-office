@@ -110,7 +110,12 @@ function load_and_update_editor(url) {
     editor.setValue(value.content)
     editor.setOption('hmdReadLink', { baseURI: value.folderPath })
   })
-
+  window.onkeypress = (e) => {
+    if (e.ctrlKey && (e.key == 's' || e.key == "S")) {
+      vscodeEvent.emit("save",editor.getValue())
+      vscodeEvent.emit("doSave")
+    }
+  }
 }
 
 /**
