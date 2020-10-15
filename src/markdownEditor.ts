@@ -87,6 +87,9 @@ export class MarkdownEditor implements vscode.CustomTextEditorProvider {
             path = "markdown";
         }
 
+        Holder.activeUrl = uri;
+        handler.panel.onDidChangeViewState(e => Holder.activeUrl = e.webviewPanel.visible ? uri : null);
+
         handler.on("init", () => {
             handler.emit("open", {
                 title: basename(uri.fsPath),
