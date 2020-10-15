@@ -85,7 +85,6 @@ require([
       name: "hypermd",
       hashtag: true,  // this syntax is not actived by default
     },
-
     hmdClick: clickHandler,
     hmdFold: {
       image: true,
@@ -102,12 +101,6 @@ require([
     }
     vscodeEvent.emit("codemirrorEdit", changeObj)
   })
-  window.onkeypress = (e) => {
-    if (e.ctrlKey && (e.key == 's' || e.key == "S")) {
-      vscodeEvent.emit("save",editor.getValue())
-      vscodeEvent.emit("doSave")
-    }
-  }
   editor.setSize(null, "100%") // set height
 
   // for debugging

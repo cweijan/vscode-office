@@ -97,11 +97,11 @@ window.onpopstate = function (ev) {
 }
 
 function load_and_update_editor(url) {
-  
+
   var editor_area = document.getElementById("editor_area")
   var clzName = editor_area.className
   editor_area.className = clzName + " loading_file"
-  
+
 
   const vscodeEvent = getVscodeEvent();
   vscodeEvent.emit("init")
@@ -111,11 +111,23 @@ function load_and_update_editor(url) {
     editor.setOption('hmdReadLink', { baseURI: value.folderPath })
   })
   window.onkeypress = (e) => {
-    if (e.ctrlKey && (e.key == 's' || e.key == "S")) {
-      vscodeEvent.emit("save",editor.getValue())
+    if (e.ctrlKey && e.code == "KeyS") {
+      vscodeEvent.emit("save", editor.getValue())
       vscodeEvent.emit("doSave")
     }
   }
+  window.onblur = () => {
+    localStorage.setItem('cursor', JSON.stringify(editor.getCursor()))
+  }
+  window.onfocus = () => {
+    editor.focus()
+    let cursor = localStorage.getItem('cursor')
+    if (cursor) {
+      cursor = JSON.parse(cursor)
+      editor.setCursor(cursor)
+    }
+  }
+
 }
 
 /**
