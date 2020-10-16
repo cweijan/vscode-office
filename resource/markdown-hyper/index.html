@@ -10,8 +10,10 @@
 
 <body>
   <script src="../js/vscode.js"></script>
+  <script src="../js/jquery.min.js"></script>
   <input id="rootPath" type="hidden" value="{{rootPath}}"/>
   <link rel="stylesheet" href="./demo/style.css">
+  <link rel="stylesheet" href="./custom/material.min.css">
 
 <div id="loadSplash" style="display: none">
     <div id="loadErrorSplash" style="display: none">
@@ -21,6 +23,11 @@
     <p style="font-size:1.8em;text-align:center"><b><i>Loading...</i></b></p>
     <p style="font-size:0.9em;text-align:center"><i id="loadingFileName"></i></p>
     <p>&nbsp;</p>
+</div>
+
+<div class="dropdown-menu dropdown-menu-sm" id="context-menu" style="display: none;">
+  <a class="dropdown-item" id="copyMenu" href="#">Copy</a>
+  <a class="dropdown-item" id="pasteMenu" href="#">Paste</a>
 </div>
 
 <div id="math-preview" class="float-win float-win-hidden">

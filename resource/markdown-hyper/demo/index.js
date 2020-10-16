@@ -94,6 +94,35 @@ require([
       emoji: true,
     }
   })
+  $('body').on('contextmenu', (e) => {
+    var top = e.pageY - 10;
+    var left = e.pageX - 90;
+    $("#context-menu").css({
+      display: "block",
+      top: top,
+      left: left
+    }).addClass("show");
+  }).on("click", (e) => {
+    $("#context-menu").removeClass("show").hide();
+    let id = e.target.id;
+    if (!e.target.id) {
+      return;
+    }
+    id = id.replace("Menu", "")
+    switch (id) {
+      case "copy":
+        document.execCommand("copy")
+        break;
+      case "paste":
+        document.execCommand("paste")
+        break;
+    }
+  });
+
+  $("#context-menu a").on("click", function () {
+    $(this).parent().removeClass("show").hide();
+  });
+
   const vscodeEvent = getVscodeEvent();
   editor.on("change", (_instance, changeObj) => {
     if (changeObj.origin == "setValue") {
