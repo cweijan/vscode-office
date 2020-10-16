@@ -83,7 +83,7 @@
             if (this.core.s.showThumbByDefault) {
                 setTimeout(function(){
                     _this.core.$outer.addClass('lg-thumb-open');
-                }, 700);
+                }, 150);
             }
 
             if (this.core.s.pullCaptionUp) {
