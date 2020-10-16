@@ -37,6 +37,7 @@ This extension will change default markdown editor as hyperMD, if you want using
   - [psd-viewer](https://github.com/zenoamaro/psd-viewer)
 - Word: [mammoth](https://github.com/mwilliamson/mammoth.js)
 - xmind: [xmind-viewer](https://github.com/xmindltd/xmind-viewer)
+- Image: [lightGallery](https://github.com/sachinchoolur/lightGallery)
 - PDF: [pdf.js](https://github.com/mozilla/pdf.js)
 - HTTP: [vscode-restclient](https://github.com/Huachao/vscode-restclient)
 - Markdown:

@@ -1,5 +1,6 @@
-import { readFileSync } from 'fs';
-import { extname, resolve } from 'path';
+import { S_IFIFO } from 'constants';
+import { readdirSync, readFileSync } from 'fs';
+import { basename, extname, resolve } from 'path';
 import * as vscode from 'vscode';
 import { Util } from './common/util';
 const mammoth = require("mammoth");
@@ -26,6 +27,12 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
 
         const ext = extname(uri.fsPath).toLowerCase()
         let htmlPath: string | null = null;
+
+        if (ext.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|tiff|webp)$/i)) {
+            this.handleImage(uri, webview)
+            return;
+        }
+
         switch (ext) {
             case ".xlsx":
             case ".xls":
@@ -52,7 +59,7 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
             case ".htm":
             case ".html":
                 webview.html = Util.buildPath(readFileSync(uri.fsPath, 'utf8'), webview, folderPath.fsPath);
-                Util.listen(webviewPanel,uri,()=>{
+                Util.listen(webviewPanel, uri, () => {
                     webviewPanel.webview.html = Util.buildPath(readFileSync(uri.fsPath, 'utf8'), webviewPanel.webview, folderPath.fsPath);
                 })
                 break;
@@ -68,6 +75,29 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
             webview.html = Util.buildPath(readFileSync(this.extensionPath + "/resource/" + htmlPath, 'utf8'), webview, this.extensionPath + "/resource")
         }
 
+    }
+
+    private handleImage(uri: vscode.Uri, webview: vscode.Webview) {
+        const folderPath = vscode.Uri.file(resolve(uri.fsPath, ".."));
+        const files = readdirSync(folderPath.fsPath)
+        let text = "";
+        let current;
+        let i = 0;
+        const currentFile = basename(uri.fsPath)
+        for (const file of files) {
+            if (currentFile == file) {
+                current = i;
+            }
+            i++;
+            if (file.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|tiff|webp)$/i)) {
+                const resUri = vscode.Uri.file(folderPath.fsPath + "/" + file);
+                const resource = webview.asWebviewUri(resUri).toString();
+                text += `<a href="${resource}" title="${file}"> <img src="${resource}" > </a>`
+            }
+        }
+        webview.html =
+            Util.buildPath(readFileSync(this.extensionPath + "/resource/lightgallery/lg.html", 'utf8'), webview, this.extensionPath + "/resource/lightgallery")
+                .replace("{{content}}", text).replace("{{current}}",current);
     }
 
 

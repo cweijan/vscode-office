@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="css/lightgallery.css" rel="stylesheet">
+    <script src="js/jquery.min.js"></script>
+    <script src="../js/vscode.js"></script>
+    <script src="js/jquery.mousewheel.min.js"></script>
+    <script src="js/lightgallery.js"></script>
+    <script src="js/lg-zoom.js"></script>
+    <script src="js/lg-thumbnail.js"></script>
+    <script src="js/lg-fullscreen.js"></script>
+    <script src="js/lg-rotate.js"></script>
+    <style>
+        .lg-close,#lightgallery {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="lightgallery">
+        {{content}}
+    </div>
+    <script>
+        var lg = $('#lightgallery');
+        lg.lightGallery({
+            download: false,
+            actualSize: false,
+            animateThumb: false,
+            speed: 450,
+            escKey: false,
+            supportLegacyBrowser: false,
+            toogleThumb: false
+        })
+        $('a:eq({{current}})').click()
+    </script>
+</body>
+
+</html>
