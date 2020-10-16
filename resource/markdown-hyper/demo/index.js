@@ -85,6 +85,7 @@ require([
       name: "hypermd",
       hashtag: true,  // this syntax is not actived by default
     },
+    lineNumbers:false,
     hmdClick: clickHandler,
     hmdFold: {
       image: true,

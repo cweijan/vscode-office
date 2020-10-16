@@ -1,3 +1,7 @@
+body{
+    padding: 0;
+}
+
 #loadSplash {
     max-width: 1000px;
     margin: auto;
