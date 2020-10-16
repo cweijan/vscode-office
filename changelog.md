@@ -1,3 +1,6 @@
+## 1.5.0 2020-10-16
+- Enhance Image viewer.
+
 ## 1.4.3 2020-10-12
 - Fix paste fail in terminal.
 - Using hyperMD as default markdown editor.
