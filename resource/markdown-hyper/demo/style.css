@@ -3,6 +3,11 @@
     margin: auto;
 }
 
+.katex{
+    color: black;
+    font-size: 14px;
+}
+
 #loadErrorSplash {
     text-align: left;
     max-width: 700px;
