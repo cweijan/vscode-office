@@ -11,7 +11,7 @@ export class MarkdownService {
 
     private configPath: string;
 
-    constructor(context: vscode.ExtensionContext) {
+    constructor(private context: vscode.ExtensionContext) {
         this.configPath = context.globalStoragePath + "/config.json"
     }
 
@@ -143,7 +143,7 @@ export class MarkdownService {
         let platform = process.platform;
         if (platform === 'win32') {
             // Windows
-            const scriptPath = path.join(__dirname, '../lib/pc.ps1');
+            const scriptPath = path.join(this.context.extensionPath, '/lib/pc.ps1');
             const powershell = spawn('powershell', [
                 '-noprofile',
                 '-noninteractive',
@@ -161,7 +161,7 @@ export class MarkdownService {
             });
         } else if (platform === 'darwin') {
             // Mac
-            let scriptPath = path.join(__dirname, './lib/mac.applescript');
+            let scriptPath = path.join(this.context.extensionPath, './lib/mac.applescript');
             let ascript = spawn('osascript', [scriptPath, imagePath]);
             ascript.on('exit', function (code, signal) {
             });
@@ -170,7 +170,7 @@ export class MarkdownService {
             });
         } else {
             // Linux 
-            let scriptPath = path.join(__dirname, './lib/linux.sh');
+            let scriptPath = path.join(this.context.extensionPath, './lib/linux.sh');
 
             let ascript = spawn('sh', [scriptPath, imagePath]);
             ascript.on('exit', function (code, signal) {
