@@ -88,8 +88,8 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
             if (currentFile == file) {
                 current = i;
             }
-            i++;
             if (file.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|tiff|webp)$/i)) {
+                i++;
                 const resUri = vscode.Uri.file(folderPath.fsPath + "/" + file);
                 const resource = webview.asWebviewUri(resUri).toString();
                 text += `<a href="${resource}" title="${file}"> <img src="${resource}" > </a>`
