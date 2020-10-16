@@ -609,6 +609,8 @@
             "Enter": "hmdNewlineAndContinue",
             "Shift-Enter": "hmdNewline"
         },
+        _a[modPrefix + "-K"] = createStyleToggler(function (state) { return state.strong; }, function (token) { return / formatting-strong /.test(token.type); }, function (state) { return core_1.repeatStr(state && state.strong || "*", 2); } // ** or __
+        ),
         _a[modPrefix + "-B"] = createStyleToggler(function (state) { return state.strong; }, function (token) { return / formatting-strong /.test(token.type); }, function (state) { return core_1.repeatStr(state && state.strong || "*", 2); } // ** or __
         ),
         _a[modPrefix + "-I"] = createStyleToggler(function (state) { return state.em; }, function (token) { return / formatting-em /.test(token.type); }, function (state) { return (state && state.em || "*"); }),
