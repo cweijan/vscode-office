@@ -1,3 +1,8 @@
+## 1.6.0 2020-10-19
+- Add font viewer.
+- Adjust markdown style and fix save fail bug.
+
+
 ## 1.5.0 2020-10-16
 - Enhance Image viewer.
 
