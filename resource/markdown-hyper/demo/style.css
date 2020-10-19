@@ -1,6 +1,31 @@
+.katex-html{
+    font-size: 18px;
+}
+
+.CodeMirror-gutters
+,.CodeMirror-gutter-wrapper{
+    display: none;
+}
+
+.CodeMirror-lines{
+    padding: 20px;
+}
+
+.cm-header{
+    font-family: "Open Sans","Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+
+html,.CodeMirror{
+    
+    color: rgb(51, 51, 51);
+}
+
 body{
     padding: 0;
+    font-family: "Open Sans","Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
+
+/* 上面的是自定义的 */
 
 #loadSplash {
     max-width: 1000px;
@@ -8,7 +33,7 @@ body{
 }
 
 .katex{
-    color: black;
+    color: rgb(51, 51, 51);
     font-size: 14px;
 }
 
@@ -121,15 +146,16 @@ h2 {
     float: left;
     margin-right: 10px;
     min-width: 300px;
-    width: 25%;
+    width: 20%;
     overflow-y: auto;
+    font-size: 14px;
     height: 100%;
-    display: none;
+    background: #fafafa;
 }
 
 #toc .toc-item {
     cursor: pointer;
-    border-bottom: 1px solid #ccc;
+    /* border-bottom: 1px solid #ccc; */
     color: #666;
     padding: .5em;
 }

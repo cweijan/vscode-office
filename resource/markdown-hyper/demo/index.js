@@ -85,7 +85,8 @@ require([
       name: "hypermd",
       hashtag: true,  // this syntax is not actived by default
     },
-    lineNumbers:false,
+    lineNumbers: false,
+    dragDrop: false,
     hmdClick: clickHandler,
     hmdFold: {
       image: true,
@@ -95,6 +96,7 @@ require([
       emoji: true,
     }
   })
+  const vscodeEvent = getVscodeEvent();
   $('body').on('contextmenu', (e) => {
     var top = e.pageY - 10;
     var left = e.pageX - 90;
@@ -117,6 +119,10 @@ require([
       case "paste":
         document.execCommand("paste")
         break;
+      case "export":
+        vscodeEvent.emit("save", editor.getValue())
+        vscodeEvent.emit('export')
+        break;
     }
   });
 
@@ -124,12 +130,16 @@ require([
     $(this).parent().removeClass("show").hide();
   });
 
-  const vscodeEvent = getVscodeEvent();
+  let timeFlag;
   editor.on("change", (_instance, changeObj) => {
-    if (changeObj.origin == "setValue") {
+    if (changeObj.origin == "setValue" || timeFlag != null) {
       return;
     }
-    vscodeEvent.emit("codemirrorEdit", changeObj)
+    vscodeEvent.emit("save", editor.getValue())
+    timeFlag = setTimeout(() => {
+      timeFlag = null
+    }, 2000);
+    // vscodeEvent.emit("codemirrorEdit", changeObj)
   })
   editor.setSize(null, "100%") // set height
 

@@ -68,7 +68,7 @@
   color: #00f;
 }
 .cm-s-hypermd-light span.cm-variable {
-  color: black;
+  color: rgb(51, 51, 51);
 }
 .cm-s-hypermd-light span.cm-variable-2 {
   color: #0000C0;
@@ -77,10 +77,10 @@
   color: #0000C0;
 }
 .cm-s-hypermd-light span.cm-property {
-  color: black;
+  color: rgb(51, 51, 51);
 }
 .cm-s-hypermd-light span.cm-operator {
-  color: black;
+  color: rgb(51, 51, 51);
 }
 .cm-s-hypermd-light span.cm-comment {
   color: #4F9F5F;
@@ -132,7 +132,7 @@
 }
 .cm-s-hypermd-light .CodeMirror-matchingbracket {
   outline: 1px solid grey;
-  color: black !important;
+  color: rgb(51, 51, 51) !important;
 }
 .cm-s-hypermd-light .CodeMirror-linenumber {
   color: #ccc;
@@ -391,31 +391,31 @@
   margin-left: -30px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-1 {
-  padding-left: 45px;
+  padding-left: 30px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-2 {
-  padding-left: 75px;
+  padding-left: 65px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-3 {
-  padding-left: 105px;
+  padding-left: 90px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-4 {
-  padding-left: 135px;
+  padding-left: 120px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-5 {
-  padding-left: 165px;
+  padding-left: 150px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-6 {
-  padding-left: 195px;
+  padding-left: 180px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-7 {
-  padding-left: 225px;
+  padding-left: 210px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-8 {
-  padding-left: 255px;
+  padding-left: 240px;
 }
 .cm-s-hypermd-light pre.HyperMD-list-line-9 {
-  padding-left: 285px;
+  padding-left: 270px;
 }
 .cm-s-hypermd-light span.cm-formatting-list {
   margin-left: -30px;
@@ -423,8 +423,8 @@
   color: #666;
 }
 .cm-s-hypermd-light span.cm-formatting-list.cm-list-2 {
-  text-shadow: 0 1px #666, 0 -1px #666, 1px 0 #666, -1px 0 #666;
-  color: #fff;
+  text-shadow: none;
+    color: rgb(51, 51, 51);
 }
 .cm-s-hypermd-light span.cm-formatting-task {
   white-space: pre;
