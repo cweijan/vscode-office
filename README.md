@@ -10,6 +10,7 @@ It support below files now:
 - Pdf: .pdf
 - Epub: .epub
 - Xmind: .xmind
+- Font: .ttf, .otf, .woff
 - Markdown: .md
 - HttpRequest: .http
 - PlantUml: .puml, .pu, .plantuml
@@ -39,6 +40,9 @@ This extension will change default markdown editor as hyperMD, if you want using
 - xmind: [xmind-viewer](https://github.com/xmindltd/xmind-viewer)
 - Image: [lightGallery](https://github.com/sachinchoolur/lightGallery)
 - PDF: [pdf.js](https://github.com/mozilla/pdf.js)
+- Font:
+  - [CharacterMap](https://github.com/mathew-kurian/CharacterMap)
+  - [opentype](https://github.com/opentypejs/opentype.js)
 - HTTP: [vscode-restclient](https://github.com/Huachao/vscode-restclient)
 - Markdown:
   - [stackedit](https://github.com/benweet/stackedit)

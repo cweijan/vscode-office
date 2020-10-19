@@ -310,6 +310,9 @@
 					{
 						"filenamePattern": "*.pdf"
 					},
+					{ "filenamePattern": "*.ttf" },
+					{ "filenamePattern": "*.woff" },
+					{ "filenamePattern": "*.otf" },
 					{ "filenamePattern": "*.jpg" },
 					{ "filenamePattern": "*.png" },
 					{ "filenamePattern": "*.gif" },

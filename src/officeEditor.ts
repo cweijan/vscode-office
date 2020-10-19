@@ -2,6 +2,7 @@ import { S_IFIFO } from 'constants';
 import { readdirSync, readFileSync } from 'fs';
 import { basename, extname, resolve } from 'path';
 import * as vscode from 'vscode';
+import { Hanlder } from './common/handler';
 import { Util } from './common/util';
 const mammoth = require("mammoth");
 
@@ -33,11 +34,19 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
             return;
         }
 
+
+        const handler = Hanlder.bind(webviewPanel, uri);
+
         switch (ext) {
             case ".xlsx":
             case ".xls":
             case ".csv":
-                htmlPath = this.handleXlsx(uri, webview)
+                htmlPath = this.handleXlsx(uri, handler)
+                break;
+            case ".ttf":
+            case ".woff":
+            case ".otf":
+                this.handleFont(document, handler)
                 break;
             case ".psd":
                 webview.onDidReceiveMessage(() => webview.postMessage({ type: "open", content: webview.asWebviewUri(uri).toString() }))
@@ -97,7 +106,7 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
         }
         webview.html =
             Util.buildPath(readFileSync(this.extensionPath + "/resource/lightgallery/lg.html", 'utf8'), webview, this.extensionPath + "/resource/lightgallery")
-                .replace("{{content}}", text).replace("{{current}}",current);
+                .replace("{{content}}", text).replace("{{current}}", current);
     }
 
 
@@ -143,12 +152,23 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
             .done();
     }
 
-    private handleXlsx(uri: vscode.Uri, webview: vscode.Webview) {
-        webview.onDidReceiveMessage(async (message) => {
-            if (message.type == "init") {
-                const content = await vscode.workspace.fs.readFile(uri)
-                webview.postMessage({ type: "open", content })
-            }
+    private handleFont(document: vscode.CustomDocument, handler: Hanlder) {
+        const webview = handler.panel.webview;
+        handler.on("init", () => {
+            handler.emit('open', { href: webview.asWebviewUri(document.uri).toString() })
+        })
+        webview.html =
+            Util.buildPath(
+                readFileSync(this.extensionPath + "/resource/font/ttf/index.html", 'utf8')
+                , webview, this.extensionPath + "/resource/font/ttf"
+            )
+    }
+
+
+    private handleXlsx(uri: vscode.Uri,handler:Hanlder) {
+        handler.on("init", async ()=>{
+            const content = await vscode.workspace.fs.readFile(uri)
+            handler.emit("open",content)
         })
         return "index.html"
     }

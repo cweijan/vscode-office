@@ -1,33 +1,26 @@
 const vscode = typeof (acquireVsCodeApi) != "undefined" ? acquireVsCodeApi() : null;
 const postMessage = (message) => { if (vscode) { vscode.postMessage(message) } }
-let init = false;
+
 let events = {}
-const getVscodeEvent = () => {
-    function receive({ data }) {
-        if (!data)
-            return;
-        if (events[data.type]) {
-            events[data.type](data.content);
-        }
+function receive({ data }) {
+    if (!data)
+        return;
+    if (events[data.type]) {
+        events[data.type](data.content);
     }
+}
+window.addEventListener('message', receive)
+
+const getVscodeEvent = () => {
     return {
         on(event, data) {
-            this.tryInit();
             events[event] = data
             return this;
         },
         emit(event, data) {
-            this.tryInit();
             postMessage({ type: event, content: data })
-        },
-        tryInit() {
-            if (init) return;
-            init = true;
-            window.addEventListener('message', receive)
-        },
-        destroy() {
-            window.removeEventListener('message', receive)
-            this.init = false;
         }
     }
 }
+
+window.vscodeEvent=getVscodeEvent()

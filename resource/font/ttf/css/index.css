@@ -1,0 +1,128 @@
+html, body {
+    background: #222;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    font-family: helvetica;
+    color: #FFF;
+}
+
+html {
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+#glyph {
+    position: absolute;
+    top: 0;
+    left: 100px;
+    margin: 0 auto;
+}
+
+.item {
+    float: left;
+    cursor: pointer;
+    border: solid 1px #EEE;
+    margin-top: -1px;
+    margin-right: -1px;
+    background: #FFF;
+    transition: all 250ms;
+}
+
+.page {
+    vertical-align: middle;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 6px 8px;
+    text-align: center;
+    color: #888;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    transition: all 250ms;
+}
+
+.page-selected {
+    font-weight: bold;
+    color: #FFF;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.browse-wrap {
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    padding: 0;
+    background-color: #14bfff;
+    width: 100%;
+}
+
+.title {
+    color: #FFF;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 0;
+    border: none !important;
+}
+
+.upload {
+    right: 0;
+    margin: 0;
+    bottom: 0;
+    padding: 0;
+    opacity: 0;
+    height: 300px;
+    outline: none;
+    cursor: inherit;
+    position: absolute;
+    font-size: 1000px !important;
+    font-family: helvetica;
+}
+
+.upload-path {
+    text-align: center;
+    margin: 20px;
+    display: block;
+    padding: 0;
+    font-size: 80%;
+    color: #3b5998;
+    font-family: helvetica;
+}
+
+#pagination, .pagination {
+    text-align: left;
+    font-size: 12px;
+    height: 100%;
+    overflow: auto;
+    color: #FFF;
+}
+
+.item:hover {
+    background: #EEE;
+}
+
+#glyph-data dl, #font-data dl {
+    margin: 0;
+}
+
+#glyph-data dt, #font-data dt {
+    display: inline-block;
+    font: bold 12px/1.4 helvetica;
+    color: #788b94;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    width: 90px;
+}
+
+#glyph-data dd, #font-data dd {
+    display: inline-block;
+    font: 600 12px/1.4 helvetica;
+    color: #c3d7ef;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    margin-left: 0;
+    text-align: left;
+}
