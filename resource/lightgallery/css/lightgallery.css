@@ -588,13 +588,21 @@ body:not(.lg-from-hash) .lg-outer.lg-start-zoom .lg-item.lg-complete .lg-object 
   font-size: 20px;
 }
 
+#lg-thumbnail{
+  font-size: 20px;
+}
+
+#lg-thumbnail:after {
+  content: "\e1FF";
+}
+
 #lg-actual-size:after {
   content: "\e033";
 }
 
 #lg-zoom-out {
-  opacity: 0.5;
-  pointer-events: none;
+  /* opacity: 0.5;
+  pointer-events: none; */
 }
 
 #lg-zoom-out:after {

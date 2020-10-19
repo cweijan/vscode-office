@@ -80,6 +80,9 @@
     Thumbnail.prototype.init = function() {
         var _this = this;
         if (this.core.s.thumbnail && this.core.$items.length > 1) {
+            var zoomIcons = '<button type="button" aria-label="Toggle thumbnails" id="lg-thumbnail" class="lg-icon"></button>';
+            this.core.$outer.find('.lg-toolbar').append(zoomIcons);
+
             if (this.core.s.showThumbByDefault) {
                 setTimeout(function(){
                     _this.core.$outer.addClass('lg-thumb-open');
@@ -108,7 +111,15 @@
             this.toogle();
             this.thumbkeyPress();
         }
+
+        $('#lg-thumbnail').on('click', () =>{
+            _this.core.$outer.toggleClass('lg-thumb-open');
+        });
+
     };
+
+
+    
 
     Thumbnail.prototype.build = function() {
         var _this = this;

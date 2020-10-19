@@ -273,9 +273,10 @@
             clearTimeout(_this.hideBartimeout);
 
             // Timeout will be cleared on each slide movement also
-            _this.hideBartimeout = setTimeout(function() {
-                _this.$outer.addClass('lg-hide-items');
-            }, _this.s.hideBarsDelay);
+            // TODO disable hidding
+            // _this.hideBartimeout = setTimeout(function() {
+            //     _this.$outer.addClass('lg-hide-items');
+            // }, _this.s.hideBarsDelay);
 
         });
 

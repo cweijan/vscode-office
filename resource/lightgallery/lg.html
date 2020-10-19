@@ -10,10 +10,9 @@
     <script src="../js/vscode.js"></script>
     <script src="js/jquery.mousewheel.min.js"></script>
     <script src="js/lightgallery.js"></script>
+    <script src="js/lg-rotate.js"></script>
     <script src="js/lg-zoom.js"></script>
     <script src="js/lg-thumbnail.js"></script>
-    <script src="js/lg-fullscreen.js"></script>
-    <script src="js/lg-rotate.js"></script>
     <style>
         .lg-close,#lightgallery {
             display: none;
@@ -26,15 +25,24 @@
         {{content}}
     </div>
     <script>
+        const imageNumber=document.querySelectorAll('img').length;
         var lg = $('#lightgallery');
         lg.lightGallery({
             download: false,
-            actualSize: false,
-            animateThumb: false,
             speed: 450,
+            controls:false,
             escKey: false,
             supportLegacyBrowser: false,
-            toogleThumb: true
+            // zoom
+            scale:0.1,
+            actualSize: true,
+            // Thum
+            animateThumb: false,
+            loadDailymotionThumbnail: false,
+            loadVimeoThumbnail: false,
+            loadYoutubeThumbnail: false,
+            showThumbByDefault: imageNumber<=10,
+            toogleThumb: false
         })
         $('a:eq({{current}})').click()
     </script>

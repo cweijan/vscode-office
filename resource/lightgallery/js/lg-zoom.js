@@ -135,15 +135,15 @@
         };
 
         var callScale = function() {
-            if (scale > 1) {
+            // if (scale > 1) {
                 _this.core.$outer.addClass('lg-zoomed');
-            } else {
-                _this.resetZoom();
-            }
+            // } else {
+            //     _this.resetZoom();
+            // }
 
-            if (scale < 1) {
-                scale = 1;
-            }
+            // if (scale < 1) {
+            //     scale = 1;
+            // }
 
             zoom(scale);
         };
