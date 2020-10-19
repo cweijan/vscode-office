@@ -85,6 +85,7 @@ require([
       name: "hypermd",
       hashtag: true,  // this syntax is not actived by default
     },
+    autofocus: true,
     lineNumbers: false,
     dragDrop: false,
     hmdClick: clickHandler,
