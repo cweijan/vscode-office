@@ -3,9 +3,9 @@ function init_math_preview(cm) {
   var win = new FloatWin("math-preview")
   var supressed = false
 
-  win.closeBtn.addEventListener("click", function(){
-    supressed = true // for current TeX block
-  }, false)
+  // win.closeBtn.addEventListener("click", function(){
+  //   supressed = true // for current TeX block
+  // }, false)
 
   function updatePreview(expr) {
     if (supressed) return

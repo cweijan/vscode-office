@@ -107,7 +107,7 @@
   color: #00c;
 }
 .cm-s-hypermd-light span.cm-url {
-  color: #4af;
+  color: #2d86d0;
 }
 .cm-s-hypermd-light span.cm-link {
   color: #4078c0;
@@ -458,7 +458,7 @@
 }
 .cm-s-hypermd-light pre.HyperMD-codeblock {
   line-height: 1.2;
-  color: #922;
+  color: #383838;
 }
 .cm-s-hypermd-light pre.HyperMD-codeblock span.cm-inline-code {
   display: inherit;
