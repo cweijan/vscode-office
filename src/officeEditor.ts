@@ -1,6 +1,7 @@
 import { S_IFIFO } from 'constants';
-import { readdirSync, readFileSync } from 'fs';
+import { fstat, readdirSync, readFileSync } from 'fs';
 import { basename, extname, resolve } from 'path';
+import { TextEncoder } from 'util';
 import * as vscode from 'vscode';
 import { Hanlder } from './common/handler';
 import { Util } from './common/util';
@@ -165,12 +166,17 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
     }
 
 
-    private handleXlsx(uri: vscode.Uri,handler:Hanlder) {
-        handler.on("init", async ()=>{
+    private handleXlsx(uri: vscode.Uri, handler: Hanlder) {
+        var enc = new TextEncoder(); 
+        handler.on("init", async () => {
             const content = await vscode.workspace.fs.readFile(uri)
-            handler.emit("open",content)
+            handler.emit("open", { content, file: resolve(uri.fsPath) })
+        }).on("save", content => {
+            vscode.workspace.fs.writeFile(uri, new Uint8Array(content))
+        }).on("saveCsv", content => {
+            vscode.workspace.fs.writeFile(uri, enc.encode(content))
         })
-        return "index.html"
+        return "excel.html"
     }
 
 }
