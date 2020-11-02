@@ -127,9 +127,12 @@ function convertMarkdownToHtml(filename, type, text, config) {
       }
     }
 
-    // checkbox
     md.use(require("markdown-it-checkbox"))
-    md.use(require("markdown-it-katex"))
+      .use(require("markdown-it-katex"))
+      .use(require("markdown-it-plantuml"))
+      .use(require("markdown-it-named-headers"))
+      .use(require("markdown-it-toc-done-right").default)
+      .use(require("markdown-it-anchor").default)
 
     // emoji
     let f = config["emoji"]
@@ -157,13 +160,6 @@ function convertMarkdownToHtml(filename, type, text, config) {
       }
     }
 
-    // toc
-    // https://github.com/leff/markdown-it-named-headers
-    let options = {
-      slugify: slug
-    }
-    md.use(require("markdown-it-named-headers"), options)
-
     // markdown-it-container
     // https://github.com/markdown-it/markdown-it-container
     md.use(require("markdown-it-container"), "", {
@@ -178,10 +174,6 @@ function convertMarkdownToHtml(filename, type, text, config) {
         }
       }
     })
-
-    // PlantUML
-    // https://github.com/gmunguia/markdown-it-plantuml
-    md.use(require("markdown-it-plantuml"))
 
     // markdown-it-include
     // https://github.com/camelaissani/markdown-it-include
