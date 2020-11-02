@@ -3,6 +3,7 @@ const os = require("os")
 const path = require("path")
 const url = require("url")
 const URI = require("vscode").Uri
+const { createOutline } = require("./outline")
 
 const exportTypes = require("./export-types.json")
 
@@ -313,7 +314,6 @@ async function exportPdf(data, filename, outputFilePath, type, uri, chromiumArgs
         landscape_option = false
       }
       let options = {
-        path: exportFilename,
         scale: config["scale"],
         displayHeaderFooter: config["displayHeaderFooter"],
         headerTemplate: config["headerTemplate"] || "",
@@ -331,9 +331,13 @@ async function exportPdf(data, filename, outputFilePath, type, uri, chromiumArgs
           left: config["margin"]["left"] || ""
         }
       }
-      await page.pdf(options).catch(error => {
+      const pdf = await page.pdf(options).catch(error => {
         showErrorMessage("page.pdf", error)
       })
+
+      const pdfBytes = await createOutline(pdf,data)
+      fs.writeFileSync(exportFilename, pdfBytes)
+
     }
 
     // generate png and jpeg

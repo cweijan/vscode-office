@@ -439,6 +439,7 @@
 		"chrome-finder": "^1.0.7",
 		"emoji-images": "^0.1.1",
 		"mammoth": "^1.4.13",
+		"highlight.js": "^10.1.2",
 		"markdown-it": "^11.0.0",
 		"markdown-it-anchor": "^6.0.0",
 		"markdown-it-checkbox": "^1.1.0",
@@ -451,6 +452,7 @@
 		"markdown-it-toc-done-right": "^4.1.0",
 		"mustache": "^4.0.1",
 		"node-fetch": "^2.6.1",
+		"pdf-lib": "^1.11.2",
 		"puppeteer": "^5.2.1"
 	}
 }
