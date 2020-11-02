@@ -438,6 +438,19 @@
 		"chrome-finder": "^1.0.7",
 		"mammoth": "^1.4.13",
 		"node-fetch": "^2.6.1",
-		"pretty-markdown-pdf": "^1.4.0"
+		"cheerio": "^1.0.0-rc.3",
+		"emoji-images": "^0.1.1",
+		"highlight.js": "^10.1.2",
+		"markdown-it": "^11.0.0",
+		"markdown-it-checkbox": "^1.1.0",
+		"markdown-it-container": "^3.0.0",
+		"markdown-it-emoji": "^1.4.0",
+		"markdown-it-include": "^1.1.0",
+		"markdown-it-named-headers": "0.0.4",
+		"markdown-it-plantuml": "^1.0.0",
+		"mkdirp": "^1.0.4",
+		"mustache": "^4.0.1",
+		"puppeteer": "^5.2.1",
+		"vscode-uri": "^2.1.2"
 	}
 }

@@ -1,4 +1,4 @@
-const prettyMdPdf = require("pretty-markdown-pdf")
+const prettyMdPdf = require("./markdownPdf")
 import { spawn } from 'child_process';
 import { accessSync, existsSync, mkdirSync, writeFileSync } from 'fs';
 import { homedir } from 'os';
