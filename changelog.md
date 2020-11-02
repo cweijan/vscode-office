@@ -1,3 +1,7 @@
+## 1.7.0 2020-11-2
+- Support export markdwon to pdf.
+- Support edit xlsx、xls、csv.
+
 ## 1.6.0 2020-10-19
 - Add font viewer.
 - Adjust markdown style and fix save fail bug.
