@@ -30,13 +30,15 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
         const ext = extname(uri.fsPath).toLowerCase()
         let htmlPath: string | null = null;
 
+        const handler = Hanlder.bind(webviewPanel, uri);
         if (ext.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|tiff|webp)$/i)) {
             this.handleImage(uri, webview)
+            handler.on("fileChange",()=>{
+                this.handleImage(uri, webview)
+            })
             return;
         }
 
-
-        const handler = Hanlder.bind(webviewPanel, uri);
 
         switch (ext) {
             case ".xlsx":
@@ -88,6 +90,8 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
     }
 
     private handleImage(uri: vscode.Uri, webview: vscode.Webview) {
+        const nonce = Date.now().toString();
+
         const folderPath = vscode.Uri.file(resolve(uri.fsPath, ".."));
         const files = readdirSync(folderPath.fsPath)
         let text = "";
@@ -101,10 +105,13 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
             if (file.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|tiff|webp)$/i)) {
                 i++;
                 const resUri = vscode.Uri.file(folderPath.fsPath + "/" + file);
-                const resource = webview.asWebviewUri(resUri).toString();
+                const resource = webview.asWebviewUri(resUri).with({ query: `nonce=${nonce}` }).toString();
                 text += `<a href="${resource}" title="${file}"> <img src="${resource}" > </a>`
             }
         }
+
+        
+
         webview.html =
             Util.buildPath(readFileSync(this.extensionPath + "/resource/lightgallery/lg.html", 'utf8'), webview, this.extensionPath + "/resource/lightgallery")
                 .replace("{{content}}", text).replace("{{current}}", current);

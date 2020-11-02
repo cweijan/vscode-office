@@ -18,6 +18,11 @@ export class Hanlder {
     public static bind(panel: WebviewPanel,uri:vscode.Uri): Hanlder {
         const eventEmitter = new EventEmitter();
 
+        const fileWatcher = vscode.workspace.createFileSystemWatcher(uri.fsPath)
+        fileWatcher.onDidChange(e=>{
+            eventEmitter.emit("fileChange", e)
+        })
+
         const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
             if (e.document.uri.toString() === uri.toString()) {
                 eventEmitter.emit("externalUpdate", e)
