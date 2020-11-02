@@ -171,10 +171,12 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
         handler.on("init", async () => {
             const content = await vscode.workspace.fs.readFile(uri)
             handler.emit("open", { content, file: resolve(uri.fsPath) })
-        }).on("save", content => {
-            vscode.workspace.fs.writeFile(uri, new Uint8Array(content))
-        }).on("saveCsv", content => {
-            vscode.workspace.fs.writeFile(uri, enc.encode(content))
+        }).on("save", async (content) => {
+            await vscode.workspace.fs.writeFile(uri, new Uint8Array(content))
+            handler.emit("saveDone")
+        }).on("saveCsv", async (content) => {
+            await vscode.workspace.fs.writeFile(uri, enc.encode(content))
+            handler.emit("saveDone")
         })
         return "excel.html"
     }

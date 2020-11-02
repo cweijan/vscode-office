@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="excel/xspreadsheet.css">
+    <link href="css/toastr.min.css" rel="stylesheet" type="text/css" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/toastr.min.js"></script>
     <script src="excel/xspreadsheet.js"></script>
     <script src="excel/xlsx.full.min.js"></script>
     <title>Document</title>
@@ -97,6 +100,8 @@
     vscodeEvent.on("open", ({ file, content }) => {
         fileName = file
         open(content.data)
+    }).on("saveDone",()=>{
+        toastr.success('Save Success!')
     })
 
     function dataToSheet(xws) {
@@ -118,7 +123,6 @@
 
     function xtos(sdata) {
         var out = XLSX.utils.book_new();
-        console.log(sdata)
         sdata.forEach(function (xws) {
             ws = dataToSheet(xws)
             XLSX.utils.book_append_sheet(out, ws, xws.name);
@@ -128,9 +132,9 @@
 
     function export_xlsx() {
         const extName = fileName.split('.').pop().toLowerCase();
-        if (extName == 'xlsx' || extName == 'xlsx') {
+        if (extName == 'xlsx' || extName == 'xls') {
             var new_wb = xtos(s.getData());
-            var buffer = XLSX.write(new_wb, { bookType: "xlsx", type: "array" });
+            var buffer = XLSX.write(new_wb, { bookType: extName, type: "array" });
             const array = [...new Uint8Array(buffer)];
             vscodeEvent.emit('save', array)
         } else if (extName == "csv") {
