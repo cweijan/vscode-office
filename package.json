@@ -310,23 +310,57 @@
 					{
 						"filenamePattern": "*.pdf"
 					},
-					{ "filenamePattern": "*.ttf" },
-					{ "filenamePattern": "*.woff" },
-					{ "filenamePattern": "*.otf" },
-					{ "filenamePattern": "*.jpg" },
-					{ "filenamePattern": "*.png" },
-					{ "filenamePattern": "*.gif" },
-					{ "filenamePattern": "*.apng" },
-					{ "filenamePattern": "*.apng" },
-					{ "filenamePattern": "*.bmp" },
-					{ "filenamePattern": "*.ico" },
-					{ "filenamePattern": "*.cur" },
-					{ "filenamePattern": "*.jpeg" },
-					{ "filenamePattern": "*.pjpeg" },
-					{ "filenamePattern": "*.pjp" },
-					{ "filenamePattern": "*.tif" },
-					{ "filenamePattern": "*.tiff" },
-					{ "filenamePattern": "*.webp" }
+					{
+						"filenamePattern": "*.ttf"
+					},
+					{
+						"filenamePattern": "*.woff"
+					},
+					{
+						"filenamePattern": "*.otf"
+					},
+					{
+						"filenamePattern": "*.jpg"
+					},
+					{
+						"filenamePattern": "*.png"
+					},
+					{
+						"filenamePattern": "*.gif"
+					},
+					{
+						"filenamePattern": "*.apng"
+					},
+					{
+						"filenamePattern": "*.apng"
+					},
+					{
+						"filenamePattern": "*.bmp"
+					},
+					{
+						"filenamePattern": "*.ico"
+					},
+					{
+						"filenamePattern": "*.cur"
+					},
+					{
+						"filenamePattern": "*.jpeg"
+					},
+					{
+						"filenamePattern": "*.pjpeg"
+					},
+					{
+						"filenamePattern": "*.pjp"
+					},
+					{
+						"filenamePattern": "*.tif"
+					},
+					{
+						"filenamePattern": "*.tiff"
+					},
+					{
+						"filenamePattern": "*.webp"
+					}
 				]
 			},
 			{
@@ -389,9 +423,10 @@
 		"@types/node": "^13.11.0",
 		"@types/node-fetch": "^2.5.7",
 		"@types/vscode": "^1.40.0",
+		"clean-webpack-plugin": "^3.0.0",
+		"copy-webpack-plugin": "^6.2.1",
 		"css-loader": "^3.5.3",
 		"file-loader": "^6.0.0",
-		"clean-webpack-plugin": "^3.0.0",
 		"style-loader": "^1.2.1",
 		"ts-loader": "^7.0.5",
 		"typescript": "^3.8.3",
@@ -402,6 +437,7 @@
 	"dependencies": {
 		"chrome-finder": "^1.0.7",
 		"mammoth": "^1.4.13",
-		"node-fetch": "^2.6.1"
+		"node-fetch": "^2.6.1",
+		"pretty-markdown-pdf": "^1.4.0"
 	}
 }

@@ -1,4 +1,4 @@
-// const prettyMdPdf = require("pretty-markdown-pdf")
+const prettyMdPdf = require("pretty-markdown-pdf")
 import { spawn } from 'child_process';
 import { accessSync, existsSync, mkdirSync, writeFileSync } from 'fs';
 import { homedir } from 'os';
@@ -16,10 +16,9 @@ export class MarkdownService {
     }
 
     public exportPdf(uri: vscode.Uri) {
-         vscode.window.showErrorMessage("Unsupport now!")
-        // vscode.window.showInformationMessage("Starting export markdown to pdf.")
-        // this.bulidConfig();
-        // prettyMdPdf.convertMd({ markdownFilePath: uri.fsPath, configFilePath: this.configPath })
+        vscode.window.showInformationMessage("Starting export markdown to pdf.")
+        this.bulidConfig();
+        prettyMdPdf.convertMd({ markdownFilePath: uri.fsPath, configFilePath: this.configPath })
     }
 
     public bulidConfig() {
