@@ -15,10 +15,11 @@ export class MarkdownService {
         this.configPath = context.globalStoragePath + "/config.json"
     }
 
-    public exportPdf(uri: vscode.Uri) {
+    public async exportPdf(uri: vscode.Uri) {
         vscode.window.showInformationMessage("Starting export markdown to pdf.")
         this.bulidConfig();
-        prettyMdPdf.convertMd({ markdownFilePath: uri.fsPath, configFilePath: this.configPath })
+        await prettyMdPdf.convertMd({ markdownFilePath: uri.fsPath, configFilePath: this.configPath })
+        vscode.window.showInformationMessage("Export markdown to pdf success!")
     }
 
     public bulidConfig() {

@@ -2,7 +2,7 @@ const fs = require("fs")
 const os = require("os")
 const path = require("path")
 const url = require("url")
-const URI = require ("vscode-uri").URI
+const URI = require("vscode").Uri
 
 const exportTypes = require("./export-types.json")
 
@@ -27,7 +27,7 @@ async function convertMarkdown(inputMarkdownFile, outputFilePath, outputFileType
     } else if (outputFileType === "settings") {
       let types_tmp = config["type"] || "pdf"
       if (types_tmp && !Array.isArray(types_tmp)) {
-          types[0] = types_tmp
+        types[0] = types_tmp
       } else {
         types = config["type"] || "pdf"
       }
@@ -95,105 +95,106 @@ function convertMarkdownToHtml(filename, type, text, config) {
       showErrorMessage("require(\"markdown-it\")", error)
     }
 
-  // convert the img src of the markdown
-  let cheerio = require("cheerio")
-  let defaultRender = md.renderer.rules.image
-  md.renderer.rules.image = function (tokens, idx, options, env, self) {
-    let token = tokens[idx]
-    let href = token.attrs[token.attrIndex("src")][1]
-    // console.log("original href: " + href)
-    if (type === "html") {
-      href = decodeURIComponent(href).replace(/("|")/g, "")
-    } else {
-      href = convertImgPath(href, filename)
-    }
-    // console.log("converted href: " + href)
-    token.attrs[token.attrIndex("src")][1] = href
-    // // pass token to default renderer.
-    return defaultRender(tokens, idx, options, env, self)
-  }
-
-  if (type !== "html") {
-    // convert the img src of the html
-    md.renderer.rules.html_block = function (tokens, idx) {
-      let html = tokens[idx].content
-      let $ = cheerio.load(html)
-      $("img").each(function () {
-        let src = $(this).attr("src")
-        let href = convertImgPath(src, filename)
-        $(this).attr("src", href)
-      })
-      return $.html()
-    }
-  }
-
-  // checkbox
-  md.use(require("markdown-it-checkbox"))
-
-  // emoji
-  let f = config["emoji"]
-  if (f) {
-    // let emojies_defs = require(path.join(__dirname, "data", "emoji.json"))
-    let options = {}
-
-    try {
-      options = {
-        // defs: emojies_defs
-      }
-    } catch (error) {
-      showErrorMessage("markdown-it-emoji:options", error)
-    }
-    md.use(require("markdown-it-emoji"), options)
-    md.renderer.rules.emoji = function (token, idx) {
-      let emoji = token[idx].markup
-      let emojipath = path.join(__dirname, "node_modules", "emoji-images", "pngs", emoji + ".png")
-      let emojidata = readFile(emojipath, null).toString("base64")
-      if (emojidata) {
-        return "<img class='emoji' alt='" + emoji + "' src='data:image/png;base64," + emojidata + "' />"
+    // convert the img src of the markdown
+    let cheerio = require("cheerio")
+    let defaultRender = md.renderer.rules.image
+    md.renderer.rules.image = function (tokens, idx, options, env, self) {
+      let token = tokens[idx]
+      let href = token.attrs[token.attrIndex("src")][1]
+      // console.log("original href: " + href)
+      if (type === "html") {
+        href = decodeURIComponent(href).replace(/("|")/g, "")
       } else {
-        return ":" + emoji + ":"
+        href = convertImgPath(href, filename)
+      }
+      // console.log("converted href: " + href)
+      token.attrs[token.attrIndex("src")][1] = href
+      // // pass token to default renderer.
+      return defaultRender(tokens, idx, options, env, self)
+    }
+
+    if (type !== "html") {
+      // convert the img src of the html
+      md.renderer.rules.html_block = function (tokens, idx) {
+        let html = tokens[idx].content
+        let $ = cheerio.load(html)
+        $("img").each(function () {
+          let src = $(this).attr("src")
+          let href = convertImgPath(src, filename)
+          $(this).attr("src", href)
+        })
+        return $.html()
       }
     }
-  }
 
-  // toc
-  // https://github.com/leff/markdown-it-named-headers
-  let options = {
-    slugify: slug
-  }
-  md.use(require("markdown-it-named-headers"), options)
+    // checkbox
+    md.use(require("markdown-it-checkbox"))
+    md.use(require("markdown-it-katex"))
 
-  // markdown-it-container
-  // https://github.com/markdown-it/markdown-it-container
-  md.use(require("markdown-it-container"), "", {
-    validate: function (name) {
-      return name.trim().length
-    },
-    render: function (tokens, idx) {
-      if (tokens[idx].info.trim() !== "") {
-        return `<div class="${tokens[idx].info.trim()}">\n`
-      } else {
-        return `</div>\n`
+    // emoji
+    let f = config["emoji"]
+    if (f) {
+      // let emojies_defs = require(path.join(__dirname, "data", "emoji.json"))
+      let options = {}
+
+      try {
+        options = {
+          // defs: emojies_defs
+        }
+      } catch (error) {
+        showErrorMessage("markdown-it-emoji:options", error)
+      }
+      md.use(require("markdown-it-emoji"), options)
+      md.renderer.rules.emoji = function (token, idx) {
+        let emoji = token[idx].markup
+        let emojipath = path.join(__dirname, "node_modules", "emoji-images", "pngs", emoji + ".png")
+        let emojidata = readFile(emojipath, null).toString("base64")
+        if (emojidata) {
+          return "<img class='emoji' alt='" + emoji + "' src='data:image/png;base64," + emojidata + "' />"
+        } else {
+          return ":" + emoji + ":"
+        }
       }
     }
-  })
 
-  // PlantUML
-  // https://github.com/gmunguia/markdown-it-plantuml
-  md.use(require("markdown-it-plantuml"))
-    
-  // markdown-it-include
-  // https://github.com/camelaissani/markdown-it-include
-  // the syntax is :[alt-text](relative-path-to-file.md)
-  // https://talk.commonmark.org/t/transclusion-or-including-sub-documents-for-reuse/270/13
-  if (config['markdown-it-include']) {
-    md.use(require("markdown-it-include"), {
-      root: path.dirname(filename),
-      includeRe: /\:(?:\[[^\]]*\])?\(([^)]+\.*)\)/i
-    });
-  }
+    // toc
+    // https://github.com/leff/markdown-it-named-headers
+    let options = {
+      slugify: slug
+    }
+    md.use(require("markdown-it-named-headers"), options)
 
-  return md.render(text)
+    // markdown-it-container
+    // https://github.com/markdown-it/markdown-it-container
+    md.use(require("markdown-it-container"), "", {
+      validate: function (name) {
+        return name.trim().length
+      },
+      render: function (tokens, idx) {
+        if (tokens[idx].info.trim() !== "") {
+          return `<div class="${tokens[idx].info.trim()}">\n`
+        } else {
+          return `</div>\n`
+        }
+      }
+    })
+
+    // PlantUML
+    // https://github.com/gmunguia/markdown-it-plantuml
+    md.use(require("markdown-it-plantuml"))
+
+    // markdown-it-include
+    // https://github.com/camelaissani/markdown-it-include
+    // the syntax is :[alt-text](relative-path-to-file.md)
+    // https://talk.commonmark.org/t/transclusion-or-including-sub-documents-for-reuse/270/13
+    if (config['markdown-it-include']) {
+      md.use(require("markdown-it-include"), {
+        root: path.dirname(filename),
+        includeRe: /\:(?:\[[^\]]*\])?\(([^)]+\.*)\)/i
+      });
+    }
+
+    return md.render(text)
 
   } catch (error) {
     showErrorMessage("convertMarkdownToHtml()", error)
@@ -393,7 +394,7 @@ async function exportPdf(data, filename, outputFilePath, type, uri, chromiumArgs
     let debug = config["debug"] || false
     if (!debug) {
       if (isExistsPath(tmpfilename)) {
-        fs.unlink(tmpfilename)
+        fs.unlink(tmpfilename, () => { })
       }
     }
 
@@ -492,8 +493,7 @@ function mkdir(path) {
   if (isExistsDir(path)) {
     return
   }
-  let mkdirp = require("mkdirp")
-  return mkdirp.sync(path)
+  fs.mkdirSync(path, { recursive: true })
 }
 
 function readFile(filename, encode) {
@@ -506,7 +506,7 @@ function readFile(filename, encode) {
   if (filename.indexOf("file://") === 0) {
     if (process.platform === "win32") {
       filename = filename.replace(/^file:\/\/\//, "")
-                 .replace(/^file:\/\//, "")
+        .replace(/^file:\/\//, "")
     } else {
       filename = filename.replace(/^file:\/\//, "")
     }
@@ -522,16 +522,16 @@ function convertImgPath(src, filename) {
   try {
     let href = decodeURIComponent(src)
     href = href.replace(/("|")/g, "")
-          .replace(/\\/g, "/")
-          .replace(/#/g, "%23")
+      .replace(/\\/g, "/")
+      .replace(/#/g, "%23")
     let protocol = url.parse(href).protocol
-    if (protocol === "file:" && href.indexOf("file:///") !==0) {
+    if (protocol === "file:" && href.indexOf("file:///") !== 0) {
       return href.replace(/^file:\/\//, "file:///")
     } else if (protocol === "file:") {
       return href
     } else if (!protocol || path.isAbsolute(href)) {
       href = path.resolve(path.dirname(filename), href).replace(/\\/g, "/")
-                                                      .replace(/#/g, "%23")
+        .replace(/#/g, "%23")
       if (href.indexOf("//") === 0) {
         return "file:" + href
       } else if (href.indexOf("/") === 0) {
@@ -563,10 +563,10 @@ function makeCss(filename) {
 function readStyles(uri, config) {
   try {
     let includeDefaultStyles
-    let style = ""
+    let style = makeCss(path.join(__dirname, "styles", "katex.min.css"))
     let styles = ""
     let filename = ""
-    let i
+    let i;
 
     includeDefaultStyles = config["includeDefaultStyles"]
 
@@ -589,16 +589,9 @@ function readStyles(uri, config) {
 
     // 3. read the style of the highlight.js.
     let highlightStyle = config["highlightStyle"] || ""
-    let ishighlight = config["highlight"]
-    if (ishighlight) {
-      if (highlightStyle) {
-        let css = config["highlightStyle"] || "github.css"
-        filename = path.join(__dirname, "node_modules", "highlight.js", "styles", css)
-        style += makeCss(filename)
-      } else {
-        filename = path.join(__dirname, "styles", "tomorrow.css")
-        style += makeCss(filename)
-      }
+    if (config["highlight"]) {
+      filename = path.join(__dirname, "styles", highlightStyle || "arduino-light.css")
+      style += makeCss(filename)
     }
 
     // 4. read the style of the markdown-pdf.
@@ -700,10 +693,10 @@ async function installChromium(config) {
 
     // download Chromium
     try {
-        await browserFetcher.download(revisionInfo.revision, (downloadedBytes, totalBytes) => {
-          let progress = parseInt(downloadedBytes / totalBytes * 100)
-          console.log("[pretty-md-pdf] Installing Chromium " + progress + "%" )
-        })
+      await browserFetcher.download(revisionInfo.revision, (downloadedBytes, totalBytes) => {
+        let progress = parseInt(downloadedBytes / totalBytes * 100)
+        console.log("[pretty-md-pdf] Installing Chromium " + progress + "%")
+      })
     } catch (ex) {
       console.log("[pretty-md-pdf] ERROR: Failed to download Chromium!")
       showErrorMessage("Failed to download Chromium! \
