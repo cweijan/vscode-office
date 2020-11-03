@@ -853,12 +853,21 @@ select {
   position: relative;
 }
 
+::-webkit-scrollbar{width:4px!important;height:6px!important;}
+body::-webkit-scrollbar{width:4px!important;height:6px!important;}
+::-webkit-scrollbar-track{background:rgba(255,255,255,0.8)!important;border-radius:8px!important;}
+::-webkit-scrollbar-thumb{background-color:#8D8D8D !important;min-height:50px;border-radius:5px!important;}
+
+.treeItems{
+  background-color: #F7F7F7;
+}
+
+
 #sidebarContainer {
   position: absolute;
   top: 32px;
   bottom: 0;
-  width: 200px;
-  width: var(--sidebar-width);
+  width: 270px;
   visibility: hidden;
   z-index: 100;
   border-top: 1px solid rgba(51, 51, 51, 1);
@@ -915,7 +924,7 @@ html[dir="rtl"] #outerContainer.sidebarOpen #sidebarContainer {
   -webkit-overflow-scrolling: touch;
   position: absolute;
   width: 100%;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: #F7F7F7;
 }
 html[dir="ltr"] #sidebarContent {
   left: 0;
@@ -1066,7 +1075,7 @@ html[dir="rtl"] #sidebarResizer {
 }
 html[dir="ltr"] #toolbarContainer {
   box-shadow: 0 1px 0 rgba(204, 204, 204, 1);
-  box-shadow: 0 1px 0 var(--toolbar-border-color);
+
 }
 @media (prefers-color-scheme: dark) {
 
@@ -1108,6 +1117,11 @@ html[dir="rtl"] #toolbarContainer {
   box-shadow: 0 1px 0 var(--toolbar-border-color);
   }
 }
+
+.toolbarButtonSpacer{
+  display: none !important;
+}
+
 .findbar {
   box-shadow: 0 1px 0 rgba(204, 204, 204, 1);
   box-shadow: 0 1px 0 var(--toolbar-border-color);
@@ -3324,6 +3338,7 @@ a:focus > .thumbnail > .thumbnailSelectionRing {
 #outlineView,
 #attachmentsView,
 #layersView {
+  background-color: #F7F7F7;
   position: absolute;
   width: calc(100% - 8px);
   top: 0;
@@ -3339,7 +3354,7 @@ a:focus > .thumbnail > .thumbnailSelectionRing {
 
 html[dir="ltr"] .treeWithDeepNesting > .treeItem,
 html[dir="ltr"] .treeItem > .treeItems {
-  margin-left: 20px;
+  padding-left: 20px;
 }
 
 html[dir="rtl"] .treeWithDeepNesting > .treeItem,
@@ -3348,6 +3363,10 @@ html[dir="rtl"] .treeItem > .treeItems {
 }
 
 .treeItem > a {
+  padding-left: 20px !important;
+  font-size: 14px;
+  line-height: 30px;
+  font-family: '微软雅黑';
   outline: none;
   text-decoration: none;
   display: inline-block;
@@ -3359,8 +3378,6 @@ html[dir="rtl"] .treeItem > .treeItems {
   border-radius: 2px;
   color: rgba(0, 0, 0, 0.8);
   color: var(--treeitem-color);
-  font-size: 13px;
-  line-height: 15px;
   -webkit-user-select: none;
      -moz-user-select: none;
       -ms-user-select: none;
@@ -3377,10 +3394,10 @@ html[dir="rtl"] .treeItem > .treeItems {
   }
 }
 html[dir="ltr"] .treeItem > a {
-  padding: 2px 0 5px 4px;
+  /* padding: 2px 0 5px 4px; */
 }
 html[dir="rtl"] .treeItem > a {
-  padding: 2px 4px 5px 0;
+  /* padding: 2px 4px 5px 0; */
 }
 
 #layersView .treeItem > a > * {
@@ -3445,8 +3462,7 @@ html[dir="rtl"] .treeItemToggler::before {
 }
 
 .treeItemToggler:hover {
-  background-color: rgba(0, 0, 0, 0.15);
-  background-color: var(--sidebaritem-bg-color);
+  background-color: #e5e5e5;
   background-clip: padding-box;
   border-radius: 2px;
   color: rgba(0, 0, 0, 0.9);
@@ -3464,50 +3480,41 @@ html[dir="rtl"] .treeItemToggler::before {
 @media (prefers-color-scheme: dark) {
 
   .treeItemToggler:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-  background-color: var(--sidebaritem-bg-color);
+  background-color: #e5e5e5;
   }
 }
 
 .treeItemToggler:hover + a {
-  background-color: rgba(0, 0, 0, 0.15);
-  background-color: var(--sidebaritem-bg-color);
+  background-color: #e5e5e5;
   background-clip: padding-box;
   border-radius: 2px;
   color: rgba(0, 0, 0, 0.9);
-  color: var(--treeitem-hover-color);
 }
 
 @media (prefers-color-scheme: dark) {
 
   .treeItemToggler:hover + a {
   color: rgba(255, 255, 255, 0.9);
-  color: var(--treeitem-hover-color);
   }
 }
 
 @media (prefers-color-scheme: dark) {
 
   .treeItemToggler:hover + a {
-  background-color: rgba(255, 255, 255, 0.15);
-  background-color: var(--sidebaritem-bg-color);
+    /* background-color: #e5e5e5; */
   }
 }
 
 .treeItemToggler:hover ~ .treeItems {
-  background-color: rgba(0, 0, 0, 0.15);
-  background-color: var(--sidebaritem-bg-color);
-  background-clip: padding-box;
+  /* background-color: #e5e5e5; */
   border-radius: 2px;
   color: rgba(0, 0, 0, 0.9);
-  color: var(--treeitem-hover-color);
 }
 
 @media (prefers-color-scheme: dark) {
 
   .treeItemToggler:hover ~ .treeItems {
   color: rgba(255, 255, 255, 0.9);
-  color: var(--treeitem-hover-color);
   }
 }
 
@@ -3515,24 +3522,20 @@ html[dir="rtl"] .treeItemToggler::before {
 
   .treeItemToggler:hover ~ .treeItems {
   background-color: rgba(255, 255, 255, 0.15);
-  background-color: var(--sidebaritem-bg-color);
   }
 }
 
 .treeItem > a:hover {
-  background-color: rgba(0, 0, 0, 0.15);
-  background-color: var(--sidebaritem-bg-color);
+  background-color: #EAEAEA;
   background-clip: padding-box;
   border-radius: 2px;
   color: rgba(0, 0, 0, 0.9);
-  color: var(--treeitem-hover-color);
 }
 
 @media (prefers-color-scheme: dark) {
 
   .treeItem > a:hover {
   color: rgba(255, 255, 255, 0.9);
-  color: var(--treeitem-hover-color);
   }
 }
 
@@ -3540,23 +3543,17 @@ html[dir="rtl"] .treeItemToggler::before {
 
   .treeItem > a:hover {
   background-color: rgba(255, 255, 255, 0.15);
-  background-color: var(--sidebaritem-bg-color);
   }
 }
 
 .treeItem.selected {
-  background-color: rgba(0, 0, 0, 1);
-  background-color: var(--treeitem-active-bg-color);
-  background-clip: padding-box;
-  color: rgba(0, 0, 0, 0.08);
-  color: var(--treeitem-active-color);
+  background-color: #d2d2d2;
 }
 
 @media (prefers-color-scheme: dark) {
 
   .treeItem.selected {
   color: rgba(255, 255, 255, 0.08);
-  color: var(--treeitem-active-color);
   }
 }
 
@@ -3564,7 +3561,6 @@ html[dir="rtl"] .treeItemToggler::before {
 
   .treeItem.selected {
   background-color: rgba(255, 255, 255, 1);
-  background-color: var(--treeitem-active-bg-color);
   }
 }
 
@@ -3587,7 +3583,6 @@ html[dir="rtl"] .treeItemToggler::before {
 
 #errorWrapper {
   background: none repeat scroll 0 0 rgba(255, 74, 74, 1);
-  background: none repeat scroll 0 0 var(--errorWrapper-bg-color);
   color: rgba(12, 12, 13, 1);
   color: var(--main-color);
   left: 0;
@@ -3609,7 +3604,6 @@ html[dir="rtl"] .treeItemToggler::before {
 
   #errorWrapper {
   background: none repeat scroll 0 0 rgba(199, 17, 17, 1);
-  background: none repeat scroll 0 0 var(--errorWrapper-bg-color);
   }
 }
 

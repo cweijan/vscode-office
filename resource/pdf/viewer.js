@@ -7313,18 +7313,18 @@ class PDFOutlineViewer {
     items
   }) {
     const toggler = document.createElement("div");
-    toggler.className = "outlineItemToggler";
+    toggler.className = "treeItemToggler";
 
     if (count < 0 && Math.abs(count) === items.length) {
-      toggler.classList.add("outlineItemsHidden");
+      toggler.classList.add("treeItemsHidden");
     }
 
     toggler.onclick = evt => {
       evt.stopPropagation();
-      toggler.classList.toggle("outlineItemsHidden");
+      toggler.classList.toggle("treeItemsHidden");
 
       if (evt.shiftKey) {
-        const shouldShowAll = !toggler.classList.contains("outlineItemsHidden");
+        const shouldShowAll = !toggler.classList.contains("treeItemsHidden");
 
         this._toggleOutlineItem(div, shouldShowAll);
       }
@@ -7336,8 +7336,8 @@ class PDFOutlineViewer {
   _toggleOutlineItem(root, show = false) {
     this.lastToggleIsShow = show;
 
-    for (const toggler of root.querySelectorAll(".outlineItemToggler")) {
-      toggler.classList.toggle("outlineItemsHidden", !show);
+    for (const toggler of root.querySelectorAll(".treeItemToggler")) {
+      toggler.classList.toggle("treeItemsHidden", !show);
     }
   }
 
@@ -7381,6 +7381,14 @@ class PDFOutlineViewer {
         div.className = "treeItem";
         const element = document.createElement("a");
 
+        div.onclick=e=>{
+          const selectItem=document.querySelector('.treeItem.selected')
+          if(selectItem){
+            selectItem.classList.remove("selected")
+          }
+          e.target.parentNode.classList.add('selected')
+        }
+
         this._bindLink(element, item);
 
         this._setStyles(element, item);
@@ -7394,7 +7402,7 @@ class PDFOutlineViewer {
           this._addToggleButton(div, item);
 
           const itemsDiv = document.createElement("div");
-          itemsDiv.className = "outlineItems";
+          itemsDiv.className = "treeItems";
           div.appendChild(itemsDiv);
           queue.push({
             parent: itemsDiv,
@@ -7409,7 +7417,7 @@ class PDFOutlineViewer {
 
     if (hasAnyNesting) {
       this.container.classList.add("outlineWithDeepNesting");
-      this.lastToggleIsShow = fragment.querySelectorAll(".outlineItemsHidden").length === 0;
+      this.lastToggleIsShow = fragment.querySelectorAll(".treeItemsHidden").length === 0;
     }
 
     this.container.appendChild(fragment);
