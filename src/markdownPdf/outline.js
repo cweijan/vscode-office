@@ -21,10 +21,15 @@ module.exports = {
 function inflateDict(array, $, dict) {
     const dictArray = []
     for (let index = 0; index < array.length; index++) {
-        const a = $(array[index]).children('a');
+        const li = $(array[index]);
+        const a = li.children('a');
         const key = getKey(a);
         dict[key].title = a.text();
         dict[key].isLast = array.length == 1 || index == array.length - 1;
+        const childs = $(array[index]).children('ol').children('li');
+        if (childs != null && childs.length > 0) {
+            dict[key].child = inflateDict(childs, $, dict)
+        }
         dictArray.push(dict[key])
     }
     return dictArray;
@@ -48,7 +53,7 @@ function extractDict(pdfDoc) {
 }
 
 function getKey(a) {
-    return "/" + a.attr("href").replace("#", "").replace(/%/g, "#25");
+    return "/" + escape(a.attr("href").replace("#", "")).replace(/%/g, '#');
 }
 
 
@@ -70,18 +75,26 @@ async function creatOutlines(doc, dictArray) {
     }
 
 
-    const outlinesDictRef = doc.context.nextRef();
-    const outlineRefers = []
-    for (const _ of dictArray) {
-        outlineRefers.push(doc.context.nextRef())
+    function buildOutline(dictArray, doc, parentRef) {
+        const outlineRefers = [];
+        for (const _ of dictArray) {
+            outlineRefers.push(doc.context.nextRef());
+        }
+        for (let i = 0; i < dictArray.length; i++) {
+            const dict = dictArray[i];
+            const isLast = i == dictArray.length - 1;
+            const nextOrPrev = isLast ? outlineRefers[i - 1] : outlineRefers[i + 1];
+            createOutlineItem(doc, dict, parentRef, outlineRefers[i], nextOrPrev);
+            if (dict.child) {
+                // buildOutline(dict.child, doc, outlineRefers[i])
+            }
+        }
+        return outlineRefers;
     }
 
-    for (let i = 0; i < dictArray.length; i++) {
-        const dict = dictArray[i];
-        const isLast = i == dictArray.length - 1;
-        const nextOrPrev = isLast ? outlineRefers[i - 1] : outlineRefers[i + 1];
-        createOutlineItem(doc, dict, outlinesDictRef, outlineRefers[i], nextOrPrev)
-    }
+
+    const outlinesDictRef = doc.context.nextRef();
+    const outlineRefers = buildOutline(dictArray, doc, outlinesDictRef);
 
 
     // 下面是将outline引用绑定pdf outline
