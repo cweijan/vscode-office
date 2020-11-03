@@ -1,3 +1,6 @@
+## 1.7.1 2020-11-3
+- Support generate outline for pdf.
+
 ## 1.7.0 2020-11-2
 - Support export markdwon to pdf.
 - Support edit xlsx、xls、csv.
