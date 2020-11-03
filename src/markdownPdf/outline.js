@@ -1,4 +1,4 @@
-const { PDFDocument, PDFDict, PDFString, PDFName } = require("pdf-lib");
+const { PDFDocument, PDFDict,PDFHexString, PDFString, PDFName } = require("pdf-lib");
 
 module.exports = {
     createOutline: async (pdf, html) => {
@@ -61,7 +61,7 @@ async function creatOutlines(doc, dictArray) {
 
     const createOutlineItem = (doc, dict, parentRefer, outlineRefer, nextOrPrev) => {
         const map = new Map();
-        map.set(PDFName.Title, PDFString.of(dict.title));
+        map.set(PDFName.Title,  PDFHexString.fromText(dict.title));
         map.set(PDFName.Parent, parentRefer);
         if (nextOrPrev != null) {
             map.set(PDFName.of(dict.isLast ? "Prev" : "Next"), nextOrPrev);
