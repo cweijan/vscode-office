@@ -15,11 +15,14 @@ It support below files now:
 - HttpRequest: .http
 - PlantUml: .puml, .pu, .plantuml
 - Windows Reg: .reg
-- Html: Press ctrl+shift+v open live edit for html.
 
 # Markdown
 
-This extension will change default markdown editor as hyperMD, if you want using vscode editor, insert below json to vscode config.
+This extension change default editor for markdown:
+1. It change markdown editor as hyperMD, it's WYSIWYG editor for markdown.
+2. Support export markdown to pdf, right click editor found it.
+
+if you want using vscode editor, insert below json to vscode config.
 ```json
 "workbench.editorAssociations": [{
 	"viewType": "default",
@@ -27,6 +30,10 @@ This extension will change default markdown editor as hyperMD, if you want using
 }]
 ```
 
+
+# HTML
+
+In html editor, Press ctrl+shift+v open live edit for html.
 
 # Credit
 
@@ -39,7 +46,10 @@ This extension will change default markdown editor as hyperMD, if you want using
 - Word: [mammoth](https://github.com/mwilliamson/mammoth.js)
 - xmind: [xmind-viewer](https://github.com/xmindltd/xmind-viewer)
 - Image: [lightGallery](https://github.com/sachinchoolur/lightGallery)
-- PDF: [pdf.js](https://github.com/mozilla/pdf.js)
+- PDF: 
+  - [pdf.js](https://github.com/mozilla/pdf.js)
+  - [pdf-lib](https://github.com/Hopding/pdf-lib)
+  - [puppeteer](https://github.com/puppeteer/puppeteer)
 - Font:
   - [CharacterMap](https://github.com/mathew-kurian/CharacterMap)
   - [opentype](https://github.com/opentypejs/opentype.js)
