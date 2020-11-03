@@ -1,28 +1,63 @@
 const { PDFDocument, PDFPageLeaf, PDFDict, PDFString, PDFArray, PDFName, PDFNull, PDFNumber, } = require("pdf-lib");
-const fs = require("fs");
-
 
 module.exports = {
     createOutline: async (pdf, html) => {
+
         const pdfDoc = await PDFDocument.load(pdf)
 
-        // const $ = require("cheerio").load(html)
-        // $('.table-of-contents>ol>li').each((index, li) => {
-        //     const a = $(li).children('a');
-        //     if (a) {
-        //         console.debug(a.text())
-        //     }
-        // })
-        // console.log(html)
+        const $ = require("cheerio").load(html)
 
-        // creatOutlines(pdf)
+        const array = $('.table-of-contents>ol>li');
+        if (array.length > 0) {
+            const dict = extractDict(pdfDoc);
+            const dictArray = inflateDict(array, $, dict);
+            creatOutlines(pdfDoc, dictArray)
+        }
+
         return await pdfDoc.save()
     }
 }
 
+function inflateDict(array, $, dict) {
+    const dictArray = []
+    for (let index = 0; index < array.length; index++) {
+        const a = $(array[index]).children('a');
+        const key = getKey(a);
+        dict[key].title = a.text();
+        if (array.length > 1) {
+            const isLast = index == array.length - 1;
+            const nextOrPrevIndex = isLast ? index - 1 : index + 1;
+            const nextOrPrev = getKey($(array[nextOrPrevIndex]).children('a'));
+            dict[key].nextOrPrev = dict[nextOrPrev].refer;
+        }
+        dictArray.push(dict[key])
+    }
+    return dictArray;
+}
+
+function extractDict(pdfDoc) {
+    const dics = {};
+    for (const obj of pdfDoc.context.indirectObjects.entries()) {
+        if (obj[1] && obj[1] instanceof PDFDict) {
+            for (const entry of obj[1].dict.entries()) {
+                if (entry[0].encodedName == '/Dest') {
+                    const key = entry[1].encodedName;
+                    dics[key] = {
+                        refer: obj[0]
+                    };
+                }
+            }
+        }
+    }
+    return dics;
+}
+
+function getKey(a) {
+    return "/" + a.attr("href").replace("#", "").replace(/%/g, "#25");
+}
 
 
-async function creatOutlines(doc) {
+async function creatOutlines(doc, dictArray) {
 
     const getPageRefs = (pdfDoc) => {
         const refs = [];
@@ -79,23 +114,22 @@ async function creatOutlines(doc) {
         pageRefs[2],
         true
     );
+    //Actual outline items that will be displayed
+    doc.context.assign(outlineItem1Ref, outlineItem1);
+    doc.context.assign(outlineItem2Ref, outlineItem2);
+    doc.context.assign(outlineItem3Ref, outlineItem3);
 
+
+    // 下面是将outline引用绑定pdf outline
     const outlinesDictMap = new Map();
     outlinesDictMap.set(PDFName.Type, PDFName.of("Outlines"));
     outlinesDictMap.set(PDFName.of("First"), outlineItem1Ref);
     outlinesDictMap.set(PDFName.of("Last"), outlineItem3Ref);
     outlinesDictMap.set(PDFName.of("Count"), PDFNumber.of(3)); //This is a count of the number of outline items. Should be changed for X no. of outlines
-
     //Pointing the "Outlines" property of the PDF's "Catalog" to the first object of your outlines
     doc.catalog.set(PDFName.of("Outlines"), outlinesDictRef)
-
     const outlinesDict = PDFDict.fromMapWithContext(outlinesDictMap, doc.context);
-
     //First 'Outline' object. Refer to table H.3 in Annex H.6 of PDF Specification doc.
     doc.context.assign(outlinesDictRef, outlinesDict);
 
-    //Actual outline items that will be displayed
-    doc.context.assign(outlineItem1Ref, outlineItem1);
-    doc.context.assign(outlineItem2Ref, outlineItem2);
-    doc.context.assign(outlineItem3Ref, outlineItem3);
 }
