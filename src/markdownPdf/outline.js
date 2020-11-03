@@ -1,4 +1,4 @@
-const { PDFDocument, PDFDict,PDFHexString, PDFString, PDFName } = require("pdf-lib");
+const { PDFDocument, PDFDict, PDFHexString, PDFNumber, PDFName } = require("pdf-lib");
 
 module.exports = {
     createOutline: async (pdf, html) => {
@@ -59,14 +59,19 @@ function getKey(a) {
 
 async function creatOutlines(doc, dictArray) {
 
-    const createOutlineItem = (doc, dict, parentRefer, outlineRefer, nextOrPrev) => {
+    const createOutlineItem = (doc, dict, parentRefer, outlineRefer, nextOrPrev, childRefs) => {
         const map = new Map();
-        map.set(PDFName.Title,  PDFHexString.fromText(dict.title));
+        map.set(PDFName.Title, PDFHexString.fromText(dict.title));
         map.set(PDFName.Parent, parentRefer);
         if (nextOrPrev != null) {
             map.set(PDFName.of(dict.isLast ? "Prev" : "Next"), nextOrPrev);
         } else {
             map.set(PDFName.of("Next"), outlineRefer);
+        }
+        if (childRefs) {
+            map.set(PDFName.of("First"), childRefs[0]);
+            map.set(PDFName.of("Last"), childRefs[childRefs.length - 1]);
+            map.set(PDFName.of("Count"), PDFNumber.of(childRefs.length));
         }
         map.set(PDFName.of("Dest"), dict.dest);
         const outlineDict = PDFDict.fromMapWithContext(map, doc.context);
@@ -84,10 +89,8 @@ async function creatOutlines(doc, dictArray) {
             const dict = dictArray[i];
             const isLast = i == dictArray.length - 1;
             const nextOrPrev = isLast ? outlineRefers[i - 1] : outlineRefers[i + 1];
-            createOutlineItem(doc, dict, parentRef, outlineRefers[i], nextOrPrev);
-            if (dict.child) {
-                // buildOutline(dict.child, doc, outlineRefers[i])
-            }
+            const childRefs = dict.child ? buildOutline(dict.child, doc, outlineRefers[i]) : null
+            createOutlineItem(doc, dict, parentRef, outlineRefers[i], nextOrPrev, childRefs);
         }
         return outlineRefers;
     }
@@ -102,6 +105,7 @@ async function creatOutlines(doc, dictArray) {
     outlinesDictMap.set(PDFName.Type, PDFName.of("Outlines"));
     outlinesDictMap.set(PDFName.of("First"), outlineRefers[0]);
     outlinesDictMap.set(PDFName.of("Last"), outlineRefers[outlineRefers.length - 1]);
+    outlinesDictMap.set(PDFName.of("Count"), PDFNumber.of(outlineRefers.length)); //This is a count of the number of outline items. Should be changed for X no. of outlines
     doc.catalog.set(PDFName.of("Outlines"), outlinesDictRef)
     doc.context.assign(outlinesDictRef, PDFDict.fromMapWithContext(outlinesDictMap, doc.context));
 
