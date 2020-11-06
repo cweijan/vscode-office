@@ -63,6 +63,9 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
                 break;
             case ".pdf":
                 this.handlePdf(uri, webview);
+                handler.on("fileChange",()=>{
+                    this.handlePdf(uri, webview);
+                })
                 break;
             case ".xmind":
                 webview.onDidReceiveMessage(async () => { webview.postMessage({ type: "open", content: readFileSync(uri.fsPath) }) });
@@ -90,7 +93,6 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
     }
 
     private handleImage(uri: vscode.Uri, webview: vscode.Webview) {
-        const nonce = Date.now().toString();
 
         const folderPath = vscode.Uri.file(resolve(uri.fsPath, ".."));
         const files = readdirSync(folderPath.fsPath)
@@ -105,7 +107,7 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
             if (file.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|tiff|webp)$/i)) {
                 i++;
                 const resUri = vscode.Uri.file(folderPath.fsPath + "/" + file);
-                const resource = webview.asWebviewUri(resUri).with({ query: `nonce=${nonce}` }).toString();
+                const resource = webview.asWebviewUri(resUri).with({ query: `nonce=${Date.now().toString()}` }).toString();
                 text += `<a href="${resource}" title="${file}"> <img src="${resource}" > </a>`
             }
         }
@@ -122,7 +124,7 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
         webview.html = Util.buildPath(
             readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8').replace("{{content}}",
                 JSON.stringify({
-                    path: webview.asWebviewUri(uri).toString(),
+                    path: webview.asWebviewUri(uri).with({ query: `nonce=${Date.now().toString()}` }).toString(),
                     defaults: {
                         cursor: "select",
                         scale: "auto",
