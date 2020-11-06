@@ -4,11 +4,20 @@
  *--------------------------------------------------------------------------------------------*/
 
 body {
-	font-family: "Segoe WPC", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
-	font-size: 14px;
+	font-family:  "Microsoft YaHei","Segoe WPC", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
+	font-size: 18px;
 	padding: 0 12px;
-	line-height: 22px;
+	line-height: 1.6;
 	word-wrap: break-word;
+	color: #333333;
+}
+
+.content-wrapper{
+	max-width: 860px;
+    margin: 0 auto;
+    padding: 20px 30px 40px 30px;
+    padding-top: 20px;
+    padding-bottom: 100px;
 }
 
 #code-csp-warning {
@@ -107,12 +116,24 @@ hr {
 h1 {
 	padding-bottom: 0.3em;
 	line-height: 1.2;
-	border-bottom-width: 1px;
-	border-bottom-style: solid;
+	border-bottom: 1px solid #eee;
+}
+
+
+h2{
+	padding-bottom: .3em;
+    font-size: 2em;
+    line-height: 1.225;
+    border-bottom: 1px solid #eee;
+}
+
+h3{
+	font-size: 1.75em;
+    line-height: 1.225;
 }
 
 h1, h2, h3 {
-	font-weight: normal;
+	font-weight: bold;
 }
 
 h1 code,
