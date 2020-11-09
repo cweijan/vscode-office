@@ -54,12 +54,14 @@
         }
     }
 
-    const massage = wb => {
+    const convert = wb => {
         const sheets = [];
+        let maxLength = 0;
         wb.SheetNames.forEach(name => {
             const sheet = { name, rows: {} };
             const ws = wb.Sheets[name];
             const rows = XLSX.utils.sheet_to_json(ws, { raw: false, header: 1 });
+            if (maxLength < rows.length) maxLength = rows.length
             sheet.rows = rows.reduce((map, row, i) => {
                 map[i] = {
                     cells: row.reduce((colMap, column, j) => {
@@ -71,26 +73,23 @@
             }, {})
             sheets.push(sheet);
         });
-        return sheets;
+        return { sheets, maxLength };
     };
-
-    const s = x_spreadsheet("#xspreadsheet", {
-        row: {
-            len: 100,
-            height: 30,
-        },
-        style: {
-            align: 'center'
-        }
-    });
-    window.s = s;
 
     function open(buffer) {
         (async () => {
             const ab = new Uint8Array(buffer).buffer
             const wb = XLSX.read(ab, { type: "array" });
-            var obj1 = massage(wb);
-            s.loadData(obj1);
+            var { sheets, maxLength } = convert(wb);
+            x_spreadsheet("#xspreadsheet", {
+                row: {
+                    len: maxLength+50,
+                    height: 30,
+                },
+                style: {
+                    align: 'center'
+                }
+            }).loadData(sheets);
         })();
     }
 
@@ -100,7 +99,7 @@
     vscodeEvent.on("open", ({ file, content }) => {
         fileName = file
         open(content.data)
-    }).on("saveDone",()=>{
+    }).on("saveDone", () => {
         toastr.success('Save Success!')
     })
 

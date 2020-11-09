@@ -2,7 +2,7 @@
 	"name": "vscode-office",
 	"displayName": "Office Viewer",
 	"description": "View word,excel files in vscode.",
-	"version": "1.7.3",
+	"version": "1.7.4",
 	"publisher": "cweijan",
 	"icon": "images/icon.png",
 	"engines": {
@@ -188,7 +188,7 @@
 			{
 				"command": "office.markdown.paste",
 				"key": "ctrl+v",
-				"when": "!terminalFocus && !filesExplorerFocus"
+				"when": "!terminalFocus && !filesExplorerFocus && !editorLangId "
 			},
 			{
 				"command": "office.html.preview",
@@ -413,7 +413,7 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run build",
-		"publish":"vsce publish --yarn",
+		"publish": "vsce publish --yarn",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
 		"install": "npm i --ignore-scripts",
