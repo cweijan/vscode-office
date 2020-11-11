@@ -1,13 +1,15 @@
+import { spawn } from 'child_process';
 import { S_IFIFO } from 'constants';
 import { fstat, readdirSync, readFileSync } from 'fs';
-import { basename, extname, resolve } from 'path';
+import { basename, dirname, extname, parse, resolve } from 'path';
 import { TextEncoder } from 'util';
 import * as vscode from 'vscode';
-import { Hanlder } from './common/handler';
-import { Util } from './common/util';
+import { Hanlder } from '../common/handler';
+import { Console } from '../common/outputChannel';
+import { Util } from '../common/util';
 const mammoth = require("mammoth");
 
-export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
+export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider {
 
     private extensionPath: string;
 
@@ -33,7 +35,7 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
         const handler = Hanlder.bind(webviewPanel, uri);
         if (ext.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|tiff|webp)$/i)) {
             this.handleImage(uri, webview)
-            handler.on("fileChange",()=>{
+            handler.on("fileChange", () => {
                 this.handleImage(uri, webview)
             })
             return;
@@ -61,9 +63,12 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
             case ".svg":
                 this.handleSvg(uri, webview);
                 break;
+            case ".class":
+                this.handleClass(uri, webviewPanel);
+                break;
             case ".pdf":
                 this.handlePdf(uri, webview);
-                handler.on("fileChange",()=>{
+                handler.on("fileChange", () => {
                     this.handlePdf(uri, webview);
                 })
                 break;
@@ -92,6 +97,30 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
 
     }
 
+    private async handleClass(uri: vscode.Uri, panel: vscode.WebviewPanel) {
+
+        let trigger = false;
+        const java = spawn("java", ['-jar', 'fernflower.jar', uri.fsPath, './temp_java'], { cwd: __dirname })
+        java.stdout.on('data', async (data) => {
+            if (trigger) {
+                return;
+            }
+            trigger = true;
+            const fileName = `${__dirname}/temp_java/${parse(uri.fsPath).name}.java`;
+            await vscode.window.showTextDocument(
+                await vscode.workspace.openTextDocument(vscode.Uri.file(fileName).with({ scheme: "decompile_java" }))
+            );
+            panel.dispose()
+        });
+
+        java.stderr.on('data', (data) => {
+            Console.log(data.toString("utf8"))
+        });
+
+
+    }
+
+
     private handleImage(uri: vscode.Uri, webview: vscode.Webview) {
 
         const folderPath = vscode.Uri.file(resolve(uri.fsPath, ".."));
@@ -112,7 +141,7 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
             }
         }
 
-        
+
 
         webview.html =
             Util.buildPath(readFileSync(this.extensionPath + "/resource/lightgallery/lg.html", 'utf8'), webview, this.extensionPath + "/resource/lightgallery")
@@ -176,7 +205,7 @@ export class OfficeEditor implements vscode.CustomReadonlyEditorProvider {
 
 
     private handleXlsx(uri: vscode.Uri, handler: Hanlder) {
-        var enc = new TextEncoder(); 
+        var enc = new TextEncoder();
         handler.on("init", async () => {
             const content = await vscode.workspace.fs.readFile(uri)
             handler.emit("open", { content, file: resolve(uri.fsPath) })

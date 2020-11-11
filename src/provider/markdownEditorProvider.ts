@@ -5,13 +5,13 @@ import { basename, extname, resolve } from 'path';
 import * as util from 'util';
 import * as vscode from 'vscode';
 import { MessageOptions } from 'vscode';
-import { Hanlder } from './common/handler';
-import { Util } from './common/util';
-import { Holder } from './holder';
-import { MarkdownService } from './markdownService';
+import { Hanlder } from '../common/handler';
+import { Util } from '../common/util';
+import { Holder } from '../service/markdown/holder';
+import { MarkdownService } from '../service/markdownService';
 const streamPipeline = util.promisify(require('stream').pipeline);
 
-export class MarkdownEditor implements vscode.CustomTextEditorProvider {
+export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
     private extensionPath: string;
 

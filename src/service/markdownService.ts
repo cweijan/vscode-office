@@ -1,10 +1,10 @@
-const prettyMdPdf = require("./markdownPdf")
+const prettyMdPdf = require("./markdown/markdown-pdf")
 import { spawn } from 'child_process';
-import { accessSync, existsSync, mkdirSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { homedir } from 'os';
 import { dirname, join, parse, resolve } from 'path';
 import * as vscode from 'vscode';
-import { Holder } from './holder';
+import { Holder } from './markdown/holder';
 import path = require('path');
 
 export class MarkdownService {

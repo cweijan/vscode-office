@@ -5,7 +5,7 @@ const url = require("url")
 const URI = require("vscode").Uri
 const { createOutline } = require("./outline")
 
-const exportTypes = require("./export-types.json")
+const exportTypes = ["pdf", "html", "png", "jpeg"]
 
 let INSTALL_CHECK = false
 
@@ -335,7 +335,7 @@ async function exportPdf(data, filename, outputFilePath, type, uri, chromiumArgs
         showErrorMessage("page.pdf", error)
       })
 
-      const pdfBytes = await createOutline(pdf,data)
+      const pdfBytes = await createOutline(pdf, data)
       fs.writeFileSync(exportFilename, pdfBytes)
 
     }
@@ -695,8 +695,6 @@ async function installChromium(config) {
       })
     } catch (ex) {
       console.log("[pretty-md-pdf] ERROR: Failed to download Chromium!")
-      showErrorMessage("Failed to download Chromium! \
-        If you are behind a proxy, set the proxy option in config.json", ex)
     }
 
     console.log("Chromium downloaded to " + revisionInfo.folderPath)
@@ -750,5 +748,48 @@ async function init(config) {
 
 module.exports = {
   convertMarkdown,
-  init
+  init,
+  convertMd: async (options) => {
+    options = options || {}
+
+    options.outputFileType = options.outputFileType || "pdf"
+
+    if (!options.markdownFilePath || !options.markdownFilePath.toLowerCase().endsWith(".md") || !fs.existsSync(options.markdownFilePath)) {
+      throw new Error(`[pretty-md-pdf] ERROR: Markdown file '${options.markdownFilePath}' does not exist or is not an '.md' file`)
+    }
+
+    // let configPath = path.join(__dirname, "config.json")
+    let configPath = null
+
+    if (options.configFilePath && options.configFilePath.trim() !== "") {
+      configPath = options.configFilePath
+    }
+
+    if (!configPath || !fs.existsSync(configPath)) {
+      throw new Error(`[pretty-md-pdf] ERROR: Config file '${configPath}' does not exist`)
+    }
+
+    let config = JSON.parse(
+      fs.readFileSync(configPath).toString()
+    )
+
+    if (config.outputDirectory && config.outputDirectory.trim() !== "") {
+      config.outputDirectory = path.resolve(config.outputDirectory)
+    }
+
+    if (options.outputFilePath && options.outputFilePath.trim() !== "") {
+      options.outputFilePath = path.resolve(options.outputFilePath)
+    }
+
+    console.log(`[pretty-md-pdf] Converting markdown file: ${options.markdownFilePath}`)
+
+    await init(config)
+    await convertMarkdown(
+      path.resolve(options.markdownFilePath),
+      options.outputFilePath,
+      options.outputFileType,
+      options.chromiumArgs,
+      config
+    )
+  }
 }
