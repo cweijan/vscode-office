@@ -103,16 +103,15 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
         let trigger = false;
         const java = spawn("java", ['-jar', 'fernflower.jar', uri.fsPath, './temp_java'], { cwd: __dirname })
-        java.stdout.on('data', async (data) => {
-            if (trigger) {
+        java.stdout.on('data', (data) => {
+            if (data.toString("utf8").indexOf("written") == -1 || trigger) {
                 return;
             }
             trigger = true;
             const fileName = `${__dirname}/temp_java/${parse(uri.fsPath).name}.java`;
-            await vscode.window.showTextDocument(
-                await vscode.workspace.openTextDocument(vscode.Uri.file(fileName).with({ scheme: "decompile_java" }))
-            );
-            panel.dispose()
+            setTimeout(() => {
+                vscode.window.showTextDocument(vscode.Uri.file(fileName).with({ scheme: "decompile_java", query: new Date().getTime().toString() }));
+            }, 10);
         });
 
         java.stderr.on('data', (data) => {
