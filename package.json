@@ -280,7 +280,7 @@
 		},
 		"customEditors": [
 			{
-				"viewType": "cweijan.viewOffice",
+				"viewType": "cweijan.officeViewer",
 				"displayName": "Office Viewer",
 				"selector": [
 					{
@@ -367,7 +367,7 @@
 				]
 			},
 			{
-				"viewType": "cweijan.viewMarkdown",
+				"viewType": "cweijan.markdownViewer",
 				"displayName": "Markdown Viewer",
 				"selector": [
 					{
@@ -385,7 +385,7 @@
 				]
 			},
 			{
-				"viewType": "cweijan.viewHtml",
+				"viewType": "cweijan.officeViewer",
 				"displayName": "Html Viewer",
 				"priority": "option",
 				"selector": [
