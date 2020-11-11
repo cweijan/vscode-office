@@ -1,3 +1,6 @@
+## 1.7.5 2020-11-11
+- Add java class decompiler.
+
 ## 1.7.1 2020-11-3
 - Support generate outline for pdf.
 
