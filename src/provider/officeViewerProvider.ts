@@ -1,14 +1,16 @@
 import { spawn } from 'child_process';
-import { S_IFIFO } from 'constants';
-import { fstat, readdirSync, readFileSync } from 'fs';
-import { basename, dirname, extname, parse, resolve } from 'path';
+import { readdirSync, readFileSync } from 'fs';
+import { basename, extname, parse, resolve } from 'path';
 import { TextEncoder } from 'util';
 import * as vscode from 'vscode';
 import { Hanlder } from '../common/handler';
-import { Console } from '../common/outputChannel';
+import { Console } from '../common/Console';
 import { Util } from '../common/util';
 const mammoth = require("mammoth");
 
+/**
+ * support view office files
+ */
 export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider {
 
     private extensionPath: string;

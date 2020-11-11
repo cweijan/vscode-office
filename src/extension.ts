@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { JavaDecompilerProvider } from './provider/javaDecompilerProvider';
-import { MarkdownEditorProvider } from './provider/markdownEditorProvider';
+import { OfficeEditorProvider } from './provider/officeEditorProvider';
 import { OfficeViewerProvider } from './provider/officeViewerProvider';
 import { HtmlService } from './service/htmlService';
 import { MarkdownService } from './service/markdownService';
@@ -18,7 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.workspace.registerTextDocumentContentProvider('decompile_java', new JavaDecompilerProvider()),
 		vscode.window.registerCustomEditorProvider("cweijan.viewOffice", new OfficeViewerProvider(context), viewOption),
 		vscode.window.registerCustomEditorProvider("cweijan.viewHtml", new OfficeViewerProvider(context), viewOption),
-		vscode.window.registerCustomEditorProvider("cweijan.viewMarkdown", new MarkdownEditorProvider(context), viewOption)
+		vscode.window.registerCustomEditorProvider("cweijan.viewMarkdown", new OfficeEditorProvider(context), viewOption)
 	);
 
 }

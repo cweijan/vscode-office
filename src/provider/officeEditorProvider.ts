@@ -11,7 +11,10 @@ import { Holder } from '../service/markdown/holder';
 import { MarkdownService } from '../service/markdownService';
 const streamPipeline = util.promisify(require('stream').pipeline);
 
-export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
+/**
+ * support view and edit office files.
+ */
+export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
 
     private extensionPath: string;
 
