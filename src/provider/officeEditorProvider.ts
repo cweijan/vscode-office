@@ -22,13 +22,21 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         this.extensionPath = context.extensionPath;
     }
 
+    private getFolders(): vscode.Uri[] {
+        const data = [];
+        for (var i = 65; i <= 90; i++) {
+            data.push(vscode.Uri.file(`${String.fromCharCode(i)}:/`))
+        }
+        return data;
+    }
+
     resolveCustomTextEditor(document: vscode.TextDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): void | Thenable<void> {
         const uri = document.uri;
         const webview = webviewPanel.webview;
         const folderPath = vscode.Uri.file(resolve(uri.fsPath, ".."));
         webview.options = {
             enableScripts: true,
-            localResourceRoots: [vscode.Uri.file(this.extensionPath), folderPath]
+            localResourceRoots: [vscode.Uri.file("/"), ...this.getFolders()]
         }
 
         const ext = extname(uri.fsPath).toLowerCase()

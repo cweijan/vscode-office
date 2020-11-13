@@ -17,6 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('office.html.preview', HtmlService.previewHtml),
 		vscode.workspace.registerTextDocumentContentProvider('decompile_java', new JavaDecompilerProvider()),
 		vscode.window.registerCustomEditorProvider("cweijan.officeViewer", new OfficeViewerProvider(context), viewOption),
+		vscode.window.registerCustomEditorProvider("cweijan.htmlViewer", new OfficeViewerProvider(context), viewOption),
 		vscode.window.registerCustomEditorProvider("cweijan.markdownViewer", new OfficeEditorProvider(context), viewOption)
 	);
 

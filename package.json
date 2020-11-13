@@ -2,7 +2,7 @@
 	"name": "vscode-office",
 	"displayName": "Office Viewer",
 	"description": "View word,excel files in vscode.",
-	"version": "1.7.5",
+	"version": "1.7.6",
 	"publisher": "cweijan",
 	"icon": "images/icon.png",
 	"engines": {
@@ -385,7 +385,7 @@
 				]
 			},
 			{
-				"viewType": "cweijan.officeViewer",
+				"viewType": "cweijan.htmlViewer",
 				"displayName": "Html Viewer",
 				"priority": "option",
 				"selector": [
