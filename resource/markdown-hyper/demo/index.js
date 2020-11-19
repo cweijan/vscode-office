@@ -118,7 +118,7 @@ require([
         document.execCommand("copy")
         break;
       case "paste":
-        document.execCommand("paste")
+        vscodeEvent.emit('command','office.markdown.paste')
         break;
       case "export":
         vscodeEvent.emit("save", editor.getValue())

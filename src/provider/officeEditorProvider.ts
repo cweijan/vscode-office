@@ -107,6 +107,8 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
                 content: readFileSync(uri.fsPath, 'utf8'),
                 folderPath: webview.asWebviewUri(folderPath).toString()
             })
+        }).on("command", (command) => {
+            vscode.commands.executeCommand(command)
         }).on("save", (content) => {
             this.updateTextDocument(document, content)
         }).on("codemirrorEdit", (content) => {
