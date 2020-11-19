@@ -1,3 +1,9 @@
+## 1.7.9 2020-11-19
+- support paste image file in markdown editor.
+
+## 1.7.7 2020-11-17
+- Update status bar when open markdown editor.
+
 ## 1.7.5 2020-11-11
 - Add java class decompiler.
 
