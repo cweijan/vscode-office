@@ -1,6 +1,6 @@
 const prettyMdPdf = require("./markdown/markdown-pdf")
 import { spawn } from 'child_process';
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { copyFileSync, existsSync, fstatSync, lstatSync, mkdirSync, readdirSync, writeFileSync } from 'fs';
 import { homedir } from 'os';
 import { dirname, join, parse, resolve } from 'path';
 import * as vscode from 'vscode';
@@ -80,20 +80,19 @@ export class MarkdownService {
                 return path;
             }
         }
-        try{
+        try {
             const chromePath = require('chrome-finder')();
             console.debug(`using chrome path is ${chromePath}`)
             return chromePath;
-        }catch(e){
+        } catch (e) {
             vscode.window.showErrorMessage("Not chromium found, export fail.")
             throw new Error()
         }
     }
 
-    public async loadClipboardImage(document?: vscode.TextDocument) {
-        if (!document) {
-            vscode.commands.executeCommand("editor.action.clipboardPasteAction")
-        } else if (parse(document.uri.fsPath).ext.toLowerCase() != ".md") {
+    public async loadClipboardImage() {
+        const document = vscode.window.activeTextEditor?.document
+        if (document && parse(document.uri.fsPath).ext.toLowerCase() != ".md") {
             vscode.commands.executeCommand("editor.action.clipboardPasteAction")
             return
         }
@@ -115,6 +114,14 @@ export class MarkdownService {
                     vscode.window.showInformationMessage('There is not an image in the clipboard.');
                     return;
                 }
+                if (savedImagePath.startsWith("copyed:")) {
+                    const copyedFile = savedImagePath.replace("copyed:", "");
+                    if(lstatSync(copyedFile).isDirectory()){
+                        vscode.window.showInformationMessage('Not support paster directory.');
+                    }else{
+                        copyFileSync(copyedFile, imagePath)
+                    }
+                }
                 const editor = vscode.window.activeTextEditor;
                 if (editor) {
                     editor?.edit(edit => {
@@ -131,9 +138,7 @@ export class MarkdownService {
                 }
             })
         } else {
-            if (document) {
-                vscode.commands.executeCommand("editor.action.clipboardPasteAction")
-            }
+            vscode.commands.executeCommand("editor.action.clipboardPasteAction")
         }
 
     }

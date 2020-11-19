@@ -13,7 +13,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const viewOption = { webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true } };
 	const markdownService = new MarkdownService(context);
 	context.subscriptions.push(
-		vscode.commands.registerCommand('office.markdown.paste', () => { markdownService.loadClipboardImage(vscode.window.activeTextEditor?.document) }),
+		vscode.commands.registerCommand('office.markdown.paste', () => { markdownService.loadClipboardImage() }),
 		vscode.commands.registerCommand('office.html.preview', HtmlService.previewHtml),
 		vscode.workspace.registerTextDocumentContentProvider('decompile_java', new JavaDecompilerProvider()),
 		vscode.window.registerCustomEditorProvider("cweijan.officeViewer", new OfficeViewerProvider(context), viewOption),

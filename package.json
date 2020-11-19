@@ -188,7 +188,7 @@
 			{
 				"command": "office.markdown.paste",
 				"key": "ctrl+v",
-				"when": "!terminalFocus && !filesExplorerFocus && !editorLangId "
+				"when": "!terminalFocus && !filesExplorerFocus"
 			},
 			{
 				"command": "office.html.preview",

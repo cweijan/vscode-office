@@ -4,8 +4,12 @@ param($imagePath)
 
 Add-Type -Assembly PresentationCore
 $img = [Windows.Clipboard]::GetImage()
-
+$copyedFile = [Windows.Clipboard]::GetFileDropList()
 if ($img -eq $null) {
+    if ($copyedFile -ne $null) {
+        "copyed:"+$copyedFile
+        Exit 1
+    }
     "no image"
     Exit 1
 }
