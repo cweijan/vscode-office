@@ -17,9 +17,13 @@ const streamPipeline = util.promisify(require('stream').pipeline);
 export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
 
     private extensionPath: string;
+    private countStatus: vscode.StatusBarItem;
+    private cursorStatus: vscode.StatusBarItem;
 
     constructor(private context: vscode.ExtensionContext) {
         this.extensionPath = context.extensionPath;
+        this.countStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+        this.cursorStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 120);
     }
 
     private getFolders(): vscode.Uri[] {
@@ -109,6 +113,15 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             })
         }).on("command", (command) => {
             vscode.commands.executeCommand(command)
+        }).on("cursorActivity", (cursor) => {
+            this.cursorStatus.text = `Ln ${cursor.line}, Col ${cursor.ch}`
+            this.cursorStatus.show()
+        }).on("focus", ({ count, lineCount }) => {
+            this.countStatus.text = `Line ${lineCount}    Count ${count}`
+            this.countStatus.show()
+        }).on("blur", () => {
+            this.countStatus.hide()
+            this.cursorStatus.hide()
         }).on("save", (content) => {
             this.updateTextDocument(document, content)
         }).on("codemirrorEdit", (content) => {

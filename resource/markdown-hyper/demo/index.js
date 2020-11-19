@@ -133,6 +133,7 @@ require([
 
   let timeFlag;
   editor.on("change", (_instance, changeObj) => {
+    vscodeEvent.emit('focus',{ count:editor.getValue().length, lineCount:editor.lineCount(), })
     if (changeObj.origin == "setValue" || timeFlag != null) {
       return;
     }
@@ -142,6 +143,15 @@ require([
     }, 2000);
     // vscodeEvent.emit("codemirrorEdit", changeObj)
   })
+  editor.on("focus",()=>{
+    vscodeEvent.emit('focus',{ count:editor.getValue().length, lineCount:editor.lineCount(), })
+  })
+  editor.on("cursorActivity",()=>{
+    vscodeEvent.emit('cursorActivity',editor.getCursor())
+  })
+  window.onblur=e=>{
+    vscodeEvent.emit('blur')
+  }
   editor.setSize(null, "100%") // set height
 
   // for debugging

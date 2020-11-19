@@ -13,7 +13,7 @@ It support below files now:
 - Font: .ttf, .otf, .woff
 - Markdown: .md
 - HttpRequest: .http
-- PlantUml: .puml, .pu, .plantuml
+- PlantUml: .puml, .plantuml
 - Windows Reg: .reg
 
 # Markdown
