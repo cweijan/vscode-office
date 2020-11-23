@@ -113,6 +113,8 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             })
         }).on("command", (command) => {
             vscode.commands.executeCommand(command)
+        }).on("openLink", (uri ) => {
+            vscode.env.openExternal(vscode.Uri.parse(uri));
         }).on("cursorActivity", (cursor) => {
             this.cursorStatus.text = `Ln ${cursor.line}, Col ${cursor.ch}`
             this.cursorStatus.show()

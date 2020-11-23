@@ -29,7 +29,8 @@
             }
             else if ((info.ctrlKey || info.altKey) && url) {
                 // just open URL
-                window.open(url, "_blank");
+                vscodeEvent.emit("openLink",url)
+                // window.open(url, "_blank");
             }
         }
         if (type === 'todo') {
