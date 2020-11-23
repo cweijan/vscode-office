@@ -1,3 +1,6 @@
+## 1.7.10 2020-11-23
+- Support open link from markdown.
+
 ## 1.7.9 2020-11-19
 - support paste image file in markdown editor.
 
