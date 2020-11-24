@@ -63,10 +63,19 @@ async function convertMarkdown(inputMarkdownFile, outputFilePath, outputFileType
   }
 }
 
+
+/**
+ * create toc if not exists.
+ */
+function addTocToContent(text){
+  return text.match(/^\[toc\]/i)?text:'[toc]\n'+text;
+}
+
 /*
  * convert markdown to html (markdown-it)
  */
 function convertMarkdownToHtml(filename, type, text, config) {
+  text=addTocToContent(text)
   let md = {}
 
   try {
