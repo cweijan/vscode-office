@@ -4,6 +4,18 @@
   font-weight: normal;
   font-style: normal;
 }
+
+.cm-formatting-list-ul{
+  height: 6px;
+  width: 6px !important;
+  border-radius: 100%;
+  background: #333333;
+  position: relative;
+  top: 9px;
+  font-size: 0;
+  right: -13px;
+}
+
 .cm-s-hypermd-light {
   font-family: -apple-system, BlinkMacSystemFont, "Open Sans", "Helvetica Neue", Helvetica, Arial, "Hiragino Sans GB", "WenQuanYi Micro Hei", "Noto Sans CJK SC", "Microsoft YaHei", STHeiti, "Microsoft Jhenghei", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   -webkit-font-smoothing: antialiased;
@@ -420,7 +432,7 @@
 .cm-s-hypermd-light span.cm-formatting-list {
   margin-left: -30px;
   font-family: "HyperMD-Bullets";
-  color: #666;
+  color: #333;
 }
 .cm-s-hypermd-light span.cm-formatting-list.cm-list-2 {
   text-shadow: none;
