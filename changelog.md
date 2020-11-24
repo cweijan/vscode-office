@@ -1,3 +1,8 @@
+## 1.8.1 2020-11-24
+- Change export markdown pdf chinese font to 'Song  style'
+- Export markdown auto add bookmarks.
+- Update markdown list style.
+
 ## 1.8.0 2020-11-24
 - Support play flash swf animation.
 
