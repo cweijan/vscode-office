@@ -1,3 +1,6 @@
+## 1.8.0 2020-11-24
+- Support play flash swf animation.
+
 ## 1.7.10 2020-11-23
 - Support open link from markdown.
 

@@ -46,6 +46,7 @@ In html editor, Press ctrl+shift+v open live edit for html.
 - Word: [mammoth](https://github.com/mwilliamson/mammoth.js)
 - xmind: [xmind-viewer](https://github.com/xmindltd/xmind-viewer)
 - Image: [lightGallery](https://github.com/sachinchoolur/lightGallery)
+- Flash: [swf2js](https://github.com/swf2js/swf2js)
 - PDF: 
   - [pdf.js](https://github.com/mozilla/pdf.js)
   - [pdf-lib](https://github.com/Hopding/pdf-lib)

@@ -23,4 +23,5 @@ const getVscodeEvent = () => {
     }
 }
 
-window.vscodeEvent=getVscodeEvent()
+window.vscodeEvent = getVscodeEvent();
+window.handler =  getVscodeEvent();

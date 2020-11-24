@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script src="../js/vscode.js"></script>
+    <script type="text/javascript" src="swf2js.js"></script>
+    <script type="text/javascript">
+        vscodeEvent.on("open", uri => {
+            swf2js.load(uri);
+        })
+        vscodeEvent.emit("init")
+    </script>
+</body>
+<style>
+    body{
+        padding: 0;
+        margin: 0;
+    }
+</style>
+</html>
