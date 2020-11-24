@@ -68,7 +68,7 @@ async function convertMarkdown(inputMarkdownFile, outputFilePath, outputFileType
  * create toc if not exists.
  */
 function addTocToContent(text){
-  return text.match(/^\[toc\]/i)?text:'[toc]\n'+text;
+  return text.match(/\[toc\]/i)?text:'[toc]\n'+text;
 }
 
 /*
