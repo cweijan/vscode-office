@@ -96,8 +96,11 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         const uri = document.uri;
         const webview = handler.panel.webview;
 
-        const type = vscode.workspace.getConfiguration("vscode-office").get<string>("markdownType");
-        let path = "markdown-hyper";
+        // const type = vscode.workspace.getConfiguration("vscode-office").get<string>("markdownType");
+        let path = "vditor";
+        // if (true) {
+        //     path = "vditor"
+        // }
 
         Holder.activeUrl = uri;
         handler.panel.onDidChangeViewState(e => Holder.activeUrl = e.webviewPanel.visible ? uri : null);
@@ -110,7 +113,7 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             })
         }).on("command", (command) => {
             vscode.commands.executeCommand(command)
-        }).on("openLink", (uri ) => {
+        }).on("openLink", (uri) => {
             vscode.env.openExternal(vscode.Uri.parse(uri));
         }).on("cursorActivity", (cursor) => {
             this.cursorStatus.text = `Ln ${cursor.line}, Col ${cursor.ch}`
@@ -125,7 +128,10 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             this.updateTextDocument(document, content)
         }).on("codemirrorEdit", (content) => {
             this.updateTextDocumentByEdit(document, content)
-        }).on("doSave", () => {
+        }).on("doSave", async (content) => {
+            if(content){
+                await this.updateTextDocument(document, content)
+            }
             vscode.commands.executeCommand('workbench.action.files.save');
         }).on("edit", () => {
             vscode.commands.executeCommand('vscode.openWith', uri, "default");
