@@ -1,4 +1,7 @@
 handler.on("open", (md) => {
+    if (md.autoTheme) {
+        window.addThemeCss()
+    }
     const editor = new Vditor('vditor', {
         value: md.content,
         height: document.documentElement.clientHeight,
@@ -7,8 +10,8 @@ handler.on("open", (md) => {
             "markdown": {
                 "toc": true
             },
-            hljs:{
-                style:'native'
+            hljs: {
+                style: 'native'
             }
         },
         onInput() {
@@ -49,7 +52,7 @@ handler.on("open", (md) => {
             vscodeEvent.emit("doSave", editor.getValue())
         }
         if (e.ctrlKey && e.code == "KeyV") {
-            vscodeEvent.emit('command','office.markdown.paste')
+            vscodeEvent.emit('command', 'office.markdown.paste')
             e.stopPropagation()
         }
     }
@@ -82,7 +85,7 @@ handler.on("open", (md) => {
                         }
                     }
                 }
-    
+
             }
         });
         observer.observe(document, {
@@ -90,7 +93,7 @@ handler.on("open", (md) => {
             subtree: true
         });
     }
-    
+
     // TODO 让vditor自己实现
     imageParser()
 

@@ -109,7 +109,8 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             handler.emit("open", {
                 title: basename(uri.fsPath),
                 content: readFileSync(uri.fsPath, 'utf8'),
-                folderPath: webview.asWebviewUri(folderPath).toString()
+                folderPath: webview.asWebviewUri(folderPath).toString(),
+                autoTheme: vscode.workspace.getConfiguration("vscode-office").get<string>("autoTheme")
             })
         }).on("command", (command) => {
             vscode.commands.executeCommand(command)

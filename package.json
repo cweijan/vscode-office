@@ -413,6 +413,11 @@
 					],
 					"default": "vditor",
 					"description": "Set markdown viewer type."
+				},
+				"vscode-office.autoTheme": {
+					"type": "boolean",
+					"default": false,
+					"description": "Markdown follder vscode theme."
 				}
 			}
 		}

@@ -109,6 +109,9 @@ function load_and_update_editor(url) {
     editor_area.className = clzName
     editor.setValue(value.content)
     editor.setOption('hmdReadLink', { baseURI: value.folderPath })
+    if(value.autoTheme){
+      window.addThemeCss()
+    }
   })
   window.onkeypress = (e) => {
     if (e.ctrlKey && e.code == "KeyS") {

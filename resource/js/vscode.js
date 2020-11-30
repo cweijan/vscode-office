@@ -24,4 +24,23 @@ const getVscodeEvent = () => {
 }
 
 window.vscodeEvent = getVscodeEvent();
-window.handler =  getVscodeEvent();
+window.handler = getVscodeEvent();
+
+function addCss(css) {
+    var style = document.createElement('style');
+    style.innerText = css;
+    document.documentElement.appendChild(style)
+}
+
+
+
+window.addThemeCss = function () {
+    addCss(`
+    *{
+        background-color: var(--vscode-editor-background) !important;
+        color: var(--vscode-editor-foreground) !important;
+    }
+    `);
+    document.documentElement.appendChild(style)
+}
+
