@@ -20,32 +20,34 @@ handler.on("open", (md) => {
                 handler.emit("export")
             }
         }],
-        // latex语法
-        hint: {
-            extend: [
-                {
-                    key: '@',
-                    hint: (key) => {
-                        if ('vanessa'.indexOf(key.toLocaleLowerCase()) > -1) {
-                            return [
-                                {
-                                    value: '@Vanessa',
-                                    html: '<img src="https://avatars0.githubusercontent.com/u/970828?s=60&v=4"/> Vanessa',
-                                }]
-                        }
-                        return []
-                    },
-                },
-            ]
-        }
         // TODO
-        // 2. input事件
-        // 3. ``代码默认样式参考typora
-        // 4. 自动引号
+        // 1. 自动引号: editor不支持
+        // 2. latex语法提示
+        // hint: {
+        //     extend: [
+        //         {
+        //             key: '@',
+        //             hint: (key) => {
+        //                 if ('vanessa'.indexOf(key.toLocaleLowerCase()) > -1) {
+        //                     return [
+        //                         {
+        //                             value: '@Vanessa',
+        //                             html: '<img src="https://avatars0.githubusercontent.com/u/970828?s=60&v=4"/> Vanessa',
+        //                         }]
+        //                 }
+        //                 return []
+        //             },
+        //         },
+        //     ]
+        // }
     })
     window.onkeypress = (e) => {
         if (e.ctrlKey && e.code == "KeyS") {
             vscodeEvent.emit("doSave", editor.getValue())
+        }
+        if (e.ctrlKey && e.code == "KeyV") {
+            vscodeEvent.emit('command','office.markdown.paste')
+            e.stopPropagation()
         }
     }
 

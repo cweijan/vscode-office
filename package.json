@@ -408,9 +408,10 @@
 				"vscode-office.markdownType": {
 					"type": "string",
 					"enum": [
-						"hyperMD"
+						"hyperMD",
+						"vditor"
 					],
-					"default": "hyperMD",
+					"default": "vditor",
 					"description": "Set markdown viewer type."
 				}
 			}

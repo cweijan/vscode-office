@@ -96,11 +96,11 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         const uri = document.uri;
         const webview = handler.panel.webview;
 
-        // const type = vscode.workspace.getConfiguration("vscode-office").get<string>("markdownType");
-        let path = "vditor";
-        // if (true) {
-        //     path = "vditor"
-        // }
+        const type = vscode.workspace.getConfiguration("vscode-office").get<string>("markdownType");
+        let path = "markdown-hyper";
+        if (type == "vditor") {
+            path = "vditor";
+        }
 
         Holder.activeUrl = uri;
         handler.panel.onDidChangeViewState(e => Holder.activeUrl = e.webviewPanel.visible ? uri : null);
