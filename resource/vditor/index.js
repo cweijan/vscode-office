@@ -6,6 +6,9 @@ handler.on("open", (md) => {
         "preview": {
             "markdown": {
                 "toc": true
+            },
+            hljs:{
+                style:'native'
             }
         },
         onInput() {
