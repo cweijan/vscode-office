@@ -98,9 +98,6 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
 
         const type = vscode.workspace.getConfiguration("vscode-office").get<string>("markdownType");
         let path = "markdown-hyper";
-        if (type == "stackedit") {
-            path = "markdown";
-        }
 
         Holder.activeUrl = uri;
         handler.panel.onDidChangeViewState(e => Holder.activeUrl = e.webviewPanel.visible ? uri : null);

@@ -56,7 +56,6 @@ In html editor, Press ctrl+shift+v open live edit for html.
   - [opentype](https://github.com/opentypejs/opentype.js)
 - HTTP: [vscode-restclient](https://github.com/Huachao/vscode-restclient)
 - Markdown:
-  - [stackedit](https://github.com/benweet/stackedit)
   - [HyperMD](https://github.com/laobubu/HyperMD)
   - [CodeMirror](https://github.com/codemirror/CodeMirror)
 - PlantUml:
