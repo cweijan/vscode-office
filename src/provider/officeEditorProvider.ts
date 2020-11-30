@@ -124,12 +124,16 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         }).on("blur", () => {
             this.countStatus.hide()
             this.cursorStatus.hide()
+        }).on("input", () => {
+            const edit = new vscode.WorkspaceEdit();
+            edit.replace(document.uri, new vscode.Range(document.lineCount, 0, document.lineCount, 0), "" + new Date().getTime());
+            return vscode.workspace.applyEdit(edit);
         }).on("save", (content) => {
             this.updateTextDocument(document, content)
         }).on("codemirrorEdit", (content) => {
             this.updateTextDocumentByEdit(document, content)
         }).on("doSave", async (content) => {
-            if(content){
+            if (content) {
                 await this.updateTextDocument(document, content)
             }
             vscode.commands.executeCommand('workbench.action.files.save');

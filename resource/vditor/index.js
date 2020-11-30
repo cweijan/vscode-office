@@ -8,9 +8,8 @@ handler.on("open", (md) => {
                 "toc": true
             }
         },
-        input(md) {
-            // 这里实际是保存事件
-            console.log('input')
+        onInput() {
+            handler.emit("input")
         },
         beforeDefaultToolbar: [{
             tipPosition: 's',
@@ -87,6 +86,7 @@ handler.on("open", (md) => {
         });
     }
     
+    // TODO 让vditor自己实现
     imageParser()
 
 })
