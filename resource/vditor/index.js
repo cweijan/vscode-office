@@ -6,19 +6,19 @@ handler.on("open", (md) => {
         value: md.content,
         height: document.documentElement.clientHeight,
         outline: true,
-        "resize": {
-            "enable": true
-        },
         "preview": {
             "markdown": {
                 "toc": true
             },
             hljs: {
                 style: 'native'
+            },
+            math:{
+                engine:'MathJax'
             }
         },
-        onInput() {
-            handler.emit("input")
+        input(content) {
+            handler.emit("save", content)
         },
         beforeDefaultToolbar: [{
             tipPosition: 's',
@@ -30,25 +30,10 @@ handler.on("open", (md) => {
             }
         }],
         // TODO
-        // 1. 自动引号: editor不支持
         // 2. latex语法提示
-        // hint: {
-        //     extend: [
-        //         {
-        //             key: '@',
-        //             hint: (key) => {
-        //                 if ('vanessa'.indexOf(key.toLocaleLowerCase()) > -1) {
-        //                     return [
-        //                         {
-        //                             value: '@Vanessa',
-        //                             html: '<img src="https://avatars0.githubusercontent.com/u/970828?s=60&v=4"/> Vanessa',
-        //                         }]
-        //                 }
-        //                 return []
-        //             },
-        //         },
-        //     ]
-        // }
+        hint: {
+            extend: hotKeys
+        }
     })
     window.onkeypress = (e) => {
         if (e.ctrlKey && e.code == "KeyS") {
@@ -60,7 +45,7 @@ handler.on("open", (md) => {
         }
     }
 
-    const keys = ["'", '"', "$","*"];
+    const keys = ["'", '"', "$", "*"];
     window.onkeydown = e => {
         if (keys.indexOf(e.key) == -1) {
             return;
@@ -72,6 +57,10 @@ handler.on("open", (md) => {
         document.getSelection().modify('move', 'left', 'character')
     }
 
+    window.onresize = () => {
+        document.getElementById('vditor').style.height = `${document.documentElement.clientHeight}px`
+    }
+
     function imageParser() {
         var observer = new MutationObserver(mutationList => {
             for (var mutation of mutationList) {
@@ -81,7 +70,7 @@ handler.on("open", (md) => {
                     for (const link of links) {
                         link.onclick = e => {
                             if (e.ctrlKey) {
-                                handler.emit("openLink",e.target.textContent)
+                                handler.emit("openLink", e.target.textContent)
                             }
                         }
                     }
@@ -124,3 +113,15 @@ handler.on("open", (md) => {
 })
 
 handler.emit("init")
+
+const hotKeys = [
+    {
+        key: '\\',
+        hint: (key) => {
+            const results = !key ? latexSymbols : latexSymbols.filter((symbol) => symbol.name.toLowerCase().startsWith(key.toLowerCase()));
+            return results.map(com => ({
+                html: com.name, value: com.value
+            }));
+        },
+    },
+]
