@@ -77,6 +77,16 @@ handler.on("open", (md) => {
             for (var mutation of mutationList) {
                 for (var node of mutation.addedNodes) {
                     if (!node.querySelector) continue;
+                    const links = node.querySelectorAll('.vditor-ir__marker--link')
+                    for (const link of links) {
+                        link.onclick = e => {
+                            if (e.ctrlKey) {
+                                handler.emit("openLink",e.target.textContent)
+                            }
+                        }
+                    }
+
+
                     const imgs = node.querySelectorAll('img')
                     for (const img of imgs) {
                         const url = img.src;
