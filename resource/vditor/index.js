@@ -60,7 +60,7 @@ handler.on("open", (md) => {
         }
     }
 
-    const keys = ["'", '"', "$"];
+    const keys = ["'", '"', "$","*"];
     window.onkeydown = e => {
         if (keys.indexOf(e.key) == -1) {
             return;
