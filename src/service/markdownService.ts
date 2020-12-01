@@ -111,13 +111,17 @@ export class MarkdownService {
             this.saveClipboardImageToFileAndGetPath(imagePath, (savedImagePath) => {
                 if (!savedImagePath) return;
                 if (savedImagePath === 'no image') {
-                    vscode.window.showInformationMessage('There is not an image in the clipboard.');
+                    vscode.window.showErrorMessage('There is not an image in the clipboard.');
                     return;
                 }
                 if (savedImagePath.startsWith("copyed:")) {
                     const copyedFile = savedImagePath.replace("copyed:", "");
+                    if(!existsSync(copyedFile)){
+                        vscode.window.showErrorMessage(`Coped file ${copyedFile} not found!`);
+                        return;
+                    }
                     if(lstatSync(copyedFile).isDirectory()){
-                        vscode.window.showInformationMessage('Not support paster directory.');
+                        vscode.window.showErrorMessage('Not support paster directory.');
                     }else{
                         copyFileSync(copyedFile, imagePath)
                     }
