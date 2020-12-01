@@ -3,6 +3,7 @@
 This extension is to support the function of previewing common office file formats.
 
 It support below files now:
+
 - Excel: .xls, .xlsx, .csv
 - Word: .docx
 - PhotoShop: .psd
@@ -19,17 +20,18 @@ It support below files now:
 # Markdown
 
 This extension change default editor for markdown:
-1. It change markdown editor as hyperMD, it's WYSIWYG editor for markdown.
+
+1. It change markdown editor as vditor, it's WYSIWYG editor for markdown.
 2. Support export markdown to pdf, right click editor found it.
 
 if you want using vscode editor, insert below json to vscode config.
+
 ```json
 "workbench.editorAssociations": [{
 	"viewType": "default",
 	"filenamePattern": "*.md"
 }]
 ```
-
 
 # HTML
 
@@ -47,7 +49,7 @@ In html editor, Press ctrl+shift+v open live edit for html.
 - xmind: [xmind-viewer](https://github.com/xmindltd/xmind-viewer)
 - Image: [lightGallery](https://github.com/sachinchoolur/lightGallery)
 - Flash: [swf2js](https://github.com/swf2js/swf2js)
-- PDF: 
+- PDF:
   - [pdf.js](https://github.com/mozilla/pdf.js)
   - [pdf-lib](https://github.com/Hopding/pdf-lib)
   - [puppeteer](https://github.com/puppeteer/puppeteer)
@@ -56,6 +58,7 @@ In html editor, Press ctrl+shift+v open live edit for html.
   - [opentype](https://github.com/opentypejs/opentype.js)
 - HTTP: [vscode-restclient](https://github.com/Huachao/vscode-restclient)
 - Markdown:
+  - [vditor](https://github.com/Vanessa219/vditor)
   - [HyperMD](https://github.com/laobubu/HyperMD)
   - [CodeMirror](https://github.com/codemirror/CodeMirror)
 - PlantUml:
