@@ -6,6 +6,9 @@ handler.on("open", (md) => {
         value: md.content,
         height: document.documentElement.clientHeight,
         outline: true,
+        "resize": {
+            "enable": true
+        },
         "preview": {
             "markdown": {
                 "toc": true
