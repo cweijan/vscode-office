@@ -60,6 +60,17 @@ handler.on("open", (md) => {
         }
     }
 
+    const keys = ["'", '"', "$"];
+    window.onkeydown = e => {
+        if (keys.indexOf(e.key) == -1) {
+            return;
+        }
+        const selectText = document.getSelection().toString();
+        if (selectText != "") { return; }
+
+        document.execCommand('insertText', false, e.key);
+        document.getSelection().modify('move', 'left', 'character')
+    }
 
     function imageParser() {
         var observer = new MutationObserver(mutationList => {
