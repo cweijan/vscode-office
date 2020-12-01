@@ -1,4 +1,5 @@
 param($imagePath)
+[System.Console]::OutputEncoding=[System.Text.Encoding]::GetEncoding(65001)
 
 # Adapted from https://github.com/octan3/img-clipboard-dump/blob/master/dump-clipboard-png.ps1
 
