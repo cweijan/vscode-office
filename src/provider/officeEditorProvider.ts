@@ -103,15 +103,24 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         }
 
         Holder.activeUrl = uri;
-        handler.panel.onDidChangeViewState(e => Holder.activeUrl = e.webviewPanel.visible ? uri : null);
+        handler.panel.onDidChangeViewState(e => {
+            Holder.activeUrl = e.webviewPanel.visible ? uri : null
+            if(!e.webviewPanel.visible){
+                this.countStatus.hide()
+                this.cursorStatus.hide()
+            }
+        });
 
         handler.on("init", () => {
+            const content = readFileSync(uri.fsPath, 'utf8');
             handler.emit("open", {
                 title: basename(uri.fsPath),
-                content: readFileSync(uri.fsPath, 'utf8'),
+                content,
                 folderPath: webview.asWebviewUri(folderPath).toString(),
                 autoTheme: vscode.workspace.getConfiguration("vscode-office").get<string>("autoTheme")
             })
+            this.countStatus.text = `Line ${content.split(/\r\n|\r|\n/).length}    Count ${content.length}`
+            this.countStatus.show()
         }).on("command", (command) => {
             vscode.commands.executeCommand(command)
         }).on("openLink", (uri) => {
@@ -122,9 +131,6 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         }).on("focus", ({ count, lineCount }) => {
             this.countStatus.text = `Line ${lineCount}    Count ${count}`
             this.countStatus.show()
-        }).on("blur", () => {
-            this.countStatus.hide()
-            this.cursorStatus.hide()
         }).on("input", () => {
             const edit = new vscode.WorkspaceEdit();
             edit.replace(document.uri, new vscode.Range(document.lineCount, 0, document.lineCount, 0), "" + new Date().getTime());
@@ -136,10 +142,10 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         }).on("doSave", async (content) => {
             if (content) {
                 await this.updateTextDocument(document, content)
+                this.countStatus.text = `Line ${content.split(/\r\n|\r|\n/).length}    Count ${content.length}`
+                this.countStatus.show()
             }
             vscode.commands.executeCommand('workbench.action.files.save');
-        }).on("edit", () => {
-            vscode.commands.executeCommand('vscode.openWith', uri, "default");
         }).on("export", () => {
             vscode.commands.executeCommand('workbench.action.files.save');
             new MarkdownService(this.context).exportPdf(uri)
