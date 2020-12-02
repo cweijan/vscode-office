@@ -93,7 +93,7 @@ handler.on("open", (md) => {
                                 img.src = `${img.src.replace(/.+electron-browser/, md.folderPath)}`
                             } else {
                                 // unix absolute path, un test
-                                img.src = `${location.origin.replace("vscode-webview", 'vscode-webview-resource')}/file////${url.replace(/vscode-webview:\/\/.+?\//, '')}`
+                                img.src = `${location.origin.replace("vscode-webview", 'vscode-webview-resource')}/file///${url.replace(/vscode-webview:\/\/.+?\//, '')}`
                             }
                         }
                     }
