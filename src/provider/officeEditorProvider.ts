@@ -117,7 +117,8 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
                 title: basename(uri.fsPath),
                 content,
                 folderPath: webview.asWebviewUri(folderPath).toString(),
-                autoTheme: vscode.workspace.getConfiguration("vscode-office").get<string>("autoTheme")
+                autoTheme: vscode.workspace.getConfiguration("vscode-office").get<boolean>("autoTheme"),
+                viewAbsoluteLocal: vscode.workspace.getConfiguration("vscode-office").get<boolean>("viewAbsoluteLocal")
             })
             this.countStatus.text = `Line ${content.split(/\r\n|\r|\n/).length}    Count ${content.length}`
             this.countStatus.show()
@@ -155,12 +156,11 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             }
         })
 
-
         const contextPath = `${this.extensionPath}/resource/${path}`;
         webview.html = Util.buildPath(
             readFileSync(`${this.extensionPath}/resource/${path}/index.html`, 'utf8')
-                .replace("{{rootPath}}", webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)).toString()
-                ),
+                .replace("{{rootPath}}", webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)).toString() )
+                .replace("{{baseUrl}}", webview.asWebviewUri(folderPath).toString()),
             webview, contextPath);
     }
 

@@ -414,6 +414,11 @@
 					"default": "vditor",
 					"description": "Set markdown viewer type."
 				},
+				"vscode-office.viewAbsoluteLocal": {
+					"type": "boolean",
+					"default": false,
+					"description": "Support view absolute path image from markdown viewer."
+				},
 				"vscode-office.autoTheme": {
 					"type": "boolean",
 					"default": false,
