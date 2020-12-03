@@ -409,9 +409,10 @@
 					"type": "string",
 					"enum": [
 						"hyperMD",
-						"vditor"
+						"vditor",
+						"auto"
 					],
-					"default": "vditor",
+					"default": "auto",
 					"description": "Set markdown viewer type."
 				},
 				"vscode-office.viewAbsoluteLocal": {

@@ -96,10 +96,18 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         const uri = document.uri;
         const webview = handler.panel.webview;
 
+        const content = readFileSync(uri.fsPath, 'utf8');
         const type = vscode.workspace.getConfiguration("vscode-office").get<string>("markdownType");
         let path = "markdown-hyper";
         if (type == "vditor") {
             path = "vditor";
+        }
+        if (type == "auto") {
+            path = "vditor";
+            const length=content?.match(/\$/g)?.length;
+            if(length && length>30){
+                path = "markdown-hyper";
+            }
         }
 
         Holder.activeUrl = uri;
@@ -112,7 +120,6 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         });
 
         handler.on("init", () => {
-            const content = readFileSync(uri.fsPath, 'utf8');
             handler.emit("open", {
                 title: basename(uri.fsPath),
                 content,
