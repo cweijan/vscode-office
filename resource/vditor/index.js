@@ -35,6 +35,39 @@ handler.on("open", (md) => {
         imageParser()
     }
 
+    $('body').on('contextmenu', (e) => {
+        var top = e.pageY - 10;
+        var left = e.pageX - 90;
+        $("#context-menu").css({
+          display: "block",
+          top: top,
+          left: left
+        }).addClass("show");
+      }).on("click", (e) => {
+        $("#context-menu").removeClass("show").hide();
+        let id = e.target.id;
+        if (!e.target.id) {
+          return;
+        }
+        id = id.replace("Menu", "")
+        switch (id) {
+          case "copy":
+            document.execCommand("copy")
+            break;
+          case "paste":
+            vscodeEvent.emit('command','office.markdown.paste')
+            break;
+          case "export":
+            vscodeEvent.emit("save", editor.getValue())
+            vscodeEvent.emit('export')
+            break;
+        }
+      });
+    
+      $("#context-menu a").on("click", function () {
+        $(this).parent().removeClass("show").hide();
+      });
+
 })
 
 handler.emit("init")

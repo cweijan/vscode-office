@@ -9,13 +9,20 @@
     <link rel="stylesheet" href="vditor.css" />
     <link rel="stylesheet" href="index.css" />
     <base href="{{baseUrl}}/">
+    <link rel="stylesheet" href="../css/context_material.min.css">
 </head>
 
 <body>
     <div id="vditor"></div>
+    <div class="dropdown-menu dropdown-menu-sm" id="context-menu" style="display: none;">
+        <a class="dropdown-item" id="copyMenu" href="#">Copy</a>
+        <a class="dropdown-item" id="pasteMenu" href="#">Paste</a>
+        <a class="dropdown-item" id="exportMenu" href="#">Export PDF</a>
+      </div>
 </body>
 <script src="vditor.js"></script>
 <script src="../js/vscode.js"></script>
+<script src="../js/jquery.min.js"></script>
 <script src="index.js" type="module"></script>
 
 </html>

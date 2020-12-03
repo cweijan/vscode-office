@@ -5,3 +5,7 @@ body{
 code{
     color: #24292e !important;
 }
+
+a{
+    text-decoration: none;
+}
