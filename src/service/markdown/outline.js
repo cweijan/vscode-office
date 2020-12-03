@@ -1,21 +1,19 @@
 const { PDFDocument, PDFDict, PDFHexString, PDFNumber, PDFName } = require("pdf-lib");
 
-module.exports = {
-    createOutline: async (pdf, html) => {
+export const createOutline = async (pdf, html) => {
 
-        const pdfDoc = await PDFDocument.load(pdf)
+    const pdfDoc = await PDFDocument.load(pdf)
 
-        const $ = require("cheerio").load(html)
+    const $ = require("cheerio").load(html)
 
-        const array = $('.table-of-contents>ol>li');
-        if (array.length > 0) {
-            const dict = extractDict(pdfDoc);
-            const dictArray = inflateDict(array, $, dict);
-            creatOutlines(pdfDoc, dictArray)
-        }
-
-        return await pdfDoc.save()
+    const array = $('.table-of-contents>ol>li');
+    if (array.length > 0) {
+        const dict = extractDict(pdfDoc);
+        const dictArray = inflateDict(array, $, dict);
+        creatOutlines(pdfDoc, dictArray)
     }
+
+    return await pdfDoc.save()
 }
 
 function inflateDict(array, $, dict) {

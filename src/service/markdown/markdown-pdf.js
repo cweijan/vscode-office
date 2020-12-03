@@ -3,13 +3,11 @@ const os = require("os")
 const path = require("path")
 const url = require("url")
 const URI = require("vscode").Uri
-const { createOutline } = require("./outline")
+const { exportByType } = require('./html-export')
 
 const exportTypes = ["pdf", "html", "png", "jpeg"]
 
-let INSTALL_CHECK = false
-
-async function convertMarkdown(inputMarkdownFile, outputFilePath, outputFileType, chromiumArgs, config) {
+async function convertMarkdown(inputMarkdownFile, outputFileType, config) {
   try {
     // check active window
     let ext = path.extname(inputMarkdownFile)
@@ -48,7 +46,7 @@ async function convertMarkdown(inputMarkdownFile, outputFilePath, outputFileType
           let text = fs.readFileSync(inputMarkdownFile).toString()
           let content = convertMarkdownToHtml(inputMarkdownFile, type, text, config)
           let html = makeHtml(content, uri, config)
-          await exportPdf(html, filename, outputFilePath, type, uri, chromiumArgs, config)
+          await exportByType(filename, html, type, config)
         } else {
           showErrorMessage(`Supported formats: ${exportTypes.join(", ")}.`)
           return
@@ -67,15 +65,15 @@ async function convertMarkdown(inputMarkdownFile, outputFilePath, outputFileType
 /**
  * create toc if not exists.
  */
-function addTocToContent(text){
-  return text.match(/\[toc\]/i)?text:'[toc]\n'+text;
+function addTocToContent(text) {
+  return text.match(/\[toc\]/i) ? text : '[toc]\n' + text;
 }
 
 /*
  * convert markdown to html (markdown-it)
  */
 function convertMarkdownToHtml(filename, type, text, config) {
-  text=addTocToContent(text)
+  text = addTocToContent(text)
   let md = {}
 
   try {
@@ -182,168 +180,6 @@ function makeHtml(data, uri, config) {
   }
 }
 
-/*
- * export a html to a html file
- */
-function exportHtml(data, filename) {
-  fs.writeFile(filename, data, "utf-8", function (error) {
-    if (error) {
-      showErrorMessage("exportHtml()", error)
-      return
-    }
-  })
-}
-
-/*
- * export a html to a pdf file (html-pdf)
- */
-async function exportPdf(data, filename, outputFilePath, type, uri, chromiumArgs, config) {
-
-  if (!INSTALL_CHECK) {
-    return
-  }
-  if (!checkPuppeteerBinary(config)) {
-    showErrorMessage("Chromium or Chrome does not exist! \
-      ")
-    return
-  }
-
-  let exportFilename = outputFilePath || getOutputDir(filename, uri, config)
-
-  console.log("[pretty-md-pdf] Exporting (" + type + ") ...")
-
-  try {
-    // export html
-    if (type == "html") {
-      exportHtml(data, exportFilename)
-      console.log("[pretty-md-pdf] Exported to file: " + exportFilename)
-      return
-    }
-
-    const puppeteer = require("puppeteer")
-    // create temporary file
-    let f = path.parse(filename)
-    let tmpfilename = path.join(f.dir, f.name + "_tmp.html")
-    exportHtml(data, tmpfilename)
-    let options = {
-      executablePath: config["executablePath"] || undefined,
-      args: chromiumArgs || undefined
-    }
-
-    let browser = await puppeteer.launch(options).catch(error => {
-      showErrorMessage("puppeteer.launch()", error)
-    })
-    let page = await browser.newPage().catch(error => {
-      showErrorMessage("browser.newPage()", error)
-    });
-    await page.goto(URI.file(tmpfilename).toString(), { waitUntil: "networkidle0" }).catch(error => {
-      showErrorMessage("page.goto()", error)
-    });
-
-    // generate pdf
-    // https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md#pagepdfoptions
-    if (type == "pdf") {
-      // If width or height option is set, it overrides the format option.
-      // In order to set the default value of page size to A4, we changed it from the specification of puppeteer.
-      let width_option = config["width"] || ""
-      let height_option = config["height"] || ""
-      let format_option = ""
-      if (!width_option && !height_option) {
-        format_option = config["format"] || "A4"
-      }
-      let landscape_option
-      if (config["orientation"] == "landscape") {
-        landscape_option = true
-      } else {
-        landscape_option = false
-      }
-      let options = {
-        scale: config["scale"],
-        displayHeaderFooter: config["displayHeaderFooter"],
-        headerTemplate: config["headerTemplate"] || "",
-        footerTemplate: config["footerTemplate"] || "",
-        printBackground: config["printBackground"],
-        landscape: landscape_option,
-        pageRanges: config["pageRanges"] || "",
-        format: format_option,
-        width: config["width"] || "",
-        height: config["height"] || "",
-        margin: {
-          top: config["margin"]["top"] || "",
-          right: config["margin"]["right"] || "",
-          bottom: config["margin"]["bottom"] || "",
-          left: config["margin"]["left"] || ""
-        }
-      }
-      const pdf = await page.pdf(options).catch(error => {
-        showErrorMessage("page.pdf", error)
-      })
-
-      const pdfBytes = await createOutline(pdf, data)
-      fs.writeFileSync(exportFilename, pdfBytes)
-
-    }
-
-    // generate png and jpeg
-    // https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md#pagescreenshotoptions
-    if (type == "png" || type == "jpeg") {
-      // Quality options do not apply to PNG images.
-      let quality_option
-      if (type == "png") {
-        quality_option = undefined
-      }
-      if (type == "jpeg") {
-        quality_option = config["quality"] || 100
-      }
-
-      // screenshot size
-      let clip_x_option = config["clip"]["x"]
-      let clip_y_option = config["clip"]["y"]
-      let clip_width_option = config["clip"]["width"]
-      let clip_height_option = config["clip"]["height"]
-      let options
-      if (clip_x_option !== null && clip_y_option !== null && clip_width_option !== null && clip_height_option !== null) {
-        options = {
-          path: exportFilename,
-          quality: quality_option,
-          fullPage: false,
-          clip: {
-            x: clip_x_option,
-            y: clip_y_option,
-            width: clip_width_option,
-            height: clip_height_option,
-          },
-          omitBackground: config["omitBackground"],
-        }
-      } else {
-        options = {
-          path: exportFilename,
-          quality: quality_option,
-          fullPage: true,
-          omitBackground: config["omitBackground"],
-        }
-      }
-      await page.screenshot(options).catch(error => {
-        showErrorMessage("page.screenshot()", error)
-      })
-    }
-
-    await browser.close()
-
-    // delete temporary file
-    let debug = config["debug"] || false
-    if (!debug) {
-      if (isExistsPath(tmpfilename)) {
-        fs.unlink(tmpfilename, () => { })
-      }
-    }
-
-    console.log("[pretty-md-pdf] Exported to file: " + exportFilename)
-  } catch (error) {
-    showErrorMessage("exportPdf()", error)
-  }
-}
-
 function isExistsPath(path) {
   if (path.length === 0) {
     return false
@@ -374,53 +210,6 @@ function isExistsDir(dirname) {
   }
 }
 
-function getOutputDir(filename, resource, config) {
-  try {
-    let outputDir
-    if (resource === undefined) {
-      return filename
-    }
-    let outputDirectory = config["outputDirectory"] || ""
-    if (outputDirectory.length === 0) {
-      return filename
-    }
-
-    // Use a home directory relative path If it starts with ~.
-    if (outputDirectory.indexOf("~") === 0) {
-      outputDir = outputDirectory.replace(/^~/, os.homedir())
-      mkdir(outputDir)
-      return path.join(outputDir, path.basename(filename))
-    }
-
-    // Use path if it is absolute
-    if (path.isAbsolute(outputDirectory)) {
-      if (!isExistsDir(outputDirectory)) {
-        showErrorMessage(`The output directory specified by the markdown-pdf.outputDirectory option does not exist.\
-          Check the markdown-pdf.outputDirectory option. ` + outputDirectory)
-        return
-      }
-      return path.join(outputDirectory, path.basename(filename))
-    }
-
-    // Use a workspace relative path if there is a workspace and markdown-pdf.outputDirectoryRootPath = workspace
-    let outputDirectoryRelativePathFile = config["outputDirectoryRelativePathFile"]
-    let root = getFolder(resource)
-
-    if (outputDirectoryRelativePathFile === false && root) {
-      outputDir = path.join(root.uri.fsPath, outputDirectory)
-      mkdir(outputDir)
-      return path.join(outputDir, path.basename(filename))
-    }
-
-    // Otherwise look relative to the markdown file
-    outputDir = path.join(path.dirname(resource.fsPath), outputDirectory)
-    mkdir(outputDir)
-    return path.join(outputDir, path.basename(filename))
-  } catch (error) {
-    showErrorMessage("getOutputDir()", error)
-  }
-}
-
 function getFolder(resource) {
   return {
     index: 0,
@@ -429,12 +218,7 @@ function getFolder(resource) {
   }
 }
 
-function mkdir(path) {
-  if (isExistsDir(path)) {
-    return
-  }
-  fs.mkdirSync(path, { recursive: true })
-}
+
 
 function readFile(filename, encode) {
   if (filename.length === 0) {
@@ -596,7 +380,6 @@ function checkPuppeteerBinary(config) {
     // settings.json
     let executablePath = config["executablePath"] || ""
     if (isExistsPath(executablePath)) {
-      INSTALL_CHECK = true
       return true
     }
 
@@ -649,7 +432,6 @@ async function installChromium(config) {
     let cleanupOldVersions = localRevisions.map(revision => browserFetcher.remove(revision))
 
     if (checkPuppeteerBinary(config)) {
-      INSTALL_CHECK = true
 
       console.log("[pretty-md-pdf] Chromium installation succeeded!")
       console.log("[pretty-md-pdf] Chromium installation succeeded.")
@@ -681,7 +463,6 @@ function setProxy(config) {
 async function init(config) {
   try {
     if (checkPuppeteerBinary(config)) {
-      INSTALL_CHECK = true
     } else {
       await installChromium(config)
     }
@@ -690,50 +471,14 @@ async function init(config) {
   }
 }
 
-module.exports = {
-  convertMarkdown,
-  init,
-  convertMd: async (options) => {
-    options = options || {}
-
-    options.outputFileType = options.outputFileType || "pdf"
-
-    if (!options.markdownFilePath || !options.markdownFilePath.toLowerCase().endsWith(".md") || !fs.existsSync(options.markdownFilePath)) {
-      throw new Error(`[pretty-md-pdf] ERROR: Markdown file '${options.markdownFilePath}' does not exist or is not an '.md' file`)
-    }
-
-    // let configPath = path.join(__dirname, "config.json")
-    let configPath = null
-
-    if (options.configFilePath && options.configFilePath.trim() !== "") {
-      configPath = options.configFilePath
-    }
-
-    if (!configPath || !fs.existsSync(configPath)) {
-      throw new Error(`[pretty-md-pdf] ERROR: Config file '${configPath}' does not exist`)
-    }
-
-    let config = JSON.parse(
-      fs.readFileSync(configPath).toString()
-    )
-
-    if (config.outputDirectory && config.outputDirectory.trim() !== "") {
-      config.outputDirectory = path.resolve(config.outputDirectory)
-    }
-
-    if (options.outputFilePath && options.outputFilePath.trim() !== "") {
-      options.outputFilePath = path.resolve(options.outputFilePath)
-    }
-
-    console.log(`[pretty-md-pdf] Converting markdown file: ${options.markdownFilePath}`)
-
-    await init(config)
-    await convertMarkdown(
-      path.resolve(options.markdownFilePath),
-      options.outputFilePath,
-      options.outputFileType,
-      options.chromiumArgs,
-      config
-    )
-  }
+export const convertMd = async (options) => {
+  const config = options.config
+  options.outputFileType = options.outputFileType || "pdf"
+  console.log(`[pretty-md-pdf] Converting markdown file: ${options.markdownFilePath}`)
+  await init(config)
+  await convertMarkdown(
+    path.resolve(options.markdownFilePath),
+    options.outputFileType,
+    config
+  )
 }

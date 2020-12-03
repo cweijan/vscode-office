@@ -150,6 +150,9 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         }).on("export", () => {
             vscode.commands.executeCommand('workbench.action.files.save');
             new MarkdownService(this.context).exportPdf(uri)
+        }).on("exportPdfByHtml",(html)=>{
+            vscode.commands.executeCommand('workbench.action.files.save');
+            new MarkdownService(this.context).exportPdfByHtml(uri,html)
         }).on("dispose", () => {
             if (Holder.activeUrl == uri) {
                 Holder.activeUrl = null;

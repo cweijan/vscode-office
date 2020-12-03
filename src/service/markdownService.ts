@@ -1,29 +1,32 @@
-const prettyMdPdf = require("./markdown/markdown-pdf")
+import { convertMd } from "./markdown/markdown-pdf";
+import { exportByType } from "./markdown/html-export";
 import { spawn } from 'child_process';
-import { copyFileSync, existsSync, fstatSync, lstatSync, mkdirSync, readdirSync, writeFileSync } from 'fs';
+import { copyFileSync, existsSync, lstatSync, mkdirSync } from 'fs';
 import { homedir } from 'os';
-import { dirname, join, parse, resolve } from 'path';
+import { join, parse, resolve } from 'path';
 import * as vscode from 'vscode';
 import { Holder } from './markdown/holder';
 import path = require('path');
 
 export class MarkdownService {
 
-    private configPath: string;
-
     constructor(private context: vscode.ExtensionContext) {
-        this.configPath = context.globalStoragePath + "/config.json"
+    }
+
+    public async exportPdfByHtml(uri: vscode.Uri, html: string) {
+        vscode.window.showInformationMessage("Starting export markdown to pdf.")
+        await exportByType(uri.fsPath.replace(".md",".pdf"), html, 'pdf', this.getConfig())
+        vscode.window.showInformationMessage("Export markdown to pdf success!")
     }
 
     public async exportPdf(uri: vscode.Uri) {
         vscode.window.showInformationMessage("Starting export markdown to pdf.")
-        this.bulidConfig();
-        await prettyMdPdf.convertMd({ markdownFilePath: uri.fsPath, configFilePath: this.configPath })
+        await convertMd({ markdownFilePath: uri.fsPath, config: this.getConfig() })
         vscode.window.showInformationMessage("Export markdown to pdf success!")
     }
 
-    public bulidConfig() {
-        const config = {
+    public getConfig() {
+        return {
             "type": [
                 "pdf"
             ],
@@ -54,15 +57,7 @@ export class MarkdownService {
             },
             "omitBackground": false
         };
-        const dir = dirname(this.configPath)
-        if (!existsSync(dir)) {
-            mkdirSync(dir, { recursive: true })
-        }
-        const configStr = JSON.stringify(config);
-        console.debug(`export markdown config is ${configStr}`)
-        writeFileSync(this.configPath, configStr)
     }
-
 
     private paths: { [index: string]: string } = {
         stable: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
@@ -115,13 +110,13 @@ export class MarkdownService {
                 }
                 if (savedImagePath.startsWith("copyed:")) {
                     const copyedFile = savedImagePath.replace("copyed:", "");
-                    if(!existsSync(copyedFile)){
+                    if (!existsSync(copyedFile)) {
                         vscode.window.showErrorMessage(`Coped file ${copyedFile} not found!`);
                         return;
                     }
-                    if(lstatSync(copyedFile).isDirectory()){
+                    if (lstatSync(copyedFile).isDirectory()) {
                         vscode.window.showErrorMessage('Not support paster directory.');
-                    }else{
+                    } else {
                         copyFileSync(copyedFile, imagePath)
                     }
                 }
