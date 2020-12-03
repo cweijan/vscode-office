@@ -144,58 +144,6 @@ function convertMarkdownToHtml(filename, type, text, config) {
       .use(require("markdown-it-toc-done-right").default)
       .use(require("markdown-it-anchor").default)
 
-    // emoji
-    let f = config["emoji"]
-    if (f) {
-      // let emojies_defs = require(path.join(__dirname, "data", "emoji.json"))
-      let options = {}
-
-      try {
-        options = {
-          // defs: emojies_defs
-        }
-      } catch (error) {
-        showErrorMessage("markdown-it-emoji:options", error)
-      }
-      md.use(require("markdown-it-emoji"), options)
-      md.renderer.rules.emoji = function (token, idx) {
-        let emoji = token[idx].markup
-        let emojipath = path.join(__dirname, "node_modules", "emoji-images", "pngs", emoji + ".png")
-        let emojidata = readFile(emojipath, null).toString("base64")
-        if (emojidata) {
-          return "<img class='emoji' alt='" + emoji + "' src='data:image/png;base64," + emojidata + "' />"
-        } else {
-          return ":" + emoji + ":"
-        }
-      }
-    }
-
-    // markdown-it-container
-    // https://github.com/markdown-it/markdown-it-container
-    md.use(require("markdown-it-container"), "", {
-      validate: function (name) {
-        return name.trim().length
-      },
-      render: function (tokens, idx) {
-        if (tokens[idx].info.trim() !== "") {
-          return `<div class="${tokens[idx].info.trim()}">\n`
-        } else {
-          return `</div>\n`
-        }
-      }
-    })
-
-    // markdown-it-include
-    // https://github.com/camelaissani/markdown-it-include
-    // the syntax is :[alt-text](relative-path-to-file.md)
-    // https://talk.commonmark.org/t/transclusion-or-including-sub-documents-for-reuse/270/13
-    if (config['markdown-it-include']) {
-      md.use(require("markdown-it-include"), {
-        root: path.dirname(filename),
-        includeRe: /\:(?:\[[^\]]*\])?\(([^)]+\.*)\)/i
-      });
-    }
-
     return md.render(text)
 
   } catch (error) {
@@ -203,19 +151,6 @@ function convertMarkdownToHtml(filename, type, text, config) {
   }
 }
 
-function slug(string) {
-  try {
-    let stg = encodeURI(string.trim()
-      .toLowerCase()
-      .replace(/[\]\[\!\"\#\$\%\&\"\(\)\*\+\,\.\/\:\;\<\=\>\?\@\\\^\_\{\|\}\~\`]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/^\-+/, "")
-      .replace(/\-+$/, ""))
-    return stg
-  } catch (error) {
-    showErrorMessage("slug()", error)
-  }
-}
 
 /*
  * make html

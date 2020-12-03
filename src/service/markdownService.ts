@@ -35,7 +35,6 @@ export class MarkdownService {
             "highlight": true,
             "highlightStyle": "",
             "breaks": false,
-            "emoji": true,
             "markdown-it-include": true,
             "executablePath": this.getChromiumPath(),
             "scale": 1,
