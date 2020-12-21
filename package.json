@@ -2,7 +2,7 @@
 	"name": "vscode-office",
 	"displayName": "Office Viewer",
 	"description": "View word,excel files in vscode.",
-	"version": "1.8.7",
+	"version": "1.8.8",
 	"publisher": "cweijan",
 	"icon": "images/icon.png",
 	"engines": {
@@ -423,7 +423,7 @@
 				"vscode-office.autoTheme": {
 					"type": "boolean",
 					"default": false,
-					"description": "Markdown follder vscode theme."
+					"description": "Markdown follow vscode theme."
 				}
 			}
 		}

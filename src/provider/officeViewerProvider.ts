@@ -133,9 +133,9 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             }
             // trigger = true;
             const fileName = `${tempPath}/${parse(uri.fsPath).name}.java`;
-            // setTimeout(() => {
+            setTimeout(() => {
                 vscode.window.showTextDocument(vscode.Uri.file(fileName).with({ scheme: "decompile_java", query: new Date().getTime().toString() }));
-            // }, 10);
+            }, 10);
         });
 
         java.stderr.on('data', (data) => {
