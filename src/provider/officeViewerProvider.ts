@@ -123,15 +123,12 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             mkdirSync(tempPath)
         }
 
-        // let trigger = false;
         const java = spawn("java", ['-cp', 'java-decompiler.jar','org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler', uri.fsPath, tempPath], { cwd: __dirname })
         java.stdout.on('data', (data) => {
             console.log(data.toString("utf8"))
-            // if (data.toString("utf8").indexOf("done") == -1 || trigger) {
             if (data.toString("utf8").indexOf("done") == -1 ) {
                 return;
             }
-            // trigger = true;
             const fileName = `${tempPath}/${parse(uri.fsPath).name}.java`;
             setTimeout(() => {
                 vscode.window.showTextDocument(vscode.Uri.file(fileName).with({ scheme: "decompile_java", query: new Date().getTime().toString() }));

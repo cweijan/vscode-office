@@ -2,7 +2,7 @@
 	"name": "vscode-office",
 	"displayName": "Office Viewer",
 	"description": "View word,excel files in vscode.",
-	"version": "1.8.8",
+	"version": "1.8.9",
 	"publisher": "cweijan",
 	"icon": "images/icon.png",
 	"engines": {
@@ -362,9 +362,6 @@
 						"filenamePattern": "*.webp"
 					},
 					{
-						"filenamePattern": "*.class"
-					},
-					{
 						"filenamePattern": "*.swf"
 					}
 				]
@@ -397,6 +394,16 @@
 					},
 					{
 						"filenamePattern": "*.htm"
+					}
+				]
+			},
+			{
+				"viewType": "cweijan.classViewer",
+				"displayName": "Class Viewer",
+				"priority": "option",
+				"selector": [
+					{
+						"filenamePattern": "*.class"
 					}
 				]
 			}

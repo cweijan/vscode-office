@@ -1,6 +1,6 @@
-## 1.8.7 2020-12-21
+## 1.8.9 2020-12-21
 
-- Update java decompiler version, only decompile class file.
+- Update java decompiler version, change priority as option.
 - Markdown editor support paster as plain text.
 
 ## 1.8.1 2020-11-24
