@@ -142,7 +142,7 @@ export const windowHack = (editor) => {
         if (e.ctrlKey && e.code == "KeyS") {
             vscodeEvent.emit("doSave", editor.getValue())
         }
-        if (e.ctrlKey && e.code == "KeyV") {
+        if (e.ctrlKey && e.code == "KeyV" && !e.shiftKey) {
             vscodeEvent.emit('command', 'office.markdown.paste')
             e.stopPropagation()
         }
