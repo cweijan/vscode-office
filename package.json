@@ -399,7 +399,7 @@
 			},
 			{
 				"viewType": "cweijan.classViewer",
-				"displayName": "Class Viewer",
+				"displayName": "Java Decompiler",
 				"priority": "option",
 				"selector": [
 					{
