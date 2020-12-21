@@ -1,11 +1,12 @@
 import { spawn } from 'child_process';
-import { readdirSync, readFileSync } from 'fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync } from 'fs';
 import { basename, extname, parse, resolve } from 'path';
 import { TextEncoder } from 'util';
 import * as vscode from 'vscode';
 import { Hanlder } from '../common/handler';
 import { Console } from '../common/Console';
 import { Util } from '../common/util';
+import { tmpdir } from 'os';
 const mammoth = require("mammoth");
 
 /**
@@ -112,18 +113,29 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
     }
 
     private async handleClass(uri: vscode.Uri, panel: vscode.WebviewPanel) {
+        if (uri.scheme != "file") {
+            vscode.commands.executeCommand('vscode.openWith', uri, "default");
+            return;
+        }
 
-        let trigger = false;
-        const java = spawn("java", ['-jar', 'fernflower.jar', uri.fsPath, './temp_java'], { cwd: __dirname })
+        const tempPath=`${tmpdir()}/office_temp_java`
+        if(!existsSync(tempPath)){
+            mkdirSync(tempPath)
+        }
+
+        // let trigger = false;
+        const java = spawn("java", ['-cp', 'java-decompiler.jar','org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler', uri.fsPath, tempPath], { cwd: __dirname })
         java.stdout.on('data', (data) => {
-            if (data.toString("utf8").indexOf("written") == -1 || trigger) {
+            console.log(data.toString("utf8"))
+            // if (data.toString("utf8").indexOf("done") == -1 || trigger) {
+            if (data.toString("utf8").indexOf("done") == -1 ) {
                 return;
             }
-            trigger = true;
-            const fileName = `${__dirname}/temp_java/${parse(uri.fsPath).name}.java`;
-            setTimeout(() => {
+            // trigger = true;
+            const fileName = `${tempPath}/${parse(uri.fsPath).name}.java`;
+            // setTimeout(() => {
                 vscode.window.showTextDocument(vscode.Uri.file(fileName).with({ scheme: "decompile_java", query: new Date().getTime().toString() }));
-            }, 10);
+            // }, 10);
         });
 
         java.stderr.on('data', (data) => {
