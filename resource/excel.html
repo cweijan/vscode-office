@@ -81,7 +81,7 @@
             const ab = new Uint8Array(buffer).buffer
             const wb = XLSX.read(ab, { type: "array" });
             var { sheets, maxLength } = convert(wb);
-            x_spreadsheet("#xspreadsheet", {
+            window.s=x_spreadsheet("#xspreadsheet", {
                 row: {
                     len: maxLength+50,
                     height: 30,
