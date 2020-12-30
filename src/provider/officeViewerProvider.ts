@@ -230,7 +230,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
         var enc = new TextEncoder();
         handler.on("init", async () => {
             const content = await vscode.workspace.fs.readFile(uri)
-            handler.emit("open", { content, file: resolve(uri.fsPath) })
+            handler.emit("open", { content, file: resolve(uri.fsPath),ext:extname(uri.fsPath) })
         }).on("save", async (content) => {
             await vscode.workspace.fs.writeFile(uri, new Uint8Array(content))
             handler.emit("saveDone")
