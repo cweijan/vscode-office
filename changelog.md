@@ -1,3 +1,7 @@
+# 1.9.0 2020-12-30
+
+- Support view csv file with utf8 encoding.
+
 ## 1.8.9 2020-12-21
 
 - Update java decompiler version, change priority as option.
