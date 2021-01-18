@@ -512,7 +512,9 @@
             } else {
                 subHtml = $currentEle.attr('data-sub-html');
                 if (this.s.getCaptionFromTitleOrAlt && !subHtml) {
-                    subHtml = $currentEle.attr('title') || $currentEle.find('img').first().attr('alt');
+                    const img=$currentEle.find('img')
+                    subHtml = $currentEle.attr('title') || img.first().attr('alt');
+                    subHtml = subHtml+ ` ${img[0].width}×${img[0].height}`
                 }
             }
         }
