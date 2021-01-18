@@ -3,8 +3,8 @@
 <head>
     <style>
         body {
-            background-color: #fbfbfb !important;
-            color: #3e3838 !important;
+            background-color: #fbfbfb ;
+            color: #3e3838 ;
             font-family: var(--vscode-font-family);
             font-weight: var(--vscode-font-weight);
             font-size: 14px;
@@ -36,6 +36,7 @@
     </style>
     <link href="word/pagination.css" rel="stylesheet" type="text/css">
     <script src="js/jquery.min.js"></script>
+    <script src="js/vscode.js"></script>
     <script src="word/pagination.min.js"></script>
 </head>
 
@@ -51,6 +52,10 @@
 </body>
 
 <script>
+
+    if ($autoTheme) {
+        window.addThemeCss()
+    }
 
     function createSerial(count) {
         var result = [];

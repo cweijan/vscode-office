@@ -41,6 +41,5 @@ window.addThemeCss = function () {
         color: var(--vscode-editor-foreground) !important;
     }
     `);
-    document.documentElement.appendChild(style)
 }
 

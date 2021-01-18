@@ -7,6 +7,7 @@ import { Hanlder } from '../common/handler';
 import { Console } from '../common/Console';
 import { Util } from '../common/util';
 import { tmpdir } from 'os';
+import { workspace } from 'vscode';
 const mammoth = require("mammoth");
 
 /**
@@ -207,6 +208,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 webview.html =
                     Util.buildPath(
                         readFileSync(this.extensionPath + "/resource/word.html", 'utf8').replace("{{content}}", result.value)
+                        .replace("$autoTheme", workspace.getConfiguration("vscode-office").get<boolean>("autoTheme")+'')
                         , webview, this.extensionPath + "/resource"
                     )
             })
