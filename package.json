@@ -430,7 +430,7 @@
 				"vscode-office.autoTheme": {
 					"type": "boolean",
 					"default": false,
-					"description": "Markdown follow vscode theme."
+					"description": "Viewer follow vscode theme."
 				}
 			}
 		}
