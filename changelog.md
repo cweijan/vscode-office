@@ -1,3 +1,9 @@
+# 1.9.1 2021-1-18
+
+- Fix cannot view big xmind.
+- Support follow theme with docx viewer.
+- Image viewer support show pixel.
+
 # 1.9.0 2020-12-30
 
 - Support view csv file with utf8 encoding.
