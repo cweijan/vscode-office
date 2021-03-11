@@ -2,7 +2,7 @@
 	"name": "vscode-office",
 	"displayName": "Office Viewer",
 	"description": "View word,excel files in vscode.",
-	"version": "1.9.1",
+	"version": "2.0.0",
 	"publisher": "cweijan",
 	"icon": "images/icon.png",
 	"engines": {
@@ -35,14 +35,22 @@
 	"contributes": {
 		"themes": [
 			{
-			  "label": "One Dark Modern",
-			  "uiTheme": "vs-dark",
-			  "path": "./theme/OneDark-Modern.json"
+				"label": "One Dark Modern",
+				"uiTheme": "vs-dark",
+				"path": "./theme/OneDark-Modern.json"
 			}
-		  ],
-		  "markdown.previewStyles": [
+		],
+		"markdown.previewStyles": [
 			"./theme/github-markdown.css"
-		  ],
+		],
+		"iconThemes": [
+			{
+				"id": "material-icon-theme",
+				"label": "Material Icon Theme",
+				"path": "./dist/material-icons.json",
+				"_watch": true
+			}
+		],
 		"languages": [
 			{
 				"id": "reg",
@@ -90,6 +98,10 @@
 			}
 		],
 		"commands": [
+			{
+				"command": "material-icon-theme.changeFolderColor",
+				"title": "%command.changeFolderColor%"
+			},
 			{
 				"command": "rest-client.request",
 				"title": "Send Request",
