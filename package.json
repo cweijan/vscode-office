@@ -33,6 +33,16 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"themes": [
+			{
+			  "label": "One Dark Modern",
+			  "uiTheme": "vs-dark",
+			  "path": "./theme/OneDark-Modern.json"
+			}
+		  ],
+		  "markdown.previewStyles": [
+			"./theme/github-markdown.css"
+		  ],
 		"languages": [
 			{
 				"id": "reg",
