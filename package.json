@@ -2,7 +2,7 @@
 	"name": "vscode-office",
 	"displayName": "Office Viewer",
 	"description": "View word,excel files in vscode.",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"publisher": "cweijan",
 	"icon": "images/icon.png",
 	"engines": {
@@ -98,10 +98,6 @@
 			}
 		],
 		"commands": [
-			{
-				"command": "material-icon-theme.changeFolderColor",
-				"title": "%command.changeFolderColor%"
-			},
 			{
 				"command": "rest-client.request",
 				"title": "Send Request",
