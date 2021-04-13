@@ -137,7 +137,7 @@ export const imageParser = () => {
     });
 }
 
-const keys = ["'", '"', "$", "*"];
+const keys = ["'", '"', "{", "("];
 export const windowHack = (editor) => {
     window.onkeypress = (e) => {
         if (e.ctrlKey && e.code == "KeyV" && !e.shiftKey) {
@@ -151,7 +151,13 @@ export const windowHack = (editor) => {
         const selectText = document.getSelection().toString();
         if (selectText != "") { return; }
 
-        document.execCommand('insertText', false, e.key);
+        if(e.key=='('){
+            document.execCommand('insertText', false, ')');
+        }else if(e.key=='{'){
+            document.execCommand('insertText', false, '}');
+        }else{
+            document.execCommand('insertText', false, e.key);
+        }
         document.getSelection().modify('move', 'left', 'character')
     }
 
