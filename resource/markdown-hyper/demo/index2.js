@@ -119,17 +119,6 @@ function load_and_update_editor(url) {
       vscodeEvent.emit("doSave")
     }
   }
-  window.onblur = () => {
-    localStorage.setItem('cursor', JSON.stringify(editor.getCursor()))
-  }
-  window.onfocus = () => {
-    editor.focus()
-    let cursor = localStorage.getItem('cursor')
-    if (cursor) {
-      cursor = JSON.parse(cursor)
-      editor.setCursor(cursor)
-    }
-  }
 
 }
 
