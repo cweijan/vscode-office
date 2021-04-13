@@ -80,6 +80,7 @@ export const toolbar = [
     "undo",
     "redo",
     "|",
+    "preview",
     {
         tipPosition: 's',
         tip: 'Export To Pdf',
