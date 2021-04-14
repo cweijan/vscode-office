@@ -7,7 +7,10 @@ handler.on("open", (md) => {
     const editor=new Vditor('vditor', {
         value: md.content,
         height: document.documentElement.clientHeight,
-        outline: true,
+        outline: {
+          enable: true,
+          position: 'left',
+        },
         "preview": {
             "markdown": {
                 "toc": true
