@@ -386,7 +386,7 @@
 			},
 			{
 				"viewType": "cweijan.markdownViewer",
-				"displayName": "Markdown Viewer",
+				"displayName": "Markdown Editor",
 				"selector": [
 					{
 						"filenamePattern": "*.md"
