@@ -5,60 +5,15 @@ const url = require("url")
 const URI = require("vscode").Uri
 const { exportByType } = require('./html-export')
 
-const exportTypes = ["pdf", "html", "png", "jpeg"]
+async function convertMarkdown(inputMarkdownFile, config) {
 
-async function convertMarkdown(inputMarkdownFile, outputFileType, config) {
-  try {
-    // check active window
-    let ext = path.extname(inputMarkdownFile)
-    if (!isExistsPath(inputMarkdownFile)) {
-      console.error("File name does not exist!")
-      return
-    }
+  const type = config.type
+  const uri = URI.file(inputMarkdownFile)
+  const text = fs.readFileSync(inputMarkdownFile).toString()
+  const content = convertMarkdownToHtml(inputMarkdownFile, type, text, config)
+  const html = mergeHtml(content, uri, config)
+  await exportByType(inputMarkdownFile, html, type, config)
 
-    let uri = URI.file(inputMarkdownFile)
-
-    let types_format = exportTypes
-    let filename = ""
-    let types = []
-    if (types_format.indexOf(outputFileType) >= 0) {
-      types[0] = outputFileType
-    } else if (outputFileType === "settings") {
-      let types_tmp = config["type"] || "pdf"
-      if (types_tmp && !Array.isArray(types_tmp)) {
-        types[0] = types_tmp
-      } else {
-        types = config["type"] || "pdf"
-      }
-    } else if (outputFileType === "all") {
-      types = types_format
-    } else {
-      showErrorMessage(`Supported formats: ${exportTypes.join(", ")}.`)
-      return
-    }
-
-    // convert and export markdown to `exportTypes`
-    if (types && Array.isArray(types) && types.length > 0) {
-      for (let i = 0; i < types.length; i++) {
-        let type = types[i]
-        if (types_format.indexOf(type) >= 0) {
-          filename = inputMarkdownFile.replace(ext, "." + type)
-          let text = fs.readFileSync(inputMarkdownFile).toString()
-          let content = convertMarkdownToHtml(inputMarkdownFile, type, text, config)
-          let html = makeHtml(content, uri, config)
-          await exportByType(filename, html, type, config)
-        } else {
-          showErrorMessage(`Supported formats: ${exportTypes.join(", ")}.`)
-          return
-        }
-      }
-    } else {
-      showErrorMessage(`Supported formats: ${exportTypes.join(", ")}.`)
-      return
-    }
-  } catch (error) {
-    showErrorMessage("convertMarkdown()", error)
-  }
 }
 
 
@@ -153,7 +108,7 @@ function convertMarkdownToHtml(filename, type, text, config) {
 /*
  * make html
  */
-function makeHtml(data, uri, config) {
+function mergeHtml(data, uri, config) {
   try {
     // read styles
     let style = ""
@@ -473,12 +428,11 @@ async function init(config) {
 
 export const convertMd = async (options) => {
   const config = options.config
-  options.outputFileType = options.outputFileType || "pdf"
+  options.outputFileType = config.type[0]
   console.log(`[pretty-md-pdf] Converting markdown file: ${options.markdownFilePath}`)
   await init(config)
   await convertMarkdown(
     path.resolve(options.markdownFilePath),
-    options.outputFileType,
     config
   )
 }

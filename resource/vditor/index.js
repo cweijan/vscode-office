@@ -52,7 +52,6 @@ handler.on("open", (md) => {
         if (!e.target.id) {
           return;
         }
-        id = id.replace("Menu", "")
         switch (id) {
           case "copy":
             document.execCommand("copy")
@@ -60,9 +59,13 @@ handler.on("open", (md) => {
           case "paste":
             vscodeEvent.emit('command','office.markdown.paste')
             break;
-          case "export":
+          case "exportPdf":
             vscodeEvent.emit("save", editor.getValue())
             vscodeEvent.emit('export')
+            break;
+          case "exportHtml":
+            vscodeEvent.emit("save", editor.getValue())
+            vscodeEvent.emit('exportPdfByHtml')
             break;
         }
       });
