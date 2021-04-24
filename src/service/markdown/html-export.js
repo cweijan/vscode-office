@@ -9,9 +9,7 @@ const isDev = process.argv.indexOf('--type=extensionHost') >= 0;
 
 export async function exportHtml(exportFilePath, data) {
     console.log("[pretty-md-pdf] Exported to file: " + exportFilePath)
-    fs.writeFile(exportFilePath, data, "utf-8", (error) => {
-        showErrorMessage("exportHtml()", error)
-    })
+    fs.writeFileSync(exportFilePath, data, "utf-8")
 }
 
 /*
@@ -20,11 +18,12 @@ export async function exportHtml(exportFilePath, data) {
 export async function exportByType(filePath, data, type, config) {
 
     console.log("[pretty-md-pdf] Exporting (" + type + ") ...")
-    let exportFilePath = config.outputDirectory ? config.outputDirectory + "/" + basename(filePath) : filePath
+    const originPath = path.parse(filePath)
+    let targetFilePath = originPath.dir + "/" + originPath.name + "." + type
 
     // export html
     if (type == "html") {
-        exportHtml(exportFilePath, data)
+        exportHtml(targetFilePath, data)
         return
     }
 
@@ -36,8 +35,7 @@ export async function exportByType(filePath, data, type, config) {
     try {
 
         const puppeteer = require("puppeteer")
-        let targetFilePath = path.parse(filePath)
-        let tmpfilename = path.join(isDev ? targetFilePath.dir : os.tmpdir(), targetFilePath.name + "_tmp.html")
+        let tmpfilename = path.join(isDev ? originPath.dir : os.tmpdir(), originPath.name + "_tmp.html")
         exportHtml(tmpfilename, data)
         let options = {
             executablePath: config["executablePath"] || undefined
@@ -93,7 +91,7 @@ export async function exportByType(filePath, data, type, config) {
             })
 
             const pdfBytes = await createOutline(pdf, data)
-            fs.writeFileSync(exportFilePath, pdfBytes)
+            fs.writeFileSync(targetFilePath, pdfBytes)
 
         }
 
@@ -107,7 +105,7 @@ export async function exportByType(filePath, data, type, config) {
             }
         }
 
-        console.log("[pretty-md-pdf] Exported to file: " + exportFilePath)
+        console.log("[pretty-md-pdf] Exported to file: " + targetFilePath)
     } catch (error) {
         showErrorMessage("exportPdf()", error)
     }

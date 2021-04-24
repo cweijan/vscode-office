@@ -1,5 +1,4 @@
 import { convertMd } from "./markdown/markdown-pdf";
-import { exportByType } from "./markdown/html-export";
 import { spawn } from 'child_process';
 import { copyFileSync, existsSync, lstatSync, mkdirSync } from 'fs';
 import { homedir } from 'os';
@@ -13,10 +12,9 @@ export class MarkdownService {
     constructor(private context: vscode.ExtensionContext) {
     }
 
-    public async exportPdfByHtml(uri: vscode.Uri, html: string) {
-        vscode.window.showInformationMessage("Starting export markdown to pdf.")
-        await exportByType(uri.fsPath.replace(".md",".pdf"), html, 'pdf', this.getConfig())
-        vscode.window.showInformationMessage("Export markdown to pdf success!")
+    public async exportPdfByHtml(uri: vscode.Uri) {
+        await convertMd({ markdownFilePath: uri.fsPath, config: this.getConfig('html') })
+        vscode.window.showInformationMessage("Export markdown to html success!")
     }
 
     public async exportPdf(uri: vscode.Uri) {
@@ -25,11 +23,9 @@ export class MarkdownService {
         vscode.window.showInformationMessage("Export markdown to pdf success!")
     }
 
-    public getConfig() {
+    public getConfig(type?:string) {
         return {
-            "type": [
-                "pdf"
-            ],
+            "type": type||"pdf" ,
             "outputDirectory": "",
             "outputDirectoryRelativePathFile": false,
             "styles": [],
