@@ -76,7 +76,7 @@ function xtos(sdata) {
 
 function export_xlsx() {
     const extName = fileName.split('.').pop().toLowerCase();
-    if (extName == 'xlsx' || extName == 'xls') {
+    if (extName == 'xlsx' || extName == 'xls' || extName == 'ods' ) {
         var new_wb = xtos(s.getData());
         var buffer = XLSX.write(new_wb, { bookType: extName, type: "array" });
         const array = [...new Uint8Array(buffer)];

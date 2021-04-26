@@ -50,6 +50,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".xlsx":
             case ".xls":
             case ".csv":
+            case ".ods":
                 htmlPath = this.handleXlsx(uri, handler)
                 break;
             case ".ttf":
