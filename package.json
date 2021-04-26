@@ -40,9 +40,6 @@
 				"path": "./theme/OneDark-Modern.json"
 			}
 		],
-		"markdown.previewStyles": [
-			"./theme/github-markdown.css"
-		],
 		"iconThemes": [
 			{
 				"id": "material-icon-theme",
