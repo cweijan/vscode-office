@@ -137,7 +137,7 @@ export const imageParser = () => {
     });
 }
 
-const keys = ["'", '"', "{", "("];
+const keys = ["'", '"', "{", "(",'$'];
 export const windowHack = (editor) => {
     window.onkeypress = (e) => {
         if (e.ctrlKey && e.code == "KeyV" && !e.shiftKey) {
