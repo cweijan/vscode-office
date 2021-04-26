@@ -19,7 +19,8 @@ handler.on("open", (md) => {
                 style: 'github'
             },
             math: {
-                engine: 'MathJax'
+                engine: 'KaTeX',
+                "inlineDigit": true
             }
         },
         toolbar,
