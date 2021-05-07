@@ -1,3 +1,14 @@
+# 2.0.0+
+
+- Support ods file.
+- Remove top button of word document.
+- Remove markdown style.
+- Support inline markdown.
+- Support export to html.
+- Markdown support auto quote.
+- Change viewer name as editor.
+- Change default markdown editor as vditor.
+
 # 1.9.1 2021-1-18
 
 - Fix cannot view big xmind.
