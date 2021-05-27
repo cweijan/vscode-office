@@ -28,6 +28,7 @@ handler.on("open", (md) => {
             handler.emit("save", content)
         },
         hint: {
+            emoji:{},
             extend: hotKeys
         }
     })
