@@ -437,7 +437,7 @@
 						"vditor",
 						"auto"
 					],
-					"default": "auto",
+					"default": "vditor",
 					"description": "Set markdown viewer type."
 				},
 				"vscode-office.viewAbsoluteLocal": {
