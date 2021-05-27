@@ -430,16 +430,6 @@
 			"type": "object",
 			"title": "Office",
 			"properties": {
-				"vscode-office.markdownType": {
-					"type": "string",
-					"enum": [
-						"hyperMD",
-						"vditor",
-						"auto"
-					],
-					"default": "vditor",
-					"description": "Set markdown viewer type."
-				},
 				"vscode-office.viewAbsoluteLocal": {
 					"type": "boolean",
 					"default": false,
