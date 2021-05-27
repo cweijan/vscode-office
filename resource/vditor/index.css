@@ -9,3 +9,8 @@ code{
 a{
     text-decoration: none;
 }
+
+
+.vditor-reset {
+    padding: 0 5% !important;
+}
