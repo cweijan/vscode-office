@@ -11,6 +11,8 @@ handler.on("open", (md) => {
           enable: true,
           position: 'left',
         },
+        mode: 'wysiwyg',
+        tab: '\t',
         "preview": {
             "markdown": {
                 "toc": true
