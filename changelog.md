@@ -1,3 +1,8 @@
+# 2.0.7 2021-5-27
+
+- Change vditor mode from ir to wysiwyg.
+- Fix markdown cannot type tab.
+
 # 2.0.0+
 
 - Support ods file.

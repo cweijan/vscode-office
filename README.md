@@ -33,6 +33,12 @@ if you want using vscode editor, insert below json to vscode config.
 }]
 ```
 
+shortcut:
+
+- ctrl+shift+i: move line up.
+- ctrl+shift+j: move line down.
+- ctrl+k: toggle bold.
+
 # HTML
 
 In html editor, Press ctrl+shift+v open live edit for html.
