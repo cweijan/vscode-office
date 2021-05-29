@@ -749,19 +749,20 @@ let ePubViewer = null;
 
 try {
     ePubViewer = new App(document.querySelector(".app"));
-    let ufn = location.search.replace("?", "") || location.hash.replace("#", "");
-    if (ufn.startsWith("!")) {
-        ufn = ufn.replace("!", "");
-        document.querySelector(".app button.open").style = "display: none !important";
-    }
-    if (ufn) {
-        fetch(ufn).then(resp => {
-            if (resp.status != 200) throw new Error("response status: " + resp.status.toString() + " " + resp.statusText);
-        }).catch(err => {
-            ePubViewer.fatal("error loading book", err, true);
-        });
-        ePubViewer.doBook(ufn);
-    }
+    // remove legacy code.
+    // let ufn = location.search.replace("?", "") || location.hash.replace("#", "");
+    // if (ufn.startsWith("!")) {
+    //     ufn = ufn.replace("!", "");
+    //     document.querySelector(".app button.open").style = "display: none !important";
+    // }
+    // if (ufn) {
+    //     // fetch(ufn).then(resp => {
+    //     //     if (resp.status != 200) throw new Error("response status: " + resp.status.toString() + " " + resp.statusText);
+    //     // }).catch(err => {
+    //     //     ePubViewer.fatal("error loading book", err, true);
+    //     // });
+    //     ePubViewer.doBook(ufn);
+    // }
     const vscodeEvent = getVscodeEvent();
     vscodeEvent.emit("init")
     vscodeEvent.on("open", value => {
