@@ -1,3 +1,8 @@
+# 2.2.0 2021-6-2
+
+- Not trigger vscode hotkey when match markdown hotkey.
+- Support immediately preservation.
+
 # 2.1.1 2021-5-27
 
 - Change vditor mode from ir to wysiwyg.
