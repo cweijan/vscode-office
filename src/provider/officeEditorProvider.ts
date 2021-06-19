@@ -132,6 +132,8 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             const edit = new vscode.WorkspaceEdit();
             edit.replace(document.uri, new vscode.Range(document.lineCount, 0, document.lineCount, 0), "" + new Date().getTime());
             return vscode.workspace.applyEdit(edit);
+        }).on("editInVSCode", () => {
+            vscode.commands.executeCommand('vscode.openWith', uri, "default");
         }).on("save", (content) => {
             this.updateTextDocument(document, content)
         }).on("codemirrorEdit", (content) => {
