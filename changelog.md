@@ -1,3 +1,7 @@
+# 2.2.2 2021-6-19
+
+- Speed up picture pasting
+
 # 2.2.0 2021-6-2
 
 - Not trigger vscode hotkey when match markdown hotkey.
