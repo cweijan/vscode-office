@@ -2,6 +2,7 @@ const path = require('path')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const isProd = process.argv.indexOf('-p') >= 0;
+var webpack = require('webpack');
 
 module.exports = {
     target: 'node',
@@ -42,6 +43,7 @@ module.exports = {
         warningsFilter: [/critical dependency:/i, /applicationinsights-native-metrics/],
     },
     plugins: [
+        new webpack.IgnorePlugin(/^(utf-8-validate|encoding|bufferutil)$/),
         new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
         new CopyWebpackPlugin({
             patterns: [{ from: 'public', to: './' }]

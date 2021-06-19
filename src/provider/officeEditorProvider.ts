@@ -1,13 +1,12 @@
 import * as fs from 'fs';
-import { readFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync } from 'fs';
 import fetch from 'node-fetch';
-import { basename, extname, resolve } from 'path';
+import { basename, dirname, extname, parse, resolve } from 'path';
 import * as util from 'util';
 import * as vscode from 'vscode';
 import { MessageOptions } from 'vscode';
 import { Hanlder } from '../common/handler';
 import { Util } from '../common/util';
-import { Holder } from '../service/markdown/holder';
 import { MarkdownService } from '../service/markdownService';
 const streamPipeline = util.promisify(require('stream').pipeline);
 
@@ -60,8 +59,6 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
 
     private handlePuml(document: vscode.TextDocument, handler: Hanlder) {
         const uri = document.uri;
-
-
         handler.on("init", () => {
             handler.emit("open", readFileSync(uri.fsPath, 'utf8'))
         }).on("save", (content) => {
@@ -99,10 +96,8 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         const content = readFileSync(uri.fsPath, 'utf8');
         let path = "vditor";
 
-        Holder.activeUrl = uri;
         handler.panel.onDidChangeViewState(e => {
-            Holder.activeUrl = e.webviewPanel.visible ? uri : null
-            if(!e.webviewPanel.visible){
+            if (!e.webviewPanel.visible) {
                 this.countStatus.hide()
                 this.cursorStatus.hide()
             }
@@ -128,6 +123,18 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         }).on("focus", ({ count, lineCount }) => {
             this.countStatus.text = `Line ${lineCount}    Count ${count}`
             this.countStatus.show()
+        }).on("img", (img) => {
+            const fileName=`${new Date().getTime()}.png`;
+            const rePath = `image/${parse(uri.fsPath).name}/${fileName}`;
+            const imagePath = `${resolve(uri.fsPath, "..")}/${rePath}`.replace(/\\/g, "/");
+            const dir = dirname(imagePath)
+            if (!existsSync(dir)) {
+                mkdirSync(dir, { recursive: true })
+            }
+            fs.writeFileSync(imagePath,  Buffer.from(img, 'binary'))
+            console.log(img)
+            vscode.env.clipboard.writeText(`![${fileName}](${rePath})`)
+            vscode.commands.executeCommand("editor.action.clipboardPasteAction")
         }).on("input", () => {
             const edit = new vscode.WorkspaceEdit();
             edit.replace(document.uri, new vscode.Range(document.lineCount, 0, document.lineCount, 0), "" + new Date().getTime());
@@ -147,20 +154,16 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             vscode.commands.executeCommand('workbench.action.files.save');
         }).on("export", () => {
             vscode.commands.executeCommand('workbench.action.files.save');
-            new MarkdownService(this.context).exportPdf(uri)
-        }).on("exportPdfByHtml",()=>{
+            new MarkdownService().exportPdf(uri)
+        }).on("exportPdfByHtml", () => {
             vscode.commands.executeCommand('workbench.action.files.save');
-            new MarkdownService(this.context).exportPdfByHtml(uri)
-        }).on("dispose", () => {
-            if (Holder.activeUrl == uri) {
-                Holder.activeUrl = null;
-            }
+            new MarkdownService().exportPdfByHtml(uri)
         })
 
         const contextPath = `${this.extensionPath}/resource/${path}`;
         webview.html = Util.buildPath(
             readFileSync(`${this.extensionPath}/resource/${path}/index.html`, 'utf8')
-                .replace("{{rootPath}}", webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)).toString() )
+                .replace("{{rootPath}}", webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)).toString())
                 .replace("{{baseUrl}}", webview.asWebviewUri(folderPath).toString()),
             webview, contextPath);
     }
