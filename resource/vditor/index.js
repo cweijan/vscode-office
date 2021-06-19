@@ -43,6 +43,7 @@ handler.on("open", (md) => {
     }
 
     $('body').on('contextmenu', (e) => {
+        e.stopPropagation();
         var top = e.pageY - 10;
         var left = e.pageX - 90;
         $("#context-menu").css({
