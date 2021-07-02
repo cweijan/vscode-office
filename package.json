@@ -2,7 +2,7 @@
 	"name": "vscode-office",
 	"displayName": "Office Viewer",
 	"description": "View word,excel files in vscode.",
-	"version": "2.1.2",
+	"version": "2.2.4",
 	"publisher": "cweijan",
 	"icon": "images/icon.png",
 	"engines": {
@@ -42,8 +42,8 @@
 		],
 		"iconThemes": [
 			{
-				"id": "material-icon-theme",
-				"label": "Material Icon Theme",
+				"id": "office-material-icon-theme",
+				"label": "Office Material Icon Theme",
 				"path": "./dist/material-icons.json",
 				"_watch": true
 			}
@@ -191,20 +191,12 @@
 				"title": "REG: Jump to registry key"
 			},
 			{
-				"command": "office.markdown.paste",
-				"title": "Enhance pater in markdown"
-			},
-			{
 				"command": "office.html.preview",
 				"title": "Preview HTML"
 			}
 		],
 		"keybindings": [
-			{
-				"command": "office.markdown.paste",
-				"key": "ctrl+v",
-				"when": "!terminalFocus && !filesExplorerFocus"
-			},
+			
 			{
 				"command": "office.html.preview",
 				"key": "ctrl+shift+v",
