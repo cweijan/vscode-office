@@ -55,6 +55,7 @@ export const hotKeys = [
 ]
 
 export const toolbar = [
+    "outline",
     "headings",
     "bold",
     "italic",
