@@ -44,7 +44,7 @@
 			{
 				"id": "office-material-icon-theme",
 				"label": "Office Material Icon Theme",
-				"path": "./dist/material-icons.json",
+				"path": "./theme/material-icons.json",
 				"_watch": true
 			}
 		],
