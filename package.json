@@ -315,9 +315,6 @@
 						"filenamePattern": "*.epub"
 					},
 					{
-						"filenamePattern": "*.xmind"
-					},
-					{
 						"filenamePattern": "*.pdf"
 					},
 					{

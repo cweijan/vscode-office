@@ -10,7 +10,6 @@ It support below files now:
 - Svg: .svg
 - Pdf: .pdf
 - Epub: .epub
-- Xmind: .xmind
 - Font: .ttf, .otf, .woff
 - Markdown: .md
 - HttpRequest: .http
@@ -51,10 +50,9 @@ In html editor, Press ctrl+shift+v open live edit for html.
 - PhotoShop
   - [psd.js](https://github.com/meltingice/psd.js)
   - [psd-viewer](https://github.com/zenoamaro/psd-viewer)
-- Word: [mammoth](https://github.com/mwilliamson/mammoth.js)
-- xmind: [xmind-viewer](https://github.com/xmindltd/xmind-viewer)
-- Image: [lightGallery](https://github.com/sachinchoolur/lightGallery)
-- Flash: [swf2js](https://github.com/swf2js/swf2js)
+- Word:[mammoth](https://github.com/mwilliamson/mammoth.js)
+- Image:[lightGallery](https://github.com/sachinchoolur/lightGallery)
+- Flash:[swf2js](https://github.com/swf2js/swf2js)
 - PDF:
   - [pdf.js](https://github.com/mozilla/pdf.js)
   - [pdf-lib](https://github.com/Hopding/pdf-lib)
@@ -62,7 +60,7 @@ In html editor, Press ctrl+shift+v open live edit for html.
 - Font:
   - [CharacterMap](https://github.com/mathew-kurian/CharacterMap)
   - [opentype](https://github.com/opentypejs/opentype.js)
-- HTTP: [vscode-restclient](https://github.com/Huachao/vscode-restclient)
+- HTTP:[vscode-restclient](https://github.com/Huachao/vscode-restclient)
 - Markdown:
   - [vditor](https://github.com/Vanessa219/vditor)
   - [HyperMD](https://github.com/laobubu/HyperMD)
@@ -73,4 +71,4 @@ In html editor, Press ctrl+shift+v open live edit for html.
 - Epub:
   - [epub.js](https://github.com/futurepress/epub.js/)
   - [ePubViewer](https://github.com/pgaskin/ePubViewer)
-- Reg: [reg-vscode](https://github.com/ionutvmi/reg-vscode)
+- Reg:[reg-vscode](https://github.com/ionutvmi/reg-vscode)

@@ -80,10 +80,6 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                     this.handlePdf(uri, webview);
                 })
                 break;
-            case ".xmind":
-                webview.onDidReceiveMessage(async () => { webview.postMessage({ type: "open", content: readFileSync(uri.fsPath) }) });
-                webview.html = Util.buildPath(readFileSync(this.extensionPath + "/resource/xmind/index.html", 'utf8'), webview, this.extensionPath + "/resource");
-                break;
             case ".htm":
             case ".html":
                 webview.html = Util.buildPath(readFileSync(uri.fsPath, 'utf8'), webview, folderPath.fsPath);
