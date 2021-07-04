@@ -36,7 +36,7 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
     resolveCustomTextEditor(document: vscode.TextDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): void | Thenable<void> {
         const uri = document.uri;
         const webview = webviewPanel.webview;
-        const folderPath = vscode.Uri.file(resolve(uri.fsPath, ".."));
+        const folderPath = vscode.Uri.joinPath(uri, '..')
         webview.options = {
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file("/"), ...this.getFolders()]
@@ -94,7 +94,8 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         const webview = handler.panel.webview;
 
         const content = readFileSync(uri.fsPath, 'utf8');
-        let path = "vditor";
+        const contextPath = `${this.extensionPath}/resource/vditor`;
+        const rootPath = webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)).toString();
 
         handler.panel.onDidChangeViewState(e => {
             if (!e.webviewPanel.visible) {
@@ -106,7 +107,7 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         handler.on("init", () => {
             handler.emit("open", {
                 title: basename(uri.fsPath),
-                content,
+                content, rootPath,
                 folderPath: webview.asWebviewUri(folderPath).toString(),
                 autoTheme: vscode.workspace.getConfiguration("vscode-office").get<boolean>("autoTheme"),
                 viewAbsoluteLocal: vscode.workspace.getConfiguration("vscode-office").get<boolean>("viewAbsoluteLocal")
@@ -124,14 +125,14 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             this.countStatus.text = `Line ${lineCount}    Count ${count}`
             this.countStatus.show()
         }).on("img", (img) => {
-            const fileName=`${new Date().getTime()}.png`;
+            const fileName = `${new Date().getTime()}.png`;
             const rePath = `image/${parse(uri.fsPath).name}/${fileName}`;
             const imagePath = `${resolve(uri.fsPath, "..")}/${rePath}`.replace(/\\/g, "/");
             const dir = dirname(imagePath)
             if (!existsSync(dir)) {
                 mkdirSync(dir, { recursive: true })
             }
-            fs.writeFileSync(imagePath,  Buffer.from(img, 'binary'))
+            fs.writeFileSync(imagePath, Buffer.from(img, 'binary'))
             console.log(img)
             vscode.env.clipboard.writeText(`![${fileName}](${rePath})`)
             vscode.commands.executeCommand("editor.action.clipboardPasteAction")
@@ -160,10 +161,9 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             new MarkdownService().exportPdfByHtml(uri)
         })
 
-        const contextPath = `${this.extensionPath}/resource/${path}`;
         webview.html = Util.buildPath(
-            readFileSync(`${this.extensionPath}/resource/${path}/index.html`, 'utf8')
-                .replace("{{rootPath}}", webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)).toString())
+            readFileSync(`${this.extensionPath}/resource/vditor/index.html`, 'utf8')
+                .replace("{{rootPath}}", rootPath)
                 .replace("{{baseUrl}}", webview.asWebviewUri(folderPath).toString()),
             webview, contextPath);
     }

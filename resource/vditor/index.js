@@ -6,6 +6,7 @@ handler.on("open", (md) => {
   }
   const editor = new Vditor('vditor', {
     value: md.content,
+    _lutePath: md.rootPath+'/lute.min.js',
     height: document.documentElement.clientHeight,
     outline: {
       enable: true,

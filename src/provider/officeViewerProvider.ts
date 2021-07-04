@@ -27,7 +27,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
     public resolveCustomEditor(document: vscode.CustomDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): void | Thenable<void> {
         const uri = document.uri;
         const webview = webviewPanel.webview;
-        const folderPath = vscode.Uri.file(resolve(uri.fsPath, ".."));
+        const folderPath = vscode.Uri.joinPath(uri, '..')
         webview.options = {
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(this.extensionPath), folderPath]
