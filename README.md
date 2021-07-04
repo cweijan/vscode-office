@@ -53,7 +53,6 @@ In html editor, Press ctrl+shift+v open live edit for html.
   - [psd-viewer](https://github.com/zenoamaro/psd-viewer)
 - Word:[mammoth](https://github.com/mwilliamson/mammoth.js)
 - Image:[lightGallery](https://github.com/sachinchoolur/lightGallery)
-- Flash:[swf2js](https://github.com/swf2js/swf2js)
 - PDF:
 
   - [pdf.js](https://github.com/mozilla/pdf.js)

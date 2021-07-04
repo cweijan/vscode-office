@@ -364,9 +364,6 @@
 					},
 					{
 						"filenamePattern": "*.webp"
-					},
-					{
-						"filenamePattern": "*.swf"
 					}
 				]
 			},

@@ -71,9 +71,6 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".class":
                 this.handleClass(uri, webviewPanel);
                 break;
-            case ".swf":
-                this.handleFlash(uri, handler, webview);
-                break;
             case ".pdf":
                 this.handlePdf(uri, webview);
                 handler.on("fileChange", () => {
@@ -96,15 +93,6 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 .replace("$autoTheme", workspace.getConfiguration("vscode-office").get<boolean>("autoTheme")+'')
         }
 
-    }
-    private handleFlash(uri: vscode.Uri, handler: Hanlder, webview: vscode.Webview) {
-        handler.on("init", () => {
-            handler.emit('open', webview.asWebviewUri(uri).toString())
-        })
-        webview.html = Util.buildPath(
-            readFileSync(this.extensionPath + "/resource/flash/flash.html", 'utf8'),
-            webview, this.extensionPath + "/resource/flash"
-        );
     }
 
     private async handleClass(uri: vscode.Uri, panel: vscode.WebviewPanel) {
