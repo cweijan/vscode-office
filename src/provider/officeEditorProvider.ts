@@ -1,7 +1,7 @@
 import * as fs from 'fs';
-import { readFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync } from 'fs';
 import fetch from 'node-fetch';
-import { basename, extname, resolve } from 'path';
+import { basename, dirname, extname, parse, resolve } from 'path';
 import * as util from 'util';
 import * as vscode from 'vscode';
 import { MessageOptions } from 'vscode';
