@@ -312,9 +312,6 @@
 						"filenamePattern": "*.svg"
 					},
 					{
-						"filenamePattern": "*.epub"
-					},
-					{
 						"filenamePattern": "*.pdf"
 					},
 					{

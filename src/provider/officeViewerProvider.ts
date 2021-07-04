@@ -87,10 +87,6 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                     webviewPanel.webview.html = Util.buildPath(readFileSync(uri.fsPath, 'utf8'), webviewPanel.webview, folderPath.fsPath);
                 })
                 break;
-            case ".epub":
-                webview.onDidReceiveMessage(async () => webview.postMessage({ type: "open", content: webview.asWebviewUri(uri).toString() }))
-                webview.html = Util.buildPath(readFileSync(this.extensionPath + "/resource/epub/index.html", 'utf8'), webview, this.extensionPath + "/resource/epub");
-                break;
             default:
                 vscode.commands.executeCommand('vscode.openWith', uri, "default");
         }
