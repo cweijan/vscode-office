@@ -59,7 +59,7 @@
 					".reg",
 					".REG"
 				],
-				"configuration": "./language/reg-language-configuration.json"
+				"configuration": "./syntaxes/reg-language-configuration.json"
 			},
 			{
 				"id": "http",
@@ -73,7 +73,7 @@
 					".rest"
 				],
 				"firstLine": "^(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS|CONNECT|TRACE)\\s+(.*?)HTTP/[0-9\\.]+$",
-				"configuration": "./language/http-language-configuration.json"
+				"configuration": "./syntaxes/http-language-configuration.json"
 			}
 		],
 		"grammars": [
@@ -301,12 +301,6 @@
 					},
 					{
 						"filenamePattern": "*.ods"
-					},
-					{
-						"filenamePattern": "*.docx"
-					},
-					{
-						"filenamePattern": "*.psd"
 					},
 					{
 						"filenamePattern": "*.svg"

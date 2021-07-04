@@ -58,13 +58,6 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".otf":
                 this.handleFont(document, handler)
                 break;
-            case ".psd":
-                webview.onDidReceiveMessage(() => webview.postMessage({ type: "open", content: webview.asWebviewUri(uri).toString() }))
-                htmlPath = "psd.html"
-                break;
-            case ".docx":
-                this.handleDocx(uri, webview)
-                break;
             case ".svg":
                 this.handleSvg(uri, webview);
                 break;
@@ -106,7 +99,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             mkdirSync(tempPath)
         }
 
-        const java = spawn("java", ['-cp', 'java-decompiler.jar','org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler', uri.fsPath, tempPath], { cwd: __dirname })
+        const java = spawn("java", ['-cp', '../resource/java-decompiler.jar','org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler', uri.fsPath, tempPath], { cwd: __dirname })
         java.stdout.on('data', (data) => {
             console.log(data.toString("utf8"))
             if (data.toString("utf8").indexOf("done") == -1 ) {
@@ -181,20 +174,6 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                     ),
                 webview, this.extensionPath + "/resource"
             );
-    }
-
-    private handleDocx(uri: vscode.Uri, webview: vscode.Webview) {
-        mammoth.convertToHtml({ path: uri.fsPath })
-            .then((result: any) => {
-                console.debug(result.messages)
-                webview.html =
-                    Util.buildPath(
-                        readFileSync(this.extensionPath + "/resource/word.html", 'utf8').replace("{{content}}", result.value)
-                        .replace("$autoTheme", workspace.getConfiguration("vscode-office").get<boolean>("autoTheme")+'')
-                        , webview, this.extensionPath + "/resource"
-                    )
-            })
-            .done();
     }
 
     private handleFont(document: vscode.CustomDocument, handler: Hanlder) {

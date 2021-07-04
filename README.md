@@ -5,8 +5,6 @@ This extension is to support the function of previewing common office file forma
 It support below files now:
 
 - Excel: .xls, .xlsx, .csv
-- Word: .docx
-- PhotoShop: .psd
 - Svg: .svg
 - Pdf: .pdf
 - Font: .ttf, .otf, .woff
@@ -40,36 +38,3 @@ shortcut:
 # HTML
 
 In html editor, Press ctrl+shift+v open live edit for html.
-
-# Credit
-
-- Excel
-
-  - [sheetjs](https://github.com/SheetJS/sheetjs)
-  - [x-spreadsheet](https://github.com/myliang/x-spreadsheet)
-- PhotoShop
-
-  - [psd.js](https://github.com/meltingice/psd.js)
-  - [psd-viewer](https://github.com/zenoamaro/psd-viewer)
-- Word:[mammoth](https://github.com/mwilliamson/mammoth.js)
-- Image:[lightGallery](https://github.com/sachinchoolur/lightGallery)
-- PDF:
-
-  - [pdf.js](https://github.com/mozilla/pdf.js)
-  - [pdf-lib](https://github.com/Hopding/pdf-lib)
-  - [puppeteer](https://github.com/puppeteer/puppeteer)
-- Font:
-
-  - [CharacterMap](https://github.com/mathew-kurian/CharacterMap)
-  - [opentype](https://github.com/opentypejs/opentype.js)
-- HTTP:[vscode-restclient](https://github.com/Huachao/vscode-restclient)
-- Markdown:
-
-  - [vditor](https://github.com/Vanessa219/vditor)
-  - [HyperMD](https://github.com/laobubu/HyperMD)
-  - [CodeMirror](https://github.com/codemirror/CodeMirror)
-- PlantUml:
-
-  - [plantuml-editor](https://github.com/kkeisuke/plantuml-editor)
-  - [plantuml-server](https://plantuml.com/)
-- Reg:[reg-vscode](https://github.com/ionutvmi/reg-vscode)
