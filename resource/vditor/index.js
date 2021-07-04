@@ -74,7 +74,8 @@ handler.on("open", (md) => {
         document.execCommand("copy")
         break;
       case "paste":
-        document.execCommand("paste")
+        // document.execCommand("paste")
+        vscodeEvent.emit('command','office.markdown.paste')
         break;
       case "exportPdf":
         vscodeEvent.emit("save", editor.getValue())

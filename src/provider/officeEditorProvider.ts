@@ -1,12 +1,13 @@
 import * as fs from 'fs';
-import { existsSync, mkdirSync, readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import fetch from 'node-fetch';
-import { basename, dirname, extname, parse, resolve } from 'path';
+import { basename, extname, resolve } from 'path';
 import * as util from 'util';
 import * as vscode from 'vscode';
 import { MessageOptions } from 'vscode';
 import { Hanlder } from '../common/handler';
 import { Util } from '../common/util';
+import { Holder } from '../service/markdown/holder';
 import { MarkdownService } from '../service/markdownService';
 const streamPipeline = util.promisify(require('stream').pipeline);
 
@@ -59,6 +60,8 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
 
     private handlePuml(document: vscode.TextDocument, handler: Hanlder) {
         const uri = document.uri;
+
+
         handler.on("init", () => {
             handler.emit("open", readFileSync(uri.fsPath, 'utf8'))
         }).on("save", (content) => {
@@ -97,8 +100,10 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         const contextPath = `${this.extensionPath}/resource/vditor`;
         const rootPath = webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)).toString();
 
+        Holder.activeUrl = uri;
         handler.panel.onDidChangeViewState(e => {
-            if (!e.webviewPanel.visible) {
+            Holder.activeUrl = e.webviewPanel.visible ? uri : null
+            if(!e.webviewPanel.visible){
                 this.countStatus.hide()
                 this.cursorStatus.hide()
             }
@@ -155,10 +160,14 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             vscode.commands.executeCommand('workbench.action.files.save');
         }).on("export", () => {
             vscode.commands.executeCommand('workbench.action.files.save');
-            new MarkdownService().exportPdf(uri)
-        }).on("exportPdfByHtml", () => {
+            new MarkdownService(this.context).exportPdf(uri)
+        }).on("exportPdfByHtml",()=>{
             vscode.commands.executeCommand('workbench.action.files.save');
-            new MarkdownService().exportPdfByHtml(uri)
+            new MarkdownService(this.context).exportPdfByHtml(uri)
+        }).on("dispose", () => {
+            if (Holder.activeUrl == uri) {
+                Holder.activeUrl = null;
+            }
         })
 
         webview.html = Util.buildPath(

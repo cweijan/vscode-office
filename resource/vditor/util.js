@@ -147,6 +147,11 @@ export const imageParser = () => {
 const keys = ["'", '"', "{", "(",'$'];
 export const windowHack = (editor) => {
     window.onkeypress = (e) => {
+        if (e.ctrlKey && e.code == "KeyV" && !e.shiftKey) {
+            vscodeEvent.emit('command', 'office.markdown.paste')
+            e.stopPropagation()
+            return;
+        }
         if (keys.indexOf(e.key) == -1) {
             return;
         }

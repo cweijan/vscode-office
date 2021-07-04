@@ -1,12 +1,15 @@
-import { existsSync } from 'fs';
-import { homedir } from 'os';
-import { join } from 'path';
-import * as vscode from 'vscode';
 import { convertMd } from "./markdown/markdown-pdf";
+import { spawn } from 'child_process';
+import { copyFileSync, existsSync, lstatSync, mkdirSync } from 'fs';
+import { homedir } from 'os';
+import { join, parse, resolve } from 'path';
+import * as vscode from 'vscode';
+import { Holder } from './markdown/holder';
+import path = require('path');
 
 export class MarkdownService {
 
-    constructor() {
+    constructor(private context: vscode.ExtensionContext) {
     }
 
     public async exportPdfByHtml(uri: vscode.Uri) {
@@ -74,6 +77,111 @@ export class MarkdownService {
         } catch (e) {
             vscode.window.showErrorMessage("Not chromium found, export fail.")
             throw new Error()
+        }
+    }
+
+    public async loadClipboardImage() {
+        const document = vscode.window.activeTextEditor?.document
+        if (document && parse(document.uri.fsPath).ext.toLowerCase() != ".md") {
+            vscode.commands.executeCommand("editor.action.clipboardPasteAction")
+            return
+        }
+
+        if (await vscode.env.clipboard.readText() == "") {
+            const uri: vscode.Uri | null = document ? document.uri : Holder.activeUrl
+            if (uri == null) {
+                return
+            }
+            const rePath = `image/${parse(uri.fsPath).name}/${new Date().getTime()}.png`;
+            const imagePath = `${resolve(uri.fsPath, "..")}/${rePath}`.replace(/\\/g, "/");
+            const dir = path.dirname(imagePath)
+            if (!existsSync(dir)) {
+                mkdirSync(dir, { recursive: true })
+            }
+            this.saveClipboardImageToFileAndGetPath(imagePath, (savedImagePath) => {
+                if (!savedImagePath) return;
+                if (savedImagePath === 'no image') {
+                    vscode.window.showErrorMessage('There is not an image in the clipboard.');
+                    return;
+                }
+                if (savedImagePath.startsWith("copyed:")) {
+                    const copyedFile = savedImagePath.replace("copyed:", "");
+                    if (!existsSync(copyedFile)) {
+                        vscode.window.showErrorMessage(`Coped file ${copyedFile} not found!`);
+                        return;
+                    }
+                    if (lstatSync(copyedFile).isDirectory()) {
+                        vscode.window.showErrorMessage('Not support paster directory.');
+                    } else {
+                        copyFileSync(copyedFile, imagePath)
+                    }
+                }
+                const editor = vscode.window.activeTextEditor;
+                if (editor) {
+                    editor?.edit(edit => {
+                        let current = editor.selection;
+                        if (current.isEmpty) {
+                            edit.insert(current.start, `![](${rePath})`);
+                        } else {
+                            edit.replace(current, `![](${rePath})`);
+                        }
+                    });
+                } else {
+                    vscode.env.clipboard.writeText(`![](${rePath})`)
+                    vscode.commands.executeCommand("editor.action.clipboardPasteAction")
+                }
+            })
+        } else {
+            vscode.commands.executeCommand("editor.action.clipboardPasteAction")
+        }
+
+    }
+
+    private saveClipboardImageToFileAndGetPath(imagePath: string, cb: (value: string) => void) {
+        if (!imagePath) return;
+        let platform = process.platform;
+        if (platform === 'win32') {
+            // Windows
+            const scriptPath = path.join(this.context.extensionPath, '/lib/pc.ps1');
+            const powershell = spawn('powershell', [
+                '-noprofile',
+                '-noninteractive',
+                '-nologo',
+                '-sta',
+                '-executionpolicy', 'unrestricted',
+                '-windowstyle', 'hidden',
+                '-file', scriptPath,
+                imagePath
+            ]);
+            powershell.on('exit', function (code, signal) {
+            });
+            powershell.stdout.on('data', function (data) {
+                cb(data.toString().trim());
+            });
+        } else if (platform === 'darwin') {
+            // Mac
+            let scriptPath = path.join(this.context.extensionPath, './lib/mac.applescript');
+            let ascript = spawn('osascript', [scriptPath, imagePath]);
+            ascript.on('exit', function (code, signal) {
+            });
+            ascript.stdout.on('data', function (data) {
+                cb(data.toString().trim());
+            });
+        } else {
+            // Linux 
+            let scriptPath = path.join(this.context.extensionPath, './lib/linux.sh');
+
+            let ascript = spawn('sh', [scriptPath, imagePath]);
+            ascript.on('exit', function (code, signal) {
+            });
+            ascript.stdout.on('data', function (data) {
+                let result = data.toString().trim();
+                if (result == "no xclip") {
+                    vscode.window.showInformationMessage('You need to install xclip command first.');
+                    return;
+                }
+                cb(result);
+            });
         }
     }
 
