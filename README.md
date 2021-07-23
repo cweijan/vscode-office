@@ -1,8 +1,6 @@
 # vscode-office
 
-This extension is to support the function of previewing common office file formats.
-
-It support below files now:
+This extension supports previewing these common office file formats.
 
 - Excel: .xls, .xlsx, .csv
 - Svg: .svg
@@ -13,28 +11,21 @@ It support below files now:
 - PlantUml: .puml, .plantuml
 - Windows Reg: .reg
 
-# Markdown
+## Markdown
 
-This extension change default editor for markdown:
+This extension changes the default markdown editor to the excellent vditor:
 
-1. It change markdown editor as vditor, it's WYSIWYG editor for markdown.
-2. Support export markdown to pdf, right click editor found it.
+- a WYSIWYG editor for markdown,
+- which provides export to pdf (via right click in the document tab).
 
-if you want using vscode editor, insert below json to vscode config.
+If you want to use the original vscode editor, insert this in your `settings.json`.
 
 ```json
-"workbench.editorAssociations": [{
-	"viewType": "default",
-	"filenamePattern": "*.md"
-}]
+    "workbench.editorAssociations": {
+        "*.md": "default"
+    },
 ```
 
-shortcut:
+## HTML
 
-- ctrl+shift+i: move line up.
-- ctrl+shift+j: move line down.
-- ctrl+k: toggle bold.
-
-# HTML
-
-In html editor, Press ctrl+shift+v open live edit for html.
+The html editor supports live viewing.   Press ctrl+shift+v to open the live view.
