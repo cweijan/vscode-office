@@ -1,3 +1,8 @@
+# 2.4.0 2021-8-3
+
+- Better http client support.
+- Fix markdown editor cannot save.
+
 # 2.2.2 2021-6-19
 
 - Speed up picture pasting
