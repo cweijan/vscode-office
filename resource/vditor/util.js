@@ -152,6 +152,12 @@ export const windowHack = (editor) => {
             e.stopPropagation()
             return;
         }
+        // 旧版本是让vscode触发, 但现在触发不了了
+        if (e.ctrlKey && e.code == "KeyS" && !e.shiftKey) {
+            vscodeEvent.emit("doSave", editor.getValue())
+            e.stopPropagation()
+            return;
+        }
         if (keys.indexOf(e.key) == -1) {
             return;
         }
