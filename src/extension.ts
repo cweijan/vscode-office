@@ -8,7 +8,7 @@ import { MarkdownService } from './service/markdownService';
 
 export function activate(context: vscode.ExtensionContext) {
 
-	require('./bundle/http').activateHttp(context)
+	require('./bundle/extension').activate(context)
 
 	const viewOption = { webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true } };
 	const markdownService = new MarkdownService(context);
