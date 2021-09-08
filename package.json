@@ -308,6 +308,12 @@
 						"filenamePattern": "*.xls"
 					},
 					{
+						"filenamePattern": "*.docx"
+					},
+					{
+						"filenamePattern": "*.doc"
+					},
+					{
 						"filenamePattern": "*.ods"
 					},
 					{
