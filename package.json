@@ -311,6 +311,9 @@
 						"filenamePattern": "*.ods"
 					},
 					{
+						"filenamePattern": "*.docx"
+					},
+					{
 						"filenamePattern": "*.svg"
 					},
 					{

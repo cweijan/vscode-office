@@ -61,6 +61,9 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".svg":
                 this.handleSvg(uri, webview);
                 break;
+                case ".docx":
+                    this.handleDocx(uri, webview)
+                    break;
             case ".class":
                 this.handleClass(uri, webviewPanel);
                 break;
@@ -86,6 +89,20 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 .replace("$autoTheme", workspace.getConfiguration("vscode-office").get<boolean>("autoTheme")+'')
         }
 
+    }
+
+    private handleDocx(uri: vscode.Uri, webview: vscode.Webview) {
+        mammoth.convertToHtml({ path: uri.fsPath })
+            .then((result: any) => {
+                console.debug(result.messages)
+                webview.html =
+                    Util.buildPath(
+                        readFileSync(this.extensionPath + "/resource/word.html", 'utf8').replace("{{content}}", result.value)
+                        .replace("$autoTheme", workspace.getConfiguration("vscode-office").get<boolean>("autoTheme")+'')
+                        , webview, this.extensionPath + "/resource"
+                    )
+            })
+            .done();
     }
 
     private async handleClass(uri: vscode.Uri, panel: vscode.WebviewPanel) {
