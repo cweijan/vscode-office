@@ -1,3 +1,9 @@
+# 2.4.1 2021-9-9
+
+- Rollback docx support.
+- Fix http auto-complection fail.
+- Reduce markdown editor cache usage.
+
 # 2.4.0 2021-8-3
 
 - Better http client support.
