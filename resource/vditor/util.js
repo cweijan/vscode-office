@@ -102,7 +102,7 @@ export const toolbar = [
     "help",
 ]
 
-export const openLink=()=>{
+export const openLink = () => {
     window.onclick = e => {
         if (!e.ctrlKey) {
             return;
@@ -111,7 +111,7 @@ export const openLink=()=>{
         if (ele.classList.contains('vditor-ir__link')) {
             ele = e.target.nextElementSibling?.nextElementSibling?.nextElementSibling
         }
-        if(ele.classList.contains('vditor-ir__marker--link')){
+        if (ele.classList.contains('vditor-ir__marker--link')) {
             handler.emit("openLink", ele.textContent)
         }
     }
@@ -144,8 +144,20 @@ export const imageParser = () => {
     });
 }
 
-const keys = ["'", '"', "{", "(",'$'];
+
+
+const keys = ["'", '"', "{", "(", '$'];
 export const windowHack = (editor) => {
+    let _exec = document.execCommand.bind(document)
+    document.execCommand = (cmd, ...args) => {
+        if (cmd === 'delete') {
+            setTimeout(() => {
+                return _exec(cmd, ...args)
+            })
+        } else {
+            return _exec(cmd, ...args)
+        }
+    }
     window.onkeypress = (e) => {
         if (e.ctrlKey && e.code == "KeyV" && !e.shiftKey) {
             vscodeEvent.emit('command', 'office.markdown.paste')
@@ -164,11 +176,11 @@ export const windowHack = (editor) => {
         const selectText = document.getSelection().toString();
         if (selectText != "") { return; }
 
-        if(e.key=='('){
+        if (e.key == '(') {
             document.execCommand('insertText', false, ')');
-        }else if(e.key=='{'){
+        } else if (e.key == '{') {
             document.execCommand('insertText', false, '}');
-        }else{
+        } else {
             document.execCommand('insertText', false, e.key);
         }
         document.getSelection().modify('move', 'left', 'character')
