@@ -1,3 +1,7 @@
+# 2.4.2 2021-12-4
+
+- Fix markdown editor cannot cut, loss focus.
+
 # 2.4.1 2021-9-9
 
 - Rollback docx support.
