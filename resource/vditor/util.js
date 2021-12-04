@@ -189,6 +189,11 @@ export const windowHack = (editor) => {
     window.onresize = () => {
         document.getElementById('vditor').style.height = `${document.documentElement.clientHeight}px`
     }
+    window.onfocus = () => {
+        setTimeout(() => {
+            document.querySelector('.vditor-reset').focus()
+        },10)
+      }
 
 }
 
