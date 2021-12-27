@@ -63,11 +63,15 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
 
 
         handler.on("init", () => {
-            handler.emit("open", readFileSync(uri.fsPath, 'utf8'))
-        }).on("save", (content) => {
-            this.updateTextDocument(document, content)
+            handler.emit("open", document.getText())
+        }).on("externalUpdate",e=>{
+            const updatedText=e.document.getText();
+            handler.emit("open",updatedText)
+        }).on("save", async (content) => {
+            await this.updateTextDocument(document, content)
+            vscode.commands.executeCommand('workbench.action.files.save');
         }).on("edit", () => {
-            vscode.commands.executeCommand('vscode.openWith', uri, "default");
+            vscode.commands.executeCommand('vscode.openWith', uri, "default",vscode.ViewColumn.Beside);
         }).on("doSave", () => {
             vscode.commands.executeCommand('workbench.action.files.save');
         }).on("download", (content) => {
