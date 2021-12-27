@@ -76,7 +76,7 @@ handler.on("open", (md) => {
         break;
       case "paste":
         // document.execCommand("paste")
-        vscodeEvent.emit('command','office.markdown.paste')
+        vscodeEvent.emit('command', 'office.markdown.paste')
         break;
       case "exportPdf":
         vscodeEvent.emit("save", editor.getValue())
@@ -92,7 +92,9 @@ handler.on("open", (md) => {
   $("#context-menu a").on("click", function () {
     $(this).parent().removeClass("show").hide();
   });
-
+  handler.on("update", content => {
+    editor.setValue(content);
+  })
 })
 
 handler.emit("init")

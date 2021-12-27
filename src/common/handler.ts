@@ -24,7 +24,7 @@ export class Hanlder {
         })
 
         const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
-            if (e.document.uri.toString() === uri.toString()) {
+            if (e.document.uri.toString() === uri.toString() && e.contentChanges.length > 0) {
                 eventEmitter.emit("externalUpdate", e)
             }
         });
