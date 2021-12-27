@@ -62,6 +62,8 @@ export const toolbar = [
     "strike",
     "link",
     "emoji",
+    "|",
+    { name: 'upload', tipPosition: 'e' },
     {
         tipPosition: 's',
         tip: 'Export To Pdf',
