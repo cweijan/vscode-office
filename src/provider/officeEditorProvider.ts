@@ -96,7 +96,7 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         const uri = document.uri;
         const webview = handler.panel.webview;
 
-        const content = readFileSync(uri.fsPath, 'utf8');
+        const content = document.getText();
         const contextPath = `${this.extensionPath}/resource/vditor`;
         const rootPath = webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)).toString();
 
