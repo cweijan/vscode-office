@@ -1,5 +1,7 @@
 # vscode-office
 
+[中文文档](README-CN.md)
+
 This extension supports previewing these common office file formats.
 
 - Excel: .xls, .xlsx, .csv
