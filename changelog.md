@@ -1,3 +1,13 @@
+# 2.5.0 2021-12-27
+
+- Update markdown editor:
+  - To open a hyperlink, need to hold down ctrl.
+  - Support chose image from toolbar.
+  - Update editor when external update.
+  - Open source code editor as beside.
+- Fix puml editor not trigger save.
+- Fix html preview not support untitle document.
+
 # 2.4.2 2021-12-4
 
 - Fix markdown editor cannot cut, loss focus.
