@@ -82,10 +82,6 @@ export class MarkdownService {
 
     public async loadClipboardImage() {
         const document = vscode.window.activeTextEditor?.document
-        if (document && parse(document.uri.fsPath).ext.toLowerCase() != ".md") {
-            vscode.commands.executeCommand("editor.action.clipboardPasteAction")
-            return
-        }
 
         if (await vscode.env.clipboard.readText() == "") {
             const uri: vscode.Uri | null = document ? document.uri : Holder.activeUrl
