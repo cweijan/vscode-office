@@ -1,7 +1,7 @@
 {
 	"name": "vscode-office",
-	"displayName": "Office Viewer",
-	"description": "View word,excel files in vscode.",
+	"displayName": "Office Viewer(Markdown Editor)",
+	"description": "View word,excel files and using WYSIWYG editor for markdown.",
 	"version": "2.4.2",
 	"publisher": "cweijan",
 	"icon": "images/icon.png",
