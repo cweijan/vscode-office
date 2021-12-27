@@ -105,18 +105,19 @@ export const toolbar = [
 ]
 
 export const openLink = () => {
-    window.onclick = e => {
-        if (!e.ctrlKey) {
+    document.addEventListener('click', e => {
+        let ele = e.target;
+        if (ele.tagName != 'A') {
             return;
         }
-        let ele = e.target;
-        if (ele.classList.contains('vditor-ir__link')) {
-            ele = e.target.nextElementSibling?.nextElementSibling?.nextElementSibling
+        e.stopPropagation()
+        const href = ele.href;
+        if (!e.ctrlKey || !href) {
+            return;
         }
-        if (ele.classList.contains('vditor-ir__marker--link')) {
-            handler.emit("openLink", ele.textContent)
-        }
-    }
+
+        handler.emit("openLink", href)
+    });
 }
 
 export const imageParser = () => {
@@ -194,8 +195,8 @@ export const windowHack = (editor) => {
     window.onfocus = () => {
         setTimeout(() => {
             document.querySelector('.vditor-reset').focus()
-        },10)
-      }
+        }, 10)
+    }
 
 }
 

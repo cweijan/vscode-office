@@ -64,14 +64,14 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
 
         handler.on("init", () => {
             handler.emit("open", document.getText())
-        }).on("externalUpdate",e=>{
-            const updatedText=e.document.getText();
-            handler.emit("open",updatedText)
+        }).on("externalUpdate", e => {
+            const updatedText = e.document.getText();
+            handler.emit("open", updatedText)
         }).on("save", async (content) => {
             await this.updateTextDocument(document, content)
             vscode.commands.executeCommand('workbench.action.files.save');
         }).on("edit", () => {
-            vscode.commands.executeCommand('vscode.openWith', uri, "default",vscode.ViewColumn.Beside);
+            vscode.commands.executeCommand('vscode.openWith', uri, "default", vscode.ViewColumn.Beside);
         }).on("doSave", () => {
             vscode.commands.executeCommand('workbench.action.files.save');
         }).on("download", (content) => {
@@ -98,14 +98,14 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         const uri = document.uri;
         const webview = handler.panel.webview;
 
-        const content = document.getText();
+        let content = document.getText();
         const contextPath = `${this.extensionPath}/resource/vditor`;
         const rootPath = webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)).toString();
 
         Holder.activeUrl = uri;
         handler.panel.onDidChangeViewState(e => {
             Holder.activeUrl = e.webviewPanel.visible ? uri : null
-            if(!e.webviewPanel.visible){
+            if (!e.webviewPanel.visible) {
                 this.countStatus.hide()
                 this.cursorStatus.hide()
             }
@@ -121,14 +121,19 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             })
             this.countStatus.text = `Line ${content.split(/\r\n|\r|\n/).length}    Count ${content.length}`
             this.countStatus.show()
-        }).on("externalUpdate",e=>{
-            const updatedText=e.document.getText();
-            handler.emit("update",updatedText)
-        })
-        .on("command", (command) => {
+        }).on("externalUpdate", e => {
+            const updatedText = e.document.getText()?.replace(/\r/g, '');
+            if (content == updatedText) return;
+            handler.emit("update", updatedText)
+        }).on("command", (command) => {
             vscode.commands.executeCommand(command)
-        }).on("openLink", (uri) => {
-            vscode.env.openExternal(vscode.Uri.parse(uri));
+        }).on("openLink", (uri: string) => {
+            if (uri.includes('https://file+.vscode-resource.vscode-webview.net')) {
+                const localPath = uri.replace('https://file+.vscode-resource.vscode-webview.net', '')
+                vscode.commands.executeCommand('vscode.openWith', vscode.Uri.parse(localPath),'cweijan.markdownViewer');
+            } else {
+                vscode.env.openExternal(vscode.Uri.parse(uri));
+            }
         }).on("cursorActivity", (cursor) => {
             this.cursorStatus.text = `Ln ${cursor.line}, Col ${cursor.ch}`
             this.cursorStatus.show()
@@ -148,20 +153,16 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             vscode.env.clipboard.writeText(`![${fileName}](${rePath})`)
             vscode.commands.executeCommand("editor.action.clipboardPasteAction")
         }).on("editInVSCode", () => {
-            vscode.commands.executeCommand('vscode.openWith', uri, "default",vscode.ViewColumn.Beside);
-        }).on("save", (content) => {
-            this.updateTextDocument(document, content)
+            vscode.commands.executeCommand('vscode.openWith', uri, "default", vscode.ViewColumn.Beside);
+        }).on("save", (newContent) => {
+            content = newContent
+            this.updateTextDocument(document, newContent)
         }).on("doSave", async (content) => {
-            if (content) {
-                await this.updateTextDocument(document, content)
-                this.countStatus.text = `Line ${content.split(/\r\n|\r|\n/).length}    Count ${content.length}`
-                this.countStatus.show()
-            }
             vscode.commands.executeCommand('workbench.action.files.save');
         }).on("export", () => {
             vscode.commands.executeCommand('workbench.action.files.save');
             new MarkdownService(this.context).exportPdf(uri)
-        }).on("exportPdfByHtml",()=>{
+        }).on("exportPdfByHtml", () => {
             vscode.commands.executeCommand('workbench.action.files.save');
             new MarkdownService(this.context).exportPdfByHtml(uri)
         }).on("dispose", () => {

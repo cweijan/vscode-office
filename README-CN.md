@@ -2,6 +2,8 @@
 
 扩展名字叫做Office Viewer是因为一开始是为了增强VSCode的预览功能, 增加了Excel, svg, pdf等的支持, 后来才增加了markdown的编辑器
 
+版本2.5.0之后打开超链接需要按住Ctrl键
+
 Markdown编辑器使用了Vditor, 默认为白色, 如果想让背景色和VSCode主题一样, 可将以下设置加入到VSCode的设置中
 
 ```json
