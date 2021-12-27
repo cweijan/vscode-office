@@ -7,7 +7,7 @@ handler.on("open", (md) => {
   const editor = new Vditor('vditor', {
     value: md.content,
     // _lutePath: md.rootPath+'/lute.min.js',
-    _lutePath: 'https://cdn.jsdelivr.net/npm/vditor@3.8.6/dist/js/lute/lute.min.js',
+    _lutePath: 'https://cdn.jsdelivr.net/npm/vditor@3.8.10/dist/js/lute/lute.min.js',
     height: document.documentElement.clientHeight,
     outline: {
       enable: true,
