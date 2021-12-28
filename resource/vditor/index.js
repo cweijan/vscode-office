@@ -15,9 +15,12 @@ handler.on("open", (md) => {
     },
     mode: 'wysiwyg',
     tab: '\t',
-    "preview": {
-      "markdown": {
-        "toc": true
+    preview: {
+      theme: {
+        path: `https://cdn.jsdelivr.net/npm/vditor@3.8.10/dist/css/content-theme`
+      },
+      markdown: {
+        toc: true
       },
       hljs: {
         style: 'github'
@@ -50,7 +53,6 @@ handler.on("open", (md) => {
 
   openLink()
   windowHack(editor);
-  console.log(md)
   if (md.viewAbsoluteLocal) {
     imageParser()
   }
