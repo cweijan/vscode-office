@@ -105,19 +105,20 @@ export const toolbar = [
 ]
 
 export const openLink = () => {
-    document.addEventListener('click', e => {
+    const clickCallback=e=>{
         let ele = e.target;
         if (ele.tagName != 'A') {
             return;
         }
         e.stopPropagation()
         const href = ele.href;
-        if (!e.ctrlKey || !href) {
+        if ((!e.ctrlKey || !href) && event.type!='dblclick') {
             return;
         }
-
         handler.emit("openLink", href)
-    });
+    }
+    document.addEventListener('dblclick',clickCallback);
+    document.addEventListener('click',clickCallback);
 }
 
 export const imageParser = () => {
