@@ -1,13 +1,14 @@
 import { openLink, hotKeys, imageParser, toolbar, windowHack } from "./util.js";
 
 handler.on("open", (md) => {
-  if (md.autoTheme) {
+  const config=md;
+  if (config.autoTheme) {
     window.addThemeCss()
   }
   const editor = new Vditor('vditor', {
     value: md.content,
-    // _lutePath: md.rootPath+'/lute.min.js',
-    _lutePath: 'https://cdn.jsdelivr.net/npm/vditor@3.8.10/dist/js/lute/lute.min.js',
+    _lutePath: md.rootPath+'/lute.min.js',
+    // _lutePath: 'https://cdn.jsdelivr.net/npm/vditor@3.8.10/dist/js/lute/lute.min.js',
     height: document.documentElement.clientHeight,
     outline: {
       enable: true,
@@ -17,7 +18,7 @@ handler.on("open", (md) => {
     tab: '\t',
     preview: {
       theme: {
-        path: `https://cdn.jsdelivr.net/npm/vditor@3.8.10/dist/css/content-theme`
+        path: `${md.rootPath}/css/content-theme`
       },
       markdown: {
         toc: true
@@ -53,7 +54,7 @@ handler.on("open", (md) => {
 
   openLink()
   windowHack(editor);
-  if (md.viewAbsoluteLocal) {
+  if (config.viewAbsoluteLocal) {
     imageParser()
   }
 

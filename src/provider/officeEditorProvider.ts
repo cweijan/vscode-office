@@ -111,13 +111,11 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             }
         });
 
+        const config=vscode.workspace.getConfiguration("vscode-office");
         handler.on("init", () => {
             handler.emit("open", {
                 title: basename(uri.fsPath),
-                content, rootPath,
-                folderPath: webview.asWebviewUri(folderPath).toString(),
-                autoTheme: vscode.workspace.getConfiguration("vscode-office").get<boolean>("autoTheme"),
-                viewAbsoluteLocal: vscode.workspace.getConfiguration("vscode-office").get<boolean>("viewAbsoluteLocal")
+                content, rootPath, config
             })
             this.countStatus.text = `Line ${content.split(/\r\n|\r|\n/).length}    Count ${content.length}`
             this.countStatus.show()
