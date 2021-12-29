@@ -49,10 +49,11 @@ handler.on("open", (md) => {
     hint: {
       emoji: {},
       extend: hotKeys
+    },after () {
+      openLink()
     }
   })
 
-  openLink()
   windowHack(editor);
   if (config.viewAbsoluteLocal) {
     imageParser()

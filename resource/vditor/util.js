@@ -55,7 +55,11 @@ export const hotKeys = [
 ]
 
 export const toolbar = [
-    "outline",
+    {
+        name: 'outline', click() {
+            console.log('clickoutline')
+        }
+    },
     "headings",
     "bold",
     "italic",
@@ -105,20 +109,21 @@ export const toolbar = [
 ]
 
 export const openLink = () => {
-    const clickCallback=e=>{
+    const clickCallback = e => {
         let ele = e.target;
         if (ele.tagName != 'A') {
             return;
         }
         e.stopPropagation()
         const href = ele.href;
-        if ((!e.ctrlKey || !href) && event.type!='dblclick') {
+        if ((!e.ctrlKey || !href) && event.type != 'dblclick') {
             return;
         }
         handler.emit("openLink", href)
     }
-    document.addEventListener('dblclick',clickCallback);
-    document.addEventListener('click',clickCallback);
+    const content=document.querySelector('.vditor-wysiwyg');
+    content.addEventListener('dblclick', clickCallback);
+    content.addEventListener('click', clickCallback);
 }
 
 export const imageParser = () => {
