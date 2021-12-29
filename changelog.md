@@ -1,3 +1,8 @@
+# 2.5.1 2021-12-29
+
+- 增加稳定性, 修复图片有时保存失败
+- Support save outline open state.
+
 # 2.5.0 2021-12-27
 
 - Update markdown editor:
