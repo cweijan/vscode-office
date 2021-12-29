@@ -67,7 +67,7 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
 
         Holder.activeDocument = document;
         handler.panel.onDidChangeViewState(e => {
-            Holder.activeDocument = e.webviewPanel.visible ? document : null
+            Holder.activeDocument = e.webviewPanel.visible ? document : Holder.activeDocument
             if (e.webviewPanel.visible) {
                 this.countStatus.show()
                 this.cursorStatus.show()
