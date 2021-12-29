@@ -55,11 +55,7 @@ export const hotKeys = [
 ]
 
 export const toolbar = [
-    {
-        name: 'outline', click() {
-            console.log('clickoutline')
-        }
-    },
+    'outline',
     "headings",
     "bold",
     "italic",
@@ -67,6 +63,7 @@ export const toolbar = [
     "link",
     "emoji",
     "|",
+    "edit-mode",
     { name: 'upload', tipPosition: 'e' },
     {
         tipPosition: 's',
@@ -108,25 +105,90 @@ export const toolbar = [
     "help",
 ]
 
+/**
+ * 针对wysiwyg和ir两种模式对超链接做不同的处理
+ */
 export const openLink = () => {
     const clickCallback = e => {
         let ele = e.target;
-        if (ele.tagName != 'A') {
-            return;
-        }
         e.stopPropagation()
-        const href = ele.href;
-        if ((!e.ctrlKey || !href) && event.type != 'dblclick') {
+        if (!e.ctrlKey && event.type != 'dblclick') {
             return;
         }
-        handler.emit("openLink", href)
+        if (ele.tagName == 'A') {
+            handler.emit("openLink", ele.href)
+        }
     }
-    const content=document.querySelector('.vditor-wysiwyg');
+    const content = document.querySelector(".vditor-wysiwyg");
     content.addEventListener('dblclick', clickCallback);
     content.addEventListener('click', clickCallback);
+    document.querySelector(".vditor-ir").addEventListener('click', e => {
+        let ele = e.target;
+        if (ele.classList.contains('vditor-ir__link')) {
+            ele = e.target.nextElementSibling?.nextElementSibling?.nextElementSibling
+        }
+        if (ele.classList.contains('vditor-ir__marker--link')) {
+            handler.emit("openLink", ele.textContent)
+        }
+    });
 }
 
-export const imageParser = () => {
+
+//监听选项改变事件
+export function onToolbarClick(editor) {
+    document.querySelector('.vditor-toolbar').addEventListener("click", (e) => {
+        let type;
+        for (let i = 0; i < 3; i++) {
+            if (type = e.path[i].dataset.type) break;
+        }
+        if (type == 'outline') {
+            handler.emit("saveOutline", editor.vditor.options.outline.enable)
+        }
+    })
+}
+
+export const createContextMenu = (editor) => {
+    $('body').on('contextmenu', (e) => {
+        e.stopPropagation();
+        var top = e.pageY - 10;
+        var left = e.pageX - 90;
+        $("#context-menu").css({
+            display: "block",
+            top: top,
+            left: left
+        }).addClass("show");
+    }).on("click", (e) => {
+        $("#context-menu").removeClass("show").hide();
+        let id = e.target.id;
+        if (!e.target.id) {
+            return;
+        }
+        switch (id) {
+            case "copy":
+                document.execCommand("copy")
+                break;
+            case "paste":
+                // document.execCommand("paste")
+                vscodeEvent.emit('command', 'office.markdown.paste')
+                break;
+            case "exportPdf":
+                vscodeEvent.emit("save", editor.getValue())
+                vscodeEvent.emit('export')
+                break;
+            case "exportHtml":
+                vscodeEvent.emit("save", editor.getValue())
+                vscodeEvent.emit('exportPdfToHtml')
+                break;
+        }
+    });
+
+    $("#context-menu a").on("click", function () {
+        $(this).parent().removeClass("show").hide();
+    });
+}
+
+export const imageParser = (viewAbsoluteLocal) => {
+    if (!viewAbsoluteLocal) return;
     var observer = new MutationObserver(mutationList => {
         for (var mutation of mutationList) {
             for (var node of mutation.addedNodes) {
@@ -144,7 +206,6 @@ export const imageParser = () => {
                     }
                 }
             }
-
         }
     });
     observer.observe(document, {
@@ -155,8 +216,11 @@ export const imageParser = () => {
 
 
 
+/**
+ * 自动补全符号
+ */
 const keys = ["'", '"', "{", "(", '$'];
-export const windowHack = (editor) => {
+export const autoSymbal = (editor) => {
     let _exec = document.execCommand.bind(document)
     document.execCommand = (cmd, ...args) => {
         if (cmd === 'delete') {
@@ -203,17 +267,4 @@ export const windowHack = (editor) => {
             document.querySelector('.vditor-reset').focus()
         }, 10)
     }
-
 }
-
-export const upload = {
-    accept: 'image/*,.mp3, .wav, .rar',
-    token: 'test',
-    url: '/api/upload/editor',
-    linkToImgUrl: '/api/upload/fetch',
-    filename(name) {
-        return name.replace(/[^(a-zA-Z0-9\u4e00-\u9fa5\.)]/g, '').
-            replace(/[\?\\/:|<>\*\[\]\(\)\$%\{\}@~]/g, '').
-            replace('/\\s/g', '')
-    },
-};

@@ -6,13 +6,14 @@ import { join, parse, resolve } from 'path';
 import * as vscode from 'vscode';
 import { Holder } from './markdown/holder';
 import path = require('path');
+import { DomUtils } from "htmlparser2";
 
 export class MarkdownService {
 
     constructor(private context: vscode.ExtensionContext) {
     }
 
-    public async exportPdfByHtml(uri: vscode.Uri) {
+    public async exportPdfToHtml(uri: vscode.Uri) {
         await convertMd({ markdownFilePath: uri.fsPath, config: this.getConfig('html') })
         vscode.window.showInformationMessage("Export markdown to html success!")
     }
@@ -81,13 +82,13 @@ export class MarkdownService {
     }
 
     public async loadClipboardImage() {
-        const document = vscode.window.activeTextEditor?.document
+        const document = vscode.window.activeTextEditor?.document || Holder.activeDocument
 
         if (await vscode.env.clipboard.readText() == "") {
-            const uri: vscode.Uri | null = document ? document.uri : Holder.activeUrl
-            if (uri == null) {
+            if (!document || document.isUntitled || document.isClosed) {
                 return
             }
+            const uri: vscode.Uri=document.uri;
             const rePath = `image/${parse(uri.fsPath).name}/${new Date().getTime()}.png`;
             const imagePath = `${resolve(uri.fsPath, "..")}/${rePath}`.replace(/\\/g, "/");
             const dir = path.dirname(imagePath)

@@ -42,20 +42,97 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file("/"), ...this.getFolders()]
         }
-
         const ext = extname(uri.fsPath).toLowerCase()
         const handler = Hanlder.bind(webviewPanel, uri);
         switch (ext) {
+            case ".md":
+                this.handleMarkdown(document, handler, folderPath)
+                break;
             case ".puml":
             case ".plantuml":
             case ".pu":
                 this.handlePuml(document, handler);
                 break;
-            case ".md":
-                this.handleMarkdown(document, handler, folderPath)
-                break;
         }
+    }
 
+    private handleMarkdown(document: vscode.TextDocument, handler: Hanlder, folderPath: vscode.Uri) {
+
+        const uri = document.uri;
+        const webview = handler.panel.webview;
+
+        let content = document.getText();
+        const contextPath = `${this.extensionPath}/resource/vditor`;
+        const rootPath = webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)).toString();
+
+        Holder.activeDocument = document;
+        handler.panel.onDidChangeViewState(e => {
+            Holder.activeDocument = e.webviewPanel.visible ? document : null
+            if (e.webviewPanel.visible) {
+                this.countStatus.show()
+                this.cursorStatus.show()
+            }else{
+                this.countStatus.hide()
+                this.cursorStatus.hide()
+            }
+        });
+
+        const config = vscode.workspace.getConfiguration("vscode-office");
+        console.log(config)
+        handler.on("init", () => {
+            handler.emit("open", {
+                title: basename(uri.fsPath),
+                content, rootPath, config
+            })
+            this.countStatus.text = `Line ${content.split(/\r\n|\r|\n/).length}    Count ${content.length}`
+            this.countStatus.show()
+        }).on("externalUpdate", e => {
+            const updatedText = e.document.getText()?.replace(/\r/g, '');
+            if (content == updatedText) return;
+            handler.emit("update", updatedText)
+        }).on("command", (command) => {
+            vscode.commands.executeCommand(command)
+        }).on("openLink", (uri: string) => {
+            if (uri.includes('https://file+.vscode-resource.vscode-webview.net')) {
+                const localPath = uri.replace('https://file+.vscode-resource.vscode-webview.net', '')
+                vscode.commands.executeCommand('vscode.openWith', vscode.Uri.parse(localPath), 'cweijan.markdownViewer');
+            } else {
+                vscode.env.openExternal(vscode.Uri.parse(uri));
+            }
+        }).on("img", (img) => {
+            const fileName = `${new Date().getTime()}.png`;
+            const rePath = `image/${parse(uri.fsPath).name}/${fileName}`;
+            const imagePath = `${resolve(uri.fsPath, "..")}/${rePath}`.replace(/\\/g, "/");
+            const dir = dirname(imagePath)
+            if (!existsSync(dir)) {
+                mkdirSync(dir, { recursive: true })
+            }
+            fs.writeFileSync(imagePath, Buffer.from(img, 'binary'))
+            console.log(img)
+            vscode.env.clipboard.writeText(`![${fileName}](${rePath})`)
+            vscode.commands.executeCommand("editor.action.clipboardPasteAction")
+        }).on("editInVSCode", () => {
+            vscode.commands.executeCommand('vscode.openWith', uri, "default", vscode.ViewColumn.Beside);
+        }).on("save", (newContent) => {
+            content = newContent
+            this.updateTextDocument(document, newContent)
+        }).on("doSave", async (content) => {
+            vscode.commands.executeCommand('workbench.action.files.save');
+        }).on("export", () => {
+            vscode.commands.executeCommand('workbench.action.files.save');
+            new MarkdownService(this.context).exportPdf(uri)
+        }).on("exportPdfToHtml", () => {
+            vscode.commands.executeCommand('workbench.action.files.save');
+            new MarkdownService(this.context).exportPdfToHtml(uri)
+        }).on("saveOutline",(enable)=>{
+            config.update("openOutline",enable,true)
+        })
+
+        webview.html = Util.buildPath(
+            readFileSync(`${this.extensionPath}/resource/vditor/index.html`, 'utf8')
+                .replace("{{rootPath}}", rootPath)
+                .replace("{{baseUrl}}", webview.asWebviewUri(folderPath).toString()),
+            webview, contextPath);
     }
 
     private handlePuml(document: vscode.TextDocument, handler: Hanlder) {
@@ -91,89 +168,6 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         })
         const webview = handler.panel.webview;
         webview.html = Util.buildPath(readFileSync(this.extensionPath + "/resource/plantuml/index.html", 'utf8'), webview, this.extensionPath + "/resource/plantuml");
-    }
-
-    private handleMarkdown(document: vscode.TextDocument, handler: Hanlder, folderPath: vscode.Uri) {
-
-        const uri = document.uri;
-        const webview = handler.panel.webview;
-
-        let content = document.getText();
-        const contextPath = `${this.extensionPath}/resource/vditor`;
-        const rootPath = webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)).toString();
-
-        Holder.activeUrl = uri;
-        handler.panel.onDidChangeViewState(e => {
-            Holder.activeUrl = e.webviewPanel.visible ? uri : null
-            if (!e.webviewPanel.visible) {
-                this.countStatus.hide()
-                this.cursorStatus.hide()
-            }
-        });
-
-        const config=vscode.workspace.getConfiguration("vscode-office");
-        handler.on("init", () => {
-            handler.emit("open", {
-                title: basename(uri.fsPath),
-                content, rootPath, config
-            })
-            this.countStatus.text = `Line ${content.split(/\r\n|\r|\n/).length}    Count ${content.length}`
-            this.countStatus.show()
-        }).on("externalUpdate", e => {
-            const updatedText = e.document.getText()?.replace(/\r/g, '');
-            if (content == updatedText) return;
-            handler.emit("update", updatedText)
-        }).on("command", (command) => {
-            vscode.commands.executeCommand(command)
-        }).on("openLink", (uri: string) => {
-            if (uri.includes('https://file+.vscode-resource.vscode-webview.net')) {
-                const localPath = uri.replace('https://file+.vscode-resource.vscode-webview.net', '')
-                vscode.commands.executeCommand('vscode.openWith', vscode.Uri.parse(localPath),'cweijan.markdownViewer');
-            } else {
-                vscode.env.openExternal(vscode.Uri.parse(uri));
-            }
-        }).on("cursorActivity", (cursor) => {
-            this.cursorStatus.text = `Ln ${cursor.line}, Col ${cursor.ch}`
-            this.cursorStatus.show()
-        }).on("focus", ({ count, lineCount }) => {
-            this.countStatus.text = `Line ${lineCount}    Count ${count}`
-            this.countStatus.show()
-        }).on("img", (img) => {
-            const fileName = `${new Date().getTime()}.png`;
-            const rePath = `image/${parse(uri.fsPath).name}/${fileName}`;
-            const imagePath = `${resolve(uri.fsPath, "..")}/${rePath}`.replace(/\\/g, "/");
-            const dir = dirname(imagePath)
-            if (!existsSync(dir)) {
-                mkdirSync(dir, { recursive: true })
-            }
-            fs.writeFileSync(imagePath, Buffer.from(img, 'binary'))
-            console.log(img)
-            vscode.env.clipboard.writeText(`![${fileName}](${rePath})`)
-            vscode.commands.executeCommand("editor.action.clipboardPasteAction")
-        }).on("editInVSCode", () => {
-            vscode.commands.executeCommand('vscode.openWith', uri, "default", vscode.ViewColumn.Beside);
-        }).on("save", (newContent) => {
-            content = newContent
-            this.updateTextDocument(document, newContent)
-        }).on("doSave", async (content) => {
-            vscode.commands.executeCommand('workbench.action.files.save');
-        }).on("export", () => {
-            vscode.commands.executeCommand('workbench.action.files.save');
-            new MarkdownService(this.context).exportPdf(uri)
-        }).on("exportPdfByHtml", () => {
-            vscode.commands.executeCommand('workbench.action.files.save');
-            new MarkdownService(this.context).exportPdfByHtml(uri)
-        }).on("dispose", () => {
-            if (Holder.activeUrl == uri) {
-                Holder.activeUrl = null;
-            }
-        })
-
-        webview.html = Util.buildPath(
-            readFileSync(`${this.extensionPath}/resource/vditor/index.html`, 'utf8')
-                .replace("{{rootPath}}", rootPath)
-                .replace("{{baseUrl}}", webview.asWebviewUri(folderPath).toString()),
-            webview, contextPath);
     }
 
     private updateTextDocument(document: vscode.TextDocument, content: any) {

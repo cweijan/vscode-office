@@ -1,17 +1,16 @@
-import { openLink, hotKeys, imageParser, toolbar, windowHack } from "./util.js";
+import { openLink, hotKeys, imageParser, toolbar, autoSymbal, onToolbarClick, createContextMenu } from "./util.js";
 
 handler.on("open", (md) => {
-  const config=md;
+  const config = md.config;
   if (config.autoTheme) {
     window.addThemeCss()
   }
   const editor = new Vditor('vditor', {
     value: md.content,
-    _lutePath: md.rootPath+'/lute.min.js',
-    // _lutePath: 'https://cdn.jsdelivr.net/npm/vditor@3.8.10/dist/js/lute/lute.min.js',
+    _lutePath: md.rootPath + '/lute.min.js',
     height: document.documentElement.clientHeight,
     outline: {
-      enable: true,
+      enable: config.openOutline,
       position: 'left',
     },
     mode: 'wysiwyg',
@@ -49,57 +48,15 @@ handler.on("open", (md) => {
     hint: {
       emoji: {},
       extend: hotKeys
-    },after () {
+    }, after() {
+      handler.on("update", content => {
+        editor.setValue(content);
+      })
       openLink()
+      onToolbarClick(editor)
     }
   })
-
-  windowHack(editor);
-  if (config.viewAbsoluteLocal) {
-    imageParser()
-  }
-
-  $('body').on('contextmenu', (e) => {
-    e.stopPropagation();
-    var top = e.pageY - 10;
-    var left = e.pageX - 90;
-    $("#context-menu").css({
-      display: "block",
-      top: top,
-      left: left
-    }).addClass("show");
-  }).on("click", (e) => {
-    $("#context-menu").removeClass("show").hide();
-    let id = e.target.id;
-    if (!e.target.id) {
-      return;
-    }
-    switch (id) {
-      case "copy":
-        document.execCommand("copy")
-        break;
-      case "paste":
-        // document.execCommand("paste")
-        vscodeEvent.emit('command', 'office.markdown.paste')
-        break;
-      case "exportPdf":
-        vscodeEvent.emit("save", editor.getValue())
-        vscodeEvent.emit('export')
-        break;
-      case "exportHtml":
-        vscodeEvent.emit("save", editor.getValue())
-        vscodeEvent.emit('exportPdfByHtml')
-        break;
-    }
-  });
-
-  $("#context-menu a").on("click", function () {
-    $(this).parent().removeClass("show").hide();
-  });
-  handler.on("update", content => {
-    editor.setValue(content);
-  })
-})
-
-handler.emit("init")
-
+  autoSymbal(editor);
+  createContextMenu(editor)
+  imageParser(config.viewAbsoluteLocal)
+}).emit("init")

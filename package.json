@@ -423,6 +423,11 @@
 					"default": false,
 					"description": "Support view absolute path image from markdown viewer."
 				},
+				"vscode-office.openOutline": {
+					"type": "boolean",
+					"default": true,
+					"description": "Open markdown outline."
+				},
 				"vscode-office.autoTheme": {
 					"type": "boolean",
 					"default": false,
