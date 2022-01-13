@@ -71,7 +71,7 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             if (e.webviewPanel.visible) {
                 this.countStatus.show()
                 this.cursorStatus.show()
-            }else{
+            } else {
                 this.countStatus.hide()
                 this.cursorStatus.hide()
             }
@@ -124,8 +124,8 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         }).on("exportPdfToHtml", () => {
             vscode.commands.executeCommand('workbench.action.files.save');
             new MarkdownService(this.context).exportPdfToHtml(uri)
-        }).on("saveOutline",(enable)=>{
-            config.update("openOutline",enable,true)
+        }).on("saveOutline", (enable) => {
+            config.update("openOutline", enable, true)
         })
 
         webview.html = Util.buildPath(
@@ -152,7 +152,7 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         }).on("doSave", () => {
             vscode.commands.executeCommand('workbench.action.files.save');
         }).on("download", (content) => {
-            vscode.window.showSaveDialog({ title: "Select download path" }).then((downloadPath) => {
+            vscode.window.showSaveDialog({ title: "Select download path", defaultUri: vscode.Uri.file(document.fileName.replace(/puml/i, "svg")), filters: { 'Images': ['svg', 'png'] } }).then((downloadPath) => {
                 if (downloadPath) {
                     (async () => {
                         vscode.window.showInformationMessage("Start downloading...", { model: true } as MessageOptions)
