@@ -18,6 +18,10 @@ Markdown编辑器使用了Vditor, 默认为白色, 如果想让背景色和VSCod
 点击以下按钮可将Markdown导出为Pdf, 需要确保你安装了Chrome或Edge浏览器
 ![](image/README-CN/1640579380584.png)
 
+补充说明: 
+1. 开源的markdown编辑组件在功能上相比Typora都弱许多, 但现在已经满足我的需求, 这个扩展不会再频繁更新了.
+2. 相比Typora的优点是可以进行版本管理、打开多个文件, 在一个窗口同时打开多个文件.
+
 ## HTML
 
 对Html编辑功能进行了增强, 编辑中按下ctrl+shift+v可实时预览.
