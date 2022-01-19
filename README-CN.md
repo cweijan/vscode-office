@@ -4,7 +4,7 @@
 
 版本2.5.0之后通过Ctrl+单击或者双击打开超链接
 
-Markdown编辑器使用了Vditor, 默认为白色, 如果想让背景色和VSCode主题一样, 可将以下设置加入到VSCode的设置中
+Markdown编辑器使用了[Vditor](https://github.com/Vanessa219/vditor), 默认为白色, 如果想让背景色和VSCode主题一样, 可将以下设置加入到VSCode的设置中
 
 ```json
 {
