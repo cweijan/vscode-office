@@ -19,7 +19,7 @@ Markdown编辑器使用了[Vditor](https://github.com/Vanessa219/vditor), 默认
 ![](image/README-CN/1640579380584.png)
 
 补充说明: 
-1. 开源的markdown编辑组件在功能上相比Typora都弱许多, 但现在已经满足我的需求, 这个扩展不会再频繁更新了.
+1. 开源的markdown编辑组件在功能上相比Typora较弱, 但现在已经满足我的需求, 扩展不会再频繁更新.
 2. 相比Typora的优点是可以进行版本管理、打开多个文件, 在一个窗口同时打开多个文件.
 
 ## HTML
