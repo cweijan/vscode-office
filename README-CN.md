@@ -21,6 +21,10 @@ Markdown编辑器使用了[Vditor](https://github.com/Vanessa219/vditor), 默认
 补充说明: 
 1. 开源的markdown编辑组件在功能上相比Typora较弱, 但现在已经满足我的需求, 扩展不会再频繁更新.
 2. 相比Typora的优点是可以进行版本管理、打开多个文件, 在一个窗口同时打开多个文件.
+3. 由于vscode每次加载webview都会进行缓存, 这个扩展每次会生成3M多, 建议定期进行清理
+   - Windows: C:\Users\[用户名]\AppData\Roaming\Code\Service Worker\CacheStorage
+   - 其他: %appdata%\Roaming\Code\Service Worker\CacheStorage.
+
 
 ## HTML
 
