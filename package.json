@@ -29,7 +29,7 @@
 		"url": "https://github.com/cweijan/vscode-office.git"
 	},
 	"activationEvents": [
-		"*"
+		"onStartupFinished"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
