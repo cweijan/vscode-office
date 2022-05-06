@@ -4,6 +4,7 @@
   "colors": {
     "menu.background": "#2D3440",
     "menu.foreground": "#CCCCCC",
+    "menu.separatorBackground": "#727272",
     "activityBar.background": "#303845",
     "activityBar.foreground": "#D7DAE0",
     "activityBarBadge.background": "#4D78CC",
