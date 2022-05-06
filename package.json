@@ -6,7 +6,7 @@
 	"publisher": "cweijan",
 	"icon": "images/icon.png",
 	"engines": {
-		"vscode": "^1.40.0"
+		"vscode": "^1.60.0"
 	},
 	"keywords": [
 		"pdf",
@@ -447,7 +447,7 @@
 	"devDependencies": {
 		"@types/node": "^13.11.0",
 		"@types/node-fetch": "^2.5.7",
-		"@types/vscode": "^1.40.0",
+		"@types/vscode": "^1.60.0",
 		"clean-webpack-plugin": "^3.0.0",
 		"copy-webpack-plugin": "^6.2.1",
 		"css-loader": "^3.5.3",
