@@ -83,7 +83,7 @@ export const toolbar = [
     },
     { name: 'upload', tipPosition: 'e' },
     "|",
-    // "edit-mode",
+    "edit-mode",
     // "code-theme",
     // "|",
     "list",
