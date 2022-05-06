@@ -2,7 +2,7 @@
 	"name": "vscode-office",
 	"displayName": "Office Viewer(Markdown Editor)",
 	"description": "View word,excel files and using WYSIWYG editor for markdown.",
-	"version": "2.5.3",
+	"version": "2.5.4",
 	"publisher": "cweijan",
 	"icon": "images/icon.png",
 	"engines": {
@@ -437,12 +437,10 @@
 		}
 	},
 	"scripts": {
-		"vscode:prepublish": "npm run build",
-		"publish": "vsce publish --yarn",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
 		"dev": "webpack --progress",
-		"build": "webpack -p --progress"
+		"build": "webpack -p --progress",
+		"publish": "vsce publish",
+		"vscode:prepublish": "npm run build"
 	},
 	"devDependencies": {
 		"@types/node": "^13.11.0",
