@@ -34,7 +34,7 @@ export async function exportByType(filePath, data, type, config) {
 
     try {
 
-        const puppeteer = require("puppeteer")
+        const puppeteer = require("puppeteer-core")
         let tmpfilename = path.join(isDev ? originPath.dir : os.tmpdir(), originPath.name + "_tmp.html")
         exportHtml(tmpfilename, data)
         let options = {
@@ -120,7 +120,7 @@ function checkPuppeteerBinary(config) {
         }
 
         // bundled Chromium
-        const puppeteer = require("puppeteer")
+        const puppeteer = require("puppeteer-core")
         executablePath = puppeteer.executablePath()
         if (isExistsPath(executablePath)) {
             return true

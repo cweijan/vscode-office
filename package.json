@@ -441,7 +441,6 @@
 		"publish": "vsce publish --yarn",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
-		"install": "npm i --ignore-scripts",
 		"dev": "webpack --progress",
 		"build": "webpack -p --progress"
 	},
@@ -463,8 +462,8 @@
 	"dependencies": {
 		"cheerio": "^1.0.0-rc.3",
 		"chrome-finder": "^1.0.7",
-		"mammoth": "^1.4.13",
 		"highlight.js": "^10.1.2",
+		"mammoth": "^1.4.13",
 		"markdown-it": "^11.0.0",
 		"markdown-it-anchor": "^6.0.0",
 		"markdown-it-checkbox": "^1.1.0",
@@ -475,6 +474,6 @@
 		"mustache": "^4.0.1",
 		"node-fetch": "^2.6.1",
 		"pdf-lib": "^1.11.2",
-		"puppeteer": "^5.2.1"
+		"puppeteer-core": "^13.7.0"
 	}
 }

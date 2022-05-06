@@ -339,7 +339,7 @@ function checkPuppeteerBinary(config) {
     }
 
     // bundled Chromium
-    const puppeteer = require("puppeteer")
+    const puppeteer = require("puppeteer-core")
     executablePath = puppeteer.executablePath()
     if (isExistsPath(executablePath)) {
       return true
@@ -362,7 +362,7 @@ async function installChromium(config) {
     // proxy setting
     setProxy(config)
 
-    const puppeteer = require("puppeteer")
+    const puppeteer = require("puppeteer-core")
     const puppeteerMetadata = require(path.join(__dirname, "node_modules", "puppeteer", "package.json"))
 
     let revision = puppeteerMetadata.puppeteer.chromium_revision
