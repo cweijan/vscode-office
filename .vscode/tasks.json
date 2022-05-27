@@ -28,7 +28,7 @@
                             "regexp": "webpack is watching the files"
                         },
                         "endsPattern": {
-                            "regexp": "external \"vscode\""
+                            "regexp": "compiled successfully"
                         }
                     }
                 }

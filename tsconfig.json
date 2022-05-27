@@ -10,7 +10,11 @@
 			"es2019"
 		],
 		"sourceMap": true,
-		"rootDir": "src",
+		"paths": {
+            "@/*": [
+                "./src/*"
+            ]
+        },
 		"resolveJsonModule": true,
         "esModuleInterop": true,
 		"strict": false   /* enable all strict type-checking options */
