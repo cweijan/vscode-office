@@ -14,6 +14,7 @@ handler.on("open", (md) => {
       position: 'left',
     },
     mode: 'wysiwyg',
+    icon: "material",
     tab: '\t',
     preview: {
       theme: {
@@ -25,12 +26,14 @@ handler.on("open", (md) => {
       hljs: {
         style: 'github'
       },
+      extPath: md.rootPath,
       math: {
         engine: 'KaTeX',
         "inlineDigit": true
       }
     },
     toolbar,
+    extPath: md.rootPath,
     input(content) {
       handler.emit("save", content)
     },

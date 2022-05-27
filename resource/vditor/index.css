@@ -10,6 +10,9 @@ a{
     text-decoration: none;
 }
 
+.vditor-panel{
+    display: none !important;
+}
 
 .vditor-reset {
     padding: 0 5% !important;
