@@ -2,7 +2,7 @@ import { convertMd } from "./markdown/markdown-pdf";
 import { spawn } from 'child_process';
 import { copyFileSync, existsSync, lstatSync, mkdirSync } from 'fs';
 import { homedir } from 'os';
-import { join, parse, resolve } from 'path';
+import { isAbsolute, join, parse, resolve } from 'path';
 import * as vscode from 'vscode';
 import { Holder } from './markdown/holder';
 import path = require('path');
@@ -24,9 +24,9 @@ export class MarkdownService {
         vscode.window.showInformationMessage("Export markdown to pdf success!")
     }
 
-    public getConfig(type?:string) {
+    public getConfig(type?: string) {
         return {
-            "type": type||"pdf" ,
+            "type": type || "pdf",
             "outputDirectory": "",
             "outputDirectoryRelativePathFile": false,
             "styles": [],
@@ -88,9 +88,10 @@ export class MarkdownService {
             if (!document || document.isUntitled || document.isClosed) {
                 return
             }
-            const uri: vscode.Uri=document.uri;
-            const rePath = `image/${parse(uri.fsPath).name}/${new Date().getTime()}.png`;
-            const imagePath = `${resolve(uri.fsPath, "..")}/${rePath}`.replace(/\\/g, "/");
+            const uri: vscode.Uri = document.uri;
+            let rePath = vscode.workspace.getConfiguration("vscode-office").get<string>("pasterImgPath");
+            rePath = rePath.replace("${fileName}", parse(uri.fsPath).name).replace("${now}", new Date().getTime() + "")
+            const imagePath = isAbsolute(rePath) ? rePath : `${resolve(uri.fsPath, "..")}/${rePath}`.replace(/\\/g, "/");
             const dir = path.dirname(imagePath)
             if (!existsSync(dir)) {
                 mkdirSync(dir, { recursive: true })
