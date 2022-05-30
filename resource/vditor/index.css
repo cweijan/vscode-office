@@ -10,7 +10,7 @@ a{
     text-decoration: none;
 }
 
-.vditor-panel{
+.vditor-panel .vditor-icon{
     display: none !important;
 }
 
