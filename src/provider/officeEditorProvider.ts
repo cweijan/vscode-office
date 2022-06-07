@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { existsSync, mkdirSync, readFileSync } from 'fs';
 import fetch from 'node-fetch';
-import { basename, dirname, extname, parse, resolve } from 'path';
+import { basename, dirname, extname, isAbsolute, parse, resolve } from 'path';
 import * as util from 'util';
 import * as vscode from 'vscode';
 import { MessageOptions } from 'vscode';
@@ -100,13 +100,14 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
                 vscode.env.openExternal(vscode.Uri.parse(uri));
             }
         }).on("img", (img) => {
-            const fileName = `${new Date().getTime()}.png`;
-            const rePath = `image/${parse(uri.fsPath).name}/${fileName}`;
-            const imagePath = `${resolve(uri.fsPath, "..")}/${rePath}`.replace(/\\/g, "/");
+            let rePath = vscode.workspace.getConfiguration("vscode-office").get<string>("pasterImgPath");
+            rePath = rePath.replace("${fileName}", parse(uri.fsPath).name).replace("${now}", new Date().getTime() + "")
+            const imagePath = isAbsolute(rePath) ? rePath : `${resolve(uri.fsPath, "..")}/${rePath}`.replace(/\\/g, "/");
             const dir = dirname(imagePath)
             if (!existsSync(dir)) {
                 mkdirSync(dir, { recursive: true })
             }
+            const fileName=parse(rePath).name;
             fs.writeFileSync(imagePath, Buffer.from(img, 'binary'))
             console.log(img)
             vscode.env.clipboard.writeText(`![${fileName}](${rePath})`)

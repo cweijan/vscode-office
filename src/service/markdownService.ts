@@ -2,7 +2,7 @@ import { convertMd } from "./markdown/markdown-pdf";
 import { spawn } from 'child_process';
 import { copyFileSync, existsSync, lstatSync, mkdirSync } from 'fs';
 import { homedir } from 'os';
-import { isAbsolute, join, parse, resolve } from 'path';
+import { basename, isAbsolute, join, parse, resolve } from 'path';
 import * as vscode from 'vscode';
 import { Holder } from './markdown/holder';
 import path = require('path');
@@ -115,17 +115,18 @@ export class MarkdownService {
                     }
                 }
                 const editor = vscode.window.activeTextEditor;
+                const imgName=parse(rePath).name;
                 if (editor) {
                     editor?.edit(edit => {
                         let current = editor.selection;
                         if (current.isEmpty) {
-                            edit.insert(current.start, `![](${rePath})`);
+                            edit.insert(current.start, `![${imgName}](${rePath})`);
                         } else {
-                            edit.replace(current, `![](${rePath})`);
+                            edit.replace(current, `![${imgName}](${rePath})`);
                         }
                     });
                 } else {
-                    vscode.env.clipboard.writeText(`![](${rePath})`)
+                    vscode.env.clipboard.writeText(`![${imgName}](${rePath})`)
                     vscode.commands.executeCommand("editor.action.clipboardPasteAction")
                 }
             })
