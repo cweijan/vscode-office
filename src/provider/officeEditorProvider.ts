@@ -119,6 +119,7 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             this.updateTextDocument(document, newContent)
         }).on("doSave", async (content) => {
             vscode.commands.executeCommand('workbench.action.files.save');
+            this.countStatus.text = `Line ${content.split(/\r\n|\r|\n/).length}    Count ${content.length}`
         }).on("export", () => {
             vscode.commands.executeCommand('workbench.action.files.save');
             new MarkdownService(this.context).exportPdf(uri)
