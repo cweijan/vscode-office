@@ -36,9 +36,11 @@ function addCss(css) {
 
 window.addThemeCss = function () {
     addCss(`
-    *{
+    *:not(.hljs,.hljs *){
         background-color: var(--vscode-editor-background) !important;
         color: var(--vscode-editor-foreground) !important;
+    }
+    *{
         border-color: var(--vscode-quickInputTitle-background) !important;
     }
     `);
