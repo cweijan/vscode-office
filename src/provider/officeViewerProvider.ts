@@ -62,6 +62,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 this.handleSvg(uri, webview);
                 break;
                 case ".docx":
+                case ".dotx":
                     this.handleDocx(uri, webview)
                     break;
             case ".class":

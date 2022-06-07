@@ -314,6 +314,9 @@
 						"filenamePattern": "*.docx"
 					},
 					{
+						"filenamePattern": "*.dotx"
+					},
+					{
 						"filenamePattern": "*.svg"
 					},
 					{
