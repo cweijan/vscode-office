@@ -120,6 +120,11 @@ export const openLink = () => {
         if (ele.tagName == 'A') {
             handler.emit("openLink", ele.href)
         } else if (ele.tagName == 'IMG') {
+            const parent = ele.parentElement;
+            if (parent?.tagName == 'A' && parent.href) {
+                handler.emit("openLink", parent.href)
+                return;
+            }
             const src = ele.src;
             if (src && !src.startsWith("https://file+.") && src.match(/http/)) {
                 handler.emit("openLink", src)
