@@ -84,7 +84,7 @@ export const toolbar = [
     { name: 'upload', tipPosition: 'e' },
     "|",
     "edit-mode",
-    // "code-theme",
+    "code-theme",
     // "|",
     "list",
     "ordered-list",

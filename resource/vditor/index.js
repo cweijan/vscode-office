@@ -24,7 +24,7 @@ handler.on("open", (md) => {
         toc: true
       },
       hljs: {
-        style: 'github'
+        style: 'dracula'
       },
       extPath: md.rootPath,
       math: {
