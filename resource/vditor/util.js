@@ -116,8 +116,14 @@ export const openLink = () => {
         if (!e.ctrlKey && event.type != 'dblclick') {
             return;
         }
+        console.log(ele.src)
         if (ele.tagName == 'A') {
             handler.emit("openLink", ele.href)
+        } else if (ele.tagName == 'IMG') {
+            const src = ele.src;
+            if (src && !src.startsWith("https://file+.") && src.match(/http/)) {
+                handler.emit("openLink", src)
+            }
         }
     }
     const content = document.querySelector(".vditor-wysiwyg");
