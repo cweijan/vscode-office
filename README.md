@@ -20,14 +20,6 @@ This extension changes the default markdown editor to the excellent vditor:
 - A WYSIWYG editor for markdown.
 - Which provides export to pdf (via right click in the document tab).
 
-If you want the editor to follow the theme, you can turn on this configuration
-
-```json
-{
-    "vscode-office.autoTheme": true
-}
-```
-
 If you want to use the original vscode editor, insert this in your `settings.json`.
 
 ```json
