@@ -3,7 +3,7 @@ import { openLink, hotKeys, imageParser, toolbar, autoSymbal, onToolbarClick, cr
 handler.on("open", (md) => {
   const config = md.config;
   if (config.autoTheme) {
-    window.addThemeCss()
+    // window.addThemeCss()
   }
   const editor = new Vditor('vditor', {
     value: md.content,
