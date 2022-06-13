@@ -17,34 +17,3 @@ a {
 .vditor-reset {
     padding: 0 5% !important;
 }
-
-* {
-    border-color: var(--vscode-quickInputTitle-background) !important;
-}
-
-.vditor-input{
-    border:  1px solid var(--vscode-quickInputTitle-background);
-}
-
-.vditor-toolbar {
-    background-color: var(--vscode-editor-background);
-}
-
-.vditor-toolbar__item .vditor-tooltipped {
-    color: var(--vscode-editor-foreground)
-}
-
-
-.vditor-content code:not(.hljs) {
-    background-color: var(--vscode-tab-activeBackground) !important;
-}
-
-.vditor-content,
-.vditor-content *:not(.hljs, .hljs *, a) {
-    background-color: var(--vscode-editor-background) !important;
-    color: var(--vscode-editor-foreground) !important;
-}
-
-.vditor-hint button:not(.vditor-menu--disabled):hover{
-    background-color: var(--vscode-editorSuggestWidget-background) !important;
-}

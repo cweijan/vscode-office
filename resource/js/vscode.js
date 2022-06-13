@@ -27,7 +27,7 @@ window.vscodeEvent = getVscodeEvent();
 window.handler = getVscodeEvent();
 
 function addCss(css) {
-    var style = document.createElement('style');
+    const style = document.createElement('style');
     style.innerText = css;
     document.documentElement.appendChild(style)
 }

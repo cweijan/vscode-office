@@ -3,7 +3,7 @@ import { openLink, hotKeys, imageParser, toolbar, autoSymbal, onToolbarClick, cr
 handler.on("open", (md) => {
   const config = md.config;
   if (config.autoTheme) {
-    // window.addThemeCss()
+    addAutoTheme()
   }
   const editor = new Vditor('vditor', {
     value: md.content,
@@ -63,3 +63,45 @@ handler.on("open", (md) => {
   createContextMenu(editor)
   imageParser(config.viewAbsoluteLocal)
 }).emit("init")
+
+
+function addAutoTheme(){
+  const css=`
+  * {
+  border-color: var(--vscode-quickInputTitle-background) !important;
+}
+
+.vditor-input{
+  border:  1px solid var(--vscode-quickInputTitle-background);
+}
+
+.vditor-toolbar {
+  background-color: var(--vscode-editor-background);
+}
+
+.vditor-toolbar__item .vditor-tooltipped {
+  color: var(--vscode-editor-foreground)
+}
+
+
+.vditor-content code:not(.hljs) {
+  background-color: var(--vscode-tab-activeBackground) !important;
+}
+
+.vditor-content,
+.vditor-content *:not(.hljs, .hljs *, a) {
+  background-color: var(--vscode-editor-background) !important;
+  color: var(--vscode-editor-foreground) !important;
+}
+
+.vditor-hint button:not(.vditor-menu--disabled):hover{
+  background-color: var(--vscode-editorSuggestWidget-background) !important;
+}
+.vditor-content .vditor-outline li > span >span:hover {
+  color: var(--vscode-terminal-ansiBlue) !important;
+}
+`
+  const style = document.createElement('style');
+  style.innerText = css;
+  document.documentElement.appendChild(style)
+}
