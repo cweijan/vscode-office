@@ -2,7 +2,7 @@
 
 ## 介绍
 
-该扩展在vscode内集成[Vditor](https://github.com/Vanessa219/vditor), 实现了对markdown的即时渲染编辑, 相比typora的特性:
+该扩展在vscode内集成[Vditor](https://github.com/Vanessa219/vditor), 实现了对markdown的所见即所得编辑, 相比typora的特性:
 
 - 开源免费无广告无隐私追踪 (如果对你有帮助考虑点下star(●'◡'●))
 - 在最新版本中优化了vscode主题支持, 现在颜色默认跟随vscode主题
