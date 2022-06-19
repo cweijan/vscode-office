@@ -93,8 +93,9 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         }).on("command", (command) => {
             vscode.commands.executeCommand(command)
         }).on("openLink", (uri: string) => {
-            if (uri.includes('https://file+.vscode-resource.vscode-webview.net')) {
-                const localPath = uri.replace('https://file+.vscode-resource.vscode-webview.net', '')
+            const resReg=/https:\/\/file.*\.net/i;
+            if (uri.match(resReg)) {
+                const localPath = uri.replace(resReg, '')
                 vscode.commands.executeCommand('vscode.openWith', vscode.Uri.parse(localPath), 'cweijan.markdownViewer');
             } else {
                 vscode.env.openExternal(vscode.Uri.parse(uri));

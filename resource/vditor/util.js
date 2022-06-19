@@ -126,7 +126,7 @@ export const openLink = () => {
                 return;
             }
             const src = ele.src;
-            if (src && !src.startsWith("https://file+.") && src.match(/http/)) {
+            if (src?.match(/http/)) {
                 handler.emit("openLink", src)
             }
         }
