@@ -862,6 +862,13 @@ body::-webkit-scrollbar{width:4px!important;height:6px!important;}
   background-color: #F7F7F7;
 }
 
+@media (prefers-color-scheme: dark) {
+
+  .treeItems{
+    background-color: #343434;
+  }
+}
+
 
 #sidebarContainer {
   position: absolute;
@@ -3574,7 +3581,7 @@ html[dir="rtl"] .treeItemToggler::before {
 @media (prefers-color-scheme: dark) {
 
   .treeItem.selected {
-  background-color: rgba(255, 255, 255, 1);
+  background-color: rgba(40, 40, 40, 1);
   }
 }
 
