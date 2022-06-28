@@ -1,3 +1,7 @@
+.lg-outer{
+  background-color: #222222;  
+}
+
 @font-face {
   font-family: 'lg';
   src: url("../fonts/lg.ttf?22t19m") format("truetype"), url("../fonts/lg.woff?22t19m") format("woff"), url("../fonts/lg.svg?22t19m#lg") format("svg");

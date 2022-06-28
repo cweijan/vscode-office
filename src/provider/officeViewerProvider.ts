@@ -58,13 +58,10 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".otf":
                 this.handleFont(document, handler)
                 break;
-            case ".svg":
-                this.handleSvg(uri, webview);
+            case ".docx":
+            case ".dotx":
+                this.handleDocx(uri, webview)
                 break;
-                case ".docx":
-                case ".dotx":
-                    this.handleDocx(uri, webview)
-                    break;
             case ".class":
                 this.handleClass(uri, webviewPanel);
                 break;
@@ -87,7 +84,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
         if (htmlPath != null) {
             webview.html = Util.buildPath(readFileSync(this.extensionPath + "/resource/" + htmlPath, 'utf8'), webview, this.extensionPath + "/resource")
-                .replace("$autoTheme", workspace.getConfiguration("vscode-office").get<boolean>("autoTheme")+'')
+                .replace("$autoTheme", workspace.getConfiguration("vscode-office").get<boolean>("autoTheme") + '')
         }
 
     }
@@ -99,7 +96,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 webview.html =
                     Util.buildPath(
                         readFileSync(this.extensionPath + "/resource/word.html", 'utf8').replace("{{content}}", result.value)
-                        .replace("$autoTheme", workspace.getConfiguration("vscode-office").get<boolean>("autoTheme")+'')
+                            .replace("$autoTheme", workspace.getConfiguration("vscode-office").get<boolean>("autoTheme") + '')
                         , webview, this.extensionPath + "/resource"
                     )
             })
@@ -112,15 +109,15 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             return;
         }
 
-        const tempPath=`${tmpdir()}/office_temp_java`
-        if(!existsSync(tempPath)){
+        const tempPath = `${tmpdir()}/office_temp_java`
+        if (!existsSync(tempPath)) {
             mkdirSync(tempPath)
         }
 
-        const java = spawn("java", ['-cp', '../resource/java-decompiler.jar','org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler', uri.fsPath, tempPath], { cwd: __dirname })
+        const java = spawn("java", ['-cp', '../resource/java-decompiler.jar', 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler', uri.fsPath, tempPath], { cwd: __dirname })
         java.stdout.on('data', (data) => {
             console.log(data.toString("utf8"))
-            if (data.toString("utf8").indexOf("done") == -1 ) {
+            if (data.toString("utf8").indexOf("done") == -1) {
                 return;
             }
             const fileName = `${tempPath}/${parse(uri.fsPath).name}.java`;
@@ -183,17 +180,6 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
         );
     }
 
-    private handleSvg(uri: vscode.Uri, webview: vscode.Webview) {
-        webview.html =
-            Util.buildPath(
-                readFileSync(this.extensionPath + "/resource/svg/svg.html", 'utf8')
-                    .replace("{{content}}",
-                        encodeURIComponent(readFileSync(uri.fsPath, 'utf8'))
-                    ),
-                webview, this.extensionPath + "/resource"
-            );
-    }
-
     private handleFont(document: vscode.CustomDocument, handler: Hanlder) {
         const webview = handler.panel.webview;
         handler.on("init", () => {
@@ -211,7 +197,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
         var enc = new TextEncoder();
         handler.on("init", async () => {
             const content = await vscode.workspace.fs.readFile(uri)
-            handler.emit("open", { content, file: resolve(uri.fsPath),ext:extname(uri.fsPath) })
+            handler.emit("open", { content, file: resolve(uri.fsPath), ext: extname(uri.fsPath) })
         }).on("save", async (content) => {
             await vscode.workspace.fs.writeFile(uri, new Uint8Array(content))
             handler.emit("saveDone")
