@@ -61,6 +61,7 @@ export class MarkdownService {
         beta: "C:\\Program Files (x86)\\Microsoft\\Edge Beta\\Application\\msedge.exe",
         dev: "C:\\Program Files (x86)\\Microsoft\\Edge Dev\\Application\\msedge.exe",
         canary: join(homedir(), "AppData\\Local\\Microsoft\\Edge SxS\\Application\\msedge.exe"),
+        linux: "/usr/bin/microsoft-edge",
     }
 
     private getChromiumPath() {
