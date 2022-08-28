@@ -2753,6 +2753,7 @@
     "marko": "markojs",
     "pdf": "pdf",
     "xlsx": "table",
+    "xlsm": "table",
     "xls": "table",
     "csv": "table",
     "tsv": "table",

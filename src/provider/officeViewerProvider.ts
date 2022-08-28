@@ -48,6 +48,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
         switch (ext) {
             case ".xlsx":
+            case ".xlsm":
             case ".xls":
             case ".csv":
             case ".ods":

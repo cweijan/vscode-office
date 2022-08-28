@@ -302,6 +302,9 @@
 						"filenamePattern": "*.xlsx"
 					},
 					{
+						"filenamePattern": "*.xlsm"
+					},
+					{
 						"filenamePattern": "*.csv"
 					},
 					{
