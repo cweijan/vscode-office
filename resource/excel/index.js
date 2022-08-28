@@ -50,9 +50,7 @@ let fileName;
 vscodeEvent.emit("init")
 vscodeEvent.on("open", ({ file, path, ext }) => {
     fileName = file
-    fetch(`https://file+.vscode-resource.vscode-cdn.net/${path}`)
-        .then(response => response.arrayBuffer())
-        .then(res => { open(res, ext) })
+    fetch(path).then(response => response.arrayBuffer()).then(res => { open(res, ext) })
     console.log(path)
 }).on("saveDone", () => {
     toastr.success('Save Success!')
