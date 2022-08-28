@@ -865,7 +865,7 @@ body::-webkit-scrollbar{width:4px!important;height:6px!important;}
 @media (prefers-color-scheme: dark) {
 
   .treeItems{
-    background-color: #343434;
+    background-color: var(--sidebar-bg-color);
   }
 }
 
@@ -936,7 +936,7 @@ html[dir="rtl"] #outerContainer.sidebarOpen #sidebarContainer {
 @media (prefers-color-scheme: dark) {
 
   #sidebarContent {
-  background-color: #343434;
+  background-color: var(--sidebar-bg-color);
   }
 }
 html[dir="ltr"] #sidebarContent {
@@ -3369,7 +3369,7 @@ a:focus > .thumbnail > .thumbnailSelectionRing {
 
   #outlineView,
   #attachmentsView {
-  background-color: #343434;
+  background-color: var(--sidebar-bg-color);
   }
 }
 
