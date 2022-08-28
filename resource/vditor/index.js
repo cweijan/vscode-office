@@ -67,8 +67,16 @@ handler.on("open", (md) => {
 
 function addAutoTheme(){
   const css=`
-  * {
+* {
   border-color: var(--vscode-quickInputTitle-background) !important;
+}
+
+body[data-vscode-theme-kind="vscode-light"] .vditor-content hr{
+  background-color: var(--vscode-panel-border) !important;
+}
+
+body[data-vscode-theme-kind="vscode-dark"] .vditor-content hr{
+  background-color: var(--vscode-panel-border) !important;
 }
 
 .vditor-input{
