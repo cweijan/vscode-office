@@ -231,7 +231,7 @@ export const imageParser = (viewAbsoluteLocal) => {
 /**
  * 自动补全符号
  */
-const keys = ["'", '"', "{", "(", '$'];
+const keys = ['"', "{", "("];
 export const autoSymbal = (editor) => {
     let _exec = document.execCommand.bind(document)
     document.execCommand = (cmd, ...args) => {
