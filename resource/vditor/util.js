@@ -208,13 +208,9 @@ export const imageParser = (viewAbsoluteLocal) => {
                 const imgs = node.querySelectorAll('img')
                 for (const img of imgs) {
                     const url = img.src;
-                    if (url.startsWith("http") || url.startsWith("vscode-webview-resource")) {
-                        continue;
-                    }
-                    // windows absolute path
-                    if (url.startsWith("file://")) {
-                        img.src = `${location.origin.replace("vscode-webview", 'vscode-webview-resource')}/${url.replace("file:", "file").replace(":", "%3a")}`
-                        continue;
+                    if (url.startsWith("http")) { continue; }
+                    if (url.startsWith("vscode-webview-resource") && url.includes("file///")) {
+                        img.src = `https://file+.vscode-resource.vscode-cdn.net/${url.split("file///")[1]}`
                     }
                 }
             }
