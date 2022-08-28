@@ -32,3 +32,7 @@ blockquote {
 .page {
 	page-break-after: always;
 }
+
+.table-of-contents li{
+	list-style-type: initial;
+}
