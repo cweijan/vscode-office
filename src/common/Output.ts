@@ -1,7 +1,7 @@
 "user strict";
 import * as vscode from "vscode";
 
-export class Console {
+export class Output {
     public static log(value: any) {
         if (this.outputChannel == null) {
             this.outputChannel = vscode.window.createOutputChannel("Office");

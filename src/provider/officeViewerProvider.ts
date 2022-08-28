@@ -4,7 +4,7 @@ import { basename, extname, parse, resolve } from 'path';
 import { TextEncoder } from 'util';
 import * as vscode from 'vscode';
 import { Hanlder } from '../common/handler';
-import { Console } from '../common/Console';
+import { Output } from '../common/Output';
 import { Util } from '../common/util';
 import { tmpdir } from 'os';
 import { workspace } from 'vscode';
@@ -128,7 +128,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
         });
 
         java.stderr.on('data', (data) => {
-            Console.log(data.toString("utf8"))
+            Output.log(data.toString("utf8"))
         });
 
 

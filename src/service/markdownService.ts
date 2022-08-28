@@ -7,6 +7,7 @@ import * as vscode from 'vscode';
 import { Holder } from './markdown/holder';
 import path = require('path');
 import { DomUtils } from "htmlparser2";
+import { Output } from "@/common/Output";
 
 export class MarkdownService {
 
@@ -19,9 +20,13 @@ export class MarkdownService {
     }
 
     public async exportPdf(uri: vscode.Uri) {
-        vscode.window.showInformationMessage("Starting export markdown to pdf.")
-        await convertMd({ markdownFilePath: uri.fsPath, config: this.getConfig() })
-        vscode.window.showInformationMessage("Export markdown to pdf success!")
+        try {
+            vscode.window.showInformationMessage("Starting export markdown to pdf.")
+            await convertMd({ markdownFilePath: uri.fsPath, config: this.getConfig() })
+            vscode.window.showInformationMessage("Export markdown to pdf success!")
+        } catch (error) {
+            Output.log(error)
+        }
     }
 
     public getConfig(type?: string) {
