@@ -431,6 +431,11 @@
 					"default": true,
 					"description": "Open markdown outline."
 				},
+				"vscode-office.previewCode": {
+					"type": "boolean",
+					"default": true,
+					"description": "Preview code in markdown."
+				},
 				"vscode-office.autoTheme": {
 					"type": "boolean",
 					"default": true,

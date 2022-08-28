@@ -21,7 +21,8 @@ handler.on("open", (md) => {
         path: `${md.rootPath}/css/content-theme`
       },
       markdown: {
-        toc: true
+        toc: true,
+        codeBlockPreview: config.previewCode,
       },
       hljs: {
         style: 'dracula'
@@ -93,7 +94,7 @@ body[data-vscode-theme-kind="vscode-dark"] .vditor-content hr{
 
 
 .vditor-content code:not(.hljs) {
-  background-color: var(--vscode-tab-activeBackground) !important;
+  background-color: #2E2E2E !important;
 }
 
 .vditor-content,
