@@ -3,34 +3,41 @@ document.getElementById('_defaultStyles').parentNode.removeChild(document.getEle
 const convert = wb => {
     const sheets = [];
     let maxLength = 0;
+    let maxCols = 26;
     wb.SheetNames.forEach(name => {
         const sheet = { name, rows: {} };
         const ws = wb.Sheets[name];
         const rows = XLSX.utils.sheet_to_json(ws, { raw: false, header: 1 });
         if (maxLength < rows.length) maxLength = rows.length
         sheet.rows = rows.reduce((map, row, i) => {
-            map[i] = {
-                cells: row.reduce((colMap, column, j) => {
-                    colMap[j] = { text: column }
-                    return colMap
-                }, {})
+            const cells = row.reduce((colMap, column, j) => {
+                colMap[j] = { text: column }
+                return colMap
+            }, {});
+            map[i] = { cells }
+            const colLen = Object.keys(cells).length;
+            if (colLen > maxCols) {
+                maxCols = colLen;
             }
             return map
         }, {})
         sheets.push(sheet);
     });
-    return { sheets, maxLength };
+    return { sheets, maxLength, maxCols };
 };
 
 function open(buffer, ext) {
     (async () => {
         const ab = new Uint8Array(buffer).buffer
         const wb = ext.toLowerCase() == ".csv" ? XLSX.read(new TextDecoder("utf-8").decode(ab), { type: "string", raw: true }) : XLSX.read(ab, { type: "array" });
-        var { sheets, maxLength } = convert(wb);
+        var { sheets, maxLength, maxCols } = convert(wb);
         window.s = x_spreadsheet("#xspreadsheet", {
             row: {
                 len: maxLength + 50,
                 height: 30,
+            },
+            col: {
+                len: maxCols,
             },
             style: {
                 align: 'center'
@@ -76,7 +83,7 @@ function xtos(sdata) {
 
 function export_xlsx() {
     const extName = fileName.split('.').pop().toLowerCase();
-    if (extName == 'xlsx' || extName == 'xls' || extName == 'ods' ) {
+    if (extName == 'xlsx' || extName == 'xls' || extName == 'ods') {
         var new_wb = xtos(s.getData());
         var buffer = XLSX.write(new_wb, { bookType: extName, type: "array" });
         const array = [...new Uint8Array(buffer)];
