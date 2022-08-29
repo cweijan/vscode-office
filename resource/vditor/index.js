@@ -94,7 +94,12 @@ body[data-vscode-theme-kind="vscode-dark"] .vditor-content hr{
 
 
 .vditor-content code:not(.hljs) {
-  background-color: #2E2E2E !important;
+  background-color: var(--vscode-tab-activeBackground) !important;
+}
+
+
+.vditor-content .vditor-wysiwyg__preview>code{
+  background-color: var(--vscode-editor-background) !important;
 }
 
 .vditor-content,
