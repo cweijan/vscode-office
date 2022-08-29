@@ -97,6 +97,9 @@ body[data-vscode-theme-kind="vscode-dark"] .vditor-content hr{
   background-color: var(--vscode-tab-activeBackground) !important;
 }
 
+body[data-vscode-theme-kind="vscode-dark"] .vditor-content .vditor-wysiwyg__pre>code{
+  background-color: #2E2E2E !important;
+}
 
 .vditor-content .vditor-wysiwyg__preview>code{
   background-color: var(--vscode-editor-background) !important;
