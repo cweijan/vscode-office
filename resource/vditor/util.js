@@ -160,6 +160,11 @@ export function onToolbarClick(editor) {
 }
 
 export const createContextMenu = (editor) => {
+    document.addEventListener("mousedown", e => {
+        if (!e.target?.classList?.contains('dropdown-item')) {
+            $("#context-menu").removeClass("show").hide();
+        }
+    });
     $('body').on('contextmenu', (e) => {
         e.stopPropagation();
         var top = e.pageY - 10;
