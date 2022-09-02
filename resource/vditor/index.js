@@ -98,6 +98,10 @@ body[data-vscode-theme-kind="vscode-dark"] .vditor-content hr{
 }
 
 body[data-vscode-theme-kind="vscode-dark"] .vditor-content .vditor-wysiwyg__pre>code{
+  background-color: #313131 !important;
+}
+
+body[data-vscode-theme-kind="vscode-dark"] .vditor-content .vditor-wysiwyg__preview>code.hljs{
   background-color: #2E2E2E !important;
 }
 
