@@ -278,6 +278,6 @@ export const autoSymbal = (editor) => {
     window.onfocus = () => {
         setTimeout(() => {
             document.querySelector('.vditor-reset').focus()
-        }, 10)
+        }, 100)
     }
 }
