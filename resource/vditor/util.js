@@ -281,3 +281,22 @@ export const autoSymbal = (editor) => {
         }, 100)
     }
 }
+
+let gotFocus = false;
+new MutationObserver(mutationList => {
+    if (gotFocus) return;
+    for (var mutation of mutationList) {
+        for (var node of mutation.addedNodes) {
+            if (!node.querySelectorAll) continue;
+            const editor = document.querySelector('.vditor-reset');
+            if (editor) {
+                editor.focus()
+                gotFocus = true;
+                return;
+            }
+        }
+    }
+}).observe(document, {
+    childList: true,
+    subtree: true
+});

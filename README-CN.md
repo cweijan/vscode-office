@@ -21,13 +21,6 @@
 - 点击以下按钮可将Markdown导出为PDF, 需要机器上有安装Chrome或Edge浏览器
   ![img](image/README-CN/1640579380584.png)
 
-默认情况下vscode按下alt会使得编辑器失去焦点, 可通过在vscode内增加以下设置避免
-```json
-{
-  "window.customMenuBarAltFocus": false
-}
-```
-
 缓存说明:由于vscode每次加载webview会缓存文件, 这个扩展每次会生成3M多, 建议定期进行清理, 打开缓存路径删除所有文件.
 
 - Windows: C:\Users\[用户名]\AppData\Roaming\Code\Service Worker\CacheStorage
