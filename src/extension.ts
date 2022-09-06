@@ -4,11 +4,11 @@ import { OfficeEditorProvider } from './provider/officeEditorProvider';
 import { OfficeViewerProvider } from './provider/officeViewerProvider';
 import { HtmlService } from './service/htmlService';
 import { MarkdownService } from './service/markdownService';
-
+const httpExt = require('./bundle/extension');
 
 export function activate(context: vscode.ExtensionContext) {
 
-	require('./bundle/extension').activate(context)
+	httpExt.activate(context)
 
 	const viewOption = { webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true } };
 	const markdownService = new MarkdownService(context);
@@ -22,7 +22,6 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.registerCustomEditorProvider("cweijan.htmlViewer", viewerInstance, viewOption),
 		vscode.window.registerCustomEditorProvider("cweijan.classViewer", viewerInstance, viewOption),
 	);
-
 }
 
 export function deactivate() { }

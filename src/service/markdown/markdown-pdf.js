@@ -1,8 +1,19 @@
 const fs = require("fs")
 const os = require("os")
+const puppeteer = require("puppeteer-core")
 const path = require("path")
+const cheerio = require("cheerio")
 const url = require("url")
 const URI = require("vscode").Uri
+const hljs = require("highlight.js")
+const markdownIt = require("markdown-it")
+const mustache = require("mustache")
+const markdownItCheckbox = require("markdown-it-checkbox")
+const markdownItKatex = require("markdown-it-katex")
+const markdownItPlantuml = require("markdown-it-plantuml")
+const markdownItHeaders = require("markdown-it-named-headers")
+const markdownItToc = require("markdown-it-toc-done-right")
+const markdownItAnchor = require("markdown-it-anchor")
 const { exportByType } = require('./html-export')
 
 async function convertMarkdown(inputMarkdownFile, config) {
@@ -34,9 +45,8 @@ function convertMarkdownToHtml(filename, type, text, config) {
   try {
     try {
       console.log("[pretty-md-pdf] Converting (convertMarkdownToHtml) ...")
-      let hljs = require("highlight.js")
       let breaks = config["breaks"]
-      md = require("markdown-it")({
+      md = markdownIt({
         html: true,
         breaks: breaks,
         highlight: function (str, lang) {
@@ -59,7 +69,6 @@ function convertMarkdownToHtml(filename, type, text, config) {
     }
 
     // convert the img src of the markdown
-    let cheerio = require("cheerio")
     let defaultRender = md.renderer.rules.image
     md.renderer.rules.image = function (tokens, idx, options, env, self) {
       let token = tokens[idx]
@@ -90,12 +99,12 @@ function convertMarkdownToHtml(filename, type, text, config) {
       }
     }
 
-    md.use(require("markdown-it-checkbox"))
-      .use(require("markdown-it-katex"))
-      .use(require("markdown-it-plantuml"))
-      .use(require("markdown-it-named-headers"))
-      .use(require("markdown-it-toc-done-right").default)
-      .use(require("markdown-it-anchor").default)
+    md.use(markdownItCheckbox)
+      .use(markdownItKatex)
+      .use(markdownItPlantuml)
+      .use(markdownItHeaders)
+      .use(markdownItToc)
+      .use(markdownItAnchor)
 
     return md.render(text)
 
@@ -122,7 +131,7 @@ function mergeHtml(data, uri, config) {
     let template = readFile(filename)
 
     // compile template
-    let mustache = require("mustache")
+
 
     let view = {
       title: title,
@@ -339,7 +348,6 @@ function checkPuppeteerBinary(config) {
     }
 
     // bundled Chromium
-    const puppeteer = require("puppeteer-core")
     executablePath = puppeteer.executablePath()
     if (isExistsPath(executablePath)) {
       return true
@@ -362,7 +370,6 @@ async function installChromium(config) {
     // proxy setting
     setProxy(config)
 
-    const puppeteer = require("puppeteer-core")
     const puppeteerMetadata = require(path.join(__dirname, "node_modules", "puppeteer", "package.json"))
 
     let revision = puppeteerMetadata.puppeteer.chromium_revision

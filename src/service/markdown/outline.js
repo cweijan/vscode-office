@@ -1,10 +1,11 @@
 const { PDFDocument, PDFDict, PDFHexString, PDFNumber, PDFName } = require("pdf-lib");
+const cheerio=require("cheerio");
 
 export const createOutline = async (pdf, html) => {
 
     const pdfDoc = await PDFDocument.load(pdf)
 
-    const $ = require("cheerio").load(html)
+    const $ = cheerio.load(html)
 
     const array = $('.table-of-contents>ol>li');
     if (array.length > 0) {

@@ -1,13 +1,12 @@
-import { convertMd } from "./markdown/markdown-pdf";
+import { Output } from "@/common/Output";
 import { spawn } from 'child_process';
+import chromeFinder from 'chrome-finder';
 import { copyFileSync, existsSync, lstatSync, mkdirSync } from 'fs';
 import { homedir } from 'os';
-import { basename, isAbsolute, join, parse, resolve } from 'path';
+import path, { isAbsolute, join, parse, resolve } from 'path';
 import * as vscode from 'vscode';
 import { Holder } from './markdown/holder';
-import path = require('path');
-import { DomUtils } from "htmlparser2";
-import { Output } from "@/common/Output";
+import { convertMd } from "./markdown/markdown-pdf";
 
 export class MarkdownService {
 
@@ -78,7 +77,7 @@ export class MarkdownService {
             }
         }
         try {
-            const chromePath = require('chrome-finder')();
+            const chromePath = chromeFinder();
             console.debug(`using chrome path is ${chromePath}`)
             return chromePath;
         } catch (e) {
@@ -121,7 +120,7 @@ export class MarkdownService {
                     }
                 }
                 const editor = vscode.window.activeTextEditor;
-                const imgName=parse(rePath).name;
+                const imgName = parse(rePath).name;
                 if (editor) {
                     editor?.edit(edit => {
                         let current = editor.selection;

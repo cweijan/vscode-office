@@ -8,7 +8,7 @@ import { Output } from '../common/Output';
 import { Util } from '../common/util';
 import { tmpdir } from 'os';
 import { workspace } from 'vscode';
-const mammoth = require("mammoth");
+import mammoth from "mammoth";
 
 /**
  * support view office files
@@ -100,8 +100,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                             .replace("$autoTheme", workspace.getConfiguration("vscode-office").get<boolean>("autoTheme") + '')
                         , webview, this.extensionPath + "/resource"
                     )
-            })
-            .done();
+            });
     }
 
     private async handleClass(uri: vscode.Uri, panel: vscode.WebviewPanel) {

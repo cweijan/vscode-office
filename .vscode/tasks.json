@@ -4,15 +4,12 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-            "label": "webpack-dev",
+            "label": "dev",
             "type": "npm",
             "script": "dev",
-            "isBackground": true,
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "problemMatcher": [
+            "group": "build",
+			"isBackground": true,
+			"problemMatcher": [
                 {
                     "pattern": [
                         {
@@ -25,10 +22,10 @@
                     "background": {
                         "activeOnStart": true,
                         "beginsPattern": {
-                            "regexp": "webpack is watching the files"
+                            "regexp": "build start"
                         },
                         "endsPattern": {
-                            "regexp": "compiled successfully"
+                            "regexp": "build success"
                         }
                     }
                 }
