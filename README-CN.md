@@ -26,6 +26,17 @@
 - Windows: C:\Users\[用户名]\AppData\Roaming\Code\Service Worker\CacheStorage
 - 其他系统: %appdata%\Roaming\Code\Service Worker\CacheStorage.
 
+## 贡献指南
+
+由于是开源软件,  有其他人的参与才能让这个扩展变得更好, 开发流程:
+
+1. fork并clone这个项目
+2. 安装依赖: 在终端内进入项目目录, 输入npm i
+3. vscode打开项目, 在扩展面板点击运行按钮即可运行扩展
+4. 开发完成后提交pull request到这个仓库
+
+![1663224731812](imag22e/README-CN/1663224731812.png)
+
 ## 其他功能
 
 - 文件主题: 内置了Material Icon Theme部分icon
