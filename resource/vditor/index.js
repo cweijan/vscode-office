@@ -68,7 +68,7 @@ handler.on("open", (md) => {
 
 function addAutoTheme(){
   const css=`
-* {
+*:not(.katex,.katex *){
   border-color: var(--vscode-quickInputTitle-background) !important;
 }
 
@@ -119,7 +119,7 @@ body[data-vscode-theme-kind="vscode-dark"] .vditor-content .vditor-wysiwyg__prev
 }
 
 .vditor-content,
-.vditor-content *:not(.hljs, .hljs *, a) {
+.vditor-content *:not(.hljs, .hljs *,.katex,.katex *, a) {
   background-color: var(--vscode-editor-background) !important;
   color: var(--vscode-editor-foreground) !important;
 }
