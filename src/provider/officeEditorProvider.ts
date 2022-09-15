@@ -102,7 +102,7 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             }
         }).on("img", (img) => {
             let rePath = vscode.workspace.getConfiguration("vscode-office").get<string>("pasterImgPath");
-            rePath = rePath.replace("${fileName}", parse(uri.fsPath).name).replace("${now}", new Date().getTime() + "")
+            rePath = rePath.replace("${fileName}", parse(uri.fsPath).name.replace(/\s/g,'')).replace("${now}", new Date().getTime() + "")
             const imagePath = isAbsolute(rePath) ? rePath : `${resolve(uri.fsPath, "..")}/${rePath}`.replace(/\\/g, "/");
             const dir = dirname(imagePath)
             if (!existsSync(dir)) {
