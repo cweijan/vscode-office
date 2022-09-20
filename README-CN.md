@@ -21,11 +21,6 @@
 - 点击以下按钮可将Markdown导出为PDF, 需要机器上有安装Chrome或Edge浏览器
   ![img](image/README-CN/1640579380584.png)
 
-缓存说明:由于vscode每次加载webview会缓存文件, 这个扩展每次会生成3M多, 建议定期进行清理, 打开缓存路径删除所有文件.
-
-- Windows: C:\Users\[用户名]\AppData\Roaming\Code\Service Worker\CacheStorage
-- 其他系统: %appdata%\Roaming\Code\Service Worker\CacheStorage.
-
 ## 贡献指南
 
 由于是开源软件,  有其他人的参与才能让这个扩展变得更好, 开发流程:
@@ -43,3 +38,4 @@
 - Excel: 支持对xlsx, csv等excel文件进行预览和保存(注意xlsx保存会丢失格式, csv则不支持gbk中文)
 - html: 编辑HTML的过程中按下ctrl+shift+v可实时预览.
 - Pdf: 支持直接预览pdf文件
+- 自动清理缓存: vscode每次加载markdown编辑器时，会缓存其webview相关文件（3M多）。为了避免无限膨胀，本扩展在激活时会自动清空vscode的对应缓存文件夹。
