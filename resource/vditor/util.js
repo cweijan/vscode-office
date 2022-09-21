@@ -185,7 +185,7 @@ export const createContextMenu = (editor) => {
                 document.execCommand("copy")
                 break;
             case "paste":
-                // document.execCommand("paste")
+                if (document.getSelection()?.toString()) { document.execCommand("delete") }
                 vscodeEvent.emit('command', 'office.markdown.paste')
                 break;
             case "exportPdf":
@@ -244,18 +244,19 @@ export const autoSymbal = (editor) => {
             return _exec(cmd, ...args)
         }
     }
-    window.onkeypress = (e) => {
+    window.onkeydown = (e) => {
         if (e.ctrlKey && e.code == "KeyV" && !e.shiftKey) {
+            if (document.getSelection()?.toString()) { document.execCommand("delete") }
             vscodeEvent.emit('command', 'office.markdown.paste')
             e.stopPropagation()
             return;
         }
-        // 旧版本是让vscode触发, 但现在触发不了了
-        if (e.ctrlKey && e.code == "KeyS" && !e.shiftKey) {
-            vscodeEvent.emit("doSave", editor.getValue())
-            e.stopPropagation()
-            return;
-        }
+        // 之前某个vscode版本有bug保存不了, 所以在这里触发, 不过现在不会了
+        // if (e.ctrlKey && e.code == "KeyS" && !e.shiftKey) {
+        //     vscodeEvent.emit("doSave", editor.getValue())
+        //     e.stopPropagation()
+        //     return;
+        // }
         if (keys.indexOf(e.key) == -1) {
             return;
         }
