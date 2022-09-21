@@ -2,7 +2,7 @@
 	"name": "vscode-office",
 	"displayName": "Office Viewer(Markdown Editor)",
 	"description": "View word,excel files and using WYSIWYG editor for markdown.",
-	"version": "2.7.2",
+	"version": "2.7.3",
 	"publisher": "cweijan",
 	"icon": "images/icon.png",
 	"engines": {
@@ -32,6 +32,13 @@
 		"onStartupFinished"
 	],
 	"main": "./out/extension.js",
+	"contributors": [
+		{
+      "name": "GrandSong",
+      "email": "grandsong@163.com",
+      "url": "https://github.com/grandsong"
+    }
+	],
 	"contributes": {
 		"themes": [
 			{
@@ -459,7 +466,7 @@
 		"vscode:prepublish": "npm run build"
 	},
 	"devDependencies": {
-		"@types/node": "^13.11.0",
+		"@types/node": "16.11.7",
 		"@types/node-fetch": "^2.5.7",
 		"@types/vscode": "^1.60.0",
 		"esbuild": "^0.14.54",

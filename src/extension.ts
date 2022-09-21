@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { autoClearCacheStorage } from './service/autoClearCacheStorage';
 import { JavaDecompilerProvider } from './provider/javaDecompilerProvider';
 import { OfficeEditorProvider } from './provider/officeEditorProvider';
 import { OfficeViewerProvider } from './provider/officeViewerProvider';
@@ -7,6 +8,7 @@ import { MarkdownService } from './service/markdownService';
 const httpExt = require('./bundle/extension');
 
 export function activate(context: vscode.ExtensionContext) {
+	autoClearCacheStorage() // 清空webview缓存文档
 
 	httpExt.activate(context)
 
