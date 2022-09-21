@@ -8,9 +8,9 @@ import { MarkdownService } from './service/markdownService';
 const httpExt = require('./bundle/extension');
 
 export function activate(context: vscode.ExtensionContext) {
-	autoClearCacheStorage() // 清空webview缓存文档
-
+	
 	httpExt.activate(context)
+	autoClearCacheStorage() // 清空webview缓存文档
 
 	const viewOption = { webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true } };
 	const markdownService = new MarkdownService(context);

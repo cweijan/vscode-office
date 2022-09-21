@@ -6,15 +6,15 @@
 %appdata%\Roaming\Code\Service Worker\CacheStorage
 而 %appdata% 在 Windows 里，是 C:\Users\你的用户名\AppData
 */
-
 import LocalFile from "../common/LocalFile"
+const home_dir = require('os').homedir()
 
 export function autoClearCacheStorage() {
-	const home_dir = require('os').homedir()
-	// console.log('home_dir', home_dir)
-	const cache_dir = LocalFile.join(
-		home_dir,
-		'AppData/Roaming/Code/Service Worker/CacheStorage'
-	)
-	cache_dir.clear()
+	try {
+		// console.log('home_dir', home_dir)
+		const cache_dir = LocalFile.join( home_dir, 'AppData/Roaming/Code/Service Worker/CacheStorage' )
+		cache_dir.clear()
+	} catch (error) {
+		console.log(error)
+	}
 }
