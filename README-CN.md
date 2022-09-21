@@ -2,7 +2,7 @@
 
 ## 介绍
 
-该扩展在vscode内集成[Vditor](https://github.com/Vanessa219/vditor), 实现了对markdown的所见即所得编辑, 相比typora的特性:
+该扩展在vscode内集成[Vditor](https://github.com/Vanessa219/vditor)(针对VSCode做了些[兼容性改动](https://github.com/vscode-ext-studio/vditor)), 实现了对markdown的所见即所得编辑, 相比typora的特性:
 
 - 开源免费无广告无隐私追踪 (如果对你有帮助考虑点下star(●'◡'●))
 - 在最新版本中优化了vscode主题支持, 现在颜色默认跟随vscode主题
@@ -10,7 +10,7 @@
 - 支持多窗口打开markdown (typora只支持mac)
 - 相比typora的缺点: 对代码块, latex公式和图形支持度不高.
 
-扩展名字叫做Office Viewer是因为一开始是为了增强VSCode的预览功能, 增加了Excel, svg, pdf等的支持, 后来才增加了markdown的编辑器, 同时为了减少我安装的vscode扩展数量, 集成了一个文件主题和颜色主题.
+扩展名字叫做Office Viewer是因为一开始是为了增强VSCode的预览功能, 增加了Excel, svg, pdf等的支持, 后来才增加markdown编辑器, 同时为了精简本人安装的扩展, 集成了一个文件主题和颜色主题.
 
 使用说明:
 
