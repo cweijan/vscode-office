@@ -7,11 +7,7 @@ export class Util {
     }
 
     public static listen(webviewPanel: vscode.WebviewPanel, uri: vscode.Uri, callback: () => void, disposeCallback?: () => void) {
-        const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
-            if (e.document.uri.toString() === uri.toString()) {
-                callback()
-            }
-        });
+        const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(callback);
         webviewPanel.onDidDispose(() => {
             changeDocumentSubscription.dispose()
         });

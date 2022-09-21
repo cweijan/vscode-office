@@ -9,6 +9,9 @@
 import LocalFile from "../common/LocalFile"
 const home_dir = require('os').homedir()
 
+/**
+ * 清空vscode webview缓存
+ */
 export function autoClearCacheStorage() {
 	try {
 		// console.log('home_dir', home_dir)
