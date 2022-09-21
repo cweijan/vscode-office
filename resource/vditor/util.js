@@ -247,7 +247,7 @@ export const autoSymbal = (editor) => {
     window.onkeydown = (e) => {
         if (e.ctrlKey && e.code == "KeyV" && !e.shiftKey) {
             if (document.getSelection()?.toString()) { document.execCommand("delete") }
-            vscodeEvent.emit('command', 'office.markdown.paste')
+            // vscodeEvent.emit('command', 'office.markdown.paste')
             e.stopPropagation()
             return;
         }

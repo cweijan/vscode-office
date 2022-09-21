@@ -1,12 +1,13 @@
 import { Output } from "@/common/Output";
 import { spawn } from 'child_process';
 import chromeFinder from 'chrome-finder';
-import { copyFileSync, existsSync, lstatSync, mkdirSync } from 'fs';
+import { copyFileSync, existsSync, lstatSync, mkdirSync, renameSync } from 'fs';
 import { homedir } from 'os';
-import path, { isAbsolute, join, parse, resolve } from 'path';
+import path, { dirname, extname, isAbsolute, join, parse, resolve } from 'path';
 import * as vscode from 'vscode';
 import { Holder } from './markdown/holder';
 import { convertMd } from "./markdown/markdown-pdf";
+import { fileTypeFromFile } from 'file-type';
 
 export class MarkdownService {
 
@@ -87,58 +88,72 @@ export class MarkdownService {
     }
 
     public async loadClipboardImage() {
-        const document = vscode.window.activeTextEditor?.document || Holder.activeDocument
 
-        if (await vscode.env.clipboard.readText() == "") {
-            if (!document || document.isUntitled || document.isClosed) {
-                return
-            }
-            const uri: vscode.Uri = document.uri;
-            let rePath = vscode.workspace.getConfiguration("vscode-office").get<string>("pasterImgPath");
-            rePath = rePath.replace("${fileName}", parse(uri.fsPath).name.replace(/\s/g,'')).replace("${now}", new Date().getTime() + "")
-            const imagePath = isAbsolute(rePath) ? rePath : `${resolve(uri.fsPath, "..")}/${rePath}`.replace(/\\/g, "/");
-            const dir = path.dirname(imagePath)
-            if (!existsSync(dir)) {
-                mkdirSync(dir, { recursive: true })
-            }
-            this.saveClipboardImageToFileAndGetPath(imagePath, (savedImagePath) => {
-                if (!savedImagePath) return;
-                if (savedImagePath === 'no image') {
-                    vscode.window.showErrorMessage('There is not an image in the clipboard.');
-                    return;
-                }
-                if (savedImagePath.startsWith("copyed:")) {
-                    const copyedFile = savedImagePath.replace("copyed:", "");
-                    if (!existsSync(copyedFile)) {
-                        vscode.window.showErrorMessage(`Coped file ${copyedFile} not found!`);
-                        return;
-                    }
-                    if (lstatSync(copyedFile).isDirectory()) {
-                        vscode.window.showErrorMessage('Not support paster directory.');
-                    } else {
-                        copyFileSync(copyedFile, imagePath)
-                    }
-                }
-                const editor = vscode.window.activeTextEditor;
-                const imgName = parse(rePath).name;
-                if (editor) {
-                    editor?.edit(edit => {
-                        let current = editor.selection;
-                        if (current.isEmpty) {
-                            edit.insert(current.start, `![${imgName}](${rePath})`);
-                        } else {
-                            edit.replace(current, `![${imgName}](${rePath})`);
-                        }
-                    });
-                } else {
-                    vscode.env.clipboard.writeText(`![${imgName}](${rePath})`)
-                    vscode.commands.executeCommand("editor.action.clipboardPasteAction")
-                }
-            })
-        } else {
+        const document = vscode.window.activeTextEditor?.document || Holder.activeDocument
+        if (await vscode.env.clipboard.readText()) {
             vscode.commands.executeCommand("editor.action.clipboardPasteAction")
+            return
         }
 
+        if (!document || document.isUntitled || document.isClosed) {
+            return
+        }
+
+        const uri: vscode.Uri = document.uri;
+        let relPath = vscode.workspace.getConfiguration("vscode-office").get<string>("pasterImgPath");
+        relPath = relPath.replace("${fileName}", parse(uri.fsPath).name.replace(/\s/g, '')).replace("${now}", new Date().getTime() + "")
+        const absolutePath = isAbsolute(relPath) ? relPath : `${dirname(uri.fsPath)}/${relPath}`.replace(/\\/g, "/");
+        this.createImgDir(absolutePath);
+        this.saveClipboardImageToFileAndGetPath(absolutePath, async (savedImagePath) => {
+            if (!savedImagePath) return;
+            if (savedImagePath === 'no image') {
+                vscode.window.showErrorMessage('There is not an image in the clipboard.');
+                return;
+            }
+            this.copyFromPath(savedImagePath, absolutePath);
+            const editor = vscode.window.activeTextEditor;
+            const imgName = parse(relPath).name;
+            const oldExt = extname(absolutePath)
+            const { ext = "png" } = (await fileTypeFromFile(absolutePath)) ?? {};
+            if (oldExt != `.${ext}`) {
+                relPath = relPath.replace(oldExt, `.${ext}`)
+                renameSync(absolutePath, absolutePath.replace(oldExt, `.${ext}`))
+            }
+            if (editor) {
+                editor?.edit(edit => {
+                    let current = editor.selection;
+                    if (current.isEmpty) {
+                        edit.insert(current.start, `![${imgName}](${relPath})`);
+                    } else {
+                        edit.replace(current, `![${imgName}](${relPath})`);
+                    }
+                });
+            } else {
+                vscode.env.clipboard.writeText(`![${imgName}](${relPath})`)
+                vscode.commands.executeCommand("editor.action.clipboardPasteAction")
+            }
+        })
+    }
+
+    /**
+     * 如果粘贴板内是复制了一个文件, 取得路径进行复制
+     */
+    private copyFromPath(savedImagePath: string, targetPath: string) {
+        if (savedImagePath.startsWith("copyed:")) {
+            const copyedFile = savedImagePath.replace("copyed:", "");
+            if (lstatSync(copyedFile).isDirectory()) {
+                vscode.window.showErrorMessage('Not support paste directory.');
+            } else {
+                copyFileSync(copyedFile, targetPath);
+            }
+        }
+    }
+
+    private createImgDir(imagePath: string) {
+        const dir = path.dirname(imagePath);
+        if (!existsSync(dir)) {
+            mkdirSync(dir, { recursive: true });
+        }
     }
 
     private saveClipboardImageToFileAndGetPath(imagePath: string, cb: (value: string) => void) {
