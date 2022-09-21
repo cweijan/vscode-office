@@ -34,10 +34,10 @@
 	"main": "./out/extension.js",
 	"contributors": [
 		{
-      "name": "GrandSong",
-      "email": "grandsong@163.com",
-      "url": "https://github.com/grandsong"
-    }
+			"name": "GrandSong",
+			"email": "grandsong@163.com",
+			"url": "https://github.com/grandsong"
+		}
 	],
 	"contributes": {
 		"themes": [
@@ -466,7 +466,7 @@
 		"vscode:prepublish": "npm run build"
 	},
 	"devDependencies": {
-		"@types/node": "16.11.7",
+		"@types/node": "^17.0.23",
 		"@types/node-fetch": "^2.5.7",
 		"@types/vscode": "^1.60.0",
 		"esbuild": "^0.14.54",
