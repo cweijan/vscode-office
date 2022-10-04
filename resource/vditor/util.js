@@ -276,10 +276,21 @@ export const autoSymbal = (editor) => {
     window.onresize = () => {
         document.getElementById('vditor').style.height = `${document.documentElement.clientHeight}px`
     }
+    let app;
+    let needFocus = false;
+    window.onblur = () => {
+        if (!app) { app = document.querySelector('.vditor-reset'); }
+        const curPosition = document.getSelection()?.baseNode?.parentNode?.offsetTop ?? 0;
+        const appPosition = app.scrollTop ?? 0;
+        if (appPosition - curPosition < window.innerHeight) {
+            needFocus = true;
+        }
+    }
     window.onfocus = () => {
-        setTimeout(() => {
-            document.querySelector('.vditor-reset').focus()
-        }, 100)
+        if (!app) { app = document.querySelector('.vditor-reset'); }
+        if (needFocus) {
+            app.focus()
+        }
     }
 }
 
