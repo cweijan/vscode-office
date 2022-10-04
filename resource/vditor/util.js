@@ -287,8 +287,16 @@ export const autoSymbal = (editor) => {
     let needFocus = false;
     window.onblur = () => {
         if (!app) { app = document.querySelector('.vditor-reset'); }
-        const curPosition = document.getSelection()?.baseNode?.parentNode?.offsetTop ?? 0;
-        const appPosition = app.scrollTop ?? 0;
+        // 纯文本没有offsetTop, 所以需要拿父节点
+        const targetNode = document.getSelection()?.baseNode?.parentNode;
+        // 如果编辑器现在没有获得焦点, 则无需重获焦点
+        if (!app?.contains(targetNode)) {
+            needFocus = false;
+            return;
+        }
+        // 判断是否需要聚焦
+        const curPosition = targetNode?.offsetTop ?? 0;
+        const appPosition = app?.scrollTop ?? 0;
         if (appPosition - curPosition < window.innerHeight) {
             needFocus = true;
         }
@@ -297,25 +305,7 @@ export const autoSymbal = (editor) => {
         if (!app) { app = document.querySelector('.vditor-reset'); }
         if (needFocus) {
             app.focus()
+            needFocus = false;
         }
     }
 }
-
-let gotFocus = false;
-new MutationObserver(mutationList => {
-    if (gotFocus) return;
-    for (var mutation of mutationList) {
-        for (var node of mutation.addedNodes) {
-            if (!node.querySelectorAll) continue;
-            const editor = document.querySelector('.vditor-reset');
-            if (editor) {
-                editor.focus()
-                gotFocus = true;
-                return;
-            }
-        }
-    }
-}).observe(document, {
-    childList: true,
-    subtree: true
-});
