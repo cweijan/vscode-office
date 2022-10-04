@@ -245,8 +245,15 @@ export const autoSymbal = (editor) => {
         }
     }
     window.onkeydown = (e) => {
-        if (e.ctrlKey && e.code == "KeyV" && !e.shiftKey) {
-            if (document.getSelection()?.toString()) { document.execCommand("delete") }
+        if (e.ctrlKey && e.code == "KeyV") {
+            if (e.shiftKey) {
+                navigator.clipboard.readText().then(text => {
+                    if (!text) return;
+                    document.execCommand('insertText', false, text.trim());
+                })
+            } else {
+                if (document.getSelection()?.toString()) { document.execCommand("delete") }
+            }
             // vscodeEvent.emit('command', 'office.markdown.paste')
             e.stopPropagation()
             return;
