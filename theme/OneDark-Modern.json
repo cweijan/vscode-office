@@ -136,6 +136,15 @@
       }
     },
     {
+      "name": "comments",
+      "scope": [
+        "beginning.punctuation.definition.list.markdown.xi"
+      ],
+      "settings": {
+        "foreground": "#7f848e"
+      }
+    },
+    {
       "name": "Comments",
       "scope": "comment, punctuation.definition.comment",
       "settings": {
