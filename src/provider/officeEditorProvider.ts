@@ -133,10 +133,11 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             config.update("openOutline", enable, true)
         })
 
+        const baseUrl = webview.asWebviewUri(folderPath).toString().replace(/\?.+$/, '').replace('https://git', 'https://file');
         webview.html = Util.buildPath(
             readFileSync(`${this.extensionPath}/resource/vditor/index.html`, 'utf8')
                 .replace("{{rootPath}}", rootPath)
-                .replace("{{baseUrl}}", webview.asWebviewUri(folderPath).toString()),
+                .replace("{{baseUrl}}", baseUrl),
             webview, contextPath);
     }
 
