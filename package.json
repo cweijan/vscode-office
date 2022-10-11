@@ -32,13 +32,6 @@
 		"onStartupFinished"
 	],
 	"main": "./out/extension.js",
-	"contributors": [
-		{
-			"name": "GrandSong",
-			"email": "grandsong@163.com",
-			"url": "https://github.com/grandsong"
-		}
-	],
 	"contributes": {
 		"themes": [
 			{
