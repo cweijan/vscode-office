@@ -160,26 +160,26 @@ export function onToolbarClick(editor) {
 }
 
 export const createContextMenu = (editor) => {
+    const menu = document.getElementById('context-menu')
     document.addEventListener("mousedown", e => {
         if (!e.target?.classList?.contains('dropdown-item')) {
-            $("#context-menu").removeClass("show").hide();
+            menu.classList.remove('show')
+            menu.style.display = 'none'
         }
     });
-    $('body').on('contextmenu', (e) => {
+    document.oncontextmenu = e => {
         e.stopPropagation();
         var top = e.pageY - 10;
         var left = e.pageX - 90;
-        $("#context-menu").css({
-            display: "block",
-            top: top,
-            left: left
-        }).addClass("show");
-    }).on("click", (e) => {
-        $("#context-menu").removeClass("show").hide();
-        let id = e.target.id;
-        if (!e.target.id) {
-            return;
-        }
+        menu.style.display = 'block'
+        menu.style.top = top + "px";
+        menu.style.left = left + "px";
+        menu.classList.add('show')
+    }
+    menu.onclick = e => {
+        menu.style.display = 'none'
+        menu.classList.remove('show')
+        const id = e.target.getAttribute("id");
         switch (id) {
             case "copy":
                 document.execCommand("copy")
@@ -197,11 +197,7 @@ export const createContextMenu = (editor) => {
                 vscodeEvent.emit('exportPdfToHtml')
                 break;
         }
-    });
-
-    $("#context-menu a").on("click", function () {
-        $(this).parent().removeClass("show").hide();
-    });
+    }
 }
 
 export const imageParser = (viewAbsoluteLocal) => {

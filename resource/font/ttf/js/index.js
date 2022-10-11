@@ -23,7 +23,8 @@ function cellSelect(event) {
     }
 }
 
-$(document).ready(function () {
+onload = () => {
+
     fontFamily = document.getElementById('font-family');
     // fileButton = document.getElementById('file');
     // fileButton.addEventListener('change', onReadFile, false);
@@ -74,8 +75,7 @@ $(document).ready(function () {
     //     // Echo filename in span
     //     span[0].innerHTML = this.files[0].name;
     // };
-
-});
+}
 
 /**
  * This function is Path.prototype.draw with an arrow
