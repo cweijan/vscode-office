@@ -1239,15 +1239,22 @@
     Plugin.prototype.mousewheel = function() {
         var _this = this;
         _this.$outer.on('mousewheel.lg', function(e) {
-
             if (!e.deltaY) {
                 return;
             }
 
             if (e.deltaY > 0) {
-                _this.goToPrevSlide();
+                if(e.ctrlKey){
+                    _this.callScale(_this.s.scale)
+                }else{
+                    _this.goToPrevSlide();
+                }
             } else {
-                _this.goToNextSlide();
+                if(e.ctrlKey){
+                    _this.callScale(-_this.s.scale)
+                }else{
+                    _this.goToNextSlide();
+                }
             }
 
             e.preventDefault();

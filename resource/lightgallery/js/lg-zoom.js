@@ -134,7 +134,10 @@
             }
         };
 
-        var callScale = function() {
+        var callScale = function(reduceScale) {
+            if(reduceScale){
+                scale+=reduceScale
+            }
             // if (scale > 1) {
                 _this.core.$outer.addClass('lg-zoomed');
             // } else {
@@ -147,6 +150,7 @@
 
             zoom(scale);
         };
+        _this.core.callScale=callScale;
 
         var actualSize = function(event, $image, index, fromIcon) {
             var w = $image.prop('offsetWidth');
