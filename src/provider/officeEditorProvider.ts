@@ -89,6 +89,7 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         }).on("externalUpdate", e => {
             const updatedText = e.document.getText()?.replace(/\r/g, '');
             if (content == updatedText) return;
+            content = updatedText;
             handler.emit("update", updatedText)
         }).on("command", (command) => {
             vscode.commands.executeCommand(command)
