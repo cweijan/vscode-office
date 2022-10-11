@@ -53,7 +53,7 @@ vscodeEvent.on("open", ({ file, path, ext }) => {
     fetch(path).then(response => response.arrayBuffer()).then(res => { open(res, ext) })
     console.log(path)
 }).on("saveDone", () => {
-    toastr.success('Save Success!')
+    notie.alert({ type: 1, text: 'Save Success!'}) 
 })
 
 function dataToSheet(xws) {
@@ -95,7 +95,7 @@ function export_xlsx() {
     }
 };
 
-window.onkeypress = e => {
+window.onkeydown = e => {
     if (e.ctrlKey && e.code == "KeyS") {
         export_xlsx()
     }
