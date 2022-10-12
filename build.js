@@ -15,6 +15,10 @@ build({
     minify: isProd,
     watch: !isProd,
     sourcemap: !isProd,
+    logOverride: {
+        'duplicate-object-key': "silent",
+        'suspicious-boolean-not': "silent",
+    },
     plugins: [
         // 复制生成pdf的静态文件
         copy({
