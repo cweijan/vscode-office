@@ -116,7 +116,6 @@ export const openLink = () => {
         if (!e.ctrlKey && event.type != 'dblclick') {
             return;
         }
-        console.log(ele.src)
         if (ele.tagName == 'A') {
             handler.emit("openLink", ele.href)
         } else if (ele.tagName == 'IMG') {
