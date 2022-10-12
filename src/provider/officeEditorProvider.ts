@@ -129,6 +129,8 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         }).on("exportPdfToHtml", () => {
             vscode.commands.executeCommand('workbench.action.files.save');
             new MarkdownService(this.context).exportPdfToHtml(uri)
+        }).on("theme", () => {
+            vscode.commands.executeCommand('workbench.action.selectTheme');
         }).on("saveOutline", (enable) => {
             config.update("openOutline", enable, true)
         })
