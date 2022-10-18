@@ -1,30 +1,5 @@
-/*!
- * Vditor v3.8.17 - A markdown editor written in TypeScript.
- *
- * MIT License
- *
- * Copyright (c) 2018-present B3log 开源, b3log.org
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
- */
- .vditor {
+
+.vditor {
   --border-color: #d1d5da;
   --second-color: rgba(88, 96, 105, 0.36);
   --panel-background-color: #fff;
@@ -80,14 +55,6 @@
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @version 0.1.0.0, Jan 25, 2019
  */
-@-webkit-keyframes tooltip-appear {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
 @keyframes tooltip-appear {
   from {
     opacity: 0;
@@ -145,14 +112,10 @@
 .vditor-tooltipped:focus::after {
   display: inline-block;
   text-decoration: none;
-  -webkit-animation-name: tooltip-appear;
-          animation-name: tooltip-appear;
-  -webkit-animation-duration: 0.15s;
-          animation-duration: 0.15s;
-  -webkit-animation-fill-mode: forwards;
-          animation-fill-mode: forwards;
-  -webkit-animation-timing-function: ease-in;
-          animation-timing-function: ease-in;
+  animation-name: tooltip-appear;
+  animation-duration: 0.15s;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-in;
 }
 .vditor-tooltipped--hover::before,
 .vditor-tooltipped:hover::before,
@@ -250,16 +213,6 @@
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @version 1.0.0.0, Jan 22, 2020
  */
-@-webkit-keyframes scale-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.5);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
 @keyframes scale-in {
   0% {
     opacity: 0;
@@ -279,23 +232,17 @@
   z-index: 3;
   font-size: 14px;
   display: none;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
   max-width: 320px;
   min-width: 80px;
-  -webkit-animation-duration: 0.15s;
-          animation-duration: 0.15s;
-  -webkit-animation-name: scale-in;
-          animation-name: scale-in;
-  -webkit-animation-timing-function: cubic-bezier(0.2, 0, 0.13, 1.5);
-          animation-timing-function: cubic-bezier(0.2, 0, 0.13, 1.5);
+  animation-duration: 0.15s;
+  animation-name: scale-in;
+  animation-timing-function: cubic-bezier(0.2, 0, 0.13, 1.5);
   color: var(--toolbar-icon-color);
 }
 .vditor-panel--none {
   padding: 0;
-  -webkit-animation: none;
-          animation: none;
+  animation: none;
   min-width: auto;
   max-width: none;
   white-space: nowrap;
@@ -494,18 +441,15 @@
   float: left;
   margin: 3px 0 0 3px;
 }
+.vditor-toolbar {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+}
 @media (hover: hover) and (pointer: fine) {
   .vditor-toolbar__item .vditor-tooltipped:hover {
     color: var(--toolbar-icon-hover-color);
-  }
-}
-@-webkit-keyframes slideInDown {
-  from {
-    transform: translate3d(0, -100%, 0);
-    visibility: visible;
-  }
-  to {
-    transform: translate3d(0, 0, 0);
   }
 }
 @keyframes slideInDown {
@@ -610,9 +554,7 @@
   background-color: var(--count-background-color);
   border-radius: 3px;
   font-size: 12px;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
   float: right;
   margin: 8px 3px 0 0;
 }
@@ -623,9 +565,7 @@
 .vditor-resize {
   padding: 3px 0;
   cursor: row-resize;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
   position: absolute;
   width: 100%;
 }
@@ -670,17 +610,14 @@
   position: absolute;
   font-size: 12px;
   top: 10px;
-  -webkit-animation-duration: 0.15s;
-          animation-duration: 0.15s;
-  -webkit-animation-fill-mode: both;
-          animation-fill-mode: both;
+  animation-duration: 0.15s;
+  animation-fill-mode: both;
   left: 50%;
   z-index: 5;
 }
 .vditor-tip--show {
   display: block;
-  -webkit-animation-name: slideInDown;
-          animation-name: slideInDown;
+  animation-name: slideInDown;
 }
 .vditor-tip__content {
   text-align: left;
@@ -738,9 +675,7 @@
   align-items: center;
   cursor: pointer;
   margin-left: 24px;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
   color: var(--toolbar-icon-color);
 }
 .vditor-img__btn:hover {
@@ -1125,9 +1060,7 @@
   left: 0;
   width: 3em;
   /* works for line-numbers below 1000 lines */
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
   counter-reset: linenumber;
 }
 .vditor-linenumber__rows > span {
@@ -1256,9 +1189,7 @@
 }
 .vditor-toc {
   margin-bottom: 16px;
-  -webkit-user-select: text;
-     -moz-user-select: text;
-          user-select: text;
+  user-select: text;
   color: #4285f4;
 }
 .vditor-toc .vditor-outline__action {
