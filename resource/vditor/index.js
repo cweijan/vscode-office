@@ -116,8 +116,18 @@ body[data-vscode-theme-kind="vscode-dark"] .vditor-content .vditor-wysiwyg__prev
   background-color: #2E2E2E !important;
 }
 
+body[data-vscode-theme-name='One Dark Modern'] .vditor-toolbar {
+  background-color: var(--vscode-editorSuggestWidget-background) !important;
+}
+
+
+body[data-vscode-theme-name='One Dark Modern'] .vditor-content .vditor-wysiwyg__preview>code{
+  background-color: var(--vscode-editorSuggestWidget-background) !important;
+}
+
 body[data-vscode-theme-name='One Dark Modern'] .vditor-content,
 body[data-vscode-theme-name='One Dark Modern'] .vditor-content *:not(.hljs, .hljs *,.katex,.katex *, a) {
+  background-color: var(--vscode-editorSuggestWidget-background) !important;
   color: #abb2bf !important;
 }
 
