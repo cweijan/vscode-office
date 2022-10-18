@@ -69,6 +69,7 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
         handler.panel.onDidChangeViewState(e => {
             Holder.activeDocument = e.webviewPanel.visible ? document : Holder.activeDocument
             if (e.webviewPanel.visible) {
+                this.updateCount(content)
                 this.countStatus.show()
                 this.cursorStatus.show()
             } else {
@@ -90,6 +91,7 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             const updatedText = e.document.getText()?.replace(/\r/g, '');
             if (content == updatedText) return;
             content = updatedText;
+            this.updateCount(content)
             handler.emit("update", updatedText)
         }).on("command", (command) => {
             vscode.commands.executeCommand(command)
