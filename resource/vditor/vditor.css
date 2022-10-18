@@ -24,7 +24,7 @@
  * SOFTWARE.
  *
  */
-.vditor {
+ .vditor {
   --border-color: #d1d5da;
   --second-color: rgba(88, 96, 105, 0.36);
   --panel-background-color: #fff;
@@ -281,7 +281,6 @@
   display: none;
   -webkit-user-select: none;
      -moz-user-select: none;
-      -ms-user-select: none;
           user-select: none;
   max-width: 320px;
   min-width: 80px;
@@ -364,7 +363,6 @@
   line-height: 1;
 }
 .vditor-toolbar--pin {
-  position: -webkit-sticky;
   position: sticky;
   top: 0;
   z-index: 1;
@@ -496,14 +494,6 @@
   float: left;
   margin: 3px 0 0 3px;
 }
-@media screen and (max-width: 520px) {
-  .vditor-toolbar__item {
-    padding: 0 12px;
-  }
-  .vditor-panel--left.vditor-panel--arrow:before {
-    right: 17px;
-  }
-}
 @media (hover: hover) and (pointer: fine) {
   .vditor-toolbar__item .vditor-tooltipped:hover {
     color: var(--toolbar-icon-hover-color);
@@ -622,7 +612,6 @@
   font-size: 12px;
   -webkit-user-select: none;
      -moz-user-select: none;
-      -ms-user-select: none;
           user-select: none;
   float: right;
   margin: 8px 3px 0 0;
@@ -636,7 +625,6 @@
   cursor: row-resize;
   -webkit-user-select: none;
      -moz-user-select: none;
-      -ms-user-select: none;
           user-select: none;
   position: absolute;
   width: 100%;
@@ -752,7 +740,6 @@
   margin-left: 24px;
   -webkit-user-select: none;
      -moz-user-select: none;
-      -ms-user-select: none;
           user-select: none;
   color: var(--toolbar-icon-color);
 }
@@ -1140,7 +1127,6 @@
   /* works for line-numbers below 1000 lines */
   -webkit-user-select: none;
      -moz-user-select: none;
-      -ms-user-select: none;
           user-select: none;
   counter-reset: linenumber;
 }
@@ -1272,7 +1258,6 @@
   margin-bottom: 16px;
   -webkit-user-select: text;
      -moz-user-select: text;
-      -ms-user-select: text;
           user-select: text;
   color: #4285f4;
 }
