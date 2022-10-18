@@ -18,12 +18,12 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
 
     private extensionPath: string;
     private countStatus: vscode.StatusBarItem;
-    private cursorStatus: vscode.StatusBarItem;
+    private state: vscode.Memento;
 
     constructor(private context: vscode.ExtensionContext) {
         this.extensionPath = context.extensionPath;
         this.countStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-        this.cursorStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 120);
+        this.state = context.globalState
     }
 
     private getFolders(): vscode.Uri[] {
@@ -71,19 +71,18 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             if (e.webviewPanel.visible) {
                 this.updateCount(content)
                 this.countStatus.show()
-                this.cursorStatus.show()
             } else {
                 this.countStatus.hide()
-                this.cursorStatus.hide()
             }
         });
 
         const config = vscode.workspace.getConfiguration("vscode-office");
-        console.log(config)
         handler.on("init", () => {
+            const scrollTop = this.state.get(`scrollTop_${document.uri.fsPath}`, 0);
             handler.emit("open", {
                 title: basename(uri.fsPath),
-                content, rootPath, config
+                content, rootPath, config,
+                scrollTop
             })
             this.updateCount(content)
             this.countStatus.show()
@@ -103,6 +102,8 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             } else {
                 vscode.env.openExternal(vscode.Uri.parse(uri));
             }
+        }).on("scroll", ({ scrollTop }) => {
+            this.state.update(`scrollTop_${document.uri.fsPath}`, scrollTop)
         }).on("img", (img) => {
             let rePath = vscode.workspace.getConfiguration("vscode-office").get<string>("pasterImgPath");
             rePath = rePath.replace("${fileName}", parse(uri.fsPath).name.replace(/\s/g, '')).replace("${now}", new Date().getTime() + "")

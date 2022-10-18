@@ -142,6 +142,10 @@ export const openLink = () => {
     const content = document.querySelector(".vditor-wysiwyg");
     content.addEventListener('dblclick', clickCallback);
     content.addEventListener('click', clickCallback);
+    document.querySelector(".vditor-reset").addEventListener("scroll", e => {
+        // 滚动有偏差
+        handler.emit("scroll", { scrollTop: e.target.scrollTop-70 })
+    });
     document.querySelector(".vditor-ir").addEventListener('click', e => {
         let ele = e.target;
         if (ele.classList.contains('vditor-ir__link')) {
@@ -151,6 +155,15 @@ export const openLink = () => {
             handler.emit("openLink", ele.textContent)
         }
     });
+}
+
+export function scrollEditor(top) {
+    const scrollHack = setInterval(() => {
+        const editorContainer = document.querySelector(".vditor-reset");
+        if (!editorContainer) return;
+        editorContainer.scrollTo({ top })
+        clearInterval(scrollHack)
+    }, 10);
 }
 
 
