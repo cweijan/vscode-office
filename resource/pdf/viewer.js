@@ -7414,6 +7414,9 @@ class PDFOutlineViewer {
         outlineCount++;
       }
     }
+    if(outlineCount>1){
+      PDFViewerApplication.pdfSidebar.switchView(2, true);
+    }
 
     if (hasAnyNesting) {
       this.container.classList.add("outlineWithDeepNesting");
