@@ -11,7 +11,6 @@ const mustache = require("mustache")
 const markdownItCheckbox = require("markdown-it-checkbox")
 const markdownItKatex = require("./ext/markdown-it-katex")
 const markdownItPlantuml = require("markdown-it-plantuml")
-const markdownItHeaders = require("markdown-it-named-headers")
 const markdownItToc = require("markdown-it-toc-done-right")
 const markdownItAnchor = require("markdown-it-anchor")
 const { exportByType } = require('./html-export')
@@ -100,11 +99,10 @@ function convertMarkdownToHtml(filename, type, text, config) {
     }
 
     md.use(markdownItCheckbox)
+      .use(markdownItAnchor)
+      .use(markdownItToc)
       .use(markdownItKatex)
       .use(markdownItPlantuml)
-      .use(markdownItHeaders)
-      .use(markdownItToc)
-      .use(markdownItAnchor)
 
     return md.render(text)
 
@@ -235,7 +233,7 @@ function makeCss(filename) {
 function readStyles() {
   try {
     const basePath = path.join(__dirname, "styles");
-    const files = ['arduino-light.css','katex.min.css','markdown.css','markdown-pdf.css']
+    const files = ['arduino-light.css', 'katex.min.css', 'markdown.css', 'markdown-pdf.css']
     return files.map(file => makeCss(path.join(basePath, file))).join("")
   } catch (error) {
     showErrorMessage("readStyles()", error)
