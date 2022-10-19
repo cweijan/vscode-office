@@ -292,7 +292,7 @@
   margin: 1px auto -8px auto;
   position: relative;
   overflow: visible;
-  border: 9px solid transparent;
+  border: 6px solid transparent;
   background-clip: content-box;
   -o-border-image: url(images/shadow.png) 9 9 repeat;
      border-image: url(images/shadow.png) 9 9 repeat;
