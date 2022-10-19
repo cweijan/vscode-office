@@ -3387,7 +3387,7 @@ html[dir="rtl"] .treeItem > .treeItems {
 .treeItem > a {
   padding-left: 20px !important;
   font-size: 14px;
-  line-height: 30px;
+  line-height: 24px;
   font-family: '微软雅黑';
   outline: none;
   text-decoration: none;
@@ -3477,7 +3477,7 @@ html[dir="rtl"] .treeItemToggler {
   float: right;
 }
 html[dir="ltr"] .treeItemToggler::before {
-  right: 4px;
+  top: 3px;
 }
 html[dir="rtl"] .treeItemToggler::before {
   left: 4px;
