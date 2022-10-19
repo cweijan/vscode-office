@@ -7308,13 +7308,13 @@ class PDFOutlineViewer {
     }
   }
 
-  _addToggleButton(div, { count, items }) {
+  _addToggleButton(div, hide) {
     const toggler = document.createElement("div");
     toggler.className = "treeItemToggler";
 
-    // if (count < 0 && Math.abs(count) === items.length) {
+    if (hide) {
       toggler.classList.add("treeItemsHidden");
-    // }
+    }
 
     toggler.onclick = evt => {
       evt.stopPropagation();
@@ -7372,7 +7372,6 @@ class PDFOutlineViewer {
 
     while (queue.length > 0) {
       const levelData = queue.shift();
-      console.log(levelData)
 
       for (const item of levelData.items) {
         const div = document.createElement("div");
@@ -7397,7 +7396,7 @@ class PDFOutlineViewer {
         if (item.items.length > 0) {
           hasAnyNesting = true;
 
-          this._addToggleButton(div, item);
+          this._addToggleButton(div, levelData.parent?.parentNode!=null);
 
           const itemsDiv = document.createElement("div");
           itemsDiv.className = "treeItems";
