@@ -9,7 +9,7 @@ const hljs = require("highlight.js")
 const markdownIt = require("markdown-it")
 const mustache = require("mustache")
 const markdownItCheckbox = require("markdown-it-checkbox")
-const markdownItKatex = require("markdown-it-katex")
+const markdownItKatex = require("./ext/markdown-it-katex")
 const markdownItPlantuml = require("markdown-it-plantuml")
 const markdownItHeaders = require("markdown-it-named-headers")
 const markdownItToc = require("markdown-it-toc-done-right")
@@ -22,7 +22,7 @@ async function convertMarkdown(inputMarkdownFile, config) {
   const uri = URI.file(inputMarkdownFile)
   const text = fs.readFileSync(inputMarkdownFile).toString()
   const content = convertMarkdownToHtml(inputMarkdownFile, type, text, config)
-  const html = mergeHtml(content, uri, config)
+  const html = mergeHtml(content, uri)
   await exportByType(inputMarkdownFile, html, type, config)
 
 }
@@ -117,28 +117,12 @@ function convertMarkdownToHtml(filename, type, text, config) {
 /*
  * make html
  */
-function mergeHtml(data, uri, config) {
+function mergeHtml(content, uri) {
   try {
-    // read styles
-    let style = ""
-    style += readStyles(uri, config)
-
-    // get title
-    let title = path.basename(uri.fsPath)
-
-    // read template
-    let filename = path.join(__dirname, "template", "template.html")
-    let template = readFile(filename)
-
-    // compile template
-
-
-    let view = {
-      title: title,
-      style: style,
-      content: data
-    }
-    return mustache.render(template, view)
+    const title = path.basename(uri.fsPath)
+    const style = readStyles()
+    const templatePath = path.join(__dirname, "template", "template.html")
+    return mustache.render(readFile(templatePath), { title, style, content })
   } catch (error) {
     showErrorMessage("makeHtml()", error)
   }
@@ -248,74 +232,13 @@ function makeCss(filename) {
   }
 }
 
-function readStyles(uri, config) {
+function readStyles() {
   try {
-    let includeDefaultStyles
-    let style = makeCss(path.join(__dirname, "styles", "katex.min.css"))
-    let styles = ""
-    let filename = ""
-    let i;
-
-    includeDefaultStyles = config["includeDefaultStyles"]
-
-    // 1. read the default styles
-    if (includeDefaultStyles) {
-      filename = path.join(__dirname, "styles", "markdown.css")
-      style += makeCss(filename)
-    }
-
-    // 3. read the style of the highlight.js.
-    let highlightStyle = config["highlightStyle"] || ""
-    if (config["highlight"]) {
-      filename = path.join(__dirname, "styles", highlightStyle || "arduino-light.css")
-      style += makeCss(filename)
-    }
-
-    // 4. read the style of the markdown-pdf.
-    if (includeDefaultStyles) {
-      filename = path.join(__dirname, "styles", "markdown-pdf.css")
-      style += makeCss(filename)
-    }
-
-    return style
+    const basePath = path.join(__dirname, "styles");
+    const files = ['arduino-light.css','katex.min.css','markdown.css','markdown-pdf.css']
+    return files.map(file => makeCss(path.join(basePath, file))).join("")
   } catch (error) {
     showErrorMessage("readStyles()", error)
-  }
-}
-
-function fixHref(resource, href, config) {
-  try {
-    if (!href) {
-      return href
-    }
-
-    // Use href if it is already an URL
-    let hrefUri = URI.parse(href)
-    if (["http", "https"].indexOf(hrefUri.scheme) >= 0) {
-      return hrefUri.toString()
-    }
-
-    // Use a home directory relative path If it starts with ^.
-    if (href.indexOf("~") === 0) {
-      return URI.file(href.replace(/^~/, os.homedir())).toString()
-    }
-
-    // Use href as file URI if it is absolute
-    if (path.isAbsolute(href) || hrefUri.scheme === "file") {
-      return URI.file(href).toString()
-    }
-
-    // Use a workspace relative path if there is a workspace and markdown-pdf.stylesRelativePathFile is false
-    let stylesRelativePathFile = config["stylesRelativePathFile"]
-    let root = getFolder(resource)
-    if (stylesRelativePathFile === false && root) {
-      return URI.file(path.join(root.uri.fsPath, href)).toString()
-    }
-
-    // Otherwise look relative to the markdown file
-    return URI.file(path.join(path.dirname(resource.fsPath), href)).toString()
-  } catch (error) {
-    showErrorMessage("fixHref()", error)
   }
 }
 

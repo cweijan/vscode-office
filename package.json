@@ -462,16 +462,16 @@
 		"chrome-finder": "^1.0.7",
 		"file-type": "^18.0.0",
 		"highlight.js": "^10.1.2",
+		"katex": "^0.16.2",
 		"mammoth": "^1.4.13",
 		"markdown-it": "^11.0.0",
 		"markdown-it-anchor": "^6.0.0",
 		"markdown-it-checkbox": "^1.1.0",
-		"markdown-it-katex": "^2.0.3",
 		"markdown-it-named-headers": "0.0.4",
 		"markdown-it-plantuml": "^1.0.0",
 		"markdown-it-toc-done-right": "^4.1.0",
 		"mustache": "^4.0.1",
 		"pdf-lib": "^1.11.2",
-		"puppeteer-core": "^13.7.0"
+		"puppeteer-core": "^19.0.0"
 	}
 }
