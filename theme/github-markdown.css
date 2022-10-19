@@ -1,11 +1,3 @@
-/* Generated from 'node_modules/github-markdown-css/github-markdown.css' */
-@font-face {
-  font-family: "manrope3";
-  src: url("./manrope3.otf");
-  font-weight: normal;
-  font-style: normal;
-}
-
 *{
   font-family: "manrope3","Consolas ligaturized", "Segoe UI","Microsoft YaHei",-apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
   font-size: 16px;
