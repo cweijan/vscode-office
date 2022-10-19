@@ -187,8 +187,8 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
         })
         webview.html =
             Util.buildPath(
-                readFileSync(this.extensionPath + "/resource/font/ttf/index.html", 'utf8')
-                , webview, this.extensionPath + "/resource/font/ttf"
+                readFileSync(this.extensionPath + "/resource/font/index.html", 'utf8')
+                , webview, this.extensionPath + "/resource/font"
             )
     }
 

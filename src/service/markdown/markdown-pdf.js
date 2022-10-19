@@ -264,17 +264,6 @@ function readStyles(uri, config) {
       style += makeCss(filename)
     }
 
-    // 2. read the style of the markdown.styles setting.
-    if (includeDefaultStyles) {
-      styles = config["styles"]
-      if (styles && Array.isArray(styles) && styles.length > 0) {
-        for (i = 0; i < styles.length; i++) {
-          let href = fixHref(uri, styles[i])
-          style += "<link rel=\"stylesheet\" href=\"" + href + "\" type=\"text/css\">"
-        }
-      }
-    }
-
     // 3. read the style of the highlight.js.
     let highlightStyle = config["highlightStyle"] || ""
     if (config["highlight"]) {
@@ -286,15 +275,6 @@ function readStyles(uri, config) {
     if (includeDefaultStyles) {
       filename = path.join(__dirname, "styles", "markdown-pdf.css")
       style += makeCss(filename)
-    }
-
-    // 5. read the style of the markdown-pdf.styles settings.
-    styles = config["styles"] || ""
-    if (styles && Array.isArray(styles) && styles.length > 0) {
-      for (i = 0; i < styles.length; i++) {
-        let href = fixHref(uri, styles[i])
-        style += "<link rel=\"stylesheet\" href=\"" + href + "\" type=\"text/css\">"
-      }
     }
 
     return style

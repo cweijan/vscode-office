@@ -11,3 +11,4 @@ vsc-extension-quickstart.md
 node_modules/
 build.js
 public/
+lib.js
