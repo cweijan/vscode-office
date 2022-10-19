@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import { existsSync, mkdirSync, readFileSync } from 'fs';
-import fetch from 'node-fetch';
 import { basename, dirname, extname, isAbsolute, parse, resolve } from 'path';
 import * as util from 'util';
 import * as vscode from 'vscode';
@@ -42,18 +41,8 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file("/"), ...this.getFolders()]
         }
-        const ext = extname(uri.fsPath).toLowerCase()
         const handler = Hanlder.bind(webviewPanel, uri);
-        switch (ext) {
-            case ".md":
-                this.handleMarkdown(document, handler, folderPath)
-                break;
-            case ".puml":
-            case ".plantuml":
-            case ".pu":
-                this.handlePuml(document, handler);
-                break;
-        }
+        this.handleMarkdown(document, handler, folderPath)
     }
 
     private handleMarkdown(document: vscode.TextDocument, handler: Hanlder, folderPath: vscode.Uri) {
@@ -148,41 +137,6 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
 
     private updateCount(content: string) {
         this.countStatus.text = `Line ${content.split(/\r\n|\r|\n/).length}    Count ${content.length}`
-    }
-
-    private handlePuml(document: vscode.TextDocument, handler: Hanlder) {
-        const uri = document.uri;
-
-
-        handler.on("init", () => {
-            handler.emit("open", document.getText())
-        }).on("externalUpdate", e => {
-            const updatedText = e.document.getText();
-            handler.emit("open", updatedText)
-        }).on("save", async (content) => {
-            await this.updateTextDocument(document, content)
-            vscode.commands.executeCommand('workbench.action.files.save');
-        }).on("edit", () => {
-            vscode.commands.executeCommand('vscode.openWith', uri, "default", vscode.ViewColumn.Beside);
-        }).on("doSave", () => {
-            vscode.commands.executeCommand('workbench.action.files.save');
-        }).on("download", (content) => {
-            vscode.window.showSaveDialog({ title: "Select download path", defaultUri: vscode.Uri.file(document.fileName.replace(/puml/i, "svg")), filters: { 'Images': ['svg', 'png'] } }).then((downloadPath) => {
-                if (downloadPath) {
-                    (async () => {
-                        vscode.window.showInformationMessage("Start downloading...", { model: true } as MessageOptions)
-                        const response = await fetch(content);
-                        if (response.ok) {
-                            vscode.window.showInformationMessage("Download success!")
-                            return streamPipeline(response.body, fs.createWriteStream(downloadPath.fsPath));
-                        }
-                        vscode.window.showErrorMessage(`unexpected response ${response.statusText}`)
-                    })();
-                }
-            });
-        })
-        const webview = handler.panel.webview;
-        webview.html = Util.buildPath(readFileSync(this.extensionPath + "/resource/plantuml/index.html", 'utf8'), webview, this.extensionPath + "/resource/plantuml");
     }
 
     private updateTextDocument(document: vscode.TextDocument, content: any) {

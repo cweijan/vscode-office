@@ -384,15 +384,6 @@
 				"selector": [
 					{
 						"filenamePattern": "*.md"
-					},
-					{
-						"filenamePattern": "*.puml"
-					},
-					{
-						"filenamePattern": "*.plantuml"
-					},
-					{
-						"filenamePattern": "*.pu"
 					}
 				]
 			},
@@ -480,7 +471,6 @@
 		"markdown-it-plantuml": "^1.0.0",
 		"markdown-it-toc-done-right": "^4.1.0",
 		"mustache": "^4.0.1",
-		"node-fetch": "^2.6.1",
 		"pdf-lib": "^1.11.2",
 		"puppeteer-core": "^13.7.0"
 	}
