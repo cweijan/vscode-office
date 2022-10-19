@@ -7308,16 +7308,13 @@ class PDFOutlineViewer {
     }
   }
 
-  _addToggleButton(div, {
-    count,
-    items
-  }) {
+  _addToggleButton(div, { count, items }) {
     const toggler = document.createElement("div");
     toggler.className = "treeItemToggler";
 
-    if (count < 0 && Math.abs(count) === items.length) {
+    // if (count < 0 && Math.abs(count) === items.length) {
       toggler.classList.add("treeItemsHidden");
-    }
+    // }
 
     toggler.onclick = evt => {
       evt.stopPropagation();
@@ -7375,6 +7372,7 @@ class PDFOutlineViewer {
 
     while (queue.length > 0) {
       const levelData = queue.shift();
+      console.log(levelData)
 
       for (const item of levelData.items) {
         const div = document.createElement("div");
@@ -12717,7 +12715,7 @@ document.webL10n = function (window, document, undefined) {
     var data = gL10nData[key];
 
     if (!data) {
-      console.warn('#' + key + ' is undefined.');
+      // console.warn('#' + key + ' is undefined.');
 
       if (!fallback) {
         return null;
@@ -12782,7 +12780,7 @@ document.webL10n = function (window, document, undefined) {
     var data = getL10nData(l10n.id, l10n.args);
 
     if (!data) {
-      console.warn('#' + l10n.id + ' is undefined.');
+      // console.warn('#' + l10n.id + ' is undefined.');
       return;
     }
 
