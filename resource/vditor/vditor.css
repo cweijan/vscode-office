@@ -308,6 +308,7 @@
   border-bottom: 1px solid var(--border-color);
   padding: 0 5px;
   line-height: 1;
+  flex-wrap: wrap;
 }
 .vditor-toolbar--pin {
   position: sticky;
