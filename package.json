@@ -435,11 +435,24 @@
 					"default": true,
 					"description": "Viewer follow vscode theme."
 				},
+				"vscode-office.editorLanguage": {
+					"type": "string",
+					"enum": [
+						"en_US",
+						"ja_JP",
+						"ko_KR",
+						"ru_RU",
+						"zh_CN",
+						"zh_TW"
+					],
+					"default": "en_US",
+					"description": "You could change your editor language."
+				},
 				"vscode-office.pasterImgPath": {
 					"type": "string",
 					"default": "image/${fileName}/${now}.png",
 					"description": "Markdown paste image path."
-				}
+				}				
 			}
 		}
 	},
