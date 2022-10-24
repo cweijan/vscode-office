@@ -15,6 +15,7 @@ handler.on("open", (md) => {
       position: 'left',
     },
     mode: 'wysiwyg',
+    lang: config.editorLanguage,
     icon: "material",
     tab: '\t',
     preview: {
