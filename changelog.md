@@ -1,5 +1,12 @@
 # Change log
 
+# 2.7.10 2022-10-24
+
+* Markdown
+
+  * Default language is English for editor
+  * Supporting change of language for editor [en_US, ja_JP, ko_KR, ru_RU, zh_CN, zh_TW]
+
 # 2.7.9 2022-10-23
 
 - 修复小屏下工具栏丢失.
