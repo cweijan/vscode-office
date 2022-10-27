@@ -1,11 +1,9 @@
 # Change log
 
-# 2.7.10 2022-10-24
+# 2.8.0 2022-10-24
 
-* Markdown
-
-  * Default language is English for editor
-  * Supporting change of language for editor [en_US, ja_JP, ko_KR, ru_RU, zh_CN, zh_TW]
+- Change markdown editor default language to english.
+- Supporting change of language for editor [en_US, ja_JP, ko_KR, ru_RU, zh_CN, zh_TW]
 
 # 2.7.9 2022-10-23
 

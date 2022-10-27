@@ -70,8 +70,9 @@ export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
             const scrollTop = this.state.get(`scrollTop_${document.uri.fsPath}`, 0);
             handler.emit("open", {
                 title: basename(uri.fsPath),
-                content, rootPath, config,
-                scrollTop
+                config, scrollTop,
+                language: vscode.env.language,
+                rootPath, content
             })
             this.updateCount(content)
             this.countStatus.show()

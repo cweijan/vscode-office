@@ -1,7 +1,7 @@
 import { openLink, hotKeys, imageParser, toolbar, autoSymbal, onToolbarClick, createContextMenu, scrollEditor } from "./util.js";
 
 handler.on("open", (md) => {
-  const config = md.config;
+  const { config, language } = md;
   if (config.autoTheme) {
     addAutoTheme()
   }
@@ -15,7 +15,7 @@ handler.on("open", (md) => {
       position: 'left',
     },
     mode: 'wysiwyg',
-    lang: config.editorLanguage,
+    lang: language == 'zh-cn' ? 'zh_CN' : config.editorLanguage,
     icon: "material",
     tab: '\t',
     preview: {
