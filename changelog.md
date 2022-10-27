@@ -1,5 +1,9 @@
 # Change log
 
+# 2.8.0 2022-10-24
+
+- Change markdown editor default language to english.
+
 # 2.7.9 2022-10-23
 
 - 修复小屏下工具栏丢失.
