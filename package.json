@@ -452,7 +452,7 @@
 					"type": "string",
 					"default": "image/${fileName}/${now}.png",
 					"description": "Markdown paste image path."
-				}				
+				}
 			}
 		}
 	},
