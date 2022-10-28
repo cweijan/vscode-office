@@ -30,6 +30,12 @@ If you want to use the original vscode editor, insert this in your `settings.jso
 }
 ```
 
+Markdown editor default languge is English. If you want change it, could change in VSCode settings. It support the following languages,
+ en_US, ja_JP, ko_KR, ru_RU, zh_CN, zh_TW.
+
+![1666635632251](image/README/1666635632251.png)
+
+
 ## HTML
 
 The html editor supports live viewing.   Press ctrl+shift+v to open the live view.
