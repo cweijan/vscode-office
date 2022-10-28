@@ -122,12 +122,13 @@ body[data-vscode-theme-name='One Dark Modern'] .vditor-toolbar {
 }
 
 
+.vditor,
 body[data-vscode-theme-name='One Dark Modern'] .vditor-content .vditor-wysiwyg__preview>code{
   background-color: var(--vscode-editorSuggestWidget-background) !important;
 }
 
 body[data-vscode-theme-name='One Dark Modern'] .vditor-content,
-body[data-vscode-theme-name='One Dark Modern'] .vditor-content *:not(.hljs, .hljs *,.katex,.katex *, a) {
+body[data-vscode-theme-name='One Dark Modern'] .vditor-content *:not(.hljs, .hljs *,.katex,.katex *, a, hr) {
   background-color: var(--vscode-editorSuggestWidget-background) !important;
   color: #abb2bf !important;
 }
