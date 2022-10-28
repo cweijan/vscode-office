@@ -16,14 +16,14 @@ export class HtmlService {
 
         function readContent() {
             const content = av ? av.getText() : Util.buildPath(readFileSync(uri.fsPath, 'utf8'), webviewPanel.webview, folderPath.fsPath);
-            return content.replace(/((src|href)=("|'))(?!http)(.+?\.(css|js))\b/gi, "$1" + webviewPanel.webview.asWebviewUri(vscode.Uri.file(`${dirname(uri.fsPath)}`)) + "/$4");;
+            return Util.buildPath(content, webviewPanel.webview, dirname(uri.fsPath))
         }
 
         webviewPanel.iconPath = vscode.Uri.file(`${context.extensionPath}/icons/html.svg`)
         webviewPanel.webview.html = readContent()
 
         Util.listen(webviewPanel, uri, () => {
-            webviewPanel.webview.html = readContent()+`<input type="hidden" value="${new Date().getTime()}"/>`;
+            webviewPanel.webview.html = readContent() + `<input type="hidden" value="${new Date().getTime()}"/>`;
         })
     }
 

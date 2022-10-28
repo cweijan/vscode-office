@@ -1,5 +1,9 @@
 # Change log
 
+# 2.8.1 2022-10-28
+
+- Fix preview html unable to load images.
+
 # 2.8.0 2022-10-24
 
 - Change markdown editor default language to english.
