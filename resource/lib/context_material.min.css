@@ -561,8 +561,8 @@
 
 .dropdown-menu-sm,
 .menu-cascading {
-    font-size: .9375rem;
-    line-height: 1.5rem;
+    font-size: 14px;
+    line-height: 1.3rem;
     padding-bottom: 1rem
 }
 

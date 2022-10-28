@@ -144,7 +144,7 @@ export const openLink = () => {
     content.addEventListener('click', clickCallback);
     document.querySelector(".vditor-reset").addEventListener("scroll", e => {
         // 滚动有偏差
-        handler.emit("scroll", { scrollTop: e.target.scrollTop-70 })
+        handler.emit("scroll", { scrollTop: e.target.scrollTop - 70 })
     });
     document.querySelector(".vditor-ir").addEventListener('click', e => {
         let ele = e.target;
@@ -190,8 +190,8 @@ export const createContextMenu = (editor) => {
     });
     document.oncontextmenu = e => {
         e.stopPropagation();
-        var top = e.pageY - 10;
-        var left = e.pageX - 90;
+        var top = e.pageY;
+        var left = e.pageX + 10;
         menu.style.display = 'block'
         menu.style.top = top + "px";
         menu.style.left = left + "px";

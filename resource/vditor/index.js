@@ -84,7 +84,7 @@ body[data-vscode-theme-kind="vscode-dark"] .vditor-content hr{
 }
 
 .dropdown-menu.show:before,.dropdown-item{
-  background-color: var(--vscode-editor-background) !important;
+  background-color: var(--vscode-editorSuggestWidget-background) !important;
   color: var(--vscode-editor-frontground) !important;
 }
 
