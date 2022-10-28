@@ -3,6 +3,9 @@
 # 2.8.1 2022-10-28
 
 - Fix preview html unable to load images.
+- Markdown:
+  - Fix hr can not display on dark theme.
+  - Fixed export pdf not rendering math formulas that start or end with spaces.
 
 # 2.8.0 2022-10-24
 
