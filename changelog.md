@@ -4,6 +4,7 @@
 
 - Fix preview html unable to load images.
 - Markdown:
+  - Support export to docx.
   - Fix hr can not display on dark theme.
   - Edit math formulas using different background colors.
   - Fix export pdf not rendering math formulas that start or end with spaces.

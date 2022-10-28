@@ -3,27 +3,31 @@ import { spawn } from 'child_process';
 import chromeFinder from 'chrome-finder';
 import { copyFileSync, existsSync, lstatSync, mkdirSync, renameSync } from 'fs';
 import { homedir } from 'os';
-import path, { dirname, extname, isAbsolute, join, parse, resolve } from 'path';
+import path, { dirname, extname, isAbsolute, join, parse } from 'path';
 import * as vscode from 'vscode';
 import { Holder } from './markdown/holder';
 import { convertMd } from "./markdown/markdown-pdf";
 import { fileTypeFromFile } from 'file-type';
+
+export type ExportType = 'pdf' | 'html' | 'docx';
 
 export class MarkdownService {
 
     constructor(private context: vscode.ExtensionContext) {
     }
 
-    public async exportPdfToHtml(uri: vscode.Uri) {
-        await convertMd({ markdownFilePath: uri.fsPath, config: this.getConfig('html') })
-        vscode.window.showInformationMessage("Export markdown to html success!")
-    }
-
-    public async exportPdf(uri: vscode.Uri) {
+    /**
+     * export markdown to another type
+     * @param type pdf, html, docx 
+     */
+    public async exportMarkdown(uri: vscode.Uri, type: ExportType = 'pdf') {
         try {
-            vscode.window.showInformationMessage("Starting export markdown to pdf.")
-            await convertMd({ markdownFilePath: uri.fsPath, config: this.getConfig() })
-            vscode.window.showInformationMessage("Export markdown to pdf success!")
+            if(type=='pdf'){
+                // 其他类型不用, 速度太快了
+                vscode.window.showInformationMessage(`Starting export markdown to ${type}.`)
+            }
+            await convertMd({ markdownFilePath: uri.fsPath, config: this.getConfig(type) })
+            vscode.window.showInformationMessage(`Export markdown to ${type} success!`)
         } catch (error) {
             Output.log(error)
         }

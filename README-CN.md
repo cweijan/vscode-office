@@ -16,6 +16,7 @@
 
 - 编辑方式: 直接通过vscode打开md文件
 - 编辑器内, 通过Ctrl+单击或者双击可打开超链接
+- 通过右键菜单可以导出为html, pdf和docx
 - 需要临时使用VSCode内置编辑器, 可点击以下按钮
   ![img](image/README-CN/1640579182342.png)
 - 点击以下按钮可将Markdown导出为PDF, 需要机器上有安装Chrome或Edge浏览器

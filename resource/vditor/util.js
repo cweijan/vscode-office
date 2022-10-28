@@ -213,9 +213,13 @@ export const createContextMenu = (editor) => {
                 vscodeEvent.emit("save", editor.getValue())
                 vscodeEvent.emit('export')
                 break;
+            case "exportDocx":
+                vscodeEvent.emit("save", editor.getValue())
+                vscodeEvent.emit('exportMdToDocx')
+                break;
             case "exportHtml":
                 vscodeEvent.emit("save", editor.getValue())
-                vscodeEvent.emit('exportPdfToHtml')
+                vscodeEvent.emit('exportMdToHtml')
                 break;
         }
     }
