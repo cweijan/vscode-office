@@ -2,7 +2,7 @@ const puppeteer = require("puppeteer-core")
 const fs = require("fs")
 const os = require("os")
 const path = require("path")
-const HTMLtoDOCX = require("html-to-docx")
+const HTMLtoDOCX = require("vscode-html-to-docx")
 const URI = require("vscode").Uri
 const { createOutline } = require("./outline")
 const isDev = process.argv.indexOf('--type=extensionHost') >= 0;

@@ -475,7 +475,6 @@
 		"chrome-finder": "^1.0.7",
 		"file-type": "^18.0.0",
 		"highlight.js": "^10.1.2",
-		"html-to-docx": "^1.5.0",
 		"katex": "^0.16.2",
 		"mammoth": "^1.4.13",
 		"markdown-it": "^13.0.1",
@@ -485,6 +484,7 @@
 		"markdown-it-toc-done-right": "^4.2.0",
 		"mustache": "^4.0.1",
 		"pdf-lib": "^1.11.2",
-		"puppeteer-core": "^19.0.0"
+		"puppeteer-core": "^19.0.0",
+		"vscode-html-to-docx": "^1.1.2"
 	}
 }
