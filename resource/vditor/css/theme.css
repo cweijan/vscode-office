@@ -58,7 +58,7 @@ body[data-vscode-theme-name='One Dark Modern'] .vditor-toolbar {
     background-color: var(--vscode-editorSuggestWidget-background) !important;
 }
 
-.vditor,
+body[data-vscode-theme-name='One Dark Modern'] .vditor,
 body[data-vscode-theme-name='One Dark Modern'] .vditor-content .vditor-wysiwyg__preview>code {
     background-color: var(--vscode-editorSuggestWidget-background) !important;
 }
@@ -69,6 +69,7 @@ body[data-vscode-theme-name='One Dark Modern'] .vditor-content *:not(.hljs, .hlj
     color: #abb2bf !important;
 }
 
+.vditor,
 .vditor-content,
 .vditor-content *:not(.hljs, .hljs *, .katex, .katex *, a, hr, .vditor-reset--error,code) {
     background-color: var(--vscode-editor-background) !important;
