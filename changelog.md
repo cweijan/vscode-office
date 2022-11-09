@@ -1,5 +1,9 @@
 # Change log
 
+# 2.9.0 2022-11-9
+
+- Speed up extension activation.
+
 # 2.8.1 2022-10-29
 
 - Fix preview html unable to load images.
