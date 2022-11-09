@@ -1,6 +1,4 @@
 const fs = require("fs")
-const os = require("os")
-const puppeteer = require("puppeteer-core")
 const path = require("path")
 const url = require("url")
 const URI = require("vscode").Uri
@@ -138,40 +136,7 @@ function isExistsPath(path) {
   }
 }
 
-function isExistsDir(dirname) {
-  if (dirname.length === 0) {
-    return false
-  }
-  try {
-    if (fs.statSync(dirname).isDirectory()) {
-      return true
-    } else {
-      console.warn("Directory does not exist!")
-      return false
-    }
-  } catch (error) {
-    console.warn(error.message)
-    return false
-  }
-}
-
-function getFolder(resource) {
-  return {
-    index: 0,
-    name: path.basename(resource.path),
-    uri: URI.file(path.dirname(resource.path))
-  }
-}
-
-
-
-function readFile(filename, encode) {
-  if (filename.length === 0) {
-    return ""
-  }
-  if (!encode && encode !== null) {
-    encode = "utf-8"
-  }
+function readFile(filename, encode = "utf-8") {
   if (filename.indexOf("file://") === 0) {
     if (process.platform === "win32") {
       filename = filename.replace(/^file:\/\/\//, "")
@@ -239,72 +204,6 @@ function readStyles() {
   }
 }
 
-function checkPuppeteerBinary(config) {
-  try {
-    // settings.json
-    let executablePath = config["executablePath"] || ""
-    if (isExistsPath(executablePath)) {
-      return true
-    }
-
-    // bundled Chromium
-    executablePath = puppeteer.executablePath()
-    if (isExistsPath(executablePath)) {
-      return true
-    } else {
-      return false
-    }
-  } catch (error) {
-    showErrorMessage("checkPuppeteerBinary()", error)
-  }
-}
-
-/*
- * puppeteer install.js
- * https://github.com/GoogleChrome/puppeteer/blob/master/install.js
- */
-async function installChromium(config) {
-  try {
-    console.log("[pretty-md-pdf] Installing Chromium ...")
-
-    // proxy setting
-    setProxy(config)
-
-    const puppeteerMetadata = require(path.join(__dirname, "node_modules", "puppeteer", "package.json"))
-
-    let revision = puppeteerMetadata.puppeteer.chromium_revision
-    let browserFetcher = puppeteer.createBrowserFetcher()
-    let revisionInfo = browserFetcher.revisionInfo(revision)
-
-    // download Chromium
-    try {
-      await browserFetcher.download(revisionInfo.revision, (downloadedBytes, totalBytes) => {
-        let progress = parseInt(downloadedBytes / totalBytes * 100)
-        console.log("[pretty-md-pdf] Installing Chromium " + progress + "%")
-      })
-    } catch (ex) {
-      console.log("[pretty-md-pdf] ERROR: Failed to download Chromium!")
-    }
-
-    console.log("Chromium downloaded to " + revisionInfo.folderPath)
-
-    let localRevisions = await browserFetcher.localRevisions()
-    localRevisions = localRevisions.filter(revision => revision !== revisionInfo.revision)
-    // Remove previous chromium revisions.
-    let cleanupOldVersions = localRevisions.map(revision => browserFetcher.remove(revision))
-
-    if (checkPuppeteerBinary(config)) {
-
-      console.log("[pretty-md-pdf] Chromium installation succeeded!")
-      console.log("[pretty-md-pdf] Chromium installation succeeded.")
-
-      await Promise.all(cleanupOldVersions)
-    }
-  } catch (error) {
-    showErrorMessage("installChromium()", error)
-  }
-}
-
 function showErrorMessage(msg, error) {
   console.error("ERROR: " + msg)
   console.log("ERROR: " + msg)
@@ -314,30 +213,10 @@ function showErrorMessage(msg, error) {
   }
 }
 
-function setProxy(config) {
-  let https_proxy = config["proxy"] || ""
-  if (https_proxy) {
-    process.env.HTTPS_PROXY = https_proxy
-    process.env.HTTP_PROXY = https_proxy
-  }
-}
-
-async function init(config) {
-  try {
-    if (checkPuppeteerBinary(config)) {
-    } else {
-      await installChromium(config)
-    }
-  } catch (error) {
-    showErrorMessage("init()", error)
-  }
-}
-
 export const convertMd = async (options) => {
   const config = options.config
   options.outputFileType = config.type[0]
   console.log(`[pretty-md-pdf] Converting markdown file: ${options.markdownFilePath}`)
-  await init(config)
   await convertMarkdown(
     path.resolve(options.markdownFilePath),
     config

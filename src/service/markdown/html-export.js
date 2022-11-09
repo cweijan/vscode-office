@@ -1,4 +1,3 @@
-const puppeteer = require("puppeteer-core")
 const fs = require("fs")
 const os = require("os")
 const path = require("path")
@@ -34,18 +33,13 @@ export async function exportByType(filePath, data, type, config) {
         return
     }
 
-    if (!checkPuppeteerBinary(config)) {
-        showErrorMessage("Chromium or Chrome does not exist! \n")
-        return
-    }
-
-
     let tmpfilename = path.join(isDev ? originPath.dir : os.tmpdir(), originPath.name + "_tmp.html")
     exportHtml(tmpfilename, data)
     let options = {
         executablePath: config["executablePath"] || undefined
     }
 
+    const puppeteer = require("puppeteer-core")
     let browser = await puppeteer.launch(options).catch(error => {
         showErrorMessage("puppeteer.launch()", error)
     })
@@ -112,26 +106,6 @@ export async function exportByType(filePath, data, type, config) {
 
     console.log("[pretty-md-pdf] Exported to file: " + targetFilePath)
 
-}
-
-function checkPuppeteerBinary(config) {
-    try {
-        // settings.json
-        let executablePath = config["executablePath"] || ""
-        if (isExistsPath(executablePath)) {
-            return true
-        }
-
-        // bundled Chromium
-        executablePath = puppeteer.executablePath()
-        if (isExistsPath(executablePath)) {
-            return true
-        } else {
-            return false
-        }
-    } catch (error) {
-        showErrorMessage("checkPuppeteerBinary()", error)
-    }
 }
 
 function showErrorMessage(msg, error) {
