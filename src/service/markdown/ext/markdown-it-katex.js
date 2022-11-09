@@ -10,8 +10,6 @@ for rendering output.
 /*jslint node: true */
 'use strict';
 
-var katex = require('katex');
-
 function math_inline(state, silent) {
     var start, match, token, res, pos, esc_count;
 
@@ -111,6 +109,7 @@ function math_block(state, start, end, silent) {
 }
 
 module.exports = function math_plugin(md, options) {
+    var katex = require('katex');
     // Default options
 
     options = { throwOnError: false, strict: false };

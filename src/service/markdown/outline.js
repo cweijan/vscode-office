@@ -1,11 +1,9 @@
-const { PDFDocument, PDFDict, PDFHexString, PDFNumber, PDFName } = require("pdf-lib");
-const cheerio=require("cheerio");
-
 export const createOutline = async (pdf, html) => {
 
+    const { PDFDocument } = require("pdf-lib");
     const pdfDoc = await PDFDocument.load(pdf)
 
-    const $ = cheerio.load(html)
+    const $ = require("cheerio").load(html)
 
     const array = $('.table-of-contents>ol>li');
     if (array.length > 0) {
@@ -37,6 +35,7 @@ function inflateDict(array, $, dict) {
 }
 
 function extractDict(pdfDoc) {
+    const { PDFDict } = require("pdf-lib");
     const dict = {};
     for (const obj of pdfDoc.context.indirectObjects.entries()) {
         if (obj[1] && obj[1] instanceof PDFDict) {
@@ -59,7 +58,7 @@ function getKey(a) {
 
 
 async function creatOutlines(doc, dictArray) {
-
+    const { PDFDict, PDFHexString, PDFNumber, PDFName } = require("pdf-lib");
     const createOutlineItem = (doc, dict, parentRefer, outlineRefer, nextOrPrev, childRefs) => {
         const map = new Map();
         map.set(PDFName.Title, PDFHexString.fromText(dict.title));

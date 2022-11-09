@@ -8,7 +8,6 @@ import { Output } from '../common/Output';
 import { Util } from '../common/util';
 import { tmpdir } from 'os';
 import { workspace } from 'vscode';
-import mammoth from "mammoth";
 
 /**
  * support view office files
@@ -91,7 +90,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
     }
 
     private handleDocx(uri: vscode.Uri, webview: vscode.Webview) {
-        mammoth.convertToHtml({ path: uri.fsPath })
+        require("mammoth").convertToHtml({ path: uri.fsPath })
             .then((result: any) => {
                 console.debug(result.messages)
                 webview.html =

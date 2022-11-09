@@ -459,6 +459,7 @@
 	"scripts": {
 		"dev": "rimraf out && node build.js",
 		"build": "rimraf out && node build.js --mode=production",
+		"package": "vsce package --no-dependencies",
 		"publish": "vsce publish --no-dependencies",
 		"vscode:prepublish": "npm run build"
 	},

@@ -2,12 +2,9 @@ const fs = require("fs")
 const os = require("os")
 const puppeteer = require("puppeteer-core")
 const path = require("path")
-const cheerio = require("cheerio")
 const url = require("url")
 const URI = require("vscode").Uri
-const hljs = require("highlight.js")
 const markdownIt = require("markdown-it")
-const mustache = require("mustache")
 const markdownItCheckbox = require("markdown-it-checkbox")
 const markdownItKatex = require("./ext/markdown-it-katex")
 const markdownItPlantuml = require("markdown-it-plantuml")
@@ -43,6 +40,7 @@ function convertMarkdownToHtml(filename, type, text, config) {
 
   try {
     try {
+      const hljs = require("highlight.js");
       console.log("[pretty-md-pdf] Converting (convertMarkdownToHtml) ...")
       let breaks = config["breaks"]
       md = markdownIt({
@@ -88,7 +86,7 @@ function convertMarkdownToHtml(filename, type, text, config) {
       // convert the img src of the html
       md.renderer.rules.html_block = function (tokens, idx) {
         let html = tokens[idx].content
-        let $ = cheerio.load(html)
+        let $ = require("cheerio").load(html)
         $("img").each(function () {
           let src = $(this).attr("src")
           let href = convertImgPath(src, filename)
@@ -117,6 +115,7 @@ function convertMarkdownToHtml(filename, type, text, config) {
  */
 function mergeHtml(content, uri) {
   try {
+    const mustache = require("mustache")
     const title = path.basename(uri.fsPath)
     const style = readStyles()
     const templatePath = path.join(__dirname, "template", "template.html")

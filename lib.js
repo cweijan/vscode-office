@@ -4,12 +4,10 @@ const { existsSync } = require("fs");
 const dependencies = require("./package.json").dependencies
 
 const points = Object.keys(dependencies).reduce((point, dependency) => {
-    const main = require(`./node_modules/${dependency}/package.json`).main;
-    if (main) {
-        const mainAbsPath = resolve(`./node_modules/${dependency}`, main);
-        if (existsSync(mainAbsPath)) {
-            point[dependency.replace(/[\\\/]/g, '-')] = mainAbsPath;
-        }
+    const main = require(`./node_modules/${dependency}/package.json`).main ?? "index.js";
+    const mainAbsPath = resolve(`./node_modules/${dependency}`, main);
+    if (existsSync(mainAbsPath)) {
+        point[dependency] = mainAbsPath;
     }
     return point;
 }, {})

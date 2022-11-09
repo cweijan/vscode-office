@@ -2,7 +2,6 @@ const puppeteer = require("puppeteer-core")
 const fs = require("fs")
 const os = require("os")
 const path = require("path")
-const HTMLtoDOCX = require("vscode-html-to-docx")
 const URI = require("vscode").Uri
 const { createOutline } = require("./outline")
 const isDev = process.argv.indexOf('--type=extensionHost') >= 0;
@@ -14,7 +13,7 @@ export async function exportHtml(exportFilePath, data) {
 
 export async function exportDocx(exportFilePath, data) {
     console.log("[pretty-md-pdf] Exported to file: " + exportFilePath)
-    fs.writeFileSync(exportFilePath, await HTMLtoDOCX(data, '', {}, ''))
+    fs.writeFileSync(exportFilePath, await require("vscode-html-to-docx")(data, '', {}, ''))
 }
 
 /*
