@@ -1211,6 +1211,7 @@
   width: 0;
   height: 0;
 }
+
 .vditor-outline {
   width: 250px;
   border-right: 1px solid var(--border-color);
@@ -1218,6 +1219,13 @@
   display: none;
   overflow: auto;
 }
+
+@media (max-width: 992px) {
+  .vditor-outline {
+    width: 150px;
+  }
+}
+
 .vditor-outline--right {
   border-right: 0;
   border-left: 1px solid var(--border-color);
