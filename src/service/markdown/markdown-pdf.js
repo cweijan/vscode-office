@@ -40,10 +40,10 @@ function convertMarkdownToHtml(filename, type, text, config) {
     try {
       const hljs = require("highlight.js");
       console.log("[pretty-md-pdf] Converting (convertMarkdownToHtml) ...")
-      let breaks = config["breaks"]
+      const breaks = config["breaks"]
       md = markdownIt({
         html: true,
-        breaks: breaks,
+        breaks,
         highlight: function (str, lang) {
           if (lang && hljs.getLanguage(lang)) {
             try {

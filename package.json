@@ -420,6 +420,11 @@
 					"default": false,
 					"description": "Support view absolute path image from markdown viewer."
 				},
+				"vscode-office.pdfMarginTop": {
+					"type": "integer",
+					"default": 25,
+					"description": "Printed pdf default top margin."
+				},
 				"vscode-office.openOutline": {
 					"type": "boolean",
 					"default": true,

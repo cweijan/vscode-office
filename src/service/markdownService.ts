@@ -22,7 +22,7 @@ export class MarkdownService {
      */
     public async exportMarkdown(uri: vscode.Uri, type: ExportType = 'pdf') {
         try {
-            if(type=='pdf'){
+            if (type == 'pdf') {
                 // 其他类型不用, 速度太快了
                 vscode.window.showInformationMessage(`Starting export markdown to ${type}.`)
             }
@@ -33,35 +33,20 @@ export class MarkdownService {
         }
     }
 
-    public getConfig(type?: string) {
+    public getConfig(type: string = 'pdf') {
+        const config = vscode.workspace.getConfiguration("vscode-office");
+        const top = config.get("pdfMarginTop")
         return {
-            "type": type || "pdf",
-            "outputDirectory": "",
-            "outputDirectoryRelativePathFile": false,
+            type,
             "styles": [],
-            "stylesRelativePathFile": false,
-            "includeDefaultStyles": true,
-            "highlight": true,
-            "highlightStyle": "",
-            "breaks": false,
-            "markdown-it-include": true,
+            // chromium path
             "executablePath": this.getChromiumPath(),
-            "scale": 1,
-            "displayHeaderFooter": true,
-            "headerTemplate": "<div style=\"font-size: 9px; margin-left: 1cm;\"> <span class='title'></span></div> <div style=\"font-size: 9px; margin-left: auto; margin-right: 1cm; \"> <span class='date'></span></div>",
-            "footerTemplate": "<div style=\"font-size: 9px; margin: 0 auto;\"> <span class='pageNumber'></span> / <span class='totalPages'></span></div>",
+            // Set `true` to convert `\n` in paragraphs into `<br>`.
+            "breaks": false,
+            // pdf print option
             "printBackground": true,
-            "orientation": "portrait",
-            "pageRanges": "",
-            "format": "A4",
-            "width": "",
-            "height": "",
-            "margin": "1cm",
-            "quality": 100,
-            "clip": {
-                "height": null
-            },
-            "omitBackground": false
+            format: "A4",
+            margin: { top }
         };
     }
 
