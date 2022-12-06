@@ -10,7 +10,8 @@ a {
     text-decoration: none;
 }
 
-.vditor-panel .vditor-icon {
+.vditor-panel span[aria-label="ID<Alt+Enter>"],
+.vditor-panel .vditor-icon[data-type="down"] {
     display: none !important;
 }
 
