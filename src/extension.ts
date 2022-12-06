@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { autoClearCacheStorage } from './service/autoClearCacheStorage';
 import { JavaDecompilerProvider } from './provider/javaDecompilerProvider';
-import { OfficeEditorProvider } from './provider/officeEditorProvider';
+import { MarkdownEditorProvider } from './provider/markdownEditorProvider';
 import { OfficeViewerProvider } from './provider/officeViewerProvider';
 import { HtmlService } from './service/htmlService';
 import { MarkdownService } from './service/markdownService';
@@ -19,7 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('office.markdown.paste', () => { markdownService.loadClipboardImage() }),
 		vscode.commands.registerCommand('office.html.preview', uri => HtmlService.previewHtml(uri, context)),
 		vscode.workspace.registerTextDocumentContentProvider('decompile_java', new JavaDecompilerProvider()),
-		vscode.window.registerCustomEditorProvider("cweijan.markdownViewer", new OfficeEditorProvider(context), viewOption),
+		vscode.window.registerCustomEditorProvider("cweijan.markdownViewer", new MarkdownEditorProvider(context), viewOption),
 		vscode.window.registerCustomEditorProvider("cweijan.officeViewer", viewerInstance, viewOption),
 		vscode.window.registerCustomEditorProvider("cweijan.htmlViewer", viewerInstance, viewOption),
 		vscode.window.registerCustomEditorProvider("cweijan.classViewer", viewerInstance, viewOption),

@@ -23,7 +23,7 @@ export class MarkdownService {
     public async exportMarkdown(uri: vscode.Uri, type: ExportType = 'pdf') {
         try {
             if (type == 'pdf') {
-                // 其他类型不用, 速度太快了
+                // 其他类型不用, 导出速度很快
                 vscode.window.showInformationMessage(`Starting export markdown to ${type}.`)
             }
             await convertMd({ markdownFilePath: uri.fsPath, config: this.getConfig(type) })

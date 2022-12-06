@@ -1,19 +1,16 @@
 import * as fs from 'fs';
 import { existsSync, mkdirSync, readFileSync } from 'fs';
-import { basename, dirname, extname, isAbsolute, parse, resolve } from 'path';
-import * as util from 'util';
+import { basename, dirname, isAbsolute, parse, resolve } from 'path';
 import * as vscode from 'vscode';
-import { MessageOptions } from 'vscode';
 import { Hanlder } from '../common/handler';
 import { Util } from '../common/util';
 import { Holder } from '../service/markdown/holder';
 import { MarkdownService } from '../service/markdownService';
-const streamPipeline = util.promisify(require('stream').pipeline);
 
 /**
  * support view and edit office files.
  */
-export class OfficeEditorProvider implements vscode.CustomTextEditorProvider {
+export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
     private extensionPath: string;
     private countStatus: vscode.StatusBarItem;

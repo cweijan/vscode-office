@@ -33,7 +33,7 @@ function addTocToContent(text) {
  * convert markdown to html (markdown-it)
  */
 function convertMarkdownToHtml(filename, type, text, config) {
-  text = addTocToContent(text)
+  if (type == 'pdf') text = addTocToContent(text)
   let md = {}
 
   try {
