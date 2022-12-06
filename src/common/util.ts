@@ -13,4 +13,23 @@ export class Util {
         });
     }
 
+
+    public static async confirm(title: string, placeHolder: string, callback?: () => void): Promise<boolean> {
+        return this.confirmActual({ title, placeHolder }, callback)
+    }
+
+    public static async confirmActual(options: vscode.QuickPickOptions, callback?: () => void): Promise<boolean> {
+        const res = await vscode.window.showQuickPick([Confirm.YES, Confirm.NO], options);
+        const yes = res == Confirm.YES;
+        if (yes && callback) {
+            await callback()
+            return true;
+        }
+        return yes;
+    }
+}
+
+
+enum Confirm {
+    YES = "YES", NO = "NO"
 }

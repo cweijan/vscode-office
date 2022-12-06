@@ -200,8 +200,10 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 file: resolve(uri.fsPath), ext: extname(uri.fsPath)
             })
         }).on("save", async (content) => {
-            await vscode.workspace.fs.writeFile(uri, new Uint8Array(content))
-            handler.emit("saveDone")
+            Util.confirm(`Save confirm`, 'Are you sure you want to save? this will lose all formatting.', async () => {
+                await vscode.workspace.fs.writeFile(uri, new Uint8Array(content))
+                handler.emit("saveDone")
+            })
         }).on("saveCsv", async (content) => {
             await vscode.workspace.fs.writeFile(uri, enc.encode(content))
             handler.emit("saveDone")

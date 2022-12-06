@@ -1,5 +1,14 @@
 # Change log
 
+# 2.9.2 2022-12-6
+
+- 保存xlsx时增加确认框.
+
+# 2.9.1 2022-11-23
+
+- 调整markdown编辑器小屏下的大纲宽度
+- Markdown转换的Pdf调整页面边距.
+
 # 2.9.0 2022-11-9
 
 - Speed up extension activation.
