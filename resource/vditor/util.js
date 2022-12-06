@@ -61,7 +61,6 @@ export const toolbar = [
     "italic",
     "strike",
     "link",
-    "emoji",
     "|",
     {
         tipPosition: 's',
