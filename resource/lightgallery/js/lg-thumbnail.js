@@ -114,6 +114,8 @@
 
         $('#lg-thumbnail').on('click', () =>{
             _this.core.$outer.toggleClass('lg-thumb-open');
+            const height=_this.core.$outer[0].classList.contains('lg-thumb-open')?document.querySelector('.lg-thumb-outer').clientHeight:0;
+            document.querySelector('.lg-sub-html').style.bottom=height+'px'
         });
 
     };
@@ -157,6 +159,7 @@
         }
 
         if (this.core.s.animateThumb) {
+            console.log( _this.core.s.thumbContHeight )
             _this.$thumbOuter.css('height', _this.core.s.thumbContHeight + 'px');
         }
 
