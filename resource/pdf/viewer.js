@@ -3584,7 +3584,7 @@ const defaultOptions = {
     kind: OptionKind.API
   },
   cMapUrl: {
-    value: "../web/cmaps/",
+    value: "https://unpkg.com/pdfjs-dist@2.7.570/cmaps/",
     kind: OptionKind.API
   },
   disableAutoFetch: {

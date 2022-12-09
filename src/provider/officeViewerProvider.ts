@@ -162,21 +162,20 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
 
     private handlePdf(uri: vscode.Uri, webview: vscode.Webview) {
-        webview.html = Util.buildPath(
-            readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8').replace("{{content}}",
-                JSON.stringify({
-                    path: webview.asWebviewUri(uri).with({ query: `nonce=${Date.now().toString()}` }).toString(),
-                    defaults: {
-                        cursor: "select",
-                        scale: "auto",
-                        sidebar: true,
-                        scrollMode: "vertical",
-                        spreadMode: "none",
-                    },
-                }).replace(/"/g, '&quot;')
-            ),
-            webview, this.extensionPath + "/resource/pdf"
-        );
+        const baseUrl = webview.asWebviewUri(vscode.Uri.file(this.extensionPath + "/resource/pdf"))
+            .toString().replace(/\?.+$/, '').replace('https://git', 'https://file');
+        const config = JSON.stringify({
+            path: webview.asWebviewUri(uri).with({ query: `nonce=${Date.now().toString()}` }).toString(),
+            defaults: {
+                cursor: "select",
+                scale: "auto",
+                sidebar: true,
+                scrollMode: "vertical",
+                spreadMode: "none",
+            }
+        }).replace(/"/g, '&quot;');
+        webview.html = readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8')
+            .replace("{{baseUrl}}", baseUrl).replace("{{content}}", config);
     }
 
     private handleFont(document: vscode.CustomDocument, handler: Hanlder) {
