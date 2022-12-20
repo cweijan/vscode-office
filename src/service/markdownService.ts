@@ -50,20 +50,21 @@ export class MarkdownService {
         };
     }
 
-    private paths: { [index: string]: string } = {
-        stable: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-        beta: "C:\\Program Files (x86)\\Microsoft\\Edge Beta\\Application\\msedge.exe",
-        dev: "C:\\Program Files (x86)\\Microsoft\\Edge Dev\\Application\\msedge.exe",
-        canary: join(homedir(), "AppData\\Local\\Microsoft\\Edge SxS\\Application\\msedge.exe"),
-        mac: "/Applications/Microsoft/Edge.app",
-        linux: "/usr/bin/microsoft-edge",
-    }
+    private paths: string[] = [
+        "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+        "C:\\Program Files (x86)\\Microsoft\\Edge Beta\\Application\\msedge.exe",
+        "C:\\Program Files (x86)\\Microsoft\\Edge Dev\\Application\\msedge.exe",
+        join(homedir(), "AppData\\Local\\Microsoft\\Edge SxS\\Application\\msedge.exe"),
+        "/Applications/Microsoft/Edge.app",
+        "/usr/bin/microsoft-edge",
+    ]
 
     private getChromiumPath() {
-        for (const pathName in this.paths) {
-            const path = this.paths[pathName];
+        const chromiumPath = vscode.workspace.getConfiguration("vscode-office").get<string>("chromiumPath")
+        const paths = [chromiumPath]
+        for (const path of paths) {
             if (existsSync(path)) {
-                console.debug(`using edge path is ${path}`)
+                console.debug(`using chromium path is ${path}`)
                 return path;
             }
         }

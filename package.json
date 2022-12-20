@@ -420,6 +420,10 @@
 					"default": false,
 					"description": "Support view absolute path image from markdown viewer."
 				},
+				"vscode-office.chromiumPath": {
+					"type": "string",
+					"description": "Set the chromium browser location for exporting markdown pdf."
+				},
 				"vscode-office.pdfMarginTop": {
 					"type": "integer",
 					"default": 25,
