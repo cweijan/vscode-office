@@ -19,10 +19,8 @@
 - 通过右键菜单可以导出为html, pdf和docx.
 - 点击以下按钮可打开VSCode内置编辑器.
   ![img](image/README-CN/1640579182342.png)
-- 点击以下按钮可将Markdown导出为PDF, 需要机器上有安装Chrome或Edge.
+- 点击以下按钮可将Markdown导出为PDF, 需要机器上有安装Chrome或Edge, 可通过配置`vscode-office.chromiumPath`指定浏览器位置.
   ![img](image/README-CN/1640579380584.png)
-
-VSCode加载webview时会生成缓存, 故该扩展每次启动时会自动进行清理. MAC OS和Linux未测试, 有使用相关的系统的可帮忙报告哪里创建了CacheStorage.
 
 ## 其他功能
 
