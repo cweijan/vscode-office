@@ -27,7 +27,8 @@ handler.on("open", (md) => {
         codeBlockPreview: config.previewCode,
       },
       hljs: {
-        style: 'dracula'
+        style: config.previewCodeHighlight.style,
+        lineNumber: config.previewCodeHighlight.showLineNumber
       },
       extPath: md.rootPath,
       math: {
