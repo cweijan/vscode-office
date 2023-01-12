@@ -1,5 +1,11 @@
 # Change log
 
+# 2.9.5
+
+- 支持配置代码块颜色样式.
+- 更新editorInlayHint颜色.
+- 粘贴图片路径增加workspaceDir变量.
+
 # 2.9.4 2022-12-20
 
 - 调整代码块颜色.

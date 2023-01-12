@@ -509,7 +509,7 @@
 				"vscode-office.pasterImgPath": {
 					"type": "string",
 					"default": "image/${fileName}/${now}.png",
-					"description": "Markdown paste image path."
+					"description": "Markdown paste image path, variables: workspaceDir, fileName, now."
 				}
 			}
 		}

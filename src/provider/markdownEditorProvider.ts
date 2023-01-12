@@ -92,17 +92,15 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         }).on("scroll", ({ scrollTop }) => {
             this.state.update(`scrollTop_${document.uri.fsPath}`, scrollTop)
         }).on("img", (img) => {
-            let rePath = vscode.workspace.getConfiguration("vscode-office").get<string>("pasterImgPath");
-            rePath = rePath.replace("${fileName}", parse(uri.fsPath).name.replace(/\s/g, '')).replace("${now}", new Date().getTime() + "")
-            const imagePath = isAbsolute(rePath) ? rePath : `${resolve(uri.fsPath, "..")}/${rePath}`.replace(/\\/g, "/");
+            let relPath = Util.adjustImgPath(uri)
+            const imagePath = isAbsolute(relPath) ? relPath : `${resolve(uri.fsPath, "..")}/${relPath}`.replace(/\\/g, "/");
             const dir = dirname(imagePath)
             if (!existsSync(dir)) {
                 mkdirSync(dir, { recursive: true })
             }
-            const fileName = parse(rePath).name;
+            const fileName = parse(relPath).name;
             fs.writeFileSync(imagePath, Buffer.from(img, 'binary'))
-            console.log(img)
-            vscode.env.clipboard.writeText(`![${fileName}](${rePath})`)
+            vscode.env.clipboard.writeText(`![${fileName}](${relPath})`)
             vscode.commands.executeCommand("editor.action.clipboardPasteAction")
         }).on("editInVSCode", () => {
             vscode.commands.executeCommand('vscode.openWith', uri, "default", vscode.ViewColumn.Beside);

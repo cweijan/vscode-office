@@ -8,6 +8,7 @@ import * as vscode from 'vscode';
 import { Holder } from './markdown/holder';
 import { convertMd } from "./markdown/markdown-pdf";
 import { fileTypeFromFile } from 'file-type';
+import { Util } from "@/common/util";
 
 export type ExportType = 'pdf' | 'html' | 'docx';
 
@@ -90,9 +91,8 @@ export class MarkdownService {
             return
         }
 
-        const uri: vscode.Uri = document.uri;
-        let relPath = vscode.workspace.getConfiguration("vscode-office").get<string>("pasterImgPath");
-        relPath = relPath.replace("${fileName}", parse(uri.fsPath).name.replace(/\s/g, '')).replace("${now}", new Date().getTime() + "")
+        const uri = document.uri;
+        let relPath = Util.adjustImgPath(uri)
         const absolutePath = isAbsolute(relPath) ? relPath : `${dirname(uri.fsPath)}/${relPath}`.replace(/\\/g, "/");
         this.createImgDir(absolutePath);
         this.saveClipboardImageToFileAndGetPath(absolutePath, async (savedImagePath) => {
