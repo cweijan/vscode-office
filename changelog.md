@@ -1,6 +1,6 @@
 # Change log
 
-# 2.9.5
+# 2.9.5 2023-1-12
 
 - 更新主题的editorInlayHint颜色.
 - Markdown:
