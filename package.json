@@ -485,7 +485,7 @@
 				},
 				"vscode-office.previewCodeHighlight.showLineNumber": {
 					"type": "boolean",
-					"default": false,
+					"default": true,
 					"markdownDescription": "Show line numbers in markdown preview code window. Only applies when `#vscode-office.previewCode#` is enabled."
 				},
 				"vscode-office.autoTheme": {
