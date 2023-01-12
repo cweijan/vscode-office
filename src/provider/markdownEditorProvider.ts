@@ -1,6 +1,6 @@
-import * as fs from 'fs';
-import { existsSync, mkdirSync, readFileSync } from 'fs';
-import { basename, dirname, isAbsolute, parse, resolve } from 'path';
+import { adjustImgPath, getWorkspacePath, wrieteFile } from '@/common/fileUtil';
+import { readFileSync } from 'fs';
+import { basename, isAbsolute, parse, resolve } from 'path';
 import * as vscode from 'vscode';
 import { Hanlder } from '../common/handler';
 import { Util } from '../common/util';
@@ -92,14 +92,10 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         }).on("scroll", ({ scrollTop }) => {
             this.state.update(`scrollTop_${document.uri.fsPath}`, scrollTop)
         }).on("img", (img) => {
-            let relPath = Util.adjustImgPath(uri)
-            const imagePath = isAbsolute(relPath) ? relPath : `${resolve(uri.fsPath, "..")}/${relPath}`.replace(/\\/g, "/");
-            const dir = dirname(imagePath)
-            if (!existsSync(dir)) {
-                mkdirSync(dir, { recursive: true })
-            }
+            const { relPath, fullPath } = adjustImgPath(uri)
+            const imagePath = isAbsolute(fullPath) ? fullPath : `${resolve(uri.fsPath, "..")}/${relPath}`.replace(/\\/g, "/");
+            wrieteFile(imagePath, Buffer.from(img, 'binary'))
             const fileName = parse(relPath).name;
-            fs.writeFileSync(imagePath, Buffer.from(img, 'binary'))
             vscode.env.clipboard.writeText(`![${fileName}](${relPath})`)
             vscode.commands.executeCommand("editor.action.clipboardPasteAction")
         }).on("editInVSCode", () => {
@@ -126,7 +122,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             config.update("openOutline", enable, true)
         })
 
-        const baseUrl = webview.asWebviewUri(folderPath).toString().replace(/\?.+$/, '').replace('https://git', 'https://file');
+        const basePath = vscode.workspace.getConfiguration("vscode-office").get<boolean>("workspacePathAsImageBasePath") ?
+            vscode.Uri.file(getWorkspacePath(folderPath)) : folderPath;
+        const baseUrl = webview.asWebviewUri(basePath).toString().replace(/\?.+$/, '').replace('https://git', 'https://file');
         webview.html = Util.buildPath(
             readFileSync(`${this.extensionPath}/resource/vditor/index.html`, 'utf8')
                 .replace("{{rootPath}}", rootPath)

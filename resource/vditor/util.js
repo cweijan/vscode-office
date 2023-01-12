@@ -234,8 +234,8 @@ export const imageParser = (viewAbsoluteLocal) => {
                 for (const img of imgs) {
                     const url = img.src;
                     if (url.startsWith("http")) { continue; }
-                    if (url.startsWith("vscode-webview-resource") && url.includes("file///")) {
-                        img.src = `https://file+.vscode-resource.vscode-cdn.net/${url.split("file///")[1]}`
+                    if (url.startsWith("vscode-webview-resource") || url.includes("file:///")) {
+                        img.src = `https://file+.vscode-resource.vscode-cdn.net/${url.split("file:///")[1]}`
                     }
                 }
             }

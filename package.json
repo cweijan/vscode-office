@@ -506,6 +506,11 @@
 					"default": "en_US",
 					"description": "You could change your editor language."
 				},
+				"vscode-office.workspacePathAsImageBasePath": {
+					"type": "boolean",
+					"default": false,
+					"description": "Using workspace path as markdown image base path."
+				},
 				"vscode-office.pasterImgPath": {
 					"type": "string",
 					"default": "image/${fileName}/${now}.png",

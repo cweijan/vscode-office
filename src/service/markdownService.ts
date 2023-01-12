@@ -1,14 +1,14 @@
+import { adjustImgPath } from "@/common/fileUtil";
 import { Output } from "@/common/Output";
 import { spawn } from 'child_process';
 import chromeFinder from 'chrome-finder';
+import { fileTypeFromFile } from 'file-type';
 import { copyFileSync, existsSync, lstatSync, mkdirSync, renameSync } from 'fs';
 import { homedir } from 'os';
 import path, { dirname, extname, isAbsolute, join, parse } from 'path';
 import * as vscode from 'vscode';
 import { Holder } from './markdown/holder';
 import { convertMd } from "./markdown/markdown-pdf";
-import { fileTypeFromFile } from 'file-type';
-import { Util } from "@/common/util";
 
 export type ExportType = 'pdf' | 'html' | 'docx';
 
@@ -62,7 +62,7 @@ export class MarkdownService {
 
     private getChromiumPath() {
         const chromiumPath = vscode.workspace.getConfiguration("vscode-office").get<string>("chromiumPath")
-        const paths = [chromiumPath]
+        const paths = [chromiumPath, ...this.paths]
         for (const path of paths) {
             if (existsSync(path)) {
                 console.debug(`using chromium path is ${path}`)
@@ -92,23 +92,23 @@ export class MarkdownService {
         }
 
         const uri = document.uri;
-        let relPath = Util.adjustImgPath(uri)
-        const absolutePath = isAbsolute(relPath) ? relPath : `${dirname(uri.fsPath)}/${relPath}`.replace(/\\/g, "/");
-        this.createImgDir(absolutePath);
-        this.saveClipboardImageToFileAndGetPath(absolutePath, async (savedImagePath) => {
+        let { relPath, fullPath } = adjustImgPath(uri)
+        const imagePath = isAbsolute(fullPath) ? fullPath : `${dirname(uri.fsPath)}/${relPath}`.replace(/\\/g, "/");
+        this.createImgDir(imagePath);
+        this.saveClipboardImageToFileAndGetPath(imagePath, async (savedImagePath) => {
             if (!savedImagePath) return;
             if (savedImagePath === 'no image') {
                 vscode.window.showErrorMessage('There is not an image in the clipboard.');
                 return;
             }
-            this.copyFromPath(savedImagePath, absolutePath);
+            this.copyFromPath(savedImagePath, imagePath);
             const editor = vscode.window.activeTextEditor;
             const imgName = parse(relPath).name;
-            const oldExt = extname(absolutePath)
-            const { ext = "png" } = (await fileTypeFromFile(absolutePath)) ?? {};
+            const oldExt = extname(imagePath)
+            const { ext = "png" } = (await fileTypeFromFile(imagePath)) ?? {};
             if (oldExt != `.${ext}`) {
                 relPath = relPath.replace(oldExt, `.${ext}`)
-                renameSync(absolutePath, absolutePath.replace(oldExt, `.${ext}`))
+                renameSync(imagePath, imagePath.replace(oldExt, `.${ext}`))
             }
             if (editor) {
                 editor?.edit(edit => {

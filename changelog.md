@@ -2,11 +2,13 @@
 
 # 2.9.5
 
-- 更新editorInlayHint颜色.
+- 更新主题的editorInlayHint颜色.
 - Markdown:
   - 代码块预览增加行号显示.
   - 支持配置代码块颜色样式.
   - 粘贴图片路径增加workspaceDir变量.
+  - 修复无法导出PDF.
+  - 修复无法显示绝对路径的图片.
 
 # 2.9.4 2022-12-20
 
