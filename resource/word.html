@@ -80,7 +80,7 @@
             showGoInput: true,
             showGoButton: true,
             callback: (data, pagination) => {
-                window.scrollTo(0, window.innerHeight * data[0]);
+                window.scrollTo(0, window.innerHeight * (data[0]-1));
             }
         })
     }
@@ -104,9 +104,9 @@
 
         initPaginition()
 
-        document.getElementById('top-btn').onclick = e => {
-            window.scrollTo(0, 0)
-        }
+        // document.getElementById('top-btn').onclick = e => {
+        //     window.scrollTo(0, 0)
+        // }
 
 
     }

@@ -2,9 +2,13 @@
 
 # 2.9.6
 
-- Reduce word pagination navigator size.
 - Reduce the size of the excel save notice.
+- Word:
+
+  - Fix pager jumping incorrectly.
+  - Reduce pagination navigator size.
 - Markdown:
+
   - Support hide toolbar.
   - Fix extension activation failure when rest client exists.
   - Support open hyperlinks via meta or middle mouse button.

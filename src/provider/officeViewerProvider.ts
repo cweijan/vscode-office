@@ -92,7 +92,6 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
     private handleDocx(uri: vscode.Uri, webview: vscode.Webview) {
         require("mammoth").convertToHtml({ path: uri.fsPath })
             .then((result: any) => {
-                console.debug(result.messages)
                 webview.html =
                     Util.buildPath(
                         readFileSync(this.extensionPath + "/resource/word.html", 'utf8').replace("{{content}}", result.value)
