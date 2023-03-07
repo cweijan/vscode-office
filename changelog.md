@@ -5,6 +5,7 @@
 - Reduce the size of the excel save notice.
 - Word:
 
+  - Fix cannot display images.
   - Fix pager jumping incorrectly.
   - Reduce pagination navigator size.
 - Markdown:

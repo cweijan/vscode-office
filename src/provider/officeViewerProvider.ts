@@ -92,12 +92,9 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
     private handleDocx(uri: vscode.Uri, webview: vscode.Webview) {
         require("mammoth").convertToHtml({ path: uri.fsPath })
             .then((result: any) => {
-                webview.html =
-                    Util.buildPath(
-                        readFileSync(this.extensionPath + "/resource/word.html", 'utf8').replace("{{content}}", result.value)
-                            .replace("$autoTheme", workspace.getConfiguration("vscode-office").get<boolean>("autoTheme") + '')
-                        , webview, this.extensionPath + "/resource"
-                    )
+                const template = Util.buildPath(readFileSync(this.extensionPath + "/resource/word.html", 'utf8'), webview, this.extensionPath + "/resource")
+                webview.html = template.replace("{{content}}", result.value)
+                    .replace("$autoTheme", workspace.getConfiguration("vscode-office").get<boolean>("autoTheme") + '')
             });
     }
 
