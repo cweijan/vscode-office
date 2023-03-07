@@ -19,7 +19,7 @@ If it helps you, consider star this repository (●'◡'●).
 This extension changes the default markdown editor to the excellent vditor:
 
 - A WYSIWYG editor for markdown.
-- Which provides export to pdf (via right click in the document tab).
+- Which provides export to pdf, html or contextmenu(via right click in the document).
 
 If you want to use the original vscode editor, insert this in your `settings.json`.
 
@@ -31,10 +31,10 @@ If you want to use the original vscode editor, insert this in your `settings.jso
 }
 ```
 
-Markdown editor default languge is English. If you want change it, could change in VSCode settings. It support the following languages,
- en_US, ja_JP, ko_KR, ru_RU, zh_CN, zh_TW.
+Usages:
 
-![1666635632251](image/README/1666635632251.png)
+- Resize editor via ctrl/meta+mouse scroll.
+- Hyperlinks can be opened by ctrl/meta+click or double-click.
 
 ## HTML
 

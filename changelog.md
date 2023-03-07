@@ -1,8 +1,9 @@
 # Change log
 
-# 2.9.6
+# 2.9.6 2023-3-7
 
 - Reduce the size of the excel save notice.
+- Support resizing the view through ctrl/meta with mouse scrolling.
 - Word:
 
   - Fix cannot display images.
