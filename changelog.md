@@ -2,6 +2,7 @@
 
 # 2.9.6
 
+- Reduce the size of the excel save notice.
 - Markdown:
   - Support hide toolbar.
   - Fix extension activation failure when rest client exists.
