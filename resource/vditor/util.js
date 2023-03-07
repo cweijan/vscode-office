@@ -98,8 +98,6 @@ export const toolbar = [
     "ordered-list",
     "check",
     "table",
-    "outdent",
-    "indent",
     "|",
     "quote",
     "line",
@@ -110,7 +108,6 @@ export const toolbar = [
     "redo",
     "|",
     "preview",
-    "info",
     "help",
 ]
 

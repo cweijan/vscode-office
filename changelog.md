@@ -3,6 +3,7 @@
 # 2.9.6
 
 - Markdown:
+  - Support hide toolbar.
   - Fix extension activation failure when rest client exists.
   - Support open hyperlinks via meta or middle mouse button.
 

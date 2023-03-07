@@ -434,6 +434,11 @@
 					"default": true,
 					"description": "Open markdown outline."
 				},
+				"vscode-office.hideToolbar": {
+					"type": "boolean",
+					"default": false,
+					"description": "Hide markdown toolbar."
+				},
 				"vscode-office.previewCode": {
 					"type": "boolean",
 					"default": true,

@@ -14,6 +14,9 @@ handler.on("open", (md) => {
       enable: config.openOutline,
       position: 'left',
     },
+    toolbarConfig: {
+      hide: config.hideToolbar
+    },
     mode: 'wysiwyg',
     lang: language == 'zh-cn' ? 'zh_CN' : config.editorLanguage,
     icon: "material",
