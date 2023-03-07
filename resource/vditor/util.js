@@ -253,7 +253,7 @@ export const imageParser = (viewAbsoluteLocal) => {
  * 自动补全符号
  */
 const keys = ['"', "{", "("];
-export const autoSymbal = (editor) => {
+export const autoSymbal = (handler, editor) => {
     let _exec = document.execCommand.bind(document)
     document.execCommand = (cmd, ...args) => {
         if (cmd === 'delete') {
@@ -265,6 +265,7 @@ export const autoSymbal = (editor) => {
         }
     }
     window.onkeydown = (e) => {
+        if (e.code == 'F12') return handler.emit('developerTool')
         if (e.ctrlKey && e.code == "KeyV") {
             if (e.shiftKey) {
                 navigator.clipboard.readText().then(text => {
@@ -284,7 +285,7 @@ export const autoSymbal = (editor) => {
         //     e.stopPropagation()
         //     return;
         // }
-        if (keys.indexOf(e.key) == -1) {
+        if (!keys.includes(e.key)) {
             return;
         }
         const selectText = document.getSelection().toString();

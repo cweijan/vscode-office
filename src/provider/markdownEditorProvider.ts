@@ -120,6 +120,8 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             vscode.commands.executeCommand('workbench.action.selectTheme');
         }).on("saveOutline", (enable) => {
             config.update("openOutline", enable, true)
+        }).on('developerTool',()=>{
+            vscode.commands.executeCommand('workbench.action.toggleDevTools')
         })
 
         const basePath = vscode.workspace.getConfiguration("vscode-office").get<boolean>("workspacePathAsImageBasePath") ?
