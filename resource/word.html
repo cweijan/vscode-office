@@ -3,8 +3,8 @@
 <head>
     <style>
         body {
-            background-color: #fbfbfb ;
-            color: #3e3838 ;
+            background-color: #fbfbfb;
+            color: #3e3838;
             font-family: var(--vscode-font-family);
             font-weight: var(--vscode-font-weight);
             font-size: 14px;
@@ -24,7 +24,7 @@
             right: 60px;
         }
 
-        .paginationjs .paginationjs-pages{
+        .paginationjs .paginationjs-pages {
             max-width: 300px;
         }
 
@@ -74,7 +74,7 @@
         $('#pagination').pagination({
             dataSource: createSerial(total),
             pageSize: 1,
-            pageRange: null,
+            pageRange: total > 15 ? 2 : null,
             showPageNumbers: true,
             showNavigator: true,
             showGoInput: true,

@@ -2,6 +2,7 @@
 
 # 2.9.6
 
+- Reduce word pagination navigator size.
 - Reduce the size of the excel save notice.
 - Markdown:
   - Support hide toolbar.
