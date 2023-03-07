@@ -5,11 +5,16 @@ import { MarkdownEditorProvider } from './provider/markdownEditorProvider';
 import { OfficeViewerProvider } from './provider/officeViewerProvider';
 import { HtmlService } from './service/htmlService';
 import { MarkdownService } from './service/markdownService';
+import { Output } from './common/Output';
 const httpExt = require('./bundle/extension');
 
 export function activate(context: vscode.ExtensionContext) {
 
-	httpExt.activate(context)
+	try {
+		httpExt.activate(context)
+	} catch (error) {
+		Output.log(error, false)
+	}
 	autoClearCacheStorage();
 
 	const viewOption = { webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true } };

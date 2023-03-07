@@ -2,11 +2,11 @@
 import * as vscode from "vscode";
 
 export class Output {
-    public static log(value: any) {
+    public static log(value: any, showLog = true) {
         if (this.outputChannel == null) {
             this.outputChannel = vscode.window.createOutputChannel("Office");
         }
-        this.outputChannel.show(true);
+        if (showLog) this.outputChannel.show(true);
         this.outputChannel.appendLine(`${value}`);
         this.outputChannel.appendLine("-----------------------------------------------------------------------------------------");
     }
