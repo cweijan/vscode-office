@@ -121,7 +121,9 @@ export const openLink = () => {
     const clickCallback = e => {
         let ele = e.target;
         e.stopPropagation()
-        if (!e.ctrlKey && event.type != 'dblclick') {
+        const isCompose = e.metaKey || e.ctrlKey
+        const isSpecial = ['dblclick', 'auxclick'].includes(e.type)
+        if (!isCompose && !isSpecial) {
             return;
         }
         if (ele.tagName == 'A') {
@@ -141,6 +143,7 @@ export const openLink = () => {
     const content = document.querySelector(".vditor-wysiwyg");
     content.addEventListener('dblclick', clickCallback);
     content.addEventListener('click', clickCallback);
+    content.addEventListener('auxclick', clickCallback);
     document.querySelector(".vditor-reset").addEventListener("scroll", e => {
         // 滚动有偏差
         handler.emit("scroll", { scrollTop: e.target.scrollTop - 70 })

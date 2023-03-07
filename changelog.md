@@ -1,5 +1,11 @@
 # Change log
 
+# 2.9.6
+
+- Markdown:
+  - Fix extension activation failure when rest client exists.
+  - Support open hyperlinks via meta or middle mouse button.
+
 # 2.9.5 2023-1-12
 
 - 更新主题的editorInlayHint颜色.
