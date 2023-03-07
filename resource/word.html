@@ -52,7 +52,6 @@
     <div id="content">
         {{content}}
     </div>
-    <!-- <div id="top-btn" title="Scroll to top"></div> -->
 </body>
 
 <script>
@@ -69,23 +68,25 @@
         return result;
     }
 
+    // http://pagination.js.org/
     function initPaginition() {
         const total = document.body.scrollHeight / window.innerHeight
         $('#pagination').pagination({
             dataSource: createSerial(total),
             pageSize: 1,
-            pageRange: total > 15 ? 2 : null,
+            pageRange: total > 15 ? 1 : null,
             showPageNumbers: true,
             showNavigator: true,
             showGoInput: true,
             showGoButton: true,
             callback: (data, pagination) => {
-                window.scrollTo(0, window.innerHeight * (data[0]-1));
+                window.scrollTo(0, window.innerHeight * (data[0] - 1));
             }
         })
     }
 
 
+    window.onload = initPaginition
     window.onmousewheel = document.onmousewheel = e => {
         if (!e.ctrlKey) {
             return;
@@ -99,18 +100,6 @@
         }
         initPaginition()
     };
-
-    onload = () => {
-
-        initPaginition()
-
-        // document.getElementById('top-btn').onclick = e => {
-        //     window.scrollTo(0, 0)
-        // }
-
-
-    }
-
 </script>
 
 </html>
