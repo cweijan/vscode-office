@@ -96,7 +96,7 @@ function export_xlsx() {
 };
 
 window.onkeydown = e => {
-    if (e.ctrlKey && e.code == "KeyS") {
+    if (isCompose(e) && e.code == "KeyS") {
         export_xlsx()
     }
 }

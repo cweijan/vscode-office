@@ -14,7 +14,8 @@
     <script src="js/lg-zoom.js"></script>
     <script src="js/lg-thumbnail.js"></script>
     <style>
-        .lg-close,#lightgallery {
+        .lg-close,
+        #lightgallery {
             display: none;
         }
     </style>
@@ -25,24 +26,24 @@
         {{content}}
     </div>
     <script>
-        const imageNumber=document.querySelectorAll('img').length;
+        const imageNumber = document.querySelectorAll('img').length;
         var lg = $('#lightgallery');
         lg.lightGallery({
             download: false,
             closable: false,
             speed: 450,
-            controls:false,
+            controls: false,
             escKey: false,
             supportLegacyBrowser: false,
             // zoom
-            scale:0.1,
+            scale: 0.1,
             actualSize: true,
             // Thum
             animateThumb: false,
             loadDailymotionThumbnail: false,
             loadVimeoThumbnail: false,
             loadYoutubeThumbnail: false,
-            showThumbByDefault: imageNumber<=10,
+            showThumbByDefault: imageNumber <= 10,
             toogleThumb: false
         })
         $('a:eq({{current}})').click()

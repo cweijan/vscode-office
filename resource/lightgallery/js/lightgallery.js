@@ -1244,13 +1244,13 @@
             }
 
             if (e.deltaY > 0) {
-                if(e.ctrlKey){
+                if(isCompose(e)){
                     _this.callScale(_this.s.scale)
                 }else{
                     _this.goToPrevSlide();
                 }
             } else {
-                if(e.ctrlKey){
+                if(isCompose(e)){
                     _this.callScale(-_this.s.scale)
                 }else{
                     _this.goToNextSlide();

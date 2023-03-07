@@ -118,9 +118,8 @@ export const openLink = () => {
     const clickCallback = e => {
         let ele = e.target;
         e.stopPropagation()
-        const isCompose = e.metaKey || e.ctrlKey
         const isSpecial = ['dblclick', 'auxclick'].includes(e.type)
-        if (!isCompose && !isSpecial) {
+        if (!isCompose(e) && !isSpecial) {
             return;
         }
         if (ele.tagName == 'A') {
@@ -266,7 +265,7 @@ export const autoSymbal = (handler, editor) => {
     }
     window.onkeydown = (e) => {
         if (e.code == 'F12') return handler.emit('developerTool')
-        if (e.ctrlKey && e.code == "KeyV") {
+        if (isCompose(e) && e.code == "KeyV") {
             if (e.shiftKey) {
                 navigator.clipboard.readText().then(text => {
                     if (!text) return;
@@ -280,7 +279,7 @@ export const autoSymbal = (handler, editor) => {
             return;
         }
         // 之前某个vscode版本有bug保存不了, 所以在这里触发, 不过现在不会了
-        // if (e.ctrlKey && e.code == "KeyS" && !e.shiftKey) {
+        // if (isCompose(e) && e.code == "KeyS" && !e.shiftKey) {
         //     vscodeEvent.emit("doSave", editor.getValue())
         //     e.stopPropagation()
         //     return;

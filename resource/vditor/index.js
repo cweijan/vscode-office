@@ -73,6 +73,7 @@ handler.on("open", (md) => {
   createContextMenu(editor)
   imageParser(config.viewAbsoluteLocal)
   scrollEditor(md.scrollTop)
+  zoomElement('.vditor-content')
 }).emit("init")
 
 
