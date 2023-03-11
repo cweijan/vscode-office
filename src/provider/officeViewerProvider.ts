@@ -36,7 +36,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
         let htmlPath: string | null = null;
 
         const handler = Hanlder.bind(webviewPanel, uri);
-        if (ext.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|tiff|webp)$/i)) {
+        if (ext.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|webp)$/i)) {
             this.handleImage(uri, webview)
             handler.on("fileChange", () => {
                 this.handleImage(uri, webview)
