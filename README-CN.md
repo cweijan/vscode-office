@@ -7,7 +7,7 @@
 - 开源免费无广告无隐私追踪 (如果对你有帮助考虑点下star(●'◡'●))
 - vscode内置git支持, 创建一个git仓库就可以对markdown进行版本管理
 - 支持多窗口打开markdown (typora只支持mac)
-- 相比typora的缺点: 对代码块和图形支持不友好.
+- 相比typora的缺点: 对html代码, 代码块和图形支持不友好.
 
 扩展名字叫做Office Viewer因为最初是为了增强VSCode的预览功能, 增加了Excel, svg, pdf等的支持, 后来才增加markdown编辑器, 同时为了精简本人安装的扩展, 集成了一个文件主题和颜色主题.
 
