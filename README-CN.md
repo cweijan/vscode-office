@@ -5,7 +5,7 @@
 该扩展在vscode内集成[Vditor](https://github.com/Vanessa219/vditor)(针对VSCode做了些[兼容性改动](https://github.com/vscode-ext-studio/vditor)), 实现了对markdown的所见即所得编辑, 相比typora的优缺点:
 
 - 开源免费无广告无隐私追踪 (如果对你有帮助考虑点下star(●'◡'●))
-- vscode内置了git, 创建一个git仓库就可以对markdown进行版本管理
+- vscode内置git支持, 创建一个git仓库就可以对markdown进行版本管理
 - 支持多窗口打开markdown (typora只支持mac)
 - 相比typora的缺点: 对代码块和图形支持不友好.
 
