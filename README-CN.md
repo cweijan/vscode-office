@@ -17,11 +17,11 @@
 - 通过ctrl/meta+单击或者双击可打开超链接.
 - 配置 `vscode-office.autoTheme": false`可将编辑器设置为亮白色.
 - 通过右键菜单可以导出为html, pdf和docx.
+- 可通过ctrl/meta+鼠标滚动来调整视图大小
 - 点击以下按钮可打开VSCode内置编辑器.
   ![img](image/README-CN/1640579182342.png)
-- 点击以下按钮可将Markdown导出为PDF, 需要机器上有安装Chrome或Edge, 可通过配置 `vscode-office.chromiumPath`指定浏览器位置.
+- 点击以下按钮可将Markdown导出为PDF, 需要机器上有安装Chrome或Edge, 可通过配置 `vscode-office.chromiumPath`指定浏览器位置, 导出的pdf第一页是目录, 是用来辅助生成书签的.
   ![img](image/README-CN/1640579380584.png)
-- 可通过ctrl/meta+鼠标滚动来调整视图大小
 
 ## 其他功能
 
