@@ -60,7 +60,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 break;
             case ".docx":
             case ".dotx":
-                this.handleDocx(uri, webview)
+                htmlPath = this.handleDocx(uri, webview,handler)
                 break;
             case ".class":
                 this.handleClass(uri, webviewPanel);
@@ -89,13 +89,13 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
     }
 
-    private handleDocx(uri: vscode.Uri, webview: vscode.Webview) {
-        require("mammoth").convertToHtml({ path: uri.fsPath })
-            .then((result: any) => {
-                const template = Util.buildPath(readFileSync(this.extensionPath + "/resource/word.html", 'utf8'), webview, this.extensionPath + "/resource")
-                webview.html = template.replace("{{content}}", result.value)
-                    .replace("$autoTheme", workspace.getConfiguration("vscode-office").get<boolean>("autoTheme") + '')
-            });
+    private handleDocx(uri: vscode.Uri, webview: vscode.Webview,handler:Hanlder) {
+        handler.on("init", async () => {
+            handler.emit("open", {
+                path: handler.panel.webview.asWebviewUri(uri).with({ query: `nonce=${Date.now().toString()}` }).toString(),
+            })
+        })
+        return "word.html"
     }
 
     private async handleClass(uri: vscode.Uri, panel: vscode.WebviewPanel) {

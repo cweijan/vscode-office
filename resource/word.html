@@ -42,6 +42,8 @@
     <script src="lib/jquery.min.js"></script>
     <script src="lib/vscode.js"></script>
     <script src="word/pagination.min.js"></script>
+    <script src="word/jszip.min.js"></script>
+    <script src="word/docx-preview.min.js"></script>
 </head>
 
 <body>
@@ -50,15 +52,27 @@
         </div>
     </div>
     <div id="content">
-        {{content}}
     </div>
 </body>
 
+
 <script>
 
-    if ($autoTheme) {
-        window.addThemeCss()
-    }
+    // https://github.com/VolodymyrBaydalka/docxjs
+    // https://volodymyrbaydalka.github.io/docxjs/
+
+    vscodeEvent.emit("init")
+    vscodeEvent.on("open", ({ path }) => {
+        console.log(path)
+        fetch(path).then(response => response.arrayBuffer()).then(res => {
+            docx.renderAsync(res, document.getElementById("content"))
+                .then(x => {
+                    initPaginition()
+                    zoomElement('#content')
+                });
+        })
+    })
+
 
     function createSerial(count) {
         var result = [];
@@ -84,10 +98,6 @@
             }
         })
     }
-
-
-    window.onload = initPaginition
-    zoomElement('#content')
 </script>
 
 </html>

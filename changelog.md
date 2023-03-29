@@ -1,5 +1,9 @@
 # Change log
 
+# 3.0.0
+
+- Better docx rendering.
+
 # 2.9.6 2023-3-7
 
 - Reduce the size of the excel save notice.

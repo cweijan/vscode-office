@@ -30,3 +30,13 @@
 - html: 编辑HTML的过程中按下ctrl+shift+v可实时预览.
 - Pdf: 支持直接预览pdf文件
 - http: 用于发送http请求, 由于REST Client本地请求有bug, 修改后进行集成.
+
+## Credits
+
+- PDF rendering: [mozilla/pdf.js/](https://github.com/mozilla/pdf.js/)
+- Docx rendering: [VolodymyrBaydalka/docxjs](https://github.com/VolodymyrBaydalka/docxjs)
+- XLSX rendering:
+  - [SheetJS/sheetjs](https://github.com/SheetJS/sheetjs): XLSX parsing
+  - [myliang/x-spreadsheet](https://github.com/myliang/x-spreadsheet): XLSX rendering
+- HTTP: [Rest  Client](https://github.com/Huachao/vscode-restclient)
+- Markdown: [Vanessa219/vditor](https://github.com/Vanessa219/vditor)
