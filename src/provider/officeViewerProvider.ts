@@ -36,6 +36,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
         let htmlPath: string | null = null;
 
         const handler = Hanlder.bind(webviewPanel, uri);
+        handler.on('developerTool', () => vscode.commands.executeCommand('workbench.action.toggleDevTools'))
         if (ext.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|webp)$/i)) {
             this.handleImage(uri, webview)
             handler.on("fileChange", () => {
@@ -60,7 +61,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 break;
             case ".docx":
             case ".dotx":
-                htmlPath = this.handleDocx(uri, webview,handler)
+                htmlPath = this.handleDocx(uri, handler)
                 break;
             case ".class":
                 this.handleClass(uri, webviewPanel);
@@ -89,7 +90,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
     }
 
-    private handleDocx(uri: vscode.Uri, webview: vscode.Webview,handler:Hanlder) {
+    private handleDocx(uri: vscode.Uri, handler: Hanlder) {
         handler.on("init", async () => {
             handler.emit("open", {
                 path: handler.panel.webview.asWebviewUri(uri).with({ query: `nonce=${Date.now().toString()}` }).toString(),

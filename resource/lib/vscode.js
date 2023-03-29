@@ -64,3 +64,8 @@ function zoomElement(selector, rate = 5) {
         }
     };
 }
+
+window.addEventListener('keydown', e => {
+    if (e.code == 'F12') window.vscodeEvent.emit('developerTool')
+    else if ((isCompose(e) && e.code == 'KeyV')) e.preventDefault()  // vscode的bug, hebrew(希伯来语)键盘会粘贴两次
+  })

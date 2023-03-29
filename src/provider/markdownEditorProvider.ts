@@ -40,6 +40,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         }
         const handler = Hanlder.bind(webviewPanel, uri);
         this.handleMarkdown(document, handler, folderPath)
+        handler.on('developerTool', () => vscode.commands.executeCommand('workbench.action.toggleDevTools'))
     }
 
     private handleMarkdown(document: vscode.TextDocument, handler: Hanlder, folderPath: vscode.Uri) {
