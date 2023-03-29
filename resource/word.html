@@ -9,33 +9,31 @@
             font-weight: var(--vscode-font-weight);
             font-size: 14px;
             margin: 0;
-            padding: 0 20px;
+            padding: 0;
         }
-
 
         #content {
             width: 100%;
+            top: 50px;
+            position: absolute;
+            overflow: scroll;
+            height: calc(100vh - 50px);
         }
 
         #pagination-wrapper {
             position: fixed;
             padding: 10px;
-            padding-top: 0;
             right: 60px;
         }
 
         .paginationjs .paginationjs-pages {
-            max-width: 300px;
+            max-width: 600px;
         }
 
-        #top-btn {
-            position: fixed;
-            right: 100px;
-            top: 50%;
-            border-radius: 5px;
-            width: 32px;
-            height: 32px;
-            background-color: #3e3838;
+        .docx-wrapper {
+            padding: 0 !important;
+            padding-top: 10px !important;
+            background-color: #ececec !important;
         }
     </style>
     <link href="word/pagination.css" rel="stylesheet" type="text/css">
@@ -47,11 +45,13 @@
 </head>
 
 <body>
-    <div id="pagination-wrapper">
-        <div id="pagination">
+    <div id="container">
+        <div id="pagination-wrapper">
+            <div id="pagination">
+            </div>
         </div>
-    </div>
-    <div id="content">
+        <div id="content" style="width: 100%;">
+        </div>
     </div>
 </body>
 
@@ -65,11 +65,14 @@
     vscodeEvent.on("open", ({ path }) => {
         console.log(path)
         fetch(path).then(response => response.arrayBuffer()).then(res => {
-            docx.renderAsync(res, document.getElementById("content"))
-                .then(x => {
-                    initPaginition()
-                    zoomElement('#content')
-                });
+            docx.renderAsync(res, document.getElementById("content"), null, {
+                // ignoreWidth:true,
+                // breakPages:true,
+                // ignoreLastRenderedPageBreak:false
+            }).then(x => {
+                initPaginition()
+                zoomElement('#container')
+            });
         })
     })
 
@@ -84,17 +87,19 @@
 
     // http://pagination.js.org/
     function initPaginition() {
-        const total = document.body.scrollHeight / window.innerHeight
+        const ele = document.getElementById('content');
+        const pageSize = window.innerHeight - 50;
+        const total = ele.scrollHeight / pageSize
         $('#pagination').pagination({
             dataSource: createSerial(total),
             pageSize: 1,
-            pageRange: total > 15 ? 1 : null,
+            pageRange: total > 15 ? 3 : null,
             showPageNumbers: true,
             showNavigator: true,
             showGoInput: true,
             showGoButton: true,
             callback: (data, pagination) => {
-                window.scrollTo(0, window.innerHeight * (data[0] - 1));
+                ele.scrollTo(0, pageSize * (data[0] - 1));
             }
         })
     }
