@@ -1,6 +1,6 @@
 # Change log
 
-# 3.0.0
+# 3.0.0 2023-3-29
 
 - Better docx rendering.
 
