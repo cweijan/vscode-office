@@ -105,24 +105,29 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
         const folderPath = vscode.Uri.file(resolve(uri.fsPath, ".."));
         const files = readdirSync(folderPath.fsPath)
         let text = "";
-        let current;
+        let current=0;
         let i = 0;
         const currentFile = basename(uri.fsPath)
-        for (const file of files) {
-            if (currentFile == file) {
-                current = i;
-            }
-            if (file.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|tiff|webp)$/i)) {
-                i++;
-                const resUri = vscode.Uri.file(folderPath.fsPath + "/" + file);
-                const resource = webview.asWebviewUri(resUri).with({ query: `nonce=${Date.now().toString()}` }).toString();
-                text += `<a href="${resource}" title="${file}"> <img src="${resource}" > </a>`
+        if (uri.scheme == 'git') {
+            const href = webview.asWebviewUri(uri);
+            text += `<a href="${href}" title="${basename(uri.fsPath)}"> <img src="${href}" > </a>`
+        } else {
+            for (const file of files) {
+                if (currentFile == file) {
+                    current = i;
+                }
+                if (file.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|tiff|webp)$/i)) {
+                    i++;
+                    const resUri = vscode.Uri.file(folderPath.fsPath + "/" + file);
+                    const resource = webview.asWebviewUri(resUri).with({ query: `nonce=${Date.now().toString()}` }).toString();
+                    text += `<a href="${resource}" title="${file}"> <img src="${resource}" > </a>`
+                }
             }
         }
 
         webview.html =
             Util.buildPath(readFileSync(this.extensionPath + "/resource/lightgallery/lg.html", 'utf8'), webview, this.extensionPath + "/resource/lightgallery")
-                .replace("{{content}}", text).replace("{{current}}", current);
+                .replace("{{content}}", text).replace("{{current}}", `${current}`);
     }
 
 

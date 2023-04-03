@@ -2,6 +2,7 @@
 
 # 3.0.1
 
+- Fix git view cannot view pictures.
 - Support for reloading workspace docx after file changes.
 - PDF:
   - Fixed sometimes opening PDF failed.
