@@ -4,20 +4,20 @@
 
 该缓存文件夹的具体位置为：
 %appdata%\Roaming\Code\Service Worker\CacheStorage
-而 %appdata% 在 Windows 里，是 C:\Users\你的用户名\AppData
+而 %appdata% 在 Windows 里，是 C:\Users\[用户名]\AppData
 */
-import LocalFile from "../common/LocalFile"
-const home_dir = require('os').homedir()
+import { Output } from "@/common/Output";
+import { existsSync, rm } from "fs";
+import { homedir } from "os";
+import { join } from "path";
 
 /**
  * 清空vscode webview缓存
  */
 export function autoClearCacheStorage() {
-	try {
-		// console.log('home_dir', home_dir)
-		const cache_dir = LocalFile.join( home_dir, 'AppData/Roaming/Code/Service Worker/CacheStorage' )
-		cache_dir.clear()
-	} catch (error) {
-		console.log(error)
-	}
+	const dir = join(homedir(), 'AppData/Roaming/Code/Service Worker/CacheStorage')
+	if (!existsSync(dir)) return;
+	rm(dir, { recursive: true, force: true }, (err: Error) => {
+		Output.debug(err)
+	});
 }

@@ -9,14 +9,8 @@ import { Output } from './common/Output';
 const httpExt = require('./bundle/extension');
 
 export function activate(context: vscode.ExtensionContext) {
-
-	try {
-		httpExt.activate(context)
-	} catch (error) {
-		Output.log(error, false)
-	}
+	activeHTTP(context)
 	autoClearCacheStorage();
-
 	const viewOption = { webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true } };
 	const markdownService = new MarkdownService(context);
 	const viewerInstance = new OfficeViewerProvider(context);
@@ -32,3 +26,11 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() { }
+
+async function activeHTTP(context: vscode.ExtensionContext) {
+	try {
+		httpExt.activate(context)
+	} catch (error) {
+		Output.debug(error)
+	}
+}
