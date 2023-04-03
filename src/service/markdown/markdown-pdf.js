@@ -25,15 +25,16 @@ async function convertMarkdown(inputMarkdownFile, config) {
 /**
  * create toc if not exists.
  */
-function addTocToContent(text) {
-  return text.match(/\[toc\]/i) ? text : '[toc]\n' + text;
+function addTocToContent(text, config) {
+  const needOutline = !text.match(/\[toc\]/i) && !config.withoutOutline;
+  return needOutline ? `[toc]\n${text}` : text;
 }
 
 /*
  * convert markdown to html (markdown-it)
  */
 function convertMarkdownToHtml(filename, type, text, config) {
-  if (type == 'pdf') text = addTocToContent(text)
+  if (type == 'pdf') text = addTocToContent(text, config)
   let md = {}
 
   try {

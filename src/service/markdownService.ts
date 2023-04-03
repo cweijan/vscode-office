@@ -12,6 +12,11 @@ import { convertMd } from "./markdown/markdown-pdf";
 
 export type ExportType = 'pdf' | 'html' | 'docx';
 
+interface ExportOption {
+    type?: ExportType;
+    withoutOutline?: boolean;
+}
+
 export class MarkdownService {
 
     constructor(private context: vscode.ExtensionContext) {
@@ -21,24 +26,27 @@ export class MarkdownService {
      * export markdown to another type
      * @param type pdf, html, docx 
      */
-    public async exportMarkdown(uri: vscode.Uri, type: ExportType = 'pdf') {
+    public async exportMarkdown(uri: vscode.Uri, option: ExportOption = {}) {
+        const { type = 'pdf' } = option;
         try {
             if (type != 'html') { // html导出速度快, 无需等待
                 vscode.window.showInformationMessage(`Starting export markdown to ${type}.`)
             }
-            await convertMd({ markdownFilePath: uri.fsPath, config: this.getConfig(type) })
+            await convertMd({ markdownFilePath: uri.fsPath, config: this.getConfig(option) })
             vscode.window.showInformationMessage(`Export markdown to ${type} success!`)
         } catch (error) {
             Output.log(error)
         }
     }
 
-    public getConfig(type: string = 'pdf') {
+    public getConfig(option: ExportOption) {
         const config = vscode.workspace.getConfiguration("vscode-office");
         const top = config.get("pdfMarginTop")
+        const { type = 'pdf', withoutOutline = false } = option;
         return {
             type,
             "styles": [],
+            withoutOutline,
             // chromium path
             "executablePath": this.getChromiumPath(),
             // Set `true` to convert `\n` in paragraphs into `<br>`.

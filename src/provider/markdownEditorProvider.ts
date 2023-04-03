@@ -108,20 +108,14 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         }).on("doSave", async (content) => {
             vscode.commands.executeCommand('workbench.action.files.save');
             this.updateCount(content)
-        }).on("export", () => {
+        }).on("export", (option) => {
             vscode.commands.executeCommand('workbench.action.files.save');
-            new MarkdownService(this.context).exportMarkdown(uri)
-        }).on("exportMdToDocx", () => {
-            vscode.commands.executeCommand('workbench.action.files.save');
-            new MarkdownService(this.context).exportMarkdown(uri, 'docx')
-        }).on("exportMdToHtml", () => {
-            vscode.commands.executeCommand('workbench.action.files.save');
-            new MarkdownService(this.context).exportMarkdown(uri, 'html')
+            new MarkdownService(this.context).exportMarkdown(uri, option)
         }).on("theme", () => {
             vscode.commands.executeCommand('workbench.action.selectTheme');
         }).on("saveOutline", (enable) => {
             config.update("openOutline", enable, true)
-        }).on('developerTool',()=>{
+        }).on('developerTool', () => {
             vscode.commands.executeCommand('workbench.action.toggleDevTools')
         })
 

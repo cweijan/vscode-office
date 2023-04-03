@@ -208,16 +208,16 @@ export const createContextMenu = (editor) => {
                 vscodeEvent.emit('command', 'office.markdown.paste')
                 break;
             case "exportPdf":
-                vscodeEvent.emit("save", editor.getValue())
-                vscodeEvent.emit('export')
+                vscodeEvent.emit('export', { type: 'pdf' })
+                break;
+            case "exportPdfWithoutOutline":
+                vscodeEvent.emit('export', { type: 'pdf', withoutOutline: true })
                 break;
             case "exportDocx":
-                vscodeEvent.emit("save", editor.getValue())
-                vscodeEvent.emit('exportMdToDocx')
+                vscodeEvent.emit('export', { type: 'docx' })
                 break;
             case "exportHtml":
-                vscodeEvent.emit("save", editor.getValue())
-                vscodeEvent.emit('exportMdToHtml')
+                vscodeEvent.emit('export', { type: 'html' })
                 break;
         }
     }

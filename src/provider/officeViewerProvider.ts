@@ -35,21 +35,18 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
         const ext = extname(uri.fsPath).toLowerCase()
         let htmlPath: string | null = null;
 
+
+        const send = () => {
+            handler.emit("open", {
+                ext: extname(uri.fsPath),
+                path: handler.panel.webview.asWebviewUri(uri).with({ query: `nonce=${Date.now().toString()}` }).toString(),
+            })
+        }
+
         const handler = Hanlder.bind(webviewPanel, uri);
         handler
             .on('developerTool', () => vscode.commands.executeCommand('workbench.action.toggleDevTools'))
-            .on("init", async () => {
-                handler.emit("open", {
-                    ext: extname(uri.fsPath),
-                    path: handler.panel.webview.asWebviewUri(uri).with({ query: `nonce=${Date.now().toString()}` }).toString(),
-                })
-            }).on("fileChange", () => {
-                handler.emit("open", {
-                    ext: extname(uri.fsPath),
-                    path: handler.panel.webview.asWebviewUri(uri).with({ query: `nonce=${Date.now().toString()}` }).toString(),
-                })
-            })
-
+            .on("init", send)
 
         if (ext.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|webp)$/i)) {
             this.handleImage(uri, webview)
@@ -70,9 +67,11 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".docx":
             case ".dotx":
                 htmlPath = 'word.html'
+                handler.on("fileChange", send)
                 break;
             case ".pdf":
                 this.handlePdf(webview);
+                handler.on("fileChange", send)
                 break;
             case ".ttf":
             case ".woff":
@@ -120,8 +119,6 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 text += `<a href="${resource}" title="${file}"> <img src="${resource}" > </a>`
             }
         }
-
-
 
         webview.html =
             Util.buildPath(readFileSync(this.extensionPath + "/resource/lightgallery/lg.html", 'utf8'), webview, this.extensionPath + "/resource/lightgallery")
