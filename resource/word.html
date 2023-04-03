@@ -61,7 +61,6 @@
     // https://github.com/VolodymyrBaydalka/docxjs
     // https://volodymyrbaydalka.github.io/docxjs/
 
-    vscodeEvent.emit("init")
     vscodeEvent.on("open", ({ path }) => {
         console.log(path)
         fetch(path).then(response => response.arrayBuffer()).then(res => {
@@ -75,7 +74,7 @@
             });
         })
     })
-
+    vscodeEvent.emit("init")
 
     function createSerial(count) {
         var result = [];

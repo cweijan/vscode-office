@@ -46,14 +46,14 @@ function open(buffer, ext) {
     })();
 }
 
-let fileName;
+let extName;
 vscodeEvent.emit("init")
-vscodeEvent.on("open", ({ file, path, ext }) => {
-    fileName = file
+vscodeEvent.on("open", ({ path, ext }) => {
+    extName = ext.replace('.', '');
     fetch(path).then(response => response.arrayBuffer()).then(res => { open(res, ext) })
     console.log(path)
 }).on("saveDone", () => {
-    notie.alert({ type: 1, text: 'Save Success!'}) 
+    notie.alert({ type: 1, text: 'Save Success!' })
 })
 
 function dataToSheet(xws) {
@@ -83,8 +83,7 @@ function xtos(sdata) {
 }
 
 function export_xlsx() {
-    const extName = fileName.split('.').pop().toLowerCase();
-    if (extName == 'xlsx' || extName == 'xls' || extName == 'ods') {
+    if (['xlsx', 'xls', 'ods'].includes(extName)) {
         var new_wb = xtos(s.getData());
         var buffer = XLSX.write(new_wb, { bookType: extName, type: "array" });
         const array = [...new Uint8Array(buffer)];

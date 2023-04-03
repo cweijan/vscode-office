@@ -1,5 +1,9 @@
 # Change log
 
+# 3.0.1
+
+- Support for reloading office files after changes.
+
 # 3.0.0 2023-3-29
 
 - Better docx rendering.

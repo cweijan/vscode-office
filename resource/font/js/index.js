@@ -32,7 +32,7 @@ onload = () => {
     if (vscodeEvent) {
         vscodeEvent.emit("init")
         vscodeEvent.on("open", (content) => {
-            opentype.load(content.href, function (err, font) {
+            opentype.load(content.path, function (err, font) {
                 var amount, glyph, ctx, x, y, fontSize;
                 if (err) {
                     showErrorMessage(err.toString());

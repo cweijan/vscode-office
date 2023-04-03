@@ -40,7 +40,6 @@
   }
   window.addEventListener('load', function () {
     const config = loadConfig()
-    PDFViewerApplication.open(config.path)
     PDFViewerApplication.initializedPromise.then(() => {
       const defaults = config.defaults
       const optsOnLoad = () => {
@@ -57,9 +56,10 @@
       }
       PDFViewerApplication.eventBus.on('documentloaded', optsOnLoad)
     })
-    window.addEventListener('message', function () {
-      window.PDFViewerApplication.open(config.path)
-    });
+    vscodeEvent.on("open", ({ path }) => {
+      PDFViewerApplication.open(path)
+    })
+    vscodeEvent.emit("init")
   }, { once: true });
 
   window.onerror = function () {
