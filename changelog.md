@@ -3,6 +3,9 @@
 # 3.0.1
 
 - Support for reloading office files after changes.
+- PDF:
+  - Fixed sometimes opening PDF failed.
+  - Do not display the sidebar on small screens.
 
 # 3.0.0 2023-3-29
 

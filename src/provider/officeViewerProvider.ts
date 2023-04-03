@@ -132,17 +132,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
     private handlePdf(webview: vscode.Webview) {
         const baseUrl = webview.asWebviewUri(vscode.Uri.file(this.extensionPath + "/resource/pdf"))
             .toString().replace(/\?.+$/, '').replace('https://git', 'https://file');
-        const config = JSON.stringify({
-            defaults: {
-                cursor: "select",
-                scale: "auto",
-                sidebar: true,
-                scrollMode: "vertical",
-                spreadMode: "none",
-            }
-        }).replace(/"/g, '&quot;');
-        webview.html = readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8')
-            .replace("{{baseUrl}}", baseUrl).replace("{{content}}", config);
+        webview.html = readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8').replace("{{baseUrl}}", baseUrl)
     }
 
     private handleFont(handler: Hanlder) {

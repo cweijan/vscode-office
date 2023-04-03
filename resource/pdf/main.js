@@ -1,18 +1,9 @@
 "use strict";
 
 (function () {
-  function loadConfig() {
-    const elem = document.getElementById('pdf-preview-config')
-    if (elem) {
-      return JSON.parse(elem.getAttribute('data-config'))
-    }
-    throw new Error('Could not load configuration.')
-  }
   function cursorTools(name) {
-    if (name === 'hand') {
-      return 1
-    }
-    return 0
+    // hand表示可以通过手指上下滑动, 0则可以选择文本
+    return name === 'hand' ? 1 : 0
   }
   function scrollMode(name) {
     switch (name) {
@@ -39,18 +30,13 @@
     }
   }
   window.addEventListener('load', function () {
-    const config = loadConfig()
     PDFViewerApplication.initializedPromise.then(() => {
-      const defaults = config.defaults
       const optsOnLoad = () => {
-        PDFViewerApplication.pdfCursorTools.switchTool(cursorTools(defaults.cursor))
-        PDFViewerApplication.pdfViewer.currentScaleValue = defaults.scale
-        PDFViewerApplication.pdfViewer.scrollMode = scrollMode(defaults.scrollMode)
-        PDFViewerApplication.pdfViewer.spreadMode = spreadMode(defaults.spreadMode)
-        if (defaults.sidebar) {
+        PDFViewerApplication.pdfCursorTools.switchTool(cursorTools('select'))
+        PDFViewerApplication.pdfViewer.scrollMode = scrollMode('vertical')
+        PDFViewerApplication.pdfViewer.spreadMode = spreadMode('none')
+        if (window.innerWidth > 900) {
           PDFViewerApplication.pdfSidebar.open()
-        } else {
-          PDFViewerApplication.pdfSidebar.close()
         }
         PDFViewerApplication.eventBus.off('documentloaded', optsOnLoad)
       }
@@ -61,10 +47,4 @@
     })
     vscodeEvent.emit("init")
   }, { once: true });
-
-  window.onerror = function () {
-    const msg = document.createElement('body')
-    msg.innerText = 'An error occurred while loading the file. Please open it again.'
-    document.body = msg
-  }
 }());

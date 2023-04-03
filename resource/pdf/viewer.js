@@ -1053,15 +1053,6 @@ const PDFViewerApplication = {
 
   load(pdfDocument) {
     this.pdfDocument = pdfDocument;
-    pdfDocument.getDownloadInfo().then(() => {
-      this.downloadComplete = true;
-      this.loadingBar.hide();
-      firstPagePromise.then(() => {
-        this.eventBus.dispatch("documentloaded", {
-          source: this
-        });
-      });
-    });
     const pageLayoutPromise = pdfDocument.getPageLayout().catch(function () {});
     const pageModePromise = pdfDocument.getPageMode().catch(function () {});
     const openActionPromise = pdfDocument.getOpenAction().catch(function () {});
@@ -1079,6 +1070,15 @@ const PDFViewerApplication = {
       onePageRendered,
       pagesPromise
     } = pdfViewer;
+    pdfDocument.getDownloadInfo().then(() => {
+      this.downloadComplete = true;
+      this.loadingBar.hide();
+      firstPagePromise.then(() => {
+        this.eventBus.dispatch("documentloaded", {
+          source: this
+        });
+      });
+    });
     const pdfThumbnailViewer = this.pdfThumbnailViewer;
     pdfThumbnailViewer.setDocument(pdfDocument);
     firstPagePromise.then(pdfPage => {
@@ -4335,7 +4335,7 @@ class PDFSidebar {
     this.outlineView.classList.toggle("hidden", view !== SidebarView.OUTLINE);
     this.attachmentsView.classList.toggle("hidden", view !== SidebarView.ATTACHMENTS);
 
-    if (forceOpen && !this.isOpen) {
+    if (false && !this.isOpen) {
       this.open();
       return true;
     }
