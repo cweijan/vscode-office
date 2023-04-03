@@ -1,6 +1,6 @@
 # Change log
 
-# 3.0.1
+# 3.0.1 2023-4-3
 
 - Fix git view cannot view pictures.
 - Support for reloading workspace docx after file changes.
