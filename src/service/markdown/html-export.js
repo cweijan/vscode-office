@@ -12,7 +12,8 @@ export async function exportHtml(exportFilePath, data) {
 
 export async function exportDocx(exportFilePath, data) {
     console.log("[pretty-md-pdf] Exported to file: " + exportFilePath)
-    fs.writeFileSync(exportFilePath, await require("vscode-html-to-docx")(data, '', {}, ''))
+    const exportTask = require("vscode-html-to-docx")(data, '', {}, '');
+    fs.writeFileSync(exportFilePath, await exportTask)
 }
 
 /*
@@ -29,8 +30,7 @@ export async function exportByType(filePath, data, type, config) {
         exportHtml(targetFilePath, data)
         return
     } else if (type == "docx") {
-        exportDocx(targetFilePath, data)
-        return
+        return exportDocx(targetFilePath, data)
     }
 
     let tmpfilename = path.join(isDev ? originPath.dir : os.tmpdir(), originPath.name + "_tmp.html")
