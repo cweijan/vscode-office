@@ -5,6 +5,7 @@
 This extension supports previewing these common office file formats.
 
 - Excel: .xls, .xlsx, .csv
+- Word: .docx
 - Svg: .svg
 - Pdf: .pdf
 - Font: .ttf, .otf, .woff
