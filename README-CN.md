@@ -25,11 +25,11 @@
 
 ## 其他功能
 
-- 文件主题: 内置了Material Icon Theme部分icon
+- 图标主题: 内置了Material Icon Theme部分icon
 - Excel: 支持对xlsx, csv等excel文件进行预览和保存(注意xlsx保存会丢失格式, csv则不支持gbk中文)
-- html: 编辑HTML的过程中按下ctrl+shift+v可实时预览.
-- Pdf: 支持直接预览pdf文件
-- http: 用于发送http请求, 由于REST Client本地请求有bug, 修改后进行集成.
+- HTML: 编辑HTML的过程中按下ctrl+shift+v可实时预览.
+- PDF: 支持直接预览pdf文件
+- HTTP: 用于发送http请求, 由于REST Client本地请求有bug, 修改后进行集成.
 
 ## Credits
 
