@@ -1,5 +1,13 @@
 # Change log
 
+# 3.0.3 2023-4-11
+
+- Add new theme "One Dark Modern Darker"
+
+# 3.0.2 2023-4-5
+
+- Update extension icon.
+
 # 3.0.1 2023-4-3
 
 - Fix git view cannot view pictures.

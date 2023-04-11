@@ -2,7 +2,7 @@
 	"name": "vscode-office",
 	"displayName": "Office Viewer(Markdown Editor)",
 	"description": "View word,excel files and using WYSIWYG editor for markdown.",
-	"version": "3.0.2",
+	"version": "3.0.3",
 	"publisher": "cweijan",
 	"icon": "images/icon.png",
 	"engines": {
@@ -37,7 +37,12 @@
 			{
 				"label": "One Dark Modern",
 				"uiTheme": "vs-dark",
-				"path": "./theme/OneDark-Modern.json"
+				"path": "./theme/onedark-moderns.json"
+			},
+			{
+				"label": "One Dark Modern Darker",
+				"uiTheme": "vs-dark",
+				"path": "./theme/onedark-modern-darker.json"
 			}
 		],
 		"iconThemes": [
