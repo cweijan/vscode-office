@@ -50,3 +50,4 @@ The html editor supports live viewing.   Press ctrl+shift+v to open the live vie
   - [myliang/x-spreadsheet](https://github.com/myliang/x-spreadsheet): XLSX rendering
 - HTTP: [Rest  Client](https://github.com/Huachao/vscode-restclient)
 - Markdown: [Vanessa219/vditor](https://github.com/Vanessa219/vditor)
+- Material Icon theme: [PKief/vscode-material-icon-theme](https://github.com/PKief/vscode-material-icon-theme)
