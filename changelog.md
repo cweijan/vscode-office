@@ -1,8 +1,8 @@
 # Change log
 
-# 3.0.3 2023-4-11
+# 3.0.4 2023-4-11
 
-- Add new theme "One Dark Modern Darker"
+- Modify the background color of the theme.
 
 # 3.0.2 2023-4-5
 

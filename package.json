@@ -37,12 +37,12 @@
 			{
 				"label": "One Dark Modern",
 				"uiTheme": "vs-dark",
-				"path": "./theme/onedark-moderns.json"
+				"path": "./theme/onedark-modern.json"
 			},
 			{
-				"label": "One Dark Modern Darker",
+				"label": "One Dark Modern Classic",
 				"uiTheme": "vs-dark",
-				"path": "./theme/onedark-modern-darker.json"
+				"path": "./theme/onedark-modern-classic.json"
 			}
 		],
 		"iconThemes": [
