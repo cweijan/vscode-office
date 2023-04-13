@@ -42,7 +42,7 @@ body[data-vscode-theme-kind="vscode-dark"] .vditor-content hr {
     color: var(--vscode-editor-foreground) !important;
 }
 
-body[data-vscode-theme-name='One Dark Modern'] .vditor-content code:not(.hljs) {
+body[data-vscode-theme-name='One Dark Modern Classic'] .vditor-content code:not(.hljs) {
     color: #abb2bf !important;
 }
 
@@ -66,16 +66,16 @@ body[data-vscode-theme-kind="vscode-dark"] .vditor-content .vditor-wysiwyg__prev
     background-color: #2E2E2E !important;
 }
 
-body[data-vscode-theme-name='One Dark Modern'] .vditor-toolbar {
+body[data-vscode-theme-name='One Dark Modern Classic'] .vditor-toolbar {
     background-color: var(--vscode-editorSuggestWidget-background) !important;
 }
 
-body[data-vscode-theme-name='One Dark Modern'] .vditor {
+body[data-vscode-theme-name='One Dark Modern Classic'] .vditor {
     background-color: var(--vscode-editorSuggestWidget-background) !important;
 }
 
-body[data-vscode-theme-name='One Dark Modern'] .vditor-content,
-body[data-vscode-theme-name='One Dark Modern'] .vditor-content *:not(.hljs, .hljs *, .katex, .katex *, a, hr, .vditor-reset--error,code) {
+body[data-vscode-theme-name='One Dark Modern Classic'] .vditor-content,
+body[data-vscode-theme-name='One Dark Modern Classic'] .vditor-content *:not(.hljs, .hljs *, .katex, .katex *, a, hr, .vditor-reset--error,code) {
     background-color: var(--vscode-editorSuggestWidget-background) !important;
     color: #abb2bf !important;
 }
