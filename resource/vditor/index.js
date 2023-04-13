@@ -8,7 +8,7 @@ handler.on("open", (md) => {
   const editor = new Vditor('vditor', {
     value: md.content,
     _lutePath: md.rootPath + '/lute.min.js',
-    cdn: 'https://unpkg.com/vscode-vditor',
+    cdn: 'https://unpkg.com/vscode-vditor@3.8.18',
     height: document.documentElement.clientHeight,
     outline: {
       enable: config.openOutline,
