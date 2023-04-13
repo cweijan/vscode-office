@@ -80,12 +80,20 @@ body[data-vscode-theme-name='One Dark Modern Classic'] .vditor-content *:not(.hl
     color: #abb2bf !important;
 }
 
+
 .vditor,
 .vditor-content,
 .vditor-content *:not(.hljs, .hljs *, .katex, .katex *, a, hr, .vditor-reset--error,code) {
     background-color: var(--vscode-editor-background) !important;
     color: var(--vscode-editor-foreground) !important;
 }
+
+.vditor-content .language-flowchart svg,
+.vditor-content .language-mermaid svg,
+.vditor-content .language-mindmap canvas{
+    background-color: white !important;
+}
+
 
 .vditor-content .vditor-wysiwyg__preview>code {
     background-color: var(--vscode-editor-background) !important;
