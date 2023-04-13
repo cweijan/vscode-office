@@ -107,6 +107,36 @@
     "titleBar.inactiveBackground": "#282c34",
     "titleBar.inactiveForeground": "#9da5b4"
   },
+  "semanticTokenColors": {
+    "enumMember": {
+      "foreground": "#56b6c2"
+    },
+    "variable.constant": {
+      "foreground": "#d19a66"
+    },
+    "variable.defaultLibrary": {
+      "foreground": "#e5c07b"
+    },
+    "variable:dart": {
+      "foreground": "#d19a66"
+    },
+    "property:dart": {
+      "foreground": "#d19a66"
+    },
+    "annotation:dart": {
+      "foreground": "#d19a66"
+    },
+    "parameter.label:dart": {
+      "foreground": "#abb2bf"
+    },
+    "macro": {
+      "foreground": "#d19a66"
+    },
+    "tomlArrayKey": {
+      "foreground": "#e5c07b"
+    }
+  },
+  "semanticHighlighting": true,
   "tokenColors": [
     {
       "name": "support.constant.edge",
@@ -248,7 +278,7 @@
       "name": "js/ts variable.other.constant",
       "scope": "variable.other.constant",
       "settings": {
-        "foreground": "#EBB07A"
+        "foreground": "#E5C07B"
       }
     },
     {
