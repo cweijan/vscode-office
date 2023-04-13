@@ -1,5 +1,12 @@
 # Change log
 
+# 3.1.0
+
+- Better theme colors.
+- Markdown:
+  - Load the chart with a white background.
+  - Support for rendering latex formulas in an offline environment.
+
 # 3.0.4 2023-4-11
 
 - Modify the background color of the theme.
