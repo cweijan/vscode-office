@@ -615,6 +615,16 @@
         "foreground": "#db7079"
       }
     },
+    
+    {
+      "name": "variable.other.constant.property",
+      "scope": [
+        "variable.other.constant.property"
+      ],
+      "settings": {
+        "foreground": "#db7079"
+      }
+    },
     {
       "name": "Java Variables",
       "scope": "token.variable.parameter.java",
