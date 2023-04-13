@@ -1,9 +1,10 @@
 # Change log
 
-# 3.1.0
+# 3.1.0 2023-4-13
 
 - Better theme colors.
 - Markdown:
+  - Katex compatible wrong formula.
   - Load the chart with a white background.
   - Support for rendering latex formulas in an offline environment.
 
