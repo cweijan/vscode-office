@@ -119,7 +119,7 @@
       "name": "regexp constant character-class",
       "scope": "constant.other.character-class.regexp",
       "settings": {
-        "foreground": "#DE7C84ff"
+        "foreground": "#db7079ff"
       }
     },
     {
@@ -192,14 +192,14 @@
       "name": "deleted.diff",
       "scope": "markup.deleted.diff",
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
       "name": "c++ function",
       "scope": "meta.function.c",
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -262,7 +262,7 @@
       "name": "java source",
       "scope": "source.java",
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -290,7 +290,7 @@
       "name": "java variable.name",
       "scope": "meta.definition.variable.name.java",
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -360,7 +360,7 @@
       "name": "js/ts template-expression",
       "scope": "punctuation.definition.template-expression.begin,punctuation.definition.template-expression.end",
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -374,7 +374,7 @@
       "name": "js variable readwrite",
       "scope": "variable.other.readwrite,meta.object-literal.key,support.variable.property,support.variable.object.process,support.variable.object.node",
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -407,7 +407,7 @@
       "name": "js/ts console",
       "scope": "support.type.object.console",
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -442,7 +442,7 @@
       "name": "js dom variable",
       "scope": "support.variable.dom,support.variable.property.dom",
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -582,7 +582,7 @@
       "name": "Variables",
       "scope": "variable",
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -661,7 +661,7 @@
       "name": "Class name php",
       "scope": "variable.other.class.php",
       "settings": {
-        "foreground": "#DE7C84ff"
+        "foreground": "#db7079ff"
       }
     },
     {
@@ -808,7 +808,7 @@
       "name": "Tags",
       "scope": "entity.name.tag",
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -866,7 +866,7 @@
       "name": "Units",
       "scope": "keyword.other.unit",
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -943,7 +943,7 @@
       "name": "[VSCODE-CUSTOM] Markdown List Punctuation Definition",
       "scope": "punctuation.definition.list.markdown",
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -962,7 +962,7 @@
         "punctuation.definition.metadata.markdown"
       ],
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -971,14 +971,14 @@
         "beginning.punctuation.definition.list.markdown"
       ],
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
       "name": "[VSCODE-CUSTOM] Markdown Punctuation Definition Link",
       "scope": "punctuation.definition.metadata.markdown",
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -1064,14 +1064,14 @@
       "name": "Source Json Meta Structure Dictionary Json > String Quoted Json",
       "scope": "source.json meta.structure.dictionary.json > string.quoted.json",
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
       "name": "Source Json Meta Structure Dictionary Json > String Quoted Json > Punctuation String",
       "scope": "source.json meta.structure.dictionary.json > string.quoted.json > punctuation.string",
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -1218,7 +1218,7 @@
       "name": "php dollar sign",
       "scope": "punctuation.definition.variable.php",
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -1295,7 +1295,7 @@
       "name": "sass selector",
       "scope": "selector.sass",
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -1331,7 +1331,7 @@
       "name": "cs local variable",
       "scope": "entity.name.variable.local.cs",
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -1430,7 +1430,7 @@
         "constant.character.entity"
       ],
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -1458,7 +1458,7 @@
         "meta.symbol.clojure"
       ],
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -1477,7 +1477,7 @@
         "variable.parameter.function.coffee"
       ],
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -1495,7 +1495,7 @@
         "meta.scope.prerequisites.makefile"
       ],
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -1531,7 +1531,7 @@
         "meta.definition.variable.name.groovy"
       ],
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
@@ -1573,7 +1573,7 @@
         "text.bracketed"
       ],
       "settings": {
-        "foreground": "#DE7C84"
+        "foreground": "#db7079"
       }
     },
     {
