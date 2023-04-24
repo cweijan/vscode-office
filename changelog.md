@@ -1,6 +1,6 @@
 # Change log
 
-# 3.1.1
+# 3.1.1 2023-4-24
 
 - Update peek view colors.
 - Remove semantic highlighting.
