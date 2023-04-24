@@ -1,5 +1,9 @@
 # Change log
 
+# 3.1.1 
+
+- Remove semanticHighlighting.
+
 # 3.1.0 2023-4-13
 
 - Better theme colors.

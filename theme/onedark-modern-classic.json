@@ -102,7 +102,6 @@
     "titleBar.inactiveBackground": "#303845",
     "titleBar.inactiveForeground": "#9da5b4"
   },
-  "semanticHighlighting": true,
   "tokenColors": [
     {
       "name": "support.constant.edge",

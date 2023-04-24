@@ -136,7 +136,6 @@
       "foreground": "#e5c07b"
     }
   },
-  "semanticHighlighting": true,
   "tokenColors": [
     {
       "name": "support.constant.edge",
