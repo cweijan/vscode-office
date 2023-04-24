@@ -1,8 +1,9 @@
 # Change log
 
-# 3.1.1 
+# 3.1.1
 
-- Remove semanticHighlighting.
+- Update peek view colors.
+- Remove semantic highlighting.
 
 # 3.1.0 2023-4-13
 
