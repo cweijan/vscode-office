@@ -1,5 +1,9 @@
 # Change log
 
+# 3.1.2 2023-4-25
+
+- Change inactive tab foreground color.
+
 # 3.1.1 2023-4-24
 
 - Update peek view colors.
