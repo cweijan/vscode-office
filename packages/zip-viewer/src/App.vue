@@ -27,6 +27,10 @@ import {FileInfo} from "@/components/zip/zipTypes";
 
 const vscodeEvent = getVscodeEvent()
 
+window.addEventListener('keydown', e => {
+    if (e.code == 'F12') vscodeEvent.emit('developerTool')
+})
+
 const filesRef = ref<InstanceType<typeof FileItems>>()
 const name = ref('')
 const folderMapping: Ref<any> = ref({})
@@ -35,21 +39,17 @@ const items: Ref<FileInfo[]> = ref([
         name: 'out',
         isDirectory: true,
         children: [],
-        header: {
-            time: '2016-05-03',
-            size: 1000,
-            compressedSize: 200,
-        }
+        modifyDateTime: '2016-05-03',
+        fileSize: 1000,
+        compressedSize: 200,
     },
     {
         name: 'index.js',
         isDirectory: false,
         children: [],
-        header: {
-            time: '2016-05-03',
-            size: 1000,
-            compressedSize: 200,
-        }
+        modifyDateTime: '2016-05-03',
+        fileSize: 1000,
+        compressedSize: 200,
     }
 ])
 const changeFiles = (dirPath: string) => {
@@ -62,6 +62,7 @@ onMounted(() => {
             name.value = fileName
             items.value = files;
             folderMapping.value = folderMap;
+            console.log('files', files)
         })
         .emit('init')
 })

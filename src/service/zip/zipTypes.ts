@@ -66,6 +66,8 @@ interface EntryHeader {
     crc: number;
     compressedSize: number;
     size: number;
+    prettySize?: string;
+    prettySizeCompressedSize?: string;
     fileNameLength: number;
     extraLength: number;
     commentLength: number;

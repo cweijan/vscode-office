@@ -54,6 +54,8 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             this.handleImage(uri, webview)
             handler.on("fileChange", () => {
                 this.handleImage(uri, webview)
+            }).on('developerTool', () => {
+                vscode.commands.executeCommand('workbench.action.toggleDevTools')
             })
             return;
         }
@@ -74,7 +76,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".jar":
             case ".zip":
             case ".vsix":
-                this.handleZip(webview,uri, handler);
+                this.handleZip(webview, uri, handler);
                 break;
             case ".pdf":
                 this.handlePdf(webview);
@@ -106,7 +108,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
     }
 
-    async handleZip(webview: vscode.Webview,uri:vscode.Uri, handler: Hanlder) {
+    async handleZip(webview: vscode.Webview, uri: vscode.Uri, handler: Hanlder) {
         // const baseUrl = webview.asWebviewUri(vscode.Uri.file(this.extensionPath + "/resource/pdf"))
         //     .toString().replace(/\?.+$/, '').replace('https://git', 'https://file');
         if (this.context.extensionMode == vscode.ExtensionMode.Development) {
@@ -118,7 +120,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
         // const targetPath = `${this.webviewPath}/${path}.html`;
         // return fs.readFileSync(targetPath, 'utf8')
         // webview.html = readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8').replace("{{baseUrl}}", baseUrl)
-        new ZipService(uri,handler).bind();
+        new ZipService(uri, handler).bind();
     }
 
     private handleImage(uri: vscode.Uri, webview: vscode.Webview) {

@@ -6,9 +6,9 @@
                 <FileItem :info="scope.row"/>
             </template>
         </el-table-column>
-        <el-table-column prop="time" label="修改日期" width="180"/>
+        <el-table-column prop="modifyDateTime" label="修改日期" width="220"/>
         <el-table-column prop="compressedSize" label="压缩后大小" width="180"/>
-        <el-table-column prop="size" label="原始大小" width="180"/>
+        <el-table-column prop="fileSize" label="原始大小" width="180"/>
     </el-table>
 </template>
 <script lang="ts" setup>
