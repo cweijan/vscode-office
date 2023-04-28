@@ -1,78 +1,36 @@
 <template>
-    <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick" />
-  </template>
-  
-  <script lang="ts" setup>
-  interface Tree {
-    label: string
-    children?: Tree[]
-  }
-  
-  const handleNodeClick = (data: Tree) => {
-    console.log(data)
-  }
-  
-  const data: Tree[] = [
-    {
-      label: 'Level one 1',
-      children: [
-        {
-          label: 'Level two 1-1',
-          children: [
-            {
-              label: 'Level three 1-1-1',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      label: 'Level one 2',
-      children: [
-        {
-          label: 'Level two 2-1',
-          children: [
-            {
-              label: 'Level three 2-1-1',
-            },
-          ],
-        },
-        {
-          label: 'Level two 2-2',
-          children: [
-            {
-              label: 'Level three 2-2-1',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      label: 'Level one 3',
-      children: [
-        {
-          label: 'Level two 3-1',
-          children: [
-            {
-              label: 'Level three 3-1-1',
-            },
-          ],
-        },
-        {
-          label: 'Level two 3-2',
-          children: [
-            {
-              label: 'Level three 3-2-1',
-            },
-          ],
-        },
-      ],
-    },
-  ]
-  
-  const defaultProps = {
-    children: 'children',
-    label: 'label',
-  }
-  </script>
-  
+    <el-tree ref="treeRef" :data="data" @node-click="handleNodeClick" node-key="entryName"
+             :default-expanded-keys="[name]" :expand-on-click-node="false">
+        <template #default="{ node, data }">
+            <FileItem :info="data"/>
+        </template>
+    </el-tree>
+</template>
+
+<script lang="ts" setup>
+import type {PropType} from "vue";
+import {ref, watch} from "vue";
+import {FileInfo} from "@/components/zip/zipTypes";
+import FileItem from "@/components/zip/FileItem.vue";
+import {ElTree} from "element-plus";
+import {filterDir} from "@/components/zip/zipActions";
+
+const emit = defineEmits(['clickFolder'])
+const handleNodeClick = (data: FileInfo) => {
+    emit('clickFolder', data.entryName)
+}
+// https://element-plus.org/zh-CN/component/tree.html
+const props = defineProps({
+    name: String,
+    items: Object as PropType<FileInfo[]>
+})
+const treeRef = ref<InstanceType<typeof ElTree>>()
+const data = ref(props.items)
+watch(() => props.items, (items) => {
+    data.value = [{
+        name: props.name,
+        entryName: props.name,
+        children: filterDir(items)
+    }]
+})
+</script>

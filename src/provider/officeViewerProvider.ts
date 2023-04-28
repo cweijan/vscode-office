@@ -1,3 +1,4 @@
+import { ZipService } from '@/service/zip/zipService';
 import axios from 'axios';
 import { spawn } from 'child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync } from 'fs';
@@ -73,7 +74,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".jar":
             case ".zip":
             case ".vsix":
-                this.handleZip(webview);
+                this.handleZip(webview,uri, handler);
                 break;
             case ".pdf":
                 this.handlePdf(webview);
@@ -105,7 +106,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
     }
 
-    async handleZip(webview: vscode.Webview) {
+    async handleZip(webview: vscode.Webview,uri:vscode.Uri, handler: Hanlder) {
         // const baseUrl = webview.asWebviewUri(vscode.Uri.file(this.extensionPath + "/resource/pdf"))
         //     .toString().replace(/\?.+$/, '').replace('https://git', 'https://file');
         if (this.context.extensionMode == vscode.ExtensionMode.Development) {
@@ -117,6 +118,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
         // const targetPath = `${this.webviewPath}/${path}.html`;
         // return fs.readFileSync(targetPath, 'utf8')
         // webview.html = readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8').replace("{{baseUrl}}", baseUrl)
+        new ZipService(uri,handler).bind();
     }
 
     private handleImage(uri: vscode.Uri, webview: vscode.Webview) {

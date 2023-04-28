@@ -13,6 +13,7 @@ export class Hanlder {
 
     emit(event: string, content?: any) {
         this.panel.webview.postMessage({ type: event, content })
+        return this;
     }
 
     public static bind(panel: WebviewPanel,uri:vscode.Uri): Hanlder {

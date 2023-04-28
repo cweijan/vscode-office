@@ -3,15 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "run-p type-check build-only",
-    "preview": "vite preview",
-    "build-only": "vite build",
+    "zip-dev": "vite",
+    "build": "vite build",
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
-    "adm-zip": "^0.5.10",
     "element-plus": "^2.3.4",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6"

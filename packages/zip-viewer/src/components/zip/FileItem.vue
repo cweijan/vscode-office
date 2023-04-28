@@ -1,6 +1,6 @@
 <template>
   <!--  悬浮时显示删除按钮  -->
-    <div v-if="info?.isDir">
+    <div v-if="info?.isDirectory">
         <el-icon>
             <Folder/>
         </el-icon>
@@ -17,8 +17,9 @@
 <script lang="ts" setup>
 import {FileInfo} from "@/components/zip/zipTypes";
 import {Folder, Document} from "@element-plus/icons-vue";
+import type {PropType} from "vue";
 
 defineProps({
-    info: FileInfo
+    info: Object as PropType<FileInfo>
 })
 </script>

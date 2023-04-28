@@ -5,11 +5,11 @@
                 <Toolbar/>
             </el-header>
             <el-container>
-                <el-aside width="200px">
-                    <Sidebar/>
+                <el-aside width="270px">
+                    <Sidebar :name="name" :items="items" @click-folder="changeFiles"/>
                 </el-aside>
                 <el-main>
-                    <FileItems/>
+                    <FileItems ref="filesRef" :items="items"/>
                 </el-main>
             </el-container>
         </el-container>
@@ -20,4 +20,49 @@
 import Sidebar from "@/components/zip/Sidebar.vue";
 import FileItems from "@/components/zip/FileItems.vue";
 import Toolbar from "@/components/zip/Toolbar.vue";
+import {getVscodeEvent} from "@/vscode";
+import {onMounted, ref} from "vue";
+import type {Ref} from 'vue'
+import {FileInfo} from "@/components/zip/zipTypes";
+
+const vscodeEvent = getVscodeEvent()
+
+const filesRef = ref<InstanceType<typeof FileItems>>()
+const name = ref('')
+const folderMapping: Ref<any> = ref({})
+const items: Ref<FileInfo[]> = ref([
+    {
+        name: 'out',
+        isDirectory: true,
+        children: [],
+        header: {
+            time: '2016-05-03',
+            size: 1000,
+            compressedSize: 200,
+        }
+    },
+    {
+        name: 'index.js',
+        isDirectory: false,
+        children: [],
+        header: {
+            time: '2016-05-03',
+            size: 1000,
+            compressedSize: 200,
+        }
+    }
+])
+const changeFiles = (dirPath: string) => {
+    filesRef.value.updateData(folderMapping.value[dirPath]?.children || items.value)
+}
+
+onMounted(() => {
+    vscodeEvent
+        .on('data', ({fileName, files, folderMap}) => {
+            name.value = fileName
+            items.value = files;
+            folderMapping.value = folderMap;
+        })
+        .emit('init')
+})
 </script>
