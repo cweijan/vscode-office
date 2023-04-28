@@ -15,7 +15,6 @@ declare module '@vue/runtime-core' {
     ElMain: typeof import('element-plus/es')['ElMain']
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
-    ElTree: typeof import('element-plus/es')['ElTree']
     FileItem: typeof import('./src/components/zip/FileItem.vue')['default']
     FileItems: typeof import('./src/components/zip/FileItems.vue')['default']
     IconCommunity: typeof import('./src/components/icons/IconCommunity.vue')['default']

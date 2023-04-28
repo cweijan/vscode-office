@@ -1,5 +1,5 @@
 import { Hanlder } from "@/common/handler";
-import { mkdirSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, rm, rmdir, rmdirSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { basename, extname, resolve } from "path";
 import { Uri, commands, env, extensions, workspace } from "vscode";
@@ -37,6 +37,8 @@ export class ZipService {
                     }
                     commands.executeCommand('vscode.open', url);
                 }
+            }).on('dispose', () => {
+                if (existsSync(basePath)) rm(basePath, { recursive: true, force: true }, null)
             })
         })
     }

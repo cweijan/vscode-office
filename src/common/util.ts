@@ -31,4 +31,8 @@ export class Util {
         return yes;
     }
   
+    public static limitTitle(title: string): string {
+        return title.length <= 30 ? title : title.substring(0, 25) + '...';
+    }
+
 }

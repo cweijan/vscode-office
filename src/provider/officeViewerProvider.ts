@@ -10,6 +10,7 @@ import { workspace } from 'vscode';
 import { Hanlder } from '../common/handler';
 import { Output } from '../common/Output';
 import { Util } from '../common/util';
+import { ViewManager } from '@/common/viewManager';
 
 /**
  * support view office files
@@ -109,17 +110,9 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
     }
 
     async handleZip(webview: vscode.Webview, uri: vscode.Uri, handler: Hanlder) {
-        // const baseUrl = webview.asWebviewUri(vscode.Uri.file(this.extensionPath + "/resource/pdf"))
-        //     .toString().replace(/\?.+$/, '').replace('https://git', 'https://file');
-        if (this.context.extensionMode == vscode.ExtensionMode.Development) {
-            const data: string = (await axios.get(`http://127.0.0.1:8593/index.html`, { transformResponse: [] })).data;
-            // webview.html = data
-            webview.html = data.replace('/@vite/client', 'http://127.0.0.1:8593/@vite/client')
-                .replace('<base href="/">', `<base href="http://127.0.0.1:8593/">`);
-        }
-        // const targetPath = `${this.webviewPath}/${path}.html`;
-        // return fs.readFileSync(targetPath, 'utf8')
-        // webview.html = readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8').replace("{{baseUrl}}", baseUrl)
+        let data = await ViewManager.readContent()
+        data = await ViewManager.buildPath(data, webview);
+        webview.html = data
         new ZipService(uri, handler).bind();
     }
 
