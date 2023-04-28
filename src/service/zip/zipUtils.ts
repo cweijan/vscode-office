@@ -20,6 +20,7 @@ export function parseZipAsTree(zipData: Buffer): ZipParseResult {
 
     function parseFlatItems(entrys: ZipEntry[]) {
         for (const origin of entrys) {
+            if (!origin.isDirectory) fileMap[origin.entryName] = origin
             const entry = origin.isDirectory ? origin : {
                 isDirectory: origin.isDirectory,
                 name: origin.name,
@@ -37,12 +38,10 @@ export function parseZipAsTree(zipData: Buffer): ZipParseResult {
             paths.pop()
             if (paths.length == 0) {
                 files.push(entry)
-                if (!entry.isDirectory) fileMap[entry.entryName] = entry
             } else {
                 const parentPath = paths.join('/')
                 if (folderMap[parentPath]) {
                     folderMap[parentPath].children.push(entry)
-                    if (!entry.isDirectory) fileMap[entry.entryName] = entry
                 } else {
                     folderMap[parentPath] = {
                         isDirectory: true,

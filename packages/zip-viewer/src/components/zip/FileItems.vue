@@ -1,6 +1,6 @@
 <template>
-  <!--    https://element-plus.org/zh-CN/component/table.html-->
-    <el-table :data="data" style="width: 100%">
+  <!--    https://element-plus.org/zh-CN/component/table.html  -->
+    <el-table :data="data" style="width: 100%" @row-click="clickRow">
         <el-table-column label="名称" width="380">
             <template #default="scope">
                 <FileItem :info="scope.row"/>
@@ -17,6 +17,7 @@ import type {PropType} from "vue";
 import {FileInfo} from "@/components/zip/zipTypes";
 import {onMounted, ref, watch} from "vue";
 import {filterDir} from "@/components/zip/zipActions";
+import {getVscodeEvent} from "@/vscode";
 // https://element-plus.org/zh-CN/component/table.html
 const props = defineProps({
     items: Object as PropType<FileInfo[]>
@@ -28,6 +29,15 @@ watch(() => props.items, (items) => {
 const updateData = (items: FileInfo[]) => {
     data.value = items
 }
+
+const vscodeEvent = getVscodeEvent()
+const clickRow = (entry:FileInfo) => {
+    vscodeEvent.emit('open', {
+        isDirectory: entry.isDirectory,
+        entryName: entry.entryName
+    })
+}
+
 defineExpose({
     updateData
 })

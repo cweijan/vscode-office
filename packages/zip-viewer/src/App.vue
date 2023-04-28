@@ -53,7 +53,19 @@ const items: Ref<FileInfo[]> = ref([
     }
 ])
 const changeFiles = (dirPath: string) => {
-    filesRef.value.updateData(folderMapping.value[dirPath]?.children || items.value)
+    let files = items.value // 点击左侧顶部时
+    if (folderMapping.value[dirPath]) {
+        files = [
+            {
+                name: '..',
+                isDirectory: true,
+                entryName: dirPath.includes('/') ? dirPath.replace(/\/.+$/, '') : null,
+            },
+            ...folderMapping.value[dirPath].children
+        ]
+    }
+
+    filesRef.value.updateData(files)
 }
 
 onMounted(() => {
@@ -64,6 +76,7 @@ onMounted(() => {
             folderMapping.value = folderMap;
             console.log('files', files)
         })
+        .on('open', changeFiles)
         .emit('init')
 })
 </script>
