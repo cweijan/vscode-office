@@ -1,13 +1,14 @@
+import axios from 'axios';
 import { spawn } from 'child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync } from 'fs';
+import { tmpdir } from 'os';
 import { basename, extname, parse, resolve } from 'path';
 import { TextEncoder } from 'util';
 import * as vscode from 'vscode';
+import { workspace } from 'vscode';
 import { Hanlder } from '../common/handler';
 import { Output } from '../common/Output';
 import { Util } from '../common/util';
-import { tmpdir } from 'os';
-import { workspace } from 'vscode';
 
 /**
  * support view office files
@@ -69,6 +70,11 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 htmlPath = 'word.html'
                 handler.on("fileChange", send)
                 break;
+            case ".jar":
+            case ".zip":
+            case ".vsix":
+                this.handleZip(webview);
+                break;
             case ".pdf":
                 this.handlePdf(webview);
                 handler.on("fileChange", send)
@@ -99,13 +105,26 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
     }
 
+    async handleZip(webview: vscode.Webview) {
+        // const baseUrl = webview.asWebviewUri(vscode.Uri.file(this.extensionPath + "/resource/pdf"))
+        //     .toString().replace(/\?.+$/, '').replace('https://git', 'https://file');
+        if (this.context.extensionMode == vscode.ExtensionMode.Development) {
+            const data: string = (await axios.get(`http://127.0.0.1:8593/index.html`, { transformResponse: [] })).data;
+            // webview.html = data
+            webview.html = data.replace('/@vite/client', 'http://127.0.0.1:8593/@vite/client')
+                .replace('<base href="/">', `<base href="http://127.0.0.1:8593/">`);
+        }
+        // const targetPath = `${this.webviewPath}/${path}.html`;
+        // return fs.readFileSync(targetPath, 'utf8')
+        // webview.html = readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8').replace("{{baseUrl}}", baseUrl)
+    }
 
     private handleImage(uri: vscode.Uri, webview: vscode.Webview) {
 
         const folderPath = vscode.Uri.file(resolve(uri.fsPath, ".."));
         const files = readdirSync(folderPath.fsPath)
         let text = "";
-        let current=0;
+        let current = 0;
         let i = 0;
         const currentFile = basename(uri.fsPath)
         if (uri.scheme == 'git') {

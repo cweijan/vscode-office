@@ -377,6 +377,15 @@
 					},
 					{
 						"filenamePattern": "*.webp"
+					},
+					{
+						"filenamePattern": "*.jar"
+					},
+					{
+						"filenamePattern": "*.zip"
+					},
+					{
+						"filenamePattern": "*.vsix"
 					}
 				]
 			},
@@ -542,6 +551,7 @@
 		"rimraf": "^3.0.2"
 	},
 	"dependencies": {
+		"axios": "^1.4.0",
 		"cheerio": "^1.0.0-rc.3",
 		"chrome-finder": "^1.0.7",
 		"file-type": "^18.0.0",
