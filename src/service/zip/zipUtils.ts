@@ -12,7 +12,7 @@ export function parseZipAsTree(zipData: Buffer): ZipParseResult {
     var zip = new AdmZip(zipData);
     var zipEntries = zip.getEntries(); // an array of ZipEntry records
 
-    const files = []
+    let files: ZipEntry[] = []
     const fileMap = {};
     const folderMap = {};
 
@@ -42,6 +42,19 @@ export function parseZipAsTree(zipData: Buffer): ZipParseResult {
 
     parseFlatItems(zipEntries)
     parseFlatItems(Object.keys(folderMap).map(k => folderMap[k]))
+
+    function sortFiles(a: ZipEntry, b: ZipEntry) {
+        if (a.isDirectory && b.isDirectory) return a.name.localeCompare(b.name);
+        if (a.isDirectory) return -1;
+        if (b.isDirectory) return 1;
+        return a.name.localeCompare(b.name);
+    }
+
+    for (const key in folderMap) {
+        const element = folderMap[key];
+        element.children = element.children.sort(sortFiles)
+    }
+    files = files.sort(sortFiles)
 
     return {
         files,
