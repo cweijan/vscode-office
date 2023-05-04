@@ -6,7 +6,7 @@
             </el-header>
             <el-container>
                 <el-aside width="270px">
-                    <Sidebar :name="name" :items="items" @click-folder="changeFiles"/>
+                    <Sidebar ref="sidebarRef" :name="name" :items="items" @click-folder="changeFiles"/>
                 </el-aside>
                 <el-main>
                     <FileItems ref="filesRef" :items="items"/>
@@ -30,6 +30,7 @@ window.addEventListener('keydown', e => {
     if (e.code == 'F12') vscodeEvent.emit('developerTool')
 })
 const filesRef = ref<InstanceType<typeof FileItems>>()
+const sidebarRef = ref<InstanceType<typeof Sidebar>>()
 const name = ref('')
 const currentDir = ref('')
 const folderMapping: Ref<any> = ref({})
@@ -53,6 +54,7 @@ const items: Ref<FileInfo[]> = ref([
 ])
 items.value = []
 const changeFiles = (dirPath: string) => {
+    sidebarRef.value.expandPath(dirPath)
     let files = items.value // 点击左侧顶部时
     currentDir.value = dirPath
     if (folderMapping.value[dirPath]) {

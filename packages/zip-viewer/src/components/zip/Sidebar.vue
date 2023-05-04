@@ -2,7 +2,7 @@
     <el-tree ref="treeRef" :data="data" @node-click="handleNodeClick" node-key="entryName"
              :default-expanded-keys="[name]" :expand-on-click-node="false">
         <template #default="{ node, data }">
-            <FileItem :info="data"/>
+            <FileItem :info="data" :active="activeDir==data.entryName"/>
         </template>
     </el-tree>
 </template>
@@ -16,10 +16,6 @@ import {ElTree} from "element-plus";
 import {filterDir} from "@/components/zip/zipActions";
 
 const emit = defineEmits(['clickFolder'])
-const handleNodeClick = (node: FileInfo) => {
-    treeRef.value?.getNode(node.entryName).expand()
-    emit('clickFolder', node.entryName)
-}
 // https://element-plus.org/zh-CN/component/tree.html
 const props = defineProps({
     name: String,
@@ -27,11 +23,26 @@ const props = defineProps({
 })
 const treeRef = ref<InstanceType<typeof ElTree>>()
 const data = ref(props.items)
+const activeDir=ref('')
+
+const handleNodeClick = (node: FileInfo) => {
+    treeRef.value?.getNode(node.entryName).expand()
+    emit('clickFolder', node.entryName)
+}
+const expandPath=(path:string)=>{
+    activeDir.value=path;
+    treeRef.value?.getNode(path).expand()
+}
+
 watch(() => props.items, (items) => {
     data.value = [{
         name: props.name,
         entryName: props.name,
         children: filterDir(items)
     }]
+})
+
+defineExpose({
+    expandPath
 })
 </script>
