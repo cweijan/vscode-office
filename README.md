@@ -12,6 +12,7 @@ This extension supports previewing these common office file formats.
 - Markdown: .md
 - HttpRequest: .http
 - Windows Reg: .reg
+- Compressed file: .zip, .jar, .vsix
 
 If it helps you, consider star this repository (●'◡'●).
 
