@@ -16,8 +16,9 @@ import {ElTree} from "element-plus";
 import {filterDir} from "@/components/zip/zipActions";
 
 const emit = defineEmits(['clickFolder'])
-const handleNodeClick = (data: FileInfo) => {
-    emit('clickFolder', data.entryName)
+const handleNodeClick = (node: FileInfo) => {
+    treeRef.value?.getNode(node.entryName).expand()
+    emit('clickFolder', node.entryName)
 }
 // https://element-plus.org/zh-CN/component/tree.html
 const props = defineProps({
