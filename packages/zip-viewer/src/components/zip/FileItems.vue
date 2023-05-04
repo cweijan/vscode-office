@@ -9,10 +9,10 @@
         <el-table-column prop="modifyDateTime" label="Modified" width="190"/>
         <el-table-column prop="compressedSize" label="Compressed" width="105"/>
         <el-table-column prop="fileSize" label="Origin" width="80"/>
-        <el-table-column prop="fileSize" label="Action" width="80">
+        <el-table-column label="Action" width="80">
             <template #default="scope">
                 <el-popconfirm width="220" confirm-button-text="OK" cancel-button-text="Cancel" :icon="InfoFilled"
-                               title="Are you sure to delete this?" :hide-after="0"
+                               title="Are you sure to delete this?" :hide-after="0" v-if="scope.row.name!='..'"
                                @confirm="reqDelete(scope.row)">
                     <template #reference>
                         <el-button type="danger" size="small" :icon="Delete"></el-button>
