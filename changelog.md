@@ -1,5 +1,9 @@
 # Change log
 
+# 3.1.3 2023-5-4
+
+- Support view zip file.
+
 # 3.1.2 2023-4-25
 
 - Change inactive tab foreground color.
