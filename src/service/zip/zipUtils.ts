@@ -12,10 +12,11 @@ interface ZipParseResult {
 
 export function parseZipAsTree(zipData: Buffer): ZipParseResult {
     const zip = new AdmZip(zipData);
-    const zipEntries = zip.getEntries();
+    const zipEntries = zip.getEntries().filter(e => e.name);
 
     let files: ZipEntry[] = []
     const fileMap = {};
+    const pathMap = {};
     const folderMap = {};
 
     function parseFlatItems(entrys: ZipEntry[]) {
@@ -34,25 +35,30 @@ export function parseZipAsTree(zipData: Buffer): ZipParseResult {
                 compressedSize: prettyBytes(origin.header?.compressedSize),
                 modifyDateTime: origin.header ? format('yyyy-MM-dd hh:mm:ss', origin.header.time) : null
             } as any as ZipEntry
-            const paths = entry.entryName.split('/')
-            paths.pop()
-            if (paths.length == 0) {
-                files.push(entry)
-            } else {
-                const parentPath = paths.join('/')
-                if (folderMap[parentPath]) {
-                    folderMap[parentPath].children.push(entry)
+            function pushEntry(entry: ZipEntry) {
+                if (pathMap[entry.entryName]) return;
+                pathMap[entry.entryName] = 1;
+                const paths = entry.entryName.split('/')
+                paths.pop()
+                if (paths.length == 0) {
+                    files.push(entry)
                 } else {
-                    const parentEntry = {
-                        isDirectory: true,
-                        children: [entry],
-                        entryName: parentPath,
-                        name: basename(parentPath)
+                    const parentPath = paths.join('/')
+                    if (folderMap[parentPath]) {
+                        folderMap[parentPath].children.push(entry)
+                    } else {
+                        const parentEntry = {
+                            isDirectory: true,
+                            children: [entry],
+                            entryName: parentPath,
+                            name: basename(parentPath)
+                        }
+                        folderMap[parentPath] = parentEntry
+                        pushEntry(parentEntry as any as ZipEntry)
                     }
-                    folderMap[parentPath] = parentEntry
-                    if (paths.length == 1 && entry.isDirectory) files.push(parentEntry as any)
                 }
             }
+            pushEntry(entry)
         }
     }
 
