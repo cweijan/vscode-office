@@ -1,6 +1,6 @@
 <template>
   <!--    https://element-plus.org/zh-CN/component/table.html  -->
-    <el-table :data="data" style="width: 100%" @row-click="clickRow">
+    <el-table :data="data" style="width: 100%" @row-click="clickRow" :max-height="remainHeight">
         <el-table-column label="Name" width="350">
             <template #default="scope">
                 <FileItem :info="scope.row"/>
@@ -34,6 +34,10 @@ const props = defineProps({
     items: Object as PropType<FileInfo[]>
 })
 const data = ref(props.items)
+const remainHeight = ref(window.innerHeight - 100)
+window.onresize = () => {
+    remainHeight.value = window.innerHeight - 100;
+}
 watch(() => props.items, (items) => {
     data.value = items
 })
@@ -44,7 +48,7 @@ const updateData = (items: FileInfo[]) => {
 const vscodeEvent = getVscodeEvent()
 
 const reqDelete = (entry: FileInfo) => {
-    vscodeEvent.emit('removeFile',entry.entryName)
+    vscodeEvent.emit('removeFile', entry.entryName)
 }
 
 const clickRow = (entry: FileInfo, column: any) => {
