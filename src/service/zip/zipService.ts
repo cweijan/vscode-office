@@ -64,7 +64,11 @@ export class ZipService {
                 const prefix = currentDir ? `${currentDir}/` : '';
                 zip.addFile(`${prefix}${basename(uri.fsPath)}`, buf)
                 await workspace.fs.writeFile(this.uri, zip.toBuffer())
-                handler.emit('addFileDone')
+                handler.emit('zipChange')
+            }).on('removeFile', async entryName => {
+                zip.deleteFile(entryName)
+                await workspace.fs.writeFile(this.uri, zip.toBuffer())
+                handler.emit('zipChange')
             }).on('dispose', () => {
                 if (existsSync(basePath)) rm(basePath, { recursive: true, force: true }, null)
             })

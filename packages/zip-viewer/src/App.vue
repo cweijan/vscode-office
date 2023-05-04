@@ -80,7 +80,7 @@ onMounted(() => {
             }
         })
         .on('openDir', changeFiles)
-        .on('addFileDone', () => vscodeEvent.emit('init'))
+        .on('zipChange', () => vscodeEvent.emit('init'))
         .emit('init')
 })
 </script>
