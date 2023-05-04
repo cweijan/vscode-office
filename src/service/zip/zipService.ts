@@ -51,6 +51,7 @@ export class ZipService {
                         window.showErrorMessage(err.message)
                     } else {
                         setTimeout(() => {
+                            window.showInformationMessage("Extract success!")
                             commands.executeCommand('revealFileInOS', Uri.file(target))
                         }, 100);
                     }
