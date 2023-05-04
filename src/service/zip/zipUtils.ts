@@ -4,15 +4,15 @@ import { basename } from "path";
 import prettyBytes from "./pretty-bytes";
 
 interface ZipParseResult {
+    zip: AdmZip
     files: ZipEntry[]
     fileMap: { [fullPath: string]: ZipEntry }
     folderMap: { [fullPath: string]: ZipEntry }
 }
 
 export function parseZipAsTree(zipData: Buffer): ZipParseResult {
-    // reading archives
-    var zip = new AdmZip(zipData);
-    var zipEntries = zip.getEntries(); // an array of ZipEntry records
+    const zip = new AdmZip(zipData);
+    const zipEntries = zip.getEntries();
 
     let files: ZipEntry[] = []
     const fileMap = {};
@@ -73,6 +73,7 @@ export function parseZipAsTree(zipData: Buffer): ZipParseResult {
     files = files.sort(sortFiles)
 
     return {
+        zip,
         files,
         fileMap,
         folderMap

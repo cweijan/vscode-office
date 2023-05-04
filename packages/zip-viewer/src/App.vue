@@ -80,3 +80,10 @@ onMounted(() => {
         .emit('init')
 })
 </script>
+
+<style>
+body{
+    padding: 0;
+    /*padding-left: 5px;*/
+}
+</style>

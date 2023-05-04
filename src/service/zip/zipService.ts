@@ -1,9 +1,10 @@
 import { Hanlder } from "@/common/handler";
-import { existsSync, mkdirSync, rm, rmdir, rmdirSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, rm, writeFileSync } from "fs";
 import { tmpdir } from "os";
-import { basename, extname, resolve } from "path";
-import { Uri, commands, env, extensions, workspace } from "vscode";
+import { basename, extname, join, parse, resolve } from "path";
+import { Uri, commands, env, extensions, window, workspace } from "vscode";
 import { parseZipAsTree } from "./zipUtils";
+import { Output } from "@/common/Output";
 
 export class ZipService {
 
@@ -17,7 +18,7 @@ export class ZipService {
         handler.on('init', async () => {
             const data = (await readTask) as Buffer
             const basePath = `${tmpdir()}/officeZip.${new Date().getTime()}`;
-            const { files, folderMap, fileMap } = parseZipAsTree(data)
+            const { zip, files, folderMap, fileMap } = parseZipAsTree(data)
             handler.emit('data', {
                 files, folderMap,
                 fileName: basename(this.uri.fsPath)
@@ -37,6 +38,25 @@ export class ZipService {
                     }
                     commands.executeCommand('vscode.open', url);
                 }
+            }).on('autoExtract', () => {
+                window.showInformationMessage("Start extracting...")
+                let target = resolve(this.uri.fsPath, '..');
+                if (files.length > 1) {
+                    target = join(target, parse(this.uri.fsPath).name)
+                    mkdirSync(target, { recursive: true })
+                }
+                zip.extractAllToAsync(target, true, false, (err) => {
+                    if (err) {
+                        Output.debug(err)
+                        window.showErrorMessage(err.message)
+                    } else {
+                        setTimeout(() => {
+                            commands.executeCommand('revealFileInOS', Uri.file(target))
+                        }, 100);
+                    }
+                });
+            }).on('extractTo', () => {
+
             }).on('dispose', () => {
                 if (existsSync(basePath)) rm(basePath, { recursive: true, force: true }, null)
             })
