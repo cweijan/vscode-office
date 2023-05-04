@@ -1,5 +1,5 @@
 <template>
-    <div class="common-layout">
+    <div id="app">
         <el-container>
             <el-header>
                 <Toolbar :currentDir="currentDir"/>
