@@ -1,13 +1,27 @@
 import { EventEmitter } from "events";
 import * as vscode from 'vscode';
 import { WebviewPanel } from "vscode";
+import { Output } from "./Output";
 
 export class Hanlder {
 
     constructor(public panel: WebviewPanel, private eventEmitter: EventEmitter) { }
 
-    on(event: string, callback: (content: any) => void): this {
-        this.eventEmitter.on(event, callback)
+    on(event: string, callback: (content: any) => void | Promise<any>): this {
+        if (event != 'init') {
+            const listens = this.eventEmitter.listeners(event)
+            if (listens.length >= 1) {
+                this.eventEmitter.removeListener(event, listens[0] as any)
+            }
+        }
+        this.eventEmitter.on(event, async (content: any) => {
+            try {
+                await callback(content)
+            } catch (error) {
+                Output.debug(error)
+                vscode.window.showErrorMessage(error.message)
+            }
+        })
         return this;
     }
 
@@ -16,11 +30,11 @@ export class Hanlder {
         return this;
     }
 
-    public static bind(panel: WebviewPanel,uri:vscode.Uri): Hanlder {
+    public static bind(panel: WebviewPanel, uri: vscode.Uri): Hanlder {
         const eventEmitter = new EventEmitter();
 
         const fileWatcher = vscode.workspace.createFileSystemWatcher(uri.fsPath)
-        fileWatcher.onDidChange(e=>{
+        fileWatcher.onDidChange(e => {
             eventEmitter.emit("fileChange", e)
         })
 

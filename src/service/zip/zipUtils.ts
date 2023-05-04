@@ -43,12 +43,14 @@ export function parseZipAsTree(zipData: Buffer): ZipParseResult {
                 if (folderMap[parentPath]) {
                     folderMap[parentPath].children.push(entry)
                 } else {
-                    folderMap[parentPath] = {
+                    const parentEntry = {
                         isDirectory: true,
                         children: [entry],
                         entryName: parentPath,
                         name: basename(parentPath)
                     }
+                    folderMap[parentPath] = parentEntry
+                    if (paths.length == 1 && entry.isDirectory) files.push(parentEntry as any)
                 }
             }
         }

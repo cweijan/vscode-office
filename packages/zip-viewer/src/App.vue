@@ -2,7 +2,7 @@
     <div class="common-layout">
         <el-container>
             <el-header>
-                <Toolbar/>
+                <Toolbar :currentDir="currentDir"/>
             </el-header>
             <el-container>
                 <el-aside width="270px">
@@ -26,13 +26,12 @@ import type {Ref} from 'vue'
 import {FileInfo} from "@/components/zip/zipTypes";
 
 const vscodeEvent = getVscodeEvent()
-
 window.addEventListener('keydown', e => {
     if (e.code == 'F12') vscodeEvent.emit('developerTool')
 })
-
 const filesRef = ref<InstanceType<typeof FileItems>>()
 const name = ref('')
+const currentDir = ref('')
 const folderMapping: Ref<any> = ref({})
 const items: Ref<FileInfo[]> = ref([
     {
@@ -52,9 +51,10 @@ const items: Ref<FileInfo[]> = ref([
         compressedSize: 200,
     }
 ])
-items.value=[]
+items.value = []
 const changeFiles = (dirPath: string) => {
     let files = items.value // 点击左侧顶部时
+    currentDir.value = dirPath
     if (folderMapping.value[dirPath]) {
         files = [
             {
@@ -68,16 +68,18 @@ const changeFiles = (dirPath: string) => {
 
     filesRef.value.updateData(files)
 }
-
 onMounted(() => {
     vscodeEvent
         .on('data', ({fileName, files, folderMap}) => {
             name.value = fileName
-            items.value = files;
             folderMapping.value = folderMap;
-            console.log('files', files)
+            if (currentDir.value) {
+                changeFiles(currentDir.value)
+            } else {
+                items.value = files
+            }
         })
-        .on('open', changeFiles)
+        .on('openDir', changeFiles)
         .on('addFileDone', () => vscodeEvent.emit('init'))
         .emit('init')
 })

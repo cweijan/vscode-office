@@ -32,7 +32,7 @@ const updateData = (items: FileInfo[]) => {
 
 const vscodeEvent = getVscodeEvent()
 const clickRow = (entry:FileInfo) => {
-    vscodeEvent.emit('open', {
+    vscodeEvent.emit('openPath', {
         isDirectory: entry.isDirectory,
         entryName: entry.entryName
     })

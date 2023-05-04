@@ -12,6 +12,7 @@ export class ZipService {
 
     public async bind() {
 
+        // delete update
         const handler = this.handler;
         handler.on('init', async () => {
             const data = (await workspace.fs.readFile(this.uri)) as Buffer
@@ -20,10 +21,10 @@ export class ZipService {
             handler.emit('data', {
                 files, folderMap,
                 fileName: basename(this.uri.fsPath)
-            }).on('open', async info => {
+            }).on('openPath', async info => {
                 const { entryName, isDirectory } = info
                 if (isDirectory) {
-                    handler.emit('open', entryName)
+                    handler.emit('openDir', entryName)
                 } else {
                     await commands.executeCommand('workbench.action.keepEditor')
                     const file = fileMap[entryName]
@@ -53,12 +54,13 @@ export class ZipService {
                         }, 100);
                     }
                 });
-            }).on('addFile', async () => {
+            }).on('addFile', async (currentDir = '') => {
                 const uris = await window.showOpenDialog()
                 if (!uris) return;
                 const uri = uris[0]
                 const buf = await workspace.fs.readFile(uri) as Buffer
-                zip.addFile(basename(uri.fsPath), buf)
+                const prefix = currentDir ? `${currentDir}/` : '';
+                zip.addFile(`${prefix}${basename(uri.fsPath)}`, buf)
                 await workspace.fs.writeFile(this.uri, zip.toBuffer())
                 handler.emit('addFileDone')
             }).on('dispose', () => {
