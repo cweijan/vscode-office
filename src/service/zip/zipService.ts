@@ -5,6 +5,7 @@ import { basename, extname, join, parse, resolve } from "path";
 import { Uri, commands, env, extensions, window, workspace } from "vscode";
 import { parseZipAsTree } from "./zipUtils";
 import { Output } from "@/common/Output";
+import { FileUtil } from "@/common/fileUtil";
 
 export class ZipService {
 
@@ -55,7 +56,8 @@ export class ZipService {
                     }
                 });
             }).on('addFile', async (currentDir = '') => {
-                const uris = await window.showOpenDialog()
+                const defaultUri = FileUtil.getLastPath('connectChoose')
+                const uris = await window.showOpenDialog({ defaultUri })
                 if (!uris) return;
                 const uri = uris[0]
                 const buf = await workspace.fs.readFile(uri) as Buffer

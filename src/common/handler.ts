@@ -7,7 +7,7 @@ export class Hanlder {
 
     constructor(public panel: WebviewPanel, private eventEmitter: EventEmitter) { }
 
-    on(event: string, callback: (content: any) => void | Promise<any>): this {
+    on(event: string, callback: (content: any) => any | Promise<any>): this {
         if (event != 'init') {
             const listens = this.eventEmitter.listeners(event)
             if (listens.length >= 1) {

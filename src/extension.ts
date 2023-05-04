@@ -7,12 +7,14 @@ import { HtmlService } from './service/htmlService';
 import { MarkdownService } from './service/markdownService';
 import { Output } from './common/Output';
 import { ViewManager } from './common/viewManager';
+import { FileUtil } from './common/fileUtil';
 const httpExt = require('./bundle/extension');
 
 export function activate(context: vscode.ExtensionContext) {
 	activeHTTP(context)
 	autoClearCacheStorage();
 	const viewOption = { webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true } };
+	FileUtil.init(context)
 	ViewManager.init(context)
 	const markdownService = new MarkdownService(context);
 	const viewerInstance = new OfficeViewerProvider(context);
