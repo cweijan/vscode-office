@@ -12,11 +12,9 @@ export class ZipService {
 
     public async bind() {
 
-        const readTask = workspace.fs.readFile(this.uri)
-
         const handler = this.handler;
         handler.on('init', async () => {
-            const data = (await readTask) as Buffer
+            const data = (await workspace.fs.readFile(this.uri)) as Buffer
             const basePath = `${tmpdir()}/officeZip.${new Date().getTime()}`;
             const { zip, files, folderMap, fileMap } = parseZipAsTree(data)
             handler.emit('data', {
@@ -55,8 +53,14 @@ export class ZipService {
                         }, 100);
                     }
                 });
-            }).on('extractTo', () => {
-
+            }).on('addFile', async () => {
+                const uris = await window.showOpenDialog()
+                if (!uris) return;
+                const uri = uris[0]
+                const buf = await workspace.fs.readFile(uri) as Buffer
+                zip.addFile(basename(uri.fsPath), buf)
+                await workspace.fs.writeFile(this.uri, zip.toBuffer())
+                handler.emit('addFileDone')
             }).on('dispose', () => {
                 if (existsSync(basePath)) rm(basePath, { recursive: true, force: true }, null)
             })

@@ -52,6 +52,7 @@ const items: Ref<FileInfo[]> = ref([
         compressedSize: 200,
     }
 ])
+items.value=[]
 const changeFiles = (dirPath: string) => {
     let files = items.value // 点击左侧顶部时
     if (folderMapping.value[dirPath]) {
@@ -77,12 +78,13 @@ onMounted(() => {
             console.log('files', files)
         })
         .on('open', changeFiles)
+        .on('addFileDone', () => vscodeEvent.emit('init'))
         .emit('init')
 })
 </script>
 
 <style>
-body{
+body {
     padding: 0;
     /*padding-left: 5px;*/
 }
