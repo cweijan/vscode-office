@@ -14,6 +14,9 @@ jobs:
         node-version: 14.x
     - run: npm i
     - run: |
+        cd packages/zip-viewer
+        npm i
+    - run: |
         echo ">>> Start compile vscode-office."
         npm run build
         echo ">>> Compile vscode-office sucess!"
