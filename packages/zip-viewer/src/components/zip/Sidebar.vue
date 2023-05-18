@@ -31,7 +31,7 @@ const handleNodeClick = (node: FileInfo) => {
 }
 const expandPath=(path:string)=>{
     activeDir.value=path;
-    treeRef.value?.getNode(path).expand()
+    treeRef.value?.getNode(path)?.expand()
 }
 
 watch(() => props.items, (items) => {
