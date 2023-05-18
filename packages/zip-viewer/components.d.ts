@@ -24,4 +24,7 @@ declare module '@vue/runtime-core' {
     Sidebar: typeof import('./src/components/zip/Sidebar.vue')['default']
     Toolbar: typeof import('./src/components/zip/Toolbar.vue')['default']
   }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
+  }
 }
