@@ -1,5 +1,9 @@
 # Change log
 
+# 3.1.5 
+
+- Support view apk file.
+
 # 3.1.4 2023-5-4
 
 - Support view zip file.

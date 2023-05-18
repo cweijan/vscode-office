@@ -76,6 +76,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 break;
             case ".jar":
             case ".zip":
+            case ".apk":
             case ".vsix":
                 this.handleZip(webview, uri, handler);
                 break;

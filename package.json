@@ -385,6 +385,9 @@
 						"filenamePattern": "*.zip"
 					},
 					{
+						"filenamePattern": "*.apk"
+					},
+					{
 						"filenamePattern": "*.vsix"
 					}
 				]
