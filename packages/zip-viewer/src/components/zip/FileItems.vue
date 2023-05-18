@@ -1,6 +1,6 @@
 <template>
   <!--    https://element-plus.org/zh-CN/component/table.html  -->
-    <el-table :data="data" style="width: 100%" @row-click="clickRow" :max-height="remainHeight">
+    <el-table :data="data" style="width: 100%" @row-click="clickRow" :max-height="remainHeight" v-loading="loadingFile">
         <el-table-column label="Name" width="350">
             <template #default="scope">
                 <FileItem :info="scope.row"/>
@@ -34,12 +34,14 @@ const props = defineProps({
     items: Object as PropType<FileInfo[]>
 })
 const data = ref(props.items)
+const loadingFile=ref(true)
 const remainHeight = ref(window.innerHeight - 100)
 window.onresize = () => {
     remainHeight.value = window.innerHeight - 100;
 }
 watch(() => props.items, (items) => {
     data.value = items
+    loadingFile.value=false
 })
 const updateData = (items: FileInfo[]) => {
     data.value = items
