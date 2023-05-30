@@ -99,8 +99,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             const fileName = parse(relPath).name;
             vscode.env.clipboard.writeText(`![${fileName}](${relPath})`)
             vscode.commands.executeCommand("editor.action.clipboardPasteAction")
-        }).on("editInVSCode", () => {
-            vscode.commands.executeCommand('vscode.openWith', uri, "default", vscode.ViewColumn.Beside);
+        }).on("editInVSCode", (full: boolean) => {
+            const side = full ? vscode.ViewColumn.Active : vscode.ViewColumn.Beside;
+            vscode.commands.executeCommand('vscode.openWith', uri, "default", side);
         }).on("save", (newContent) => {
             content = newContent
             this.updateTextDocument(document, newContent)
