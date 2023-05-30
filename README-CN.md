@@ -20,8 +20,8 @@
 - 可通过ctrl/meta+鼠标滚动来调整视图大小
 - 点击以下按钮可打开VSCode内置编辑器.
   ![img](image/README-CN/1640579182342.png)
-- 点击以下按钮可导出为PDF, 需要机器上有安装Chrome或Edge, 可通过设置 `vscode-office.chromiumPath`指定浏览器位置, 导出的第一页是目录, 用于辅助生成书签.
-  ![img](image/README-CN/1640579380584.png)
+- 在编辑器打开右键菜单可将markdown导出为pdf, docx或者html, pdf依赖于chromium, 可通过 `vscode-office.chromiumPath`配置chromium浏览器路径.
+  ![1685418034035](image/README-CN/1685418034035.png)
 
 ## 其他功能
 
