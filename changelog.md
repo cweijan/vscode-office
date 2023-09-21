@@ -1,5 +1,9 @@
 # Change log
 
+# 3.1.7 2023-9-32
+
+- Fix export markdown to docx fail.
+
 # 3.1.5 2023-5-18
 
 - Support view apk file.
