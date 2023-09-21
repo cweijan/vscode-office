@@ -12,8 +12,9 @@ export async function exportHtml(exportFilePath, data) {
 
 export async function exportDocx(exportFilePath, data) {
     console.log("[pretty-md-pdf] Exported to file: " + exportFilePath)
-    const exportTask = require("vscode-html-to-docx")(data, '', {}, '');
-    fs.writeFileSync(exportFilePath, await exportTask)
+    const exportTask = await require("vscode-html-to-docx")(data, '', {}, '');
+    const buffer = Buffer.from(await exportTask.arrayBuffer());
+    fs.writeFileSync(exportFilePath, buffer)
 }
 
 /*
