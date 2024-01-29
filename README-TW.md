@@ -4,7 +4,7 @@
 
 該擴充套件在 VS Code 內整合 [Vditor](https://github.com/Vanessa219/vditor) (針對 VS Code 做了些[相容性改動](https://github.com/vscode-ext-studio/vditor))，實現了對 Markdown 的所見即所得編輯，相比 Typora 的優缺點：
 
-* 開源免費無廣告無隱私追蹤 (如果對你有幫助考慮點下 Star (●'◡'●))
+* 開源免費無廣告無隱私追蹤
 * VS Code 內建 Git 支援，建立一個 Git 儲存庫就可以對 Markdown 進行版本管理
 * 支援多視窗開啟 Markdown (Typora 只支援 mac)
 * 相比 Typora 的缺點: 對 HTML、程式碼區塊和圖形支援不友好
