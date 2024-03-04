@@ -7,6 +7,7 @@ import { Util } from '../common/util';
 import { Holder } from '../service/markdown/holder';
 import { MarkdownService } from '../service/markdownService';
 import { Global } from '@/common/global';
+import { platform } from 'os';
 
 /**
  * support view and edit office files.
@@ -127,7 +128,10 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         webview.html = Util.buildPath(
             readFileSync(`${this.extensionPath}/resource/vditor/index.html`, 'utf8')
                 .replace("{{rootPath}}", rootPath)
-                .replace("{{baseUrl}}", baseUrl),
+                .replace("{{baseUrl}}", baseUrl)
+                .replace(`{{configs}}`, JSON.stringify({
+                    platform: platform()
+                })),
             webview, contextPath);
     }
 

@@ -1,5 +1,19 @@
 import { openLink, hotKeys, imageParser, toolbar, autoSymbol, onToolbarClick, createContextMenu, scrollEditor } from "./util.js";
 
+let state;
+function loadConfigs() {
+  const elem = document.getElementById('configs')
+  try {
+    state = JSON.parse(elem.getAttribute('data-config'));
+    const { platform } = state;
+    document.getElementById('vditor').classList.add(platform)
+  } catch (error) {
+    console.log('loadConfigFail')
+  }
+  return state;
+}
+loadConfigs()
+
 handler.on("open", (md) => {
   const { config, language } = md;
   if (config.autoTheme) {
@@ -69,7 +83,7 @@ handler.on("open", (md) => {
       onToolbarClick(editor)
     }
   })
-  autoSymbol(handler,editor);
+  autoSymbol(handler, editor);
   createContextMenu(editor)
   imageParser(config.viewAbsoluteLocal)
   scrollEditor(md.scrollTop)

@@ -18,3 +18,8 @@ a {
 .vditor-reset {
     padding: 0 5% !important;
 }
+
+.win32 *{
+    text-shadow: 0 0 0.75px #7c7c7cdd;
+    /* text-shadow: transparent 0px 0px 0px, rgba(0, 0, 0, 0.68) 0px 0px 0px !important; */
+}
