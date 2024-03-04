@@ -1,0 +1,11 @@
+:root {
+    --hr-bg: #bd93f9;
+    --ext-border-color: rgba(255, 255, 255, 0.1);
+    --bg-color:  #282a36;
+    --front-color: #f8f8f2;
+    --second-bg-color:#21222c;
+    --code-bg-color:  #222222;
+    --list-hover-color:#bd93f9;
+    --dropdown-hover-background: #44475a;
+    --error-color: #ff5555;
+}

@@ -38,10 +38,6 @@
     color: var(--front-color) !important;
 }
 
-body[data-vscode-theme-name='One Dark Modern Classic'] .vditor-content code:not(.hljs) {
-    color: #abb2bf !important;
-}
-
 /* 编辑模式 */
 body[data-vscode-theme-kind="vscode-dark"] .vditor-content .vditor-wysiwyg__pre>code {
     background-color: #313131 !important;
@@ -61,21 +57,6 @@ body[data-vscode-theme-kind="vscode-dark"] .vditor-content .vditor-wysiwyg__prev
 body[data-vscode-theme-kind="vscode-dark"] .vditor-content .vditor-wysiwyg__preview>code.hljs {
     background-color: #2E2E2E !important;
 }
-
-body[data-vscode-theme-name='One Dark Modern Classic'] .vditor-toolbar {
-    background-color: var(--second-bg-color) !important;
-}
-
-body[data-vscode-theme-name='One Dark Modern Classic'] .vditor {
-    background-color: var(--second-bg-color) !important;
-}
-
-body[data-vscode-theme-name='One Dark Modern Classic'] .vditor-content,
-body[data-vscode-theme-name='One Dark Modern Classic'] .vditor-content *:not(.hljs, .hljs *, .katex, .katex *, a, hr, .vditor-reset--error,code) {
-    background-color: var(--second-bg-color) !important;
-    color: #abb2bf !important;
-}
-
 
 .vditor,
 .vditor-content,
