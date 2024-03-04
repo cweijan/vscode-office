@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync } from 'fs';
 import { dirname, parse } from 'path';
 import * as vscode from 'vscode';
+import { Global } from './global';
 
 export function writeFile(path: string, buffer: Buffer) {
     const dir = dirname(path)
@@ -11,7 +12,7 @@ export function writeFile(path: string, buffer: Buffer) {
 }
 
 export function adjustImgPath(uri: vscode.Uri, withworkspace: boolean = false) {
-    let imgPath = vscode.workspace.getConfiguration("vscode-office").get<string>("pasterImgPath")
+    let imgPath = Global.getConfig<string>("pasterImgPath")
         .replace("${fileName}", parse(uri.fsPath).name.replace(/\s/g, ''))
         .replace("${now}", new Date().getTime() + "")
     return {

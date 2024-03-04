@@ -6,6 +6,7 @@ import { Handler } from '../common/handler';
 import { Util } from '../common/util';
 import { Holder } from '../service/markdown/holder';
 import { MarkdownService } from '../service/markdownService';
+import { Global } from '@/common/global';
 
 /**
  * support view and edit office files.
@@ -120,7 +121,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             vscode.commands.executeCommand('workbench.action.toggleDevTools')
         })
 
-        const basePath = vscode.workspace.getConfiguration("vscode-office").get<boolean>("workspacePathAsImageBasePath") ?
+        const basePath = Global.getConfig('workspacePathAsImageBasePath') ?
             vscode.Uri.file(getWorkspacePath(folderPath)) : folderPath;
         const baseUrl = webview.asWebviewUri(basePath).toString().replace(/\?.+$/, '').replace('https://git', 'https://file');
         webview.html = Util.buildPath(

@@ -11,6 +11,7 @@ import { Handler } from '../common/handler';
 import { Output } from '../common/Output';
 import { Util } from '../common/util';
 import { ViewManager } from '@/common/viewManager';
+import { Global } from '@/common/global';
 
 /**
  * support view office files
@@ -105,7 +106,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
         if (htmlPath != null) {
             webview.html = Util.buildPath(readFileSync(this.extensionPath + "/resource/" + htmlPath, 'utf8'), webview, this.extensionPath + "/resource")
-                .replace("$autoTheme", workspace.getConfiguration("vscode-office").get<boolean>("autoTheme") + '')
+                .replace("$autoTheme", `${Global.getConfig('autoTheme')}`)
         }
 
     }

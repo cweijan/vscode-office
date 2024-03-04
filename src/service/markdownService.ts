@@ -9,6 +9,7 @@ import path, { dirname, extname, isAbsolute, join, parse } from 'path';
 import * as vscode from 'vscode';
 import { Holder } from './markdown/holder';
 import { convertMd } from "./markdown/markdown-pdf";
+import { Global } from "@/common/global";
 
 export type ExportType = 'pdf' | 'html' | 'docx';
 
@@ -40,8 +41,7 @@ export class MarkdownService {
     }
 
     public getConfig(option: ExportOption) {
-        const config = vscode.workspace.getConfiguration("vscode-office");
-        const top = config.get("pdfMarginTop")
+        const top = Global.getConfig("pdfMarginTop")
         const { type = 'pdf', withoutOutline = false } = option;
         return {
             type,
@@ -69,7 +69,7 @@ export class MarkdownService {
     ]
 
     private getChromiumPath() {
-        const chromiumPath = vscode.workspace.getConfiguration("vscode-office").get<string>("chromiumPath")
+        const chromiumPath = Global.getConfig<string>("chromiumPath")
         const paths = [chromiumPath, ...this.paths]
         for (const path of paths) {
             if (existsSync(path)) {
