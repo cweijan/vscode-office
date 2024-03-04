@@ -18,7 +18,7 @@ This extension supports previewing these common office file formats.
 
 [![Database Client](https://database-client.com/logo_vscode.png)](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2)
 
-Database client for VSCode, supports manager  **MySQL/MariaDB, PostgreSQL, SQLite, Redis, ClickHouse, Kafka, MongoDB, Snowflake** , and  **ElasticSearch** , and works as an **SSH** client, boost your maximum productivity! [Get it now](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2).
+Database Client for VS Code, supports connect to **MySQL/MariaDB, PostgreSQL, SQLite, Redis** and  **ElasticSearch**, and works as an **SSH** client, boost your maximum productivity! [Get it now](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2).
 
 ## Markdown
 
