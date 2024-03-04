@@ -514,7 +514,9 @@
                 if (this.s.getCaptionFromTitleOrAlt && !subHtml) {
                     const img=$currentEle.find('img')
                     subHtml = $currentEle.attr('title') || img.first().attr('alt');
-                    subHtml = subHtml+ ` ${img[0].width}×${img[0].height}`
+                    const {width,height}=img[0];
+                    if(width>0)
+                        subHtml = subHtml+ ` ${width}×${height}`
                 }
             }
         }
