@@ -1,4 +1,4 @@
-import { openLink, hotKeys, imageParser, toolbar, autoSymbal, onToolbarClick, createContextMenu, scrollEditor } from "./util.js";
+import { openLink, hotKeys, imageParser, toolbar, autoSymbol, onToolbarClick, createContextMenu, scrollEditor } from "./util.js";
 
 handler.on("open", (md) => {
   const { config, language } = md;
@@ -69,7 +69,7 @@ handler.on("open", (md) => {
       onToolbarClick(editor)
     }
   })
-  autoSymbal(handler,editor);
+  autoSymbol(handler,editor);
   createContextMenu(editor)
   imageParser(config.viewAbsoluteLocal)
   scrollEditor(md.scrollTop)

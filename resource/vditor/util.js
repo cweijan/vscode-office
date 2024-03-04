@@ -260,8 +260,9 @@ export const imageParser = (viewAbsoluteLocal) => {
 /**
  * 自动补全符号
  */
-const keys = ['"', "{", "("];
-export const autoSymbal = (handler, editor) => {
+// const keys = ['"', "{", "("];
+const keyCodes = [222,219,57];
+export const autoSymbol = (handler, editor) => {
     let _exec = document.execCommand.bind(document)
     document.execCommand = (cmd, ...args) => {
         if (cmd === 'delete') {
@@ -293,12 +294,9 @@ export const autoSymbal = (handler, editor) => {
         //     e.stopPropagation()
         //     return;
         // }
-        if (!keys.includes(e.key)) {
-            return;
-        }
+        if (!keyCodes.includes(e.keyCode)) return;
         const selectText = document.getSelection().toString();
         if (selectText != "") { return; }
-
         if (e.key == '(') {
             document.execCommand('insertText', false, ')');
         } else if (e.key == '{') {
