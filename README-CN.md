@@ -11,7 +11,7 @@
 
 扩展名字叫做Office Viewer因为最初是为了增强VSCode的预览功能, 支持预览xlsx, docx, svg, pdf, zip等格式, 后来才增加markdown编辑器, 同时为了精简本人安装的扩展, 集成了一个图标主题和颜色主题.
 
-使用说明:
+使用说明: [禁用方式看这里](https://github.com/cweijan/vscode-office?tab=readme-ov-file#markdown)
 
 - 编辑方式: 直接通过vscode打开md文件.
 - 通过ctrl/meta+单击或者双击可打开超链接.

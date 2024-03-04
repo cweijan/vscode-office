@@ -11,7 +11,7 @@
 
 擴充套件名字叫做 Office Viewer 因為最初是為了增強 VSCode 的預覽功能，支援預覽 XLSX、DOCX、SVG、PDF、ZIP 等格式，後來才增加 Markdown 編輯器，同時為了精簡本人安裝的擴充套件，整合了一個圖示主題和顏色主題.
 
-使用說明:
+使用說明: [禁用方式看這裡](https://github.com/cweijan/vscode-office?tab=readme-ov-file#markdown)
 
 * 編輯方式：直接透過 VS Code 開啟 `md` 檔案
 * 透過 Ctrl/Meta + 單擊或者雙擊可開啟超連結
