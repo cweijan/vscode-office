@@ -1,4 +1,4 @@
-import { openLink, hotKeys, imageParser, toolbar, autoSymbol, onToolbarClick, createContextMenu, scrollEditor } from "./util.js";
+import { openLink, hotKeys, imageParser, getToolbar, autoSymbol, onToolbarClick, createContextMenu, scrollEditor } from "./util.js";
 
 let state;
 function loadConfigs() {
@@ -56,7 +56,7 @@ handler.on("open", (md) => {
         "inlineDigit": true
       }
     },
-    toolbar,
+    toolbar: getToolbar(md.rootPath),
     extPath: md.rootPath,
     input(content) {
       handler.emit("save", content)
