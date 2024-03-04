@@ -1,0 +1,11 @@
+:root {
+    --hr-bg: var(--vscode-panel-border);
+    --ext-border-color: var(--vscode-quickInputTitle-background);
+    --bg-color: var(--vscode-editor-background);
+    --front-color: var(--vscode-editor-foreground);
+    --second-bg-color: var(--vscode-editorSuggestWidget-background);
+    --code-bg-color: var(--vscode-textBlockQuote-background);
+    --list-hover-color: var(--vscode-terminal-ansiBlue);
+    --dropdown-hover-background: var(--vscode-menu-selectionBackground);
+    --error-color: var(--vscode-charts-red);
+}

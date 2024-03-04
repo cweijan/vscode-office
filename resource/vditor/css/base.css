@@ -1,45 +1,41 @@
 *:not(.katex, .katex *) {
-    border-color: var(--vscode-quickInputTitle-background) !important;
+    border-color: var(--ext-border-color) !important;
 }
 
-body[data-vscode-theme-kind="vscode-light"] .vditor-content hr {
-    background-color: var(--vscode-panel-border) !important;
-}
-
-body[data-vscode-theme-kind="vscode-dark"] .vditor-content hr {
-    background-color: var(--vscode-panel-border) !important;
+.vditor-content hr {
+    background-color: var(--hr-bg) !important;
 }
 
 .dropdown-menu.show:before,
 .dropdown-item {
-    background-color: var(--vscode-editorSuggestWidget-background) !important;
-    color: var(--vscode-editor-frontground) !important;
+    background-color: var(--second-bg-color) !important;
+    color: var(--front-color) !important;
 }
 
 .dropdown-item:hover {
-    background: var(--vscode-menu-selectionBackground) !important;
+    background: var(--dropdown-hover-background) !important;
 }
 
 .vditor-reset--error {
-    color: var(--vscode-charts-red) !important;
+    color: var(--error-color) !important;
 }
 
 
 .vditor-input {
-    border: 1px solid var(--vscode-quickInputTitle-background);
+    border: 1px solid var(--ext-border-color);
 }
 
 .vditor-toolbar {
-    background-color: var(--vscode-editor-background);
+    background-color: var(--bg-color);
 }
 
 .vditor-toolbar__item .vditor-tooltipped {
-    color: var(--vscode-editor-foreground)
+    color: var(--front-color)
 }
 
 .vditor-content code:not(.hljs) {
-    background-color: var(--vscode-textBlockQuote-background) !important;
-    color: var(--vscode-editor-foreground) !important;
+    background-color: var(--code-bg-color) !important;
+    color: var(--front-color) !important;
 }
 
 body[data-vscode-theme-name='One Dark Modern Classic'] .vditor-content code:not(.hljs) {
@@ -67,16 +63,16 @@ body[data-vscode-theme-kind="vscode-dark"] .vditor-content .vditor-wysiwyg__prev
 }
 
 body[data-vscode-theme-name='One Dark Modern Classic'] .vditor-toolbar {
-    background-color: var(--vscode-editorSuggestWidget-background) !important;
+    background-color: var(--second-bg-color) !important;
 }
 
 body[data-vscode-theme-name='One Dark Modern Classic'] .vditor {
-    background-color: var(--vscode-editorSuggestWidget-background) !important;
+    background-color: var(--second-bg-color) !important;
 }
 
 body[data-vscode-theme-name='One Dark Modern Classic'] .vditor-content,
 body[data-vscode-theme-name='One Dark Modern Classic'] .vditor-content *:not(.hljs, .hljs *, .katex, .katex *, a, hr, .vditor-reset--error,code) {
-    background-color: var(--vscode-editorSuggestWidget-background) !important;
+    background-color: var(--second-bg-color) !important;
     color: #abb2bf !important;
 }
 
@@ -84,8 +80,8 @@ body[data-vscode-theme-name='One Dark Modern Classic'] .vditor-content *:not(.hl
 .vditor,
 .vditor-content,
 .vditor-content *:not(.hljs, .hljs *, .katex, .katex *, a, hr, .vditor-reset--error,code) {
-    background-color: var(--vscode-editor-background) !important;
-    color: var(--vscode-editor-foreground) !important;
+    background-color: var(--bg-color) !important;
+    color: var(--front-color) !important;
 }
 
 .vditor-content .language-flowchart svg,
@@ -96,13 +92,13 @@ body[data-vscode-theme-name='One Dark Modern Classic'] .vditor-content *:not(.hl
 
 
 .vditor-content .vditor-wysiwyg__preview>code {
-    background-color: var(--vscode-editor-background) !important;
+    background-color: var(--bg-color) !important;
 }
 
 .vditor-hint button:not(.vditor-menu--disabled):hover {
-    background-color: var(--vscode-editorSuggestWidget-background) !important;
+    background-color: var(--second-bg-color) !important;
 }
 
 .vditor-content .vditor-outline li>span>span:hover {
-    color: var(--vscode-terminal-ansiBlue) !important;
+    color: var(--list-hover-color) !important;
 }
