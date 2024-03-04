@@ -177,9 +177,10 @@ export function scrollEditor(top) {
 //监听选项改变事件
 export function onToolbarClick(editor) {
     document.querySelector('.vditor-toolbar').addEventListener("click", (e) => {
-        let type;
+        let target = e.target, type;
         for (let i = 0; i < 3; i++) {
-            if (type = e.path[i].dataset.type) break;
+            if (type = target.dataset.type) break;
+            target = target.parentElement;
         }
         if (type == 'outline') {
             handler.emit("saveOutline", editor.vditor.options.outline.enable)
@@ -261,7 +262,7 @@ export const imageParser = (viewAbsoluteLocal) => {
  * 自动补全符号
  */
 // const keys = ['"', "{", "("];
-const keyCodes = [222,219,57];
+const keyCodes = [222, 219, 57];
 export const autoSymbol = (handler, editor) => {
     let _exec = document.execCommand.bind(document)
     document.execCommand = (cmd, ...args) => {
