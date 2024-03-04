@@ -1,5 +1,11 @@
 # Change log
 
+# 3.2.0
+
+- Use vscode default editor when diffing.
+- Fix cannot save outline state for macOS.
+- Fix cannot find chromium path on macOS.
+
 # 3.1.7 2023-9-32
 
 - Fix export markdown to docx fail.
