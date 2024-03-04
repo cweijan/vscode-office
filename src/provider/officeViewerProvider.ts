@@ -106,7 +106,6 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
         if (htmlPath != null) {
             webview.html = Util.buildPath(readFileSync(this.extensionPath + "/resource/" + htmlPath, 'utf8'), webview, this.extensionPath + "/resource")
-                .replace("$autoTheme", `${Global.getConfig('autoTheme')}`)
         }
 
     }

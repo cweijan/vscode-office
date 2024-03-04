@@ -458,6 +458,16 @@
 					"default": true,
 					"description": "Preview code in markdown."
 				},
+				"vscode-office.editorTheme": {
+					"type": "string",
+					"enum": [
+						"light",
+						"auto",
+						"solarized"
+					],
+					"default": "light",
+					"markdownDescription": "The theme for the Markdown editor."
+				},
 				"vscode-office.previewCodeHighlight.style": {
 					"type": "string",
 					"enum": [
@@ -506,11 +516,6 @@
 					"type": "boolean",
 					"default": true,
 					"markdownDescription": "Show line numbers in markdown preview code window. Only applies when `#vscode-office.previewCode#` is enabled."
-				},
-				"vscode-office.autoTheme": {
-					"type": "boolean",
-					"default": true,
-					"description": "Viewer follow vscode theme."
 				},
 				"vscode-office.editorLanguage": {
 					"type": "string",

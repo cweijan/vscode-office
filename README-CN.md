@@ -19,7 +19,6 @@
 编辑器使用说明: [禁用方式看这里](https://github.com/cweijan/vscode-office?tab=readme-ov-file#markdown)
 
 - 编辑方式: 直接通过vscode打开md文件.
-- 配置 `vscode-office.autoTheme": false`可将编辑器设置为亮白色.
 - 点击以下按钮可打开VSCode内置编辑器.
   ![img](image/README-CN/1640579182342.png)
 - 在编辑器打开右键菜单可将markdown导出为pdf, docx或者html, pdf依赖于chromium, 可通过 `vscode-office.chromiumPath`配置chromium浏览器路径.
