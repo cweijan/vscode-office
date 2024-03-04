@@ -1213,11 +1213,23 @@
 }
 
 .vditor-outline {
-  width: 250px;
+  width: 240px;
   border-right: 1px solid var(--border-color);
   background-color: var(--panel-background-color);
   display: none;
   overflow: auto;
+}
+
+@media (max-width: 1450px) {
+  .vditor-outline {
+    width: 210px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .vditor-outline {
+    width: 180px;
+  }
 }
 
 @media (max-width: 992px) {
