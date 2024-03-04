@@ -63,7 +63,8 @@ export class MarkdownService {
         "C:\\Program Files (x86)\\Microsoft\\Edge Beta\\Application\\msedge.exe",
         "C:\\Program Files (x86)\\Microsoft\\Edge Dev\\Application\\msedge.exe",
         join(homedir(), "AppData\\Local\\Microsoft\\Edge SxS\\Application\\msedge.exe"),
-        "/Applications/Microsoft/Edge.app",
+        '"/Applications/Google Chrome.app"',
+        '"/Applications/Microsoft Edge.app"',
         "/usr/bin/microsoft-edge",
     ]
 
@@ -81,8 +82,9 @@ export class MarkdownService {
             console.debug(`using chrome path is ${chromePath}`)
             return chromePath;
         } catch (e) {
-            vscode.window.showErrorMessage("Not chromium found, export fail.")
-            throw new Error()
+            const msg="Not chromium found, export fail.";
+            vscode.window.showErrorMessage(msg)
+            throw new Error(msg)
         }
     }
 
