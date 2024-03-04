@@ -6,7 +6,6 @@
 
 - 开源免费无广告无隐私追踪 (如果对你有帮助考虑点下star(●'◡'●))
 - vscode内置git支持, 创建一个git仓库就可以对markdown进行版本管理
-- 支持多窗口打开markdown (typora只支持mac)
 - 相比typora的缺点: 对html代码, 代码块和图形支持不友好.
 
 扩展名字叫做Office Viewer因为最初是为了增强VSCode的预览功能, 支持预览xlsx, docx, svg, pdf, zip等格式, 后来才增加markdown编辑器, 同时为了精简本人安装的扩展, 集成了一个图标主题和颜色主题.
@@ -14,13 +13,17 @@
 使用说明: [禁用方式看这里](https://github.com/cweijan/vscode-office?tab=readme-ov-file#markdown)
 
 - 编辑方式: 直接通过vscode打开md文件.
-- 通过ctrl/meta+单击或者双击可打开超链接.
 - 配置 `vscode-office.autoTheme": false`可将编辑器设置为亮白色.
-- 可通过ctrl/meta+鼠标滚动来调整视图大小
 - 点击以下按钮可打开VSCode内置编辑器.
   ![img](image/README-CN/1640579182342.png)
 - 在编辑器打开右键菜单可将markdown导出为pdf, docx或者html, pdf依赖于chromium, 可通过 `vscode-office.chromiumPath`配置chromium浏览器路径.
   ![1685418034035](image/README-CN/1685418034035.png)
+
+快捷键: 基于[Vditor快捷键](https://ld246.com/article/1582778815353)以及更多:
+
+- 将列表上移一行: `Ctrl Alt I` / `⌘ ^ I`
+- 将列表下移一行: `Ctrl Alt J` / `⌘ ^ J`
+- 在VS Code中编辑: `Ctrl Alt E` / `⌘ ^ E`
 
 ## 其他功能
 

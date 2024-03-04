@@ -6,7 +6,6 @@
 
 * 開源免費無廣告無隱私追蹤 (如果對你有幫助考慮點下 Star (●'◡'●))
 * VS Code 內建 Git 支援，建立一個 Git 儲存庫就可以對 Markdown 進行版本管理
-* 支援多視窗開啟 Markdown (Typora 只支援 mac)
 * 相比 Typora 的缺點: 對 HTML、程式碼區塊和圖形支援不友好
 
 擴充套件名字叫做 Office Viewer 因為最初是為了增強 VSCode 的預覽功能，支援預覽 XLSX、DOCX、SVG、PDF、ZIP 等格式，後來才增加 Markdown 編輯器，同時為了精簡本人安裝的擴充套件，整合了一個圖示主題和顏色主題.
@@ -14,13 +13,17 @@
 使用說明: [禁用方式看這裡](https://github.com/cweijan/vscode-office?tab=readme-ov-file#markdown)
 
 * 編輯方式：直接透過 VS Code 開啟 `md` 檔案
-* 透過 Ctrl/Meta + 單擊或者雙擊可開啟超連結
 * 配置 `vscode-office.autoTheme": false` 可將編輯器設定為亮白色
-* 可透過 Ctrl/Meta + 滑鼠滾動來調整檢視大小
 * 點選以下按鈕可開啟 VSCode 內建編輯器
   ![img](image/README-CN/1640579182342.png)
 * 在編輯器開啟右鍵選單可將 Markdown 匯出為 PDF、DOCX 或者 HTML、PDF 依賴於 Chromium，可透過 `vscode-office.chromiumPath` 配置 Chromium 瀏覽器路徑
   ![1685418034035](image/README-CN/1685418034035.png)
+
+快捷鍵: 基於[Vditor快捷鍵](https://ld246.com/article/1582778815353)以及更多:
+
+- 將清單上移一行: `Ctrl Alt I` / `⌘ ^ I`
+- 將清單下移一行: `Ctrl Alt J` / `⌘ ^ J`
+- 在VS Code中編輯: `Ctrl Alt E` / `⌘ ^ E`
 
 ## 其他功能
 

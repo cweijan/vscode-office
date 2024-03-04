@@ -256,6 +256,18 @@ export const imageParser = (viewAbsoluteLocal) => {
     });
 }
 
+function matchShortcut(hotkey, event) {
+
+    const matchAlt = hotkey.match(/!/) != null == event.altKey
+    const matchMeta = hotkey.match(/⌘/) != null == event.metaKey
+    const matchCtrl = hotkey.match(/\^/) != null == event.ctrlKey
+    const matchShifter = hotkey.match(/\+/) != null == event.shiftKey
+
+    if (matchAlt && matchCtrl && matchShifter && matchMeta) {
+        return hotkey.match(new RegExp(`\\b${event.key}\\b`, "i"))
+    }
+
+}
 
 
 /**
@@ -275,6 +287,9 @@ export const autoSymbol = (handler, editor) => {
         }
     }
     window.onkeydown = (e) => {
+        if(matchShortcut('^⌘e',e) || matchShortcut('^!e',e)){
+            return handler.emit("editInVSCode", true);
+        }
         if (e.code == 'F12') return handler.emit('developerTool')
         if (isCompose(e) && e.code == "KeyV") {
             if (e.shiftKey) {

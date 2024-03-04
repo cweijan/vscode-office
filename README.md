@@ -18,10 +18,7 @@ If it helps you, consider star this repository (●'◡'●).
 
 ## Markdown
 
-This extension changes the default markdown editor to the excellent vditor:
-
-- A WYSIWYG editor for markdown.
-- Which provides export to pdf, html or contextmenu(via right click in the document).
+This extension changes the default markdown editor to the vditor.
 
 If you want to use the original vscode editor, insert this in your `settings.json`.
 
@@ -33,9 +30,15 @@ If you want to use the original vscode editor, insert this in your `settings.jso
 }
 ```
 
-Usages:
+Shortcuts: Base on [Vditor shortcuts](https://ld246.com/article/1582778815353) and more:
 
-- Resize editor via ctrl/meta+mouse scroll.
+- Move list up: `Ctrl Alt I` / `⌘ ^ I`
+- Move list down: `Ctrl Alt J` / `⌘ ^ J`
+- Edit in VS Code: `Ctrl Alt E` / `⌘ ^ E`
+
+Tips:
+
+- Resize editor via ctrl/cmd+mouse scroll.
 - Hyperlinks can be opened by ctrl/meta+click or double-click.
 
 ## HTML
