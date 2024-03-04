@@ -1,6 +1,6 @@
 # Change log
 
-# 3.2.0
+# 3.2.0 2024-3-4
 
 - Use vscode default editor when diffing.
 - Fix cannot save outline state for macOS.
