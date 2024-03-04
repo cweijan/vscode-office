@@ -2,7 +2,7 @@ import { existsSync, mkdirSync } from 'fs';
 import { dirname, parse } from 'path';
 import * as vscode from 'vscode';
 
-export function wrieteFile(path: string, buffer: Buffer) {
+export function writeFile(path: string, buffer: Buffer) {
     const dir = dirname(path)
     if (!existsSync(dir)) {
         mkdirSync(dir, { recursive: true })

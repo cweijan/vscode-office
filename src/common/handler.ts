@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { WebviewPanel } from "vscode";
 import { Output } from "./Output";
 
-export class Hanlder {
+export class Handler {
 
     constructor(public panel: WebviewPanel, private eventEmitter: EventEmitter) { }
 
@@ -30,7 +30,7 @@ export class Hanlder {
         return this;
     }
 
-    public static bind(panel: WebviewPanel, uri: vscode.Uri): Hanlder {
+    public static bind(panel: WebviewPanel, uri: vscode.Uri): Handler {
         const eventEmitter = new EventEmitter();
 
         const fileWatcher = vscode.workspace.createFileSystemWatcher(uri.fsPath)
@@ -52,7 +52,7 @@ export class Hanlder {
         panel.webview.onDidReceiveMessage((message) => {
             eventEmitter.emit(message.type, message.content)
         })
-        return new Hanlder(panel, eventEmitter);
+        return new Handler(panel, eventEmitter);
     }
 
 }

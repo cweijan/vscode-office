@@ -139,12 +139,12 @@ export class MarkdownService {
      * 如果粘贴板内是复制了一个文件, 取得路径进行复制
      */
     private copyFromPath(savedImagePath: string, targetPath: string) {
-        if (savedImagePath.startsWith("copyed:")) {
-            const copyedFile = savedImagePath.replace("copyed:", "");
-            if (lstatSync(copyedFile).isDirectory()) {
+        if (savedImagePath.startsWith("copied:")) {
+            const copiedFile = savedImagePath.replace("copied:", "");
+            if (lstatSync(copiedFile).isDirectory()) {
                 vscode.window.showErrorMessage('Not support paste directory.');
             } else {
-                copyFileSync(copyedFile, targetPath);
+                copyFileSync(copiedFile, targetPath);
             }
         }
     }

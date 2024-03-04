@@ -1,8 +1,8 @@
-import { adjustImgPath, getWorkspacePath, wrieteFile } from '@/common/fileUtil';
+import { adjustImgPath, getWorkspacePath, writeFile } from '@/common/fileUtil';
 import { readFileSync } from 'fs';
 import { basename, isAbsolute, parse, resolve } from 'path';
 import * as vscode from 'vscode';
-import { Hanlder } from '../common/handler';
+import { Handler } from '../common/handler';
 import { Util } from '../common/util';
 import { Holder } from '../service/markdown/holder';
 import { MarkdownService } from '../service/markdownService';
@@ -38,12 +38,12 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file("/"), ...this.getFolders()]
         }
-        const handler = Hanlder.bind(webviewPanel, uri);
+        const handler = Handler.bind(webviewPanel, uri);
         this.handleMarkdown(document, handler, folderPath)
         handler.on('developerTool', () => vscode.commands.executeCommand('workbench.action.toggleDevTools'))
     }
 
-    private handleMarkdown(document: vscode.TextDocument, handler: Hanlder, folderPath: vscode.Uri) {
+    private handleMarkdown(document: vscode.TextDocument, handler: Handler, folderPath: vscode.Uri) {
 
         const uri = document.uri;
         const webview = handler.panel.webview;
@@ -95,7 +95,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         }).on("img", (img) => {
             const { relPath, fullPath } = adjustImgPath(uri)
             const imagePath = isAbsolute(fullPath) ? fullPath : `${resolve(uri.fsPath, "..")}/${relPath}`.replace(/\\/g, "/");
-            wrieteFile(imagePath, Buffer.from(img, 'binary'))
+            writeFile(imagePath, Buffer.from(img, 'binary'))
             const fileName = parse(relPath).name;
             vscode.env.clipboard.writeText(`![${fileName}](${relPath})`)
             vscode.commands.executeCommand("editor.action.clipboardPasteAction")

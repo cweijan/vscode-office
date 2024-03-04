@@ -12,7 +12,7 @@ export class HtmlService {
             uri = av.uri
         }
         const folderPath = vscode.Uri.file(resolve(uri.fsPath, ".."));
-        const webviewPanel = vscode.window.createWebviewPanel("cwejan.viewHtml", basename(uri.fsPath), { viewColumn: vscode.ViewColumn.Two, preserveFocus: true }, { enableScripts: true })
+        const webviewPanel = vscode.window.createWebviewPanel("office-viewer.viewHtml", basename(uri.fsPath), { viewColumn: vscode.ViewColumn.Two, preserveFocus: true }, { enableScripts: true })
 
         function readContent() {
             const content = av ? av.getText() : Util.buildPath(readFileSync(uri.fsPath, 'utf8'), webviewPanel.webview, folderPath.fsPath);

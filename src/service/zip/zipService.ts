@@ -1,4 +1,4 @@
-import { Hanlder } from "@/common/handler";
+import { Handler } from "@/common/handler";
 import { existsSync, mkdirSync, rm, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { basename, extname, join, parse, resolve } from "path";
@@ -9,7 +9,7 @@ import { FileUtil } from "@/common/fileUtil";
 
 export class ZipService {
 
-    constructor(private uri: Uri, private handler: Hanlder) { }
+    constructor(private uri: Uri, private handler: Handler) { }
 
     public async bind() {
 

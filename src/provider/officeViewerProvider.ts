@@ -7,7 +7,7 @@ import { basename, extname, parse, resolve } from 'path';
 import { TextEncoder } from 'util';
 import * as vscode from 'vscode';
 import { workspace } from 'vscode';
-import { Hanlder } from '../common/handler';
+import { Handler } from '../common/handler';
 import { Output } from '../common/Output';
 import { Util } from '../common/util';
 import { ViewManager } from '@/common/viewManager';
@@ -46,7 +46,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             })
         }
 
-        const handler = Hanlder.bind(webviewPanel, uri);
+        const handler = Handler.bind(webviewPanel, uri);
         handler
             .on('developerTool', () => vscode.commands.executeCommand('workbench.action.toggleDevTools'))
             .on("init", send)
@@ -110,7 +110,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
     }
 
-    async handleZip(webview: vscode.Webview, uri: vscode.Uri, handler: Hanlder) {
+    async handleZip(webview: vscode.Webview, uri: vscode.Uri, handler: Handler) {
         let data = await ViewManager.readContent()
         data = await ViewManager.buildPath(data, webview);
         webview.html = data
@@ -154,7 +154,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
         webview.html = readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8').replace("{{baseUrl}}", baseUrl)
     }
 
-    private handleFont(handler: Hanlder) {
+    private handleFont(handler: Handler) {
         const webview = handler.panel.webview;
         webview.html = Util.buildPath(
             readFileSync(`${this.extensionPath}/resource/font/index.html`, 'utf8'),
@@ -163,7 +163,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
     }
 
 
-    private handleXlsx(uri: vscode.Uri, handler: Hanlder) {
+    private handleXlsx(uri: vscode.Uri, handler: Handler) {
         const enc = new TextEncoder();
         handler.on("save", async (content) => {
             Util.confirm(`Save confirm`, 'Are you sure you want to save? this will lose all formatting.', async () => {
