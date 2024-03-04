@@ -47,6 +47,6 @@ function keepOriginDiff() {
 	const key = '{git,gitlens}:/**/*.{md,csv}'
 	if (!editorAssociations[key]) {
 		editorAssociations[key] = 'default'
-		config.update(configKey, editorAssociations)
+		config.update(configKey, editorAssociations, true)
 	}
 }
