@@ -1,6 +1,6 @@
 # vscode-office
 
-[简体中文说明](README-CN.md) | [繁體中文說明](README-TW.md)
+[简体中文](README-CN.md) | [繁體中文](README-TW.md)
 
 This extension supports previewing these common office file formats.
 
