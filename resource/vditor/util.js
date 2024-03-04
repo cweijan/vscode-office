@@ -54,7 +54,11 @@ export const hotKeys = [
     },
 ]
 
-export function getToolbar(resPath) {
+function loadRes(url) {
+    return fetch(url).then(r => r.text())
+}
+
+export async function getToolbar(resPath) {
     return [
         'outline',
         "headings",
@@ -67,7 +71,7 @@ export function getToolbar(resPath) {
             tipPosition: 's',
             tip: 'Edit In VSCode',
             className: 'right',
-            icon: `<img src='${resPath}/icon/vscode.svg'>`,
+            icon: await loadRes(`${resPath}/icon/vscode.svg`),
             click() {
                 handler.emit("editInVSCode", true)
             }
@@ -76,7 +80,7 @@ export function getToolbar(resPath) {
             tipPosition: 's',
             tip: 'Export To Pdf',
             className: 'right',
-            icon: `<img src='${resPath}/icon/pdf.svg'>`,
+            icon: await loadRes(`${resPath}/icon/pdf.svg`),
             click() {
                 handler.emit("export")
             }
@@ -85,7 +89,7 @@ export function getToolbar(resPath) {
         "|",
         {
             tipPosition: 's', tip: 'Select Theme',
-            icon: `<img src='${resPath}/icon/theme.svg'>`,
+            icon: await loadRes(`${resPath}/icon/theme.svg`),
             click() {
                 handler.emit("theme")
             }

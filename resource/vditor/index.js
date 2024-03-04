@@ -14,7 +14,7 @@ function loadConfigs() {
 }
 loadConfigs()
 
-handler.on("open", (md) => {
+handler.on("open", async (md) => {
   const { config, language } = md;
   if (config.autoTheme) {
     addAutoTheme(md.rootPath)
@@ -56,7 +56,7 @@ handler.on("open", (md) => {
         "inlineDigit": true
       }
     },
-    toolbar: getToolbar(md.rootPath),
+    toolbar: await getToolbar(md.rootPath),
     extPath: md.rootPath,
     input(content) {
       handler.emit("save", content)
