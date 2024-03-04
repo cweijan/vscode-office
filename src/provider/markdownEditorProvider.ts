@@ -114,8 +114,16 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         }).on("export", (option) => {
             vscode.commands.executeCommand('workbench.action.files.save');
             new MarkdownService(this.context).exportMarkdown(uri, option)
-        }).on("theme", () => {
-            vscode.commands.executeCommand('workbench.action.selectTheme');
+        }).on("theme", async (theme) => {
+            if (!theme) {
+                const themes = ["Auto", "Light", "Solarized"]
+                const editorTheme = Global.getConfig('editorTheme');
+                const themeItems: vscode.QuickPickItem[] = themes.map(theme => ({ label: theme, description: theme == editorTheme ? 'Current' : undefined }))
+                theme = await vscode.window.showQuickPick(themeItems, { placeHolder: "Select Editor Theme" });
+                if (!theme) return
+            }
+            handler.emit('theme', theme.label)
+            Global.updateConfig('editorTheme', theme.label)
         }).on("saveOutline", (enable) => {
             config.update("openOutline", enable, true)
         }).on('developerTool', () => {

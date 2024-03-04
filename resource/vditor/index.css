@@ -22,3 +22,9 @@ a {
 .win32 *{
     text-shadow: 0 0 0.55px #7c7c7cdd;
 }
+
+.vditor-toolbar__item .vditor-tooltipped[data-type="selectTheme"]{
+    width: 55px;
+    font-size: 14px;
+    color: var(--vscode-charts-red);
+}

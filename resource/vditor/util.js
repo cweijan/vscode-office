@@ -88,6 +88,14 @@ export async function getToolbar(resPath) {
         { name: 'upload', tipPosition: 'e' },
         "|",
         {
+            name:'selectTheme',
+            tipPosition: 's', tip: 'Select Theme',
+            icon: 'Theme:',
+            click() {
+                handler.emit("theme")
+            }
+        },
+        {
             tipPosition: 's', tip: 'Select Theme',
             icon: await loadRes(`${resPath}/icon/theme.svg`),
             click() {

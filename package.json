@@ -461,9 +461,9 @@
 				"vscode-office.editorTheme": {
 					"type": "string",
 					"enum": [
-						"light",
-						"auto",
-						"solarized"
+						"Auto",
+						"Light",
+						"Solarized"
 					],
 					"default": "light",
 					"markdownDescription": "The theme for the Markdown editor."
