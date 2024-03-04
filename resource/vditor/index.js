@@ -17,6 +17,9 @@ loadConfigs()
 handler.on("open", async (md) => {
   const { config, language } = md;
   addAutoTheme(md.rootPath, config.editorTheme)
+  handler.on('theme', theme => {
+    loadTheme(md.rootPath, theme)
+  })
   const editor = new Vditor('vditor', {
     value: md.content,
     _lutePath: md.rootPath + '/lute.min.js',
@@ -90,14 +93,15 @@ handler.on("open", async (md) => {
 
 
 function addAutoTheme(rootPath, theme) {
-  if (theme == 'light') return;
-  importCSS(rootPath, 'base.css')
-  importCSS(rootPath, 'theme/auto.css')
-  if (theme == 'auto') return;
-  importCSS(rootPath, `theme/${theme}.css`)
+  loadCSS(rootPath, 'base.css')
+  loadTheme(rootPath, theme)
 }
 
-function importCSS(rootPath, path) {
+function loadTheme(rootPath, theme) {
+  loadCSS(rootPath, `theme/${theme}.css`)
+}
+
+function loadCSS(rootPath, path) {
   const style = document.createElement('link');
   style.rel = "stylesheet";
   style.type = "text/css";

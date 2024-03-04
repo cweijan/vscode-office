@@ -99,6 +99,6 @@ body[data-vscode-theme-name='One Dark Modern Classic'] .vditor-content *:not(.hl
     background-color: var(--second-bg-color) !important;
 }
 
-.vditor-content .vditor-outline li>span>span:hover {
+.vditor-content .vditor-outline li > span:hover > span {
     color: var(--list-hover-color) !important;
 }
