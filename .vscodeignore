@@ -10,6 +10,7 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 node_modules/
+vditor/
 build.js
 public/
 lib.js

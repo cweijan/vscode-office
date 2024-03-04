@@ -2,15 +2,21 @@
 
 ## 介紹
 
-該擴充套件在 VS Code 內整合 [Vditor](https://github.com/Vanessa219/vditor) (針對 VS Code 做了些相容性改動)，實現了對 Markdown 的所見即所得編輯，相比 Typora 的優缺點：
+功能:
 
-* 開源免費無廣告無隱私追蹤 (如果對你有幫助考慮點下 Star (●'◡'●))
-* VS Code 內建 Git 支援，建立一個 Git 儲存庫就可以對 Markdown 進行版本管理
-* 相比 Typora 的缺點: 對 HTML、程式碼區塊和圖形支援不友好
+- 集成了一个图标主题和颜色主题
+- 支援預覽 XLSX、DOCX、SVG、PDF、ZIP 等辦公文件格式.
+- 整合 [Vditor](https://github.com/Vanessa219/vditor)實現對 Markdown 的所見即所得編輯(程式碼區塊和圖形支援不友好).¡
 
-擴充套件名字叫做 Office Viewer 因為最初是為了增強 VSCode 的預覽功能，支援預覽 XLSX、DOCX、SVG、PDF、ZIP 等格式，後來才增加 Markdown 編輯器，同時為了精簡本人安裝的擴充套件，整合了一個圖示主題和顏色主題.
+## Sponsor
 
-使用說明: [禁用方式看這裡](https://github.com/cweijan/vscode-office?tab=readme-ov-file#markdown)
+[![Database Client](https://database-client.com/text_logo2paypal.png)](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2)
+
+適用於VS Code的數據庫客戶端, 支持**MySQL/MariaDB, PostgreSQL, SQLite, Redis, ClickHouse, 達夢**以及**ElasticSearch**的管理, 且可作為一個SSH客戶端, 最大程度地提高你的生產力! [立刻安裝](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2).
+
+## Markdown
+
+編輯器使用說明: [禁用方式看這裡](https://github.com/cweijan/vscode-office?tab=readme-ov-file#markdown)
 
 * 編輯方式：直接透過 VS Code 開啟 `md` 檔案
 * 配置 `vscode-office.autoTheme": false` 可將編輯器設定為亮白色

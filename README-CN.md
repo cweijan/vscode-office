@@ -2,15 +2,21 @@
 
 ## 介绍
 
-该扩展在vscode内集成[Vditor](https://github.com/Vanessa219/vditor)(针对VSCode做了些兼容性改动), 实现了对markdown的所见即所得编辑, 相比typora的优缺点:
+功能:
 
-- 开源免费无广告无隐私追踪 (如果对你有帮助考虑点下star(●'◡'●))
-- vscode内置git支持, 创建一个git仓库就可以对markdown进行版本管理
-- 相比typora的缺点: 对html代码, 代码块和图形支持不友好.
+- 集成了一个图标主题和颜色主题.
+- 支持预览xlsx, docx, svg, pdf, zip等办公文件格式.
+- 集成[Vditor](https://github.com/Vanessa219/vditor)实现对markdown的所见[即所得编辑(对代码块支持较差).
 
-扩展名字叫做Office Viewer因为最初是为了增强VSCode的预览功能, 支持预览xlsx, docx, svg, pdf, zip等格式, 后来才增加markdown编辑器, 同时为了精简本人安装的扩展, 集成了一个图标主题和颜色主题.
+## Sponsor
 
-使用说明: [禁用方式看这里](https://github.com/cweijan/vscode-office?tab=readme-ov-file#markdown)
+[![Database Client](https://database-client.com/text_logo2paypal.png)](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2)
+
+适用于VS Code的数据库客户端, 支持**MySQL/MariaDB, PostgreSQL, SQLite, Redis, ClickHouse, 达梦**以及**ElasticSearch**的管理, 且可作为一个SSH客户端, 最大程度地提高你的生产力! [立刻安装](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2).
+
+## Markdown
+
+编辑器使用说明: [禁用方式看这里](https://github.com/cweijan/vscode-office?tab=readme-ov-file#markdown)
 
 - 编辑方式: 直接通过vscode打开md文件.
 - 配置 `vscode-office.autoTheme": false`可将编辑器设置为亮白色.
