@@ -286,7 +286,11 @@ export const autoSymbol = (handler, editor) => {
             return _exec(cmd, ...args)
         }
     }
+    const isMac = navigator.userAgent.includes('Mac OS');
     window.onkeydown = (e) => {
+        if(isMac && isCompose(e) && e.altKey){
+            e.preventDefault()
+        }
         if(matchShortcut('^⌘e',e) || matchShortcut('^!e',e)){
             return handler.emit("editInVSCode", true);
         }
