@@ -38,6 +38,10 @@
     color: var(--front-color) !important;
 }
 
+.vditor-reset {
+    font-size: var(--vscode-editor-font-size)
+}
+
 .vditor,
 .vditor-content,
 .vditor-content *:not(.hljs, .hljs *, .katex, .katex *, a, hr, .vditor-reset--error,code) {
