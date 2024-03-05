@@ -49,13 +49,17 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
         const handler = Handler.bind(webviewPanel, uri);
         handler
+            .on("editInVSCode", (full: boolean) => {
+                const side = full ? vscode.ViewColumn.Active : vscode.ViewColumn.Beside;
+                vscode.commands.executeCommand('vscode.openWith', uri, "default", side);
+            })
             .on('developerTool', () => vscode.commands.executeCommand('workbench.action.toggleDevTools'))
             .on("init", send)
 
         switch (ext) {
             case ".svg":
                 this.handleImage(uri, webview)
-                handler.on("fileChange", () => this.handleImage(uri, webview) )
+                handler.on("fileChange", () => this.handleImage(uri, webview))
                 break;
             case ".xlsx":
             case ".xlsm":
