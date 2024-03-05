@@ -1,5 +1,18 @@
 # Change log
 
+# 3.2.3 2024-3-5
+
+Markdown
+
+- Follow vscode editor font size.
+- Add button to quick switch markdown editor.
+
+Other:
+
+- Support edit in vscode for csv.
+- Support edit in vscode for svg.
+- Only use image viewer for svg.
+
 # 3.2.2 2024-3-5
 
 - Support modifying editor theme individually.
