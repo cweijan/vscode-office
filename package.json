@@ -201,7 +201,7 @@
 				"icon": {
 					"dark": "./images/vditor_logo.png",
 					"light": "./images/vditor_logo.png"
-				  }
+				}
 			},
 			{
 				"command": "office.markdown.paste",
@@ -361,7 +361,7 @@
 					{
 						"filenamePattern": "*.zip"
 					},
-					{
+										{
 						"filenamePattern": "*.apk"
 					},
 					{
@@ -550,6 +550,7 @@
 		"date-format": "^4.0.14",
 		"file-type": "^18.0.0",
 		"highlight.js": "^10.1.2",
+		"iconv-lite": "^0.6.3",
 		"katex": "^0.16.2",
 		"markdown-it": "^13.0.1",
 		"markdown-it-anchor": "^8.6.5",
