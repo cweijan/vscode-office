@@ -1,7 +1,7 @@
 <template>
     <div class="toolbar">
-        <el-button type="primary" @click="autoExtract" :icon="Scissor">Smart Extract</el-button>
-        <el-button type="info" @click="addFile" :icon="Plus">Add File</el-button>
+        <el-button type="primary" @click="autoExtract" :icon="Scissor">Extract</el-button>
+        <el-button type="info" @click="addFile" :icon="Plus" title="Add File">Add</el-button>
         <!-- <el-button>语言</el-button> -->
     </div>
 </template>
