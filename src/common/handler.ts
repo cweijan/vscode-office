@@ -44,6 +44,7 @@ export class Handler {
             }
         });
         panel.onDidDispose(() => {
+            fileWatcher.dispose()
             changeDocumentSubscription.dispose()
             eventEmitter.emit("dispose")
         });
