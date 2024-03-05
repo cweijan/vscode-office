@@ -11,7 +11,6 @@ import { FileUtil } from './common/fileUtil';
 const httpExt = require('./bundle/extension');
 
 export function activate(context: vscode.ExtensionContext) {
-	keepOriginDiff();
 	activeHTTP(context)
 	autoClearCacheStorage();
 	const viewOption = { webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true } };
@@ -37,16 +36,5 @@ async function activeHTTP(context: vscode.ExtensionContext) {
 		httpExt.activate(context)
 	} catch (error) {
 		Output.debug(error)
-	}
-}
-
-function keepOriginDiff() {
-	const config = vscode.workspace.getConfiguration("workbench");
-	const configKey = 'editorAssociations'
-	const editorAssociations = config.get(configKey)
-	const key = '{git,gitlens}:/**/*.{md,csv}'
-	if (!editorAssociations[key]) {
-		editorAssociations[key] = 'default'
-		config.update(configKey, editorAssociations, true)
 	}
 }

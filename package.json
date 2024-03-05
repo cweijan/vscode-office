@@ -358,7 +358,7 @@
 				"displayName": "Markdown Editor",
 				"selector": [
 					{
-						"filenamePattern": "*.md"
+						"filenamePattern": "file:/**/*.md"
 					}
 				]
 			},
