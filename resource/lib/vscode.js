@@ -52,7 +52,7 @@ function isCompose(e) {
 
 function zoomElement(selector, rate = 5) {
     window.onmousewheel = document.onmousewheel = e => {
-        if (!isCompose(e)) return;
+        if (!e.ctrlKey || e.metaKey) return;
         const eles = document.querySelectorAll(selector);
         for (const ele of eles) {
             const zoom = ele.style.zoom ? parseInt(ele.style.zoom.replace("%", "")) : 100
