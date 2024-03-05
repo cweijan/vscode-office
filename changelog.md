@@ -1,5 +1,9 @@
 # Change log
 
+# 3.2.2 2024-3-5
+
+- Support modifying editor theme individually.
+
 # 3.2.0 2024-3-4
 
 - Use vscode default editor when diffing.
