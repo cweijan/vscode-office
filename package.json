@@ -254,7 +254,7 @@
 			"editor/title": [
 				{
 					"command": "office.markdown.switch",
-					"when": "resourceExtname != '.js'",
+					"when": "resourceExtname == '.md'",
 					"group": "navigation@-2"
 				},
 				{
