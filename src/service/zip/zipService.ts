@@ -33,7 +33,7 @@ export class ZipService {
                     mkdirSync(resolve(tempPath, '..'), { recursive: true })
                     writeFileSync(tempPath, file.getData())
                     const url = Uri.file(tempPath);
-                    if (extname(tempPath)?.toLowerCase() == '.xlsx' && extensions.getExtension(`cweijan.vscode-office`) == null) {
+                    if (['.xlsx', '.csv'].includes(extname(tempPath)?.toLowerCase())) {
                         return env.openExternal(url);
                     }
                     commands.executeCommand('vscode.open', url);
