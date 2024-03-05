@@ -381,7 +381,7 @@
 				"priority": "option",
 				"selector": [
 					{
-						"filenamePattern": "*.class"
+						"filenamePattern": "file:/**/*.class"
 					}
 				]
 			}
