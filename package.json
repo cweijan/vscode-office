@@ -340,45 +340,6 @@
 						"filenamePattern": "*.otf"
 					},
 					{
-						"filenamePattern": "*.jpg"
-					},
-					{
-						"filenamePattern": "*.png"
-					},
-					{
-						"filenamePattern": "*.gif"
-					},
-					{
-						"filenamePattern": "*.apng"
-					},
-					{
-						"filenamePattern": "*.apng"
-					},
-					{
-						"filenamePattern": "*.bmp"
-					},
-					{
-						"filenamePattern": "*.ico"
-					},
-					{
-						"filenamePattern": "*.cur"
-					},
-					{
-						"filenamePattern": "*.jpeg"
-					},
-					{
-						"filenamePattern": "*.pjpeg"
-					},
-					{
-						"filenamePattern": "*.pjp"
-					},
-					{
-						"filenamePattern": "*.tif"
-					},
-					{
-						"filenamePattern": "*.webp"
-					},
-					{
 						"filenamePattern": "*.jar"
 					},
 					{

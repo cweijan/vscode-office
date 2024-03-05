@@ -52,17 +52,11 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             .on('developerTool', () => vscode.commands.executeCommand('workbench.action.toggleDevTools'))
             .on("init", send)
 
-        if (ext.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|webp)$/i)) {
-            this.handleImage(uri, webview)
-            handler.on("fileChange", () => {
-                this.handleImage(uri, webview)
-            }).on('developerTool', () => {
-                vscode.commands.executeCommand('workbench.action.toggleDevTools')
-            })
-            return;
-        }
-
         switch (ext) {
+            case ".svg":
+                this.handleImage(uri, webview)
+                handler.on("fileChange", () => this.handleImage(uri, webview) )
+                break;
             case ".xlsx":
             case ".xlsm":
             case ".xls":
@@ -133,7 +127,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 if (currentFile == file) {
                     current = i;
                 }
-                if (file.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|tiff|webp)$/i)) {
+                if (file.match(/\.svg$/i)) {
                     i++;
                     const resUri = vscode.Uri.file(folderPath.fsPath + "/" + file);
                     const resource = webview.asWebviewUri(resUri).with({ query: `nonce=${Date.now().toString()}` }).toString();
