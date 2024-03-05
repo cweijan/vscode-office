@@ -82,7 +82,7 @@ export class MarkdownService {
             console.debug(`using chrome path is ${chromePath}`)
             return chromePath;
         } catch (e) {
-            const msg="Not chromium found, export fail.";
+            const msg = "Not chromium found, export fail.";
             vscode.window.showErrorMessage(msg)
             throw new Error(msg)
         }
@@ -203,6 +203,11 @@ export class MarkdownService {
                 cb(result);
             });
         }
+    }
+
+    public switchEditor(uri: vscode.Uri) {
+        const type = vscode.window.activeTextEditor ? 'cweijan.markdownViewer' : 'default';
+        vscode.commands.executeCommand('vscode.openWith', uri, type);
     }
 
 }
