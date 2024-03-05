@@ -350,6 +350,9 @@
 						"filenamePattern": "*.woff"
 					},
 					{
+						"filenamePattern": "*.woff2"
+					},
+					{
 						"filenamePattern": "*.otf"
 					},
 					{

@@ -83,6 +83,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 break;
             case ".ttf":
             case ".woff":
+            case ".woff2":
             case ".otf":
                 this.handleFont(handler)
                 break;
@@ -145,19 +146,22 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
 
     private handlePdf(webview: vscode.Webview) {
-        const baseUrl = webview.asWebviewUri(vscode.Uri.file(this.extensionPath + "/resource/pdf"))
-            .toString().replace(/\?.+$/, '').replace('https://git', 'https://file');
+        const baseUrl = this.getBaseUrl(webview, 'pdf')
         webview.html = readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8').replace("{{baseUrl}}", baseUrl)
     }
 
     private handleFont(handler: Handler) {
         const webview = handler.panel.webview;
-        webview.html = Util.buildPath(
-            readFileSync(`${this.extensionPath}/resource/font/index.html`, 'utf8'),
-            webview, `${this.extensionPath}/resource/font`
-        )
+        const baseUrl = this.getBaseUrl(webview, 'font')
+        webview.html = readFileSync(`${this.extensionPath}/resource/font/index.html`, 'utf8')
+            .replace('{{baseUrl}}', baseUrl)
     }
 
+    private getBaseUrl(webview: vscode.Webview, path: string) {
+        const baseUrl = webview.asWebviewUri(vscode.Uri.file(`${this.extensionPath}/resource/${path}`))
+            .toString().replace(/\?.+$/, '').replace('https://git', 'https://file')
+        return baseUrl;
+    }
 
     private handleXlsx(uri: vscode.Uri, handler: Handler) {
         const enc = new TextEncoder();

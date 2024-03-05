@@ -32,6 +32,16 @@ onload = () => {
     if (vscodeEvent) {
         vscodeEvent.emit("init")
         vscodeEvent.on("open", (content) => {
+            if (content.path.includes('woff2')) {
+                const loadScript = (src) => new Promise((onload) => document.documentElement.append(
+                    Object.assign(document.createElement('script'), { src, onload })
+                ));
+                loadScript('js/woff2_decompress_binding.js')
+                    .then(() => fetch(content.path))
+                    .then(f => f.arrayBuffer())
+                    .then((buffer) => Module.decompress(buffer))
+                    .then((buffer) => onFontLoaded(opentype.parse(Uint8Array.from(buffer).buffer)));
+            }
             opentype.load(content.path, function (err, font) {
                 var amount, glyph, ctx, x, y, fontSize;
                 if (err) {
@@ -470,5 +480,5 @@ function hidpi(canvas, height, width) {
 }
 
 function showErrorMessage(message) {
-    if (message) alert(message);
+    if (message) console.error(message);
 }

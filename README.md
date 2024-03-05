@@ -8,7 +8,7 @@ This extension supports previewing these common office file formats.
 - Word: .docx
 - Svg: .svg
 - Pdf: .pdf
-- Font: .ttf, .otf, .woff
+- Font: .ttf, .otf, .woff, .woff2
 - Markdown: .md
 - HttpRequest: .http
 - Windows Reg: .reg
