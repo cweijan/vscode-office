@@ -101,7 +101,8 @@ export class MarkdownService {
         }
 
         const uri = document.uri;
-        let { relPath, fullPath } = adjustImgPath(uri)
+        const info = adjustImgPath(uri), { fullPath } = info;
+        let { relPath } = info;
         const imagePath = isAbsolute(fullPath) ? fullPath : `${dirname(uri.fsPath)}/${relPath}`.replace(/\\/g, "/");
         this.createImgDir(imagePath);
         this.saveClipboardImageToFileAndGetPath(imagePath, async (savedImagePath) => {
@@ -121,7 +122,7 @@ export class MarkdownService {
             }
             if (editor) {
                 editor?.edit(edit => {
-                    let current = editor.selection;
+                    const current = editor.selection;
                     if (current.isEmpty) {
                         edit.insert(current.start, `![${imgName}](${relPath})`);
                     } else {
@@ -158,7 +159,7 @@ export class MarkdownService {
 
     private saveClipboardImageToFileAndGetPath(imagePath: string, cb: (value: string) => void) {
         if (!imagePath) return;
-        let platform = process.platform;
+        const platform = process.platform;
         if (platform === 'win32') {
             // Windows
             const scriptPath = path.join(this.context.extensionPath, '/lib/pc.ps1');
@@ -179,8 +180,8 @@ export class MarkdownService {
             });
         } else if (platform === 'darwin') {
             // Mac
-            let scriptPath = path.join(this.context.extensionPath, './lib/mac.applescript');
-            let ascript = spawn('osascript', [scriptPath, imagePath]);
+            const scriptPath = path.join(this.context.extensionPath, './lib/mac.applescript');
+            const ascript = spawn('osascript', [scriptPath, imagePath]);
             ascript.on('exit', function (code, signal) {
             });
             ascript.stdout.on('data', function (data) {
@@ -188,13 +189,13 @@ export class MarkdownService {
             });
         } else {
             // Linux 
-            let scriptPath = path.join(this.context.extensionPath, './lib/linux.sh');
+            const scriptPath = path.join(this.context.extensionPath, './lib/linux.sh');
 
-            let ascript = spawn('sh', [scriptPath, imagePath]);
+            const ascript = spawn('sh', [scriptPath, imagePath]);
             ascript.on('exit', function (code, signal) {
             });
             ascript.stdout.on('data', function (data) {
-                let result = data.toString().trim();
+                const result = data.toString().trim();
                 if (result == "no xclip") {
                     vscode.window.showInformationMessage('You need to install xclip command first.');
                     return;

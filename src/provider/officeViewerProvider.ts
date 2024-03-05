@@ -1,17 +1,14 @@
 import { ZipService } from '@/service/zip/zipService';
-import axios from 'axios';
 import { spawn } from 'child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { basename, extname, parse, resolve } from 'path';
 import { TextEncoder } from 'util';
 import * as vscode from 'vscode';
-import { workspace } from 'vscode';
 import { Handler } from '../common/handler';
 import { Output } from '../common/Output';
 import { Util } from '../common/util';
 import { ViewManager } from '@/common/viewManager';
-import { Global } from '@/common/global';
 
 /**
  * support view office files

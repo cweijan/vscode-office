@@ -12,7 +12,7 @@ export function writeFile(path: string, buffer: Buffer) {
 }
 
 export function adjustImgPath(uri: vscode.Uri, withworkspace: boolean = false) {
-    let imgPath = Global.getConfig<string>("pasterImgPath")
+    const imgPath = Global.getConfig<string>("pasterImgPath")
         .replace("${fileName}", parse(uri.fsPath).name.replace(/\s/g, ''))
         .replace("${now}", new Date().getTime() + "")
     return {
@@ -30,7 +30,7 @@ export function adjustImgPath(uri: vscode.Uri, withworkspace: boolean = false) {
 export function getWorkspacePath(uri: vscode.Uri): string {
     const folders = vscode.workspace.workspaceFolders;
     if (!folders || folders.length == 0) return '';
-    let workspacePath = folders[0]?.uri?.fsPath;
+    const workspacePath = folders[0]?.uri?.fsPath;
     if (folders.length > 1) {
         for (const folder of folders) {
             if (uri.fsPath.includes(folder.uri.fsPath)) {

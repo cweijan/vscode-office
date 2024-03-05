@@ -26,7 +26,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
     private getFolders(): vscode.Uri[] {
         const data = [];
-        for (var i = 65; i <= 90; i++) {
+        for (let i = 65; i <= 90; i++) {
             data.push(vscode.Uri.file(`${String.fromCharCode(i)}:/`))
         }
         return data;
