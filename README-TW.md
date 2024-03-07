@@ -24,7 +24,7 @@
 * 在編輯器開啟右鍵選單可將 Markdown 匯出為 PDF、DOCX 或者 HTML、PDF 依賴於 Chromium，可透過 `vscode-office.chromiumPath` 配置 Chromium 瀏覽器路徑
   ![1685418034035](image/README-CN/1685418034035.png)
 
-快捷鍵: 基於[Vditor快捷鍵](https://ld246.com/article/1582778815353)以及更多:
+快捷鍵: 基於[Vditor快捷鍵](shortcut.md)以及更多:
 
 - 將清單上移一行: `Ctrl Alt I` / `⌘ ^ I`
 - 將清單下移一行: `Ctrl Alt J` / `⌘ ^ J`
