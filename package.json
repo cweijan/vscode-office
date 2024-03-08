@@ -199,8 +199,8 @@
 				"command": "office.markdown.switch",
 				"title": "Switch markdown editor",
 				"icon": {
-					"dark": "./images/vditor_logo.png",
-					"light": "./images/vditor_logo.png"
+					"dark": "./images/switch.svg",
+					"light": "./images/switch_light.svg"
 				}
 			},
 			{
