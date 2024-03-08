@@ -1,5 +1,11 @@
 # Change log
 
+# 3.2.5 2024-3-8
+
+- Add shortcut document.
+- Update editor switch icon.
+- Fix load chinese zip entry failed.
+
 # 3.2.4 2024-3-5
 
 New:
