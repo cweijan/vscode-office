@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { autoClearCacheStorage } from './service/autoClearCacheStorage';
 import { JavaDecompilerProvider } from './provider/javaDecompilerProvider';
 import { MarkdownEditorProvider } from './provider/markdownEditorProvider';
 import { OfficeViewerProvider } from './provider/officeViewerProvider';
@@ -12,7 +11,6 @@ const httpExt = require('./bundle/extension');
 
 export function activate(context: vscode.ExtensionContext) {
 	activeHTTP(context)
-	autoClearCacheStorage();
 	const viewOption = { webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true } };
 	FileUtil.init(context)
 	ViewManager.init(context)
