@@ -199,7 +199,7 @@ module.exports = function (/*Buffer*/ input) {
     return {
         get entryName() {
             const buffer = _entryName;
-            return iconv.decode(buffer, 'gbk')
+            return buffer.toString('utf-8')
         },
         get rawEntryName() {
             return _entryName;
