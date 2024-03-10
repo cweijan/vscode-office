@@ -3,7 +3,7 @@ window.VditorI18n = {
   'alignLeft': 'Left',
   'alignRight': 'Right',
   'alternateText': 'Alternate text',
-  'bold': 'Blod',
+  'bold': 'Bold',
   'both': 'editor & preview',
   'check': 'Task List',
   'close': 'Close',
