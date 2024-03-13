@@ -292,6 +292,9 @@ export const autoSymbol = (handler, editor) => {
     }
     const isMac = navigator.userAgent.includes('Mac OS');
     window.onkeydown = (e) => {
+        if(e.altKey && e.shiftKey && ["KeyI","KeyJ"].includes(e.code)){
+            e.preventDefault();
+        }
         if (isMac && isCompose(e) && e.altKey) {
             e.preventDefault()
         }
