@@ -36,9 +36,9 @@ If you want to use the original vscode editor, insert this in your `settings.jso
 
 Shortcuts: Base on [Vditor shortcuts](shortcut.md) and more:
 
-- Move list up: `Ctrl Alt I` / `⌘ ^ I`
-- Move list down: `Ctrl Alt J` / `⌘ ^ J`
-- Edit in VS Code: `Ctrl Alt E` / `⌘ ^ E`
+- Move list up: `Ctrl Alt I` / `⌥ ⇧ I`
+- Move list down: `Ctrl Alt J` / `⌥ ⇧ J`
+- Edit in VS Code: `Ctrl Alt E` / `⌥ ⇧ E`
 
 Tips:
 

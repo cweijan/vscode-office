@@ -26,9 +26,9 @@
 
 快捷键: 基于[Vditor快捷键](shortcut.md)以及更多:
 
-- 将列表上移一行: `Ctrl Alt I` / `⌘ ^ I`
-- 将列表下移一行: `Ctrl Alt J` / `⌘ ^ J`
-- 在VS Code中编辑: `Ctrl Alt E` / `⌘ ^ E`
+- 将列表上移一行: `Ctrl Alt I` / `⌥ ⇧ I`
+- 将列表下移一行: `Ctrl Alt J` / `⌥ ⇧ J`
+- 在VS Code中编辑: `Ctrl Alt E` / `⌥ ⇧ E`
 
 ## 其他功能
 
