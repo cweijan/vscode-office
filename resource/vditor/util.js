@@ -326,12 +326,14 @@ export const autoSymbol = (handler, editor) => {
         if (selectText != "") { return; }
         if (e.key == '(') {
             document.execCommand('insertText', false, ')');
+            document.getSelection().modify('move', 'left', 'character')
         } else if (e.key == '{') {
             document.execCommand('insertText', false, '}');
-        } else {
+            document.getSelection().modify('move', 'left', 'character')
+        } else if (e.key == '"') {
             document.execCommand('insertText', false, e.key);
+            document.getSelection().modify('move', 'left', 'character')
         }
-        document.getSelection().modify('move', 'left', 'character')
     }
 
     window.onresize = () => {
