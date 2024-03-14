@@ -8,12 +8,6 @@
 - 支援預覽 XLSX、DOCX、SVG、PDF、ZIP 等辦公文件格式.
 - 整合 [Vditor](https://github.com/Vanessa219/vditor)實現對 Markdown 的所見即所得編輯(程式碼區塊和圖形支援不友好).
 
-## Sponsor
-
-[![Database Client](https://database-client.com/logo_vscode.png)](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2)
-
-適用於VS Code的數據庫客戶端, 支持**MySQL/MariaDB, PostgreSQL, SQLite, Redis**以及**ElasticSearch**的管理, 且可作為一個SSH客戶端, 最大程度地提高你的生產力! [立刻安裝](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2).
-
 ## Markdown
 
 編輯器使用說明: [禁用方式看這裡](https://github.com/cweijan/vscode-office?tab=readme-ov-file#markdown)
@@ -37,6 +31,12 @@
 * HTML: 編輯 HTML 的過程中按下 Ctrl+Shift+V 可實時預覽
 * PDF: 支援直接預覽 PDF 檔案
 * HTTP: 用於傳送 HTTP 請求，由於 REST Client 本地請求有 bug，修改後進行整合
+
+## Sponsor
+
+[![Database Client](https://database-client.com/logo_vscode.png)](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2)
+
+適用於VS Code的數據庫客戶端, 支持**MySQL/MariaDB, PostgreSQL, SQLite, Redis**以及**ElasticSearch**的管理, 且可作為一個SSH客戶端, 最大程度地提高你的生產力! [立刻安裝](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2).
 
 ## Credits
 
