@@ -63,8 +63,8 @@ export class MarkdownService {
         "C:\\Program Files (x86)\\Microsoft\\Edge Beta\\Application\\msedge.exe",
         "C:\\Program Files (x86)\\Microsoft\\Edge Dev\\Application\\msedge.exe",
         join(homedir(), "AppData\\Local\\Microsoft\\Edge SxS\\Application\\msedge.exe"),
-        '"/Applications/Google Chrome.app"',
-        '"/Applications/Microsoft Edge.app"',
+        '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+        '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
         "/usr/bin/microsoft-edge",
     ]
 
