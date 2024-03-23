@@ -6,7 +6,14 @@
 
 - 集成了一个图标主题和颜色主题.
 - 支持预览xlsx, docx, svg, pdf, zip等办公文件格式.
+- 开源免费无广告(如果对你有帮助考虑点下star(●'◡'●))
 - 集成[Vditor](https://github.com/Vanessa219/vditor)实现对markdown的所见即所得编辑(对代码块支持较差).
+
+## 最佳实践
+
+和扩展[Git History Graph](https://marketplace.visualstudio.com/items?itemName=LinJun.git-graph-pro)一起使用, 安装[Git History Graph](https://marketplace.visualstudio.com/items?itemName=LinJun.git-graph-pro)后会在git面板增加一个同步按钮, 点击后会立刻对笔记进行同步, 不再需要你手动同步笔记.
+
+![1711182793554](image/README-CN/1711182793554.png)
 
 ## Markdown
 
