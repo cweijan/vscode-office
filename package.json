@@ -521,11 +521,10 @@
 		}
 	},
 	"scripts": {
-		"dev2": "vite",
+		"dev": "vite --mode=development",
 		"build2": "vite build",
 		"lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
 		"preview": "vite preview",
-		"dev": "rimraf out && node build.js",
 		"lint:fix": "eslint src/**/*.ts --fix",
 		"build": "rimraf out && cd packages/zip-viewer && npm run build && cd ../.. && node build.js --mode=production",
 		"package": "vsce package --no-dependencies",
@@ -549,10 +548,13 @@
 		"eslint-plugin-react-hooks": "^4.6.0",
 		"eslint-plugin-react-refresh": "^0.4.6",
 		"eslint-plugin-unused-imports": "^3.1.0",
+		"less": "^4.2.0",
 		"rimraf": "^3.0.2",
 		"vite": "^5.2.0"
 	},
 	"dependencies": {
+		"@antv/s2": "^1.54.7",
+		"@antv/s2-react": "^1.46.4",
 		"@types/adm-zip": "^0.5.0",
 		"adm-zip": "^0.5.10",
 		"axios": "^1.4.0",
@@ -573,6 +575,8 @@
 		"puppeteer-core": "^1.20.0",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
-		"vscode-html-to-docx": "^1.1.2"
+		"udsv": "^0.5.3",
+		"vscode-html-to-docx": "^1.1.2",
+		"xlsx": "^0.18.5"
 	}
 }

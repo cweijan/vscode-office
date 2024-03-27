@@ -1,10 +1,8 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { getConfigs } from './util/vscodeConfig.js';
-import ExcelViewer from './view/ExcelViewer.jsx';
-import { getVSCodeEvent } from './util/vscode.js'
+import { getConfigs } from './util/vscodeConfig.ts';
+import ExcelViewer from './view/ExcelViewer.tsx';
+import './util/vscode.js'
 
-window.vscodeEvent = getVSCodeEvent()
 ReactDOM.createRoot(document.getElementById('root')).render(
   <>
     {(() => {

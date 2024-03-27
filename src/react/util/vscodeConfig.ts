@@ -9,8 +9,8 @@ export function getConfigs() {
     return configs;
 }
 
-export function getConfig(key, defaultValue) {
-    const config = configs?.config;
-    if (!config) return false;
-    return config[key] ?? defaultValue ?? false
-}
+// export function getConfig(key, defaultValue) {
+//     const config = configs?.config;
+//     if (!config) return false;
+//     return config[key] ?? defaultValue ?? false
+// }
