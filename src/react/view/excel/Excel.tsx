@@ -3,10 +3,10 @@ import { SheetComponent, SheetComponentOptions } from '@antv/s2-react';
 import '@antv/s2-react/dist/style.min.css';
 import { Spin } from "antd";
 import { useEffect, useRef, useState } from "react";
-import { handler } from "../util/vscode.ts";
-import { readCSV, readXLSX } from "./excel/excel_reader.ts";
+import { handler } from "../../util/vscode.ts";
+import { readCSV, readXLSX } from "./excel_reader.ts";
 
-export default function ExcelViewer() {
+export default function Excel() {
     const sheetRef = useRef(null);
     const [loading, setLoading] = useState(true)
     const [s2DataConfig, setS2DataConfig] = useState({ fields: { columns: [] }, data: [] })

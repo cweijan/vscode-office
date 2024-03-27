@@ -66,7 +66,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".csv":
             case ".ods":
                 route = 'excel';
-                htmlPath = this.handleXlsx(uri, handler)
+                this.handleXlsx(uri, handler)
                 handler.on("fileChange", send)
                 break;
             case ".docx":
@@ -78,6 +78,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".zip":
             case ".apk":
             case ".vsix":
+                route = 'compress';
                 this.handleZip(webview, uri, handler);
                 break;
             case ".pdf":
@@ -181,7 +182,6 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             await vscode.workspace.fs.writeFile(uri, enc.encode(content))
             handler.emit("saveDone")
         })
-        return "excel.html"
     }
 
 
