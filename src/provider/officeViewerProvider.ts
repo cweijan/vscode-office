@@ -8,7 +8,6 @@ import * as vscode from 'vscode';
 import { Handler } from '../common/handler';
 import { Output } from '../common/Output';
 import { Util } from '../common/util';
-import { ViewManager } from '@/common/viewManager';
 import { ReactApp } from '@/common/reactApp';
 
 /**
@@ -78,8 +77,8 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".zip":
             case ".apk":
             case ".vsix":
-                route = 'compress';
-                this.handleZip(webview, uri, handler);
+                route = 'zip';
+                this.handleZip(uri, handler);
                 break;
             case ".pdf":
                 this.handlePdf(webview);
@@ -115,10 +114,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
     }
 
-    async handleZip(webview: vscode.Webview, uri: vscode.Uri, handler: Handler) {
-        let data = await ViewManager.readContent()
-        data = await ViewManager.buildPath(data, webview);
-        webview.html = data
+    async handleZip(uri: vscode.Uri, handler: Handler) {
         new ZipService(uri, handler).bind();
     }
 

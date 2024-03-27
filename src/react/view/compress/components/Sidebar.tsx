@@ -1,48 +1,46 @@
-<template>
-    <el-tree ref="treeRef" :data="data" @node-click="handleNodeClick" node-key="entryName"
-             :default-expanded-keys="[name]" :expand-on-click-node="false">
-        <template #default="{ node, data }">
-            <FileItem :info="data" :active="activeDir==data.entryName"/>
-        </template>
-    </el-tree>
-</template>
+import type { TreeDataNode } from 'antd';
+import { Tree } from 'antd';
+import React, { useMemo, useState } from 'react';
+import { FileInfo } from '../zipTypes';
 
-<script lang="ts" setup>
-import type {PropType} from "vue";
-import {ref, watch} from "vue";
-import {FileInfo} from "@/components/zip/zipTypes";
-import FileItem from "@/components/zip/FileItem.vue";
-import {ElTree} from "element-plus";
-import {filterDir} from "@/components/zip/zipActions";
+export default function Sidebar({ name, items, currentDir, OnClickFolder }) {
+  const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
+  const [autoExpandParent, setAutoExpandParent] = useState(true);
 
-const emit = defineEmits(['clickFolder'])
-// https://element-plus.org/zh-CN/component/tree.html
-const props = defineProps({
-    name: String,
-    items: Object as PropType<FileInfo[]>
-})
-const treeRef = ref<InstanceType<typeof ElTree>>()
-const data = ref(props.items)
-const activeDir=ref('')
+  const onExpand = (newExpandedKeys: React.Key[]) => {
+    setExpandedKeys(newExpandedKeys);
+    // setAutoExpandParent(false);
+  };
 
-const handleNodeClick = (node: FileInfo) => {
-    treeRef.value?.getNode(node.entryName).expand()
-    emit('clickFolder', node.entryName)
-}
-const expandPath=(path:string)=>{
-    activeDir.value=path;
-    treeRef.value?.getNode(path)?.expand()
-}
+  const treeData = useMemo(() => {
+    const loop = (data: FileInfo[]): TreeDataNode[] =>
+      data.filter(row => row.isDirectory).map((item) => {
+        const strTitle = item.name as string;
+        // active: activeDir==data.entryName
+        const title = <div onClick={() => { OnClickFolder?.(item.entryName) }}>
+          <span>{strTitle}</span>
+        </div>
+        if (item.children) {
+          return { title, key: item.entryName, children: loop(item.children) };
+        }
+        return { title, key: item.entryName, };
+      });
 
-watch(() => props.items, (items) => {
-    data.value = [{
-        name: props.name,
-        entryName: props.name,
-        children: filterDir(items)
+    return [{
+      title: name,
+      key: name,
+      children: loop(items)
     }]
-})
+  }, [items]);
 
-defineExpose({
-    expandPath
-})
-</script>
+  return (
+    <div>
+      <Tree
+        onExpand={onExpand}
+        expandedKeys={expandedKeys}
+        autoExpandParent={autoExpandParent}
+        treeData={treeData}
+      />
+    </div>
+  );
+};

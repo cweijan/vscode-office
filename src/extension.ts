@@ -5,7 +5,6 @@ import { OfficeViewerProvider } from './provider/officeViewerProvider';
 import { HtmlService } from './service/htmlService';
 import { MarkdownService } from './service/markdownService';
 import { Output } from './common/Output';
-import { ViewManager } from './common/viewManager';
 import { FileUtil } from './common/fileUtil';
 import { ReactApp } from './common/reactApp';
 const httpExt = require('./bundle/extension');
@@ -15,7 +14,6 @@ export function activate(context: vscode.ExtensionContext) {
 	const viewOption = { webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true } };
 	FileUtil.init(context)
 	ReactApp.init(context)
-	ViewManager.init(context)
 	const markdownService = new MarkdownService(context);
 	const viewerInstance = new OfficeViewerProvider(context);
 	context.subscriptions.push(
