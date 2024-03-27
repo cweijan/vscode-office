@@ -1,5 +1,5 @@
 import { inferSchema, initParser } from 'udsv';
-import * as XLSX from 'xlsx'
+import * as XLSX from 'xlsx';
 
 interface SheetInfo {
     name: string;

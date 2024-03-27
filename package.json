@@ -522,11 +522,8 @@
 	},
 	"scripts": {
 		"dev": "vite --mode=development",
-		"build2": "vite build",
-		"lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-		"preview": "vite preview",
-		"lint:fix": "eslint src/**/*.ts --fix",
-		"build": "rimraf out && cd packages/zip-viewer && npm run build && cd ../.. && node build.js --mode=production",
+		"lint:fix": "eslint src/**/*.{ts,tsx} --fix",
+		"build": "rimraf out && vite build --mode=production",
 		"package": "vsce package --no-dependencies",
 		"publish": "vsce publish --no-dependencies",
 		"vscode:prepublish": "npm run build"
@@ -553,10 +550,11 @@
 		"vite": "^5.2.0"
 	},
 	"dependencies": {
-		"@antv/s2": "^1.54.7",
-		"@antv/s2-react": "^1.46.4",
+		"@antv/s2": "^2.0.0-next.16",
+		"@antv/s2-react": "^2.0.0-next.15",
 		"@types/adm-zip": "^0.5.0",
 		"adm-zip": "^0.5.10",
+		"antd": "^5.15.4",
 		"axios": "^1.4.0",
 		"cheerio": "^1.0.0-rc.3",
 		"chrome-finder": "^1.0.7",

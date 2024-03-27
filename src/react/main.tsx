@@ -1,7 +1,7 @@
 import ReactDOM from 'react-dom/client';
+import './util/vscode.js';
 import { getConfigs } from './util/vscodeConfig.ts';
 import ExcelViewer from './view/ExcelViewer.tsx';
-import './util/vscode.js'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <>
