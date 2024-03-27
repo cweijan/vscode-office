@@ -9,6 +9,7 @@ import { Handler } from '../common/handler';
 import { Output } from '../common/Output';
 import { Util } from '../common/util';
 import { ViewManager } from '@/common/viewManager';
+import { ReactApp } from '@/common/reactApp';
 
 /**
  * support view office files
@@ -44,6 +45,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             })
         }
 
+        let route: string;
         const handler = Handler.bind(webviewPanel, uri);
         handler
             .on("editInVSCode", (full: boolean) => {
@@ -63,6 +65,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".xls":
             case ".csv":
             case ".ods":
+                route = 'excel';
                 htmlPath = this.handleXlsx(uri, handler)
                 handler.on("fileChange", send)
                 break;
@@ -99,6 +102,10 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 break;
             default:
                 vscode.commands.executeCommand('vscode.openWith', uri, "default");
+        }
+        if (route) {
+            ReactApp.view(webview, { route })
+            return;
         }
 
         if (htmlPath != null) {
