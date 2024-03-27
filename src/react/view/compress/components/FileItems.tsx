@@ -49,5 +49,5 @@ export default function FileItems({ items }) {
             setY(window.innerHeight - 100)
         })
     }, [])
-    return <Table columns={columns} dataSource={items} scroll={{ y }} expandable={{ showExpandColumn: false }} />;
+    return <Table columns={columns} dataSource={items} scroll={{ y }} rowKey="entryName" expandable={{ showExpandColumn: false }} />;
 }

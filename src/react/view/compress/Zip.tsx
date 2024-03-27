@@ -4,42 +4,33 @@ import { handler } from '../../util/vscode';
 import FileItems from './components/FileItems';
 import Sidebar from './components/Sidebar';
 import Toolbar from './components/Toolbar';
+import { CompressInfo, FileInfo } from './zipTypes';
 
 const { Sider, Content } = Layout;
 export default function Zip() {
-
-    const [name, setName] = useState('')
-    const [items, setItems] = useState([])
-    const [tableItems, setTableItems] = useState([] as any)
     const [currentDir, setCurrentDir] = useState('')
-    const [folderMapping, setFolderMapping] = useState({} as any)
-
+    const [tableItems, setTableItems] = useState([] as FileInfo[])
+    const [info, setInfo] = useState({ files: [] } as CompressInfo)
     const changeFiles = (dirPath: string) => {
-        // sidebarRef.value.expandPath(dirPath)
         setCurrentDir(dirPath)
-        setTableItems([
+        setTableItems(dirPath ? [
             {
                 name: '..',
                 isDirectory: true,
                 entryName: dirPath.includes('/') ? dirPath.replace(/\/.+$/, '') : null,
             },
-            ...folderMapping[dirPath].children
-        ])
+            ...info.folderMap[dirPath].children
+        ] : info.files)
     }
+    handler
+        .on('data', (info: CompressInfo) => {
+            setInfo(info)
+            setTableItems(info.files)
+        })
+        .on('openDir', changeFiles)
 
     useEffect(() => {
         handler
-            .on('data', ({ fileName, files, folderMap }) => {
-                setName(fileName)
-                setFolderMapping(folderMap)
-                if (currentDir) {
-                    changeFiles(currentDir)
-                } else {
-                    setItems(files)
-                    setTableItems(files)
-                }
-            })
-            .on('openDir', changeFiles)
             .on('zipChange', () => handler.emit('init'))
             .emit('init')
     }, [])
@@ -48,7 +39,9 @@ export default function Zip() {
             <Layout >
                 <Toolbar />
                 <Layout>
-                    <Sider width="25%" style={{ backgroundColor: 'transparent' }}> <Sidebar name={name} items={items} currentDir={currentDir} OnClickFolder={changeFiles} /> </Sider>
+                    <Sider width="25%" style={{ backgroundColor: 'transparent' }}>
+                        <Sidebar name={info.fileName} items={info.files} currentDir={currentDir} OnClickFolder={changeFiles} />
+                    </Sider>
                     <Content > <FileItems items={tableItems} /> </Content>
                 </Layout>
             </Layout>

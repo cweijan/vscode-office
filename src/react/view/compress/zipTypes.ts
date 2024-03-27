@@ -1,3 +1,9 @@
+export interface CompressInfo {
+    fileName: string;
+    files: FileInfo[];
+    folderMap: { [key: string]: FileInfo };
+}
+
 export class FileInfo {
     name?: string;
     isDirectory?: boolean;

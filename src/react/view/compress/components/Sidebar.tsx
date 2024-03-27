@@ -3,13 +3,10 @@ import { Tree } from 'antd';
 import React, { useMemo, useState } from 'react';
 import { FileInfo } from '../zipTypes';
 
-export default function Sidebar({ name, items, currentDir, OnClickFolder }) {
-  const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
-  const [autoExpandParent, setAutoExpandParent] = useState(true);
-
+export default function Sidebar({ name = '', items, currentDir, OnClickFolder }) {
+  const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([currentDir]);
   const onExpand = (newExpandedKeys: React.Key[]) => {
     setExpandedKeys(newExpandedKeys);
-    // setAutoExpandParent(false);
   };
 
   const treeData = useMemo(() => {
@@ -25,20 +22,23 @@ export default function Sidebar({ name, items, currentDir, OnClickFolder }) {
         }
         return { title, key: item.entryName, };
       });
-
     return [{
       title: name,
       key: name,
       children: loop(items)
     }]
-  }, [items]);
+  }, [name, items]);
+
+  const allExpandedKeys = useMemo(() => {
+    return [...expandedKeys, currentDir]
+  }, [expandedKeys, currentDir])
 
   return (
     <div>
       <Tree
         onExpand={onExpand}
-        expandedKeys={expandedKeys}
-        autoExpandParent={autoExpandParent}
+        expandedKeys={allExpandedKeys}
+        autoExpandParent={true}
         treeData={treeData}
       />
     </div>
