@@ -394,7 +394,6 @@
 			{
 				"viewType": "cweijan.classViewer",
 				"displayName": "Java Decompiler",
-				"priority": "option",
 				"selector": [
 					{
 						"filenamePattern": "file:/**/*.class"
