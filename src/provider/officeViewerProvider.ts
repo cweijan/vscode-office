@@ -125,10 +125,13 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
     private handleImage(uri: vscode.Uri, webview: vscode.Webview) {
         if (uri.scheme != 'file') {
             const href = webview.asWebviewUri(uri);
-            return [{
-                src: href,
-                title: basename(uri.fsPath)
-            }]
+            return {
+                images: [{
+                    src: href.toString(),
+                    title: basename(uri.fsPath)
+                }],
+                current: 0
+            }
         }
         const folderPath = vscode.Uri.file(resolve(uri.fsPath, ".."));
         const files = readdirSync(folderPath.fsPath)
