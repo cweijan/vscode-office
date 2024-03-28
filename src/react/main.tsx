@@ -1,10 +1,12 @@
 import ReactDOM from 'react-dom/client';
 import './util/vscode.js';
 import { getConfigs } from './util/vscodeConfig.ts';
-import Excel from './view/excel/Excel.tsx';
-import Zip from './view/compress/Zip.tsx';
 import './main.css'
 import { ConfigProvider } from 'antd';
+import { lazy } from 'react';
+
+const Zip = lazy(() => import('./view/compress/Zip.tsx'))
+const Excel = lazy(() => import('./view/excel/Excel.tsx'))
 
 document.getElementById('_defaultStyles').parentNode.removeChild(document.getElementById('_defaultStyles'))
 ReactDOM.createRoot(document.getElementById('root')).render(

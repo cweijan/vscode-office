@@ -38,7 +38,7 @@ export default function Zip() {
         <Flex gap="middle" wrap="wrap">
             <Layout >
                 <Toolbar currentDir={currentDir} />
-                <Layout>
+                <Layout style={{backgroundColor:'white'}}>
                     <Sider width="25%" style={{ backgroundColor: 'transparent' }}>
                         <Sidebar name={info.fileName} items={info.files} currentDir={currentDir} OnClickFolder={changeFiles} />
                     </Sider>
