@@ -77,6 +77,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".docx":
             case ".dotx":
                 htmlPath = 'word.html'
+                route = 'word'
                 handler.on("fileChange", send)
                 break;
             case ".jar":

@@ -8,6 +8,7 @@ import { lazy } from 'react';
 const Zip = lazy(() => import('./view/compress/Zip.tsx'))
 const Excel = lazy(() => import('./view/excel/Excel.tsx'))
 const Image = lazy(() => import('./view/image/Image.tsx'))
+const Word = lazy(() => import('./view/word/Word.tsx'))
 
 document.getElementById('_defaultStyles').parentNode.removeChild(document.getElementById('_defaultStyles'))
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -22,6 +23,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           return <Excel />
         case 'zip':
           return <Zip />
+        case 'word':
+          return <Word />
         default:
           return <>Office Viewer</>
       }

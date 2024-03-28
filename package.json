@@ -585,7 +585,7 @@
 		"eslint-plugin-unused-imports": "^3.1.0",
 		"less": "^4.2.0",
 		"rimraf": "^3.0.2",
-				"vite": "^5.2.0"
+		"vite": "^5.2.0"
 	},
 	"dependencies": {
 		"@ant-design/icons": "^5.3.5",
@@ -598,11 +598,12 @@
 		"cheerio": "^1.0.0-rc.3",
 		"chrome-finder": "^1.0.7",
 		"date-format": "^4.0.14",
+		"docx-preview": "^0.3.0",
 		"file-type": "^18.0.0",
 		"highlight.js": "^10.1.2",
 		"iconv-lite": "^0.6.3",
 		"katex": "^0.16.2",
-				"markdown-it": "^13.0.1",
+		"markdown-it": "^13.0.1",
 		"markdown-it-anchor": "^8.6.5",
 		"markdown-it-checkbox": "^1.1.0",
 		"markdown-it-plantuml": "^1.4.1",
