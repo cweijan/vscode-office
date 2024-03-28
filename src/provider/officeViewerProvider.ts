@@ -54,14 +54,17 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             .on('developerTool', () => vscode.commands.executeCommand('workbench.action.toggleDevTools'))
             .on("init", send)
 
-        switch (ext) {
-            case ".svg":
+        if (ext.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|webp)$/i)) {
+            const sendImageList = () => {
                 const images = this.handleImage(uri, webview)
-                handler.on('images', () => handler.emit("images", images))
-                console.log(images)
-                route = "image"
-                handler.on("fileChange", () => this.handleImage(uri, webview))
-                break;
+                handler.emit("images", images)
+            }
+            handler.on('images', () => sendImageList())
+            handler.on('fileChange', () => sendImageList())
+            return ReactApp.view(webview, { route: 'image' })
+        }
+
+        switch (ext) {
             case ".xlsx":
             case ".xlsm":
             case ".xls":
@@ -106,10 +109,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             default:
                 vscode.commands.executeCommand('vscode.openWith', uri, "default");
         }
-        if (route) {
-            ReactApp.view(webview, { route })
-            return;
-        }
+        if (route) return ReactApp.view(webview, { route })
 
         if (htmlPath != null) {
             webview.html = Util.buildPath(readFileSync(this.extensionPath + "/resource/" + htmlPath, 'utf8'), webview, this.extensionPath + "/resource")
@@ -122,43 +122,27 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
     }
 
     private handleImage(uri: vscode.Uri, webview: vscode.Webview) {
-
-        const images = []
-        const folderPath = vscode.Uri.file(resolve(uri.fsPath, ".."));
-        const files = readdirSync(folderPath.fsPath)
-        let text = "";
-        let current = 0;
-        let i = 0;
-        const currentFile = basename(uri.fsPath)
-        if (uri.scheme == 'git') {
+        if (uri.scheme != 'file') {
             const href = webview.asWebviewUri(uri);
-            text += `<a href="${href}" title="${basename(uri.fsPath)}"> <img src="${href}" > </a>`
-            images.push({
+            return [{
                 src: href,
                 title: basename(uri.fsPath)
-            })
-        } else {
-            for (const file of files) {
-                if (currentFile == file) {
-                    current = i;
-                }
-                if (file.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|webp)$/i)) {
-                    i++;
-                    const resUri = vscode.Uri.file(folderPath.fsPath + "/" + file);
-                    const resource = webview.asWebviewUri(resUri).with({ query: `nonce=${Date.now().toString()}` }).toString();
-                    text += `<a href="${resource}" title="${file}"> <img src="${resource}" > </a>`
-                    images.push({
-                        src: resource,
-                        title: basename(uri.fsPath)
-                    })
-                }
-            }
+            }]
         }
-
-        webview.html =
-            Util.buildPath(readFileSync(this.extensionPath + "/resource/lightgallery/lg.html", 'utf8'), webview, this.extensionPath + "/resource/lightgallery")
-                .replace("{{content}}", text).replace("{{current}}", `${current}`);
-
+        const folderPath = vscode.Uri.file(resolve(uri.fsPath, ".."));
+        const files = readdirSync(folderPath.fsPath)
+        let current = 0;
+        const currentFile = basename(uri.fsPath)
+        const images = files.filter(file => file.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|webp)$/i))
+            .map((file, i) => {
+                if (currentFile == file) current = i;
+                const resUri = vscode.Uri.file(`${folderPath.fsPath}/${file}`);
+                const resource = webview.asWebviewUri(resUri).with({ query: `nonce=${Date.now().toString()}` }).toString();
+                return {
+                    src: resource,
+                    title: basename(uri.fsPath)
+                }
+            })
         return { images, current };
     }
 
