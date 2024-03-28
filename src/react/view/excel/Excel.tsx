@@ -69,13 +69,15 @@ export default function Excel() {
         }).emit("init")
     }, [])
     return (
-        <Spin spinning={loading}>
+        <>
+            <Spin spinning={loading} fullscreen={true}>
+            </Spin>
             <SheetComponent
                 ref={sheetRef}
                 dataCfg={s2DataConfig}
                 options={s2Options}
                 sheetType="table"
             />
-        </Spin>
+        </>
     )
 }
