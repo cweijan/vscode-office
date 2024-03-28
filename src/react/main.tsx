@@ -7,6 +7,7 @@ import { lazy } from 'react';
 
 const Zip = lazy(() => import('./view/compress/Zip.tsx'))
 const Excel = lazy(() => import('./view/excel/Excel.tsx'))
+const Image = lazy(() => import('./view/image/Image.tsx'))
 
 document.getElementById('_defaultStyles').parentNode.removeChild(document.getElementById('_defaultStyles'))
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -15,6 +16,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       const configs = getConfigs()
       const route = configs?.route
       switch (route) {
+        case 'image':
+          return <Image />
         case 'excel':
           return <Excel />
         case 'zip':
