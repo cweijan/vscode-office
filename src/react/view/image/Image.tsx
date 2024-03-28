@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import ImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/css/image-gallery.css";
 import { handler } from '../../util/vscode';
-import './Image.css';
+import './Image.less';
 
 export default function Image() {
     const [info, setInfo] = useState({ images: [], current: 0 } as any);
