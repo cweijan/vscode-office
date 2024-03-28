@@ -1,7 +1,7 @@
 import { DeleteOutlined, FileTextOutlined, FolderOutlined } from '@ant-design/icons';
 import type { TableProps } from 'antd';
-import { Popconfirm, Table } from 'antd';
-import { useEffect, useState } from 'react';
+import { Button, Popconfirm, Spin, Table } from 'antd';
+import { useEffect, useRef, useState } from 'react';
 import { handler } from '../../../util/vscode';
 import { FileInfo } from '../zipTypes';
 
@@ -9,19 +9,20 @@ const columns: TableProps<FileInfo>['columns'] = [
     {
         title: 'Name',
         dataIndex: 'name',
-        render: (text, entry) => <div onClick={() => {
-            handler.emit('openPath', entry)
-        }}>
+        width: 300,
+        onCell: (entry) => ({ onClick: () => handler.emit('openPath', entry) }),
+        render: (text, entry) => <>
             {entry.isDirectory ? <FolderOutlined /> : <FileTextOutlined />}
             {text}
-        </div>,
+        </>,
     },
-    { title: 'Modified', dataIndex: 'modifyDateTime', },
-    { title: 'Compressed', dataIndex: 'compressedSize', },
-    { title: 'Origin', dataIndex: 'fileSize', },
+    { title: 'Modified', dataIndex: 'modifyDateTime', width: 190, onCell: (entry) => ({ onClick: () => handler.emit('openPath', entry) }) },
+    { title: 'Compressed', dataIndex: 'compressedSize', width: 120 },
+    { title: 'Origin', dataIndex: 'fileSize', width: 80 },
     {
         title: 'Action',
-        key: 'tags',
+        key: 'action',
+        width: 60,
         render: (_, entry) => (
             <>
                 {/* 需要上色 */}
@@ -34,7 +35,10 @@ const columns: TableProps<FileInfo>['columns'] = [
                     okText="Yes"
                     cancelText="No"
                 >
-                    <DeleteOutlined />
+
+                    <Button type="primary" danger>
+                        <DeleteOutlined />
+                    </Button>
                 </Popconfirm>
             </>
         ),
@@ -42,12 +46,19 @@ const columns: TableProps<FileInfo>['columns'] = [
 ];
 
 export default function FileItems({ items }) {
-    const [y, setY] = useState(window.innerHeight - 100)
-    // const [loading, setLoading] = useState(false)
+    const [height, setHeight] = useState(window.innerHeight - 100)
+    const loading = useRef(null)
+    loading.current = loading.current == null
     useEffect(() => {
         window.addEventListener('resize', () => {
-            setY(window.innerHeight - 100)
+            setHeight(window.innerHeight - 100)
         })
     }, [])
-    return <Table columns={columns} dataSource={items} scroll={{ y }} rowKey="entryName" expandable={{ showExpandColumn: false }} />;
+    return (
+        <Spin spinning={loading.current}>
+            <Table columns={columns} rowKey="entryName" dataSource={items}
+                style={{ height, overflow: 'auto' }} pagination={false} expandable={{ showExpandColumn: false }}
+            />
+        </Spin>
+    )
 }
