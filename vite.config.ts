@@ -15,5 +15,6 @@ export default defineConfig({
   },
   build: {
     outDir: 'out/webview',
+    chunkSizeWarningLimit: 2048,
   }
 })

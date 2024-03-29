@@ -1,5 +1,4 @@
 import { TableSheet, setLang } from '@antv/s2';
-import '@antv/s2-react/dist/style.min.css';
 import { Spin } from "antd";
 import { useEffect, useState } from "react";
 import { handler } from "../../util/vscode.ts";
