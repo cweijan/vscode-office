@@ -1,4 +1,24 @@
-import { LayoutWidthType, S2Options, S2Theme } from "@antv/s2";
+import { DataCell, LayoutWidthType, S2Options, S2Theme, TextTheme } from "@antv/s2";
+
+class IndexDataCell extends DataCell {
+    protected getTextStyle(): TextTheme {
+        return {
+            ...super.getTextStyle(),
+            fill: '#646464',
+            textAlign: 'center',
+        }
+    }
+}
+
+class HeaderDataCell extends DataCell {
+    protected getTextStyle(): TextTheme {
+        return {
+            ...super.getTextStyle(),
+            fontWeight: 600,
+            textAlign: 'center',
+        }
+    }
+}
 
 export const s2Options: S2Options = {
     interaction: {
@@ -8,11 +28,24 @@ export const s2Options: S2Options = {
         },
     },
     style: {
-        layoutWidthType: LayoutWidthType.Compact
+        layoutWidthType: LayoutWidthType.Compact,
+        colCell: {
+            widthByField: {
+                'root[&]$$series_number$$': 60
+            }
+        }
+    },
+    dataCell: (viewMeta) => {
+        if (viewMeta.colId == 'root[&]$$series_number$$') {
+            return new IndexDataCell(viewMeta, viewMeta?.spreadsheet);
+        } else if (viewMeta.rowIndex == 0) {
+            return new HeaderDataCell(viewMeta, viewMeta?.spreadsheet);
+        }
+        return new DataCell(viewMeta, viewMeta?.spreadsheet);
     },
     seriesNumber: {
         enable: true,
-        text: 'Index',
+        text: '',
     },
     placeholder: '',
 }
