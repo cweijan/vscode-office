@@ -1,5 +1,9 @@
 # Change log
 
+# 3.3.0 2024-3-29
+
+- Rewrite the UI front end using React.
+
 # 3.2.5 2024-3-8
 
 - Add shortcut document.
