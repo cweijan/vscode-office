@@ -28,7 +28,7 @@ module.exports = function (/*Buffer|null*/ inBuffer, /** object */ options) {
 
         for (let i = 0; i < totalEntries; i++) {
             let tmp = index;
-            const entry = new ZipEntry(inBuffer);
+            const entry = new ZipEntry(inBuffer, options);
 
             entry.header = inBuffer.slice(tmp, (tmp += Utils.Constants.CENHDR));
             entry.entryName = inBuffer.slice(tmp, (tmp += entry.header.fileNameLength));
@@ -46,7 +46,7 @@ module.exports = function (/*Buffer|null*/ inBuffer, /** object */ options) {
         var index = mainHeader.offset; // offset of first CEN header
         for (var i = 0; i < entryList.length; i++) {
             var tmp = index,
-                entry = new ZipEntry(inBuffer);
+                entry = new ZipEntry(inBuffer, options);
             entry.header = inBuffer.slice(tmp, (tmp += Utils.Constants.CENHDR));
 
             entry.entryName = inBuffer.slice(tmp, (tmp += entry.header.fileNameLength));

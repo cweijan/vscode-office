@@ -353,6 +353,7 @@ declare namespace AdmZip {
     }
 
     interface InitOptions {
+        encoding: string;
         /* If true it disables files sorting */
         noSort: boolean;
         /* Read entries during load (initial loading may be slower) */

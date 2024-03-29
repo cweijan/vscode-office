@@ -11,8 +11,8 @@ interface ZipParseResult {
     folderMap: { [fullPath: string]: ZipEntry }
 }
 
-export function parseZipAsTree(zipData: Buffer): ZipParseResult {
-    const zip = new AdmZip(zipData);
+export function parseZipAsTree(zipData: Buffer, option?: Partial<AdmZip.InitOptions>): ZipParseResult {
+    const zip = new AdmZip(zipData, option);
     const zipEntries = zip.getEntries().filter(e => e.name);
 
     let files: ZipEntry[] = []

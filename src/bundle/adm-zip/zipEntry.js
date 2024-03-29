@@ -4,7 +4,7 @@ var Utils = require("./util"),
     Methods = require("./methods");
 import iconv from 'iconv-lite';
 
-module.exports = function (/*Buffer*/ input) {
+module.exports = function (/*Buffer*/ input, /** object */ options) {
     var _entryHeader = new Headers.EntryHeader(),
         _entryName = Buffer.alloc(0),
         _comment = Buffer.alloc(0),
@@ -199,7 +199,10 @@ module.exports = function (/*Buffer*/ input) {
     return {
         get entryName() {
             const buffer = _entryName;
-            return buffer.toString('utf-8')
+            if (options?.encoding == 'gbk') {
+                return iconv.decode(buffer, 'gbk');
+            }
+            return buffer.toString(options?.encoding || 'utf-8')
         },
         get rawEntryName() {
             return _entryName;

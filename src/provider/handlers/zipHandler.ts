@@ -12,10 +12,22 @@ export async function handleZip(uri: Uri, handler: Handler) {
     handler.on('init', async () => {
         const data = (await workspace.fs.readFile(uri)) as Buffer
         const basePath = `${tmpdir()}/officeZip.${new Date().getTime()}`;
-        const { zip, files, folderMap, fileMap } = parseZipAsTree(data)
+        let { zip, files, folderMap, fileMap } = parseZipAsTree(data)
         handler.emit('data', {
             files, folderMap,
             fileName: basename(uri.fsPath)
+        })
+
+        handler.on('changeEncoding', async (encoding) => {
+            const info = parseZipAsTree(data, { encoding });
+            zip = info.zip;
+            files = info.files;
+            folderMap = info.folderMap;
+            fileMap = info.fileMap;
+            handler.emit('data', {
+                files, folderMap,
+                fileName: basename(uri.fsPath)
+            })
         }).on('openPath', async info => {
             const { entryName, isDirectory } = info
             if (isDirectory) {
