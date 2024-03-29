@@ -1,3 +1,4 @@
+import { S2DataConfig } from '@antv/s2';
 import { inferSchema, initParser } from 'udsv';
 import * as XLSX from 'xlsx/dist/xlsx.mini.min.js';
 
@@ -9,6 +10,25 @@ interface SheetInfo {
 export interface ExcelData {
     maxCols: number;
     sheets: SheetInfo[];
+}
+
+export function loadSheet(buffer: ArrayBuffer, ext: string): S2DataConfig {
+    let start = new Date().getTime();
+    const ab = new Uint8Array(buffer).buffer
+    var { sheets, maxCols } = ext.toLowerCase() == ".csv" ? readCSV(ab) : readXLSX(ab);
+    if (import.meta.env.DEV) {
+        console.log('Load time:', new Date().getTime() - start, 'ms');
+    }
+    const data = sheets[0].rows;
+    if (data.length < 26) {
+        for (let i = data.length; i < 22; i++) data.push({})
+    }
+    return {
+        fields: {
+            columns: Array(maxCols).fill(0).map((_, i) => (String.fromCharCode(65 + i)))
+        },
+        data,
+    }
 }
 
 export function readCSV(buffer: ArrayBuffer): ExcelData {

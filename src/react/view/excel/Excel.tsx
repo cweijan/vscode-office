@@ -1,83 +1,41 @@
-import { LayoutWidthType, setLang } from '@antv/s2';
-import { SheetComponent, SheetComponentOptions } from '@antv/s2-react';
+import { TableSheet, setLang } from '@antv/s2';
 import '@antv/s2-react/dist/style.min.css';
 import { Spin } from "antd";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { handler } from "../../util/vscode.ts";
-import { readCSV, readXLSX } from "./excel_reader.ts";
+import { S2ExcelTheme, s2Options } from './antvS2Options.ts';
+import { loadSheet } from "./excel_reader.ts";
 
 export default function Excel() {
-    const sheetRef = useRef(null);
     const [loading, setLoading] = useState(true)
-    const [s2DataConfig, setS2DataConfig] = useState({ fields: { columns: [] }, data: [] })
-    const [s2Options, setS2Options] = useState<SheetComponentOptions>({
-        width: window.innerWidth - 20,
-        height: window.innerHeight - 20,
-        tooltip: {
-            operation: {
-                hiddenColumns: false,
-            },
-            dataCell: {
-                enable: false
-            }
-        },
-        interaction: {
-            resize: {
-                rowCellVertical: false,
-            },
-        },
-        style: {
-            layoutWidthType: LayoutWidthType.Compact
-        },
-        seriesNumber: {
-            enable: true,
-            text: '',
-        },
-        placeholder: '',
-    })
-    function loadSheet(buffer, ext) {
-        (async () => {
-            let start = new Date().getTime();
-            const ab = new Uint8Array(buffer).buffer
-            var { sheets, maxCols } = ext.toLowerCase() == ".csv" ? readCSV(ab) : readXLSX(ab);
-            if (import.meta.env.DEV) {
-                console.log('Load time:', new Date().getTime() - start, 'ms');
-            }
-            setS2DataConfig({
-                fields: {
-                    columns: Array(maxCols).fill(0).map((_, i) => (String.fromCharCode(65 + i)))
-                },
-                data: sheets[0].rows,
-            })
-            setLoading(false)
-        })();
-    }
-
     useEffect(() => {
+        const container = document.getElementById('container');
+        const s2 = new TableSheet(container, { fields: { columns: [] }, data: [] }, {
+            ...s2Options,
+            width: window.innerWidth - 20,
+            height: window.innerHeight - 20,
+        });
         setLang('en_US')
+        s2.setTheme(S2ExcelTheme);
         window.onresize = () => {
-            setS2Options({
-                width: window.innerWidth - 20,
-                height: window.innerHeight - 20,
-            })
+            s2.changeSheetSize(window.innerWidth - 20, window.innerHeight - 20)
+            s2.render(false)
         }
         handler.on("open", ({ path, ext }) => {
-            console.log('open')
-            fetch(path).then(response => response.arrayBuffer()).then(res => loadSheet(res, ext))
-        }).on("saveDone", () => {
-            // notie.alert({ type: 1, text: 'Save Success!' })
+            console.log('Loading...')
+            fetch(path).then(response => response.arrayBuffer()).then(res => {
+                const data = loadSheet(res, ext);
+                s2.setDataCfg(data)
+                s2.render()
+                setLoading(false)
+            })
         }).emit("init")
     }, [])
     return (
         <>
             <Spin spinning={loading} fullscreen={true}>
             </Spin>
-            <SheetComponent
-                ref={sheetRef}
-                dataCfg={s2DataConfig}
-                options={s2Options}
-                sheetType="table"
-            />
+            <div id='container'></div>
         </>
     )
 }
