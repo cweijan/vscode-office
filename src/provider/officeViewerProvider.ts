@@ -3,7 +3,6 @@ import { spawn } from 'child_process';
 import { existsSync, mkdirSync, readFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { extname, parse } from 'path';
-import { TextEncoder } from 'util';
 import * as vscode from 'vscode';
 import { Output } from '../common/Output';
 import { Handler } from '../common/handler';
@@ -39,10 +38,6 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             localResourceRoots: [vscode.Uri.file(this.extensionPath), folderPath]
         }
 
-        const ext = extname(uri.fsPath).toLowerCase()
-        let htmlPath: string | null = null;
-
-
         const send = () => {
             handler.emit("open", {
                 ext: extname(uri.fsPath),
@@ -50,21 +45,21 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             })
         }
 
-        let route: string;
-        const handler = Handler.bind(webviewPanel, uri);
-        handler
+        const handler = Handler.bind(webviewPanel, uri)
             .on("editInVSCode", (full: boolean) => {
                 const side = full ? vscode.ViewColumn.Active : vscode.ViewColumn.Beside;
                 vscode.commands.executeCommand('vscode.openWith', uri, "default", side);
             })
             .on('developerTool', () => vscode.commands.executeCommand('workbench.action.toggleDevTools'))
             .on("init", send)
+            .on("fileChange", send)
 
+        let route: string;
+        const ext = extname(uri.fsPath).toLowerCase()
         if (isImage(ext)) {
             handleImage(handler, uri, webview)
-            return ReactApp.view(webview, { route: 'image' })
+            route = 'image'
         }
-
         switch (ext) {
             case ".xlsx":
             case ".xlsm":
@@ -72,12 +67,10 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".csv":
             case ".ods":
                 route = 'excel';
-                handler.on("fileChange", send)
                 break;
             case ".docx":
             case ".dotx":
                 route = 'word'
-                handler.on("fileChange", send)
                 break;
             case ".jar":
             case ".zip":
@@ -87,14 +80,15 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 handleZip(uri, handler);
                 break;
             case ".pdf":
-                this.handlePdf(webview);
-                handler.on("fileChange", send)
+                webview.html = readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8')
+                    .replace("{{baseUrl}}", this.getBaseUrl(webview, 'pdf'))
                 break;
             case ".ttf":
             case ".woff":
             case ".woff2":
             case ".otf":
-                this.handleFont(handler)
+                webview.html = readFileSync(`${this.extensionPath}/resource/font/index.html`, 'utf8')
+                    .replace('{{baseUrl}}', this.getBaseUrl(webview, 'font'))
                 break;
             case ".class":
                 this.handleClass(uri, webviewPanel);
@@ -107,26 +101,10 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 })
                 break;
             default:
+                if (route) break;
                 vscode.commands.executeCommand('vscode.openWith', uri, "default");
         }
         if (route) return ReactApp.view(webview, { route })
-
-        if (htmlPath != null) {
-            webview.html = Util.buildPath(readFileSync(this.extensionPath + "/resource/" + htmlPath, 'utf8'), webview, this.extensionPath + "/resource")
-        }
-
-    }
-
-    private handlePdf(webview: vscode.Webview) {
-        const baseUrl = this.getBaseUrl(webview, 'pdf')
-        webview.html = readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8').replace("{{baseUrl}}", baseUrl)
-    }
-
-    private handleFont(handler: Handler) {
-        const webview = handler.panel.webview;
-        const baseUrl = this.getBaseUrl(webview, 'font')
-        webview.html = readFileSync(`${this.extensionPath}/resource/font/index.html`, 'utf8')
-            .replace('{{baseUrl}}', baseUrl)
     }
 
     private getBaseUrl(webview: vscode.Webview, path: string) {
@@ -136,16 +114,10 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
     }
 
     private async handleClass(uri: vscode.Uri, panel: vscode.WebviewPanel) {
-        if (uri.scheme != "file") {
-            vscode.commands.executeCommand('vscode.openWith', uri, "default");
-            return;
-        }
-
         const tempPath = `${tmpdir()}/office_temp_java`
         if (!existsSync(tempPath)) {
             mkdirSync(tempPath)
         }
-
         const java = spawn("java", ['-cp', '../resource/java-decompiler.jar', 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler', uri.fsPath, tempPath], { cwd: __dirname })
         java.stdout.on('data', (data) => {
             console.log(data.toString("utf8"))
@@ -157,11 +129,9 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 vscode.window.showTextDocument(vscode.Uri.file(fileName).with({ scheme: "decompile_java", query: new Date().getTime().toString() }));
             }, 10);
         });
-
         java.stderr.on('data', (data) => {
             Output.log(data.toString("utf8"))
         });
-
     }
 
 }

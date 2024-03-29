@@ -13,9 +13,9 @@ export interface ExcelData {
 }
 
 export function loadSheets(buffer: ArrayBuffer, ext: string): S2DataConfig[] {
-    let start = new Date().getTime();
+    const start = new Date().getTime();
     const ab = new Uint8Array(buffer).buffer
-    var { sheets, maxCols } = ext.toLowerCase() == ".csv" ? readCSV(ab) : readXLSX(ab);
+    const { sheets, maxCols } = ext.toLowerCase() == ".csv" ? readCSV(ab) : readXLSX(ab);
     if (import.meta.env.DEV) {
         console.log('Load time:', new Date().getTime() - start, 'ms');
     }
@@ -37,7 +37,7 @@ export function loadSheets(buffer: ArrayBuffer, ext: string): S2DataConfig[] {
 export function readCSV(buffer: ArrayBuffer): ExcelData {
     const csvStr = new TextDecoder("utf-8").decode(buffer);
     let maxCols = 26;
-    let schema = inferSchema(csvStr, { header: () => [] });
+    const schema = inferSchema(csvStr, { header: () => [] });
     const rows = initParser(schema).stringArrs(csvStr).map(row => {
         return row.reduce((colMap, column, j) => {
             colMap[String.fromCharCode(65 + j)] = column

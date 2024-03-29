@@ -1,5 +1,6 @@
 const typeScriptExtensions = ['.ts'];
 module.exports = {
+  ignorePatterns: ['**/*.d.ts'],
     parser: '@typescript-eslint/parser',
     extends: ['plugin:@typescript-eslint/recommended'],
     plugins: ['unused-imports','eslint-plugin-import'],

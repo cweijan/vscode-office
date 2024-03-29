@@ -1,7 +1,7 @@
 const vscode = window['acquireVsCodeApi']?.();
 const postMessage = (message) => { if (vscode) { vscode.postMessage(message) } }
 
-let events = {}
+const events = {}
 function receive({ data }) {
     if (!data)
         return;
