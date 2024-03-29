@@ -1,15 +1,15 @@
-import { ZipService } from '@/service/zip/zipService';
+import { ReactApp } from '@/common/reactApp';
 import { spawn } from 'child_process';
 import { existsSync, mkdirSync, readFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { extname, parse } from 'path';
 import { TextEncoder } from 'util';
 import * as vscode from 'vscode';
-import { Handler } from '../common/handler';
 import { Output } from '../common/Output';
+import { Handler } from '../common/handler';
 import { Util } from '../common/util';
-import { ReactApp } from '@/common/reactApp';
 import { handleImage, isImage } from './handlers/imageHanlder';
+import { handleZip } from './handlers/zipHandler';
 
 /**
  * support view office files
@@ -72,12 +72,10 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".csv":
             case ".ods":
                 route = 'excel';
-                this.handleXlsx(uri, handler)
                 handler.on("fileChange", send)
                 break;
             case ".docx":
             case ".dotx":
-                htmlPath = 'word.html'
                 route = 'word'
                 handler.on("fileChange", send)
                 break;
@@ -86,7 +84,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".apk":
             case ".vsix":
                 route = 'zip';
-                this.handleZip(uri, handler);
+                handleZip(uri, handler);
                 break;
             case ".pdf":
                 this.handlePdf(webview);
@@ -119,10 +117,6 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
     }
 
-    async handleZip(uri: vscode.Uri, handler: Handler) {
-        new ZipService(uri, handler).bind();
-    }
-
     private handlePdf(webview: vscode.Webview) {
         const baseUrl = this.getBaseUrl(webview, 'pdf')
         webview.html = readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8').replace("{{baseUrl}}", baseUrl)
@@ -140,20 +134,6 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             .toString().replace(/\?.+$/, '').replace('https://git', 'https://file')
         return baseUrl;
     }
-
-    private handleXlsx(uri: vscode.Uri, handler: Handler) {
-        const enc = new TextEncoder();
-        handler.on("save", async (content) => {
-            Util.confirm(`Save confirm`, 'Are you sure you want to save? this will lose all formatting.', async () => {
-                await vscode.workspace.fs.writeFile(uri, new Uint8Array(content))
-                handler.emit("saveDone")
-            })
-        }).on("saveCsv", async (content) => {
-            await vscode.workspace.fs.writeFile(uri, enc.encode(content))
-            handler.emit("saveDone")
-        })
-    }
-
 
     private async handleClass(uri: vscode.Uri, panel: vscode.WebviewPanel) {
         if (uri.scheme != "file") {
