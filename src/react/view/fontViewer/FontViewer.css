@@ -61,7 +61,6 @@ html {
 .title {
     color: #FFF;
     font-size: 11px;
-    text-transform: uppercase;
     font-weight: 700;
     letter-spacing: 1px;
     padding: 0;
@@ -94,7 +93,7 @@ html {
 
 #pagination, .pagination {
     text-align: left;
-    font-size: 12px;
+    font-size: 14px;
     height: 100%;
     overflow: auto;
     color: #FFF;
@@ -110,18 +109,14 @@ html {
 
 #glyph-data dt, #font-data dt {
     display: inline-block;
-    font: bold 12px/1.4 helvetica;
     color: #788b94;
-    text-transform: uppercase;
     margin-bottom: 10px;
     width: 90px;
 }
 
 #glyph-data dd, #font-data dd {
     display: inline-block;
-    font: 600 12px/1.4 helvetica;
     color: #c3d7ef;
-    text-transform: uppercase;
     margin-bottom: 10px;
     margin-left: 0;
     text-align: left;
