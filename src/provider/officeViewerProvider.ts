@@ -1,14 +1,15 @@
 import { ZipService } from '@/service/zip/zipService';
 import { spawn } from 'child_process';
-import { existsSync, mkdirSync, readdirSync, readFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync } from 'fs';
 import { tmpdir } from 'os';
-import { basename, extname, parse, resolve } from 'path';
+import { extname, parse } from 'path';
 import { TextEncoder } from 'util';
 import * as vscode from 'vscode';
 import { Handler } from '../common/handler';
 import { Output } from '../common/Output';
 import { Util } from '../common/util';
 import { ReactApp } from '@/common/reactApp';
+import { handleImage, isImage } from './handlers/imageHanlder';
 
 /**
  * support view office files
@@ -19,6 +20,11 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
     constructor(private context: vscode.ExtensionContext) {
         this.extensionPath = context.extensionPath;
+    }
+
+    bindCustomEditors(viewOption: { webviewOptions: vscode.WebviewPanelOptions }) {
+        const viewers = ['cweijan.officeViewer', 'cweijan.imageViewer', 'cweijan.htmlViewer', 'cweijan.classViewer']
+        return viewers.map(viewer => vscode.window.registerCustomEditorProvider(viewer, this, viewOption))
     }
 
     public openCustomDocument(uri: vscode.Uri, openContext: vscode.CustomDocumentOpenContext, token: vscode.CancellationToken): vscode.CustomDocument | Thenable<vscode.CustomDocument> {
@@ -54,13 +60,8 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             .on('developerTool', () => vscode.commands.executeCommand('workbench.action.toggleDevTools'))
             .on("init", send)
 
-        if (ext.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|webp)$/i)) {
-            const sendImageList = () => {
-                const images = this.handleImage(uri, webview)
-                handler.emit("images", images)
-            }
-            handler.on('images', () => sendImageList())
-            handler.on('fileChange', () => sendImageList())
+        if (isImage(ext)) {
+            handleImage(handler, uri, webview)
             return ReactApp.view(webview, { route: 'image' })
         }
 
@@ -121,35 +122,6 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
     async handleZip(uri: vscode.Uri, handler: Handler) {
         new ZipService(uri, handler).bind();
     }
-
-    private handleImage(uri: vscode.Uri, webview: vscode.Webview) {
-        if (uri.scheme != 'file') {
-            const href = webview.asWebviewUri(uri);
-            return {
-                images: [{
-                    src: href.toString(),
-                    title: basename(uri.fsPath)
-                }],
-                current: 0
-            }
-        }
-        const folderPath = vscode.Uri.file(resolve(uri.fsPath, ".."));
-        const files = readdirSync(folderPath.fsPath)
-        let current = 0;
-        const currentFile = basename(uri.fsPath)
-        const images = files.filter(file => file.match(/\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|webp)$/i))
-            .map((file, i) => {
-                if (currentFile == file) current = i;
-                const resUri = vscode.Uri.file(`${folderPath.fsPath}/${file}`);
-                const resource = webview.asWebviewUri(resUri).with({ query: `nonce=${Date.now().toString()}` }).toString();
-                return {
-                    src: resource,
-                    title: basename(uri.fsPath)
-                }
-            })
-        return { images, current };
-    }
-
 
     private handlePdf(webview: vscode.Webview) {
         const baseUrl = this.getBaseUrl(webview, 'pdf')

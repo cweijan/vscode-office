@@ -365,46 +365,53 @@
 						"filenamePattern": "*.vsix"
 					},
 					{
-						"filenamePattern": "*.svg"
+						"filenamePattern": "file:/**/*.svg"
+					}
+				]
+			},
+			{
+				"viewType": "cweijan.imageViewer",
+				"displayName": "Image Preview(Office Viewer)",
+				"priority": "option",
+				"selector": [
+					{
+						"filenamePattern": "file:/**/*.jpg"
 					},
 					{
-						"filenamePattern": "*.jpg"
+						"filenamePattern": "file:/**/*.png"
 					},
 					{
-						"filenamePattern": "*.png"
+						"filenamePattern": "file:/**/*.gif"
 					},
 					{
-						"filenamePattern": "*.gif"
+						"filenamePattern": "file:/**/*.apng"
 					},
 					{
-						"filenamePattern": "*.apng"
+						"filenamePattern": "file:/**/*.apng"
 					},
 					{
-						"filenamePattern": "*.apng"
+						"filenamePattern": "file:/**/*.bmp"
 					},
 					{
-						"filenamePattern": "*.bmp"
+						"filenamePattern": "file:/**/*.ico"
 					},
 					{
-						"filenamePattern": "*.ico"
+						"filenamePattern": "file:/**/*.cur"
 					},
 					{
-						"filenamePattern": "*.cur"
+						"filenamePattern": "file:/**/*.jpeg"
 					},
 					{
-						"filenamePattern": "*.jpeg"
+						"filenamePattern": "file:/**/*.pjpeg"
 					},
 					{
-						"filenamePattern": "*.pjpeg"
+						"filenamePattern": "file:/**/*.pjp"
 					},
 					{
-						"filenamePattern": "*.pjp"
+						"filenamePattern": "file:/**/*.tif"
 					},
 					{
-						"filenamePattern": "*.tif"
-					},
-					{
-						"filenamePattern": "*.webp"
+						"filenamePattern": "file:/**/*.webp"
 					}
 				]
 			},
@@ -560,7 +567,7 @@
 	},
 	"scripts": {
 		"dev": "vite --mode=development",
-		"lint:fix": "eslint src/**/*.{ts,tsx} --fix",
+		"lint:fix": "eslint src/**/*.ts --fix",
 		"build": "rimraf out && vite build --mode=production",
 		"package": "vsce package --no-dependencies",
 		"publish": "vsce publish --no-dependencies",
