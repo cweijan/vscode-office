@@ -5,9 +5,11 @@ import { handler } from "../../util/vscode.ts";
 import './Excel.less';
 import { S2ExcelTheme, s2Options } from './antvS2Options.ts';
 import { loadSheets } from "./excel_reader.ts";
+import VSCodeLogo from './vscode.tsx';
 
 export default function Excel() {
     const loading = useRef(true)
+    const fileType = useRef<string>(null)
     const s2Ref = useRef<TableSheet>(null)
     const [sheets, setSheets] = useState<S2DataConfig[]>([])
     useEffect(() => {
@@ -28,6 +30,7 @@ export default function Excel() {
             console.log('Loading...')
             fetch(path).then(response => response.arrayBuffer()).then(res => {
                 const sheets = loadSheets(res, ext);
+                fileType.current = ext;
                 s2.setDataCfg(sheets[0])
                 s2.render()
                 loading.current = false
@@ -47,6 +50,7 @@ export default function Excel() {
         label: sheet.name as string,
     }))
 
+    const ext = fileType.current;
     return (
         <div className='excel-viewer'>
             <Spin spinning={loading.current} fullscreen={true}>
@@ -55,6 +59,9 @@ export default function Excel() {
             <Tabs items={items} onChange={changeTab} tabBarGutter={20}
                 style={{ marginLeft: '30px' }}
             />
+            {
+                ext?.match(/csv/i) ? <VSCodeLogo onClick={() => handler.emit('editInVSCode', true)} /> : null
+            }
         </div>
     )
 }
