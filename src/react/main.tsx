@@ -10,7 +10,7 @@ const Excel = lazy(() => import('./view/excel/Excel.tsx'))
 const Image = lazy(() => import('./view/image/Image.tsx'))
 const Word = lazy(() => import('./view/word/Word.tsx'))
 
-document.getElementById('_defaultStyles').parentNode.removeChild(document.getElementById('_defaultStyles'))
+document.getElementById('_defaultStyles')?.parentNode?.removeChild(document.getElementById('_defaultStyles'))
 ReactDOM.createRoot(document.getElementById('root')).render(
   <ConfigProvider componentSize='small'>
     {(() => {
