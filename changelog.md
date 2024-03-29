@@ -1,5 +1,9 @@
 # Change log
 
+# 3.3.1 2024-3-30
+
+- Update font and pdf viewer.
+
 # 3.3.0 2024-3-29
 
 - Rewrite the UI front end using React.
