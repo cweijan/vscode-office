@@ -77,15 +77,15 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 route = 'zip';
                 handleZip(uri, handler);
                 break;
-            case ".pdf":
-                webview.html = readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8')
-                    .replace("{{baseUrl}}", this.getBaseUrl(webview, 'pdf'))
-                break;
             case ".ttf":
             case ".woff":
             case ".woff2":
             case ".otf":
                 route = 'font';
+                break;
+            case ".pdf":
+                webview.html = readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8')
+                    .replace("{{baseUrl}}", this.getBaseUrl(webview, 'pdf'))
                 break;
             case ".class":
                 handleClass(uri, webviewPanel);

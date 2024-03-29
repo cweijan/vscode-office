@@ -1,12 +1,11 @@
-import { Flex } from 'antd'
+import { Card, Flex } from 'antd'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useWindowSize } from '../../util/reactUtils'
 import { handler } from '../../util/vscode'
-import './FontViewer.css'
+import './FontViewer.less'
 import { FontInfo, formatUnicode, loadFont, renderGlyphItem } from './fontViewerMain'
 
 /**
- * CharMap - Powered by OpenType.js
  * https://github.com/mathew-kurian/CharacterMap
  */
 export default function FontViewer() {
@@ -41,46 +40,50 @@ export default function FontViewer() {
 
     return (
         <Flex>
-            {/* 字体信息 */}
-            <Flex style={{ width: '280px', background: '#171D25', flexShrink: 0, paddingTop: '20px', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div style={{ overflow: 'auto', height: '100%', overflowX: 'hidden', padding: '20px', paddingTop: 0 }}>
-                    <div style={{ fontSize: '25px', marginTop: '5px', color: '#5B6971', fontWeight: 100, letterSpacing: '1px', textAlign: 'left', marginBottom: '15px' }}>
-                        Font
-                    </div>
-                    <div id="font-data">
-                        {
-                            !font ? null :
-                                <>
-                                    <div><dt>Family</dt><dd>{font.names.fontFamily.en}</dd></div>
-                                    <div><dt>Style</dt><dd>{font.names.fontSubfamily.en}</dd></div>
-                                    <div><dt>Format</dt><dd>{font.outlinesFormat}</dd></div>
-                                    <div><dt>Version</dt><dd>{font.names.version.en}</dd></div>
-                                </>
-                        }
-                    </div>
-                    <div style={{ fontSize: '25px', marginTop: '10px', color: '#5B6971', fontWeight: 100, letterSpacing: '1px', textAlign: 'left', marginBottom: '20px' }}>
-                        Character
-                    </div>
-                    <div id="glyph-data" >
-                        {
-                            !glyph ? null :
-                                <>
-                                    <div><dt>Name</dt><dd>{glyph.name}</dd></div>
-                                    <div><dt>Unicode</dt><dd> {glyph.unicodes.map(formatUnicode).join(', ')}</dd></div>
-                                </>
-                        }
-                    </div>
-                </div>
-                <div style={{ fontSize: '14px', color: '#999', textAlign: 'center', marginBottom: '15px' }}>
-                    Powered By OpenType.js
-                </div>
-            </Flex>
             {/* 图标 */}
-            <div style={{ background: '#FFF', overflow: 'auto', height: height - 20 }}>
+            <div style={{ background: '#FFF', overflow: 'auto', height }}>
                 <div id="glyph-list-end" >
                     {icons}
                 </div>
             </div>
+            {/* 字体信息 */}
+            <Flex style={{ width: '280px', background: '#f0f2f5', flexShrink: 0, paddingTop: '20px', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div style={{ padding: '0 10px' }}>
+                    <Card title="Font" style={{ marginBottom: 15 }}>
+                        <div className='info-card'>
+                            {
+                                !font ? null :
+                                    <>
+                                        <div><dt>Family</dt><dd>{font.names.fontFamily.en}</dd></div>
+                                        <div><dt>Style</dt><dd>{font.names.fontSubfamily.en}</dd></div>
+                                        <div><dt>Format</dt><dd>{font.outlinesFormat}</dd></div>
+                                        <div><dt>Version</dt><dd>{font.names.version.en}</dd></div>
+                                    </>
+                            }
+                        </div>
+                    </Card>
+                    <Card title="Character">
+                        <div className='info-card'>
+                            {
+                                <>
+                                    <div><dt>Unicode</dt><dd> {glyph?.unicodes.map(formatUnicode).join(', ') || '-'}</dd></div>
+                                    <div><dt>Name</dt><dd>{glyph?.name || '-'}</dd></div>
+                                    <div>
+                                        <dt>Class</dt>
+                                        <dd>
+                                            {glyph ? `${font.names.fontFamily.en}-${glyph.name}` : '-'}
+                                        </dd>
+                                    </div>
+                                </>
+                            }
+                        </div>
+                    </Card>
+                </div>
+                <div style={{ textAlign: 'center', marginBottom: '15px', color: 'rgb(70 69 69)' }}>
+                    Powered By OpenType.js
+                </div>
+            </Flex>
+
         </Flex>
     )
 }

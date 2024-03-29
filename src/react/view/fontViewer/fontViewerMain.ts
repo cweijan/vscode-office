@@ -42,7 +42,6 @@ export async function loadFont(uri: string): Promise<FontInfo> {
 
 export function renderGlyphItem(fontInfo: FontInfo, canvas, glyphIndex) {
     const { font, fontScale, fontSize, fontBaseline } = fontInfo;
-    const cellMarkSize = 6;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, cellWidth, cellHeight);
     if (glyphIndex >= font.numGlyphs) return;
@@ -52,13 +51,7 @@ export function renderGlyphItem(fontInfo: FontInfo, canvas, glyphIndex) {
     const glyph = font.glyphs.glyphs[glyphIndex],
         glyphWidth = glyph.advanceWidth * fontScale,
         xmin = (cellWidth - glyphWidth) / 2,
-        xmax = (cellWidth + glyphWidth) / 2,
         x0 = xmin;
-    // ctx.fillStyle = '#e67e22';
-    // ctx.fillRect(xmin - cellMarkSize + 2, fontBaseline, cellMarkSize, 2);
-    // ctx.fillRect(xmin, fontBaseline, 2, cellMarkSize);
-    // ctx.fillRect(xmax, fontBaseline, cellMarkSize, 2);
-    // ctx.fillRect(xmax, fontBaseline, 2, cellMarkSize);
     ctx.fillStyle = '#FFFFFF';
     const path = glyph.getPath(x0, fontBaseline, fontSize);
     path.fill = "#333";
