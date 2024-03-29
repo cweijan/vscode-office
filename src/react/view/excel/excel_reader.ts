@@ -12,23 +12,26 @@ export interface ExcelData {
     sheets: SheetInfo[];
 }
 
-export function loadSheet(buffer: ArrayBuffer, ext: string): S2DataConfig {
+export function loadSheets(buffer: ArrayBuffer, ext: string): S2DataConfig[] {
     let start = new Date().getTime();
     const ab = new Uint8Array(buffer).buffer
     var { sheets, maxCols } = ext.toLowerCase() == ".csv" ? readCSV(ab) : readXLSX(ab);
     if (import.meta.env.DEV) {
         console.log('Load time:', new Date().getTime() - start, 'ms');
     }
-    const data = sheets[0].rows;
-    if (data.length < 26) {
-        for (let i = data.length; i < 22; i++) data.push({})
-    }
-    return {
-        fields: {
-            columns: Array(maxCols).fill(0).map((_, i) => (String.fromCharCode(65 + i)))
-        },
-        data,
-    }
+    return sheets.map(sheet => {
+        const data = sheet.rows;
+        if (data.length < 26) {
+            for (let i = data.length; i < 22; i++) data.push({})
+        }
+        return {
+            name: sheet.name,
+            fields: {
+                columns: Array(maxCols).fill(0).map((_, i) => (String.fromCharCode(65 + i)))
+            },
+            data,
+        }
+    })
 }
 
 export function readCSV(buffer: ArrayBuffer): ExcelData {

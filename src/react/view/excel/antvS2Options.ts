@@ -97,6 +97,9 @@ export const S2ExcelTheme: S2Theme = {
                     borderColor: '#418f1f',
                     borderWidth: 1,
                     backgroundColor: dataCellBgColor,
+                },
+                selected:{
+                    backgroundColor:'#edfdf3'
                 }
             }
         }
