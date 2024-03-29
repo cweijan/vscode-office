@@ -1,38 +1,48 @@
-import { useEffect } from 'react'
-import './FontViewer.css'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { handler } from '../../util/vscode'
-import opentype from 'opentype.js'
-import { onFontLoaded, prepareGlyphList, showErrorMessage } from './fontViewerMain'
+import './FontViewer.css'
+import { FontInfo, formatUnicode, loadFont, renderGlyphItem } from './fontViewerMain'
 
 /**
  * CharMap - Powered by OpenType.js
  * https://github.com/mathew-kurian/CharacterMap
  */
 export default function FontViewer() {
+    const [font, setFont] = useState(null)
+    const fontInfoRef = useRef<FontInfo>(null)
+    const [glyph, setGlyph] = useState(null)
 
     useEffect(() => {
-        prepareGlyphList()
         handler.on("open", async (content) => {
-            if (content.path.includes('woff2')) {
-                const loadScript = (src) => new Promise((onload) => document.documentElement.append(
-                    Object.assign(document.createElement('script'), { src, onload })
-                ));
-                return loadScript('woff2_decompress_binding.js')
-                    .then(() => fetch(content.path))
-                    .then(f => f.arrayBuffer())
-                    .then((buffer) => window['Module'].decompress(buffer))
-                    .then((buffer) => onFontLoaded(opentype.parse(Uint8Array.from(buffer).buffer)));
-            }
-            opentype.load(content.path, function (err, font) {
-                // var amount, glyph, ctx, x, y, fontSize;
-                if (err) {
-                    showErrorMessage(err.toString());
-                    return;
-                }
-                onFontLoaded(font);
-            });
+            const fontInfo = await loadFont(content.path)
+            setFont(fontInfo.font)
+            fontInfoRef.current = fontInfo
         }).emit("init")
     }, [])
+
+    const icons = useMemo(() => (
+        font ? Object.keys(font.glyphs.glyphs).map((i) => (
+            <canvas width="60p" height="70" key={i}
+                className="item" id={`g${i}`}
+                onClick={() => { setGlyph(font.glyphs.glyphs[i]) }}
+            ></canvas>
+        )) : null
+    ), [font])
+
+    useEffect(() => {
+        if (!font) return;
+        for (const key of Object.keys(font.glyphs.glyphs)) {
+            renderGlyphItem(fontInfoRef.current, document.getElementById(`g${key}`), key);
+        }
+    }, [icons])
+
+    function Pagination() {
+        if (!font) return null;
+        const totalPage = ((font.numGlyphs / 200) + 1) | 0;
+        return new Array(totalPage).fill(0).map((_, i) => (
+            <div className="page" key={i}>{i * 200} → {((i + 1) * 200) - 1}</div>
+        ))
+    }
 
     return (
         <>
@@ -42,15 +52,9 @@ export default function FontViewer() {
                         Powered By OpenType.js
                     </div>
                 </div>
-                {/* <div style="position:absolute;top:0;left:0;right:0;height:40px;box-shadow:0 -1px 3px rgba(0,0,0,0.2);z-index:3;background:#171D25;padding:15px;">
-        <div class="browse-wrap" style="position:relative;height:40px;border-radius:4px;">
-            <div class="title" id="font-family" style="text-align:center;line-height:40px;">Select font</div>
-            <input id="file" type="file" name="upload" class="upload" title="select font"/>
-        </div>
-    </div> */}
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: '40px', zIndex: 2, padding: '15px' }}>
                     <div className="nicescroll-left" style={{ overflow: 'auto', height: '100%', overflowX: 'hidden', borderRadius: '5px', border: '1px solid rgba(255, 255, 255, 0.07)', background: 'rgba(255, 255, 255, 0.02)' }}>
-                        <div id="pagination" />
+                        <Pagination />
                     </div>
                 </div>
             </div>
@@ -60,15 +64,29 @@ export default function FontViewer() {
                         <div style={{ fontSize: '25px', marginTop: '5px', color: '#5B6971', fontWeight: 100, letterSpacing: '1px', textAlign: 'left', marginBottom: '15px' }}>
                             Font
                         </div>
-                        <div id="font-data" />
+                        <div id="font-data">
+                            {
+                                !font ? null :
+                                    <>
+                                        <div><dt>family</dt><dd>{font.names.fontFamily.en}</dd></div>
+                                        <div><dt>style</dt><dd>{font.names.fontSubfamily.en}</dd></div>
+                                        <div><dt>format</dt><dd>{font.outlinesFormat}</dd></div>
+                                        <div><dt>version</dt><dd>{font.names.version.en}</dd></div>
+                                    </>
+                            }
+                        </div>
                         <div style={{ fontSize: '25px', marginTop: '10px', color: '#5B6971', fontWeight: 100, letterSpacing: '1px', textAlign: 'left', marginBottom: '20px' }}>
-                            Character <input id="copy-char" style={{ border: 'none', color: '#14bfff', borderBottom: '1px dotted rgba(255,255,255,0.5)', background: 'transparent', fontSize: '15px', borderRadius: '2px', fontWeight: 600, position: 'relative', top: '-4px', left: '5px', width: '30px', height: '30px', textAlign: 'center', outline: 'none', fontFamily: 'Arial' }} />
+                            Character
                         </div>
-                        <div id="glyph-display" style={{ position: 'relative' }}>
-                            <canvas id="glyph-bg" width={420} height={310} />
-                            <canvas id="glyph" width={300} height={300} />
+                        <div id="glyph-data" >
+                            {
+                                !glyph ? null :
+                                    <>
+                                        <div><dt>name</dt><dd>{glyph.name}</dd></div>
+                                        <div><dt>unicode</dt><dd> {glyph.unicodes.map(formatUnicode).join(', ')}</dd></div>
+                                    </>
+                            }
                         </div>
-                        <div id="glyph-data" />
                     </div>
                 </div>
             </div>
@@ -80,7 +98,9 @@ export default function FontViewer() {
                 </div>
                 <div style={{ position: 'absolute', top: '80px', left: 0, right: 0, bottom: 0, zIndex: 2 }}>
                     <div className="nicescroll-right" style={{ overflow: 'auto', height: '100%', overflowX: 'hidden' }}>
-                        <div id="glyph-list-end" />
+                        <div id="glyph-list-end" >
+                            {icons}
+                        </div>
                     </div>
                 </div>
             </div>
