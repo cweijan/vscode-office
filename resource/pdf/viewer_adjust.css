@@ -2,3 +2,9 @@
 #viewAttachments{
     display: none;
 }
+
+.treeItem.selected,
+.toolbarButton.toggled,
+.dropdownToolbarButton > select{
+    background-color: rgb(232 232 232) !important;
+}
