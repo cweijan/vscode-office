@@ -1,10 +1,5 @@
 @img-height: calc(100vh - 220px);
 
-// container
-.image-gallery {
-    background-color: rgb(23 23 25 / 95%);
-}
-
 .image-gallery-slides {
     padding-top: 50px;
 }
@@ -34,7 +29,10 @@
 .image-gallery-index {
     background: none;
     right: unset;
-    color: #d0d0d0;
+    color: var(--vscode-editor-foreground,#d0d0d0);
+}
+.image-gallery-icon{
+    color: var(--vscode-editor-foreground,#d0d0d0);
 }
 
 .image-gallery-left-nav,
@@ -44,7 +42,7 @@
     border-radius: 50%;
 
     &:hover {
-        color: white;
+        color: var(--vscode-editor-foreground,#d0d0d0);
         background-color: rgba(24, 24, 27, 0.1);
     }
 
