@@ -1,7 +1,8 @@
 import { DeleteOutlined, FileTextOutlined, FolderOutlined } from '@ant-design/icons';
 import type { TableProps } from 'antd';
 import { Button, Popconfirm, Spin, Table } from 'antd';
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
+import { useWindowSize } from '../../../util/reactUtils';
 import { handler } from '../../../util/vscode';
 import { FileInfo } from '../zipTypes';
 
@@ -25,7 +26,6 @@ const columns: TableProps<FileInfo>['columns'] = [
         width: 60,
         render: (_, entry) => (
             <>
-                {/* 需要上色 */}
                 <Popconfirm
                     title="Delete the file"
                     description="Are you sure to delete this file?"
@@ -35,7 +35,6 @@ const columns: TableProps<FileInfo>['columns'] = [
                     okText="Yes"
                     cancelText="No"
                 >
-
                     <Button type="primary" danger>
                         <DeleteOutlined />
                     </Button>
@@ -46,18 +45,13 @@ const columns: TableProps<FileInfo>['columns'] = [
 ];
 
 export default function FileItems({ items }) {
-    const [height, setHeight] = useState(window.innerHeight - 100)
+    const [_, height] = useWindowSize();
     const loading = useRef(null)
     loading.current = loading.current == null
-    useEffect(() => {
-        window.addEventListener('resize', () => {
-            setHeight(window.innerHeight - 100)
-        })
-    }, [])
     return (
         <Spin spinning={loading.current}>
             <Table columns={columns} rowKey="entryName" dataSource={items}
-                style={{ height, overflow: 'auto' }} pagination={false} expandable={{ showExpandColumn: false }}
+                style={{ height: height - 50, overflow: 'auto' }} pagination={false} expandable={{ showExpandColumn: false }}
             />
         </Spin>
     )

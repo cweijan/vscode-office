@@ -1,12 +1,14 @@
+import { FileTextOutlined, FolderOutlined } from '@ant-design/icons';
 import type { TreeDataNode } from 'antd';
 import { Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useWindowSize } from '../../../util/reactUtils';
 import { FileInfo } from '../zipTypes';
-import { FileTextOutlined, FolderOutlined } from '@ant-design/icons';
 
 export default function Sidebar({ name = '', items, currentDir, OnClickFolder }) {
   const rootKey = useRef('dbclient_zip_sidebar_root')
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([rootKey.current]);
+  const [_, height] = useWindowSize();
   const onExpand = (newExpandedKeys: React.Key[]) => {
     setExpandedKeys(newExpandedKeys);
   };
@@ -40,6 +42,7 @@ export default function Sidebar({ name = '', items, currentDir, OnClickFolder })
   return (
     <div>
       <Tree
+        style={{ height: height - 50, overflow: 'auto' }}
         onExpand={onExpand}
         expandedKeys={expandedKeys}
         autoExpandParent={true}

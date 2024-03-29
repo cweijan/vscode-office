@@ -3,6 +3,7 @@
 out/test/**
 src/**
 packages/**
+template/**
 .gitignore
 vsc-extension-quickstart.md
 **/tsconfig.json

@@ -17,7 +17,7 @@ export default function Zip() {
             {
                 name: '..',
                 isDirectory: true,
-                entryName: dirPath.includes('/') ? dirPath.replace(/\/.+$/, '') : null,
+                entryName: dirPath.includes('/') ? dirPath.replace(/\/[^\/]+$/, '') : null,
             },
             ...info.folderMap[dirPath].children
         ] : info.files)
