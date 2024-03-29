@@ -85,8 +85,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".woff":
             case ".woff2":
             case ".otf":
-                webview.html = readFileSync(`${this.extensionPath}/resource/font/index.html`, 'utf8')
-                    .replace('{{baseUrl}}', this.getBaseUrl(webview, 'font'))
+                route = 'font';
                 break;
             case ".class":
                 handleClass(uri, webviewPanel);

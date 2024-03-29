@@ -1,7 +1,6 @@
-// Code from
-// http://nodebox.github.io/opentype.js/
+import opentype from 'opentype.js'
 
-var fileButton, fontFamily;
+// var fileButton, fontFamily;
 var pageSelected, font, fontScale, fontSize, fontBaseline, glyphScale, glyphSize, glyphBaseline;
 
 var cellCount = 200,
@@ -12,11 +11,15 @@ var cellCount = 200,
     cellMarginLeftRight = 1,
     glyphMargin = 5;
 
-function cellSelect(event) {
+function cellSelect(event: Event) {
+    let target = event.target as HTMLElement;
+
     if (!font) return;
-    var firstGlyphIndex = pageSelected * cellCount,
-        cellIndex = +event.target.id.substr(1),
-        glyphIndex = firstGlyphIndex + cellIndex;
+
+    let firstGlyphIndex: number = pageSelected * cellCount;
+    let cellIndex: number = +target.id.substr(1);
+    let glyphIndex: number = firstGlyphIndex + cellIndex;
+
     if (glyphIndex < font.numGlyphs) {
         displayGlyph(glyphIndex);
         displayGlyphData(glyphIndex);
@@ -25,34 +28,13 @@ function cellSelect(event) {
 
 onload = () => {
 
-    fontFamily = document.getElementById('font-family');
+    console.log('onload')
+
+    // fontFamily = document.getElementById('font-family');
     // fileButton = document.getElementById('file');
     // fileButton.addEventListener('change', onReadFile, false);
 
-    if (vscodeEvent) {
-        vscodeEvent.emit("init")
-        vscodeEvent.on("open", (content) => {
-            if (content.path.includes('woff2')) {
-                const loadScript = (src) => new Promise((onload) => document.documentElement.append(
-                    Object.assign(document.createElement('script'), { src, onload })
-                ));
-                loadScript('js/woff2_decompress_binding.js')
-                    .then(() => fetch(content.path))
-                    .then(f => f.arrayBuffer())
-                    .then((buffer) => Module.decompress(buffer))
-                    .then((buffer) => onFontLoaded(opentype.parse(Uint8Array.from(buffer).buffer)));
-            }
-            opentype.load(content.path, function (err, font) {
-                var amount, glyph, ctx, x, y, fontSize;
-                if (err) {
-                    showErrorMessage(err.toString());
-                    return;
-                }
-                onFontLoaded(font);
-            });
-        })
 
-    }
 
     prepareGlyphList();
 
@@ -190,27 +172,27 @@ var resolveGlyphDpi;
 var glyphBgCanvasHeight;
 
 function initGlyphDisplay() {
-    var glyphBgCanvas = document.getElementById('glyph-bg'),
-        ctx = glyphBgCanvas.getContext('2d');
+    let glyphBgCanvas: HTMLCanvasElement = document.getElementById('glyph-bg') as HTMLCanvasElement;
+    let ctx: CanvasRenderingContext2D = glyphBgCanvas.getContext('2d');
 
     if (!resolveGlyphDpi) {
         hidpi(glyphBgCanvas, glyphBgCanvas.width, glyphBgCanvas.height);
         resolveGlyphDpi = true;
     }
 
-    var w = glyphBgCanvas.width,
-        h = 300,
-        glyphW = w - glyphMargin * 2,
-        glyphH = h - glyphMargin * 2,
-        head = font.tables.head,
-        maxHeight = head.yMax - head.yMin;
+    let w: number = glyphBgCanvas.width;
+    let h: number = 300;
+    let glyphW: number = w - glyphMargin * 2;
+    let glyphH: number = h - glyphMargin * 2;
+    let head = font.tables.head;
+    let maxHeight: number = head.yMax - head.yMin;
 
     glyphScale = Math.min(glyphW / (head.xMax - head.xMin), glyphH / maxHeight);
     glyphSize = glyphScale * font.unitsPerEm;
     glyphBaseline = glyphMargin + glyphH * head.yMax / maxHeight;
 
-    function hline(text, yunits) {
-        ypx = glyphBaseline - yunits * glyphScale;
+    function hline(text: string, yunits: number) {
+        let ypx: number = glyphBaseline - yunits * glyphScale;
         ctx.fillStyle = '#788b94';
         ctx.font = 'bold 12px "Open Sans"';
         ctx.fillText(text.toUpperCase(), 2, ypx + 3);
@@ -226,13 +208,15 @@ function initGlyphDisplay() {
     hline('Descender', font.tables.os2.sTypoDescender);
 }
 
-function onReadFile(e) {
-    var file = e.target.files[0];
-    var reader = new FileReader();
+function onReadFile(e: Event) {
+    let target = e.target as HTMLInputElement;
+    let file: File = target.files[0];
+    let reader: FileReader = new FileReader();
 
-    reader.onload = function (e) {
+    reader.onload = function (e: ProgressEvent<FileReader>) {
         try {
-            font = opentype.parse(e.target.result);
+            let target = e.target as FileReader;
+            font = opentype.parse(target.result as ArrayBuffer);
             // fontFamily.innerHTML = font.familyName || this.files[0].name.replace(/\.[^/.]+$/, "");
             showErrorMessage('');
             onFontLoaded(font);
@@ -241,7 +225,7 @@ function onReadFile(e) {
             throw (err);
         }
     };
-    reader.onerror = function (err) {
+    reader.onerror = function (err: ProgressEvent<FileReader>) {
         showErrorMessage(err.toString());
     };
 
@@ -250,7 +234,7 @@ function onReadFile(e) {
 
 function displayGlyphData(glyphIndex) {
     var container = document.getElementById('glyph-data');
-    var holdtext = document.getElementById('copy-char');
+    var holdtext = document.getElementById('copy-char') as HTMLInputElement;
 
     if (glyphIndex < 0) {
         container.innerHTML = '';
@@ -280,7 +264,8 @@ function displayGlyphData(glyphIndex) {
     container.innerHTML = html;
 }
 
-function displayFontBasic() {
+
+function displayFontBasic(font) {
     var container = document.getElementById('font-data');
 
     var html = '<div><dt>family</dt><dd>' + font.names.fontFamily.en + '</dd></div>';
@@ -294,9 +279,10 @@ function displayFontBasic() {
 
 var resolveDisplayGlyph;
 
-function displayGlyph(glyphIndex) {
-    var canvas = document.getElementById('glyph'),
-        ctx = canvas.getContext('2d');
+function displayGlyph(glyphIndex: number) {
+    let canvas: HTMLCanvasElement = document.getElementById('glyph') as HTMLCanvasElement;
+    let ctx: CanvasRenderingContext2D = canvas.getContext('2d');
+
     if (!resolveDisplayGlyph) {
         hidpi(canvas, canvas.width, canvas.height);
         resolveDisplayGlyph = true;
@@ -306,12 +292,12 @@ function displayGlyph(glyphIndex) {
 
     if (glyphIndex < 0) return;
 
-    var glyph = font.glyphs.glyphs[glyphIndex],
-        glyphWidth = glyph.advanceWidth * glyphScale,
-        xmin = (canvas.width / window.devicePixelRatio - glyphWidth) / 2,
-        xmax = (canvas.width / window.devicePixelRatio + glyphWidth) / 2,
-        x0 = xmin,
-        markSize = 10;
+    let glyph = font.glyphs.glyphs[glyphIndex];
+    let glyphWidth: number = glyph.advanceWidth * glyphScale;
+    let xmin: number = (canvas.width / window.devicePixelRatio - glyphWidth) / 2;
+    let xmax: number = (canvas.width / window.devicePixelRatio + glyphWidth) / 2;
+    let x0: number = xmin;
+    let markSize: number = 10;
 
     ctx.fillStyle = '#14bfff';
     ctx.fillRect(xmin - markSize + 1, glyphBaseline, markSize, 2);
@@ -320,10 +306,10 @@ function displayGlyph(glyphIndex) {
     ctx.fillRect(xmax, glyphBaseline, 2, markSize);
     ctx.textAlign = 'center';
     ctx.fillText('0', xmin, glyphBaseline + markSize + 10);
-    ctx.fillText(glyph.advanceWidth, xmax, glyphBaseline + markSize + 10);
+    ctx.fillText(glyph.advanceWidth.toString(), xmax, glyphBaseline + markSize + 10);
 
     ctx.fillStyle = '#FFFFFF';
-    var path = glyph.getPath(x0, glyphBaseline, glyphSize);
+    let path = glyph.getPath(x0, glyphBaseline, glyphSize);
     path.fill = '#2a3340';
     path.stroke = '#677a95';
     path.strokeWidth = 1;
@@ -381,24 +367,26 @@ function drawPoints(glyph, ctx, x, y, fontSize) {
     drawCircles(redCircles, x, y, scale);
 }
 
-function onFontLoaded(font) {
-    window.font = font;
+export function onFontLoaded(loadedFont: any) {
+    console.log('onFontLoaded',loadedFont)
+    font = loadedFont;
+    // window['font'] = loadedFont;
 
     var w = cellWidth - cellMarginLeftRight * 2,
         h = cellHeight - cellMarginTop - cellMarginBottom,
-        head = font.tables.head,
+        head = loadedFont.tables.head,
         maxHeight = head.yMax - head.yMin;
     fontScale = Math.min(w / (head.xMax - head.xMin), h / maxHeight);
-    fontSize = fontScale * font.unitsPerEm;
+    fontSize = fontScale * loadedFont.unitsPerEm;
     fontBaseline = cellMarginTop + h * head.yMax / maxHeight;
 
     var pagination = document.getElementById("pagination");
     pagination.innerHTML = '';
     var fragment = document.createDocumentFragment();
-    var numPages = Math.ceil(font.numGlyphs / cellCount);
+    var numPages = Math.ceil(loadedFont.numGlyphs / cellCount);
     for (var i = 0; i < numPages; i++) {
         var link = document.createElement('div');
-        var lastIndex = Math.min(font.numGlyphs - 1, (i + 1) * cellCount - 1);
+        var lastIndex = Math.min(loadedFont.numGlyphs - 1, (i + 1) * cellCount - 1);
         link.textContent = i * cellCount + ' → ' + lastIndex;
         link.id = 'p' + i;
         link.className = 'page';
@@ -410,7 +398,7 @@ function onFontLoaded(font) {
     }
     pagination.appendChild(fragment);
 
-    displayFontBasic(font);
+    displayFontBasic(loadedFont);
     initGlyphDisplay();
     displayGlyphPage(0);
     displayGlyph(-1);
@@ -458,7 +446,7 @@ function displayGlyphPage(pageNum) {
     }
 }
 
-function prepareGlyphList() {
+export function prepareGlyphList() {
     var marker = document.getElementById('glyph-list-end'),
         parent = marker.parentElement;
     for (var i = 0; i < cellCount; i++) {
@@ -479,6 +467,6 @@ function hidpi(canvas, height, width) {
     canvas.getContext('2d').scale(window.devicePixelRatio, window.devicePixelRatio);
 }
 
-function showErrorMessage(message) {
+export function showErrorMessage(message) {
     if (message) console.error(message);
 }

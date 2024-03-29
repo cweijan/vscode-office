@@ -29,7 +29,7 @@ function main() {
             copy({
                 resolveFrom: 'out',
                 assets: {
-                    from: ['./public/**/*'],
+                    from: ['./template/**/*'],
                     to: ['./'],
                     keepStructure: true
                 },
