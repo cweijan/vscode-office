@@ -34,7 +34,9 @@ export function parseZipAsTree(zipData: Buffer, option?: Partial<AdmZip.InitOpti
                 originCompressedSize: origin.header?.compressedSize,
                 // 美化后的数据
                 fileSize: prettyBytes(origin.header?.size),
+                fileSizeOrigin: origin.header?.size,
                 compressedSize: prettyBytes(origin.header?.compressedSize),
+                compressedSizeOrigin: origin.header?.compressedSize,
                 modifyDateTime: origin.header ? format('yyyy-MM-dd hh:mm:ss', origin.header.time) : null
             } as any as ZipEntry
             function pushEntry(entry: ZipEntry) {

@@ -11,6 +11,7 @@ const columns: TableProps<FileInfo>['columns'] = [
         title: 'Name',
         dataIndex: 'name',
         width: 300,
+        sorter: (a, b) => a.name.localeCompare(b.name),
         onCell: (entry) => ({ onClick: () => handler.emit('openPath', entry) }),
         render: (text, entry) => <>
             {entry.isDirectory ? <FolderOutlined /> : <FileTextOutlined />}
@@ -18,8 +19,16 @@ const columns: TableProps<FileInfo>['columns'] = [
         </>,
     },
     { title: 'Modified', dataIndex: 'modifyDateTime', width: 190, onCell: (entry) => ({ onClick: () => handler.emit('openPath', entry) }) },
-    { title: 'Compressed', dataIndex: 'compressedSize', width: 120 },
-    { title: 'Origin', dataIndex: 'fileSize', width: 80 },
+    {
+        title: 'Compressed', dataIndex: 'compressedSize', width: 120,
+        sortDirections: ['descend', 'ascend'],
+        sorter: (a, b) => a.compressedSizeOrigin - b.compressedSizeOrigin,
+    },
+    {
+        title: 'Origin', dataIndex: 'fileSize', width: 80,
+        sortDirections: ['descend', 'ascend'],
+        sorter: (a, b) => a.fileSizeOrigin - b.fileSizeOrigin,
+    },
     {
         title: 'Action',
         key: 'action',

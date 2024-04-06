@@ -10,6 +10,10 @@ export class FileInfo {
     entryName?: string;
     children?: FileInfo[]
     header?: EntryHeader;
+    fileSize?: string;
+    fileSizeOrigin?: number;
+    compressedSize?: string;
+    compressedSizeOrigin?: number;
 }
 
 interface EntryHeader {
