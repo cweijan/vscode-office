@@ -1,5 +1,9 @@
 # Change log
 
+# 3.3.2 2024-4-6
+
+- Support sort zip items.
+
 # 3.3.1 2024-3-30
 
 - Update font and pdf viewer.
