@@ -3,6 +3,8 @@ import ImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/css/image-gallery.css";
 import { handler } from '../../util/vscode';
 import './Image.less';
+import { FloatButton } from 'antd';
+import VSCodeLogo from "../vscode";
 
 export default function Image() {
     const gallery = useRef(null)
@@ -25,8 +27,11 @@ export default function Image() {
         thumbnail: image.src
     }))
     return (
-        <ImageGallery ref={gallery} items={images} startIndex={info.current} lazyLoad={true}
-            slideDuration={0} showIndex={true} showFullscreenButton={false} showPlayButton={false}
-        />
+        <>
+            <VSCodeLogo full={false} style={{ top: 6 }} />
+            <ImageGallery ref={gallery} items={images} startIndex={info.current} lazyLoad={true}
+                slideDuration={0} showIndex={true} showFullscreenButton={false} showPlayButton={false}
+            />
+        </>
     );
 };

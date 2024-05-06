@@ -5,7 +5,7 @@ import { handler } from "../../util/vscode.ts";
 import './Excel.less';
 import { S2ExcelTheme, s2Options } from './antvS2Options.ts';
 import { loadSheets } from "./excel_reader.ts";
-import VSCodeLogo from './vscode.tsx';
+import VSCodeLogo from '../vscode.tsx';
 
 export default function Excel() {
     const loading = useRef(true)
@@ -60,7 +60,7 @@ export default function Excel() {
                 style={{ marginLeft: '30px' }}
             />
             {
-                ext?.match(/csv/i) ? <VSCodeLogo onClick={() => handler.emit('editInVSCode', true)} /> : null
+                ext?.match(/csv/i) ? <VSCodeLogo /> : null
             }
         </div>
     )
