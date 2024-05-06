@@ -99,7 +99,7 @@ export const S2ExcelTheme: S2Theme = {
                     backgroundColor: dataCellBgColor,
                 },
                 selected:{
-                    backgroundColor:'#edfdf3'
+                    backgroundColor:'#bbf1cf'
                 }
             }
         }
