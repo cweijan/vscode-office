@@ -21,7 +21,7 @@ async function loadFontAsBuffer(uri: string): Promise<ArrayBuffer> {
     return fontBuffer;
 }
 
-const cellWidth = 60, cellHeight = 70;
+const cellWidth = 100, cellHeight = 84;
 
 export async function loadFont(uri: string): Promise<FontInfo> {
     const font = opentype.parse(await loadFontAsBuffer(uri))
@@ -40,20 +40,25 @@ export async function loadFont(uri: string): Promise<FontInfo> {
     }
 }
 
-export function renderGlyphItem(fontInfo: FontInfo, canvas, glyphIndex) {
+function limitLength(text: string, length: number = 11) {
+    if (text.length > length) return text.slice(0, length) + '...';
+    return text;
+}
+
+export function renderGlyphItem(fontInfo: FontInfo, canvas: HTMLCanvasElement, glyphIndex) {
     const { font, fontScale, fontSize, fontBaseline } = fontInfo;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, cellWidth, cellHeight);
     if (glyphIndex >= font.numGlyphs) return;
-    ctx.fillStyle = '#AAA';
-    ctx.font = '9px "Open Sans"';
-    ctx.fillText(glyphIndex, 2, cellHeight - 2);
     const glyph = font.glyphs.glyphs[glyphIndex],
         glyphWidth = glyph.advanceWidth * fontScale,
-        xmin = (cellWidth - glyphWidth) / 2,
-        x0 = xmin;
+        xCenter = (cellWidth - glyphWidth) / 2;
+    ctx.font = '14px Arial';
+    ctx.fillStyle = '#242424';
+    ctx.textAlign = 'center'; 
+    ctx.fillText(limitLength(glyph.name), cellWidth/2, cellHeight - 10);
     ctx.fillStyle = '#FFFFFF';
-    const path = glyph.getPath(x0, fontBaseline, fontSize);
+    const path = glyph.getPath(xCenter, fontBaseline-10, fontSize);
     path.fill = "#333";
     path.draw(ctx);
 }

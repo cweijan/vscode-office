@@ -1,4 +1,4 @@
-import { Card, Flex } from 'antd'
+import { Card, Flex, Input } from 'antd'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useWindowSize } from '../../util/reactUtils'
 import { handler } from '../../util/vscode'
@@ -10,6 +10,7 @@ import { FontInfo, formatUnicode, loadFont, renderGlyphItem } from './fontViewer
  */
 export default function FontViewer() {
     const [font, setFont] = useState(null)
+    const [search, setSearch] = useState(null)
     const fontInfoRef = useRef<FontInfo>(null)
     const [glyph, setGlyph] = useState(null)
     const [_, height] = useWindowSize();
@@ -23,25 +24,33 @@ export default function FontViewer() {
     }, [])
 
     const icons = useMemo(() => (
-        font ? Object.keys(font.glyphs.glyphs).map((i) => (
-            <canvas width="60p" height="70" key={i}
-                className="item" id={`g${i}`}
-                onClick={() => { setGlyph(font.glyphs.glyphs[i]) }}
-            ></canvas>
-        )) : null
-    ), [font])
+        font ? Object.keys(font.glyphs.glyphs)
+            .filter(i => {
+                if (!search) return true
+                const glyph = font.glyphs.glyphs[i]
+                return glyph.name.match(new RegExp(search, 'i'))
+            })
+            .map((i) => (
+                <canvas width="100" height="84" key={i}
+                    className="item" id={`g${i}`}
+                    onClick={() => { setGlyph(font.glyphs.glyphs[i]) }}
+                ></canvas>
+            )) : null
+    ), [font, search])
 
     useEffect(() => {
         if (!font) return;
         for (const key of Object.keys(font.glyphs.glyphs)) {
-            renderGlyphItem(fontInfoRef.current, document.getElementById(`g${key}`), key);
+            const ele = document.getElementById(`g${key}`);
+            if (!ele) continue;
+            renderGlyphItem(fontInfoRef.current, document.getElementById(`g${key}`) as HTMLCanvasElement, key);
         }
     }, [icons])
 
     return (
         <Flex>
             {/* 图标 */}
-            <div style={{ background: '#FFF', overflow: 'auto', height }}>
+            <div style={{ background: '#FFF', overflow: 'auto', height, flexGrow: 1 }}>
                 <div id="glyph-list-end" >
                     {icons}
                 </div>
@@ -49,6 +58,9 @@ export default function FontViewer() {
             {/* 字体信息 */}
             <Flex style={{ width: '280px', background: '#f0f2f5', flexShrink: 0, paddingTop: '20px', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <div style={{ padding: '0 10px' }}>
+                    <Card title="Search" style={{ marginBottom: 15 }}>
+                        <Input placeholder="Name" size="middle" allowClear onChange={e => setSearch(e.target.value)} />
+                    </Card>
                     <Card title="Font" style={{ marginBottom: 15 }}>
                         <div className='info-card'>
                             {
