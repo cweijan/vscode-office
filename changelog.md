@@ -1,5 +1,11 @@
 # Change log
 
+# 3.3.3 2024-5-6
+
+- Support edit svg in VS Code.
+- Fix shortcut key conflict with Copilot.
+- Support display font item name and search font item.
+
 # 3.3.2 2024-4-6
 
 - Support sort zip items.
