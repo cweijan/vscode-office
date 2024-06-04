@@ -35,19 +35,26 @@ export function loadSheets(buffer: ArrayBuffer, ext: string): S2DataConfig[] {
 }
 
 export function readCSV(buffer: ArrayBuffer): ExcelData {
-    const csvStr = new TextDecoder("utf-8").decode(buffer);
     let maxCols = 26;
-    const schema = inferSchema(csvStr, { header: () => [] });
-    const rows = initParser(schema).stringArrs(csvStr).map(row => {
-        return row.reduce((colMap, column, j) => {
-            colMap[String.fromCharCode(65 + j)] = column
-            if (j > maxCols) maxCols = j;
-            return colMap
-        }, {});
-    });
-    return {
-        maxCols,
-        sheets: [{ name: "Sheet1", rows }]
+    const emptySheet = { maxCols, sheets: [{ name: 'Sheet1', rows: [] }] };
+    const csvStr = new TextDecoder("utf-8").decode(buffer);
+    if (!csvStr) return emptySheet
+    try {
+        const schema = inferSchema(csvStr, { header: () => [] });
+        const rows = initParser(schema).stringArrs(csvStr).map(row => {
+            return row.reduce((colMap, column, j) => {
+                colMap[String.fromCharCode(65 + j)] = column
+                if (j > maxCols) maxCols = j;
+                return colMap
+            }, {});
+        });
+        return {
+            maxCols,
+            sheets: [{ name: "Sheet1", rows }]
+        }
+    } catch (error) {
+        console.error(error)
+        return { maxCols, sheets: [{ name: 'Sheet1', rows: [{ A: error.message }] }] };
     }
 }
 
