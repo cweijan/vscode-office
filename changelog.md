@@ -1,5 +1,9 @@
 # Change log
 
+# 3.3.4 2024-6-4
+
+- Better csv and zip support.
+
 # 3.3.3 2024-5-6
 
 - Support edit svg in VS Code.
