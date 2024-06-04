@@ -9,6 +9,7 @@ import { CompressInfo, FileInfo } from './zipTypes';
 const { Sider, Content } = Layout;
 export default function Zip() {
     const [currentDir, setCurrentDir] = useState('')
+    const [size, setSize] = useState('')
     const [tableItems, setTableItems] = useState([] as FileInfo[])
     const [info, setInfo] = useState({ files: [] } as CompressInfo)
     const changeFiles = (dirPath: string) => {
@@ -23,6 +24,9 @@ export default function Zip() {
         ] : info.files)
     }
     handler
+        .on('size', (size: string) => {
+            setSize(size)
+        })
         .on('data', (info: CompressInfo) => {
             setInfo(info)
             setTableItems(info.files)
@@ -37,8 +41,8 @@ export default function Zip() {
     return (
         <Flex gap="middle" wrap="wrap">
             <Layout >
-                <Toolbar currentDir={currentDir} />
-                <Layout style={{backgroundColor:'white'}}>
+                <Toolbar currentDir={currentDir} size={size} />
+                <Layout style={{ backgroundColor: 'white' }}>
                     <Sider width="25%" style={{ backgroundColor: 'transparent' }}>
                         <Sidebar name={info.fileName} items={info.files} currentDir={currentDir} OnClickFolder={changeFiles} />
                     </Sider>

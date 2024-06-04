@@ -1,6 +1,7 @@
 import { Output } from "@/common/Output";
 import { FileUtil } from "@/common/fileUtil";
 import { Handler } from "@/common/handler";
+import prettyBytes from "@/service/zip/pretty-bytes";
 import { parseZipAsTree } from "@/service/zip/zipUtils";
 import { existsSync, mkdirSync, rm, writeFileSync } from "fs";
 import { tmpdir } from "os";
@@ -13,6 +14,7 @@ export async function handleZip(uri: Uri, handler: Handler) {
         const data = (await workspace.fs.readFile(uri)) as Buffer
         const basePath = `${tmpdir()}/officeZip.${new Date().getTime()}`;
         let { zip, files, folderMap, fileMap } = parseZipAsTree(data)
+        handler.emit('size', prettyBytes(data.length))
         handler.emit('data', {
             files, folderMap,
             fileName: basename(uri.fsPath)

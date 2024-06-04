@@ -55,8 +55,8 @@ const columns: TableProps<FileInfo>['columns'] = [
 
 export default function FileItems({ items }) {
     const [_, height] = useWindowSize();
-    const loading = useRef(null)
-    loading.current = loading.current == null
+    const loading = useRef(true)
+    if (items.length) loading.current = false
     return (
         <Spin spinning={loading.current}>
             <Table columns={columns} rowKey="entryName" dataSource={items}

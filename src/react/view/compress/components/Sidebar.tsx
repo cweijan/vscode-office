@@ -22,7 +22,7 @@ export default function Sidebar({ name = '', items, currentDir, OnClickFolder })
     const loop = (data: FileInfo[]): TreeDataNode[] =>
       data.filter(row => row.isDirectory).map((item) => {
         const strTitle = item.name as string;
-        const title = <div style={{ backgroundColor: currentDir == item.entryName ? '#f1f1f1' : null }}
+        const title = <div style={{ whiteSpace: 'nowrap', backgroundColor: currentDir == item.entryName ? '#f1f1f1' : null }}
           onClick={() => { OnClickFolder?.(item.entryName) }}
         >
           <FolderOutlined /> {strTitle}
@@ -33,7 +33,7 @@ export default function Sidebar({ name = '', items, currentDir, OnClickFolder })
         return { title, key: item.entryName, };
       });
     return [{
-      title: <div onClick={() => { OnClickFolder?.(null) }}> <FileTextOutlined /> {name} </div>,
+      title: <div style={{ whiteSpace: 'nowrap' }} onClick={() => { OnClickFolder?.(null) }}> <FileTextOutlined /> {name} </div>,
       key: rootKey.current,
       children: loop(items)
     }]

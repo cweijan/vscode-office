@@ -2,19 +2,23 @@ import { FileAddOutlined, FileDoneOutlined } from '@ant-design/icons';
 import { Button, Flex, Select } from "antd";
 import { handler } from "../../../util/vscode";
 
-export default function Toolbar({ currentDir }) {
+export default function Toolbar({ size, currentDir }) {
     return (
-        <Flex justify='space-between' style={{ padding: '5px', backgroundColor: 'white' }}>
-            <div>
-                <Button type="primary" size='middle' style={{ marginRight: '10px' }} icon={<FileDoneOutlined />} onClick={() => handler.emit('autoExtract')}>
-                    Extract
-                </Button>
-                <Button size='middle' icon={<FileAddOutlined />} onClick={() => { handler.emit('addFile', currentDir) }} >
-                    Add
-                </Button>
+        <Flex style={{ padding: '5px', paddingLeft: '10px', backgroundColor: 'white', alignItems: 'center', columnGap: '15px' }}>
+            <Button size='middle' icon={<FileAddOutlined />} onClick={() => { handler.emit('addFile', currentDir) }} >
+                Add
+            </Button>
+            <Button type="primary" size='middle' icon={<FileDoneOutlined />} onClick={() => handler.emit('autoExtract')}>
+                Extract
+            </Button>
+            <div >
+                <span style={{ fontWeight: 'bold' }}>Size:</span>
+                <span style={{ fontWeight: 'bold', marginLeft: '10px', color: 'green' }}>
+                    {size}
+                </span>
             </div>
-            <div>
-                Encoding:
+            <div >
+                <span style={{ fontWeight: 'bold' }}>Encoding:</span>
                 <Select
                     defaultValue="utf8"
                     size='middle'
