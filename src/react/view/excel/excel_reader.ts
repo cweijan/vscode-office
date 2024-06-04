@@ -37,9 +37,10 @@ export function loadSheets(buffer: ArrayBuffer, ext: string): S2DataConfig[] {
 export function readCSV(buffer: ArrayBuffer): ExcelData {
     let maxCols = 26;
     const emptySheet = { maxCols, sheets: [{ name: 'Sheet1', rows: [] }] };
-    const csvStr = new TextDecoder("utf-8").decode(buffer);
+    let csvStr = new TextDecoder("utf-8").decode(buffer);
     if (!csvStr) return emptySheet
     try {
+        if (!csvStr.includes('\n')) csvStr += '\n';
         const schema = inferSchema(csvStr, { header: () => [] });
         const rows = initParser(schema).stringArrs(csvStr).map(row => {
             return row.reduce((colMap, column, j) => {
