@@ -24,12 +24,19 @@ export function loadSheets(buffer: ArrayBuffer, ext: string): S2DataConfig[] {
         if (data.length < 26) {
             for (let i = data.length; i < 22; i++) data.push({})
         }
+        const columns = Array(maxCols).fill(0).map((_, i) => (String.fromCharCode(65 + i)));
         return {
             name: sheet.name,
-            fields: {
-                columns: Array(maxCols).fill(0).map((_, i) => (String.fromCharCode(65 + i)))
-            },
-            data,
+            fields: { columns }, data,
+            meta: columns.map(c => ({
+                field: c,
+                formatter: (value: any) => {
+                    if (typeof value == 'string') {
+                        return value.replace(/\n/, ' ')
+                    }
+                    return value
+                },
+            })),
         }
     })
 }
