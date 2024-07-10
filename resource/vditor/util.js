@@ -88,7 +88,7 @@ export async function getToolbar(resPath) {
         { name: 'upload', tipPosition: 'e' },
         "|",
         {
-            name:'selectTheme',
+            name: 'selectTheme',
             tipPosition: 's', tip: 'Select Theme',
             icon: 'Theme:',
             click() {
@@ -291,11 +291,13 @@ export const autoSymbol = (handler, editor) => {
         }
     }
     const isMac = navigator.userAgent.includes('Mac OS');
-    window.onkeydown = (e) => {
+    window.addEventListener('keydown', e => {
         if (isMac && isCompose(e) && e.altKey) {
             e.preventDefault()
         }
         if (matchShortcut('^⌘e', e) || matchShortcut('^!e', e)) {
+            e.stopPropagation();
+            e.preventDefault();
             return handler.emit("editInVSCode", true);
         }
         if (e.code == 'F12') return handler.emit('developerTool')
@@ -331,7 +333,7 @@ export const autoSymbol = (handler, editor) => {
             document.execCommand('insertText', false, e.key);
             document.getSelection().modify('move', 'left', 'character')
         }
-    }
+    }, true)
 
     window.onresize = () => {
         document.getElementById('vditor').style.height = `${document.documentElement.clientHeight}px`
