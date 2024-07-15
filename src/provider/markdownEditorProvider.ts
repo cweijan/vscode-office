@@ -113,9 +113,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             this.updateCount(content)
         }).on("doSave", async (content) => {
             lastManualSaveTime = Date.now();
-            vscode.commands.executeCommand('workbench.action.files.save');
-            this.updateTextDocument(document, content)
+            await this.updateTextDocument(document, content)
             this.updateCount(content)
+            vscode.commands.executeCommand('workbench.action.files.save');
         }).on("export", (option) => {
             vscode.commands.executeCommand('workbench.action.files.save');
             new MarkdownService(this.context).exportMarkdown(uri, option)
