@@ -292,34 +292,27 @@ export const autoSymbol = (handler, editor) => {
     }
     const isMac = navigator.userAgent.includes('Mac OS');
     window.addEventListener('keydown', e => {
-        if (isMac && isCompose(e) && e.altKey) {
-            e.preventDefault()
-        }
         if (matchShortcut('^⌘e', e) || matchShortcut('^!e', e)) {
             e.stopPropagation();
             e.preventDefault();
             return handler.emit("editInVSCode", true);
         }
         if (e.code == 'F12') return handler.emit('developerTool')
-        if (isCompose(e) && e.code == "KeyV") {
-            if (e.shiftKey) {
-                navigator.clipboard.readText().then(text => {
-                    if (!text) return;
-                    document.execCommand('insertText', false, text.trim());
-                })
-            } else {
-                if (document.getSelection()?.toString()) { document.execCommand("delete") }
+        if (isCompose(e)) {
+            if (e.altKey && isMac) {
+                e.preventDefault()
             }
-            // vscodeEvent.emit('command', 'office.markdown.paste')
-            e.stopPropagation()
-            return;
+            if (e.code == 'KeyV') {
+                if (e.shiftKey) {
+                    navigator.clipboard.readText().then(text => {
+                        if (!text) return;
+                        document.execCommand('insertText', false, text.trim());
+                    })
+                    e.stopPropagation();
+                }
+                e.preventDefault()
+            }
         }
-        // 之前某个vscode版本有bug保存不了, 所以在这里触发, 不过现在不会了
-        // if (isCompose(e) && e.code == "KeyS" && !e.shiftKey) {
-        //     vscodeEvent.emit("doSave", editor.getValue())
-        //     e.stopPropagation()
-        //     return;
-        // }
         if (!keyCodes.includes(e.keyCode)) return;
         const selectText = document.getSelection().toString();
         if (selectText != "") { return; }
@@ -333,7 +326,7 @@ export const autoSymbol = (handler, editor) => {
             document.execCommand('insertText', false, e.key);
             document.getSelection().modify('move', 'left', 'character')
         }
-    }, true)
+    }, isMac ? true : undefined)
 
     window.onresize = () => {
         document.getElementById('vditor').style.height = `${document.documentElement.clientHeight}px`
