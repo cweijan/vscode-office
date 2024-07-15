@@ -365,7 +365,7 @@
 						"filenamePattern": "*.vsix"
 					},
 					{
-						"filenamePattern": "file:/**/*.svg"
+						"filenamePattern": "*.svg"
 					}
 				]
 			},
@@ -375,43 +375,43 @@
 				"priority": "option",
 				"selector": [
 					{
-						"filenamePattern": "file:/**/*.jpg"
+						"filenamePattern": "*.jpg"
 					},
 					{
-						"filenamePattern": "file:/**/*.png"
+						"filenamePattern": "*.png"
 					},
 					{
-						"filenamePattern": "file:/**/*.gif"
+						"filenamePattern": "*.gif"
 					},
 					{
-						"filenamePattern": "file:/**/*.apng"
+						"filenamePattern": "*.apng"
 					},
 					{
-						"filenamePattern": "file:/**/*.apng"
+						"filenamePattern": "*.apng"
 					},
 					{
-						"filenamePattern": "file:/**/*.bmp"
+						"filenamePattern": "*.bmp"
 					},
 					{
-						"filenamePattern": "file:/**/*.ico"
+						"filenamePattern": "*.ico"
 					},
 					{
-						"filenamePattern": "file:/**/*.cur"
+						"filenamePattern": "*.cur"
 					},
 					{
-						"filenamePattern": "file:/**/*.jpeg"
+						"filenamePattern": "*.jpeg"
 					},
 					{
-						"filenamePattern": "file:/**/*.pjpeg"
+						"filenamePattern": "*.pjpeg"
 					},
 					{
-						"filenamePattern": "file:/**/*.pjp"
+						"filenamePattern": "*.pjp"
 					},
 					{
-						"filenamePattern": "file:/**/*.tif"
+						"filenamePattern": "*.tif"
 					},
 					{
-						"filenamePattern": "file:/**/*.webp"
+						"filenamePattern": "*.webp"
 					}
 				]
 			},
@@ -420,7 +420,7 @@
 				"displayName": "Markdown Editor",
 				"selector": [
 					{
-						"filenamePattern": "file:/**/*.md"
+						"filenamePattern": "*.md"
 					}
 				]
 			},
