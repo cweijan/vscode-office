@@ -291,7 +291,7 @@ export const autoSymbol = (handler, editor) => {
         }
     }
     const isMac = navigator.userAgent.includes('Mac OS');
-    window.addEventListener('keydown', e => {
+    window.addEventListener('keydown', async e => {
         if (matchShortcut('^⌘e', e) || matchShortcut('^!e', e)) {
             e.stopPropagation();
             e.preventDefault();
@@ -302,15 +302,20 @@ export const autoSymbol = (handler, editor) => {
             if (e.altKey && isMac) {
                 e.preventDefault()
             }
-            if (e.code == 'KeyV') {
-                if (e.shiftKey) {
-                    navigator.clipboard.readText().then(text => {
-                        if (!text) return;
-                        document.execCommand('insertText', false, text.trim());
-                    })
+            switch (e.code) {
+                case 'KeyS':
+                    vscodeEvent.emit("doSave", editor.getValue());
                     e.stopPropagation();
-                }
-                e.preventDefault()
+                    e.preventDefault();
+                    break;
+                case 'KeyV':
+                    if (e.shiftKey) {
+                        const text = await navigator.clipboard.readText();
+                        if (text) document.execCommand('insertText', false, text.trim());
+                        e.stopPropagation();
+                    }
+                    e.preventDefault();
+                    break;
             }
         }
         if (!keyCodes.includes(e.keyCode)) return;

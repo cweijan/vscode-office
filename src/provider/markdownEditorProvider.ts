@@ -65,6 +65,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             }
         });
 
+        let lastManualSaveTime: number;
         const config = vscode.workspace.getConfiguration("vscode-office");
         handler.on("init", () => {
             const scrollTop = this.state.get(`scrollTop_${document.uri.fsPath}`, 0);
@@ -77,6 +78,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             this.updateCount(content)
             this.countStatus.show()
         }).on("externalUpdate", e => {
+            if (lastManualSaveTime && Date.now() - lastManualSaveTime < 800) return;
             const updatedText = e.document.getText()?.replace(/\r/g, '');
             if (content == updatedText) return;
             content = updatedText;
@@ -105,11 +107,14 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             const side = full ? vscode.ViewColumn.Active : vscode.ViewColumn.Beside;
             vscode.commands.executeCommand('vscode.openWith', uri, "default", side);
         }).on("save", (newContent) => {
+            if (lastManualSaveTime && Date.now() - lastManualSaveTime < 800) return;
             content = newContent
             this.updateTextDocument(document, newContent)
             this.updateCount(content)
         }).on("doSave", async (content) => {
+            lastManualSaveTime = Date.now();
             vscode.commands.executeCommand('workbench.action.files.save');
+            this.updateTextDocument(document, content)
             this.updateCount(content)
         }).on("export", (option) => {
             vscode.commands.executeCommand('workbench.action.files.save');
