@@ -314,6 +314,10 @@ export const autoSymbol = (handler, editor) => {
                         if (text) document.execCommand('insertText', false, text.trim());
                         e.stopPropagation();
                     }
+                    else if (document.getSelection()?.toString()) {
+                        // 修复剪切后选中文本没有被清除
+                        document.execCommand("delete")
+                    }
                     e.preventDefault();
                     break;
             }
