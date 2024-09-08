@@ -44,7 +44,7 @@
     "editorMarkerNavigation.background": "#232933",
     "editorRuler.foreground": "#abb2bf26",
     "editorSuggestWidget.background": "#21252b",
-    "editorSuggestWidget.border": "#282c34",
+    "editorSuggestWidget.border": "#3a3a3a",
     "editorSuggestWidget.foreground": "#D8D9DC",
     "editorSuggestWidget.selectedBackground": "#383E4A",
     "editorWhitespace.foreground": "#282c34",
