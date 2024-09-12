@@ -84,7 +84,7 @@ handler.on("open", async (md) => {
       onToolbarClick(editor)
     }
   })
-  autoSymbol(handler, editor);
+  autoSymbol(handler, editor, config);
   createContextMenu(editor)
   imageParser(config.viewAbsoluteLocal)
   scrollEditor(md.scrollTop)

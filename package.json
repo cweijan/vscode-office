@@ -486,6 +486,11 @@
 					"default": true,
 					"description": "Preview code in markdown."
 				},
+				"vscode-office.preventMacOptionKey": {
+					"type": "boolean",
+					"default": false,
+					"description": "Prevent MacOS option key in the markdown editor."
+				},
 				"vscode-office.editorTheme": {
 					"type": "string",
 					"enum": [

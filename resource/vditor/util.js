@@ -279,7 +279,7 @@ function matchShortcut(hotkey, event) {
  */
 // const keys = ['"', "{", "("];
 const keyCodes = [222, 219, 57];
-export const autoSymbol = (handler, editor) => {
+export const autoSymbol = (handler, editor, config) => {
     let _exec = document.execCommand.bind(document)
     document.execCommand = (cmd, ...args) => {
         if (cmd === 'delete') {
@@ -292,10 +292,8 @@ export const autoSymbol = (handler, editor) => {
     }
     const isMac = navigator.userAgent.includes('Mac OS');
     window.addEventListener('keydown', async e => {
-        if (matchShortcut('^⌘e', e) || matchShortcut('^!e', e)) {
-            e.stopPropagation();
-            e.preventDefault();
-            return handler.emit("editInVSCode", true);
+        if (isMac && e.altKey && config.preventMacOptionKey) {
+            return e.preventDefault();
         }
         if (e.code == 'F12') return handler.emit('developerTool')
         if (isCompose(e)) {
