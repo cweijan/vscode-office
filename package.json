@@ -101,6 +101,12 @@
 		],
 		"commands": [
 			{
+				"command": "office.quickOpen",
+				"title": "Quick open",
+				"category": "ShortcutMenuBar",
+				"icon": "$(files)"
+			},
+			{
 				"command": "rest-client.request",
 				"title": "Send Request",
 				"category": "Rest Client"
@@ -258,6 +264,11 @@
 				}
 			],
 			"editor/title": [
+				{
+					"when": "config.vscode-office.quickOpen",
+					"command": "office.quickOpen",
+					"group": "navigation@10"
+				},
 				{
 					"command": "office.markdown.switch",
 					"when": "resourceExtname == '.md'",
@@ -457,6 +468,12 @@
 			"type": "object",
 			"title": "Office",
 			"properties": {
+				"vscode-office.quickOpen": {
+					"title": "Quick open",
+					"type": "boolean",
+					"default": false,
+					"description": "show icon for Go to File, 'Quick Open'"
+				},
 				"vscode-office.viewAbsoluteLocal": {
 					"type": "boolean",
 					"default": false,

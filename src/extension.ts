@@ -18,6 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const markdownService = new MarkdownService(context);
 	const viewerInstance = new OfficeViewerProvider(context);
 	context.subscriptions.push(
+		vscode.commands.registerCommand('office.quickOpen', () => vscode.commands.executeCommand('workbench.action.quickOpen')),
 		vscode.commands.registerCommand('office.markdown.switch', (uri) => { markdownService.switchEditor(uri) }),
 		vscode.commands.registerCommand('office.markdown.paste', () => { markdownService.loadClipboardImage() }),
 		vscode.commands.registerCommand('office.html.preview', uri => HtmlService.previewHtml(uri, context)),
