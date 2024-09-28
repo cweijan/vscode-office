@@ -4,6 +4,7 @@
 
 功能:
 
+- **注意这个扩展不再积极维护.**
 - 集成了一个图标主题和颜色主题.
 - 支持预览xlsx, docx, svg, pdf, zip等办公文件格式.
 - 集成[Vditor](https://github.com/Vanessa219/vditor)实现对markdown的所见即所得编辑(对代码块支持较差).

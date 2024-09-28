@@ -4,7 +4,8 @@
 
 功能:
 
-- 集成了一个图标主题和颜色主题
+- 註意這個擴展不再積極維護.
+- 集成了一个图标主题和颜色主题.
 - 支援預覽 XLSX、DOCX、SVG、PDF、ZIP 等辦公文件格式.
 - 整合 [Vditor](https://github.com/Vanessa219/vditor)實現對 Markdown 的所見即所得編輯(程式碼區塊和圖形支援不友好).
 
