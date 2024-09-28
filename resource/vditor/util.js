@@ -58,6 +58,9 @@ function loadRes(url) {
     return fetch(url).then(r => r.text())
 }
 
+const isMac = navigator.userAgent.includes('Mac OS');
+const shortcutTip = isMac ? '⌘ ^ E' : 'Ctrl Alt E';
+
 export async function getToolbar(resPath) {
     return [
         'outline',
@@ -69,7 +72,7 @@ export async function getToolbar(resPath) {
         "|",
         {
             tipPosition: 's',
-            tip: 'Edit In VSCode',
+            tip: `Edit In VSCode (${shortcutTip})`,
             className: 'right',
             icon: await loadRes(`${resPath}/icon/vscode.svg`),
             click() {
@@ -290,9 +293,13 @@ export const autoSymbol = (handler, editor, config) => {
             return _exec(cmd, ...args)
         }
     }
-    const isMac = navigator.userAgent.includes('Mac OS');
     window.addEventListener('keydown', async e => {
-        if (isMac && e.altKey && config.preventMacOptionKey) {
+        if (matchShortcut('^⌘e', e) || matchShortcut('^!e', e)) {
+            e.stopPropagation();
+            e.preventDefault();
+            return handler.emit("editInVSCode", true);
+        }
+        if (isMac && e.altKey && e.shiftKey && config.preventMacOptionKey) {
             return e.preventDefault();
         }
         if (e.code == 'F12') return handler.emit('developerTool')
