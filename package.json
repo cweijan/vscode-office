@@ -438,6 +438,9 @@
 				"selector": [
 					{
 						"filenamePattern": "*.md"
+					},
+					{
+						"filenamePattern": "*.markdown"
 					}
 				]
 			},

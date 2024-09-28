@@ -23,7 +23,8 @@ If you want to use the original vscode editor, insert this in your `settings.jso
 ```json
 {
     "workbench.editorAssociations": {
-        "*.md": "default"
+        "*.md": "default",
+        "*.markdown": "default"
     }
 }
 ```
