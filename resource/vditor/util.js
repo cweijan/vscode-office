@@ -81,6 +81,15 @@ export async function getToolbar(resPath) {
         },
         {
             tipPosition: 's',
+            tip: `Quick open`,
+            className: 'right',
+            icon: await loadRes(`${resPath}/icon/codicon-files.svg`),
+            click() {
+                handler.emit("quickOpen", true)
+            }
+        },
+        {
+            tipPosition: 's',
             tip: 'Export To Pdf',
             className: 'right',
             icon: await loadRes(`${resPath}/icon/pdf.svg`),
