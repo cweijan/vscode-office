@@ -308,7 +308,8 @@ export const autoSymbol = (handler, editor, config) => {
             e.preventDefault();
             return handler.emit("editInVSCode", true);
         }
-        if (isMac && e.altKey && e.shiftKey && config.preventMacOptionKey) {
+
+        if (isMac && config.preventMacOptionKey && e.altKey && e.shiftKey && ['Digit1', 'Digit2', 'KeyW'].includes(e.code)) {
             return e.preventDefault();
         }
         if (e.code == 'F12') return handler.emit('developerTool')
