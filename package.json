@@ -508,7 +508,7 @@
 				},
 				"vscode-office.preventMacOptionKey": {
 					"type": "boolean",
-					"default": false,
+					"default": true,
 					"description": "Prevent MacOS option key in the markdown editor."
 				},
 				"vscode-office.editorTheme": {
