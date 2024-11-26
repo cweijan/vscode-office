@@ -40,7 +40,7 @@ export async function loadFont(uri: string): Promise<FontInfo> {
     }
 }
 
-function limitLength(text: string, length: number = 11) {
+function limitLength(text: string = '', length: number = 11) {
     if (text.length > length) return text.slice(0, length) + '...';
     return text;
 }
@@ -55,10 +55,10 @@ export function renderGlyphItem(fontInfo: FontInfo, canvas: HTMLCanvasElement, g
         xCenter = (cellWidth - glyphWidth) / 2;
     ctx.font = '14px Arial';
     ctx.fillStyle = '#242424';
-    ctx.textAlign = 'center'; 
-    ctx.fillText(limitLength(glyph.name), cellWidth/2, cellHeight - 10);
+    ctx.textAlign = 'center';
+    ctx.fillText(limitLength(glyph.name), cellWidth / 2, cellHeight - 10);
     ctx.fillStyle = '#FFFFFF';
-    const path = glyph.getPath(xCenter, fontBaseline-10, fontSize);
+    const path = glyph.getPath(xCenter, fontBaseline - 10, fontSize);
     path.fill = "#333";
     path.draw(ctx);
 }
