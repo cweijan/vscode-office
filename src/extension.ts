@@ -38,12 +38,17 @@ async function activeHTTP(context: vscode.ExtensionContext) {
 	}
 }
 
+/**
+ * Git History是生成一个临时文件, 因此这里无法控制
+ */
 function keepOriginDiff() {
 	const config = vscode.workspace.getConfiguration("workbench");
 	const configKey = 'editorAssociations'
 	const editorAssociations = config.get(configKey)
-	const key = '{git,gitlens}:/**/*.{md,csv,svg}'
+	const key = '{git,gitlens,git-graph}:/**/*.{md,csv,svg}'
 	if (!editorAssociations[key]) {
+		const oldKey = '{git,gitlens}:/**/*.{md,csv,svg}'
+		delete editorAssociations[oldKey]
 		editorAssociations[key] = 'default'
 		config.update(configKey, editorAssociations, true)
 	}

@@ -33,6 +33,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     }
 
     resolveCustomTextEditor(document: vscode.TextDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): void | Thenable<void> {
+        // console.log('schema', document.uri.scheme);
         const uri = document.uri;
         const webview = webviewPanel.webview;
         const folderPath = vscode.Uri.joinPath(uri, '..')
