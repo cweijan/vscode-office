@@ -1,5 +1,5 @@
 import { adjustImgPath, getWorkspacePath, writeFile } from '@/common/fileUtil';
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { basename, isAbsolute, parse, resolve } from 'path';
 import * as vscode from 'vscode';
 import { Handler } from '../common/handler';
@@ -97,12 +97,13 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             }
         }).on("scroll", ({ scrollTop }) => {
             this.state.update(`scrollTop_${document.uri.fsPath}`, scrollTop)
-        }).on("img", (img) => {
+        }).on("img", async (img) => {
             const { relPath, fullPath } = adjustImgPath(uri)
             const imagePath = isAbsolute(fullPath) ? fullPath : `${resolve(uri.fsPath, "..")}/${relPath}`.replace(/\\/g, "/");
-            writeFile(imagePath, Buffer.from(img, 'binary'))
+            writeFileSync(imagePath, Buffer.from(img, 'binary'))
             const fileName = parse(relPath).name;
-            vscode.env.clipboard.writeText(`![${fileName}](${relPath})`)
+            const adjustRelPath = await MarkdownService.imgExtGuide(imagePath, relPath);
+            vscode.env.clipboard.writeText(`![${fileName}](${adjustRelPath})`)
             vscode.commands.executeCommand("editor.action.clipboardPasteAction")
         }).on("quickOpen", () => {
             vscode.commands.executeCommand('workbench.action.quickOpen');
