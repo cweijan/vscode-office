@@ -48,7 +48,7 @@ function keepOriginDiff() {
 	const key = '{git,gitlens,git-graph}:/**/*.{md,csv,svg}'
 	if (!editorAssociations[key]) {
 		const oldKey = '{git,gitlens}:/**/*.{md,csv,svg}'
-		delete editorAssociations[oldKey]
+		editorAssociations[oldKey] = undefined
 		editorAssociations[key] = 'default'
 		config.update(configKey, editorAssociations, true)
 	}
