@@ -432,6 +432,13 @@
       }
     },
     {
+      "name": "java instanceof",
+      "scope": "keyword.operator.instanceof.java",
+      "settings": {
+        "foreground": "#C792EA"
+      }
+    },
+    {
       "name": "js/ts console",
       "scope": "support.type.object.console",
       "settings": {
@@ -666,6 +673,13 @@
     {
       "name": "Classes",
       "scope": "entity.name.type.namespace",
+      "settings": {
+        "foreground": "#DBB979"
+      }
+    },
+    {
+      "name": "Java Generics",
+      "scope": "storage.type.generic.java",
       "settings": {
         "foreground": "#DBB979"
       }
