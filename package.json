@@ -2,7 +2,7 @@
 	"name": "vscode-typora",
 	"displayName": "Typora",
 	"description": "Edit markdown like typora in vscode.",
-	"version": "3.4.6",
+	"version": "3.4.7",
 	"publisher": "cweijan",
 	"icon": "images/icon.png",
 	"engines": {
@@ -519,7 +519,7 @@
 						"Light",
 						"Solarized"
 					],
-					"default": "Auto",
+					"default": "light",
 					"markdownDescription": "The theme for the Markdown editor."
 				},
 				"vscode-office.previewCodeHighlight.style": {

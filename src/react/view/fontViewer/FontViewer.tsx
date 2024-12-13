@@ -59,7 +59,7 @@ export default function FontViewer() {
             <Flex style={{ width: '280px', background: '#f0f2f5', flexShrink: 0, paddingTop: '20px', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <div style={{ padding: '0 10px' }}>
                     <Card title="Search" style={{ marginBottom: 15 }}>
-                        <Input placeholder="Name" size="middle" allowClear onChange={e => setSearch(e.target.value)} />
+                        <Input placeholder="Name" size="middle" allowClear autoFocus onChange={e => setSearch(e.target.value)} />
                     </Card>
                     <Card title="Font" style={{ marginBottom: 15 }}>
                         <div className='info-card'>
