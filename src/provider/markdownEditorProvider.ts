@@ -1,5 +1,5 @@
 import { adjustImgPath, getWorkspacePath, writeFile } from '@/common/fileUtil';
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { basename, isAbsolute, parse, resolve } from 'path';
 import * as vscode from 'vscode';
 import { Handler } from '../common/handler';
@@ -33,6 +33,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     }
 
     resolveCustomTextEditor(document: vscode.TextDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): void | Thenable<void> {
+        // console.log('schema', document.uri.scheme);
         const uri = document.uri;
         const webview = webviewPanel.webview;
         const folderPath = vscode.Uri.joinPath(uri, '..')
@@ -96,12 +97,13 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             }
         }).on("scroll", ({ scrollTop }) => {
             this.state.update(`scrollTop_${document.uri.fsPath}`, scrollTop)
-        }).on("img", (img) => {
+        }).on("img", async (img) => {
             const { relPath, fullPath } = adjustImgPath(uri)
             const imagePath = isAbsolute(fullPath) ? fullPath : `${resolve(uri.fsPath, "..")}/${relPath}`.replace(/\\/g, "/");
-            writeFile(imagePath, Buffer.from(img, 'binary'))
+            writeFileSync(imagePath, Buffer.from(img, 'binary'))
             const fileName = parse(relPath).name;
-            vscode.env.clipboard.writeText(`![${fileName}](${relPath})`)
+            const adjustRelPath = await MarkdownService.imgExtGuide(imagePath, relPath);
+            vscode.env.clipboard.writeText(`![${fileName}](${adjustRelPath})`)
             vscode.commands.executeCommand("editor.action.clipboardPasteAction")
         }).on("quickOpen", () => {
             vscode.commands.executeCommand('workbench.action.quickOpen');
@@ -123,7 +125,12 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             new MarkdownService(this.context).exportMarkdown(uri, option)
         }).on("theme", async (theme) => {
             if (!theme) {
-                const themes = ["Auto", "|", "Light", "Solarized", "|", "Dracula", "Github Dark"]
+                const themes = [
+                    "Auto", "|",
+                    "Light", "Solarized", "|",
+                    "One Dark", "Github Dark",
+                    "Nord", "Monokai", "Dracula",
+                ];
                 const editorTheme = Global.getConfig('editorTheme');
                 const themeItems: vscode.QuickPickItem[] = themes.map(theme => {
                     if (theme == '|') return { label: '|', kind: vscode.QuickPickItemKind.Separator }

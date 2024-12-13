@@ -38,7 +38,7 @@
     "editorHoverWidget.border": "#181A1F",
     "editorIndentGuide.activeBackground": "#909039",
     "editorIndentGuide.background": "#282c34",
-    "editorInlayHint.foreground": "#abb2bf",
+    "editorInlayHint.foreground": "#8a8e98",
     "editorInlayHint.background": "#2c313c",
     "editorLineNumber.foreground": "#495162",
     "editorMarkerNavigation.background": "#232933",
@@ -82,9 +82,9 @@
     "statusBar.background": "#343840",
     "statusBar.debuggingBackground": "#515761",
     "statusBar.debuggingBorder": "#515761",
-    "statusBar.debuggingForeground": "#ffffff",
+    "statusBar.debuggingForeground": "#fafafa",
     "statusBar.focusBorder": "#8292ac",
-    "statusBar.foreground": "#ffffff",
+    "statusBar.foreground": "#fafafa",
     "statusBar.noFolderBackground": "#232933",
     "statusBarItem.focusBorder": "#8292ac",
     "statusBarItem.hoverBackground": "#232933",
@@ -432,6 +432,13 @@
       }
     },
     {
+      "name": "java instanceof",
+      "scope": "keyword.operator.instanceof.java",
+      "settings": {
+        "foreground": "#C792EA"
+      }
+    },
+    {
       "name": "js/ts console",
       "scope": "support.type.object.console",
       "settings": {
@@ -666,6 +673,13 @@
     {
       "name": "Classes",
       "scope": "entity.name.type.namespace",
+      "settings": {
+        "foreground": "#DBB979"
+      }
+    },
+    {
+      "name": "Java Generics",
+      "scope": "storage.type.generic.java",
       "settings": {
         "foreground": "#DBB979"
       }

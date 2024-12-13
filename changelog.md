@@ -1,6 +1,11 @@
 # Change log
 
-# 3.4.2
+# 3.4.6 2024-12-13
+
+- Add more markdown editor theme. 
+- Support refresh for zip viewer.
+
+# 3.4.2 2024-9-28
 
 - Fixed "Edit In VS Code" shortcut not working.
 - Fixed copying content failure in preview mode.

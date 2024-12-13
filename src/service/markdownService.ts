@@ -114,12 +114,7 @@ export class MarkdownService {
             this.copyFromPath(savedImagePath, imagePath);
             const editor = vscode.window.activeTextEditor;
             const imgName = parse(relPath).name;
-            const oldExt = extname(imagePath)
-            const { ext = "png" } = (await fileTypeFromFile(imagePath)) ?? {};
-            if (oldExt != `.${ext}`) {
-                relPath = relPath.replace(oldExt, `.${ext}`)
-                renameSync(imagePath, imagePath.replace(oldExt, `.${ext}`))
-            }
+            relPath = await MarkdownService.imgExtGuide(imagePath, relPath);
             if (editor) {
                 editor?.edit(edit => {
                     const current = editor.selection;
@@ -134,6 +129,16 @@ export class MarkdownService {
                 vscode.commands.executeCommand("editor.action.clipboardPasteAction")
             }
         })
+    }
+
+    public static async imgExtGuide(absPath: string, relPath: string) {
+        const oldExt = extname(absPath)
+        const { ext = "png" } = (await fileTypeFromFile(absPath)) ?? {};
+        if (oldExt != `.${ext}`) {
+            relPath = relPath.replace(oldExt, `.${ext}`)
+            renameSync(absPath, absPath.replace(oldExt, `.${ext}`))
+        }
+        return relPath
     }
 
     /**
