@@ -125,7 +125,12 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             new MarkdownService(this.context).exportMarkdown(uri, option)
         }).on("theme", async (theme) => {
             if (!theme) {
-                const themes = ["Auto", "|", "Light", "Solarized", "|", "Dracula", "Github Dark"]
+                const themes = [
+                    "Auto", "|",
+                    "Light", "Solarized", "|",
+                    "One Dark", "Github Dark",
+                    "Nord", "Monokai", "Dracula",
+                ];
                 const editorTheme = Global.getConfig('editorTheme');
                 const themeItems: vscode.QuickPickItem[] = themes.map(theme => {
                     if (theme == '|') return { label: '|', kind: vscode.QuickPickItemKind.Separator }
