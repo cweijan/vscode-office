@@ -26,7 +26,7 @@ a {
 .vditor-toolbar__item .vditor-tooltipped[data-type="selectTheme"] {
     width: 55px;
     font-size: 14px;
-    color: var(--vscode-charts-red);
+    color: var(--vscode-charts-blue);
 }
 
 html {
