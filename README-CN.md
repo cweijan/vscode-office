@@ -37,7 +37,7 @@
 
 [![Database Client](https://database-client.com/text_logo.png)](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2)
 
-适用于VS Code的数据库客户端, 支持**MySQL/MariaDB, PostgreSQL, SQLite, Redis**以及**ElasticSearch**, 且可作为一个SSH客户端, 最大程度地提高你的生产力! [立刻安装](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2).
+适用于Visual Studio Code的数据库客户端, 支持**MySQL/MariaDB, PostgreSQL, SQLite, Redis**以及**ElasticSearch**等数据库的管理, 且可作为一个SSH客户端, 极大地提升您的生产力! [立刻安装](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2).
 
 ## Credits
 
