@@ -2,6 +2,10 @@ body {
     padding: 0;
 }
 
+.vditor *{
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Helvetica Neue", "Helvetica", "Arial", "Microsoft YaHei", sans-serif;
+}xiu'gai
+
 code {
     color: #24292e;
 }
