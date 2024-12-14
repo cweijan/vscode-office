@@ -1,8 +1,12 @@
 # Change log
 
+# 3.4.8 2024-12-14
+
+- Modify the font of the markdown editor.
+
 # 3.4.6 2024-12-13
 
-- Add more markdown editor theme. 
+- Add more markdown editor theme.
 - Support refresh for zip viewer.
 
 # 3.4.2 2024-9-28
