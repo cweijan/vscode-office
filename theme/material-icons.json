@@ -6,6 +6,9 @@
     "c": {
       "iconPath": "./../icons/c.svg"
     },
+    "cursor":{
+      "iconPath": "./../icons/cursor.svg"
+    },
     "yaml": {
       "iconPath": "./../icons/yaml.svg"
     },
@@ -3233,6 +3236,7 @@
     ".esformatter": "json",
     "cdp.pid": "json",
     ".mjmlconfig": "json",
+    ".cursorrules": "cursor",
     ".htaccess": "xml",
     "router.js": "routing",
     "router.jsx": "routing",
