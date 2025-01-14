@@ -16,7 +16,7 @@ This extension supports previewing these common office file formats.
 
 ## Markdown
 
-This extension changes the default markdown editor to the vditor.
+This extension changes the default markdown editor to the vditor, but is no longer actively maintained.
 
 If you want to use the original vscode editor, insert this in your `settings.json`.
 

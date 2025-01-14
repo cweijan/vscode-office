@@ -1,5 +1,9 @@
 # Change log
 
+# 3.5.0 2025-1-14
+
+- Remove markdown editor border.
+
 # 3.4.8 2024-12-14
 
 - Modify the font of the markdown editor.
