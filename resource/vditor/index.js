@@ -99,6 +99,7 @@ function addAutoTheme(rootPath, theme) {
 
 function loadTheme(rootPath, theme) {
   loadCSS(rootPath, `theme/${theme}.css`)
+  document.getElementById('vditor').setAttribute('data-editor-theme', theme)
 }
 
 function loadCSS(rootPath, path) {

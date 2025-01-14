@@ -75,6 +75,29 @@
     border-bottom: none !important;
 }
 
-.vditor-toolbar {
+.vditor-toolbar,
+.vditor-outline {
     border: none !important;
+}
+
+.vditor-outline__title {
+    display: none !important;
+}
+
+#vditor[data-editor-theme="Light"] .vditor-content .vditor-outline,
+#vditor[data-editor-theme="Solarized"] .vditor-content .vditor-outline,
+#vditor[data-editor-theme="Warm Light"] .vditor-content .vditor-outline,
+#vditor[data-editor-theme="Dim Light"] .vditor-content .vditor-outline,
+body[data-vscode-theme-kind="vscode-light"] #vditor[data-editor-theme="Auto"] .vditor-content .vditor-outline {
+    filter: brightness(99%);
+}
+
+#vditor[data-editor-theme="Auto"] .vditor-content .vditor-outline,
+#vditor[data-editor-theme="One Dark"] .vditor-content .vditor-outline,
+#vditor[data-editor-theme="Github Dark"] .vditor-content .vditor-outline,
+#vditor[data-editor-theme="Nord"] .vditor-content .vditor-outline,
+#vditor[data-editor-theme="Monokai"] .vditor-content .vditor-outline,
+#vditor[data-editor-theme="Dracula"] .vditor-content .vditor-outline,
+body[data-vscode-theme-kind="vscode-dark"] #vditor[data-editor-theme="Auto"] .vditor-content .vditor-outline {
+    filter: brightness(110%);
 }
