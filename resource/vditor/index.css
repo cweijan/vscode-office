@@ -2,9 +2,9 @@ body {
     padding: 0;
 }
 
-.vditor *{
+.vditor * {
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Helvetica Neue", "Helvetica", "Arial", "Microsoft YaHei", sans-serif;
-}xiu'gai
+}
 
 code {
     color: #24292e;
@@ -30,7 +30,6 @@ a {
 .vditor-toolbar__item .vditor-tooltipped[data-type="selectTheme"] {
     width: 55px;
     font-size: 14px;
-    color: var(--vscode-charts-blue);
 }
 
 html {
