@@ -44,14 +44,14 @@
 
 .vditor,
 .vditor-content,
-.vditor-content *:not(.hljs, .hljs *, .katex, .katex *, a, hr, .vditor-reset--error,code) {
+.vditor-content *:not(.hljs, .hljs *, .katex, .katex *, a, hr, .vditor-reset--error, code) {
     background-color: var(--bg-color) !important;
     color: var(--front-color) !important;
 }
 
 .vditor-content .language-flowchart svg,
 .vditor-content .language-mermaid svg,
-.vditor-content .language-mindmap canvas{
+.vditor-content .language-mindmap canvas {
     background-color: white !important;
 }
 
@@ -65,6 +65,16 @@
     background-color: var(--second-bg-color) !important;
 }
 
-.vditor-content .vditor-outline li > span:hover > span {
+.vditor-content .vditor-outline li>span:hover>span {
     color: var(--list-hover-color) !important;
+}
+
+.vditor-reset h1,
+.vditor-reset h2 {
+    padding-bottom: 0 !important;
+    border-bottom: none !important;
+}
+
+.vditor-toolbar {
+    border: none !important;
 }
