@@ -1,5 +1,11 @@
 # Change log
 
+# 3.5.1 2025-4-7
+
+- Better support for zip viewer.
+- Update extension name and icon.
+- Support export markdown with Mermaid.
+
 # 3.5.0 2025-1-14
 
 - Remove markdown editor border.
