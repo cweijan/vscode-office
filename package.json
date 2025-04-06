@@ -519,7 +519,7 @@
 						"Light",
 						"Solarized"
 					],
-					"default": "light",
+					"default": "Light",
 					"markdownDescription": "The theme for the Markdown editor."
 				},
 				"vscode-office.previewCodeHighlight.style": {
