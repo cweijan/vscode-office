@@ -1,11 +1,14 @@
-import { FileAddOutlined, FileDoneOutlined, ReloadOutlined } from '@ant-design/icons';
+import { FileAddOutlined, FileDoneOutlined, HomeOutlined, ReloadOutlined } from '@ant-design/icons';
+
 import { Button, Flex, Select } from "antd";
 import { handler } from "../../../util/vscode";
 
 export default function Toolbar({ size, currentDir }) {
     return (
         <Flex style={{ padding: '5px', paddingLeft: '10px', backgroundColor: 'white', alignItems: 'center', columnGap: '15px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', columnGap: '15px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', columnGap: '10px' }}>
+                <Button size='middle' title='Show In Explorer' icon={<HomeOutlined />} onClick={() => { handler.emit('showInExplorer') }} >
+                </Button>
                 <Button size='middle' icon={<FileAddOutlined />} onClick={() => { handler.emit('addFile', currentDir) }} >
                     Add
                 </Button>

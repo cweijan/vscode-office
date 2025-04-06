@@ -4,9 +4,10 @@ import { Handler } from "@/common/handler";
 import prettyBytes from "@/service/zip/pretty-bytes";
 import { parseZipAsTree } from "@/service/zip/zipUtils";
 import { existsSync, mkdirSync, rm, writeFileSync } from "fs";
-import { tmpdir } from "os";
+import { platform, tmpdir } from "os";
 import { basename, extname, join, parse, resolve } from "path";
 import { Uri, commands, env, window, workspace } from "vscode";
+import { exec } from "child_process";
 
 export async function handleZip(uri: Uri, handler: Handler) {
     // delete update
@@ -78,6 +79,15 @@ export async function handleZip(uri: Uri, handler: Handler) {
             zip.deleteFile(entryName)
             await workspace.fs.writeFile(uri, zip.toBuffer())
             handler.emit('zipChange')
+        }).on('showInExplorer', () => {
+            const path = uri.fsPath
+            if (platform() == 'win32') {
+                exec(`explorer /select, "${resolve(path)}"`)
+            } else if (platform() == 'darwin') {
+                exec(`open -R "${resolve(path)}"`)
+            } else {
+                commands.executeCommand('vscode.open', Uri.file(uri.fsPath))
+            }
         }).on('dispose', () => {
             if (existsSync(basePath)) rm(basePath, { recursive: true, force: true }, null)
         })

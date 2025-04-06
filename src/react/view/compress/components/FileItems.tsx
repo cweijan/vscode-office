@@ -10,7 +10,7 @@ const columns: TableProps<FileInfo>['columns'] = [
     {
         title: 'Name',
         dataIndex: 'name',
-        width: 300,
+        ellipsis: true,
         sorter: (a, b) => a.name.localeCompare(b.name),
         onCell: (entry) => ({ onClick: () => handler.emit('openPath', entry) }),
         render: (text, entry) => <>
@@ -18,9 +18,13 @@ const columns: TableProps<FileInfo>['columns'] = [
             {text}
         </>,
     },
-    { title: 'Modified', dataIndex: 'modifyDateTime', width: 190, onCell: (entry) => ({ onClick: () => handler.emit('openPath', entry) }) },
     {
-        title: 'Compressed', dataIndex: 'compressedSize', width: 120,
+        title: 'Modified', dataIndex: 'modifyDateTime',
+        width: 160, ellipsis: true, onCell: (entry) => ({ onClick: () => handler.emit('openPath', entry) })
+    },
+    {
+        title: 'Size', dataIndex: 'compressedSize', width: 70,
+        ellipsis: true,
         sortDirections: ['descend', 'ascend'],
         sorter: (a, b) => a.compressedSizeOrigin - b.compressedSizeOrigin,
     },

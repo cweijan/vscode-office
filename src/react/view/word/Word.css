@@ -14,3 +14,7 @@ body {
     padding: 0 !important;
     background-color: #ececec !important;
 }
+
+.docx-wrapper>section.docx {
+    max-width: 95vw;
+}

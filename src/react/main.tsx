@@ -4,7 +4,7 @@ import { getConfigs } from './util/vscodeConfig.ts';
 import './main.css'
 import { ConfigProvider } from 'antd';
 import { lazy } from 'react';
-
+import { antThemeConfig } from './antThemeConfig.ts';
 const Zip = lazy(() => import('./view/compress/Zip.tsx'))
 const Excel = lazy(() => import('./view/excel/Excel.tsx'))
 const Image = lazy(() => import('./view/image/Image.tsx'))
@@ -13,7 +13,10 @@ const FontViewer = lazy(() => import('./view/fontViewer/FontViewer.tsx'))
 
 document.getElementById('_defaultStyles')?.parentNode?.removeChild(document.getElementById('_defaultStyles'))
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <ConfigProvider componentSize='small'>
+  <ConfigProvider
+    componentSize='small'
+    theme={antThemeConfig}
+  >
     {(() => {
       const configs = getConfigs()
       const route = configs?.route
@@ -26,7 +29,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           return <Zip />
         case 'word':
           return <Word />
-          case 'font':
+        case 'font':
           return <FontViewer />
         default:
           return <>Office Viewer</>

@@ -1,8 +1,8 @@
-# vscode-office
+# Officew Viewer
 
 [简体中文](README-CN.md) | [繁體中文](README-TW.md)
 
-This extension supports previewing these common office file formats.
+This extension supports previewing these common office file formats in VS Code.
 
 - Excel: .xls, .xlsx, .csv
 - Word: .docx
@@ -16,7 +16,7 @@ This extension supports previewing these common office file formats.
 
 ## Markdown
 
-This extension changes the default markdown editor to the vditor, but is no longer actively maintained.
+This extension changes the default markdown editor to the vditor. **Please note that this editor is no longer actively maintained.**
 
 If you want to use the original vscode editor, insert this in your `settings.json`.
 
