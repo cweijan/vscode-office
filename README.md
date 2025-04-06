@@ -1,8 +1,8 @@
-# vscode-office
+# Officew Viewer
 
 [简体中文](README-CN.md) | [繁體中文](README-TW.md)
 
-This extension supports previewing these common office file formats.
+This extension supports previewing these common office file formats in VS Code.
 
 - Excel: .xls, .xlsx, .csv
 - Word: .docx
