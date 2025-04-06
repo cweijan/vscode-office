@@ -10,8 +10,13 @@ if (fromScripts) {
 export default defineConfig({
   plugins: [react()],
   server: {
+    cors: false,
     host: '127.0.0.1',
-    port: 5739
+    port: 5739,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      Origin: null
+    },
   },
   base: '',
   build: {
