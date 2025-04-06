@@ -45,7 +45,7 @@ export default function Sidebar({ name = '', items, currentDir, OnClickFolder })
         style={{ height: height - 50, overflow: 'auto' }}
         onExpand={onExpand}
         expandedKeys={expandedKeys}
-        autoExpandParent={true}
+        autoExpandParent={false}
         treeData={treeData}
       />
     </div>
