@@ -1,2 +1,3 @@
 # Git
 - Generated commit messages should be in English
+- Generated commit messages should not exceed 70 characters
