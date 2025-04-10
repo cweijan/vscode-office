@@ -1,5 +1,8 @@
 # Change log
 
+# 3.5.2 2025-4-10
+- Compatible with rest client.
+
 # 3.5.1 2025-4-7
 
 - Better support for zip viewer.
