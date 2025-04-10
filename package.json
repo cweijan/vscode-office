@@ -107,95 +107,14 @@
 				"icon": "$(files)"
 			},
 			{
-				"command": "rest-client.request",
-				"title": "Send Request",
-				"category": "Rest Client"
+				"command": "vscode-office.save-response-body",
+				"title": "Save Response",
+				"icon": "$(save)"
 			},
 			{
-				"command": "rest-client.rerun-last-request",
-				"title": "Rerun Last Request",
-				"category": "Rest Client"
-			},
-			{
-				"command": "rest-client.cancel-request",
-				"title": "Cancel Request",
-				"category": "Rest Client"
-			},
-			{
-				"command": "rest-client.switch-environment",
-				"title": "Switch Environment",
-				"category": "Rest Client"
-			},
-			{
-				"command": "rest-client.history",
-				"title": "View Request History",
-				"category": "Rest Client"
-			},
-			{
-				"command": "rest-client.clear-history",
-				"title": "Clear Request History",
-				"category": "Rest Client"
-			},
-			{
-				"command": "rest-client.save-response",
-				"title": "Save Full Response",
-				"icon": {
-					"light": "./images/save.svg",
-					"dark": "./images/save-inverse.svg"
-				},
-				"category": "Rest Client"
-			},
-			{
-				"command": "rest-client.save-response-body",
-				"title": "Save Response Body",
-				"icon": {
-					"light": "./images/save-body.svg",
-					"dark": "./images/save-body-inverse.svg"
-				},
-				"category": "Rest Client"
-			},
-			{
-				"command": "rest-client.copy-response-body",
-				"title": "Copy Response Body",
-				"icon": {
-					"light": "./images/copy.svg",
-					"dark": "./images/copy-inverse.svg"
-				},
-				"category": "Rest Client"
-			},
-			{
-				"command": "rest-client.generate-codesnippet",
-				"title": "Generate Code Snippet",
-				"category": "Rest Client"
-			},
-			{
-				"command": "rest-client.copy-codesnippet",
-				"title": "Copy Code Snippet",
-				"icon": {
-					"light": "./images/copy.svg",
-					"dark": "./images/copy-inverse.svg"
-				},
-				"category": "Rest Client"
-			},
-			{
-				"command": "rest-client.copy-request-as-curl",
-				"title": "Copy Request As cURL",
-				"category": "Rest Client"
-			},
-			{
-				"command": "rest-client.clear-aad-token-cache",
-				"title": "Clear Azure AD Token Cache",
-				"category": "Rest Client"
-			},
-			{
-				"command": "rest-client.fold-response",
-				"title": "Fold Response",
-				"category": "Rest Client"
-			},
-			{
-				"command": "rest-client.unfold-response",
-				"title": "Unfold Response",
-				"category": "Rest Client"
+				"command": "vscode-office.copy-response-body",
+				"title": "Copy Response",
+				"icon": "$(copy)"
 			},
 			{
 				"command": "office.reg.jumpToKey",
@@ -235,35 +154,15 @@
 				"key": "ctrl+alt+e",
 				"mac": "ctrl+cmd+e",
 				"when": "editorTextFocus && editorLangId == markdown"
+			},
+			{
+				"command": "vscode-office.request",
+				"key": "ctrl+enter",
+				"mac": "cmd+enter",
+				"when": "editorTextFocus && editorLangId == 'http'"
 			}
 		],
 		"menus": {
-			"commandPalette": [
-				{
-					"command": "rest-client.fold-response",
-					"when": "httpResponsePreviewFocus"
-				},
-				{
-					"command": "rest-client.unfold-response",
-					"when": "httpResponsePreviewFocus"
-				},
-				{
-					"command": "rest-client.save-response",
-					"when": "httpResponsePreviewFocus"
-				},
-				{
-					"command": "rest-client.save-response-body",
-					"when": "httpResponsePreviewFocus"
-				},
-				{
-					"command": "rest-client.copy-response-body",
-					"when": "httpResponsePreviewFocus"
-				},
-				{
-					"command": "rest-client.copy-codesnippet",
-					"when": "codeSnippetPreviewFocus"
-				}
-			],
 			"editor/title": [
 				{
 					"when": "config.vscode-office.quickOpen",
@@ -276,34 +175,14 @@
 					"group": "navigation@-2"
 				},
 				{
-					"when": "httpResponsePreviewFocus",
-					"command": "rest-client.save-response",
-					"group": "navigation@1"
+					"when": "editorTextFocus && resourceScheme == rest-client-response",
+					"command": "vscode-office.copy-response-body",
+					"group": "navigation@0"
 				},
 				{
-					"when": "httpResponsePreviewFocus",
-					"command": "rest-client.save-response-body",
+					"when": "editorTextFocus && resourceScheme == rest-client-response",
+					"command": "vscode-office.save-response-body",
 					"group": "navigation@2"
-				},
-				{
-					"when": "httpResponsePreviewFocus",
-					"command": "rest-client.copy-response-body",
-					"group": "navigation@3"
-				},
-				{
-					"when": "httpResponsePreviewFocus",
-					"command": "rest-client.fold-response",
-					"group": "1_rest-client@1"
-				},
-				{
-					"when": "httpResponsePreviewFocus",
-					"command": "rest-client.unfold-response",
-					"group": "1_rest-client@2"
-				},
-				{
-					"when": "codeSnippetPreviewFocus",
-					"command": "rest-client.copy-codesnippet",
-					"group": "navigation"
 				}
 			],
 			"editor/context": [
@@ -313,19 +192,14 @@
 					"when": "editorTextFocus && editorLangId == html"
 				},
 				{
-					"command": "rest-client.request",
-					"when": "editorTextFocus && editorLangId == http",
-					"group": "rest-client@1"
+					"command": "vscode-office.save-response-body",
+					"group": "http@2",
+					"when": "editorTextFocus && resourceScheme == rest-client-response"
 				},
 				{
-					"command": "rest-client.generate-codesnippet",
-					"when": "editorTextFocus && editorLangId == http",
-					"group": "rest-client@2"
-				},
-				{
-					"command": "rest-client.copy-request-as-curl",
-					"when": "editorTextFocus && editorLangId == http",
-					"group": "rest-client@3"
+					"command": "vscode-office.copy-response-body",
+					"group": "http@4",
+					"when": "editorTextFocus && resourceScheme == rest-client-response"
 				}
 			]
 		},
