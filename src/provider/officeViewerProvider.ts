@@ -6,7 +6,8 @@ import { Handler } from '../common/handler';
 import { Util } from '../common/util';
 import { handleClass } from './handlers/classHandler';
 import { handleImage, isImage } from './handlers/imageHanlder';
-import { handleZip } from './handlers/zipHandler';
+import { handleZip } from './compress/zipHandler';
+import { handleRar } from './compress/rarHandler';
 
 /**
  * support view office files
@@ -76,6 +77,10 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".vsix":
                 route = 'zip';
                 handleZip(uri, handler);
+                break;
+            case ".rar":
+                route = 'zip';
+                handleRar(uri, handler);
                 break;
             case ".ttf":
             case ".woff":

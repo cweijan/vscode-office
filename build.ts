@@ -34,6 +34,14 @@ function main() {
                     keepStructure: true
                 },
             }),
+            copy({
+                resolveFrom: 'out',
+                assets: {
+                    from: ['./node_modules/node-unrar-js/dist/js/unrar.wasm'],
+                    to: ['./'],
+                    keepStructure: true
+                },
+            }),
             {
                 name: 'build notice',
                 setup(build) {
