@@ -42,9 +42,6 @@ export async function handleZip(uri: Uri, handler: Handler) {
                 mkdirSync(resolve(tempPath, '..'), { recursive: true })
                 writeFileSync(tempPath, file.getData())
                 const url = Uri.file(tempPath);
-                if (['.xlsx', '.csv'].includes(extname(tempPath)?.toLowerCase())) {
-                    return env.openExternal(url);
-                }
                 commands.executeCommand('vscode.open', url);
             }
         }).on('autoExtract', () => {
