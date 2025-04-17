@@ -315,6 +315,19 @@
 				"displayName": "Markdown Editor",
 				"selector": [
 					{
+						"filenamePattern": "file:/**/*.md"
+					},
+					{
+						"filenamePattern": "file:/**/*.markdown"
+					}
+				]
+			},
+			{
+				"viewType": "cweijan.markdownViewer.optional",
+				"displayName": "Markdown Editor (Optional)",
+				"priority": "option",
+				"selector": [
+					{
 						"filenamePattern": "*.md"
 					},
 					{
