@@ -1,5 +1,8 @@
 # Change log
 
+# 3.5.3 2025-4-17
+- Support view rar file.
+
 # 3.5.2 2025-4-10
 - Compatible with rest client.
 

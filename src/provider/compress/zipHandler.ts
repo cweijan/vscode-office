@@ -3,17 +3,17 @@ import { FileUtil } from "@/common/fileUtil";
 import { Handler } from "@/common/handler";
 import prettyBytes from "@/service/zip/pretty-bytes";
 import { parseZipAsTree } from "@/service/zip/zipUtils";
-import { existsSync, mkdirSync, rm, writeFileSync } from "fs";
-import { platform, tmpdir } from "os";
-import { basename, extname, join, parse, resolve } from "path";
-import { Uri, commands, env, window, workspace } from "vscode";
 import { exec } from "child_process";
+import { existsSync, mkdirSync, rm, writeFileSync } from "fs";
+import { platform } from "os";
+import { basename, join, parse, resolve } from "path";
+import { Uri, commands, window, workspace } from "vscode";
+import { handlerCommonDecompress } from "./decompressHandler";
 
 export async function handleZip(uri: Uri, handler: Handler) {
-    // delete update
+    const decompressPath = handlerCommonDecompress(uri, handler)
     handler.on('init', async () => {
         const data = (await workspace.fs.readFile(uri)) as Buffer
-        const basePath = `${tmpdir()}/officeZip.${new Date().getTime()}`;
         let { zip, files, folderMap, fileMap } = parseZipAsTree(data)
         handler.emit('size', prettyBytes(data.length))
         handler.emit('data', {
@@ -38,13 +38,10 @@ export async function handleZip(uri: Uri, handler: Handler) {
             } else {
                 await commands.executeCommand('workbench.action.keepEditor')
                 const file = fileMap[entryName]
-                const tempPath = `${basePath}/${entryName}`
+                const tempPath = `${decompressPath}/${entryName}`
                 mkdirSync(resolve(tempPath, '..'), { recursive: true })
                 writeFileSync(tempPath, file.getData())
                 const url = Uri.file(tempPath);
-                if (['.xlsx', '.csv'].includes(extname(tempPath)?.toLowerCase())) {
-                    return env.openExternal(url);
-                }
                 commands.executeCommand('vscode.open', url);
             }
         }).on('autoExtract', () => {
@@ -79,17 +76,7 @@ export async function handleZip(uri: Uri, handler: Handler) {
             zip.deleteFile(entryName)
             await workspace.fs.writeFile(uri, zip.toBuffer())
             handler.emit('zipChange')
-        }).on('showInExplorer', () => {
-            const path = uri.fsPath
-            if (platform() == 'win32') {
-                exec(`explorer /select, "${resolve(path)}"`)
-            } else if (platform() == 'darwin') {
-                exec(`open -R "${resolve(path)}"`)
-            } else {
-                commands.executeCommand('vscode.open', Uri.file(uri.fsPath))
-            }
-        }).on('dispose', () => {
-            if (existsSync(basePath)) rm(basePath, { recursive: true, force: true }, null)
         })
     })
 }
+

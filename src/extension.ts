@@ -17,13 +17,15 @@ export function activate(context: vscode.ExtensionContext) {
 	ReactApp.init(context)
 	const markdownService = new MarkdownService(context);
 	const viewerInstance = new OfficeViewerProvider(context);
+	const markdownEditorProvider = new MarkdownEditorProvider(context)
 	context.subscriptions.push(
 		vscode.commands.registerCommand('office.quickOpen', () => vscode.commands.executeCommand('workbench.action.quickOpen')),
 		vscode.commands.registerCommand('office.markdown.switch', (uri) => { markdownService.switchEditor(uri) }),
 		vscode.commands.registerCommand('office.markdown.paste', () => { markdownService.loadClipboardImage() }),
 		vscode.commands.registerCommand('office.html.preview', uri => HtmlService.previewHtml(uri, context)),
 		vscode.workspace.registerTextDocumentContentProvider('decompile_java', new JavaDecompilerProvider()),
-		vscode.window.registerCustomEditorProvider("cweijan.markdownViewer", new MarkdownEditorProvider(context), viewOption),
+		vscode.window.registerCustomEditorProvider("cweijan.markdownViewer", markdownEditorProvider, viewOption),
+		vscode.window.registerCustomEditorProvider("cweijan.markdownViewer.optional", markdownEditorProvider, viewOption),
 		...viewerInstance.bindCustomEditors(viewOption)
 	);
 }
@@ -46,10 +48,8 @@ function keepOriginDiff() {
 	const configKey = 'editorAssociations'
 	const editorAssociations = config.get(configKey)
 	const key = '{git,gitlens,git-graph}:/**/*.{md,csv,svg}'
-	if (!editorAssociations[key]) {
-		const oldKey = '{git,gitlens}:/**/*.{md,csv,svg}'
-		editorAssociations[oldKey] = undefined
-		editorAssociations[key] = 'default'
+	if (editorAssociations[key]) {
+		editorAssociations[key] = undefined
 		config.update(configKey, editorAssociations, true)
 	}
 }

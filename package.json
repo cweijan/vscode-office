@@ -2,7 +2,7 @@
 	"name": "vscode-typora",
 	"displayName": "Typora",
 	"description": "Edit markdown like typora in vscode.",
-	"version": "3.5.2",
+	"version": "3.5.3",
 	"publisher": "cweijan",
 	"icon": "images/logo.png",
 	"engines": {
@@ -251,6 +251,9 @@
 						"filenamePattern": "*.zip"
 					},
 					{
+						"filenamePattern": "*.rar"
+					},
+					{
 						"filenamePattern": "*.apk"
 					},
 					{
@@ -310,6 +313,19 @@
 			{
 				"viewType": "cweijan.markdownViewer",
 				"displayName": "Markdown Editor",
+				"selector": [
+					{
+						"filenamePattern": "file:/**/*.md"
+					},
+					{
+						"filenamePattern": "file:/**/*.markdown"
+					}
+				]
+			},
+			{
+				"viewType": "cweijan.markdownViewer.optional",
+				"displayName": "Markdown Editor (Optional)",
+				"priority": "option",
 				"selector": [
 					{
 						"filenamePattern": "*.md"
@@ -496,6 +512,7 @@
 		"eslint-plugin-react-refresh": "^0.4.6",
 		"eslint-plugin-unused-imports": "^3.1.0",
 		"less": "^4.2.0",
+		"node-unrar-js": "^2.0.2",
 		"vite": "^6.2.5"
 	},
 	"dependencies": {
