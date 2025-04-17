@@ -12,7 +12,7 @@ This extension supports previewing these common office file formats in VS Code.
 - Markdown: .md
 - HttpRequest: .http
 - Windows Reg: .reg
-- Compressed file: .zip, .jar, .vsix
+- Compressed file: .zip, .jar, .vsix, .rar
 
 ## Markdown
 
