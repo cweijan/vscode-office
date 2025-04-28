@@ -45,10 +45,10 @@ class SelectorElement {
       left, top, width, height,
     } = v;
     const of = {
-      width: width - selectorHeightBorderWidth + 0.8,
-      height: height - selectorHeightBorderWidth + 0.8,
-      left: left - 0.8,
-      top: top - 0.8,
+      width: width,
+      height: height,
+      left: left,
+      top: top,
     };
     this.areaEl.offset(of).show();
     if (this.useHideInput) {

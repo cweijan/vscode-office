@@ -378,7 +378,7 @@ body {
   .@{css-prefix}-editor-area {
     position: absolute;
     text-align: left;
-    border: 2px solid rgb(75, 137, 255);
+    border: 2px solid rgb(33, 186, 69);
     line-height: 0;
     z-index: 100;
     pointer-events: auto;
@@ -390,13 +390,15 @@ body {
       outline: none;
       resize: none;
       text-align: start;
-      overflow-y: hidden;
+      overflow-y: auto;
       font: 400 13px Arial, 'Lato', 'Source Sans Pro', Roboto, Helvetica, sans-serif;
-      color: inherit;
+      color: black;
       white-space: normal;
       word-wrap: break-word;
       line-height: 22px;
       margin: 0;
+      max-width: 400px;
+      text-shadow: 0 0 0.35px currentcolor;
     }
 
     .textline {

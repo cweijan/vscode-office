@@ -9,6 +9,7 @@ export default class Scrollbar {
       .child(this.contentEl = h('div', ''))
       .on('mousemove.stop', () => {})
       .on('scroll.stop', (evt) => {
+        if( document.activeElement?.tagName === 'TEXTAREA') return
         const { scrollTop, scrollLeft } = evt.target;
         // console.log('scrollTop:', scrollTop);
         if (this.moveFn) {

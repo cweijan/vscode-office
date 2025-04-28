@@ -26,6 +26,7 @@ class Element {
       eventName = 'DOMMouseScroll';
     }
     this.el.addEventListener(eventName, (evt) => {
+      if (evt.type == 'mousewheel' && document.activeElement?.tagName === 'TEXTAREA') return
       handler(evt);
       for (let i = 0; i < oen.length; i += 1) {
         const k = oen[i];
