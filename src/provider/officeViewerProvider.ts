@@ -8,6 +8,8 @@ import { handleClass } from './handlers/classHandler';
 import { handleImage, isImage } from './handlers/imageHanlder';
 import { handleZip } from './compress/zipHandler';
 import { handleRar } from './compress/rarHandler';
+import { workspace } from 'vscode';
+import { handleCommonEvent } from './compress/commonHandler';
 
 /**
  * support view office files
@@ -37,21 +39,8 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             localResourceRoots: [vscode.Uri.file(this.extensionPath), folderPath]
         }
 
-        const send = () => {
-            handler.emit("open", {
-                ext: extname(uri.fsPath),
-                path: handler.panel.webview.asWebviewUri(uri).with({ query: `nonce=${Date.now().toString()}` }).toString(),
-            })
-        }
-
         const handler = Handler.bind(webviewPanel, uri)
-            .on("editInVSCode", (full: boolean) => {
-                const side = full ? vscode.ViewColumn.Active : vscode.ViewColumn.Beside;
-                vscode.commands.executeCommand('vscode.openWith', uri, "default", side);
-            })
-            .on('developerTool', () => vscode.commands.executeCommand('workbench.action.toggleDevTools'))
-            .on("init", send)
-            .on("fileChange", send)
+        handleCommonEvent(uri, handler)
 
         let route: string;
         const ext = extname(uri.fsPath).toLowerCase()
