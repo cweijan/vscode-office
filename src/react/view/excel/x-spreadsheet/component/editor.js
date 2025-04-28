@@ -225,9 +225,7 @@ export default class Editor {
       const {
         left, top, width, height, l, t,
       } = offset;
-      // console.log('left:', left, ',top:', top, ', freeze:', freeze);
       const elOffset = { left: 0, top: 0 };
-      // top left
       if (freeze.w > l && freeze.h > t) {
         //
       } else if (freeze.w < l && freeze.h < t) {
@@ -239,8 +237,9 @@ export default class Editor {
         elOffset.left = freeze.w;
       }
       el.offset(elOffset);
+      // TODO: Width and height
       areaEl.offset({ left: left - elOffset.left - 0.8, top: top - elOffset.top - 0.8 });
-      textEl.offset({ width: width - 9 + 0.8, height: height - 3 + 0.8 });
+      textEl.offset({ width: width - 9 + 0.8-12, height: height - 3 + 0.8-5 });
       const sOffset = { left: 0 };
       sOffset[suggestPosition] = height;
       suggest.setOffset(sOffset);
