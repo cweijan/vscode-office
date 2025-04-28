@@ -249,7 +249,21 @@ class Draw {
           ntxts.push(it.substr(textLine.start, textLine.len));
         }
       } else {
-        ntxts.push(it);
+        if (!textWrap && txtWidth > npx(biw)) {
+          let ellipsis = '...';
+          let ellipsisWidth = ctx.measureText(ellipsis).width;
+          let truncatedText = it;
+          let truncatedWidth = txtWidth;
+          
+          while (truncatedWidth + ellipsisWidth > npx(biw) && truncatedText.length > 0) {
+            truncatedText = truncatedText.slice(0, -1);
+            truncatedWidth = ctx.measureText(truncatedText).width;
+          }
+          
+          ntxts.push(truncatedText + ellipsis);
+        } else {
+          ntxts.push(it);
+        }
       }
     });
     const txtHeight = (ntxts.length - 1) * (font.size + 2);
