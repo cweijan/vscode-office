@@ -1,7 +1,7 @@
 {
-	"name": "vscode-office",
-	"displayName": "Office Viewer",
-	"description": "View word,excel files and using WYSIWYG editor for markdown.",
+	"name": "vscode-excel",
+	"displayName": "Excel",
+	"description": "Support view excel and csv file in VS Code.",
 	"version": "3.5.4",
 	"publisher": "cweijan",
 	"icon": "images/logo.png",
