@@ -229,6 +229,10 @@ class Draw {
       font: `${font.italic ? 'italic' : ''} ${font.bold ? 'bold' : ''} ${font.fontWeight || ''} ${npx(font.size)}px ${font.name}`,
       fillStyle: color,
       strokeStyle: color,
+      shadowBlur: 0.3,
+      shadowColor: color,
+      shadowOffsetX: 0,
+      shadowOffsetY: 0,
     });
     const txts = `${mtxt}`.split('\n');
     const biw = box.innerWidth();

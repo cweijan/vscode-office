@@ -452,8 +452,7 @@ body {
 }
 
 .x-spreadsheet-item,
-.x-spreadsheet-header,
-{
+.x-spreadsheet-header{
 
   &.state {
     padding-left: 35px!important;
@@ -558,9 +557,8 @@ body {
 
 .@{css-prefix}-toolbar, .@{css-prefix}-bottombar {
   height: 40px;
-  padding: 0 30px;
   text-align: left;
-  background: #f5f6f7;
+  background: #fff;
   display: flex;
 }
 
@@ -569,12 +567,12 @@ body {
   border-top: 1px solid #e0e2e4;
 
   .@{css-prefix}-menu > li {
-    line-height: 40px;
-    height: 40px;
+    line-height: 35px;
+    height: 35px;
     padding-top: 0;
     padding-bottom: 0;
     vertical-align: middle;
-    border-right: 1px solid #e8eaed;
+    // border-right: 1px solid #e8eaed;
   }
 }
 
@@ -590,17 +588,20 @@ body {
   padding: .785em 1em;
   margin: 0;
   vertical-align: middle;
+  font-size: 14px;
   text-align: left;
-  font-weight: 400;
-  color: #80868b;
+  color: rgba(0,0,0,0.88);
   white-space: nowrap;
   cursor: pointer;
   transition: all .3s;
-  font-weight: bold;
+  text-shadow: 0 0 0.5px currentcolor;
+  font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji';
+  border-bottom: 3px solid transparent;
 
   &.active {
     background-color: #fff;
-    color: rgba(0, 0, 0, .65);
+    color: #057c52;
+    border-bottom: 3px solid #057c52;
   }
 
   .@{css-prefix}-icon {

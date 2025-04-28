@@ -8,28 +8,6 @@ import Dropdown from './dropdown';
 // import { xtoast } from './message';
 import { tf } from '../locale/locale';
 
-class DropdownMore extends Dropdown {
-  constructor(click) {
-    const icon = new Icon('ellipsis');
-    super(icon, 'auto', false, 'top-left');
-    this.contentClick = click;
-  }
-
-  reset(items) {
-    const eles = items.map((it, i) => h('div', `${cssPrefix}-item`)
-      .css('width', '150px')
-      .css('font-weight', 'normal')
-      .on('click', () => {
-        this.contentClick(i);
-        this.hide();
-      })
-      .child(it));
-    this.setContentChildren(...eles);
-  }
-
-  setTitle() {}
-}
-
 const menuItems = [
   { key: 'delete', title: tf('contextmenu.deleteSheet') },
 ];
@@ -81,9 +59,6 @@ export default class Bottombar {
     this.activeEl = null;
     this.deleteEl = null;
     this.items = [];
-    this.moreEl = new DropdownMore((i) => {
-      this.clickSwap2(this.items[i]);
-    });
     this.contextMenu = new ContextMenu();
     this.contextMenu.itemClick = deleteFunc;
     this.el = h('div', `${cssPrefix}-bottombar`).children(
@@ -93,7 +68,6 @@ export default class Bottombar {
           new Icon('add').on('click', () => {
             addFunc();
           }),
-          h('span', '').child(this.moreEl),
         ),
       ),
     );
@@ -118,12 +92,6 @@ export default class Bottombar {
         const { value } = target;
         const nindex = this.dataNames.findIndex(it => it === v);
         this.renameItem(nindex, value);
-        /*
-        this.dataNames.splice(nindex, 1, value);
-        this.moreEl.reset(this.dataNames);
-        item.html('').child(value);
-        this.updateFunc(nindex, value);
-        */
       });
       item.html('').child(input.el);
       input.focus();
@@ -133,12 +101,10 @@ export default class Bottombar {
     }
     this.items.push(item);
     this.menuEl.child(item);
-    this.moreEl.reset(this.dataNames);
   }
 
   renameItem(index, value) {
     this.dataNames.splice(index, 1, value);
-    this.moreEl.reset(this.dataNames);
     this.items[index].html('').child(value);
     this.updateFunc(index, value);
   }
@@ -149,7 +115,6 @@ export default class Bottombar {
     });
     this.items = [];
     this.dataNames = [];
-    this.moreEl.reset(this.dataNames);
   }
 
   deleteItem() {
@@ -159,7 +124,6 @@ export default class Bottombar {
       this.items.splice(index, 1);
       this.dataNames.splice(index, 1);
       this.menuEl.removeChild(deleteEl.el);
-      this.moreEl.reset(this.dataNames);
       if (activeEl === deleteEl) {
         const [f] = this.items;
         this.activeEl = f;
