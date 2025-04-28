@@ -178,11 +178,11 @@ function renderContent(viewRange, fw, fh, tx, ty) {
 }
 
 function renderSelectedHeaderCell(x, y, w, h) {
-  const { draw } = this;
-  draw.save();
-  draw.attr({ fillStyle: 'rgba(75, 137, 255, 0.08)' })
-    .fillRect(x, y, w, h);
-  draw.restore();
+  // const { draw } = this;
+  // draw.save();
+  // draw.attr({ fillStyle: 'rgba(75, 137, 255, 0.08)' })
+  //   .fillRect(x, y, w, h);
+  // draw.restore();
 }
 
 // viewRange
