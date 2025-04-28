@@ -742,6 +742,7 @@ function sheetInitEvents() {
     const {
       key, ctrlKey, shiftKey, metaKey,
     } = evt;
+    if (ctrlKey && metaKey) return;
     // console.log('keydown.evt: ', keyCode);
     if (ctrlKey || metaKey) {
       // const { sIndexes, eIndexes } = selector;
