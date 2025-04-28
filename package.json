@@ -33,18 +33,6 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
-		"themes": [
-			{
-				"label": "One Dark Modern",
-				"uiTheme": "vs-dark",
-				"path": "./theme/onedark-modern.json"
-			},
-			{
-				"label": "One Dark Modern Classic",
-				"uiTheme": "vs-dark",
-				"path": "./theme/onedark-modern-classic.json"
-			}
-		],
 		"iconThemes": [
 			{
 				"id": "office-material-icon-theme",
