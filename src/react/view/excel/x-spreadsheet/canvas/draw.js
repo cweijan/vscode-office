@@ -226,7 +226,7 @@ class Draw {
     this.attr({
       textAlign: align,
       textBaseline: valign,
-      font: `${font.italic ? 'italic' : ''} ${font.bold ? 'bold' : ''} ${npx(font.size)}px ${font.name}`,
+      font: `${font.italic ? 'italic' : ''} ${font.bold ? 'bold' : ''} ${font.fontWeight || ''} ${npx(font.size)}px ${font.name}`,
       fillStyle: color,
       strokeStyle: color,
     });

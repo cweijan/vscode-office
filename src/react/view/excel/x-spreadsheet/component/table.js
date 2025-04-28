@@ -65,6 +65,13 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
   }
 
   const style = data.getCellStyleOrDefault(nrindex, cindex);
+  // 如果是第一行，自动添加居中加粗样式
+  if (rindex === 0) {
+    style.align = 'center';
+    if (!style.font) style.font = {};
+    style.font.fontWeight = '600';
+  }
+
   const dbox = getDrawBox(data, rindex, cindex, yoffset);
   dbox.bgcolor = style.bgcolor;
   if (style.border !== undefined) {
