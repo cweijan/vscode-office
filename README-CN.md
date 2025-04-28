@@ -2,20 +2,33 @@
 
 ## 介绍
 
-功能:
+本扩展支持在VS Code中预览以下常见的办公文件格式：
 
-- **注意这个扩展不再积极维护.**
-- 集成了一个图标主题和颜色主题.
-- 支持预览xlsx, docx, svg, pdf, zip等办公文件格式.
-- 集成[Vditor](https://github.com/Vanessa219/vditor)实现对markdown的所见即所得编辑(对代码块支持较差).
+- Excel: .xls, .xlsx, .csv
+- Word: .docx
+- Svg: .svg
+- Pdf: .pdf
+- 字体: .ttf, .otf, .woff, .woff2
+- Markdown: .md
+- HTTP请求: .http
+- Windows注册表: .reg
+- 压缩文件: .zip, .jar, .vsix, .rar
 
 ## Markdown
 
-编辑器使用说明: [禁用方式看这里](https://github.com/cweijan/vscode-office?tab=readme-ov-file#markdown)
+集成[Vditor](https://github.com/Vanessa219/vditor)实现对markdown的所见即所得编辑, **注意这个编辑器不再积极维护**.
 
-- 编辑方式: 直接通过vscode打开md文件.
-- 可通过工具栏按钮打开VSCode内置编辑器.
-  ![img](image/README-CN/1640579182342.png)
+如果你需要使用原生markdown编辑器, 在vscode设置中增加以下配置.
+
+```json
+{
+    "workbench.editorAssociations": {
+        "*.md": "default",
+        "*.markdown": "default"
+    }
+}
+```
+
 - 在编辑器打开右键菜单可将markdown导出为pdf, docx或者html, pdf依赖于chromium, 可通过 `vscode-office.chromiumPath`配置chromium浏览器路径.
   ![1685418034035](image/README-CN/1685418034035.png)
 

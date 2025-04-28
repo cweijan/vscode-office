@@ -1,5 +1,8 @@
 # Change log
 
+# 3.5.4 2025-4-28
+- Support edit excel and csv file.
+
 # 3.5.3 2025-4-17
 - Support view rar file.
 
