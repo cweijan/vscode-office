@@ -892,19 +892,23 @@
   overflow: auto;
   border-spacing: 0;
   display: block;
-  word-break: keep-all;
-  width: 100%;
+  word-break: normal;
+  width: 1000px;
+  max-width: 1000px;
+  margin-left: 0; /* Прикреплено к левому краю */
+  margin-right: 0; /* Убрано центрирование */
 }
 .vditor-reset table tr {
   background-color: #fafbfc;
   border-top: 1px solid #c6cbd1;
 }
+/* Для ячеек таблицы */
 .vditor-reset table td,
 .vditor-reset table th {
   padding: 6px 13px;
   border: 1px solid #dfe2e5;
   word-break: normal;
-  white-space: nowrap;
+  white-space: normal; /* Изменено с nowrap на normal */
 }
 .vditor-reset table td:first-child::after,
 .vditor-reset table th:first-child::after {
