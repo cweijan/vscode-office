@@ -60,7 +60,7 @@ function loadRes(url) {
 
 const isMac = navigator.userAgent.includes('Mac OS');
 const shortcutTip = isMac ? '⌘ ^ E' : 'Ctrl Alt E';
-const searchTip = isMac ? 'Find (⌘ F)' : 'Find (Ctrl F)';
+const searchTip = isMac ? 'Find (^ ⌥ F)' : 'Find (Ctrl Alt F)';
 const searchIcon = '<svg viewBox="0 0 1024 1024"><path d="M447 725q116 0 198.5-82.5T728 444T645.5 245.5T447 163T248.5 245.5T166 444t82.5 198.5T447 725zm0 75Q300 800 196 696T92 444t104-252t251-104t251.5 104T803 444q0 114-64 209l174 174q11 11 11 26t-11 26t-26 11t-26-11L687 705q-95 95-240 95z"></path></svg>';
 
 export async function getToolbar(resPath) {
@@ -318,7 +318,7 @@ export const autoSymbol = (handler, editor, config) => {
         if (e.target?.closest?.('.vscode-office-search')) {
             return;
         }
-        if (isCompose(e) && e.key.toLowerCase() === 'f') {
+        if (e.ctrlKey && e.altKey && !e.metaKey && e.key.toLowerCase() === 'f') {
             e.stopPropagation();
             e.preventDefault();
             window.vscodeOfficeSearch?.open();

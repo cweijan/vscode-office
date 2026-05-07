@@ -96,11 +96,12 @@ html {
 
 mark.vscode-office-search-match {
     padding: 0;
-    color: inherit;
-    background: var(--vscode-editor-findMatchHighlightBackground, #6a5f00);
+    color: #000;
+    background: #ffeb3b;
 }
 
 mark.vscode-office-search-match--active {
-    background: var(--vscode-editor-findMatchBackground, #c59a00);
-    box-shadow: 0 0 0 1px var(--vscode-editor-findMatchBorder, #f2cc60);
+    color: #000;
+    background: #ffd54f;
+    box-shadow: 0 0 0 1px #c49000;
 }
