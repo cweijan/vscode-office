@@ -144,6 +144,10 @@ function patchLuteMarkdownTableCode(editor) {
   wrapLuteMarkdownMethod(lute, "Md2VditorDOM")
   wrapLuteMarkdownMethod(lute, "Md2VditorIRDOM")
   wrapLuteMarkdownMethod(lute, "Md2HTML")
+  wrapLuteHtmlMethod(lute, "SpinVditorDOM")
+  wrapLuteHtmlMethod(lute, "HTML2VditorDOM")
+  wrapLuteHtmlMethod(lute, "SpinVditorIRDOM")
+  wrapLuteHtmlMethod(lute, "HTML2VditorIRDOM")
   lute.__tableCodeDollarPatched = true
 }
 
@@ -155,6 +159,18 @@ function wrapLuteMarkdownMethod(lute, methodName) {
 
   lute[methodName] = (markdown, ...rest) => {
     const rendered = original(prepareMarkdownForLute(markdown), ...rest)
+    return restorePreparedMarkdownString(rendered)
+  }
+}
+
+function wrapLuteHtmlMethod(lute, methodName) {
+  const original = lute?.[methodName]
+  if (typeof original !== "function") {
+    return
+  }
+
+  lute[methodName] = (html, ...rest) => {
+    const rendered = original(protectTableCodeDollarInHtml(html), ...rest)
     return restorePreparedMarkdownString(rendered)
   }
 }
@@ -306,6 +322,18 @@ function replaceInlineCodeContent(text, replaceContent) {
   }
 
   return result
+}
+
+function protectTableCodeDollarInHtml(html) {
+  if (typeof html !== 'string' || !html.includes('<table') || !html.includes('<code') || !html.includes('$')) {
+    return html
+  }
+
+  return html.replace(/<table\b[\s\S]*?<\/table>/gi, (tableHtml) => {
+    return tableHtml.replace(/<code\b[^>]*>[\s\S]*?<\/code>/gi, (codeHtml) => {
+      return codeHtml.replace(/\$/g, TABLE_CODE_DOLLAR_PLACEHOLDER)
+    })
+  })
 }
 
 function restorePreparedMarkdownPlaceholders(editor) {
