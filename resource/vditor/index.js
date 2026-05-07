@@ -2,6 +2,8 @@ import { openLink, hotKeys, imageParser, getToolbar, autoSymbol, onToolbarClick,
 
 let state;
 const TABLE_CODE_DOLLAR_PLACEHOLDER = "__VSCODE_OFFICE_VDITOR_TABLE_CODE_DOLLAR__"
+const SEARCH_MATCH_CLASS = "vscode-office-search-match"
+const SEARCH_ACTIVE_CLASS = "vscode-office-search-match--active"
 
 function loadConfigs() {
   const elem = document.getElementById('configs')
@@ -83,9 +85,11 @@ handler.on("open", async (md) => {
       restorePreparedMarkdownPlaceholders(editor)
       patchRenderedSetValue(editor)
       patchOutline(editor)
+      createSearch(editor)
       editor.vditor?.outline?.render?.(editor.vditor)
       handler.on("update", content => {
         editor.setValue(content);
+        window.vscodeOfficeSearch?.refresh()
       })
       openLink()
       onToolbarClick(editor)
@@ -102,6 +106,199 @@ handler.on("open", async (md) => {
 function addAutoTheme(rootPath, theme) {
   loadCSS(rootPath, 'base.css')
   loadTheme(rootPath, theme)
+}
+
+function createSearch(editor) {
+  if (window.vscodeOfficeSearch) {
+    return window.vscodeOfficeSearch
+  }
+
+  const panel = document.getElementById("vscode-office-search")
+  const input = document.getElementById("vscode-office-search-input")
+  const count = document.getElementById("vscode-office-search-count")
+  const prevButton = document.getElementById("vscode-office-search-prev")
+  const nextButton = document.getElementById("vscode-office-search-next")
+  const closeButton = document.getElementById("vscode-office-search-close")
+
+  const search = {
+    activeIndex: -1,
+    matches: [],
+    markedRoot: null,
+    query: "",
+    visible: false,
+  }
+
+  const setCount = () => {
+    if (search.matches.length === 0) {
+      count.textContent = "0/0"
+      return
+    }
+    count.textContent = `${search.activeIndex + 1}/${search.matches.length}`
+  }
+
+  const clearActive = () => {
+    search.matches.forEach((match) => match.classList.remove(SEARCH_ACTIVE_CLASS))
+  }
+
+  const scrollMatchIntoView = (match) => {
+    const container = match.closest(".vditor-reset") || match.closest(".vditor-preview")
+    match.scrollIntoView({ block: "center", inline: "nearest" })
+    if (container && container.scrollTop > 0) {
+      container.dispatchEvent(new Event("scroll"))
+    }
+  }
+
+  const setActiveMatch = (index) => {
+    if (search.matches.length === 0) {
+      search.activeIndex = -1
+      setCount()
+      return
+    }
+    clearActive()
+    const nextIndex = (index + search.matches.length) % search.matches.length
+    search.activeIndex = nextIndex
+    const activeMatch = search.matches[nextIndex]
+    activeMatch.classList.add(SEARCH_ACTIVE_CLASS)
+    scrollMatchIntoView(activeMatch)
+    setCount()
+  }
+
+  const getSearchRoot = () => {
+    const vditor = editor?.vditor
+    if (!vditor) {
+      return null
+    }
+    if (vditor.preview?.element?.style?.display === "block") {
+      return vditor.preview.element.lastElementChild || vditor.preview.element
+    }
+    return vditor[vditor.currentMode]?.element || null
+  }
+
+  const clearHighlights = (done) => {
+    const markedRoot = search.markedRoot
+    if (!markedRoot || !window.Mark) {
+      search.matches = []
+      search.activeIndex = -1
+      setCount()
+      done?.()
+      return
+    }
+    new window.Mark(markedRoot).unmark({
+      className: SEARCH_MATCH_CLASS,
+      done: () => {
+        search.matches = []
+        search.activeIndex = -1
+        search.markedRoot = null
+        setCount()
+        done?.()
+      }
+    })
+  }
+
+  const highlightMatches = (query, { keepIndex = false } = {}) => {
+    search.query = query
+    clearHighlights(() => {
+      if (!search.visible || !query) {
+        return
+      }
+      const root = getSearchRoot()
+      if (!root || !window.Mark) {
+        return
+      }
+      search.markedRoot = root
+      new window.Mark(root).mark(query, {
+        acrossElements: true,
+        separateWordSearch: false,
+        className: SEARCH_MATCH_CLASS,
+        exclude: ["mark", ".vscode-office-search", ".vscode-office-search *"],
+        done: () => {
+          search.matches = Array.from(root.querySelectorAll(`mark.${SEARCH_MATCH_CLASS}`))
+          if (search.matches.length === 0) {
+            search.activeIndex = -1
+            setCount()
+            return
+          }
+          const nextIndex = keepIndex && search.activeIndex >= 0 ?
+            Math.min(search.activeIndex, search.matches.length - 1) : 0
+          setActiveMatch(nextIndex)
+        }
+      })
+    })
+  }
+
+  const open = () => {
+    search.visible = true
+    panel.style.display = "flex"
+    input.focus()
+    input.select()
+    if (input.value.trim()) {
+      highlightMatches(input.value.trim(), { keepIndex: true })
+    } else {
+      setCount()
+    }
+  }
+
+  const close = ({ focusEditor = true } = {}) => {
+    search.visible = false
+    panel.style.display = "none"
+    clearHighlights(() => {
+      if (focusEditor) {
+        editor.focus()
+      }
+    })
+  }
+
+  const refresh = () => {
+    if (!search.visible || !input.value.trim()) {
+      return
+    }
+    queueMicrotask(() => highlightMatches(input.value.trim(), { keepIndex: true }))
+  }
+
+  input.addEventListener("input", () => {
+    highlightMatches(input.value.trim())
+  })
+
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault()
+      setActiveMatch(search.activeIndex + (event.shiftKey ? -1 : 1))
+      return
+    }
+    if (event.key === "Escape") {
+      event.preventDefault()
+      close()
+    }
+  })
+
+  prevButton.addEventListener("click", () => setActiveMatch(search.activeIndex - 1))
+  nextButton.addEventListener("click", () => setActiveMatch(search.activeIndex + 1))
+  closeButton.addEventListener("click", () => close())
+
+  document.addEventListener("mousedown", (event) => {
+    if (!search.visible || panel.contains(event.target)) {
+      return
+    }
+    const editableRoot = editor?.vditor?.wysiwyg?.element
+    if (editableRoot?.contains?.(event.target)) {
+      close({ focusEditor: false })
+    }
+  })
+
+  const editableRoot = editor?.vditor?.wysiwyg?.element
+  editableRoot?.addEventListener("beforeinput", () => {
+    if (search.visible) {
+      close({ focusEditor: false })
+    }
+  })
+
+  window.vscodeOfficeSearch = {
+    close,
+    open,
+    refresh,
+  }
+
+  return window.vscodeOfficeSearch
 }
 
 function loadTheme(rootPath, theme) {
@@ -128,6 +325,7 @@ function patchRenderedSetValue(editor) {
     queueMicrotask(() => {
       restorePreparedMarkdownPlaceholders(editor)
       editor.vditor?.outline?.render?.(editor.vditor)
+      window.vscodeOfficeSearch?.refresh()
     })
     return result
   }

@@ -35,3 +35,72 @@ a {
 html {
     scrollbar-color: unset;
 }
+
+.vscode-office-search {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid rgba(127, 127, 127, 0.35);
+    border-radius: 10px;
+    background: rgba(30, 30, 30, 0.94);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(8px);
+}
+
+.vscode-office-search input,
+.vscode-office-search button {
+    font: inherit;
+}
+
+.vscode-office-search input {
+    width: 220px;
+    height: 30px;
+    padding: 0 10px;
+    border: 1px solid rgba(127, 127, 127, 0.35);
+    border-radius: 6px;
+    outline: none;
+    color: var(--vscode-editor-foreground, #d4d4d4);
+    background: var(--vscode-input-background, rgba(255, 255, 255, 0.08));
+}
+
+.vscode-office-search input:focus {
+    border-color: var(--vscode-focusBorder, #007fd4);
+    box-shadow: 0 0 0 1px var(--vscode-focusBorder, #007fd4);
+}
+
+.vscode-office-search button {
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--vscode-editor-foreground, #d4d4d4);
+    background: var(--vscode-toolbar-hoverBackground, rgba(255, 255, 255, 0.08));
+}
+
+.vscode-office-search button:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.vscode-office-search__count {
+    min-width: 36px;
+    font-size: 12px;
+    text-align: center;
+    color: var(--vscode-descriptionForeground, rgba(255, 255, 255, 0.72));
+}
+
+mark.vscode-office-search-match {
+    padding: 0;
+    color: inherit;
+    background: var(--vscode-editor-findMatchHighlightBackground, #6a5f00);
+}
+
+mark.vscode-office-search-match--active {
+    background: var(--vscode-editor-findMatchBackground, #c59a00);
+    box-shadow: 0 0 0 1px var(--vscode-editor-findMatchBorder, #f2cc60);
+}

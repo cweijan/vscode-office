@@ -60,6 +60,8 @@ function loadRes(url) {
 
 const isMac = navigator.userAgent.includes('Mac OS');
 const shortcutTip = isMac ? '⌘ ^ E' : 'Ctrl Alt E';
+const searchTip = isMac ? 'Find (⌘ F)' : 'Find (Ctrl F)';
+const searchIcon = '<svg viewBox="0 0 1024 1024"><path d="M447 725q116 0 198.5-82.5T728 444T645.5 245.5T447 163T248.5 245.5T166 444t82.5 198.5T447 725zm0 75Q300 800 196 696T92 444t104-252t251-104t251.5 104T803 444q0 114-64 209l174 174q11 11 11 26t-11 26t-26 11t-26-11L687 705q-95 95-240 95z"></path></svg>';
 
 export async function getToolbar(resPath) {
     return [
@@ -86,6 +88,15 @@ export async function getToolbar(resPath) {
             icon: await loadRes(`${resPath}/icon/codicon-files.svg`),
             click() {
                 handler.emit("quickOpen", true)
+            }
+        },
+        {
+            tipPosition: 's',
+            tip: searchTip,
+            className: 'right',
+            icon: searchIcon,
+            click() {
+                window.vscodeOfficeSearch?.open()
             }
         },
         {
@@ -201,6 +212,7 @@ export function onToolbarClick(editor) {
         if (type == 'outline') {
             handler.emit("saveOutline", editor.vditor.options.outline.enable)
         }
+        setTimeout(() => window.vscodeOfficeSearch?.refresh(), 0)
     })
 }
 
@@ -303,6 +315,15 @@ export const autoSymbol = (handler, editor, config) => {
         }
     }
     window.addEventListener('keydown', async e => {
+        if (e.target?.closest?.('.vscode-office-search')) {
+            return;
+        }
+        if (isCompose(e) && e.key.toLowerCase() === 'f') {
+            e.stopPropagation();
+            e.preventDefault();
+            window.vscodeOfficeSearch?.open();
+            return;
+        }
         if (matchShortcut('^⌘e', e) || matchShortcut('^!e', e)) {
             e.stopPropagation();
             e.preventDefault();
