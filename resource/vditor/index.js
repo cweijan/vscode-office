@@ -1,6 +1,8 @@
 import { openLink, hotKeys, imageParser, getToolbar, autoSymbol, onToolbarClick, createContextMenu, scrollEditor } from "./util.js";
 
 let state;
+const TABLE_CODE_DOLLAR_PLACEHOLDER = "__VSCODE_OFFICE_VDITOR_TABLE_CODE_DOLLAR__"
+
 function loadConfigs() {
   const elem = document.getElementById('configs')
   try {
@@ -21,7 +23,7 @@ handler.on("open", async (md) => {
     loadTheme(md.rootPath, theme)
   })
   const editor = new Vditor('vditor', {
-    value: md.content,
+    value: prepareMarkdownForLute(md.content),
     _lutePath: md.rootPath + '/lute.min.js',
     cdn: 'https://unpkg.com/vscode-vditor@3.8.19',
     height: document.documentElement.clientHeight,
@@ -77,6 +79,9 @@ handler.on("open", async (md) => {
       emoji: {},
       extend: hotKeys
     }, after() {
+      patchLuteMarkdownTableCode(editor)
+      restorePreparedMarkdownPlaceholders(editor)
+      patchRenderedSetValue(editor)
       patchOutline(editor)
       editor.vditor?.outline?.render?.(editor.vditor)
       handler.on("update", content => {
@@ -110,6 +115,222 @@ function loadCSS(rootPath, path) {
   style.type = "text/css";
   style.href = `${rootPath}/css/${path}`;
   document.documentElement.appendChild(style)
+}
+
+function patchRenderedSetValue(editor) {
+  if (editor.__renderedSetValuePatched) {
+    return
+  }
+
+  const originalSetValue = editor.setValue.bind(editor)
+  editor.setValue = (content, clearStack = false) => {
+    const result = originalSetValue(content, clearStack)
+    queueMicrotask(() => {
+      restorePreparedMarkdownPlaceholders(editor)
+      editor.vditor?.outline?.render?.(editor.vditor)
+    })
+    return result
+  }
+
+  editor.__renderedSetValuePatched = true
+}
+
+function patchLuteMarkdownTableCode(editor) {
+  const lute = editor?.vditor?.lute
+  if (!lute || lute.__tableCodeDollarPatched) {
+    return
+  }
+
+  wrapLuteMarkdownMethod(lute, "Md2VditorDOM")
+  wrapLuteMarkdownMethod(lute, "Md2VditorIRDOM")
+  wrapLuteMarkdownMethod(lute, "Md2HTML")
+  lute.__tableCodeDollarPatched = true
+}
+
+function wrapLuteMarkdownMethod(lute, methodName) {
+  const original = lute?.[methodName]
+  if (typeof original !== "function") {
+    return
+  }
+
+  lute[methodName] = (markdown, ...rest) => {
+    const rendered = original(prepareMarkdownForLute(markdown), ...rest)
+    return restorePreparedMarkdownString(rendered)
+  }
+}
+
+function prepareMarkdownForLute(markdown) {
+  if (!markdown || !markdown.includes('|') || !markdown.includes('`') || !markdown.includes('$')) {
+    return markdown
+  }
+
+  const lines = markdown.split(/\r?\n/)
+  const prepared = []
+
+  for (let index = 0; index < lines.length; index++) {
+    if (!isPotentialTableHeader(lines, index)) {
+      prepared.push(lines[index])
+      continue
+    }
+
+    const headerCells = splitMarkdownTableRow(lines[index])
+    const separatorCells = splitMarkdownTableRow(lines[index + 1])
+    const columnCount = Math.max(headerCells.length, separatorCells.length)
+
+    prepared.push(joinMarkdownTableRow(headerCells, columnCount))
+    prepared.push(joinMarkdownTableSeparator(separatorCells, columnCount))
+    index += 1
+
+    while (index + 1 < lines.length && isPotentialTableDataRow(lines[index + 1])) {
+      index += 1
+      prepared.push(joinMarkdownTableRow(splitMarkdownTableRow(lines[index]), columnCount, protectTableCodeCellForLute))
+    }
+  }
+
+  return prepared.join('\n')
+}
+
+function isPotentialTableHeader(lines, index) {
+  if (index + 1 >= lines.length) {
+    return false
+  }
+
+  return isPotentialTableDataRow(lines[index]) && isMarkdownTableSeparator(lines[index + 1])
+}
+
+function isPotentialTableDataRow(line) {
+  const trimmed = line.trim()
+  return trimmed.startsWith('|') && trimmed.endsWith('|') && trimmed.length > 1
+}
+
+function isMarkdownTableSeparator(line) {
+  const cells = splitMarkdownTableRow(line)
+  if (cells.length === 0) {
+    return false
+  }
+
+  return cells.every((cell) => /^:?-{3,}:?$/.test(cell.replace(/\s/g, '')))
+}
+
+function splitMarkdownTableRow(line) {
+  const trimmed = line.trim()
+  if (!trimmed.startsWith('|') || !trimmed.endsWith('|')) {
+    return []
+  }
+
+  const cells = []
+  let current = ''
+  let backtickCount = 0
+
+  for (let index = 1; index < trimmed.length - 1; index++) {
+    const char = trimmed[index]
+
+    if (char === '`') {
+      backtickCount += 1
+      current += char
+      continue
+    }
+
+    if (char === '|' && backtickCount % 2 === 0) {
+      cells.push(current.trim())
+      current = ''
+      continue
+    }
+
+    current += char
+  }
+
+  cells.push(current.trim())
+  return cells
+}
+
+function joinMarkdownTableRow(cells, columnCount, transformCell = (cell) => cell) {
+  const normalizedCells = []
+  for (let index = 0; index < columnCount; index++) {
+    normalizedCells.push(transformCell(cells[index] ?? ''))
+  }
+  return `| ${normalizedCells.join(' | ')} |`
+}
+
+function joinMarkdownTableSeparator(cells, columnCount) {
+  const normalizedCells = []
+  for (let index = 0; index < columnCount; index++) {
+    normalizedCells.push(normalizeMarkdownTableSeparatorCell(cells[index] ?? '---'))
+  }
+  return `| ${normalizedCells.join(' | ')} |`
+}
+
+function normalizeMarkdownTableSeparatorCell(cell) {
+  const compact = cell.replace(/\s/g, '')
+  const hasLeftColon = compact.startsWith(':')
+  const hasRightColon = compact.endsWith(':')
+  const dashCount = Math.max(3, compact.replace(/:/g, '').length || 3)
+  return `${hasLeftColon ? ':' : ''}${'-'.repeat(dashCount)}${hasRightColon ? ':' : ''}`
+}
+
+function protectTableCodeCellForLute(cell) {
+  if (!cell.includes('`') || !cell.includes('$')) {
+    return cell
+  }
+
+  return replaceInlineCodeContent(cell, (content) => content.replace(/\$/g, TABLE_CODE_DOLLAR_PLACEHOLDER))
+}
+
+function replaceInlineCodeContent(text, replaceContent) {
+  let result = ''
+
+  for (let index = 0; index < text.length;) {
+    if (text[index] !== '`') {
+      result += text[index]
+      index += 1
+      continue
+    }
+
+    let markerLength = 1
+    while (text[index + markerLength] === '`') {
+      markerLength += 1
+    }
+
+    const marker = '`'.repeat(markerLength)
+    const closeIndex = text.indexOf(marker, index + markerLength)
+    if (closeIndex === -1) {
+      result += text.slice(index)
+      break
+    }
+
+    const contentStart = index + markerLength
+    result += marker
+    result += replaceContent(text.slice(contentStart, closeIndex))
+    result += marker
+    index = closeIndex + markerLength
+  }
+
+  return result
+}
+
+function restorePreparedMarkdownPlaceholders(editor) {
+  const roots = [
+    editor?.vditor?.wysiwyg?.element,
+    editor?.vditor?.preview?.element,
+    editor?.vditor?.ir?.element,
+  ]
+
+  roots.forEach((root) => {
+    root?.querySelectorAll?.('table code').forEach((code) => {
+      const text = code.textContent || ''
+      if (text.includes(TABLE_CODE_DOLLAR_PLACEHOLDER)) {
+        code.textContent = restorePreparedMarkdownString(text)
+      }
+    })
+  })
+}
+
+function restorePreparedMarkdownString(value) {
+  if (typeof value !== 'string' || !value.includes(TABLE_CODE_DOLLAR_PLACEHOLDER)) {
+    return value
+  }
+
+  return value.replaceAll(TABLE_CODE_DOLLAR_PLACEHOLDER, '$')
 }
 
 function patchOutline(editor) {
