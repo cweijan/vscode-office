@@ -490,7 +490,7 @@
 	"scripts": {
 		"dev": "vite --mode=development",
 		"lint:fix": "eslint src/**/*.ts --fix",
-		"build": "rm -rf out && vite build --mode=production",
+		"build": "node -e \"try{require('fs').rmSync('out',{recursive:true,force:true})}catch(e){}\" && vite build --mode=production",
 		"package": "vsce package --no-dependencies",
 		"publish": "vsce publish --no-dependencies",
 		"vscode:prepublish": "yarn run build"
