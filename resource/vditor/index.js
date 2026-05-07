@@ -174,6 +174,38 @@ function createSearch(editor) {
     return vditor[vditor.currentMode]?.element || null
   }
 
+  const getViewportState = () => {
+    const root = getSearchRoot()
+    const scrollContainer =
+      root?.closest?.(".vditor-reset") ||
+      root?.parentElement ||
+      document.scrollingElement ||
+      document.documentElement
+
+    return {
+      scrollContainer,
+      scrollLeft: scrollContainer?.scrollLeft ?? 0,
+      scrollTop: scrollContainer?.scrollTop ?? 0,
+      windowX: window.scrollX,
+      windowY: window.scrollY,
+    }
+  }
+
+  const restoreViewportState = (state) => {
+    if (!state) {
+      return
+    }
+
+    if (state.scrollContainer) {
+      state.scrollContainer.scrollLeft = state.scrollLeft
+      state.scrollContainer.scrollTop = state.scrollTop
+    }
+
+    if (window.scrollX !== state.windowX || window.scrollY !== state.windowY) {
+      window.scrollTo(state.windowX, state.windowY)
+    }
+  }
+
   const clearHighlights = (done) => {
     const markedRoot = search.markedRoot
     if (!markedRoot || !window.Mark) {
@@ -239,11 +271,14 @@ function createSearch(editor) {
   }
 
   const close = ({ focusEditor = true } = {}) => {
+    const viewportState = getViewportState()
     search.visible = false
     panel.style.display = "none"
     clearHighlights(() => {
+      restoreViewportState(viewportState)
       if (focusEditor) {
         editor.focus()
+        requestAnimationFrame(() => restoreViewportState(viewportState))
       }
     })
   }
