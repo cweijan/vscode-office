@@ -105,3 +105,12 @@ mark.vscode-office-search-match--active {
     background: #ffd54f;
     box-shadow: 0 0 0 1px #c49000;
 }
+
+.vditor-outline [data-target-id] {
+    transition: font-weight 120ms ease, color 120ms ease;
+}
+
+.vditor-outline .vscode-office-outline__item--active {
+    font-weight: 700;
+    color: var(--vscode-editor-foreground, #111);
+}

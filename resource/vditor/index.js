@@ -4,6 +4,7 @@ let state;
 const TABLE_CODE_DOLLAR_PLACEHOLDER = "__VSCODE_OFFICE_VDITOR_TABLE_CODE_DOLLAR__"
 const SEARCH_MATCH_CLASS = "vscode-office-search-match"
 const SEARCH_ACTIVE_CLASS = "vscode-office-search-match--active"
+const OUTLINE_ACTIVE_CLASS = "vscode-office-outline__item--active"
 
 function loadConfigs() {
   const elem = document.getElementById('configs')
@@ -85,6 +86,7 @@ handler.on("open", async (md) => {
       restorePreparedMarkdownPlaceholders(editor)
       patchRenderedSetValue(editor)
       patchOutline(editor)
+      bindOutlineTracking(editor)
       createSearch(editor)
       editor.vditor?.outline?.render?.(editor.vditor)
       handler.on("update", content => {
@@ -622,10 +624,31 @@ function patchOutline(editor) {
     content.innerHTML = ""
     content.appendChild(buildOutlineTree(headings))
     content.onclick = (event) => handleOutlineClick(event, currentVditor)
+    queueMicrotask(() => syncActiveOutlineHeading(currentVditor))
     return content.innerHTML
   }
 
   outline.__safeRenderPatched = true
+}
+
+function bindOutlineTracking(editor) {
+  const vditor = editor?.vditor
+  if (!vditor || vditor.__outlineTrackingBound) {
+    return
+  }
+
+  const sync = () => syncActiveOutlineHeading(vditor)
+  const syncSoon = () => queueMicrotask(sync)
+  const previewContainer = vditor.preview?.element?.parentElement
+  const wysiwygContainer = vditor.wysiwyg?.element
+
+  previewContainer?.addEventListener("scroll", sync, { passive: true })
+  wysiwygContainer?.addEventListener("scroll", sync, { passive: true })
+  window.addEventListener("resize", sync, { passive: true })
+  document.addEventListener("selectionchange", syncSoon)
+  syncSoon()
+
+  vditor.__outlineTrackingBound = true
 }
 
 function getOutlineSourceElement(vditor) {
@@ -638,6 +661,88 @@ function getOutlineSourceElement(vditor) {
   }
 
   return vditor[vditor.currentMode]?.element || null
+}
+
+function getOutlineViewportState(vditor, source) {
+  if (!vditor || !source) {
+    return null
+  }
+
+  if (vditor.preview?.element?.contains?.(source)) {
+    const container = source.parentElement
+    if (!container) {
+      return null
+    }
+    const rect = container.getBoundingClientRect()
+    return {
+      topBoundary: rect.top + 16,
+      container,
+      mode: "preview",
+    }
+  }
+
+  const rect = source.getBoundingClientRect()
+  return {
+    topBoundary: rect.top + 24,
+    container: source,
+    mode: "editor",
+  }
+}
+
+function collectVisibleOutlineHeadings(source) {
+  return Array.from(source?.querySelectorAll?.("h1, h2, h3, h4, h5, h6") || [])
+    .filter((heading) => heading.id)
+}
+
+function findActiveHeading(headings, viewportState) {
+  if (!headings.length || !viewportState) {
+    return null
+  }
+
+  let active = headings[0]
+
+  for (const heading of headings) {
+    const rect = heading.getBoundingClientRect()
+    if (rect.top <= viewportState.topBoundary) {
+      active = heading
+      continue
+    }
+
+    if (rect.top - viewportState.topBoundary < 32) {
+      active = heading
+    }
+    break
+  }
+
+  return active
+}
+
+function syncActiveOutlineHeading(vditor) {
+  const outlineContent = vditor?.outline?.element?.lastElementChild
+  if (!outlineContent) {
+    return
+  }
+
+  const source = getOutlineSourceElement(vditor)
+  const viewportState = getOutlineViewportState(vditor, source)
+  const headings = collectVisibleOutlineHeadings(source)
+  const activeHeading = findActiveHeading(headings, viewportState)
+  const activeId = activeHeading?.id
+
+  const rows = outlineContent.querySelectorAll("[data-target-id]")
+  let activeRow = null
+
+  rows.forEach((row) => {
+    const isActive = activeId && row.getAttribute("data-target-id") === activeId
+    row.classList.toggle(OUTLINE_ACTIVE_CLASS, Boolean(isActive))
+    if (isActive) {
+      activeRow = row
+    }
+  })
+
+  if (activeRow) {
+    activeRow.scrollIntoView({ block: "nearest", inline: "nearest" })
+  }
 }
 
 function collectOutlineHeadings(root) {
