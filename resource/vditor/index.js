@@ -639,13 +639,23 @@ function bindOutlineTracking(editor) {
 
   const sync = () => syncActiveOutlineHeading(vditor)
   const syncSoon = () => queueMicrotask(sync)
-  const previewContainer = vditor.preview?.element?.parentElement
-  const wysiwygContainer = vditor.wysiwyg?.element
+  const syncSelection = () => {
+    if (!isOutlineSelectionInsideSource(vditor)) {
+      return
+    }
+    syncSoon()
+  }
+  const containers = new Set([
+    getOutlineScrollContainer(vditor, getPreviewOutlineSourceElement(vditor)),
+    getOutlineScrollContainer(vditor, resolveOutlineContentRoot(vditor.wysiwyg?.element)),
+    getOutlineScrollContainer(vditor, resolveOutlineContentRoot(vditor.ir?.element)),
+  ])
 
-  previewContainer?.addEventListener("scroll", sync, { passive: true })
-  wysiwygContainer?.addEventListener("scroll", sync, { passive: true })
+  containers.forEach((container) => {
+    container?.addEventListener("scroll", sync, { passive: true })
+  })
   window.addEventListener("resize", sync, { passive: true })
-  document.addEventListener("selectionchange", syncSoon)
+  document.addEventListener("selectionchange", syncSelection)
   syncSoon()
 
   vditor.__outlineTrackingBound = true
@@ -657,10 +667,49 @@ function getOutlineSourceElement(vditor) {
   }
 
   if (vditor.preview?.element?.style?.display === "block") {
-    return vditor.preview.element.lastElementChild
+    return getPreviewOutlineSourceElement(vditor)
   }
 
-  return vditor[vditor.currentMode]?.element || null
+  return resolveOutlineContentRoot(vditor[vditor.currentMode]?.element)
+}
+
+function getPreviewOutlineSourceElement(vditor) {
+  return vditor?.preview?.element?.lastElementChild || null
+}
+
+function resolveOutlineContentRoot(element) {
+  if (!element) {
+    return null
+  }
+
+  if (element.classList?.contains("vditor-reset")) {
+    return element
+  }
+
+  return element.querySelector?.(".vditor-reset") || element
+}
+
+function getOutlineScrollContainer(vditor, source) {
+  if (!source) {
+    return null
+  }
+
+  if (vditor?.preview?.element?.contains?.(source)) {
+    return source.parentElement || vditor.preview.element
+  }
+
+  return source.closest?.(".vditor-reset") || source
+}
+
+function isOutlineSelectionInsideSource(vditor) {
+  const selection = document.getSelection?.()
+  if (!selection?.rangeCount) {
+    return false
+  }
+
+  const anchorNode = selection.anchorNode
+  const source = getOutlineSourceElement(vditor)
+  return Boolean(anchorNode && source?.contains?.(anchorNode))
 }
 
 function getOutlineViewportState(vditor, source) {
@@ -668,24 +717,17 @@ function getOutlineViewportState(vditor, source) {
     return null
   }
 
-  if (vditor.preview?.element?.contains?.(source)) {
-    const container = source.parentElement
-    if (!container) {
-      return null
-    }
-    const rect = container.getBoundingClientRect()
-    return {
-      topBoundary: rect.top + 16,
-      container,
-      mode: "preview",
-    }
+  const container = getOutlineScrollContainer(vditor, source)
+  if (!container) {
+    return null
   }
 
-  const rect = source.getBoundingClientRect()
+  const isPreview = vditor.preview?.element?.contains?.(source)
+  const rect = container.getBoundingClientRect()
   return {
-    topBoundary: rect.top + 24,
-    container: source,
-    mode: "editor",
+    topBoundary: rect.top + (isPreview ? 16 : 24),
+    container,
+    mode: isPreview ? "preview" : "editor",
   }
 }
 
@@ -731,6 +773,7 @@ function syncActiveOutlineHeading(vditor) {
 
   const rows = outlineContent.querySelectorAll("[data-target-id]")
   let activeRow = null
+  const previousActiveId = vditor.__outlineActiveId || null
 
   rows.forEach((row) => {
     const isActive = activeId && row.getAttribute("data-target-id") === activeId
@@ -740,7 +783,9 @@ function syncActiveOutlineHeading(vditor) {
     }
   })
 
-  if (activeRow) {
+  vditor.__outlineActiveId = activeId || null
+
+  if (activeRow && activeId && activeId !== previousActiveId) {
     activeRow.scrollIntoView({ block: "nearest", inline: "nearest" })
   }
 }
@@ -921,9 +966,17 @@ function scrollOutlineTarget(target, source, vditor) {
     window.scrollTo(window.scrollX, vditor.element.offsetTop)
   }
 
-  if (vditor.preview.element.contains(source)) {
-    source.parentElement.scrollTop = target.offsetTop
-  } else {
-    source.scrollTop = target.offsetTop
+  const scrollContainer = getOutlineScrollContainer(vditor, source)
+  if (!scrollContainer) {
+    target.scrollIntoView({ block: "start" })
+    return
   }
+
+  const isPreview = vditor.preview?.element?.contains?.(source)
+  const containerRect = scrollContainer.getBoundingClientRect()
+  const targetRect = target.getBoundingClientRect()
+  const offset = isPreview ? 16 : 24
+  const nextTop = scrollContainer.scrollTop + (targetRect.top - containerRect.top) - offset
+
+  scrollContainer.scrollTo({ top: Math.max(nextTop, 0) })
 }
