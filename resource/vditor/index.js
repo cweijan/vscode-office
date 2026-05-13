@@ -47,6 +47,9 @@ handler.on("open", async (md) => {
         toc: true,
         codeBlockPreview: config.previewCode,
       },
+      mermaid: {
+        cdn: 'https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist'
+      },
       hljs: {
         style: config.previewCodeHighlight.style,
         lineNumber: config.previewCodeHighlight.showLineNumber

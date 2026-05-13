@@ -1,5 +1,8 @@
 # Change log
 
+# 3.5.6 2026-1-13
+- Add QMD and Typst support.
+
 # 3.5.4 2025-4-28
 - Support edit excel and csv file.
 

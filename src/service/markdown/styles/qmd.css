@@ -1,0 +1,139 @@
+/**
+ * QMD Callout Styles
+ * Styles for Quarto Markdown callout blocks
+ */
+
+/* Base callout styles */
+.callout {
+    margin: 1em 0;
+    padding: 0;
+    border-radius: 8px;
+    border-left: 4px solid;
+    overflow: hidden;
+}
+
+.callout-header {
+    display: flex;
+    align-items: center;
+    padding: 0.75em 1em;
+    font-weight: 600;
+}
+
+.callout-icon {
+    margin-right: 0.5em;
+    font-size: 1.1em;
+}
+
+.callout-title {
+    flex: 1;
+}
+
+.callout-content {
+    padding: 0 1em 1em 1em;
+}
+
+.callout-content > *:first-child {
+    margin-top: 0;
+}
+
+.callout-content > *:last-child {
+    margin-bottom: 0;
+}
+
+/* Note - Blue */
+.callout-note {
+    border-left-color: #0969da;
+    background-color: #ddf4ff;
+}
+
+.callout-note .callout-header {
+    background-color: #b6e3ff;
+    color: #0550ae;
+}
+
+/* Warning - Yellow */
+.callout-warning {
+    border-left-color: #9a6700;
+    background-color: #fff8c5;
+}
+
+.callout-warning .callout-header {
+    background-color: #ffdf5d;
+    color: #6f5700;
+}
+
+/* Tip - Green */
+.callout-tip {
+    border-left-color: #1a7f37;
+    background-color: #dafbe1;
+}
+
+.callout-tip .callout-header {
+    background-color: #aceebb;
+    color: #116329;
+}
+
+/* Important - Purple */
+.callout-important {
+    border-left-color: #8250df;
+    background-color: #fbefff;
+}
+
+.callout-important .callout-header {
+    background-color: #ecd8ff;
+    color: #6639ba;
+}
+
+/* Caution - Red */
+.callout-caution {
+    border-left-color: #cf222e;
+    background-color: #ffebe9;
+}
+
+.callout-caution .callout-header {
+    background-color: #ffcecb;
+    color: #a40e26;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    .callout-note {
+        background-color: #0d1d31;
+    }
+    .callout-note .callout-header {
+        background-color: #1a3a5c;
+        color: #79c0ff;
+    }
+
+    .callout-warning {
+        background-color: #2a2100;
+    }
+    .callout-warning .callout-header {
+        background-color: #3d3100;
+        color: #f0c000;
+    }
+
+    .callout-tip {
+        background-color: #0d2818;
+    }
+    .callout-tip .callout-header {
+        background-color: #143d22;
+        color: #7ee787;
+    }
+
+    .callout-important {
+        background-color: #1f1538;
+    }
+    .callout-important .callout-header {
+        background-color: #2d1f4e;
+        color: #d2a8ff;
+    }
+
+    .callout-caution {
+        background-color: #2a0b10;
+    }
+    .callout-caution .callout-header {
+        background-color: #3d1216;
+        color: #ff7b72;
+    }
+}

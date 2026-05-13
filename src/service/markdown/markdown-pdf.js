@@ -10,6 +10,7 @@ const markdownItToc = require("markdown-it-toc-done-right")
 const markdownItAnchor = require("markdown-it-anchor")
 const { exportByType } = require('./html-export')
 const markdownItMermaid = require('markdown-it-mermaid').default;
+const { preprocessQmd, isQmdFile } = require('./qmd-preprocessor');
 
 async function convertMarkdown(inputMarkdownFile, config) {
 
@@ -24,7 +25,7 @@ async function convertMarkdown(inputMarkdownFile, config) {
   const containsMermaid = $('.mermaid').length > 0;
   if (containsMermaid) {
       const mermaidScript = `
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     `;
 
@@ -48,6 +49,12 @@ function addTocToContent(text, config) {
  */
 function convertMarkdownToHtml(filename, type, text, config) {
   if (type == 'pdf') text = addTocToContent(text, config)
+
+  // Preprocess QMD files
+  if (isQmdFile(filename)) {
+    text = preprocessQmd(text, { stripCodeOptions: true });
+  }
+
   let md = {}
 
   try {
@@ -213,7 +220,7 @@ function readStyles() {
   try {
     const basePath = path.join(__dirname, "styles");
     const katexPath = path.resolve(__dirname, '..', "resource", 'vditor', 'dist', 'js', 'katex', 'katex.min.css');
-    const files = ['arduino-light.css', 'markdown.css', 'markdown-pdf.css']
+    const files = ['arduino-light.css', 'markdown.css', 'markdown-pdf.css', 'qmd.css']
     return files.map(file => makeCss(path.join(basePath, file))).join("")
       + makeCss(katexPath)
   } catch (error) {

@@ -1,0 +1,69 @@
+---
+title: QMD Test Document
+format: html
+---
+
+# QMD Syntax Test
+
+This is a test document to verify QMD callout rendering.
+
+## Callout Blocks
+
+::: {.callout-note}
+This is a **note** callout. It should render with a blue background and an info icon.
+:::
+
+::: {.callout-warning}
+This is a **warning** callout. It should render with a yellow background.
+:::
+
+::: {.callout-tip}
+Here's a useful **tip** for you! This should have a green background.
+:::
+
+::: {.callout-important}
+This is **important** information that you should not miss.
+:::
+
+::: {.callout-caution}
+**Caution!** Be careful with this operation.
+:::
+
+## Custom Title
+
+::: {.callout-note title="Custom Note Title"}
+This callout has a custom title instead of the default "Note".
+:::
+
+## Code Cells with Options
+
+```python
+#| echo: false
+#| label: fig-example
+import matplotlib.pyplot as plt
+plt.plot([1, 2, 3, 4])
+```
+
+## Inline Spans
+
+This text has a [highlighted term]{.highlight} using QMD span syntax.
+
+## Generic Divs
+
+::: {.columns}
+This content is inside a generic div with class "columns".
+:::
+
+## Regular Markdown
+
+Regular markdown features should still work:
+
+- Bullet list
+- **Bold text**
+- *Italic text*
+- `inline code`
+
+```javascript
+// Code block
+console.log("Hello, QMD!");
+```

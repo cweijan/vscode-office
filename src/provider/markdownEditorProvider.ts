@@ -8,6 +8,7 @@ import { Holder } from '../service/markdown/holder';
 import { MarkdownService } from '../service/markdownService';
 import { Global } from '@/common/global';
 import { platform } from 'os';
+import { preprocessQmd, isQmdFile } from '../service/qmdPreprocessor';
 
 /**
  * support view and edit office files.
@@ -52,6 +53,11 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         const webview = handler.panel.webview;
 
         let content = document.getText();
+
+        // Preprocess QMD files for preview
+        const isQmd = isQmdFile(uri.fsPath);
+        let previewContent = isQmd ? preprocessQmd(content) : content;
+
         const contextPath = `${this.extensionPath}/resource/vditor`;
         const rootPath = webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)).toString();
 
@@ -74,7 +80,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                 title: basename(uri.fsPath),
                 config, scrollTop,
                 language: vscode.env.language,
-                rootPath, content
+                rootPath, content: previewContent
             })
             this.updateCount(content)
             this.countStatus.show()
@@ -83,8 +89,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             const updatedText = e.document.getText()?.replace(/\r/g, '');
             if (content == updatedText) return;
             content = updatedText;
+            previewContent = isQmd ? preprocessQmd(content) : content;
             this.updateCount(content)
-            handler.emit("update", updatedText)
+            handler.emit("update", previewContent)
         }).on("command", (command) => {
             vscode.commands.executeCommand(command)
         }).on("openLink", (uri: string) => {
