@@ -14,6 +14,13 @@
 
 <body>
     <div id="vditor"></div>
+    <div class="vscode-office-search" id="vscode-office-search" style="display: none;">
+        <input id="vscode-office-search-input" type="text" placeholder="Find in Markdown" autocomplete="off" />
+        <span class="vscode-office-search__count" id="vscode-office-search-count">0/0</span>
+        <button id="vscode-office-search-prev" type="button" aria-label="Previous match">↑</button>
+        <button id="vscode-office-search-next" type="button" aria-label="Next match">↓</button>
+        <button id="vscode-office-search-close" type="button" aria-label="Close search">×</button>
+    </div>
     <div class="dropdown-menu dropdown-menu-sm" id="context-menu" style="display: none;">
         <a class="dropdown-item" id="copy" href="#">Copy</a>
         <a class="dropdown-item" id="paste" href="#">Paste</a>
@@ -24,6 +31,7 @@
     </div>
 </body>
 <script src="vditor.js"></script>
+<script src="mark.min.js"></script>
 <script src="../lib/vscode.js"></script>
 <script src="index.js" type="module"></script>
 
