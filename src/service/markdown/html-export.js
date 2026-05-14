@@ -37,7 +37,8 @@ export async function exportByType(filePath, data, type, config) {
     let tmpfilename = path.join(isDev ? originPath.dir : os.tmpdir(), originPath.name + "_tmp.html")
     exportHtml(tmpfilename, data)
     let options = {
-        executablePath: config["executablePath"] || undefined
+        executablePath: config["executablePath"] || undefined,
+        args: config["puppeteerArgs"] || []
     }
 
     const puppeteer = require("puppeteer-core")

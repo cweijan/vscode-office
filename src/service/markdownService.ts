@@ -49,6 +49,8 @@ export class MarkdownService {
             withoutOutline,
             // chromium path
             "executablePath": this.getChromiumPath(),
+            // puppeteer launch args (useful for Linux servers running as root)
+            "puppeteerArgs": this.getPuppeteerArgs(),
             // Set `true` to convert `\n` in paragraphs into `<br>`.
             "breaks": false,
             // pdf print option
@@ -58,14 +60,42 @@ export class MarkdownService {
         };
     }
 
+    private getPuppeteerArgs(): string[] {
+        // Custom args from settings
+        const customArgs = Global.getConfig<string[]>("puppeteerArgs");
+        if (customArgs && customArgs.length > 0) {
+            return customArgs;
+        }
+        // On Linux, running as root requires --no-sandbox
+        if (process.platform === 'linux') {
+            try {
+                const uid = typeof process.getuid === 'function' ? process.getuid() : -1;
+                if (uid === 0) {
+                    return ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'];
+                }
+            } catch {
+                // getuid not available on this platform
+            }
+        }
+        return [];
+    }
+
     private paths: string[] = [
+        // Windows
         "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
         "C:\\Program Files (x86)\\Microsoft\\Edge Beta\\Application\\msedge.exe",
         "C:\\Program Files (x86)\\Microsoft\\Edge Dev\\Application\\msedge.exe",
         join(homedir(), "AppData\\Local\\Microsoft\\Edge SxS\\Application\\msedge.exe"),
+        // macOS
         '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
         '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
         '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser',
+        // Linux
+        "/usr/bin/google-chrome",
+        "/usr/bin/google-chrome-stable",
+        "/usr/bin/chromium",
+        "/usr/bin/chromium-browser",
+        "/snap/bin/chromium",
         "/usr/bin/microsoft-edge",
     ]
 
