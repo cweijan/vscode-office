@@ -5,11 +5,11 @@ const URI = require("vscode").Uri
 const markdownIt = require("markdown-it")
 const markdownItCheckbox = require("markdown-it-checkbox")
 const markdownItKatex = require("./ext/markdown-it-katex")
+const markdownItMermaid = require("./ext/markdown-it-mermaid").default;
 const markdownItPlantuml = require("markdown-it-plantuml")
 const markdownItToc = require("markdown-it-toc-done-right")
 const markdownItAnchor = require("markdown-it-anchor")
 const { exportByType } = require('./html-export')
-const markdownItMermaid = require('markdown-it-mermaid').default;
 
 async function convertMarkdown(inputMarkdownFile, config) {
 
