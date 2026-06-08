@@ -525,6 +525,7 @@
 		"chrome-finder": "^1.0.7",
 		"date-format": "^4.0.14",
 		"docx-preview": "^0.3.0",
+		"exceljs": "^4.4.0",
 		"file-type": "^19.6.0",
 		"highlight.js": "^11.10.0",
 		"iconv-lite": "^0.6.3",
