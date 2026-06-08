@@ -771,48 +771,10 @@ function sheetInitEvents() {
           cut.call(this);
           evt.preventDefault();
           break;
-        case 85:
-          // ctrl + u
-          toolbar.trigger('underline');
-          evt.preventDefault();
-          break;
         case 86:
           // ctrl + v
           // => paste
           // evt.preventDefault();
-          break;
-        case 37:
-          // ctrl + left
-          selectorMove.call(this, shiftKey, 'row-first');
-          evt.preventDefault();
-          break;
-        case 38:
-          // ctrl + up
-          selectorMove.call(this, shiftKey, 'col-first');
-          evt.preventDefault();
-          break;
-        case 39:
-          // ctrl + right
-          selectorMove.call(this, shiftKey, 'row-last');
-          evt.preventDefault();
-          break;
-        case 40:
-          // ctrl + down
-          selectorMove.call(this, shiftKey, 'col-last');
-          evt.preventDefault();
-          break;
-        case 32:
-          // ctrl + space, all cells in col
-          selectorSet.call(this, false, -1, this.data.selector.ci, false);
-          evt.preventDefault();
-          break;
-        case 66:
-          // ctrl + B
-          toolbar.trigger('bold');
-          break;
-        case 73:
-          // ctrl + I
-          toolbar.trigger('italic');
           break;
         default:
           break;
