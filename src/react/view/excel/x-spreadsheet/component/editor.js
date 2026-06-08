@@ -53,6 +53,11 @@ function keydownEventHandler(evt) {
     evt.stopPropagation();
   }
   if (keyCode === 13 && !altKey) evt.preventDefault();
+  // 不知道为什么单元格事件被吞了, Windows上正常
+  if (navigator.userAgent.includes('Mac OS')) {
+    const newEvent = new evt.constructor(evt.type, evt);
+    document.body.dispatchEvent(newEvent);
+  }
 }
 
 function inputEventHandler(evt) {
@@ -176,14 +181,14 @@ export default class Editor {
       .children(
         this.textEl = h('textarea', '')
           .on('input', evt => inputEventHandler.call(this, evt))
-          .on('paste.stop', () => {})
+          .on('paste.stop', () => { })
           .on('keydown', evt => keydownEventHandler.call(this, evt)),
         this.textlineEl = h('div', 'textline'),
         this.suggest.el,
         this.datepicker.el,
       )
-      .on('mousemove.stop', () => {})
-      .on('mousedown.stop', () => {});
+      .on('mousemove.stop', () => { })
+      .on('mousedown.stop', () => { });
     this.el = h('div', `${cssPrefix}-editor`)
       .child(this.areaEl).hide();
     this.suggest.bindInputEvents(this.textEl);
@@ -192,7 +197,7 @@ export default class Editor {
     this.freeze = { w: 0, h: 0 };
     this.cell = null;
     this.inputText = '';
-    this.change = () => {};
+    this.change = () => { };
   }
 
   setFreezeLengths(width, height) {
@@ -239,7 +244,7 @@ export default class Editor {
       el.offset(elOffset);
       // TODO: Width and height
       areaEl.offset({ left: left - elOffset.left - 0.8, top: top - elOffset.top - 0.8 });
-      textEl.offset({ width: width - 9 + 0.8-12, height: height - 3 + 0.8-5 });
+      textEl.offset({ width: width - 9 + 0.8 - 12, height: height - 3 + 0.8 - 5 });
       const sOffset = { left: 0 };
       sOffset[suggestPosition] = height;
       suggest.setOffset(sOffset);
