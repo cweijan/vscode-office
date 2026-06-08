@@ -1,10 +1,18 @@
+import ExcelJS from 'exceljs';
 import { inferSchema, initParser } from 'udsv';
-import * as XLSX from 'xlsx/dist/xlsx.mini.min.js';
+
+interface RowMap {
+    [rowIndex: number]: {
+        cells: {
+            [colIndex: number]: { text: string };
+        };
+    };
+}
 
 interface SheetInfo {
     name: string;
-    rows: any[];
-    cols?: { [key: string]: { width: number } };
+    rows: RowMap;
+    cols?: { [key: number]: { width: number } };
 }
 
 export interface ExcelData {
@@ -15,12 +23,15 @@ export interface ExcelData {
 
 const MIN_COL_WIDTH = 70;
 const MAX_COL_WIDTH = 300;
+const DEFAULT_COL_WIDTH = 100;
 const CHAR_WIDTH = 8;
 const MAX_ROWS_TO_CHECK = 10;
 
+const clampColWidth = (width: number) => Math.min(Math.max(width, MIN_COL_WIDTH), MAX_COL_WIDTH);
+
 const calculateColWidth = (rows: any[], colIndex: number): number => {
     let maxLength = 0;
-    for (let i = 0; i < Math.min(rows.length, MAX_ROWS_TO_CHECK); i++) {
+    for (let i = 0; i < Math.min(rows.length, MAX_ROWS_TO_CHECK); i += 1) {
         const cell = rows[i][colIndex];
         if (cell) {
             const length = String(cell).length;
@@ -29,114 +40,142 @@ const calculateColWidth = (rows: any[], colIndex: number): number => {
             }
         }
     }
-    const width = maxLength * CHAR_WIDTH;
-    return Math.min(Math.max(width, MIN_COL_WIDTH), MAX_COL_WIDTH);
+    return clampColWidth(maxLength * CHAR_WIDTH);
 };
 
-const convert = wb => {
+const excelColWidthToPx = (width?: number) => {
+    if (width == null) return null;
+    return Math.round(width * 7 + 5);
+};
+
+const buildCsvCols = (rows: any[][], colCount: number) => {
+    const cols: Record<number, { width: number }> = {};
+    for (let i = 0; i < colCount; i += 1) {
+        cols[i] = { width: calculateColWidth(rows, i) };
+    }
+    return cols;
+};
+
+const buildColsFromWorksheet = (worksheet: ExcelJS.Worksheet, colCount: number) => {
+    const cols: Record<number, { width: number }> = {};
+    for (let i = 1; i <= colCount; i += 1) {
+        const width = excelColWidthToPx(worksheet.getColumn(i).width) ?? DEFAULT_COL_WIDTH;
+        cols[i - 1] = { width: clampColWidth(width) };
+    }
+    return cols;
+};
+
+const formatCellText = (cell: ExcelJS.Cell) => {
+    if (cell.value == null) return '';
+    if (cell.text) return cell.text;
+    if (cell.value instanceof Date) {
+        return cell.value.toISOString().slice(0, 10);
+    }
+    return String(cell.value);
+};
+
+const convertExcelJsWorksheet = (worksheet: ExcelJS.Worksheet): Pick<SheetInfo, 'rows' | 'cols'> => {
+    const rows: RowMap = {};
+    let maxCols = 0;
+
+    worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+        const ri = rowNumber - 1;
+        const cells: Record<number, { text: string }> = {};
+        row.eachCell({ includeEmpty: false }, (cell, colNumber) => {
+            const ci = colNumber - 1;
+            cells[ci] = { text: formatCellText(cell) };
+            if (ci + 1 > maxCols) maxCols = ci + 1;
+        });
+        rows[ri] = { cells };
+    });
+
+    const colCount = Math.max(maxCols, worksheet.columnCount || 0);
+    return {
+        rows,
+        cols: buildColsFromWorksheet(worksheet, colCount),
+    };
+};
+
+const convertExcelJsWorkbook = (workbook: ExcelJS.Workbook): ExcelData => {
     const sheets: SheetInfo[] = [];
     let maxLength = 0;
     let maxCols = 26;
-    wb.SheetNames.forEach(name => {
-        const sheet: SheetInfo = { name, rows: [] };
-        const ws = wb.Sheets[name];
-        const rows = XLSX.utils.sheet_to_json(ws, { raw: false, header: 1 });
-        if (maxLength < rows.length) maxLength = rows.length
 
-        // 计算列宽
-        const cols = {};
-        for (let i = 0; i < rows[0]?.length || 0; i++) {
-            const width = calculateColWidth(rows, i);
-            cols[i] = { width };
-        }
-        sheet.cols = cols;
+    for (const worksheet of workbook.worksheets) {
+        const converted = convertExcelJsWorksheet(worksheet);
+        const rowCount = Object.keys(converted.rows).length;
+        if (maxLength < rowCount) maxLength = rowCount;
 
-        sheet.rows = rows.reduce((map, row, i) => {
-            const cells = row.reduce((colMap, column, j) => {
-                colMap[j] = { text: column }
-                return colMap
-            }, {});
-            map[i] = { cells }
-            const colLen = Object.keys(cells).length;
-            if (colLen > maxCols) {
-                maxCols = colLen;
-            }
-            return map
-        }, {})
+        const colLen = Object.keys(converted.cols).length;
+        if (colLen > maxCols) maxCols = colLen;
 
-        sheets.push(sheet);
-    });
+        sheets.push({
+            name: worksheet.name,
+            rows: converted.rows,
+            cols: converted.cols,
+        });
+    }
+
     return { sheets, maxLength, maxCols };
 };
 
-export function loadSheets(buffer: ArrayBuffer, ext: string): ExcelData {
-    const ab = new Uint8Array(buffer).buffer
-    const wb = ext.toLowerCase() == ".csv" ? XLSX.read(new TextDecoder("utf-8").decode(ab), { type: "string", raw: true }) : XLSX.read(ab, { type: "array" });
-    return convert(wb);
-}
+const loadWithExcelJs = async (buffer: ArrayBuffer): Promise<ExcelData> => {
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buffer);
+    return convertExcelJsWorkbook(workbook);
+};
 
-export function readCSV(buffer: ArrayBuffer): ExcelData {
+const loadCsv = (buffer: ArrayBuffer): ExcelData => {
     let maxCols = 26;
     const emptySheet = { maxCols, sheets: [{ name: 'Sheet1', rows: [] }] };
-    let csvStr = new TextDecoder("utf-8").decode(buffer);
-    if (!csvStr) return emptySheet
+    let csvStr = new TextDecoder('utf-8').decode(buffer);
+    if (!csvStr) return emptySheet;
+
     try {
         if (!csvStr.includes('\n')) csvStr += '\n';
         const schema = inferSchema(csvStr, { header: () => [] });
         const rows = initParser(schema).stringArrs(csvStr);
+        const colCount = rows[0]?.length || 0;
 
-        // 计算列宽
-        const cols = {};
-        for (let i = 0; i < rows[0]?.length || 0; i++) {
-            cols[i] = { width: calculateColWidth(rows, i) };
+        const processedRows: RowMap = {};
+        for (let i = 0; i < rows.length; i += 1) {
+            const row = rows[i];
+            const cells: Record<number, { text: string }> = {};
+            for (let j = 0; j < row.length; j += 1) {
+                cells[j] = { text: row[j] == null ? '' : String(row[j]) };
+                if (j + 1 > maxCols) maxCols = j + 1;
+            }
+            processedRows[i] = { cells };
         }
-
-        const processedRows = rows.map(row => {
-            return row.reduce((colMap, column, j) => {
-                colMap[String.fromCharCode(65 + j)] = column
-                if (j > maxCols) maxCols = j;
-                return colMap
-            }, {});
-        });
 
         return {
             maxCols,
+            maxLength: rows.length,
             sheets: [{
-                name: "Sheet1",
+                name: 'Sheet1',
                 rows: processedRows,
-                cols
-            }]
-        }
+                cols: buildCsvCols(rows, colCount),
+            }],
+        };
     } catch (error) {
-        console.error(error)
-        return { maxCols, sheets: [{ name: 'Sheet1', rows: [{ A: error.message }] }] };
+        console.error(error);
+        return { maxCols, sheets: [{ name: 'Sheet1', rows: [{ cells: { 0: { text: error.message } } }] }] };
     }
+};
+
+const isCsvExt = (ext: string) => ext.toLowerCase().includes('csv');
+
+export async function loadSheets(buffer: ArrayBuffer, ext: string): Promise<ExcelData> {
+    if (isCsvExt(ext)) {
+        return loadCsv(buffer);
+    }
+    return loadWithExcelJs(buffer);
 }
 
-export function readXLSX(buffer: ArrayBuffer): ExcelData {
-    const wb = XLSX.read(buffer, { type: "array" })
-    const sheets: SheetInfo[] = [];
-    let maxCols = 26;
-    wb.SheetNames.forEach(name => {
-        const sheet: SheetInfo = { name, rows: [] };
-        const ws = wb.Sheets[name];
-        const rows = XLSX.utils.sheet_to_json(ws, { raw: false, header: 1 });
+export function readCSV(buffer: ArrayBuffer): ExcelData {
+    return loadCsv(buffer);
+}
 
-        // 计算列宽
-        const cols = {};
-        for (let i = 0; i < rows[0]?.length || 0; i++) {
-            cols[i] = { width: calculateColWidth(rows, i) };
-        }
-        sheet.cols = cols;
-
-        sheet.rows = rows.map((row: any) => {
-            return row.reduce((colMap, column, j) => {
-                colMap[String.fromCharCode(65 + j)] = column
-                if (j > maxCols) maxCols = j;
-                return colMap
-            }, {});
-        })
-        sheets.push(sheet);
-    });
-    return { sheets, maxCols };
+export async function readExcel(buffer: ArrayBuffer): Promise<ExcelData> {
+    return loadWithExcelJs(buffer);
 }

@@ -16,8 +16,8 @@ export default function Excel() {
         handler.on("open", ({ path, ext }) => {
             const startTime = Date.now();
             console.log('Loading Excel file...');
-            fetch(path).then(response => response.arrayBuffer()).then(res => {
-                const { sheets, maxLength, maxCols } = loadSheets(res, ext);
+            fetch(path).then(response => response.arrayBuffer()).then(async (res) => {
+                const { sheets, maxLength, maxCols } = await loadSheets(res, ext);
                 isCSV.current = ext?.match(/csv/i) !== null;
                 container.innerHTML = ''
                 const spreadSheet = new Spreadsheet(container, {

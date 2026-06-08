@@ -2,6 +2,24 @@ import { handler } from "../../util/vscode";
 import * as XLSX from 'xlsx/dist/xlsx.mini.min.js';
 import Spreadsheet from "x-data-spreadsheet";
 
+const DEFAULT_COL_WIDTH = 100;
+
+function getColWidth(cols: Record<string, any>, ci: number) {
+    const col = cols[ci];
+    if (col && col.width != null) return col.width;
+    return DEFAULT_COL_WIDTH;
+}
+
+function applyColWidths(ws: XLSX.WorkSheet, xws: { cols?: Record<string, any> }) {
+    const cols = xws.cols;
+    if (!cols || !cols.len) return;
+    const colWidths = [];
+    for (let ci = 0; ci < cols.len; ci += 1) {
+        colWidths.push({ wpx: getColWidth(cols, ci) });
+    }
+    ws['!cols'] = colWidths;
+}
+
 function dataToSheet(xws) {
     var aoa = [[]];
     var rowobj = xws.rows;
@@ -16,7 +34,9 @@ function dataToSheet(xws) {
             aoa[ri][idx] = row.cells[k].text;
         });
     }
-    return XLSX.utils.aoa_to_sheet(aoa);
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    applyColWidths(ws, xws);
+    return ws;
 }
 
 function xtos(sdata) {
