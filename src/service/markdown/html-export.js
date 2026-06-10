@@ -37,6 +37,7 @@ export async function exportByType(filePath, data, type, config) {
     let tmpfilename = path.join(isDev ? originPath.dir : os.tmpdir(), originPath.name + "_tmp.html")
     exportHtml(tmpfilename, data)
     let options = {
+        headless: true,
         executablePath: config["executablePath"] || undefined
     }
 
@@ -47,7 +48,7 @@ export async function exportByType(filePath, data, type, config) {
     let page = await browser.newPage().catch(error => {
         showErrorMessage("browser.newPage()", error)
     });
-    await page.goto(URI.file(tmpfilename).toString(), { waitUntil: "networkidle0" }).catch(error => {
+    await page.goto(URI.file(tmpfilename).toString(), { waitUntil: "load" }).catch(error => {
         showErrorMessage("page.goto()", error)
     });
 
