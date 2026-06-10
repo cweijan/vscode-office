@@ -1,7 +1,8 @@
 # Change log
 
-# 3.5.6
+# 3.5.6 2026-6-10
 - Update puppeteer-core version
+- Beautify zip,font,image and markdown view
 - Fix command 'office.markdown.paste' hijacks ctrl/cmd+v
 
 # 3.5.5 2026-6-8
