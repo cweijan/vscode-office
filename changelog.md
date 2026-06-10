@@ -1,5 +1,14 @@
 # Change log
 
+# 3.5.6
+- Update puppeteer-core version
+- Fix command 'office.markdown.paste' hijacks ctrl/cmd+v
+
+# 3.5.5 2026-6-8
+- Update mermaid version
+- Integrate Vditor resources
+- Fix Excel cell shortcut keys not working on MacOS
+
 # 3.5.4 2025-4-28
 - Support edit excel and csv file.
 

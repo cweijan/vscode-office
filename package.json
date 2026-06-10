@@ -407,7 +407,14 @@
 					"enum": [
 						"Auto",
 						"Light",
-						"Solarized"
+						"Solarized",
+						"Warm Light",
+						"Dim Light",
+						"One Dark",
+						"Github Dark",
+						"Nord",
+						"Monokai",
+						"Dracula"
 					],
 					"default": "Light",
 					"markdownDescription": "The theme for the Markdown editor."
