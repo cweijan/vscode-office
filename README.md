@@ -1,9 +1,5 @@
 # Officew Viewer
 
-### 这个项目停止维护!
-
-### This project is stopped for maintenance!
-
 ## Introduction
 
 English | [简体中文](README-CN.md) | [繁體中文](README-TW.md)
