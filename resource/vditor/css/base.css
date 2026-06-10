@@ -6,16 +6,6 @@
     background-color: var(--hr-bg) !important;
 }
 
-.dropdown-menu.show:before,
-.dropdown-item {
-    background-color: var(--second-bg-color) !important;
-    color: var(--front-color) !important;
-}
-
-.dropdown-item:hover {
-    background: var(--dropdown-hover-background) !important;
-}
-
 .vditor-reset--error {
     color: var(--error-color) !important;
 }

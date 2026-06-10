@@ -204,49 +204,77 @@ export function onToolbarClick(editor) {
     })
 }
 
+const hideContextMenu = (menu) => {
+    menu.hidden = true
+}
+
+const showContextMenu = (menu, clientX, clientY) => {
+    menu.hidden = false
+    menu.style.left = `${clientX}px`
+    menu.style.top = `${clientY}px`
+    const rect = menu.getBoundingClientRect()
+    const padding = 4
+    let left = clientX
+    let top = clientY
+    if (left + rect.width > window.innerWidth - padding) {
+        left = window.innerWidth - rect.width - padding
+    }
+    if (top + rect.height > window.innerHeight - padding) {
+        top = window.innerHeight - rect.height - padding
+    }
+    if (left < padding) left = padding
+    if (top < padding) top = padding
+    menu.style.left = `${left}px`
+    menu.style.top = `${top}px`
+}
+
 export const createContextMenu = (editor) => {
     const menu = document.getElementById('context-menu')
-    document.addEventListener("mousedown", e => {
-        if (!e.target?.classList?.contains('dropdown-item')) {
-            menu.classList.remove('show')
-            menu.style.display = 'none'
+
+    const closeMenu = () => hideContextMenu(menu)
+
+    document.addEventListener('mousedown', e => {
+        if (!menu.contains(e.target)) {
+            closeMenu()
         }
-    });
+    })
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            closeMenu()
+        }
+    })
     document.oncontextmenu = e => {
-        e.stopPropagation();
-        var top = e.pageY;
-        var left = e.pageX + 10;
-        menu.style.display = 'block'
-        menu.style.top = top + "px";
-        menu.style.left = left + "px";
-        menu.classList.add('show')
+        e.preventDefault()
+        e.stopPropagation()
+        showContextMenu(menu, e.clientX, e.clientY)
     }
-    menu.onclick = e => {
-        menu.style.display = 'none'
-        menu.classList.remove('show')
-        const id = e.target.getAttribute("id");
-        switch (id) {
-            case "copy":
-                document.execCommand("copy")
-                break;
-            case "paste":
-                if (document.getSelection()?.toString()) { document.execCommand("delete") }
+    menu.addEventListener('click', e => {
+        const item = e.target.closest('[data-action]')
+        if (!item) return
+        closeMenu()
+        const action = item.dataset.action
+        switch (action) {
+            case 'copy':
+                document.execCommand('copy')
+                break
+            case 'paste':
+                if (document.getSelection()?.toString()) { document.execCommand('delete') }
                 vscodeEvent.emit('command', 'office.markdown.paste')
-                break;
-            case "exportPdf":
+                break
+            case 'exportPdf':
                 vscodeEvent.emit('export', { type: 'pdf' })
-                break;
-            case "exportPdfWithoutOutline":
+                break
+            case 'exportPdfWithoutOutline':
                 vscodeEvent.emit('export', { type: 'pdf', withoutOutline: true })
-                break;
-            case "exportDocx":
+                break
+            case 'exportDocx':
                 vscodeEvent.emit('export', { type: 'docx' })
-                break;
-            case "exportHtml":
+                break
+            case 'exportHtml':
                 vscodeEvent.emit('export', { type: 'html' })
-                break;
+                break
         }
-    }
+    })
 }
 
 export const imageParser = (viewAbsoluteLocal) => {
