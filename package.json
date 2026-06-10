@@ -499,7 +499,7 @@
 		"lint:fix": "eslint src/**/*.ts --fix",
 		"build": "rm -rf out && vite build --mode=production",
 		"package": "vsce package --no-dependencies",
-		"publish": "vsce publish --no-dependencies",
+		"publish": "vsce publish --no-dependencies && ovsx publish --no-dependencies",
 		"vscode:prepublish": "yarn run build"
 	},
 	"devDependencies": {
