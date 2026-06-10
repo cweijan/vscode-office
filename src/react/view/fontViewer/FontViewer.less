@@ -1,3 +1,5 @@
+@font-viewer-sidebar-width: 280px;
+
 .item {
     float: left;
     cursor: pointer;
@@ -6,23 +8,95 @@
     margin-right: -1px;
     background: #FFF;
     transition: all 250ms;
+
+    &:hover,
+    &.selected {
+        background: #EEE;
+    }
 }
 
-.item:hover {
-    background: #EEE;
+#glyph-list-end{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    canvas{
+        flex-shrink: 0;
+    }
 }
 
-.info-card {
-    dt {
-        display: inline-block;
-        margin-bottom: 10px;
-        width: 65px;
-        color: rgb(120 120 120);
-        user-select: none;
+.font-viewer {
+    .sidebar {
+        width: @font-viewer-sidebar-width;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding-top: 20px;
+        background: #f0f2f5;
+
+        .sidebar-content {
+            padding: 0 10px;
+            overflow-y: auto;
+        }
+
+        .sidebar-card {
+            margin-bottom: 15px;
+        }
+
+        .glyph-count {
+            margin-top: 8px;
+            font-size: 12px;
+            color: rgb(120 120 120);
+        }
+
+        .glyph-preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            padding: 12px;
+            min-height: 140px;
+            border: 1px dashed #EEE;
+            background: #FFF;
+
+            canvas {
+                display: block;
+            }
+
+            .preview-placeholder {
+                font-size: 12px;
+                color: rgb(120 120 120);
+            }
+        }
+
+        .footer {
+            flex-shrink: 0;
+            text-align: center;
+            margin-bottom: 15px;
+            color: rgb(70 69 69);
+        }
     }
 
-    dd {
-        display: inline-block;
-        user-select: all;
+    .info-card {
+        > div {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        dt {
+            flex-shrink: 0;
+            width: 65px;
+            margin: 0 0 10px;
+            color: rgb(120 120 120);
+            user-select: none;
+        }
+
+        dd {
+            flex: 1;
+            margin: 0 0 10px;
+            word-break: break-all;
+            user-select: all;
+        }
     }
 }
