@@ -1,5 +1,9 @@
 @img-height: calc(100vh - 220px);
 
+.image-viewer {
+    overflow: hidden;
+}
+
 .image-gallery-slides {
     padding-top: 50px;
 }
@@ -23,6 +27,14 @@
     width: unset;
     height: unset;
     max-height: @img-height;
+    transform-origin: center center;
+    transition: transform 0.05s linear;
+}
+
+.image-wheel-mode {
+    position: fixed;
+    right: 20px;
+    top: 6px;
 }
 
 // navigate
