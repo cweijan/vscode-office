@@ -1,0 +1,125 @@
+.zip-viewer {
+    height: 100vh;
+    background: #fff;
+
+    .zip-body {
+        flex: 1;
+        min-height: 0;
+        background: #fff;
+    }
+
+    .zip-sider {
+        border-right: 1px solid #eee;
+        background: #f0f2f5 !important;
+        overflow: auto;
+
+        .ant-tree {
+            background: transparent;
+            padding: 8px 6px;
+        }
+    }
+
+    .zip-content {
+        min-width: 0;
+        overflow: auto;
+        padding: 0;
+    }
+}
+
+.zip-toolbar {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    flex-wrap: wrap;
+    row-gap: 8px;
+}
+
+.zip-toolbar-left,
+.zip-toolbar-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.zip-toolbar-left {
+    justify-content: flex-start;
+}
+
+.zip-toolbar-right {
+    justify-content: flex-end;
+}
+
+.zip-toolbar-center {
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.zip-size {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 10px;
+    border-radius: 4px;
+    background: #f6f6f6;
+    border: 1px solid #eee;
+
+    .zip-size-label {
+        font-weight: 600;
+        color: rgb(120 120 120);
+    }
+
+    .zip-size-value {
+        font-weight: 600;
+        color: green;
+    }
+}
+
+.zip-path {
+    max-width: 360px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    color: rgb(120 120 120);
+}
+
+.zip-tree-node {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover,
+    &.selected {
+        background: #f1f1f1;
+    }
+}
+
+.zip-file-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.zip-table {
+    .ant-table-thead > tr > th {
+        padding: 4px 8px !important;
+        background: #fafafa;
+    }
+
+    .ant-table-tbody > tr > td {
+        padding: 6px 8px !important;
+        line-height: 1;
+    }
+
+    .ant-btn-sm {
+        height: 18px;
+        width: 18px;
+        padding: 0;
+        font-size: inherit;
+    }
+}
