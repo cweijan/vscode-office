@@ -1,6 +1,6 @@
 import { adjustImgPath, getWorkspacePath, writeFile } from '@/common/fileUtil';
-import { readFileSync, writeFileSync } from 'fs';
-import { basename, isAbsolute, parse, resolve } from 'path';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { basename, isAbsolute, parse, resolve, dirname } from 'path';
 import * as vscode from 'vscode';
 import { Handler } from '../common/handler';
 import { Util } from '../common/util';
@@ -100,6 +100,8 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         }).on("img", async (img) => {
             const { relPath, fullPath } = adjustImgPath(uri)
             const imagePath = isAbsolute(fullPath) ? fullPath : `${resolve(uri.fsPath, "..")}/${relPath}`.replace(/\\/g, "/");
+            const imageDir = dirname(imagePath);
+            if (!existsSync(imageDir)) mkdirSync(imageDir, { recursive: true });
             writeFileSync(imagePath, Buffer.from(img, 'binary'))
             const fileName = parse(relPath).name;
             const adjustRelPath = await MarkdownService.imgExtGuide(imagePath, relPath);
