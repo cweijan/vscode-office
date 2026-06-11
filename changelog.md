@@ -1,5 +1,8 @@
 # Change log
 
+# 3.5.7 2026-6-12
+- Fixed paste image failed in markdown editor
+
 # 3.5.6 2026-6-10
 - Update puppeteer-core version
 - Beautify zip,font,image and markdown view
