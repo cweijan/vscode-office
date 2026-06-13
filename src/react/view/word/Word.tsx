@@ -1,59 +1,114 @@
-import { Pagination, Spin } from "antd";
+import { Alert, Pagination, Spin } from "antd";
 import * as docx from 'docx-preview';
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { handler } from "../../util/vscode";
 import './Word.css';
 
-export default function Word() {
-    const content = useRef(null), container = useRef(null)
-    const [loading, setLoading] = useState(true)
-    const [pageInfo, setPageInfo] = useState({ current: 1, total: 0, pageSize: null })
+const DOCX_RENDER_OPTIONS: Partial<docx.Options> = {
+    breakPages: true,
+    renderHeaders: true,
+    renderFooters: true,
+    renderFootnotes: true,
+    renderEndnotes: true,
+};
 
-    function updatePageInfo() {
+export default function Word() {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [pageInfo, setPageInfo] = useState({ current: 1, total: 0, pageSize: null as number | null });
+
+    const updatePageInfo = useCallback(() => {
+        const container = containerRef.current;
+        const content = contentRef.current;
+        if (!container || !content) {
+            return;
+        }
         const pageSize = window.innerHeight - 85;
-        const current = ((container.current.scrollTop / pageSize) | 0) + 1;
-        const total = ((content.current.scrollHeight / pageSize) | 0) + 1;
-        setPageInfo({ current, total, pageSize })
-    }
+        const current = ((container.scrollTop / pageSize) | 0) + 1;
+        const total = ((content.scrollHeight / pageSize) | 0) + 1;
+        setPageInfo({ current, total, pageSize });
+    }, []);
+
+    const loadDocument = useCallback(async (path: string) => {
+        const content = contentRef.current;
+        const container = containerRef.current;
+        if (!content || !container) {
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+        content.innerHTML = '';
+        container.scrollTo(0, 0);
+
+        try {
+            const response = await fetch(path);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch document (${response.status})`);
+            }
+            const buffer = await response.arrayBuffer();
+            await docx.renderAsync(buffer, content, null, DOCX_RENDER_OPTIONS);
+            updatePageInfo();
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'Failed to load document');
+        } finally {
+            setLoading(false);
+        }
+    }, [updatePageInfo]);
 
     useEffect(() => {
-        handler.on("open", ({ path }) => {
-            setLoading(true)
-            fetch(path).then(response => response.arrayBuffer()).then(res => {
-                content.current = document.getElementById('content')
-                container.current = document.getElementById('container')
-                docx.renderAsync(res, content.current, null, {}).then(() => {
-                    updatePageInfo()
-                    window.addEventListener('resize', () => updatePageInfo())
-                    container.current.addEventListener('wheel', () => {
-                        updatePageInfo()
-                    })
-                }).finally(() => {
-                    setLoading(false)
-                });
-            }).catch(() => {
-                setLoading(false)
-            })
-        }).emit('init')
-    }, [])
+        handler.on('open', ({ path }) => {
+            loadDocument(path);
+        }).emit('init');
+    }, [loadDocument]);
+
+    useEffect(() => {
+        if (loading) {
+            return;
+        }
+        const container = containerRef.current;
+        if (!container) {
+            return;
+        }
+
+        const onResize = () => updatePageInfo();
+        const onWheel = () => updatePageInfo();
+        window.addEventListener('resize', onResize);
+        container.addEventListener('wheel', onWheel, { passive: true });
+        return () => {
+            window.removeEventListener('resize', onResize);
+            container.removeEventListener('wheel', onWheel);
+        };
+    }, [loading, updatePageInfo]);
 
     function onChange(page: number) {
-        container.current.scrollTo(0, pageInfo.pageSize * (page - 1));
-        setPageInfo({ ...pageInfo, current: page })
+        const container = containerRef.current;
+        if (!container) {
+            return;
+        }
+        const pageSize = pageInfo.pageSize ?? window.innerHeight - 85;
+        container.scrollTo(0, pageSize * (page - 1));
+        setPageInfo({ ...pageInfo, current: page });
     }
+
     return (
-        <>
-            <Spin spinning={loading} fullscreen={true}>
-            </Spin>
-            <div id="container">
-                <div id="content" style={{ width: '100%' }}>
-                </div>
+        <div className="word-viewer">
+            <Spin spinning={loading} fullscreen />
+            {error && <Alert type="error" message={error} showIcon style={{ margin: 16 }} />}
+            <div className="word-body" ref={containerRef}>
+                <div className="word-content" ref={contentRef} />
             </div>
             <Pagination
-                onChange={onChange} style={{ marginTop: '10px', textAlign: 'center' }}
-                current={pageInfo.current} total={pageInfo.total} defaultPageSize={1}
-                showQuickJumper showSizeChanger={false}
+                className="word-pagination"
+                onChange={onChange}
+                current={pageInfo.current}
+                total={pageInfo.total}
+                defaultPageSize={1}
+                showQuickJumper
+                showSizeChanger={false}
             />
-        </>
-    )
+        </div>
+    );
 }

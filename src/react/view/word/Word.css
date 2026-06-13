@@ -1,20 +1,56 @@
+html,
+body,
+#root {
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+}
+
 body {
     background-color: #ececec !important;
 }
 
-#container {
-    width: 100%;
-    overflow: auto;
-    margin-top: 18px;
-    padding-top: 5px;
-    height: calc(100vh - 65px);
+.word-viewer {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    min-height: 100vh;
+    background: #ececec;
+    overflow: hidden;
 }
 
-.docx-wrapper {
+.word-body {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 20px 16px;
+}
+
+.word-content {
+    width: 100%;
+    max-width: 816px;
+    margin: 0 auto;
+}
+
+.word-content .docx-wrapper {
     padding: 0 !important;
     background-color: #ececec !important;
 }
 
-.docx-wrapper>section.docx {
-    max-width: 95vw;
+.word-content .docx-wrapper>section.docx {
+    width: 100% !important;
+    max-width: 100%;
+    margin: 0 auto 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+    background: #fff;
+}
+
+.word-content .docx-wrapper>section.docx:last-child {
+    margin-bottom: 0;
+}
+
+.word-pagination {
+    flex-shrink: 0;
+    margin-top: 10px;
+    text-align: center;
 }
