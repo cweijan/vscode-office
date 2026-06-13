@@ -1,7 +1,7 @@
 {
 	"name": "vscode-office",
 	"displayName": "Office Viewer",
-	"description": "View word,excel files and using WYSIWYG editor for markdown.",
+	"description": "View word, excel, powerpoint files and using WYSIWYG editor for markdown.",
 	"version": "3.5.7",
 	"publisher": "cweijan",
 	"icon": "images/logo.png",
@@ -13,7 +13,9 @@
 		"word",
 		"markdown",
 		"xlsx",
-		"excel"
+		"excel",
+		"pptx",
+		"powerpoint"
 	],
 	"categories": [
 		"Visualization",
@@ -228,6 +230,12 @@
 					},
 					{
 						"filenamePattern": "*.dotx"
+					},
+					{
+						"filenamePattern": "*.pptx"
+					},
+					{
+						"filenamePattern": "*.pptm"
 					},
 					{
 						"filenamePattern": "*.pdf"
@@ -528,6 +536,7 @@
 		"adm-zip": "^0.5.10",
 		"antd": "^5.15.4",
 		"axios": "^1.4.0",
+		"chart.js": "^4.5.1",
 		"cheerio": "^1.0.0",
 		"chrome-finder": "^1.0.7",
 		"date-format": "^4.0.14",
@@ -536,6 +545,7 @@
 		"file-type": "^19.6.0",
 		"highlight.js": "^11.10.0",
 		"iconv-lite": "^0.6.3",
+		"jszip": "^3.10.1",
 		"katex": "^0.16.2",
 		"markdown-it": "^14.1.0",
 		"markdown-it-anchor": "^9.2.0",
@@ -546,6 +556,7 @@
 		"mustache": "^4.0.1",
 		"opentype.js": "1.3.4",
 		"pdf-lib": "^1.11.2",
+		"pptxviewjs": "^1.1.9",
 		"puppeteer-core": "^25.1.0",
 		"react": "^19.2.7",
 		"react-dom": "^19.2.7",

@@ -6,6 +6,7 @@
 
 - Excel: .xls, .xlsx, .csv
 - Word: .docx
+- PowerPoint: .pptx, .pptm
 - Svg: .svg
 - Pdf: .pdf
 - 字体: .ttf, .otf, .woff, .woff2
@@ -42,6 +43,7 @@
 
 - 图标主题: 内置了Material Icon Theme部分icon
 - Excel: 支持对xlsx, csv等excel文件进行预览和保存(注意xlsx保存会丢失格式, csv则不支持gbk中文)
+- PowerPoint: 支持预览pptx, pptm文件, 左侧为幻灯片缩略图, 右侧为当前幻灯片大图, 可使用方向键或点击缩略图切换
 - HTML: 编辑HTML的过程中按下ctrl+shift+v可实时预览.
 - PDF: 支持直接预览pdf文件
 - HTTP: 用于发送http请求, 由于REST Client本地请求有bug, 修改后进行集成.
@@ -56,6 +58,7 @@
 
 - PDF rendering: [mozilla/pdf.js/](https://github.com/mozilla/pdf.js/)
 - Docx rendering: [VolodymyrBaydalka/docxjs](https://github.com/VolodymyrBaydalka/docxjs)
+- PPTX rendering: [pptxviewjs](https://www.npmjs.com/package/pptxviewjs)
 - XLSX rendering:
   - [SheetJS/sheetjs](https://github.com/SheetJS/sheetjs): XLSX parsing
   - [myliang/x-spreadsheet](https://github.com/myliang/x-spreadsheet): XLSX rendering

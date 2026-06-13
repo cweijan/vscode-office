@@ -60,6 +60,10 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".dotx":
                 route = 'word'
                 break;
+            case ".pptx":
+            case ".pptm":
+                route = 'ppt'
+                break;
             case ".jar":
             case ".zip":
             case ".apk":

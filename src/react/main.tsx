@@ -9,6 +9,7 @@ const Zip = lazy(() => import('./view/compress/Zip.tsx'))
 const Excel = lazy(() => import('./view/excel/Excel.tsx'))
 const Image = lazy(() => import('./view/image/Image.tsx'))
 const Word = lazy(() => import('./view/word/Word.tsx'))
+const PowerPoint = lazy(() => import('./view/powerpoint/PowerPoint.tsx'))
 const FontViewer = lazy(() => import('./view/fontViewer/FontViewer.tsx'))
 
 document.getElementById('_defaultStyles')?.parentNode?.removeChild(document.getElementById('_defaultStyles'))
@@ -29,6 +30,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           return <Zip />
         case 'word':
           return <Word />
+        case 'ppt':
+          return <PowerPoint />
         case 'font':
           return <FontViewer />
         default:

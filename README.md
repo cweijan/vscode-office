@@ -8,6 +8,7 @@ This extension supports previewing these common office file formats in VS Code.
 
 - Excel: .xls, .xlsx, .csv
 - Word: .docx
+- PowerPoint: .pptx, .pptm
 - Svg: .svg
 - Pdf: .pdf
 - Font: .ttf, .otf, .woff, .woff2
@@ -46,6 +47,10 @@ Tips:
 
 The html editor supports live viewing.   Press ctrl+shift+v to open the live view.
 
+## PowerPoint
+
+Open `.pptx` or `.pptm` files to preview slides with a classic layout: thumbnail list on the left and the current slide on the right. Use arrow keys or click a thumbnail to navigate.
+
 ## Sponsor
 
 [![Database Client](https://database-client.com/text_logo.png)](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2)
@@ -56,6 +61,7 @@ Database Client for Visual Studio Code, supporting the management **MySQL/MariaD
 
 - PDF rendering: [mozilla/pdf.js/](https://github.com/mozilla/pdf.js/)
 - Docx rendering: [VolodymyrBaydalka/docxjs](https://github.com/VolodymyrBaydalka/docxjs)
+- PPTX rendering: [pptxviewjs](https://www.npmjs.com/package/pptxviewjs)
 - XLSX rendering:
   - [SheetJS/sheetjs](https://github.com/SheetJS/sheetjs): XLSX parsing
   - [myliang/x-spreadsheet](https://github.com/myliang/x-spreadsheet): XLSX rendering
