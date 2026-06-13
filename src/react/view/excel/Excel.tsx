@@ -10,6 +10,7 @@ import Spreadsheet from './x-spreadsheet/index';
 export default function Excel() {
     const [loading, setLoading] = useState(true)
     const isCSV = useRef<boolean>(false)
+    const spreadSheetRef = useRef<Spreadsheet | null>(null)
     useEffect(() => {
         const container = document.getElementById('container');
 
@@ -34,6 +35,7 @@ export default function Excel() {
                         height: () => window.innerHeight - 2,
                     }
                 });
+                spreadSheetRef.current = spreadSheet;
                 window.addEventListener('keydown', (e) => {
                     if ((e.ctrlKey || e.metaKey) && e.code == "KeyS") {
                         export_xlsx(spreadSheet, ext);
@@ -53,6 +55,18 @@ export default function Excel() {
                 content: 'Save done',
             })
         }).emit("init")
+
+        let themeTimer: ReturnType<typeof setTimeout>;
+        const themeObserver = new MutationObserver(() => {
+            clearTimeout(themeTimer);
+            themeTimer = setTimeout(() => spreadSheetRef.current?.reRender(), 120);
+        });
+        themeObserver.observe(document.head, { childList: true, subtree: true });
+
+        return () => {
+            themeObserver.disconnect();
+            clearTimeout(themeTimer);
+        };
     }, [])
 
     return (

@@ -1,35 +1,284 @@
 .excel-viewer {
-    min-height: 100vh;
-    background-color: white;
+    --excel-bg: var(--vscode-editor-background, #1e1e1e);
+    --excel-fg: var(--vscode-editor-foreground, #cccccc);
+    --excel-cell-bg: var(--vscode-editor-background, #1e1e1e);
+    --excel-header-bg: var(--vscode-editorGroupHeader-tabsBackground, var(--vscode-sideBarSectionHeader-background, #252526));
+    --excel-header-fg: var(--vscode-descriptionForeground, rgba(204, 204, 204, 0.7));
+    --excel-grid-line: var(--vscode-tree-indentGuidesStroke, var(--vscode-editorWidget-border, rgba(128, 128, 128, 0.45)));
+    --excel-border: var(--vscode-editorWidget-border, var(--vscode-panel-border, rgba(128, 128, 128, 0.45)));
+    --excel-hover: var(--vscode-list-hoverBackground, rgba(90, 93, 94, 0.31));
+    --excel-active-bg: var(--vscode-list-activeSelectionBackground, #292d35);
+    --excel-active-fg: var(--vscode-list-activeSelectionForeground, #d7dae0);
+    --excel-accent: var(--vscode-textLink-foreground, #3794ff);
+    --excel-accent-soft: var(--vscode-editor-selectionBackground, rgba(103, 118, 150, 0.38));
+    --excel-scrollbar-track: var(--vscode-editor-background, #1e1e1e);
+    --excel-scrollbar-thumb: var(--vscode-scrollbarSlider-background, #797979);
+    --excel-scrollbar-thumb-hover: var(--vscode-scrollbarSlider-hoverBackground, var(--vscode-scrollbarSlider-background, #797979));
+    --excel-input-bg: var(--vscode-input-background, #3c3c3c);
+    --excel-input-fg: var(--vscode-input-foreground, #cccccc);
+    --excel-input-border: var(--vscode-input-border, rgba(128, 128, 128, 0.35));
+    --excel-widget-bg: var(--vscode-editorWidget-background, #252526);
+    --excel-widget-fg: var(--vscode-editorWidget-foreground, #cccccc);
+    --excel-selection: var(--vscode-focusBorder, #007fd4);
+    --excel-muted-line: var(--vscode-editorRuler-foreground, rgba(128, 128, 128, 0.35));
 
-    .ant-tabs{
+    min-height: 100vh;
+    background-color: var(--excel-bg);
+    color: var(--excel-fg);
+    font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size: var(--vscode-font-size, 13px);
+    scrollbar-color: var(--excel-scrollbar-thumb) var(--excel-scrollbar-track);
+
+    &::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: var(--excel-scrollbar-track);
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: var(--excel-scrollbar-thumb);
+        border-radius: 5px;
+        border: 2px solid var(--excel-scrollbar-track);
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: var(--excel-scrollbar-thumb-hover);
+    }
+
+    &::-webkit-scrollbar-corner {
+        background: var(--excel-scrollbar-track);
+    }
+
+    .ant-tabs {
         user-select: none;
     }
 
     .ant-tabs-nav {
         margin-bottom: 0 !important;
+        background: var(--excel-header-bg);
+        border-bottom: 1px solid var(--excel-border);
     }
 
     .ant-tabs-tab {
         margin-left: 0;
         padding: 0 10px;
-    }
-
-    .ant-tabs-tab {
+        color: var(--excel-fg);
 
         &:hover,
         .ant-tabs-tab-btn:active {
-            color: #09885c !important;
+            color: var(--excel-accent) !important;
         }
-
     }
 
     .ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
-        color: #057c52;
+        color: var(--excel-active-fg);
     }
 
     .ant-tabs-ink-bar {
-        background-color: #057c52;
+        background-color: var(--excel-accent);
     }
 
+    .x-spreadsheet {
+        background: var(--excel-bg);
+        color: var(--excel-fg);
+        font-family: inherit;
+    }
+
+    .x-spreadsheet-bottombar {
+        background: var(--excel-header-bg);
+        border-top: 1px solid var(--excel-border);
+    }
+
+    .x-spreadsheet-toolbar {
+        background: var(--excel-header-bg);
+        border-bottom: 1px solid var(--excel-border);
+    }
+
+    .x-spreadsheet-menu > li {
+        color: var(--excel-fg);
+        border-bottom: 3px solid transparent;
+
+        &.active {
+            background-color: transparent;
+            color: var(--excel-accent);
+            border-bottom-color: var(--excel-accent);
+        }
+    }
+
+    .x-spreadsheet-toolbar-divider {
+        border-right-color: var(--excel-border);
+    }
+
+    .x-spreadsheet-toolbar-btn:hover,
+    .x-spreadsheet-toolbar-btn.active {
+        background: var(--excel-hover);
+    }
+
+    .x-spreadsheet-scrollbar {
+        background-color: var(--excel-scrollbar-track);
+        scrollbar-color: var(--excel-scrollbar-thumb) var(--excel-scrollbar-track);
+
+        &::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: var(--excel-scrollbar-track);
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: var(--excel-scrollbar-thumb);
+            border-radius: 5px;
+            border: 2px solid var(--excel-scrollbar-track);
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
+            background-color: var(--excel-scrollbar-thumb-hover);
+        }
+
+        &.horizontal > div,
+        &.vertical > div {
+            background: transparent;
+        }
+    }
+
+    .x-spreadsheet-selector .x-spreadsheet-selector-area {
+        border-color: var(--excel-selection);
+        background: var(--excel-accent-soft);
+    }
+
+    .x-spreadsheet-selector .x-spreadsheet-selector-clipboard {
+        border-color: var(--excel-selection);
+    }
+
+    .x-spreadsheet-selector .x-spreadsheet-selector-corner {
+        border-color: var(--excel-cell-bg);
+        background: var(--excel-selection);
+    }
+
+    .x-spreadsheet-editor .x-spreadsheet-editor-area {
+        border-color: var(--excel-selection);
+        background-color: var(--excel-input-bg);
+
+        textarea {
+            color: var(--excel-input-fg);
+            background: transparent;
+        }
+    }
+
+    .x-spreadsheet-resizer .x-spreadsheet-resizer-hover {
+        background-color: var(--excel-accent-soft);
+    }
+
+    .x-spreadsheet-resizer.horizontal .x-spreadsheet-resizer-line {
+        border-bottom-color: var(--excel-selection);
+    }
+
+    .x-spreadsheet-resizer.vertical .x-spreadsheet-resizer-line {
+        border-right-color: var(--excel-selection);
+    }
+
+    .x-spreadsheet-dropdown .x-spreadsheet-dropdown-content,
+    .x-spreadsheet-suggest,
+    .x-spreadsheet-contextmenu,
+    .x-spreadsheet-sort-filter,
+    .x-spreadsheet-color-palette table,
+    .x-spreadsheet-border-palette table {
+        background: var(--excel-widget-bg);
+        color: var(--excel-widget-fg);
+        box-shadow: 0 4px 16px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.36));
+    }
+
+    .x-spreadsheet-item {
+        color: var(--excel-fg);
+
+        &:hover,
+        &.active {
+            background: var(--excel-hover);
+        }
+
+        &.divider {
+            border-bottom-color: var(--excel-border);
+        }
+    }
+
+    .x-spreadsheet-item.state.checked:before,
+    .x-spreadsheet-header.state.checked:before {
+        background: var(--excel-accent);
+    }
+
+    .x-spreadsheet-filter {
+        border-color: var(--excel-border);
+
+        .x-spreadsheet-header {
+            background: var(--excel-header-bg);
+            border-bottom-color: var(--excel-border);
+        }
+    }
+
+    .x-spreadsheet-border-palette-left {
+        border-right-color: var(--excel-border);
+
+        .x-spreadsheet-border-palette-cell:hover {
+            background-color: var(--excel-hover);
+        }
+    }
+
+    .x-spreadsheet-form-input input,
+    .x-spreadsheet-form-select {
+        color: var(--excel-input-fg);
+        background: var(--excel-input-bg);
+        border-color: var(--excel-input-border);
+
+        &:focus,
+        input:focus {
+            border-color: var(--excel-selection);
+            box-shadow: none;
+        }
+    }
+
+    .x-spreadsheet-modal,
+    .x-spreadsheet-toast {
+        color: var(--excel-widget-fg);
+        background-color: var(--excel-widget-bg);
+        border-color: var(--excel-border);
+    }
+
+    .x-spreadsheet-modal-header,
+    .x-spreadsheet-toast-header {
+        background-color: var(--excel-header-bg);
+        border-bottom-color: var(--excel-border);
+    }
+
+    .x-spreadsheet-button {
+        color: var(--excel-fg);
+        background: var(--excel-hover);
+
+        &:hover,
+        &.active {
+            background: var(--excel-active-bg);
+            color: var(--excel-active-fg);
+        }
+
+        &.primary {
+            color: var(--vscode-button-foreground, #ffffff);
+            background: var(--vscode-button-background, #404754);
+
+            &:hover,
+            &.active {
+                background: var(--vscode-button-hoverBackground, #4d5565);
+            }
+        }
+    }
+
+    .x-spreadsheet-tooltip {
+        background: var(--excel-widget-bg);
+        color: var(--excel-widget-fg);
+        border: 1px solid var(--excel-border);
+        border-radius: 4px;
+    }
 }

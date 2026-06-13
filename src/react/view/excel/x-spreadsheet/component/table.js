@@ -7,22 +7,31 @@ import { formatm } from '../core/format';
 import {
   Draw, DrawBox, thinLineWidth, npx,
 } from '../canvas/draw';
+import { getExcelThemeColor, resolveExcelCellBg, resolveExcelCellColor } from '../../theme';
+
 // gobal var
 const cellPaddingWidth = 10;
-const tableFixedHeaderCleanStyle = { fillStyle: '#f4f5f8' };
-const tableGridStyle = {
-  fillStyle: '#fff',
-  lineWidth: thinLineWidth,
-  strokeStyle: '#e6e6e6',
-};
+
+function tableFixedHeaderCleanStyle() {
+  return { fillStyle: getExcelThemeColor('--excel-header-bg', '#f4f5f8') };
+}
+
+function tableGridStyle() {
+  return {
+    fillStyle: getExcelThemeColor('--excel-cell-bg', '#fff'),
+    lineWidth: thinLineWidth,
+    strokeStyle: getExcelThemeColor('--excel-grid-line', '#585858'),
+  };
+}
+
 function tableFixedHeaderStyle() {
   return {
     textAlign: 'center',
     textBaseline: 'middle',
     font: `500 ${npx(12)}px Source Sans Pro`,
-    fillStyle: '#585757',
+    fillStyle: getExcelThemeColor('--excel-header-fg', '#585757'),
     lineWidth: thinLineWidth(),
-    strokeStyle: '#e6e6e6',
+    strokeStyle: getExcelThemeColor('--excel-grid-line', '#585858'),
   };
 }
 
@@ -73,7 +82,7 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
   }
 
   const dbox = getDrawBox(data, rindex, cindex, yoffset);
-  dbox.bgcolor = style.bgcolor;
+  dbox.bgcolor = resolveExcelCellBg(style.bgcolor);
   if (style.border !== undefined) {
     dbox.setBorders(style.border);
     // bboxes.push({ ri: rindex, ci: cindex, box: dbox });
@@ -98,7 +107,7 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
       align: style.align,
       valign: style.valign,
       font,
-      color: style.color,
+      color: resolveExcelCellColor(style.color),
       strike: style.strike,
       underline: style.underline,
     }, style.textwrap);
@@ -200,7 +209,7 @@ function renderFixedHeaders(type, viewRange, w, h, tx, ty) {
 
   draw.save();
   // draw rect background
-  draw.attr(tableFixedHeaderCleanStyle);
+  draw.attr(tableFixedHeaderCleanStyle());
   if (type === 'all' || type === 'left') draw.fillRect(0, nty, w, sumHeight);
   if (type === 'all' || type === 'top') draw.fillRect(ntx, 0, sumWidth, h);
 
@@ -223,7 +232,7 @@ function renderFixedHeaders(type, viewRange, w, h, tx, ty) {
       draw.fillText(ii + 1, w / 2, y + (rowHeight / 2));
       if (i > 0 && data.rows.isHide(i - 1)) {
         draw.save();
-        draw.attr({ strokeStyle: '#c6c6c6' });
+        draw.attr({ strokeStyle: getExcelThemeColor('--excel-muted-line', '#c6c6c6') });
         draw.line([5, y + 5], [w - 5, y + 5]);
         draw.restore();
       }
@@ -243,7 +252,7 @@ function renderFixedHeaders(type, viewRange, w, h, tx, ty) {
       draw.fillText(stringAt(ii), x + (colWidth / 2), h / 2);
       if (i > 0 && data.cols.isHide(i - 1)) {
         draw.save();
-        draw.attr({ strokeStyle: '#c6c6c6' });
+        draw.attr({ strokeStyle: getExcelThemeColor('--excel-muted-line', '#c6c6c6') });
         draw.line([x + 5, 5], [x + 5, h - 5]);
         draw.restore();
       }
@@ -258,7 +267,7 @@ function renderFixedLeftTopCell(fw, fh) {
   const { draw } = this;
   draw.save();
   // left-top-cell
-  draw.attr({ fillStyle: '#f4f5f8' })
+  draw.attr({ fillStyle: getExcelThemeColor('--excel-header-bg', '#f4f5f8') })
     .fillRect(0, 0, fw, fh);
   draw.restore();
 }
@@ -270,7 +279,7 @@ function renderContentGrid({
   const { settings } = data;
 
   draw.save();
-  draw.attr(tableGridStyle)
+  draw.attr(tableGridStyle())
     .translate(fw + tx, fh + ty);
   // const sumWidth = cols.sumWidth(sci, eci + 1);
   // const sumHeight = rows.sumHeight(sri, eri + 1);
@@ -299,7 +308,7 @@ function renderFreezeHighlightLine(fw, fh, ftw, fth) {
   const theight = data.viewHeight() - fh;
   draw.save()
     .translate(fw, fh)
-    .attr({ strokeStyle: 'rgba(75, 137, 255, .6)' });
+    .attr({ strokeStyle: getExcelThemeColor('--excel-selection', '#007fd4') });
   draw.line([0, fth], [twidth, fth]);
   draw.line([ftw, 0], [ftw, theight]);
   draw.restore();
