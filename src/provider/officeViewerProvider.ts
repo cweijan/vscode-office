@@ -85,6 +85,9 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 webview.html = readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8')
                     .replace("{{baseUrl}}", this.getBaseUrl(webview, 'pdf'))
                 break;
+            case ".epub":
+                route = 'epub';
+                break;
             case ".class":
                 handleClass(uri, webviewPanel);
                 break;

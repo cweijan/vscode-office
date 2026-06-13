@@ -241,6 +241,9 @@
 						"filenamePattern": "*.pdf"
 					},
 					{
+						"filenamePattern": "*.epub"
+					},
+					{
 						"filenamePattern": "*.ttf"
 					},
 					{
@@ -541,6 +544,7 @@
 		"chrome-finder": "^1.0.7",
 		"date-format": "^4.0.14",
 		"docx-preview": "^0.3.0",
+		"epubjs": "^0.3.93",
 		"exceljs": "^4.4.0",
 		"file-type": "^19.6.0",
 		"highlight.js": "^11.10.0",

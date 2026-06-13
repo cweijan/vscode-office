@@ -11,6 +11,7 @@ const Image = lazy(() => import('./view/image/Image.tsx'))
 const Word = lazy(() => import('./view/word/Word.tsx'))
 const PowerPoint = lazy(() => import('./view/powerpoint/PowerPoint.tsx'))
 const FontViewer = lazy(() => import('./view/fontViewer/FontViewer.tsx'))
+const Epub = lazy(() => import('./view/epub/Epub.tsx'))
 
 document.getElementById('_defaultStyles')?.parentNode?.removeChild(document.getElementById('_defaultStyles'))
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -34,6 +35,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           return <PowerPoint />
         case 'font':
           return <FontViewer />
+        case 'epub':
+          return <Epub />
         default:
           return <>Office Viewer</>
       }
