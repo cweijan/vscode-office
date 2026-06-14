@@ -1,12 +1,11 @@
 import { ReactApp } from '@/common/reactApp';
 import { readFileSync } from 'fs';
-import { extname } from 'path';
 import * as vscode from 'vscode';
 import { Handler } from '../common/handler';
 import { Util } from '../common/util';
 import { handleClass } from './handlers/classHandler';
 import { handleImage, isImage } from './handlers/imageHanlder';
-import { getCompressArchiveType } from '@/service/compress/archiveUtils';
+import { getFileSuffix } from '@/service/compress/archiveUtils';
 import { handleZip } from './compress/zipHandler';
 import { handleRar } from './compress/rarHandler';
 import { handleTarGz } from './compress/tarHandler';
@@ -44,13 +43,12 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
         handleCommonEvent(uri, handler)
 
         let route: string;
-        const ext = extname(uri.fsPath).toLowerCase()
-        const archiveType = getCompressArchiveType(uri.fsPath);
-        if (isImage(ext)) {
+        const suffix = getFileSuffix(uri.fsPath);
+        if (isImage(suffix)) {
             handleImage(handler, uri, webview)
             route = 'image'
         }
-        switch (ext) {
+        switch (suffix) {
             case ".xlsx":
             case ".xlsm":
             case ".xls":
@@ -65,6 +63,25 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".pptx":
             case ".pptm":
                 route = 'ppt'
+                break;
+            case ".zip":
+            case ".jar":
+            case ".apk":
+            case ".vsix":
+                route = 'zip';
+                handleZip(uri, handler);
+                break;
+            case ".rar":
+                route = 'zip';
+                handleRar(uri, handler);
+                break;
+            case ".tar.gz":
+                route = 'zip';
+                handleTarGz(uri, handler, true);
+                break;
+            case ".tar":
+                route = 'zip';
+                handleTarGz(uri, handler, false);
                 break;
             case ".ttf":
             case ".woff":
@@ -82,25 +99,6 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".class":
                 handleClass(uri, webviewPanel);
                 break;
-        }
-        if (archiveType) {
-            route = 'zip';
-            switch (archiveType) {
-                case 'zip':
-                    handleZip(uri, handler);
-                    break;
-                case 'rar':
-                    handleRar(uri, handler);
-                    break;
-                case 'tar.gz':
-                    handleTarGz(uri, handler, true);
-                    break;
-                case 'tar':
-                    handleTarGz(uri, handler, false);
-                    break;
-            }
-        }
-        switch (ext) {
             case ".htm":
             case ".html":
                 webview.html = Util.buildPath(readFileSync(uri.fsPath, 'utf8'), webview, folderPath.fsPath);

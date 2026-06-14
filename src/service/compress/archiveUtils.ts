@@ -1,23 +1,9 @@
 import { basename, extname, parse } from 'path';
 
-export type CompressArchiveType = 'zip' | 'rar' | 'tar.gz' | 'tar';
-
-export function getCompressArchiveType(fsPath: string): CompressArchiveType | null {
+export function getFileSuffix(fsPath: string): string {
     const lower = fsPath.toLowerCase();
-    if (lower.endsWith('.tar.gz') || lower.endsWith('.tgz')) return 'tar.gz';
-    if (lower.endsWith('.tar')) return 'tar';
-    const ext = extname(lower);
-    switch (ext) {
-        case '.zip':
-        case '.jar':
-        case '.apk':
-        case '.vsix':
-            return 'zip';
-        case '.rar':
-            return 'rar';
-        default:
-            return null;
-    }
+    if (lower.endsWith('.tar.gz') || lower.endsWith('.tgz')) return '.tar.gz';
+    return extname(lower);
 }
 
 export function getArchiveBaseName(fsPath: string): string {

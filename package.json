@@ -542,6 +542,7 @@
 	"dependencies": {
 		"@ant-design/icons": "^5.3.5",
 		"@types/adm-zip": "^0.5.0",
+		"@zip.js/zip.js": "^2.8.26",
 		"adm-zip": "^0.5.10",
 		"antd": "^5.15.4",
 		"axios": "^1.4.0",

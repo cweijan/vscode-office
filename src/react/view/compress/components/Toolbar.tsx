@@ -1,9 +1,14 @@
 import { FileAddOutlined, FileDoneOutlined, FolderOpenOutlined, ReloadOutlined } from '@ant-design/icons';
-import { Button, Select } from "antd";
+import { Button, Input, Select } from "antd";
+import { useState } from 'react';
 import { handler } from "../../../util/vscode";
 
-export default function Toolbar({ size, currentDir, extension }) {
+export default function Toolbar({ size, currentDir, extension, passwordEnabled, encrypted, onPasswordApply }) {
     const editable = !extension || extension === 'zip';
+    const [password, setPassword] = useState('');
+
+    const applyPassword = () => onPasswordApply(password);
+
     return (
         <div className="zip-toolbar">
             <div className="zip-toolbar-left">
@@ -24,6 +29,22 @@ export default function Toolbar({ size, currentDir, extension }) {
             </div>
 
             <div className="zip-toolbar-right">
+                {passwordEnabled && (
+                    <>
+                        <span className="zip-password-label" style={{ fontWeight: 600, color: encrypted ? '#d4380d' : 'rgb(120 120 120)' }}>
+                            Password
+                        </span>
+                        <Input.Password
+                            size="middle"
+                            value={password}
+                            placeholder={encrypted ? 'Required' : 'Optional'}
+                            style={{ width: 140 }}
+                            onChange={(e) => setPassword(e.target.value)}
+                            onPressEnter={applyPassword}
+                            onBlur={applyPassword}
+                        />
+                    </>
+                )}
                 <span className="zip-size">
                     <span className="zip-size-label">Size</span>
                     <span className="zip-size-value">{size}</span>
@@ -45,5 +66,5 @@ export default function Toolbar({ size, currentDir, extension }) {
                 )}
             </div>
         </div>
-    )
+    );
 }

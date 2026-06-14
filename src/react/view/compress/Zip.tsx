@@ -13,6 +13,8 @@ export default function Zip() {
     const [currentDir, setCurrentDir] = useState('')
     const [size, setSize] = useState('')
     const [extension, setExtension] = useState('')
+    const [passwordEnabled, setPasswordEnabled] = useState(false)
+    const [encrypted, setEncrypted] = useState(false)
     const [tableItems, setTableItems] = useState([] as FileInfo[])
     const [info, setInfo] = useState({ files: [] } as CompressInfo)
 
@@ -34,6 +36,14 @@ export default function Zip() {
         })
         .on('extension', (extension: string) => {
             setExtension(extension)
+            setPasswordEnabled(false)
+            setEncrypted(false)
+        })
+        .on('passwordEnabled', () => {
+            setPasswordEnabled(true)
+        })
+        .on('encrypted', (value: boolean) => {
+            setEncrypted(value)
         })
         .on('data', (info: CompressInfo) => {
             setInfo(info)
@@ -49,7 +59,14 @@ export default function Zip() {
 
     return (
         <Layout className="zip-viewer">
-            <Toolbar currentDir={currentDir} size={size} extension={extension} />
+            <Toolbar
+                currentDir={currentDir}
+                size={size}
+                extension={extension}
+                passwordEnabled={passwordEnabled}
+                encrypted={encrypted}
+                onPasswordApply={(password) => handler.emit('changePassword', password)}
+            />
             <Layout className="zip-body">
                 <Sider width={260} className="zip-sider" theme="light">
                     <Sidebar name={info.fileName} items={info.files} currentDir={currentDir} OnClickFolder={changeFiles} />
