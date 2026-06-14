@@ -106,7 +106,7 @@ html[dir="rtl"] #toolbarContainer {
 }
 
 .toolbarButton.toggled,
-.splitToolbarButton.toggled > .toolbarButton,
+.splitToolbarButton.toggled > .toolbarButton.toggled,
 .dropdownToolbarButton > select {
     background-color: var(--vscode-list-activeSelectionBackground) !important;
     color: var(--vscode-list-activeSelectionForeground) !important;
@@ -152,6 +152,7 @@ html[dir="rtl"] #toolbarContainer {
 /* Sidebar */
 #sidebarContainer {
     border-top-color: var(--vscode-sideBar-border, var(--vscode-panel-border, transparent)) !important;
+    overflow: visible !important;
 }
 
 #sidebarContent,
@@ -174,6 +175,40 @@ html[dir="rtl"] #sidebarContent {
 #toolbarSidebar {
     box-shadow: inset -1px 0 0 var(--vscode-sideBar-border, rgba(0, 0, 0, 0.15)),
         0 1px 0 var(--vscode-sideBar-border, rgba(0, 0, 0, 0.1)) !important;
+}
+
+#toolbarSidebar .splitToolbarButton > .toolbarButton:not(.toggled) {
+    background-color: transparent !important;
+    color: var(--vscode-sideBar-foreground) !important;
+}
+
+#toolbarSidebar .splitToolbarButton > .toolbarButton.toggled {
+    background-color: var(--vscode-list-activeSelectionBackground) !important;
+    color: var(--vscode-list-activeSelectionForeground) !important;
+}
+
+#toolbarSidebar .splitToolbarButton > .toolbarButton:not(.toggled):hover {
+    background-color: var(--vscode-toolbar-hoverBackground) !important;
+}
+
+#sidebarResizer {
+    width: 8px !important;
+    cursor: col-resize !important;
+    background: transparent;
+    transition: background-color 0.15s;
+}
+
+#sidebarResizer:hover,
+#outerContainer.sidebarResizing #sidebarResizer {
+    background-color: var(--vscode-sash-hoverBorder, var(--vscode-focusBorder)) !important;
+}
+
+html[dir="ltr"] #sidebarResizer {
+    right: -4px !important;
+}
+
+html[dir="rtl"] #sidebarResizer {
+    left: -4px !important;
 }
 
 html[dir="rtl"] #toolbarSidebar {

@@ -1,6 +1,32 @@
 "use strict";
 
 (function () {
+  const SIDEBAR_WIDTH_VAR = '--sidebar-width';
+  const SIDEBAR_MIN_WIDTH = 200;
+  const SIDEBAR_DEFAULT_WIDTH = 270;
+  const SIDEBAR_STORAGE_KEY = 'vscode-office.pdf.sidebarWidth';
+
+  function loadSidebarWidth() {
+    try {
+      const saved = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+      if (!saved) {
+        return null;
+      }
+      const width = parseInt(saved, 10);
+      return Number.isFinite(width) ? width : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function saveSidebarWidth(width) {
+    try {
+      localStorage.setItem(SIDEBAR_STORAGE_KEY, String(width));
+    } catch {
+      // ignore storage errors
+    }
+  }
+
   function cursorTools(name) {
     // hand表示可以通过手指上下滑动, 0则可以选择文本
     return name === 'hand' ? 1 : 0
@@ -29,8 +55,119 @@
         return -1
     }
   }
+
+  function getSidebarWidth() {
+    const value = getComputedStyle(document.documentElement).getPropertyValue(SIDEBAR_WIDTH_VAR).trim();
+    const width = parseInt(value, 10);
+    return Number.isFinite(width) ? width : SIDEBAR_DEFAULT_WIDTH;
+  }
+
+  function setSidebarWidth(width, persist = false) {
+    const outerContainer = document.getElementById('outerContainer');
+    if (!outerContainer) {
+      return;
+    }
+    const maxWidth = Math.max(SIDEBAR_MIN_WIDTH, Math.floor(outerContainer.clientWidth / 2));
+    const nextWidth = Math.min(Math.max(width, SIDEBAR_MIN_WIDTH), maxWidth);
+    document.documentElement.style.setProperty(SIDEBAR_WIDTH_VAR, `${nextWidth}px`);
+    if (persist) {
+      saveSidebarWidth(nextWidth);
+    }
+    if (window.PDFViewerApplication?.eventBus) {
+      PDFViewerApplication.eventBus.dispatch('resize', { source: window });
+    }
+    return nextWidth;
+  }
+
+  function restoreSidebarWidth() {
+    const saved = loadSidebarWidth();
+    if (saved != null) {
+      setSidebarWidth(saved);
+    }
+  }
+
+  function initSidebarResize() {
+    const resizer = document.getElementById('sidebarResizer');
+    const outerContainer = document.getElementById('outerContainer');
+    if (!resizer || !outerContainer) {
+      return;
+    }
+
+    resizer.classList.remove('hidden');
+    restoreSidebarWidth();
+
+    let dragging = false;
+    let startX = 0;
+    let startWidth = 0;
+    let isRTL = false;
+    let activePointerId = null;
+
+    const onPointerMove = (event) => {
+      if (!dragging) {
+        return;
+      }
+      let nextWidth = startWidth + (event.clientX - startX);
+      if (isRTL) {
+        nextWidth = startWidth - (event.clientX - startX);
+      }
+      setSidebarWidth(nextWidth);
+    };
+
+    const endDrag = () => {
+      if (!dragging) {
+        return;
+      }
+      dragging = false;
+      outerContainer.classList.remove('sidebarResizing');
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', endDrag);
+      window.removeEventListener('pointercancel', endDrag);
+      window.removeEventListener('blur', endDrag);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      if (activePointerId != null) {
+        try {
+          resizer.releasePointerCapture(activePointerId);
+        } catch {
+          // ignore
+        }
+        activePointerId = null;
+      }
+      setSidebarWidth(getSidebarWidth(), true);
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        endDrag();
+      }
+    };
+
+    resizer.addEventListener('pointerdown', (event) => {
+      if (event.button !== 0 || dragging) {
+        return;
+      }
+      event.preventDefault();
+      dragging = true;
+      isRTL = document.documentElement.dir === 'rtl';
+      startX = event.clientX;
+      startWidth = getSidebarWidth();
+      activePointerId = event.pointerId;
+      outerContainer.classList.add('sidebarResizing');
+      try {
+        resizer.setPointerCapture(event.pointerId);
+      } catch {
+        // ignore
+      }
+      window.addEventListener('pointermove', onPointerMove);
+      window.addEventListener('pointerup', endDrag);
+      window.addEventListener('pointercancel', endDrag);
+      window.addEventListener('blur', endDrag);
+      document.addEventListener('visibilitychange', onVisibilityChange);
+    });
+  }
+
   window.addEventListener('load', function () {
     PDFViewerApplication.initializedPromise.then(() => {
+      initSidebarResize();
       const optsOnLoad = () => {
         PDFViewerApplication.pdfCursorTools.switchTool(cursorTools('select'))
         PDFViewerApplication.pdfViewer.scrollMode = scrollMode('vertical')
