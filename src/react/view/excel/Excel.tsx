@@ -9,7 +9,16 @@ import Spreadsheet from './x-spreadsheet/index';
 
 export default function Excel() {
     const [loading, setLoading] = useState(true)
+    const [dark, setDark] = useState(() => {
+        try { return localStorage.getItem('office-dark-mode') === '1' } catch (e) { return false }
+    })
     const isCSV = useRef<boolean>(false)
+
+    useEffect(() => {
+        document.body.classList.toggle('office-dark', dark)
+        try { localStorage.setItem('office-dark-mode', dark ? '1' : '0') } catch (e) { }
+    }, [dark])
+
     useEffect(() => {
         const container = document.getElementById('container');
 
@@ -59,6 +68,11 @@ export default function Excel() {
         <div className='excel-viewer'>
             <Spin spinning={loading} fullscreen={true}>
             </Spin>
+            <button className="dark-mode-toggle" title="Toggle Dark Mode" onClick={() => setDark(d => !d)}>
+                <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M6.2 1.4a6.6 6.6 0 1 0 8.4 8.4A5.2 5.2 0 0 1 6.2 1.4z" fill="currentColor" />
+                </svg>
+            </button>
             <div id='container'></div>
             {
                 isCSV.current ? <VSCodeLogo /> : null

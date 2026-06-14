@@ -33,3 +33,45 @@
     }
 
 }
+
+/* ---- Dark mode toggle button ---- */
+.dark-mode-toggle {
+    position: fixed;
+    top: 10px;
+    right: 14px;
+    z-index: 1000;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(128, 128, 128, 0.4);
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.85);
+    color: #2c3e50;
+    cursor: pointer;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.06);
+    }
+}
+
+/* ---- Dark mode (black background, white text) ---- */
+body.office-dark {
+    background-color: #1a1a1a;
+
+    .excel-viewer {
+        background-color: #1a1a1a;
+    }
+
+    // Invert the spreadsheet canvas: white -> black, black text -> white.
+    #container {
+        filter: invert(1) hue-rotate(180deg);
+    }
+
+    .dark-mode-toggle {
+        background-color: rgba(40, 40, 40, 0.85);
+        color: #f0f0f0;
+        border-color: rgba(200, 200, 200, 0.3);
+    }
+}
