@@ -10,7 +10,6 @@ import { ReactApp } from './common/reactApp';
 const httpExt = require('./bundle/extension');
 
 export function activate(context: vscode.ExtensionContext) {
-	keepOriginDiff();
 	activeHTTP(context)
 	const viewOption = { webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true } };
 	FileUtil.init(context)
@@ -37,19 +36,5 @@ async function activeHTTP(context: vscode.ExtensionContext) {
 		httpExt.activate(context)
 	} catch (error) {
 		Output.debug(error)
-	}
-}
-
-/**
- * Git History是生成一个临时文件, 因此这里无法控制
- */
-function keepOriginDiff() {
-	const config = vscode.workspace.getConfiguration("workbench");
-	const configKey = 'editorAssociations'
-	const editorAssociations = config.get(configKey)
-	const key = '{git,gitlens,git-graph}:/**/*.{md,csv,svg}'
-	if (editorAssociations[key]) {
-		editorAssociations[key] = undefined
-		config.update(configKey, editorAssociations, true)
 	}
 }
