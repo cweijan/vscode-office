@@ -3,12 +3,13 @@ import { Button, Select } from "antd";
 import { handler } from "../../../util/vscode";
 
 export default function Toolbar({ size, currentDir, extension }) {
+    const editable = !extension || extension === 'zip';
     return (
         <div className="zip-toolbar">
             <div className="zip-toolbar-left">
                 <Button size="middle" title="Show In Explorer" icon={<FolderOpenOutlined />} onClick={() => handler.emit('showInExplorer')} />
                 <Button size="middle" title="Reload" icon={<ReloadOutlined />} onClick={() => handler.emit('init')} />
-                {extension !== 'rar' && (
+                {editable && (
                     <Button size="middle" icon={<FileAddOutlined />} onClick={() => handler.emit('addFile', currentDir)}>
                         Add
                     </Button>
@@ -27,7 +28,7 @@ export default function Toolbar({ size, currentDir, extension }) {
                     <span className="zip-size-label">Size</span>
                     <span className="zip-size-value">{size}</span>
                 </span>
-                {extension !== 'rar' && (
+                {editable && (
                     <>
                         <span style={{ fontWeight: 600, color: 'rgb(120 120 120)' }}>Encoding</span>
                         <Select

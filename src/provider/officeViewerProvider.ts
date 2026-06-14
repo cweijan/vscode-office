@@ -6,9 +6,10 @@ import { Handler } from '../common/handler';
 import { Util } from '../common/util';
 import { handleClass } from './handlers/classHandler';
 import { handleImage, isImage } from './handlers/imageHanlder';
+import { getCompressArchiveType } from '@/service/compress/archiveUtils';
 import { handleZip } from './compress/zipHandler';
 import { handleRar } from './compress/rarHandler';
-import { workspace } from 'vscode';
+import { handleTarGz } from './compress/tarHandler';
 import { handleCommonEvent } from './compress/commonHandler';
 
 /**
@@ -44,6 +45,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
         let route: string;
         const ext = extname(uri.fsPath).toLowerCase()
+        const archiveType = getCompressArchiveType(uri.fsPath);
         if (isImage(ext)) {
             handleImage(handler, uri, webview)
             route = 'image'
@@ -64,17 +66,6 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".pptm":
                 route = 'ppt'
                 break;
-            case ".jar":
-            case ".zip":
-            case ".apk":
-            case ".vsix":
-                route = 'zip';
-                handleZip(uri, handler);
-                break;
-            case ".rar":
-                route = 'zip';
-                handleRar(uri, handler);
-                break;
             case ".ttf":
             case ".woff":
             case ".woff2":
@@ -91,6 +82,25 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".class":
                 handleClass(uri, webviewPanel);
                 break;
+        }
+        if (archiveType) {
+            route = 'zip';
+            switch (archiveType) {
+                case 'zip':
+                    handleZip(uri, handler);
+                    break;
+                case 'rar':
+                    handleRar(uri, handler);
+                    break;
+                case 'tar.gz':
+                    handleTarGz(uri, handler, true);
+                    break;
+                case 'tar':
+                    handleTarGz(uri, handler, false);
+                    break;
+            }
+        }
+        switch (ext) {
             case ".htm":
             case ".html":
                 webview.html = Util.buildPath(readFileSync(uri.fsPath, 'utf8'), webview, folderPath.fsPath);
