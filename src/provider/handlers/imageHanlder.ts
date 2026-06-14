@@ -32,7 +32,7 @@ function loadImages(uri: vscode.Uri, webview: vscode.Webview) {
 }
 
 export function isImage(fileName: string) {
-    return /\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|webp)$/i.test(fileName);
+    return /\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|tiff|heic|heif|webp)$/i.test(fileName);
 }
 
 export function handleImage(handler: Handler, uri: vscode.Uri, webview: vscode.Webview) {

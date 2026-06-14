@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import ImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/css/image-gallery.css";
 import { handler } from '../../util/vscode';
+import { needsConversion, resolveImageSrc, revokeObjectUrl } from './convertImage';
 import './Image.less';
 import VSCodeLogo from "../vscode";
 import SponsorBar from '../components/SponsorBar';
@@ -34,8 +35,11 @@ function BrowseIcon() {
 export default function Image() {
     const gallery = useRef(null)
     const [info, setInfo] = useState({ images: [], current: 0 } as any);
+    const [resolvedImages, setResolvedImages] = useState<{ original: string; thumbnail: string }[]>([]);
+    const [loading, setLoading] = useState(false);
     const [wheelMode, setWheelMode] = useState<WheelMode>('zoom');
     const [zoom, setZoom] = useState(1);
+    const objectUrlsRef = useRef<string[]>([]);
 
     const applyZoom = useCallback((scale: number) => {
         const img = document.querySelector('.image-gallery-slide.image-gallery-center .image-gallery-image') as HTMLElement | null;
@@ -45,7 +49,7 @@ export default function Image() {
 
     useEffect(() => {
         applyZoom(zoom);
-    }, [zoom, applyZoom, info.images]);
+    }, [zoom, applyZoom, resolvedImages]);
 
     useEffect(() => {
         handler.on('images', info => {
@@ -53,6 +57,53 @@ export default function Image() {
             setZoom(1);
         }).emit('images');
     }, []);
+
+    useEffect(() => {
+        let cancelled = false;
+        for (const url of objectUrlsRef.current) {
+            revokeObjectUrl(url);
+        }
+        objectUrlsRef.current = [];
+
+        if (!info.images.length) {
+            setResolvedImages([]);
+            setLoading(false);
+            return;
+        }
+
+        const hasConvertible = info.images.some((image: { src: string }) => needsConversion(image.src));
+        if (hasConvertible) {
+            setLoading(true);
+        }
+
+        (async () => {
+            const resolved: { original: string; thumbnail: string }[] = [];
+            for (const image of info.images) {
+                if (cancelled) return;
+                try {
+                    const src = await resolveImageSrc(image.src);
+                    if (src.startsWith('blob:')) {
+                        objectUrlsRef.current.push(src);
+                    }
+                    resolved.push({ original: src, thumbnail: src });
+                } catch {
+                    resolved.push({ original: image.src, thumbnail: image.src });
+                }
+            }
+            if (!cancelled) {
+                setResolvedImages(resolved);
+                setLoading(false);
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+            for (const url of objectUrlsRef.current) {
+                revokeObjectUrl(url);
+            }
+            objectUrlsRef.current = [];
+        };
+    }, [info.images]);
 
     useEffect(() => {
         let previous = 0;
@@ -72,7 +123,7 @@ export default function Image() {
         return () => removeEventListener('wheel', onWheel);
     }, [wheelMode]);
 
-    const images = info.images.map((image) => ({
+    const images = resolvedImages.length ? resolvedImages : info.images.map((image: { src: string }) => ({
         original: image.src,
         thumbnail: image.src
     }));
@@ -80,6 +131,7 @@ export default function Image() {
     return (
         <div className="image-viewer">
             <VSCodeLogo full={false} style={{ top: 6 }} />
+            {loading && <div className="image-viewer__loading">Converting image…</div>}
             <div className="image-wheel-toolbar" role="toolbar" aria-label="Wheel mode">
                 <button
                     type="button"

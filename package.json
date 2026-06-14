@@ -285,6 +285,21 @@
 				]
 			},
 			{
+				"viewType": "cweijan.heicTiffViewer",
+				"displayName": "Image Preview(Office Viewer)",
+				"selector": [
+					{
+						"filenamePattern": "*.heic"
+					},
+					{
+						"filenamePattern": "*.heif"
+					},
+					{
+						"filenamePattern": "*.tiff"
+					}
+				]
+			},
+			{
 				"viewType": "cweijan.imageViewer",
 				"displayName": "Image Preview(Office Viewer)",
 				"priority": "option",
@@ -399,7 +414,9 @@
 				},
 				"vscode-office.puppeteerArgs": {
 					"type": "array",
-					"items": { "type": "string" },
+					"items": {
+						"type": "string"
+					},
 					"default": [],
 					"description": "Additional arguments to pass to Puppeteer/Chromium when exporting PDF. Example: [\"--no-sandbox\", \"--disable-setuid-sandbox\"] for Linux servers running as root."
 				},
@@ -549,9 +566,9 @@
 		"vite": "^8.0.16"
 	},
 	"dependencies": {
+		"7z-wasm": "^1.2.0",
 		"@ant-design/icons": "^5.3.5",
 		"@zip.js/zip.js": "^2.8.26",
-		"7z-wasm": "^1.2.0",
 		"antd": "^5.15.4",
 		"axios": "^1.4.0",
 		"chart.js": "^4.5.1",
@@ -562,6 +579,7 @@
 		"epubjs": "^0.3.93",
 		"exceljs": "^4.4.0",
 		"file-type": "^19.6.0",
+		"heic2any": "^0.0.4",
 		"highlight.js": "^11.10.0",
 		"iconv-lite": "^0.6.3",
 		"jszip": "^3.10.1",
@@ -582,6 +600,7 @@
 		"react-image-gallery": "^1.3.0",
 		"tar": "^7.5.16",
 		"udsv": "^0.5.3",
+		"utif": "^3.1.0",
 		"vscode-html-to-docx": "^1.1.2",
 		"x-data-spreadsheet": "^1.1.9",
 		"xlsx": "^0.18.5"
