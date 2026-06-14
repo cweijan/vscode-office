@@ -9,17 +9,23 @@ interface ViewOption {
 export class ReactApp {
 
     private static webviewPath: string;
+    private static extensionPath: string;
     public static IS_DEV = false;
     public static init(context: vscode.ExtensionContext) {
         this.webviewPath = context.extensionPath + '/out/webview'
+        this.extensionPath = context.extensionPath
         this.IS_DEV = context.extensionMode == vscode.ExtensionMode.Development
     }
 
     public static async view(webview: vscode.Webview, option: ViewOption) {
         const html = await this.readContent()
+        const iconBaseUrl = webview.asWebviewUri(
+            vscode.Uri.file(`${this.extensionPath}/resource/icon`)
+        ).toString();
         webview.html = this.buildPath(html, webview)
             .replace(`{{configs}}`, JSON.stringify({
                 ...option,
+                iconBaseUrl,
                 language: vscode.env.language,
                 config: vscode.workspace.getConfiguration('vscode-office')
             }))

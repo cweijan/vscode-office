@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { handler } from '../../../util/vscode';
-import { IconDelete, IconFile, IconFolder, IconSort } from '../icons';
+import { IconDelete, IconSort } from '../icons';
+import { FileTypeIcon } from './FileTypeIcon';
 import { FileInfo } from '../zipTypes';
 
 type SortField = 'name' | 'modifyDateTime' | 'compressedSize' | 'fileSize';
@@ -143,7 +144,7 @@ export default function FileItems({ items, onOpenPath }: FileItemsProps) {
                         >
                             <td>
                                 <span className="zip-file-name">
-                                    {entry.isDirectory ? <IconFolder size={15} /> : <IconFile size={15} />}
+                                    <FileTypeIcon name={entry.name} isDirectory={entry.isDirectory} />
                                     <span>{entry.name}</span>
                                 </span>
                             </td>
