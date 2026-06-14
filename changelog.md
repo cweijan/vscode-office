@@ -1,5 +1,10 @@
 # Change log
 
+# 4.0.0 2026-6-14
+- Support pptx and epub files
+- Support 7zip and tar.gz archives
+- Better support for docx, excel, pdf and archives
+
 # 3.5.7 2026-6-12
 - Fixed paste image failed in markdown editor
 
