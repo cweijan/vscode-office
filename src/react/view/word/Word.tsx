@@ -2,7 +2,7 @@ import { MoonOutlined, SunOutlined } from "@ant-design/icons";
 import { Alert, Pagination, Spin } from "antd";
 import * as docx from 'docx-preview';
 import { useCallback, useEffect, useRef, useState } from "react";
-import { handler } from "../../util/vscode";
+import { handler, loadDarkMode, applyDarkMode } from "../../util/vscode";
 import './Word.css';
 
 const DOCX_RENDER_OPTIONS: Partial<docx.Options> = {
@@ -18,15 +18,20 @@ export default function Word() {
     const contentRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [dark, setDark] = useState(() => {
-        try { return localStorage.getItem('office-dark-mode') === '1' } catch { return false }
-    });
+    const [dark, setDark] = useState(loadDarkMode);
     const [pageInfo, setPageInfo] = useState({ current: 1, total: 0, pageSize: null as number | null });
 
     useEffect(() => {
         document.body.classList.toggle('office-dark', dark);
-        try { localStorage.setItem('office-dark-mode', dark ? '1' : '0') } catch { }
     }, [dark]);
+
+    const toggleDark = () => {
+        setDark(prev => {
+            const next = !prev;
+            applyDarkMode(next);
+            return next;
+        });
+    };
 
     const updatePageInfo = useCallback(() => {
         const container = containerRef.current;
@@ -108,7 +113,7 @@ export default function Word() {
                 type="button"
                 className="dark-mode-toggle"
                 title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-                onClick={() => setDark(d => !d)}
+                onClick={toggleDark}
             >
                 {dark ? <SunOutlined /> : <MoonOutlined />}
             </button>

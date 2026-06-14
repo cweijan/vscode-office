@@ -2,25 +2,24 @@ import { Output } from "@/common/Output";
 import { FileUtil } from "@/common/fileUtil";
 import { Handler } from "@/common/handler";
 import { isZipPasswordError } from '@/service/compress/passwordUtils';
+import { planExtractTarget, revealExtractResult } from '@/service/compress/archiveUtils';
 import prettyBytes from "@/service/zip/pretty-bytes";
 import { ZipArchive } from "@/service/zip/zipArchive";
 import { mkdirSync, writeFileSync } from "fs";
-import { basename, join, parse, resolve } from "path";
+import { basename, resolve } from "path";
 import { Uri, commands, window, workspace } from "vscode";
 import { handlerCommonDecompress } from "./decompressHandler";
+
+function applyPassword(current: string | undefined, input?: string) {
+    return input !== undefined ? (input.trim() || undefined) : current;
+}
 
 export async function handleZip(uri: Uri, handler: Handler) {
     const decompressPath = handlerCommonDecompress(uri, handler);
     let archivePassword: string | undefined;
     let filenameEncoding: string | undefined;
 
-    handler.on('changePassword', (password?: string) => {
-        archivePassword = password?.trim() || undefined;
-        handler.emit('init');
-    });
-
     handler.on('init', async () => {
-        handler.emit('passwordEnabled', true);
         const data = (await workspace.fs.readFile(uri)) as Buffer;
         let { archive, files, folderMap, fileMap, encrypted } = await ZipArchive.open(data, { encoding: filenameEncoding });
 
@@ -30,16 +29,6 @@ export async function handleZip(uri: Uri, handler: Handler) {
             files, folderMap,
             fileName: basename(uri.fsPath)
         });
-
-        if (encrypted && archivePassword) {
-            try {
-                await archive.verifyPassword(fileMap, archivePassword);
-                handler.emit('passwordOk');
-            } catch (err) {
-                handler.emit('passwordError');
-                window.showErrorMessage(isZipPasswordError(err) ? 'Wrong password' : (err as Error).message);
-            }
-        }
 
         handler.on('changeEncoding', async (encoding) => {
             filenameEncoding = encoding;
@@ -51,44 +40,58 @@ export async function handleZip(uri: Uri, handler: Handler) {
                 files, folderMap,
                 fileName: basename(uri.fsPath)
             });
-        }).on('openPath', async info => {
-            const { entryName, isDirectory } = info;
+        }).on('openPath', async (payload) => {
+            const entry = payload?.entry ?? payload;
+            const { entryName, isDirectory } = entry;
+            archivePassword = applyPassword(archivePassword, payload?.password);
+
             if (isDirectory) {
                 handler.emit('openDir', entryName);
-            } else {
-                await commands.executeCommand('workbench.action.keepEditor');
-                const file = fileMap[entryName];
-                const tempPath = `${decompressPath}/${entryName}`;
-                mkdirSync(resolve(tempPath, '..'), { recursive: true });
-                try {
-                    writeFileSync(tempPath, await archive.readEntry(file, archivePassword));
-                    commands.executeCommand('vscode.open', Uri.file(tempPath));
-                } catch (err) {
-                    Output.debug(err);
-                    if (file?.encrypted && !archivePassword) {
-                        window.showErrorMessage('This archive is password protected. Enter the password in the toolbar.');
-                    } else {
-                        window.showErrorMessage(isZipPasswordError(err) ? 'Wrong password' : (err as Error).message);
-                    }
-                }
+                return;
             }
-        }).on('autoExtract', async () => {
-            window.showInformationMessage("Start extracting...");
-            let target = resolve(uri.fsPath, '..');
-            if (files.length > 1) {
-                target = join(target, parse(uri.fsPath).name);
-                mkdirSync(target, { recursive: true });
-            }
+
+            const file = fileMap[entryName];
+            const needsPassword = Boolean(file?.encrypted) || encrypted;
+            if (needsPassword && !archivePassword) return;
+
+            await commands.executeCommand('workbench.action.keepEditor');
+            const tempPath = `${decompressPath}/${entryName}`;
+            mkdirSync(resolve(tempPath, '..'), { recursive: true });
             try {
-                await archive.extractAllTo(target, archivePassword, fileMap);
-                window.showInformationMessage("Extract success!");
-                commands.executeCommand('revealFileInOS', Uri.file(target));
+                writeFileSync(tempPath, await archive.readEntry(file, archivePassword));
+                commands.executeCommand('vscode.open', Uri.file(tempPath));
             } catch (err) {
                 Output.debug(err);
-                if (encrypted && !archivePassword) {
-                    window.showErrorMessage('This archive is password protected. Enter the password in the toolbar.');
+                if (isZipPasswordError(err)) {
+                    archivePassword = undefined;
+                    handler.emit('passwordError');
+                    window.showErrorMessage('Wrong password');
                 } else {
-                    window.showErrorMessage(isZipPasswordError(err) ? 'Wrong password' : (err as Error).message);
+                    window.showErrorMessage((err as Error).message);
+                }
+            }
+        }).on('autoExtract', async (inputPassword?: string) => {
+            archivePassword = applyPassword(archivePassword, inputPassword);
+            if (encrypted && !archivePassword) return;
+
+            window.showInformationMessage("Start extracting...");
+            const filePaths = Object.keys(fileMap);
+            const plan = planExtractTarget(uri.fsPath, filePaths.length);
+            if (plan.createSubfolder) {
+                mkdirSync(plan.targetDir, { recursive: true });
+            }
+            try {
+                await archive.extractAllTo(plan.targetDir, archivePassword, fileMap);
+                window.showInformationMessage("Extract success!");
+                await revealExtractResult(plan, filePaths);
+            } catch (err) {
+                Output.debug(err);
+                if (isZipPasswordError(err)) {
+                    archivePassword = undefined;
+                    handler.emit('passwordError');
+                    window.showErrorMessage('Wrong password');
+                } else {
+                    window.showErrorMessage((err as Error).message);
                 }
             }
         }).on('addFile', async (currentDir = '') => {

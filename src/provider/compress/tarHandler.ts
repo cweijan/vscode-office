@@ -1,11 +1,11 @@
 import { Output } from '@/common/Output';
 import { Handler } from '@/common/handler';
-import { getArchiveBaseName } from '@/service/compress/archiveUtils';
+import { planExtractTarget, revealExtractResult } from '@/service/compress/archiveUtils';
 import { buildFileTree } from '@/service/compress/fileTree';
 import { extractTarEntries, formatTarModifyTime, listTarEntries } from '@/service/compress/tarUtils';
 import prettyBytes from '@/service/zip/pretty-bytes';
 import { mkdirSync } from 'fs';
-import { basename, join, resolve } from 'path';
+import { basename } from 'path';
 import { Uri, commands, window, workspace } from 'vscode';
 import { handlerCommonDecompress } from './decompressHandler';
 
@@ -42,15 +42,14 @@ export async function handleTarGz(uri: Uri, handler: Handler, gzip = true) {
             }
         }).on('autoExtract', async () => {
             window.showInformationMessage('Start extracting...');
-            let target = resolve(uri.fsPath, '..');
-            if (filePaths.length > 1) {
-                target = join(target, getArchiveBaseName(uri.fsPath));
-                mkdirSync(target, { recursive: true });
+            const plan = planExtractTarget(uri.fsPath, filePaths.length);
+            if (plan.createSubfolder) {
+                mkdirSync(plan.targetDir, { recursive: true });
             }
             try {
-                await extractTarEntries(data, target, gzip);
+                await extractTarEntries(data, plan.targetDir, gzip);
                 window.showInformationMessage('Extract success!');
-                commands.executeCommand('revealFileInOS', Uri.file(target));
+                await revealExtractResult(plan, filePaths);
             } catch (err) {
                 Output.debug(err);
                 window.showErrorMessage((err as Error).message);

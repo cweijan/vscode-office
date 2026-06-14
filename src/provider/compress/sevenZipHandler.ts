@@ -1,6 +1,6 @@
 import { Output } from '@/common/Output';
 import { Handler } from '@/common/handler';
-import { getArchiveBaseName } from '@/service/compress/archiveUtils';
+import { planExtractTarget, revealExtractResult } from '@/service/compress/archiveUtils';
 import { buildFileTree } from '@/service/compress/fileTree';
 import prettyBytes from '@/service/zip/pretty-bytes';
 import iconv from 'iconv-lite';
@@ -9,6 +9,10 @@ import { basename, dirname, join, parse, relative, resolve, sep } from 'path';
 import SevenZip from '7z-wasm';
 import { Uri, commands, window, workspace } from 'vscode';
 import { handlerCommonDecompress } from './decompressHandler';
+
+function applyPassword(current: string | undefined, input?: string) {
+    return input !== undefined ? (input.trim() || undefined) : current;
+}
 
 interface SevenZipEntry {
     path: string;
@@ -23,18 +27,12 @@ export async function handleSevenZip(uri: Uri, handler: Handler) {
     let archivePassword: string | undefined;
     let filenameEncoding: string | undefined;
 
-    handler.on('changePassword', (password?: string) => {
-        archivePassword = password?.trim() || undefined;
-        handler.emit('init');
-    });
-
     handler.on('changeEncoding', (encoding: string) => {
         filenameEncoding = encoding;
         handler.emit('init');
     });
 
     handler.on('init', async () => {
-        handler.emit('passwordEnabled', true);
         const stat = await workspace.fs.stat(uri);
 
         try {
@@ -50,50 +48,54 @@ export async function handleSevenZip(uri: Uri, handler: Handler) {
                 fileName: basename(uri.fsPath),
             });
 
-            if (encrypted && archivePassword) {
-                handler.emit('passwordOk');
-            }
+            handler.on('openPath', async (payload) => {
+                const entry = payload?.entry ?? payload;
+                const { entryName, isDirectory } = entry;
+                archivePassword = applyPassword(archivePassword, payload?.password);
 
-            handler.on('openPath', async (info) => {
-                const { entryName, isDirectory } = info;
                 if (isDirectory) {
                     handler.emit('openDir', entryName);
-                } else {
-                    await commands.executeCommand('workbench.action.keepEditor');
-                    const tempPath = `${decompressPath}/${entryName}`;
-                    const success = await extractSevenZipEntries(
-                        uri.fsPath,
-                        decompressPath,
-                        [entryName],
-                        archivePassword,
-                        filenameEncoding,
-                    );
-                    if (success) {
-                        commands.executeCommand('vscode.open', Uri.file(tempPath));
-                    }
+                    return;
                 }
-            }).on('autoExtract', async () => {
+                if (encrypted && !archivePassword) return;
+
+                await commands.executeCommand('workbench.action.keepEditor');
+                const tempPath = `${decompressPath}/${entryName}`;
+                const success = await extractSevenZipEntries(
+                    uri.fsPath,
+                    decompressPath,
+                    [entryName],
+                    archivePassword,
+                    filenameEncoding,
+                );
+                if (success) {
+                    commands.executeCommand('vscode.open', Uri.file(tempPath));
+                } else if (archivePassword && encrypted) {
+                    archivePassword = undefined;
+                    handler.emit('passwordError');
+                }
+            }).on('autoExtract', async (inputPassword?: string) => {
+                archivePassword = applyPassword(archivePassword, inputPassword);
+                if (encrypted && !archivePassword) return;
+
                 window.showInformationMessage('Start extracting...');
-                let target = resolve(uri.fsPath, '..');
-                if (filePaths.length > 1) {
-                    target = join(target, getArchiveBaseName(uri.fsPath));
-                    mkdirSync(target, { recursive: true });
+                const plan = planExtractTarget(uri.fsPath, filePaths.length);
+                if (plan.createSubfolder) {
+                    mkdirSync(plan.targetDir, { recursive: true });
                 }
-                const success = await extractSevenZipEntries(uri.fsPath, target, undefined, archivePassword, filenameEncoding);
+                const success = await extractSevenZipEntries(uri.fsPath, plan.targetDir, undefined, archivePassword, filenameEncoding);
                 if (success) {
                     window.showInformationMessage('Extract success!');
-                    commands.executeCommand('revealFileInOS', Uri.file(target));
+                    await revealExtractResult(plan, filePaths);
+                } else if (archivePassword && encrypted) {
+                    archivePassword = undefined;
+                    handler.emit('passwordError');
                 }
             });
         } catch (err) {
             Output.debug(err);
             if (isSevenZipPasswordError(err)) {
-                if (archivePassword) {
-                    handler.emit('passwordError');
-                    window.showErrorMessage('Wrong password');
-                } else {
-                    window.showErrorMessage('This archive is password protected. Enter the password in the toolbar.');
-                }
+                window.showErrorMessage(archivePassword ? 'Wrong password' : 'This archive is password protected.');
             } else {
                 window.showErrorMessage((err as Error).message);
             }
@@ -179,7 +181,7 @@ async function extractSevenZipEntries(
         if (password && isSevenZipPasswordError(err)) {
             window.showErrorMessage('Wrong password');
         } else if (!password && isSevenZipPasswordError(err)) {
-            window.showErrorMessage('This archive is password protected. Enter the password in the toolbar.');
+            return false;
         } else {
             window.showErrorMessage((err as Error).message);
         }

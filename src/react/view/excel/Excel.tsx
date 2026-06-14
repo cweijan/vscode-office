@@ -1,7 +1,7 @@
 import { MoonOutlined, SunOutlined } from "@ant-design/icons";
 import { message, Spin } from "antd";
 import { useEffect, useRef, useState } from "react";
-import { handler } from "../../util/vscode.ts";
+import { handler, loadDarkMode, applyDarkMode } from "../../util/vscode.ts";
 import VSCodeLogo from "../vscode.tsx";
 import './Excel.less';
 import { loadSheets } from "./excel_reader.ts";
@@ -10,16 +10,21 @@ import Spreadsheet from './x-spreadsheet/index';
 
 export default function Excel() {
     const [loading, setLoading] = useState(true)
-    const [dark, setDark] = useState(() => {
-        try { return localStorage.getItem('office-dark-mode') === '1' } catch { return false }
-    })
+    const [dark, setDark] = useState(loadDarkMode)
     const isCSV = useRef<boolean>(false)
     const spreadSheetRef = useRef<Spreadsheet | null>(null)
 
     useEffect(() => {
         document.body.classList.toggle('office-dark', dark)
-        try { localStorage.setItem('office-dark-mode', dark ? '1' : '0') } catch { }
     }, [dark])
+
+    const toggleDark = () => {
+        setDark(prev => {
+            const next = !prev
+            applyDarkMode(next)
+            return next
+        })
+    }
 
     useEffect(() => {
         spreadSheetRef.current?.reRender()
@@ -91,7 +96,7 @@ export default function Excel() {
                 type="button"
                 className="dark-mode-toggle"
                 title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-                onClick={() => setDark(d => !d)}
+                onClick={toggleDark}
             >
                 {dark ? <SunOutlined /> : <MoonOutlined />}
             </button>

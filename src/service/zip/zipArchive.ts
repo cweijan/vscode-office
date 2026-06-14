@@ -24,6 +24,7 @@ export interface ZipDisplayEntry {
     compressedSize?: string;
     compressedSizeOrigin?: number;
     modifyDateTime?: string | null;
+    encrypted?: boolean;
 }
 
 export interface ZipParseResult {
@@ -90,6 +91,7 @@ function buildTree(entries: Entry[]): ZipParseResult {
             isDirectory: raw.directory,
             name: raw.directory ? basename(displayName) : basename(displayName),
             entryName: displayName,
+            encrypted: raw.encrypted,
             fileSizeOrigin: raw.uncompressedSize,
             compressedSizeOrigin: raw.compressedSize,
             fileSize: prettyBytes(raw.uncompressedSize),

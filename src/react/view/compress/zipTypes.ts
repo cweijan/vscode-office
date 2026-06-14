@@ -14,6 +14,8 @@ export class FileInfo {
     fileSizeOrigin?: number;
     compressedSize?: string;
     compressedSizeOrigin?: number;
+    modifyDateTime?: string | null;
+    encrypted?: boolean;
 }
 
 interface EntryHeader {

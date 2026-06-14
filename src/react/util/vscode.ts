@@ -1,6 +1,35 @@
 const vscode = window['acquireVsCodeApi']?.();
 const postMessage = (message) => { if (vscode) { vscode.postMessage(message) } }
 
+const DARK_MODE_KEY = 'office-dark-mode';
+
+export function loadDarkMode(): boolean {
+    const state = vscode?.getState?.() as { darkMode?: boolean } | undefined;
+    if (state?.darkMode !== undefined) {
+        return state.darkMode;
+    }
+    try {
+        return localStorage.getItem(DARK_MODE_KEY) === '1';
+    } catch {
+        return false;
+    }
+}
+
+export function saveDarkMode(dark: boolean) {
+    try {
+        localStorage.setItem(DARK_MODE_KEY, dark ? '1' : '0');
+    } catch { }
+    if (vscode?.setState) {
+        const prev = (vscode.getState?.() ?? {}) as Record<string, unknown>;
+        vscode.setState({ ...prev, darkMode: dark });
+    }
+}
+
+export function applyDarkMode(dark: boolean) {
+    document.body.classList.toggle('office-dark', dark);
+    saveDarkMode(dark);
+}
+
 const events = {}
 function receive({ data }) {
     if (!data)
