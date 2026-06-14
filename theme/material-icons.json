@@ -333,6 +333,9 @@
     "email": {
       "iconPath": "./../icons/email.svg"
     },
+    "epub": {
+      "iconPath": "./../icons/epub.svg"
+    },
     "audio": {
       "iconPath": "./../icons/audio.svg"
     },
@@ -2530,6 +2533,7 @@
     "woff2": "font",
     "ttf": "font",
     "eot": "font",
+    "epub": "epub",
     "suit": "font",
     "otf": "font",
     "bmap": "font",
