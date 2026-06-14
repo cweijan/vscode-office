@@ -1,4 +1,56 @@
 .excel-viewer {
+    min-height: 100vh;
+    background-color: white;
+
+    .ant-tabs {
+        user-select: none;
+    }
+
+    .ant-tabs-nav {
+        margin-bottom: 0 !important;
+    }
+
+    .ant-tabs-tab {
+        margin-left: 0;
+        padding: 0 10px;
+
+        &:hover,
+        .ant-tabs-tab-btn:active {
+            color: #09885c !important;
+        }
+    }
+
+    .ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+        color: #057c52;
+    }
+
+    .ant-tabs-ink-bar {
+        background-color: #057c52;
+    }
+
+    .dark-mode-toggle {
+        position: fixed;
+        bottom: 6px;
+        right: 20px;
+        z-index: 1000;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(128, 128, 128, 0.4);
+        border-radius: 6px;
+        background-color: rgba(255, 255, 255, 0.85);
+        color: #2c3e50;
+        cursor: pointer;
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.06);
+        }
+    }
+}
+
+body.office-dark .excel-viewer {
     --excel-bg: var(--vscode-editor-background, #1e1e1e);
     --excel-fg: var(--vscode-editor-foreground, #cccccc);
     --excel-cell-bg: var(--vscode-editor-background, #1e1e1e);
@@ -52,19 +104,12 @@
         background: var(--excel-scrollbar-track);
     }
 
-    .ant-tabs {
-        user-select: none;
-    }
-
     .ant-tabs-nav {
-        margin-bottom: 0 !important;
         background: var(--excel-header-bg);
         border-bottom: 1px solid var(--excel-border);
     }
 
     .ant-tabs-tab {
-        margin-left: 0;
-        padding: 0 10px;
         color: var(--excel-fg);
 
         &:hover,
@@ -105,6 +150,11 @@
             background-color: transparent;
             color: var(--excel-accent);
             border-bottom-color: var(--excel-accent);
+        }
+
+        .x-spreadsheet-icon .x-spreadsheet-icon-img.add {
+            filter: brightness(0) invert(1);
+            opacity: 0.85;
         }
     }
 
@@ -282,4 +332,18 @@
         border: 1px solid var(--excel-border);
         border-radius: 4px;
     }
+
+    .dark-mode-toggle {
+        background-color: var(--vscode-editorWidget-background, #252526);
+        color: var(--vscode-editor-foreground, #cccccc);
+        border-color: var(--vscode-editorWidget-border, rgba(128, 128, 128, 0.45));
+
+        &:hover {
+            background-color: var(--vscode-toolbar-hoverBackground, rgba(90, 93, 94, 0.31));
+        }
+    }
+}
+
+body.office-dark {
+    background-color: var(--vscode-editor-background, #1e1e1e);
 }

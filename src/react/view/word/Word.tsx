@@ -1,3 +1,4 @@
+import { MoonOutlined, SunOutlined } from "@ant-design/icons";
 import { Alert, Pagination, Spin } from "antd";
 import * as docx from 'docx-preview';
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -17,7 +18,15 @@ export default function Word() {
     const contentRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [dark, setDark] = useState(() => {
+        try { return localStorage.getItem('office-dark-mode') === '1' } catch { return false }
+    });
     const [pageInfo, setPageInfo] = useState({ current: 1, total: 0, pageSize: null as number | null });
+
+    useEffect(() => {
+        document.body.classList.toggle('office-dark', dark);
+        try { localStorage.setItem('office-dark-mode', dark ? '1' : '0') } catch { }
+    }, [dark]);
 
     const updatePageInfo = useCallback(() => {
         const container = containerRef.current;
@@ -95,6 +104,14 @@ export default function Word() {
 
     return (
         <div className="word-viewer">
+            <button
+                type="button"
+                className="dark-mode-toggle"
+                title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+                onClick={() => setDark(d => !d)}
+            >
+                {dark ? <SunOutlined /> : <MoonOutlined />}
+            </button>
             <Spin spinning={loading} fullscreen />
             {error && <Alert type="error" message={error} showIcon style={{ margin: 16 }} />}
             <div className="word-body" ref={containerRef}>

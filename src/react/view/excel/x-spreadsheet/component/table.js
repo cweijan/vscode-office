@@ -20,7 +20,7 @@ function tableGridStyle() {
   return {
     fillStyle: getExcelThemeColor('--excel-cell-bg', '#fff'),
     lineWidth: thinLineWidth,
-    strokeStyle: getExcelThemeColor('--excel-grid-line', '#585858'),
+    strokeStyle: getExcelThemeColor('--excel-grid-line', '#e6e6e6'),
   };
 }
 
@@ -31,7 +31,7 @@ function tableFixedHeaderStyle() {
     font: `500 ${npx(12)}px Source Sans Pro`,
     fillStyle: getExcelThemeColor('--excel-header-fg', '#585757'),
     lineWidth: thinLineWidth(),
-    strokeStyle: getExcelThemeColor('--excel-grid-line', '#585858'),
+    strokeStyle: getExcelThemeColor('--excel-grid-line', '#e6e6e6'),
   };
 }
 
@@ -308,7 +308,7 @@ function renderFreezeHighlightLine(fw, fh, ftw, fth) {
   const theight = data.viewHeight() - fh;
   draw.save()
     .translate(fw, fh)
-    .attr({ strokeStyle: getExcelThemeColor('--excel-selection', '#007fd4') });
+    .attr({ strokeStyle: getExcelThemeColor('--excel-selection', 'rgba(75, 137, 255, .6)') });
   draw.line([0, fth], [twidth, fth]);
   draw.line([ftw, 0], [ftw, theight]);
   draw.restore();
