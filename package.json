@@ -397,6 +397,12 @@
 					"type": "string",
 					"description": "Set the chromium browser location for exporting markdown pdf."
 				},
+				"vscode-office.puppeteerArgs": {
+					"type": "array",
+					"items": { "type": "string" },
+					"default": [],
+					"description": "Additional arguments to pass to Puppeteer/Chromium when exporting PDF. Example: [\"--no-sandbox\", \"--disable-setuid-sandbox\"] for Linux servers running as root."
+				},
 				"vscode-office.pdfMarginTop": {
 					"type": "integer",
 					"default": 25,

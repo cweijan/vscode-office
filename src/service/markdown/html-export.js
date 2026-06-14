@@ -1,7 +1,7 @@
 const fs = require("fs")
 const os = require("os")
 const path = require("path")
-const URI = require("vscode").Uri
+const { pathToFileURL } = require("url")
 const { createOutline } = require("./outline")
 const isDev = process.argv.indexOf('--type=extensionHost') >= 0;
 
@@ -34,42 +34,61 @@ export async function exportByType(filePath, data, type, config) {
         return exportDocx(targetFilePath, data)
     }
 
-    let tmpfilename = path.join(isDev ? originPath.dir : os.tmpdir(), originPath.name + "_tmp.html")
+    // Linux: keep temp html beside the markdown file (snap/isolated browsers often cannot read /tmp)
+    const tmpDir = process.platform === 'linux' ? originPath.dir : (isDev ? originPath.dir : os.tmpdir())
+    let tmpfilename = path.resolve(tmpDir, originPath.name + "_tmp.html")
     exportHtml(tmpfilename, data)
-    let options = {
+    if (!isExistsPath(tmpfilename)) {
+        throw new Error(`Temporary HTML file not found: ${tmpfilename}`)
+    }
+
+    const fileUrl = pathToFileURL(tmpfilename).href
+    let launchOptions = {
         headless: true,
-        executablePath: config["executablePath"] || undefined
+        executablePath: config["executablePath"] || undefined,
+        args: ["--allow-file-access-from-files", ...(config["puppeteerArgs"] || [])]
     }
 
     const puppeteer = require("puppeteer-core")
-    let browser = await puppeteer.launch(options).catch(error => {
+    const browser = await puppeteer.launch(launchOptions).catch(error => {
         showErrorMessage("puppeteer.launch()", error)
+        throw error
     })
-    let page = await browser.newPage().catch(error => {
+    const page = await browser.newPage().catch(error => {
         showErrorMessage("browser.newPage()", error)
+        throw error
     });
-    await page.goto(URI.file(tmpfilename).toString(), { waitUntil: "load" }).catch(error => {
+    await page.goto(fileUrl, { waitUntil: "load", timeout: 60000 }).catch(async error => {
         showErrorMessage("page.goto()", error)
+        await page.setContent(data, { waitUntil: "load", timeout: 60000 })
     });
 
     // generate pdf
     if (type == "pdf") {
         // https://pptr.dev/api/puppeteer.pdfoptions
-        const options = {
+        const margin = config["margin"] || {};
+        const pdfOptions = {
             format: config["format"] || "A4",
             printBackground: config["printBackground"] || true,
             margin: {
-                top: config["margin"]["top"],
-                right: config["margin"]["right"],
-                bottom: config["margin"]["bottom"],
-                left: config["margin"]["left"]
+                top: margin.top != null ? `${margin.top}px` : undefined,
+                right: margin.right != null ? `${margin.right}px` : undefined,
+                bottom: margin.bottom != null ? `${margin.bottom}px` : undefined,
+                left: margin.left != null ? `${margin.left}px` : undefined
             }
         }
-        const pdf = await page.pdf(options).catch(error => {
+        const pdf = await page.pdf(pdfOptions).catch(error => {
             showErrorMessage("page.pdf", error)
+            throw error
         })
 
-        const pdfBytes = await createOutline(pdf, data)
+        let pdfBytes
+        try {
+            pdfBytes = await createOutline(pdf, data)
+        } catch (error) {
+            showErrorMessage("createOutline()", error)
+            pdfBytes = Buffer.from(pdf)
+        }
         fs.writeFileSync(targetFilePath, pdfBytes)
 
     }
