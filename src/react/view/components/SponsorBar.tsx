@@ -33,7 +33,7 @@ export default function SponsorBar({ placement }: SponsorBarProps) {
                 <img className="office-sponsor-bar-logo" src={iconSrc} alt="Database Client" draggable={false} />
             </button>
             <p className="office-sponsor-bar-text">
-                Powered by{' '}
+                Supported by{' '}
                 <a
                     className="office-sponsor-bar-link"
                     href={SPONSOR_URL}

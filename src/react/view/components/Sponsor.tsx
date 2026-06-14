@@ -55,7 +55,7 @@ export default function Sponsor({ dark, variant = 'fixed' }: SponsorProps) {
                 <img className="office-sponsor-logo" src={logoSrc} alt="Database Client" draggable={false} />
             </button>
             <p className="office-sponsor-text">
-                Powered by{' '}
+                Supported by{' '}
                 <a
                     className="office-sponsor-link"
                     href={SPONSOR_URL}
