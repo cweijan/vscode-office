@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent, type ReactNode } from 'react';
-import { IconArchive, IconChevronDown, IconChevronRight, IconFolder } from '../icons';
+import { IconArchive, IconChevronDown, IconChevronRight } from '../icons';
+import { FileTypeIcon } from './FileTypeIcon';
 import { FileInfo } from '../zipTypes';
 
 interface SidebarProps {
@@ -119,7 +120,7 @@ function FolderNodes({
                     if (hasChildren) onExpand(key);
                     onSelectFolder(key);
                 }}
-                label={<><IconFolder size={14} /><span>{item.name}</span></>}
+                label={<><FileTypeIcon name={item.name} isDirectory /><span>{item.name}</span></>}
             >
                 <FolderNodes
                     data={subfolders}

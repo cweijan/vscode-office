@@ -7,6 +7,12 @@ function normalizeTarPath(path: string): string {
     return path.replace(/\\/g, '/').replace(/^\.\/+/, '').replace(/^\/+/, '');
 }
 
+function isTarDirectory(entry: ReadEntry): boolean {
+    return entry.type === 'Directory'
+        || entry.type === '5'
+        || entry.path.endsWith('/');
+}
+
 export interface TarEntryInfo {
     path: string;
     size: number;
@@ -24,7 +30,7 @@ export async function listTarEntries(data: Buffer, gzip: boolean): Promise<TarEn
                 entries.push({
                     path,
                     size: entry.size,
-                    isDirectory: entry.type === 'Directory',
+                    isDirectory: isTarDirectory(entry),
                     mtime: entry.mtime,
                 });
                 entry.resume();

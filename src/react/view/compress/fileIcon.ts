@@ -10,7 +10,7 @@ const ICON_FILES = new Set([
     'sass.svg', 'scala.svg', 'scss.svg', 'settings.svg', 'sql.svg', 'svg.svg',
     'typescript.svg', 'video.svg', 'vue.svg', 'word.svg', 'xml.svg', 'yaml.svg',
     'yarn.svg', 'zip.svg',
-    'folder-config.svg', 'folder-container.svg', 'folder-core.svg', 'folder-temp.svg',
+    'folder-config.svg', 'folder-container.svg', 'folder-core.svg', 'folder-temp.svg', 'folder.svg',
 ]);
 
 const EXT_ICON_MAP: Record<string, string> = {
@@ -128,8 +128,30 @@ export function getIconFileName(fileName: string): string {
     return EXT_ICON_MAP[ext] ?? 'file.svg';
 }
 
+export function getFolderIconFileName(folderName: string): string {
+    switch (folderName.toLowerCase()) {
+        case 'root':
+        case 'home':
+            return 'folder-core.svg';
+        case 'etc':
+            return 'folder-config.svg';
+        case 'tmp':
+            return 'folder-temp.svg';
+        case 'containerd':
+            return 'folder-container.svg';
+        default:
+            return 'folder.svg';
+    }
+}
+
 export function getFileIconUrl(fileName: string): string | null {
     const baseUrl = getConfigs()?.iconBaseUrl;
     if (!baseUrl || !fileName) return null;
     return `${baseUrl}/${getIconFileName(fileName)}`;
+}
+
+export function getFolderIconUrl(folderName: string): string | null {
+    const baseUrl = getConfigs()?.iconBaseUrl;
+    if (!baseUrl || !folderName) return null;
+    return `${baseUrl}/${getFolderIconFileName(folderName)}`;
 }

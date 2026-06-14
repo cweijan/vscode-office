@@ -86,9 +86,23 @@ export default function FileItems({ items, onOpenPath }: FileItemsProps) {
     if (items.length) loading.current = false;
 
     const sortedItems = useMemo(() => {
-        const copy = [...items];
-        copy.sort((a, b) => compareItems(a, b, sortField, sortDirection));
-        return copy;
+        let parentEntry: FileInfo | undefined;
+        const rest: FileInfo[] = [];
+        for (const item of items) {
+            if (item.name === '..') {
+                parentEntry = item;
+            } else {
+                rest.push(item);
+            }
+        }
+
+        rest.sort((a, b) => {
+            if (a.isDirectory && !b.isDirectory) return -1;
+            if (!a.isDirectory && b.isDirectory) return 1;
+            return compareItems(a, b, sortField, sortDirection);
+        });
+
+        return parentEntry ? [parentEntry, ...rest] : rest;
     }, [items, sortField, sortDirection]);
 
     const toggleSort = (field: SortField) => {
