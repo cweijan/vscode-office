@@ -3,6 +3,10 @@ import { mkdirSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 import { Parser, ReadEntry } from 'tar';
 
+function normalizeTarPath(path: string): string {
+    return path.replace(/\\/g, '/').replace(/^\.\/+/, '').replace(/^\/+/, '');
+}
+
 export interface TarEntryInfo {
     path: string;
     size: number;
@@ -16,7 +20,7 @@ export async function listTarEntries(data: Buffer, gzip: boolean): Promise<TarEn
         const parser = new Parser({
             gzip,
             onReadEntry: (entry: ReadEntry) => {
-                const path = entry.path.replace(/\\/g, '/');
+                const path = normalizeTarPath(entry.path);
                 entries.push({
                     path,
                     size: entry.size,
@@ -40,7 +44,7 @@ export function formatTarModifyTime(mtime?: Date): string | null {
 
 export async function extractTarEntries(data: Buffer, destDir: string, gzip: boolean, entryNames?: string[]): Promise<void> {
     const filter = entryNames?.length
-        ? (path: string) => entryNames.includes(path.replace(/\\/g, '/'))
+        ? (path: string) => entryNames.includes(normalizeTarPath(path))
         : undefined;
 
     const fileContents: { path: string; chunks: Buffer[] }[] = [];
@@ -53,7 +57,7 @@ export async function extractTarEntries(data: Buffer, destDir: string, gzip: boo
                     entry.resume();
                     return;
                 }
-                const path = entry.path.replace(/\\/g, '/');
+                const path = normalizeTarPath(entry.path);
                 const chunks: Buffer[] = [];
                 entry.on('data', (chunk: Buffer) => chunks.push(chunk));
                 entry.on('end', () => fileContents.push({ path, chunks }));

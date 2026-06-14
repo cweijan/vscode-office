@@ -31,14 +31,23 @@ export async function handleTarGz(uri: Uri, handler: Handler, gzip = true) {
             fileName: basename(uri.fsPath),
         });
 
-        handler.on('openPath', async (info) => {
-            const { entryName, isDirectory } = info;
+        handler.on('openPath', async (payload) => {
+            const entry = payload?.entry ?? payload;
+            const { entryName, isDirectory } = entry;
+
             if (isDirectory) {
-                handler.emit('openDir', entryName);
-            } else {
-                await commands.executeCommand('workbench.action.keepEditor');
+                handler.emit('openDir', entryName ?? '');
+                return;
+            }
+
+            await commands.executeCommand('workbench.action.keepEditor');
+            const tempPath = `${decompressPath}/${entryName}`;
+            try {
                 await extractTarEntries(data, decompressPath, gzip, [entryName]);
-                commands.executeCommand('vscode.open', Uri.file(`${decompressPath}/${entryName}`));
+                commands.executeCommand('vscode.open', Uri.file(tempPath));
+            } catch (err) {
+                Output.debug(err);
+                window.showErrorMessage((err as Error).message);
             }
         }).on('autoExtract', async () => {
             window.showInformationMessage('Start extracting...');
