@@ -29,7 +29,33 @@
         return -1
     }
   }
+  function setupDarkMode() {
+    const STORAGE_KEY = 'office-pdf-dark-mode';
+    const apply = (on) => {
+      document.body.classList.toggle('office-dark', on);
+      const btn = document.getElementById('darkModeToggle');
+      if (btn) btn.classList.toggle('toggled', on);
+    };
+    let enabled = false;
+    try { enabled = localStorage.getItem(STORAGE_KEY) === '1'; } catch (e) { }
+    apply(enabled);
+    const toggle = () => {
+      enabled = !enabled;
+      try { localStorage.setItem(STORAGE_KEY, enabled ? '1' : '0'); } catch (e) { }
+      apply(enabled);
+    };
+    const btn = document.getElementById('darkModeToggle');
+    if (btn) btn.addEventListener('click', toggle);
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'l') {
+        e.preventDefault();
+        toggle();
+      }
+    });
+  }
+
   window.addEventListener('load', function () {
+    setupDarkMode();
     PDFViewerApplication.initializedPromise.then(() => {
       const optsOnLoad = () => {
         PDFViewerApplication.pdfCursorTools.switchTool(cursorTools('select'))
