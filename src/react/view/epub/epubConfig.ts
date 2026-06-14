@@ -39,6 +39,33 @@ export const DEFAULT_SETTINGS: EpubSettings = {
     lineSpacing: '1.6',
 };
 
+const PLACEHOLDER_AUTHORS = new Set(['unknown', 'n/a', 'na', 'none', 'anonymous']);
+
+/** Normalize EPUB creator metadata; omit placeholders and missing values. */
+export function resolveEpubAuthor(creator: unknown): string {
+    const parts: string[] = [];
+    if (typeof creator === 'string') {
+        const trimmed = creator.trim();
+        if (trimmed) {
+            parts.push(trimmed);
+        }
+    } else if (Array.isArray(creator)) {
+        for (const item of creator) {
+            if (typeof item === 'string') {
+                const trimmed = item.trim();
+                if (trimmed) {
+                    parts.push(trimmed);
+                }
+            }
+        }
+    }
+    const text = parts.join(', ');
+    if (!text || PLACEHOLDER_AUTHORS.has(text.toLowerCase())) {
+        return '';
+    }
+    return text;
+}
+
 export function loadEpubSettings(): EpubSettings {
     const read = (storageKey: string, fallback: string) =>
         localStorage.getItem(`${STORAGE_PREFIX}${storageKey}`) ?? fallback;
@@ -201,6 +228,230 @@ export function getNavItem(book: Book, loc: { start: { href: string } }, ignoreH
         }
     }
     return null;
+}
+
+function parseNavHref(book: Book, href: string) {
+    const canonical = book.canonical(href) || href;
+    const hashIdx = canonical.indexOf('#');
+    return {
+        fragment: hashIdx >= 0 ? canonical.slice(hashIdx + 1) : '',
+        path: hashIdx >= 0 ? canonical.slice(0, hashIdx) : canonical,
+    };
+}
+
+function resolveSpineSection(book: Book, href: string) {
+    const { path } = parseNavHref(book, href);
+    const candidates = new Set<string>();
+
+    const addCandidate = (value: string) => {
+        if (!value) {
+            return;
+        }
+        candidates.add(value);
+        const noHash = value.split('#')[0];
+        candidates.add(noHash);
+        try {
+            candidates.add(decodeURIComponent(noHash));
+        } catch {
+            // ignore malformed URI
+        }
+        candidates.add(encodeURI(noHash));
+        const canonical = book.canonical(value);
+        if (canonical) {
+            candidates.add(canonical);
+            candidates.add(canonical.split('#')[0]);
+        }
+    };
+
+    addCandidate(href);
+    addCandidate(path);
+
+    for (const candidate of candidates) {
+        const section = book.spine.get(candidate);
+        if (section) {
+            return section;
+        }
+    }
+
+    const pathTail = path.split('/').pop() ?? '';
+    if (!pathTail) {
+        return null;
+    }
+
+    for (const section of book.spine.spineItems) {
+        const sectionHref = section.href ?? '';
+        if (sectionHref === pathTail || sectionHref.endsWith(`/${pathTail}`)) {
+            return section;
+        }
+    }
+
+    return null;
+}
+
+function resolveTocCfi(
+    section: NonNullable<ReturnType<Book['spine']['get']>>,
+    doc: Document,
+    fragment: string,
+): string {
+    if (fragment) {
+        const byId = doc.getElementById(fragment);
+        if (byId) {
+            return section.cfiFromElement(byId);
+        }
+        try {
+            const bySelector = doc.querySelector(`#${CSS.escape(fragment)}`);
+            if (bySelector) {
+                return section.cfiFromElement(bySelector);
+            }
+        } catch {
+            // ignore invalid selector
+        }
+    }
+
+    const body = doc.body;
+    if (!body) {
+        return section.cfiBase;
+    }
+
+    const walker = doc.createTreeWalker(body, NodeFilter.SHOW_ELEMENT);
+    let node = walker.nextNode();
+    while (node) {
+        const el = node as Element;
+        const tag = el.tagName.toLowerCase();
+        if (tag !== 'script' && tag !== 'style' && (el.textContent?.trim() ?? '').length > 0) {
+            return section.cfiFromElement(el);
+        }
+        node = walker.nextNode();
+    }
+
+    return section.cfiFromElement(body);
+}
+
+function parseSpinePosFromCfi(cfi: string): number {
+    const match = cfi.match(/epubcfi\(\/\d+\/(\d+)/);
+    if (!match) {
+        return -1;
+    }
+    return parseInt(match[1], 10);
+}
+
+function sectionIndexFromSpinePos(spinePos: number): number {
+    return spinePos / 2 - 1;
+}
+
+function buildSpineFirstLocationMap(book: Book): Map<number, number> {
+    const map = new Map<number, number>();
+    const total = book.locations.length();
+    for (let i = 0; i < total; i++) {
+        const cfi = book.locations.cfiFromLocation(i);
+        if (typeof cfi !== 'string') {
+            continue;
+        }
+        const spinePos = parseSpinePosFromCfi(cfi);
+        if (spinePos < 0) {
+            continue;
+        }
+        const sectionIndex = sectionIndexFromSpinePos(spinePos);
+        if (!map.has(sectionIndex)) {
+            map.set(sectionIndex, i);
+        }
+    }
+    return map;
+}
+
+function locationFromHref(book: Book, cfi: string): number {
+    let location = book.locations.locationFromCfi(cfi);
+    if (location >= 0) {
+        return location;
+    }
+
+    const total = book.locations.length();
+    if (total <= 0) {
+        return -1;
+    }
+
+    const pct = book.locations.percentageFromCfi(cfi);
+    if (pct == null) {
+        return -1;
+    }
+
+    return Math.round(pct * Math.max(0, total - 1));
+}
+
+/** Resolve a TOC href to the location index used by the bottom progress bar. */
+export async function buildTocPageMap(book: Book, items: NavItem[]): Promise<Record<string, number>> {
+    const map: Record<string, number> = {};
+    if (!book.locations.length()) {
+        return map;
+    }
+
+    const flat = flattenNavItems(items);
+    const spineLocationMap = buildSpineFirstLocationMap(book);
+
+    for (const item of flat) {
+        if (!item.href) {
+            continue;
+        }
+
+        const section = resolveSpineSection(book, item.href);
+        if (!section) {
+            continue;
+        }
+
+        const chapterLocation = spineLocationMap.get(section.index);
+        if (chapterLocation != null) {
+            map[item.href] = chapterLocation;
+        }
+    }
+
+    const bySection = new Map<number, {
+        section: NonNullable<ReturnType<Book['spine']['get']>>;
+        items: Array<{ href: string; fragment: string }>;
+    }>();
+
+    for (const item of flat) {
+        if (!item.href) {
+            continue;
+        }
+        const { fragment } = parseNavHref(book, item.href);
+        if (!fragment) {
+            continue;
+        }
+
+        const section = resolveSpineSection(book, item.href);
+        if (!section) {
+            continue;
+        }
+
+        let group = bySection.get(section.index);
+        if (!group) {
+            group = { section, items: [] };
+            bySection.set(section.index, group);
+        }
+        group.items.push({ href: item.href, fragment });
+    }
+
+    for (const group of bySection.values()) {
+        try {
+            await group.section.load(book.load.bind(book));
+            const doc = group.section.document;
+            if (!doc) {
+                continue;
+            }
+
+            for (const { href, fragment } of group.items) {
+                const cfi = resolveTocCfi(group.section, doc, fragment);
+                const location = locationFromHref(book, cfi);
+                if (location >= 0) {
+                    map[href] = location;
+                }
+            }
+        } finally {
+            group.section.unload();
+        }
+    }
+
+    return map;
 }
 
 export interface SearchHit {

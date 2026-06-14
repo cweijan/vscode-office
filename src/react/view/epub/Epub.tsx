@@ -1,8 +1,6 @@
 import {
     InfoCircleOutlined,
-    LeftOutlined,
     MenuOutlined,
-    RightOutlined,
     SearchOutlined,
     SettingOutlined,
     UnorderedListOutlined,
@@ -14,6 +12,7 @@ import { handler } from '../../util/vscode';
 import {
     applyEpubTheme,
     bindReaderMetaKeyRelay,
+    buildTocPageMap,
     ensureLocations,
     EpubSettings,
     FONT_OPTIONS,
@@ -23,6 +22,7 @@ import {
     loadEpubBook,
     loadEpubSettings,
     resetEpubSettings,
+    resolveEpubAuthor,
     saveEpubSetting,
     searchEpubBook,
     SearchHit,
@@ -33,6 +33,14 @@ import './Epub.css';
 type SidebarTab = 'toc' | 'search' | 'info' | 'settings';
 
 const WHEEL_NAV_INTERVAL_MS = 320;
+
+function NavChevron({ direction }: { direction: 'prev' | 'next' }) {
+    return (
+        <svg className="epub-nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <polyline points={direction === 'prev' ? '15 6 9 12 15 18' : '9 6 15 12 9 18'} />
+        </svg>
+    );
+}
 
 interface BookMeta {
     title: string;
@@ -47,17 +55,22 @@ function TocItems({
     items,
     indent,
     activeHref,
+    pageByHref,
     onSelect,
 }: {
     items: NavItem[];
     indent: number;
     activeHref: string | null;
+    pageByHref: Record<string, number>;
     onSelect: (href: string) => void;
 }) {
     const prefix = '\u00A0'.repeat(indent * 4);
     return (
         <>
-            {items.map(item => (
+            {items.map(item => {
+                const hasPage = Object.prototype.hasOwnProperty.call(pageByHref, item.href);
+                const page = pageByHref[item.href];
+                return (
                 <div key={item.href + item.label}>
                     <a
                         className={`item${activeHref === item.href ? ' active' : ''}`}
@@ -67,18 +80,21 @@ function TocItems({
                             onSelect(item.href);
                         }}
                     >
-                        {prefix}{item.label.trim()}
+                        <span className="label">{prefix}{item.label.trim()}</span>
+                        {hasPage ? <span className="page">{page}</span> : null}
                     </a>
                     {item.subitems?.length ? (
                         <TocItems
                             items={item.subitems}
                             indent={indent + 1}
                             activeHref={activeHref}
+                            pageByHref={pageByHref}
                             onSelect={onSelect}
                         />
                     ) : null}
                 </div>
-            ))}
+                );
+            })}
         </>
     );
 }
@@ -98,6 +114,7 @@ export default function Epub() {
     const [settings, setSettings] = useState<EpubSettings>(settingsRef.current);
     const [meta, setMeta] = useState<BookMeta | null>(null);
     const [toc, setToc] = useState<NavItem[]>([]);
+    const [tocPageByHref, setTocPageByHref] = useState<Record<string, number>>({});
     const [activeTocHref, setActiveTocHref] = useState<string | null>(null);
     const [locationCurrent, setLocationCurrent] = useState(0);
     const [locationTotal, setLocationTotal] = useState(0);
@@ -120,12 +137,18 @@ export default function Epub() {
         setBookReady(false);
         setMeta(null);
         setToc([]);
+        setTocPageByHref({});
         setActiveTocHref(null);
         setLocationCurrent(0);
         setLocationTotal(0);
         setLocationDraft('');
         setSearchResults([]);
         setSearchQuery('');
+    }, []);
+
+    const openSidebar = useCallback(() => {
+        setSidebarTab('toc');
+        setSidebarOpen(true);
     }, []);
 
     const handleReaderWheel = useCallback((rendition: Rendition, e: WheelEvent) => {
@@ -238,7 +261,7 @@ export default function Epub() {
                 const x = event.pageX - container.scrollLeft;
                 if (x > container.clientWidth - 20) {
                     event.preventDefault();
-                    setSidebarOpen(true);
+                    openSidebar();
                 }
             } catch {
                 // ignore click routing errors
@@ -247,7 +270,7 @@ export default function Epub() {
         rendition.on('displayError', (_err: Error) => {
             setError('Failed to render EPUB page');
         });
-    }, [bindWheel, onRelocated]);
+    }, [bindWheel, onRelocated, openSidebar]);
 
     const loadDocument = useCallback(async (path: string) => {
         const host = readerRef.current;
@@ -277,7 +300,7 @@ export default function Epub() {
             const metaRecord = metadata as Record<string, string | undefined>;
             setMeta({
                 title: metadata.title?.trim() || 'Untitled',
-                author: metadata.creator?.trim() || 'Unknown',
+                author: resolveEpubAuthor(metadata.creator),
                 description: metadata.description || '',
                 series: metaRecord.series?.trim(),
                 seriesIndex: metaRecord.seriesIndex?.trim(),
@@ -288,7 +311,8 @@ export default function Epub() {
             const rendition = book.renderTo(host, {
                 width: '100%',
                 height: '100%',
-                spread: 'none',
+                spread: 'auto',
+                minSpreadWidth: 640,
             });
             renditionRef.current = rendition;
             bindRendition(rendition);
@@ -297,6 +321,8 @@ export default function Epub() {
             const storedPos = localStorage.getItem(`${book.key()}:pos`);
             await rendition.display(storedPos || undefined);
             await ensureLocations(book);
+            const pageMap = await buildTocPageMap(book, navigation.toc ?? []);
+            setTocPageByHref(pageMap);
             setBookReady(true);
         } catch (e) {
             setError(e instanceof Error ? e.message : 'Failed to load EPUB');
@@ -387,12 +413,31 @@ export default function Epub() {
     }, [destroyBook, loadDocument]);
 
     useEffect(() => {
+        const book = bookRef.current;
+        if (!bookReady || !book || sidebarTab !== 'toc' || !toc.length) {
+            return;
+        }
+        if (Object.keys(tocPageByHref).length > 0) {
+            return;
+        }
+        let cancelled = false;
+        buildTocPageMap(book, toc).then(pageMap => {
+            if (!cancelled && Object.keys(pageMap).length > 0) {
+                setTocPageByHref(pageMap);
+            }
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, [bookReady, sidebarTab, toc, tocPageByHref]);
+
+    useEffect(() => {
         const onKeyDown = (e: KeyboardEvent) => {
             if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
                 return;
             }
-            const prevBtn = document.querySelector('.epub-bar button.prev') as HTMLButtonElement | null;
-            const nextBtn = document.querySelector('.epub-bar button.next') as HTMLButtonElement | null;
+            const prevBtn = document.querySelector('.epub-viewer button.epub-nav.prev') as HTMLButtonElement | null;
+            const nextBtn = document.querySelector('.epub-viewer button.epub-nav.next') as HTMLButtonElement | null;
             if (e.key === 'ArrowRight') {
                 e.preventDefault();
                 goNext();
@@ -456,7 +501,13 @@ export default function Epub() {
                             <div className="tab toc">
                                 <div className="toc-list">
                                     {toc.length ? (
-                                        <TocItems items={toc} indent={0} activeHref={activeTocHref} onSelect={goToHref} />
+                                        <TocItems
+                                            items={toc}
+                                            indent={0}
+                                            activeHref={activeTocHref}
+                                            pageByHref={tocPageByHref}
+                                            onSelect={goToHref}
+                                        />
                                     ) : null}
                                 </div>
                             </div>
@@ -529,7 +580,7 @@ export default function Epub() {
                                                 ) : null}
                                             </div>
                                         ) : null}
-                                        <div className="author">{meta.author}</div>
+                                        {meta.author ? <div className="author">{meta.author}</div> : null}
                                         {meta.description ? (
                                             <div className="description" dangerouslySetInnerHTML={{ __html: meta.description }} />
                                         ) : null}
@@ -624,7 +675,7 @@ export default function Epub() {
                     <button
                         type="button"
                         className={`sidebar-button${bookReady ? '' : ' hidden'}`}
-                        onClick={() => setSidebarOpen(true)}
+                        onClick={openSidebar}
                     >
                         <span className="icon"><MenuOutlined /></span>
                     </button>
@@ -633,8 +684,12 @@ export default function Epub() {
                     {meta ? (
                         <>
                             <span className="book-title">{meta.title}</span>
-                            <span className="divider"> - </span>
-                            <span className="book-author">{meta.author}</span>
+                            {meta.author ? (
+                                <>
+                                    <span className="divider"> - </span>
+                                    <span className="book-author">{meta.author}</span>
+                                </>
+                            ) : null}
                         </>
                     ) : null}
                 </div>
@@ -647,15 +702,28 @@ export default function Epub() {
                         <Spin />
                     </div>
                 )}
+                <button
+                    type="button"
+                    className={`epub-nav prev${bookReady ? '' : ' hidden'}`}
+                    disabled={atStart}
+                    onClick={goPrev}
+                    aria-label="Previous page"
+                >
+                    <NavChevron direction="prev" />
+                </button>
                 <div className="epub-reader-host" ref={readerRef} />
+                <button
+                    type="button"
+                    className={`epub-nav next${bookReady ? '' : ' hidden'}`}
+                    disabled={atEnd}
+                    onClick={goNext}
+                    aria-label="Next page"
+                >
+                    <NavChevron direction="next" />
+                </button>
             </div>
 
-            <div className="epub-bar">
-                <div className="left">
-                    <button type="button" className={`prev${bookReady ? '' : ' hidden'}`} disabled={atStart} onClick={goPrev}>
-                        <span className="icon"><LeftOutlined /></span>
-                    </button>
-                </div>
+            <div className="epub-bar epub-bar-bottom">
                 <div className="loc">
                     {bookReady && locationTotal > 0 ? (
                         <span className="loc-jump">
@@ -676,11 +744,6 @@ export default function Epub() {
                             <span className="loc-total">/{locationTotal}</span>
                         </span>
                     ) : null}
-                </div>
-                <div className="right">
-                    <button type="button" className={`next${bookReady ? '' : ' hidden'}`} disabled={atEnd} onClick={goNext}>
-                        <span className="icon"><RightOutlined /></span>
-                    </button>
                 </div>
             </div>
         </div>
