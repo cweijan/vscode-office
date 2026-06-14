@@ -49,10 +49,20 @@ body {
     margin-bottom: 0;
 }
 
-.word-pagination {
+.word-footer {
     flex-shrink: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-top: 10px;
-    padding-bottom: 10px;
+    padding: 0 16px 10px;
+    min-height: 40px;
+}
+
+.word-pagination {
+    margin: 0;
+    padding: 0;
     text-align: center;
 }
 
@@ -238,4 +248,11 @@ body.office-dark .word-pagination .ant-pagination-options-quick-jumper input {
 body.office-dark .word-pagination .ant-pagination-options-quick-jumper input:focus {
     border-color: var(--vscode-focusBorder, #007fd4);
     box-shadow: none;
+}
+
+.word-viewer .word-footer .office-sponsor-bar--right {
+    position: absolute;
+    right: 16px;
+    bottom: auto;
+    padding: 0;
 }

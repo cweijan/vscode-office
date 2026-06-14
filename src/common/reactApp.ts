@@ -22,10 +22,14 @@ export class ReactApp {
         const iconBaseUrl = webview.asWebviewUri(
             vscode.Uri.file(`${this.extensionPath}/resource/icon`)
         ).toString();
+        const sponsorBaseUrl = webview.asWebviewUri(
+            vscode.Uri.file(`${this.extensionPath}/resource/sponsor`)
+        ).toString();
         webview.html = this.buildPath(html, webview)
             .replace(`{{configs}}`, JSON.stringify({
                 ...option,
                 iconBaseUrl,
+                sponsorBaseUrl,
                 language: vscode.env.language,
                 config: vscode.workspace.getConfiguration('vscode-office')
             }))

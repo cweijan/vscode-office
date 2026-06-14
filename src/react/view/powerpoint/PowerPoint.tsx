@@ -2,6 +2,7 @@ import { Alert, Layout, Spin } from "antd";
 import { PPTXViewer } from "pptxviewjs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { handler } from "../../util/vscode";
+import Sponsor from '../components/Sponsor';
 import './PowerPoint.css';
 
 const { Sider, Content } = Layout;
@@ -530,6 +531,7 @@ export default function PowerPoint() {
                                     </div>
                                 ))}
                             </div>
+                            <Sponsor variant="sidebar" />
                         </div>
                     </Sider>
                     <Content className="ppt-main" ref={mainPanelRef}>

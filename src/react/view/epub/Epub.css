@@ -513,6 +513,12 @@ body,
     height: 20px;
 }
 
+.epub-viewer .sidebar .office-sponsor--sidebar {
+    flex-shrink: 0;
+    --sponsor-border: #e0e0e0;
+    --sponsor-bg: #f5f5f4;
+}
+
 .epub-viewer .sidebar .tab-container {
     -webkit-flex: 1;
     flex: 1;

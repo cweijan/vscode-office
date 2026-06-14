@@ -38,24 +38,33 @@
 .zip-sider {
     width: 260px;
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
     border-right: 1px solid var(--zip-border);
     background: var(--zip-sider-bg);
+    min-height: 0;
+    scrollbar-color: var(--zip-scrollbar-thumb) var(--zip-scrollbar-track);
+}
+
+.zip-sider-tree {
+    flex: 1;
+    min-height: 0;
     overflow: auto;
     scrollbar-color: var(--zip-scrollbar-thumb) var(--zip-scrollbar-track);
 }
 
-.zip-sider::-webkit-scrollbar,
+.zip-sider-tree::-webkit-scrollbar,
 .zip-content::-webkit-scrollbar {
     width: 10px;
     height: 10px;
 }
 
-.zip-sider::-webkit-scrollbar-track,
+.zip-sider-tree::-webkit-scrollbar-track,
 .zip-content::-webkit-scrollbar-track {
     background: var(--zip-scrollbar-track);
 }
 
-.zip-sider::-webkit-scrollbar-thumb,
+.zip-sider-tree::-webkit-scrollbar-thumb,
 .zip-content::-webkit-scrollbar-thumb {
     background-color: var(--zip-scrollbar-thumb);
     border-radius: 5px;
@@ -479,29 +488,11 @@
     color: var(--zip-muted);
 }
 
-/* Sponsor slot */
-.zip-sponsor {
-    position: fixed;
-    left: 12px;
-    bottom: 8px;
-    z-index: 900;
-    min-width: 72px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 10px;
-    border: 1px dashed var(--zip-border);
-    border-radius: 6px;
-    background: color-mix(in srgb, var(--zip-sider-bg) 80%, transparent);
-    opacity: 0.55;
-    pointer-events: none;
-}
-
-.zip-sponsor-label {
-    font-size: 11px;
-    color: var(--zip-muted);
-    letter-spacing: 0.02em;
+.zip-sider .office-sponsor--sidebar {
+    --sponsor-border: var(--zip-border);
+    --sponsor-muted: var(--zip-muted);
+    --sponsor-accent: var(--zip-accent);
+    --sponsor-bg: color-mix(in srgb, var(--zip-sider-bg) 96%, transparent);
 }
 
 /* Theme toggle */

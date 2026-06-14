@@ -3,6 +3,7 @@ import { message, Spin } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { handler, loadDarkMode, applyDarkMode } from "../../util/vscode.ts";
 import VSCodeLogo from "../vscode.tsx";
+import SponsorBar from '../components/SponsorBar';
 import './Excel.less';
 import { loadSheets } from "./excel_reader.ts";
 import { export_xlsx } from "./excel_writer.ts";
@@ -103,6 +104,7 @@ export default function Excel() {
             {
                 isCSV.current ? <VSCodeLogo /> : null
             }
+            <SponsorBar placement="center" />
         </div>
     )
 }

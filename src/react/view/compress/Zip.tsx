@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { handler, loadDarkMode, applyDarkMode } from '../../util/vscode';
 import FileItems from './components/FileItems';
 import PasswordModal from './components/PasswordModal';
+import Sponsor from '../components/Sponsor';
 import Sidebar from './components/Sidebar';
 import Toolbar from './components/Toolbar';
 import { IconMoon, IconSun } from './icons';
@@ -116,12 +117,15 @@ export default function Zip() {
             />
             <div className="zip-body">
                 <aside className="zip-sider">
-                    <Sidebar
-                        name={info.fileName}
-                        folderMap={info.folderMap}
-                        currentDir={currentDir}
-                        onClickFolder={changeFiles}
-                    />
+                    <div className="zip-sider-tree">
+                        <Sidebar
+                            name={info.fileName}
+                            folderMap={info.folderMap}
+                            currentDir={currentDir}
+                            onClickFolder={changeFiles}
+                        />
+                    </div>
+                    <Sponsor dark={dark} variant="sidebar" />
                 </aside>
                 <main className="zip-content">
                     <FileItems items={tableItems} onOpenPath={handleOpenPath} />
@@ -145,10 +149,6 @@ export default function Zip() {
                     action?.run(trimmed || undefined)
                 }}
             />
-
-            <div className="zip-sponsor" aria-label="Sponsor slot" title="Sponsor">
-                <span className="zip-sponsor-label">Sponsor</span>
-            </div>
 
             <button
                 type="button"

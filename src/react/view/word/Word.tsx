@@ -3,6 +3,7 @@ import { Alert, Pagination, Spin } from "antd";
 import * as docx from 'docx-preview';
 import { useCallback, useEffect, useRef, useState } from "react";
 import { handler, loadDarkMode, applyDarkMode } from "../../util/vscode";
+import SponsorBar from '../components/SponsorBar';
 import './Word.css';
 
 const DOCX_RENDER_OPTIONS: Partial<docx.Options> = {
@@ -122,15 +123,18 @@ export default function Word() {
             <div className="word-body" ref={containerRef}>
                 <div className="word-content" ref={contentRef} />
             </div>
-            <Pagination
-                className="word-pagination"
-                onChange={onChange}
-                current={pageInfo.current}
-                total={pageInfo.total}
-                defaultPageSize={1}
-                showQuickJumper
-                showSizeChanger={false}
-            />
+            <div className="word-footer">
+                <Pagination
+                    className="word-pagination"
+                    onChange={onChange}
+                    current={pageInfo.current}
+                    total={pageInfo.total}
+                    defaultPageSize={1}
+                    showQuickJumper
+                    showSizeChanger={false}
+                />
+                <SponsorBar placement="right" />
+            </div>
         </div>
     );
 }

@@ -122,6 +122,11 @@ body {
     padding: 0 !important;
 }
 
+.ppt-thumbnails-inner .office-sponsor--sidebar {
+    --sponsor-border: #e8e8e8;
+    --sponsor-bg: #fafafa;
+}
+
 .ppt-main {
     position: relative;
     display: flex;

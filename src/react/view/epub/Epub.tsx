@@ -9,6 +9,7 @@ import { Spin } from 'antd';
 import { Book, NavItem, Rendition } from 'epubjs';
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { handler } from '../../util/vscode';
+import Sponsor from '../components/Sponsor';
 import {
     applyEpubTheme,
     bindReaderMetaKeyRelay,
@@ -667,6 +668,7 @@ export default function Epub() {
                             </div>
                         )}
                     </div>
+                    <Sponsor variant="sidebar" />
                 </div>
             </div>
 

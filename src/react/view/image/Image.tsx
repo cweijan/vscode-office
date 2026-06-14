@@ -4,6 +4,7 @@ import "react-image-gallery/styles/css/image-gallery.css";
 import { handler } from '../../util/vscode';
 import './Image.less';
 import VSCodeLogo from "../vscode";
+import SponsorBar from '../components/SponsorBar';
 
 type WheelMode = 'navigate' | 'zoom';
 
@@ -106,6 +107,7 @@ export default function Image() {
                 slideDuration={0} showIndex={true} showFullscreenButton={false} showPlayButton={false}
                 onSlide={() => setZoom(1)}
             />
+            <SponsorBar placement="center" />
         </div>
     );
 };
