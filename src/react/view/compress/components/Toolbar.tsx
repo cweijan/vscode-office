@@ -5,6 +5,7 @@ import { handler } from "../../../util/vscode";
 
 export default function Toolbar({ size, currentDir, extension, passwordEnabled, encrypted, onPasswordApply }) {
     const editable = !extension || extension === 'zip';
+    const encodingEnabled = editable || extension === '7z';
     const [password, setPassword] = useState('');
 
     const applyPassword = () => onPasswordApply(password);
@@ -49,7 +50,7 @@ export default function Toolbar({ size, currentDir, extension, passwordEnabled, 
                     <span className="zip-size-label">Size</span>
                     <span className="zip-size-value">{size}</span>
                 </span>
-                {editable && (
+                {encodingEnabled && (
                     <>
                         <span style={{ fontWeight: 600, color: 'rgb(120 120 120)' }}>Encoding</span>
                         <Select

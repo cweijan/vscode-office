@@ -9,6 +9,7 @@ import { getFileSuffix } from '@/service/compress/archiveUtils';
 import { handleZip } from './compress/zipHandler';
 import { handleRar } from './compress/rarHandler';
 import { handleTarGz } from './compress/tarHandler';
+import { handleSevenZip } from './compress/sevenZipHandler';
 import { handleCommonEvent } from './compress/commonHandler';
 
 /**
@@ -70,6 +71,10 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".vsix":
                 route = 'zip';
                 handleZip(uri, handler);
+                break;
+            case ".7z":
+                route = 'zip';
+                handleSevenZip(uri, handler);
                 break;
             case ".rar":
                 route = 'zip';

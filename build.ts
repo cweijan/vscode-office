@@ -4,7 +4,7 @@ const { existsSync } = require("fs")
 const { copy } = require("esbuild-plugin-copy")
 const isProd = process.argv.indexOf('--mode=production') >= 0;
 
-const dependencies = ['vscode-html-to-docx', 'highlight.js', 'pdf-lib', 'cheerio', 'katex', 'mustache', 'puppeteer-core']
+const dependencies = ['vscode-html-to-docx', 'highlight.js', 'pdf-lib', 'cheerio', 'katex', 'mustache', 'puppeteer-core', '7z-wasm']
 
 function main() {
     build({
@@ -39,6 +39,14 @@ function main() {
                 assets: {
                     from: ['./node_modules/node-unrar-js/dist/js/unrar.wasm'],
                     to: ['./'],
+                    keepStructure: true
+                },
+            }),
+            copy({
+                resolveFrom: 'out',
+                assets: {
+                    from: ['./node_modules/7z-wasm/7zz.wasm'],
+                    to: ['./node_modules'],
                     keepStructure: true
                 },
             }),
