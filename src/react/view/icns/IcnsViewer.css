@@ -1,3 +1,5 @@
+@import '../common/viewerTheme.css';
+
 html,
 body,
 #root {
@@ -7,13 +9,13 @@ body,
 }
 
 body {
-    background-color: #ececec !important;
+    background-color: var(--vscode-editor-background, #ffffff) !important;
 }
 
 .icns-viewer {
     height: 100vh;
     min-height: 100vh;
-    background: #ececec;
+    background: var(--viewer-bg);
     overflow: hidden;
 }
 
@@ -30,8 +32,8 @@ body {
 }
 
 .icns-sider {
-    border-right: 1px solid #d9d9d9;
-    background: #f5f5f5 !important;
+    border-right: 1px solid var(--viewer-border);
+    background: var(--viewer-sider-bg) !important;
     overflow: hidden;
     height: 100% !important;
 }
@@ -47,9 +49,9 @@ body {
     padding: 10px 12px;
     font-size: 12px;
     font-weight: 600;
-    color: #666;
-    border-bottom: 1px solid #e8e8e8;
-    background: #fafafa;
+    color: var(--viewer-muted);
+    border-bottom: 1px solid var(--viewer-border);
+    background: var(--viewer-header-bg);
     flex-shrink: 0;
 }
 
@@ -75,11 +77,11 @@ body {
 }
 
 .icns-size-item:hover {
-    background: rgba(0, 0, 0, 0.04);
+    background: var(--viewer-hover);
 }
 
 .icns-size-item.is-active {
-    background: rgba(22, 119, 255, 0.12);
+    background: var(--viewer-active-bg);
 }
 
 .icns-size-thumb {
@@ -108,12 +110,12 @@ body {
 
 .icns-size-label {
     font-size: 13px;
-    color: #333;
+    color: var(--viewer-fg);
     line-height: 1.3;
 }
 
 .icns-size-item.is-active .icns-size-label {
-    color: #1677ff;
+    color: var(--viewer-active-fg);
     font-weight: 500;
 }
 
@@ -124,7 +126,7 @@ body {
     min-width: 0;
     height: 100%;
     overflow: hidden;
-    background: #ececec;
+    background: var(--viewer-bg);
 }
 
 .icns-preview-wrap {
@@ -134,11 +136,16 @@ body {
     align-items: center;
     justify-content: center;
     padding: 24px;
-    overflow: auto;
+    overflow: hidden;
 }
 
 .icns-preview-image {
     display: block;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
     image-rendering: auto;
 }
 
@@ -147,41 +154,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #999;
+    color: var(--viewer-muted);
     font-size: 14px;
-}
-
-body.office-dark .icns-viewer {
-    background: #1e1e1e;
-}
-
-body.office-dark .icns-sider {
-    background: #252526 !important;
-    border-right-color: #3c3c3c;
-}
-
-body.office-dark .icns-sider-header {
-    background: #2d2d2d;
-    border-bottom-color: #3c3c3c;
-    color: #ccc;
-}
-
-body.office-dark .icns-size-item:hover {
-    background: rgba(255, 255, 255, 0.06);
-}
-
-body.office-dark .icns-size-item.is-active {
-    background: rgba(55, 148, 255, 0.18);
-}
-
-body.office-dark .icns-size-label {
-    color: #ccc;
-}
-
-body.office-dark .icns-size-item.is-active .icns-size-label {
-    color: #3794ff;
-}
-
-body.office-dark .icns-main.ant-layout-content {
-    background: #1e1e1e;
 }

@@ -1,9 +1,11 @@
-import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
+import { MinusOutlined, MoonOutlined, PlusOutlined, SunOutlined } from '@ant-design/icons';
 import { Alert, Button, Layout, Spin } from 'antd';
 import MindElixir, { type MindElixirData, type MindElixirInstance } from 'mind-elixir';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { handler } from '../../util/vscode';
+import { observeVscodeThemeChange } from '../../util/vscodeTheme';
 import SponsorBar from '../components/SponsorBar';
+import { buildMindElixirTheme } from './mindElixirTheme';
 import { parseXmind, XmindDocument, XmindSheet } from './xmindParser';
 import './XmindViewer.css';
 
@@ -30,6 +32,7 @@ export default function XmindViewer() {
     const [scalePercent, setScalePercent] = useState(100);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [dark, setDark] = useState(false);
 
     const destroyMind = useCallback(() => {
         const mind = mindRef.current;
@@ -42,7 +45,7 @@ export default function XmindViewer() {
         mindRef.current = null;
     }, []);
 
-    const renderSheet = useCallback((data: MindElixirData, resolveImageUrl: (url: string) => string) => {
+    const renderSheet = useCallback((data: MindElixirData, resolveImageUrl: (url: string) => string, adaptive: boolean) => {
         const el = mapRef.current;
         if (!el) {
             return;
@@ -51,6 +54,7 @@ export default function XmindViewer() {
             setScalePercent(Math.round(value * 100));
         };
         if (mindRef.current) {
+            mindRef.current.changeTheme(buildMindElixirTheme(adaptive), false);
             mindRef.current.refresh(data);
             mindRef.current.scaleFit();
             return;
@@ -63,6 +67,7 @@ export default function XmindViewer() {
             toolBar: false,
             keypress: false,
             imageProxy: resolveImageUrl,
+            theme: buildMindElixirTheme(adaptive),
         });
         mind.init(data);
         mind.scaleFit();
@@ -85,6 +90,10 @@ export default function XmindViewer() {
             return;
         }
         mind.scale(Math.min(mind.scaleMax, mind.scaleVal + ZOOM_STEP));
+    }, []);
+
+    const toggleDark = useCallback(() => {
+        setDark(prev => !prev);
     }, []);
 
     const loadXmind = useCallback(async (path: string) => {
@@ -136,16 +145,29 @@ export default function XmindViewer() {
         if (!selected || loading || !documentRef.current) {
             return;
         }
-        renderSheet(selected.data, documentRef.current.resolveImageUrl);
-    }, [selected, loading, renderSheet]);
+        renderSheet(selected.data, documentRef.current.resolveImageUrl, dark);
+    }, [selected, loading, renderSheet, dark]);
+
+    useEffect(() => {
+        mindRef.current?.changeTheme(buildMindElixirTheme(dark));
+    }, [dark]);
+
+    useEffect(() => {
+        if (!dark) {
+            return;
+        }
+        return observeVscodeThemeChange(() => {
+            mindRef.current?.changeTheme(buildMindElixirTheme(true));
+        });
+    }, [dark]);
 
     const showSidebar = sheets.length > 1;
 
     return (
-        <Layout className="xmind-viewer">
+        <Layout className={`xmind-viewer${dark ? ' xmind-dark' : ''}`}>
             <Layout className="xmind-body">
                 {showSidebar && (
-                    <Sider width={SIDER_WIDTH} className="xmind-sider" theme="light">
+                    <Sider width={SIDER_WIDTH} className="xmind-sider">
                         <div className="xmind-sider-inner">
                             <div className="xmind-sider-header">Sheets</div>
                             <div className="xmind-sheet-list">
@@ -159,9 +181,6 @@ export default function XmindViewer() {
                                         {sheet.title}
                                     </div>
                                 ))}
-                            </div>
-                            <div className="xmind-sider-bottom">
-                                <SponsorBar placement="right" />
                             </div>
                         </div>
                     </Sider>
@@ -181,7 +200,7 @@ export default function XmindViewer() {
                             )}
                             <div ref={mapRef} className="xmind-map" />
                             <div className="xmind-map-footer">
-                                {!showSidebar && <SponsorBar placement="right" />}
+                                <SponsorBar placement="left" />
                                 <div className="xmind-zoom-controls">
                                     <Button
                                         type="text"
@@ -201,6 +220,15 @@ export default function XmindViewer() {
                                         onClick={zoomIn}
                                     />
                                 </div>
+                                <button
+                                    type="button"
+                                    className="xmind-theme-toggle"
+                                    title={dark ? '切换亮色' : '切换暗色（跟随 VS Code 主题）'}
+                                    aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+                                    onClick={toggleDark}
+                                >
+                                    {dark ? <SunOutlined /> : <MoonOutlined />}
+                                </button>
                             </div>
                         </div>
                     )}

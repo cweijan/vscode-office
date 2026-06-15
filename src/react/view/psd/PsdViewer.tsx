@@ -1,6 +1,7 @@
 import { Alert, Layout, Spin } from 'antd';
 import { useCallback, useEffect, useState } from 'react';
 import { handler } from '../../util/vscode';
+import { useVscodeSponsorDark } from '../../util/vscodeTheme';
 import Sponsor from '../components/Sponsor';
 import {
     getCompositeId,
@@ -54,6 +55,7 @@ export default function PsdViewer() {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const sponsorDark = useVscodeSponsorDark();
 
     const loadPsd = useCallback(async (path: string) => {
         setLoading(true);
@@ -87,9 +89,9 @@ export default function PsdViewer() {
     const compositeId = getCompositeId();
 
     return (
-        <Layout className="psd-viewer">
+        <Layout className="psd-viewer office-viewer-themed">
             <Layout className="psd-body">
-                <Sider width={SIDER_WIDTH} className="psd-sider" theme="light">
+                <Sider width={SIDER_WIDTH} className="psd-sider">
                     <div className="psd-sider-inner">
                         <div className="psd-sider-header">Layers</div>
                         <div className="psd-layer-list">
@@ -115,7 +117,7 @@ export default function PsdViewer() {
                             ))}
                         </div>
                         <div className="psd-sider-bottom">
-                            <Sponsor variant="sidebar" />
+                            <Sponsor variant="sidebar" dark={sponsorDark} />
                         </div>
                     </div>
                 </Sider>

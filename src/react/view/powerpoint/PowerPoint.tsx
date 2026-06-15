@@ -2,6 +2,7 @@ import { Alert, Layout, Spin } from "antd";
 import { PPTXViewer } from "pptxviewjs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { handler } from "../../util/vscode";
+import { useVscodeSponsorDark } from '../../util/vscodeTheme';
 import Sponsor from '../components/Sponsor';
 import './PowerPoint.css';
 
@@ -96,6 +97,7 @@ export default function PowerPoint() {
     const [zoom, setZoom] = useState(1);
     const [pan, setPan] = useState({ x: 0, y: 0 });
     const [dragging, setDragging] = useState(false);
+    const sponsorDark = useVscodeSponsorDark();
 
     useEffect(() => {
         zoomRef.current = zoom;
@@ -503,9 +505,9 @@ export default function PowerPoint() {
         <>
             <Spin spinning={loading} fullscreen />
             {error && <Alert type="error" message={error} showIcon style={{ margin: 16 }} />}
-            <Layout className="ppt-viewer">
+            <Layout className="ppt-viewer office-viewer-themed">
                 <Layout className="ppt-body">
-                    <Sider width={SIDER_WIDTH} className="ppt-thumbnails" theme="light">
+                    <Sider width={SIDER_WIDTH} className="ppt-thumbnails">
                         <div className="ppt-thumbnails-inner">
                             <div className="ppt-thumbnails-header">
                                 {slideCount > 0 ? `${slideCount} slides` : 'Slides'}
@@ -531,7 +533,7 @@ export default function PowerPoint() {
                                     </div>
                                 ))}
                             </div>
-                            <Sponsor variant="sidebar" />
+                            <Sponsor variant="sidebar" dark={sponsorDark} />
                         </div>
                     </Sider>
                     <Content className="ppt-main" ref={mainPanelRef}>

@@ -1,6 +1,7 @@
 import { Alert, Layout, Spin } from 'antd';
 import { useCallback, useEffect, useState } from 'react';
 import { handler } from '../../util/vscode';
+import { useVscodeSponsorDark } from '../../util/vscodeTheme';
 import Sponsor from '../components/Sponsor';
 import { IcnsIconItem, parseIcnsIcons } from './icnsParser';
 import './IcnsViewer.css';
@@ -13,6 +14,7 @@ export default function IcnsViewer() {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const sponsorDark = useVscodeSponsorDark();
 
     const loadIcns = useCallback(async (path: string) => {
         setLoading(true);
@@ -45,9 +47,9 @@ export default function IcnsViewer() {
     const selected = icons.find(icon => icon.id === selectedId) ?? null;
 
     return (
-        <Layout className="icns-viewer">
+        <Layout className="icns-viewer office-viewer-themed">
             <Layout className="icns-body">
-                <Sider width={SIDER_WIDTH} className="icns-sider" theme="light">
+                <Sider width={SIDER_WIDTH} className="icns-sider">
                     <div className="icns-sider-inner">
                         <div className="icns-sider-header">Iconset</div>
                         <div className="icns-size-list">
@@ -65,7 +67,7 @@ export default function IcnsViewer() {
                             ))}
                         </div>
                         <div className="icns-sider-bottom">
-                            <Sponsor variant="sidebar" />
+                            <Sponsor variant="sidebar" dark={sponsorDark} />
                         </div>
                     </div>
                 </Sider>
@@ -86,8 +88,6 @@ export default function IcnsViewer() {
                                 className="icns-preview-image"
                                 src={selected.dataUrl}
                                 alt={selected.label}
-                                width={selected.size}
-                                height={selected.size}
                                 draggable={false}
                             />
                         </div>

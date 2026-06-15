@@ -1,3 +1,5 @@
+@import '../common/viewerTheme.css';
+
 html,
 body,
 #root {
@@ -7,13 +9,13 @@ body,
 }
 
 body {
-    background-color: #ececec !important;
+    background-color: var(--vscode-editor-background, #ffffff) !important;
 }
 
 .ppt-viewer {
     height: 100vh;
     min-height: 100vh;
-    background: #ececec;
+    background: var(--viewer-bg);
     overflow: hidden;
 }
 
@@ -30,8 +32,8 @@ body {
 }
 
 .ppt-thumbnails {
-    border-right: 1px solid #d9d9d9;
-    background: #f5f5f5 !important;
+    border-right: 1px solid var(--viewer-border);
+    background: var(--viewer-sider-bg) !important;
     overflow: hidden;
     height: 100% !important;
 }
@@ -47,9 +49,9 @@ body {
 .ppt-thumbnails-header {
     padding: 10px 12px;
     font-size: 12px;
-    color: #666;
-    border-bottom: 1px solid #e8e8e8;
-    background: #fafafa;
+    color: var(--viewer-muted);
+    border-bottom: 1px solid var(--viewer-border);
+    background: var(--viewer-header-bg);
     flex-shrink: 0;
 }
 
@@ -73,12 +75,12 @@ body {
 }
 
 .ppt-thumb:hover {
-    border-color: #b8b8b8;
+    border-color: var(--viewer-border);
 }
 
 .ppt-thumb.is-active {
-    border-color: #1677ff;
-    box-shadow: 0 0 0 1px #1677ff;
+    border-color: var(--viewer-accent);
+    box-shadow: 0 0 0 1px var(--viewer-accent);
 }
 
 .ppt-thumb img {
@@ -93,7 +95,7 @@ body {
 .ppt-thumb-placeholder {
     width: 100%;
     aspect-ratio: 16 / 9;
-    background: #e8e8e8;
+    background: var(--viewer-placeholder);
     border-radius: 2px;
 }
 
@@ -118,13 +120,8 @@ body {
     min-width: 0;
     height: 100%;
     overflow: hidden;
-    background: #ececec;
+    background: var(--viewer-bg);
     padding: 0 !important;
-}
-
-.ppt-thumbnails-inner .office-sponsor--sidebar {
-    --sponsor-border: #e8e8e8;
-    --sponsor-bg: #fafafa;
 }
 
 .ppt-main {
@@ -135,7 +132,7 @@ body {
     min-width: 0;
     height: 100%;
     overflow: hidden;
-    background: #ececec;
+    background: var(--viewer-bg);
 }
 
 .ppt-main-canvas {
@@ -177,8 +174,8 @@ body {
     z-index: 1;
     padding: 6px 16px;
     font-size: 12px;
-    color: #666;
+    color: var(--viewer-muted);
     text-align: center;
-    border-top: 1px solid #d9d9d9;
-    background: #fafafa;
+    border-top: 1px solid var(--viewer-border);
+    background: var(--viewer-toolbar-bg);
 }

@@ -1,3 +1,5 @@
+@import '../common/viewerTheme.css';
+
 html,
 body,
 #root {
@@ -7,13 +9,13 @@ body,
 }
 
 body {
-    background-color: #ececec !important;
+    background-color: var(--vscode-editor-background, #ffffff) !important;
 }
 
 .psd-viewer {
     height: 100vh;
     min-height: 100vh;
-    background: #ececec;
+    background: var(--viewer-bg);
     overflow: hidden;
 }
 
@@ -30,8 +32,8 @@ body {
 }
 
 .psd-sider {
-    border-right: 1px solid #d9d9d9;
-    background: #f5f5f5 !important;
+    border-right: 1px solid var(--viewer-border);
+    background: var(--viewer-sider-bg) !important;
     overflow: hidden;
     height: 100% !important;
 }
@@ -47,9 +49,9 @@ body {
     padding: 10px 12px;
     font-size: 12px;
     font-weight: 600;
-    color: #666;
-    border-bottom: 1px solid #e8e8e8;
-    background: #fafafa;
+    color: var(--viewer-muted);
+    border-bottom: 1px solid var(--viewer-border);
+    background: var(--viewer-header-bg);
     flex-shrink: 0;
 }
 
@@ -75,11 +77,11 @@ body {
 }
 
 .psd-layer-item:hover {
-    background: rgba(0, 0, 0, 0.04);
+    background: var(--viewer-hover);
 }
 
 .psd-layer-item.is-active {
-    background: rgba(22, 119, 255, 0.12);
+    background: var(--viewer-active-bg);
 }
 
 .psd-layer-thumb {
@@ -105,14 +107,14 @@ body {
     flex-shrink: 0;
     margin-left: 12px;
     border-radius: 4px;
-    background: #e8e8e8;
+    background: var(--viewer-placeholder);
 }
 
 .psd-layer-label {
     flex: 1;
     min-width: 0;
     font-size: 13px;
-    color: #333;
+    color: var(--viewer-fg);
     line-height: 1.3;
     white-space: nowrap;
     overflow: hidden;
@@ -128,7 +130,7 @@ body {
 }
 
 .psd-layer-item.is-active .psd-layer-label {
-    color: #1677ff;
+    color: var(--viewer-active-fg);
 }
 
 .psd-main.ant-layout-content {
@@ -138,7 +140,7 @@ body {
     min-width: 0;
     height: 100%;
     overflow: hidden;
-    background: #ececec;
+    background: var(--viewer-bg);
 }
 
 .psd-preview-wrap {
@@ -163,45 +165,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #999;
+    color: var(--viewer-muted);
     font-size: 14px;
-}
-
-body.office-dark .psd-viewer {
-    background: #1e1e1e;
-}
-
-body.office-dark .psd-sider {
-    background: #252526 !important;
-    border-right-color: #3c3c3c;
-}
-
-body.office-dark .psd-sider-header {
-    background: #2d2d2d;
-    border-bottom-color: #3c3c3c;
-    color: #ccc;
-}
-
-body.office-dark .psd-layer-item:hover {
-    background: rgba(255, 255, 255, 0.06);
-}
-
-body.office-dark .psd-layer-item.is-active {
-    background: rgba(55, 148, 255, 0.18);
-}
-
-body.office-dark .psd-layer-label {
-    color: #ccc;
-}
-
-body.office-dark .psd-layer-item.is-active .psd-layer-label {
-    color: #3794ff;
-}
-
-body.office-dark .psd-layer-thumb-placeholder {
-    background: #3c3c3c;
-}
-
-body.office-dark .psd-main.ant-layout-content {
-    background: #1e1e1e;
 }
