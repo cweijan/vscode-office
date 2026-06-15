@@ -1,8 +1,8 @@
+import { MoonOutlined, SunOutlined } from "@ant-design/icons";
 import { Alert, Layout, Spin } from "antd";
 import { PPTXViewer } from "pptxviewjs";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { handler } from "../../util/vscode";
-import { useVscodeSponsorDark } from '../../util/vscodeTheme';
+import { handler, loadDarkMode, applyDarkMode } from "../../util/vscode";
 import Sponsor from '../components/Sponsor';
 import './PowerPoint.css';
 
@@ -97,7 +97,19 @@ export default function PowerPoint() {
     const [zoom, setZoom] = useState(1);
     const [pan, setPan] = useState({ x: 0, y: 0 });
     const [dragging, setDragging] = useState(false);
-    const sponsorDark = useVscodeSponsorDark();
+    const [dark, setDark] = useState(loadDarkMode);
+
+    useEffect(() => {
+        document.body.classList.toggle('office-dark', dark);
+    }, [dark]);
+
+    const toggleDark = () => {
+        setDark(prev => {
+            const next = !prev;
+            applyDarkMode(next);
+            return next;
+        });
+    };
 
     useEffect(() => {
         zoomRef.current = zoom;
@@ -533,7 +545,7 @@ export default function PowerPoint() {
                                     </div>
                                 ))}
                             </div>
-                            <Sponsor variant="sidebar" dark={sponsorDark} />
+                            <Sponsor variant="sidebar" dark={dark} />
                         </div>
                     </Sider>
                     <Content className="ppt-main" ref={mainPanelRef}>
@@ -556,6 +568,14 @@ export default function PowerPoint() {
                         )}
                     </Content>
                 </Layout>
+                <button
+                    type="button"
+                    className={`dark-mode-toggle${slideCount > 0 ? ' is-above-status' : ''}`}
+                    title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+                    onClick={toggleDark}
+                >
+                    {dark ? <SunOutlined /> : <MoonOutlined />}
+                </button>
             </Layout>
         </>
     );

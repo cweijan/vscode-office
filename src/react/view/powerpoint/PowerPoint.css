@@ -9,7 +9,54 @@ body,
 }
 
 body {
-    background-color: var(--vscode-editor-background, #ffffff) !important;
+    background-color: #e8e8e8 !important;
+}
+
+.ppt-viewer.office-viewer-themed {
+    --viewer-bg: #e8e8e8;
+    --viewer-fg: #333333;
+    --viewer-muted: #666666;
+    --viewer-border: #d9d9d9;
+    --viewer-sider-bg: #f5f5f5;
+    --viewer-header-bg: #fafafa;
+    --viewer-hover: rgba(0, 0, 0, 0.04);
+    --viewer-active-bg: rgba(22, 119, 255, 0.12);
+    --viewer-active-fg: #1677ff;
+    --viewer-accent: #1677ff;
+    --viewer-placeholder: #e8e8e8;
+    --viewer-toolbar-bg: #fafafa;
+    --viewer-scrollbar-track: #f5f5f5;
+    --viewer-scrollbar-thumb: #c9d1d9;
+}
+
+
+body.office-dark {
+    background-color: var(--vscode-editor-background, #1e1e1e) !important;
+}
+
+body.office-dark .ppt-viewer.office-viewer-themed {
+    --viewer-bg: var(--vscode-editor-background, #1e1e1e);
+    --viewer-fg: var(--vscode-editor-foreground, #cccccc);
+    --viewer-muted: var(--vscode-descriptionForeground, rgba(204, 204, 204, 0.7));
+    --viewer-border: var(--vscode-editorWidget-border, var(--vscode-panel-border, rgba(128, 128, 128, 0.45)));
+    --viewer-sider-bg: var(--vscode-sideBar-background, #252526);
+    --viewer-header-bg: var(--vscode-editorGroupHeader-tabsBackground, #252526);
+    --viewer-hover: var(--vscode-list-hoverBackground, rgba(90, 93, 94, 0.31));
+    --viewer-active-bg: var(--vscode-list-activeSelectionBackground, #292d35);
+    --viewer-active-fg: var(--vscode-list-activeSelectionForeground, #d7dae0);
+    --viewer-accent: var(--vscode-textLink-foreground, #3794ff);
+    --viewer-placeholder: var(--vscode-input-background, #3c3c3c);
+    --viewer-toolbar-bg: var(--vscode-editorGroupHeader-tabsBackground, #252526);
+    --viewer-scrollbar-track: var(--vscode-editor-background, #1e1e1e);
+    --viewer-scrollbar-thumb: var(--vscode-scrollbarSlider-background, #797979);
+}
+
+body.office-dark .ppt-thumb {
+    background: var(--vscode-editor-background, #1e1e1e);
+}
+
+body.office-dark .ppt-thumb img {
+    background: var(--vscode-editor-background, #1e1e1e);
 }
 
 .ppt-viewer {
@@ -61,6 +108,13 @@ body {
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: 10px 8px;
+}
+
+.ppt-thumbnails .office-sponsor--sidebar {
+    --sponsor-border: var(--viewer-border);
+    --sponsor-muted: var(--viewer-muted);
+    --sponsor-accent: var(--viewer-accent);
+    --sponsor-bg: color-mix(in srgb, var(--viewer-sider-bg) 96%, transparent);
 }
 
 .ppt-thumb {
@@ -178,4 +232,30 @@ body {
     text-align: center;
     border-top: 1px solid var(--viewer-border);
     background: var(--viewer-toolbar-bg);
+}
+
+.ppt-viewer .dark-mode-toggle {
+    position: fixed;
+    right: 12px;
+    bottom: 8px;
+    z-index: 1000;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--viewer-border);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--viewer-toolbar-bg) 90%, transparent);
+    color: var(--viewer-fg);
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+}
+
+.ppt-viewer .dark-mode-toggle.is-above-status {
+    bottom: 36px;
+}
+
+.ppt-viewer .dark-mode-toggle:hover {
+    background: var(--viewer-hover);
 }
