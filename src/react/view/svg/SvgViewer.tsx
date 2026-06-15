@@ -17,8 +17,6 @@ import {
 } from './svgUtils';
 import './SvgViewer.less';
 
-const SAVE_DELAY_MS = 400;
-
 async function fetchSvgContent(path: string): Promise<string> {
     const response = await fetch(path);
     if (!response.ok) {
@@ -32,6 +30,14 @@ function FormatIcon() {
         <svg className="svg-viewer__btn-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
             <path fill="currentColor" d="M4 2.5h8v1H4zm0 3h5v1H4zm0 3h7v1H4zm0 3h4v1H4z" opacity="0.45" />
             <path fill="currentColor" d="M10.5 8.5 13 11l-2.5 2.5-.7-.7L11.6 11l-1.8-1.8z" />
+        </svg>
+    );
+}
+
+function SaveIcon() {
+    return (
+        <svg className="svg-viewer__btn-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+            <path fill="currentColor" d="M3 1h7l3 3v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1m1 2v3h6V3H4m0 5v4h6V8H4" />
         </svg>
     );
 }
@@ -69,16 +75,18 @@ function SvgViewerInner() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [exportingPng, setExportingPng] = useState(false);
+    const [dirty, setDirty] = useState(false);
 
     const contentRef = useRef('');
     const lastSavedRef = useRef('');
     const dirtyRef = useRef(false);
-    const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
     const filePathRef = useRef('');
     const previewUrlRef = useRef('');
 
     const isZh = getConfigs()?.language?.startsWith('zh');
     const copySuccessText = isZh ? '已复制' : 'Copied';
+    const saveText = isZh ? '保存' : 'Save';
+    const saveSuccessText = isZh ? '保存成功' : 'Saved';
 
     const colors = useMemo(() => parseSvgColors(content), [content]);
     const [previewUrl, setPreviewUrl] = useState('');
@@ -115,6 +123,7 @@ function SvgViewerInner() {
             contentRef.current = text;
             lastSavedRef.current = text;
             dirtyRef.current = false;
+            setDirty(false);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load SVG');
         } finally {
@@ -138,35 +147,43 @@ function SvgViewerInner() {
             if (dirtyRef.current || !filePathRef.current) return;
             loadContent(filePathRef.current);
         });
-    }, [loadContent]);
-
-    useEffect(() => () => {
-        if (saveTimerRef.current) {
-            clearTimeout(saveTimerRef.current);
-        }
-    }, []);
-
-    const scheduleSave = useCallback((value: string) => {
-        if (saveTimerRef.current) {
-            clearTimeout(saveTimerRef.current);
-        }
-        saveTimerRef.current = setTimeout(() => {
-            if (value === lastSavedRef.current) {
-                dirtyRef.current = false;
-                return;
-            }
-            lastSavedRef.current = value;
+        handler.on('saveDone', () => {
+            lastSavedRef.current = contentRef.current;
             dirtyRef.current = false;
-            handler.emit('save', value);
-        }, SAVE_DELAY_MS);
-    }, []);
+            setDirty(false);
+            message.success({
+                duration: 2,
+                content: saveSuccessText,
+            });
+        });
+    }, [loadContent, message, saveSuccessText]);
 
     const updateContent = useCallback((value: string) => {
         setContent(value);
         contentRef.current = value;
-        dirtyRef.current = value !== lastSavedRef.current;
-        scheduleSave(value);
-    }, [scheduleSave]);
+        const isDirty = value !== lastSavedRef.current;
+        dirtyRef.current = isDirty;
+        setDirty(isDirty);
+    }, []);
+
+    const onSave = useCallback(() => {
+        const value = contentRef.current;
+        if (value === lastSavedRef.current) {
+            return;
+        }
+        handler.emit('save', value);
+    }, []);
+
+    useEffect(() => {
+        const onKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.code === 'KeyS') {
+                e.preventDefault();
+                onSave();
+            }
+        };
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown);
+    }, [onSave]);
 
     const onFormat = () => {
         updateContent(formatSvg(content));
@@ -213,6 +230,16 @@ function SvgViewerInner() {
                         <div className="svg-viewer__header">
                             <span className="svg-viewer__title">SVG</span>
                             <div className="svg-viewer__actions">
+                                <button
+                                    type="button"
+                                    className={`svg-viewer__btn${dirty ? ' svg-viewer__btn--primary' : ''}`}
+                                    onClick={onSave}
+                                    disabled={!dirty}
+                                    title={dirty ? 'Ctrl+S' : undefined}
+                                >
+                                    <SaveIcon />
+                                    {saveText}
+                                </button>
                                 <button
                                     type="button"
                                     className="svg-viewer__btn"
@@ -286,7 +313,7 @@ function SvgViewerInner() {
                             ) : null}
                         </div>
                         <div className="svg-viewer__panel-footer">
-                            <button type="button" className="svg-viewer__btn" onClick={onCopy}>
+                            <button type="button" className="svg-viewer__btn svg-viewer__btn--primary" onClick={onCopy}>
                                 <CopyIcon />
                                 Copy
                             </button>
