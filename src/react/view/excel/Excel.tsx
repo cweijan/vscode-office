@@ -116,7 +116,7 @@ function ExcelViewer() {
             {
                 isCSV.current ? <VSCodeLogo /> : null
             }
-            <SponsorBar placement="center" />
+            <SponsorBar placement="right" />
         </div>
     )
 }
