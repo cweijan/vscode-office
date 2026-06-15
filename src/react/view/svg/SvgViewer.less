@@ -1,0 +1,302 @@
+.svg-viewer {
+    --svg-scrollbar-track: var(--vscode-editor-background, #1e1e1e);
+    --svg-scrollbar-thumb: var(--vscode-scrollbarSlider-background, #797979);
+    --svg-scrollbar-thumb-hover: var(--vscode-scrollbarSlider-hoverBackground, var(--svg-scrollbar-thumb));
+
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    box-sizing: border-box;
+    font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size: var(--vscode-font-size, 13px);
+    color: var(--vscode-editor-foreground, #cccccc);
+    background: var(--vscode-editor-background, #1e1e1e);
+}
+
+.svg-viewer__main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    gap: 12px;
+    padding: 12px 12px 0;
+    box-sizing: border-box;
+}
+
+.svg-viewer__panel {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    border: 1px solid var(--vscode-editorWidget-border, #454545);
+    border-radius: 8px;
+    background: var(--vscode-editor-background, #1e1e1e);
+    overflow: hidden;
+}
+
+.svg-viewer__panel--code {
+    flex: 1.1;
+}
+
+.svg-viewer__panel--preview {
+    flex: 0.9;
+}
+
+.svg-viewer__header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--vscode-editorWidget-border, #454545);
+}
+
+.svg-viewer__title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.svg-viewer__actions {
+    display: flex;
+    gap: 8px;
+}
+
+.svg-viewer__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid var(--vscode-button-border, transparent);
+    border-radius: 6px;
+    background: var(--vscode-button-secondaryBackground, #3a3d41);
+    color: var(--vscode-button-secondaryForeground, #cccccc);
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+        background: var(--vscode-button-secondaryHoverBackground, #45494e);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+.svg-viewer__btn-icon {
+    display: inline-flex;
+    opacity: 0.9;
+}
+
+.svg-viewer__vscode-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+
+    svg {
+        width: 14px;
+        height: 14px;
+        display: block;
+    }
+}
+
+.svg-viewer__codemirror {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+
+    .cm-editor {
+        height: 100%;
+    }
+
+    .cm-scroller {
+        scrollbar-color: var(--svg-scrollbar-thumb) var(--svg-scrollbar-track);
+
+        &::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: var(--svg-scrollbar-track);
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: var(--svg-scrollbar-thumb);
+            border-radius: 5px;
+            border: 2px solid var(--svg-scrollbar-track);
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
+            background-color: var(--svg-scrollbar-thumb-hover);
+        }
+
+        &::-webkit-scrollbar-corner {
+            background: var(--svg-scrollbar-track);
+        }
+    }
+}
+
+.svg-viewer__controls {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--vscode-editorWidget-border, #454545);
+}
+
+.svg-viewer__control-row {
+    display: grid;
+    grid-template-columns: auto 32px 1fr;
+    align-items: center;
+    gap: 8px 10px;
+}
+
+.svg-viewer__label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--vscode-descriptionForeground, rgba(204, 204, 204, 0.7));
+}
+
+.svg-viewer__color {
+    width: 32px;
+    height: 28px;
+    padding: 2px;
+    border: 1px solid var(--vscode-input-border, #3c3c3c);
+    border-radius: 6px;
+    background: var(--vscode-input-background, #3c3c3c);
+    cursor: pointer;
+
+    &::-webkit-color-swatch-wrapper {
+        padding: 0;
+    }
+
+    &::-webkit-color-swatch {
+        border: none;
+        border-radius: 4px;
+    }
+}
+
+.svg-viewer__hex {
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid var(--vscode-input-border, #3c3c3c);
+    border-radius: 6px;
+    background: var(--vscode-input-background, #3c3c3c);
+    color: var(--vscode-input-foreground, #cccccc);
+    font-family: var(--vscode-editor-font-family, Menlo, Monaco, "Courier New", monospace);
+    font-size: 12px;
+    outline: none;
+
+    &:focus {
+        border-color: var(--vscode-focusBorder, #007fd4);
+    }
+}
+
+.svg-viewer__canvas-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    margin: 14px;
+    padding: 20px;
+    border: 1px solid var(--vscode-editorWidget-border, #454545);
+    border-radius: 8px;
+    background-color: var(--vscode-editor-background, #1e1e1e);
+    background-image:
+        linear-gradient(45deg, rgba(128, 128, 128, 0.12) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(128, 128, 128, 0.12) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(128, 128, 128, 0.12) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(128, 128, 128, 0.12) 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+    overflow: auto;
+    scrollbar-color: var(--svg-scrollbar-thumb) var(--svg-scrollbar-track);
+
+    &::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: var(--svg-scrollbar-track);
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: var(--svg-scrollbar-thumb);
+        border-radius: 5px;
+        border: 2px solid var(--svg-scrollbar-track);
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: var(--svg-scrollbar-thumb-hover);
+    }
+}
+
+.svg-viewer__preview-img {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    margin: auto;
+    object-fit: contain;
+}
+
+.svg-viewer__panel-footer {
+    flex-shrink: 0;
+    display: flex;
+    gap: 8px;
+    padding: 12px 14px;
+    border-top: 1px solid var(--vscode-editorWidget-border, #454545);
+}
+
+.svg-viewer__sponsor-footer {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 6px 16px 10px;
+    border-top: 1px solid var(--vscode-editorWidget-border, #454545);
+    background: var(--vscode-editor-background, #1e1e1e);
+
+    .office-sponsor-bar {
+        --sponsor-bar-muted: var(--vscode-descriptionForeground, rgba(204, 204, 204, 0.7));
+        --sponsor-bar-accent: var(--vscode-textLink-foreground, #3794ff);
+        position: static;
+        bottom: auto;
+        padding: 0;
+    }
+
+    .office-sponsor-bar--center {
+        margin-inline: auto;
+    }
+}
+
+.svg-viewer__loading,
+.svg-viewer__error {
+    position: fixed;
+    z-index: 1001;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 12px 20px;
+    border-radius: 6px;
+    color: var(--vscode-editor-foreground, #cccccc);
+    background-color: var(--vscode-editorWidget-background, #252526);
+    border: 1px solid var(--vscode-editorWidget-border, #454545);
+    box-shadow: 0 4px 16px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.36));
+}
+
+.svg-viewer__error {
+    color: var(--vscode-errorForeground, #f48771);
+}

@@ -669,6 +669,12 @@
 	"dependencies": {
 		"7z-wasm": "^1.2.0",
 		"@ant-design/icons": "^5.3.5",
+		"@codemirror/commands": "^6.10.3",
+		"@codemirror/lang-xml": "^6.1.0",
+		"@codemirror/language": "^6.12.3",
+		"@codemirror/state": "^6.6.0",
+		"@codemirror/view": "^6.43.1",
+		"@lezer/highlight": "^1.2.3",
 		"@mind-elixir/import-xmind": "^1.0.8",
 		"@zip.js/zip.js": "^2.8.26",
 		"ag-psd": "^30.1.1",

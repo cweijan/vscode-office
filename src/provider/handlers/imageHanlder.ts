@@ -25,14 +25,14 @@ function loadImages(uri: vscode.Uri, webview: vscode.Webview) {
         const resource = webview.asWebviewUri(resUri).with({ query: `nonce=${Date.now().toString()}` }).toString();
         return {
             src: resource,
-            title: basename(uri.fsPath)
+            title: file,
         }
     })
     return { images, current };
 }
 
 export function isImage(fileName: string) {
-    return /\.(jpg|png|svg|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|tiff|heic|heif|webp)$/i.test(fileName);
+    return /\.(jpg|png|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|tiff|heic|heif|webp)$/i.test(fileName);
 }
 
 export function handleImage(handler: Handler, uri: vscode.Uri, webview: vscode.Webview) {

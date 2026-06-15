@@ -45,7 +45,9 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 
         let route: string;
         const suffix = getFileSuffix(uri.fsPath);
-        if (isImage(suffix)) {
+        if (/\.svg$/i.test(suffix)) {
+            route = 'svg';
+        } else if (isImage(suffix)) {
             handleImage(handler, uri, webview)
             route = 'image'
         }

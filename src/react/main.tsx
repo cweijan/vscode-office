@@ -8,6 +8,7 @@ import { antThemeConfig } from './antThemeConfig.ts';
 const Zip = lazy(() => import('./view/compress/Zip.tsx'))
 const Excel = lazy(() => import('./view/excel/Excel.tsx'))
 const Image = lazy(() => import('./view/image/Image.tsx'))
+const SvgViewer = lazy(() => import('./view/svg/SvgViewer.tsx'))
 const Word = lazy(() => import('./view/word/Word.tsx'))
 const PowerPoint = lazy(() => import('./view/powerpoint/PowerPoint.tsx'))
 const FontViewer = lazy(() => import('./view/fontViewer/FontViewer.tsx'))
@@ -28,6 +29,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       switch (route) {
         case 'image':
           return <Image />
+        case 'svg':
+          return <SvgViewer />
         case 'excel':
           return <Excel />
         case 'zip':
