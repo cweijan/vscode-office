@@ -1,9 +1,110 @@
 #viewLayers,
-#viewAttachments{
+#viewAttachments {
     display: none;
 }
 
-.treeItem.selected,
+/* Map PDF.js theme variables to VSCode theme */
+:root {
+    --main-color: var(--vscode-foreground);
+    --body-bg-color: var(--vscode-editor-background);
+    --errorWrapper-bg-color: var(--vscode-inputValidation-errorBackground);
+    --progressBar-color: var(--vscode-progressBar-background);
+    --progressBar-indeterminate-bg-color: var(--vscode-editorWidget-background);
+    --progressBar-indeterminate-blend-color: var(--vscode-focusBorder);
+    --scrollbar-color: var(--vscode-scrollbarSlider-background);
+    --scrollbar-bg-color: var(--vscode-editor-background);
+
+    --sidebar-bg-color: var(--vscode-sideBar-background);
+    --toolbar-bg-color: var(--vscode-titleBar-activeBackground, var(--vscode-editorWidget-background));
+    --toolbar-border-color: var(--vscode-panel-border, var(--vscode-widget-border));
+    --button-hover-color: var(--vscode-toolbar-hoverBackground);
+    --toggled-btn-bg-color: var(--vscode-list-activeSelectionBackground);
+    --dropdown-btn-bg-color: var(--vscode-dropdown-background);
+    --separator-color: var(--vscode-panel-border, rgba(128, 128, 128, 0.35));
+    --field-color: var(--vscode-input-foreground);
+    --field-bg-color: var(--vscode-input-background);
+    --field-border-color: var(--vscode-input-border, var(--vscode-widget-border));
+    --findbar-nextprevious-btn-bg-color: var(--vscode-button-secondaryBackground);
+    --treeitem-color: var(--vscode-sideBar-foreground);
+    --treeitem-hover-color: var(--vscode-list-hoverForeground, var(--vscode-sideBar-foreground));
+    --treeitem-active-color: var(--vscode-list-activeSelectionForeground);
+    --treeitem-active-bg-color: var(--vscode-list-activeSelectionBackground);
+    --sidebaritem-bg-color: var(--vscode-list-hoverBackground);
+    --doorhanger-bg-color: var(--vscode-menu-background);
+    --doorhanger-border-color: var(--vscode-menu-border, var(--vscode-widget-border));
+    --doorhanger-hover-color: var(--vscode-menu-selectionBackground);
+    --doorhanger-separator-color: var(--vscode-menu-separatorBackground);
+    --overlay-button-bg-color: var(--vscode-button-secondaryBackground);
+    --overlay-button-hover-color: var(--vscode-button-secondaryHoverBackground);
+}
+
+body {
+    color: var(--vscode-foreground) !important;
+    background-color: var(--vscode-editor-background) !important;
+    font-family: var(--vscode-font-family) !important;
+    font-size: var(--vscode-font-size) !important;
+    scrollbar-color: var(--vscode-scrollbarSlider-background) var(--vscode-editor-background) !important;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--vscode-editor-background) !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--vscode-scrollbarSlider-background) !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--vscode-scrollbarSlider-hoverBackground) !important;
+}
+
+#viewerContainer {
+    background-color: var(--vscode-editor-background) !important;
+}
+
+#toolbarContainer,
+.findbar,
+.secondaryToolbar,
+#loadingBar {
+    background-color: var(--vscode-titleBar-activeBackground, var(--vscode-editorWidget-background)) !important;
+    border-color: var(--vscode-panel-border, var(--vscode-widget-border)) !important;
+}
+
+html[dir="ltr"] #toolbarContainer,
+.findbar,
+.secondaryToolbar {
+    box-shadow: 0 1px 0 var(--vscode-panel-border, var(--vscode-widget-border)) !important;
+}
+
+html[dir="rtl"] #toolbarContainer {
+    box-shadow: 0 1px 0 var(--vscode-panel-border, var(--vscode-widget-border)) !important;
+}
+
+.toolbarLabel,
+.secondaryToolbarButton,
+.findbar label,
+.dialog {
+    color: var(--vscode-foreground) !important;
+}
+
+.toolbarField,
+.toolbarField.pageNumber,
+#findInput,
+#findInput[data-status="notFound"] {
+    color: var(--vscode-input-foreground) !important;
+    background-color: var(--vscode-input-background) !important;
+    border-color: var(--vscode-input-border, var(--vscode-widget-border)) !important;
+}
+
+.toolbarButton:hover,
+.splitToolbarButton:hover,
+.dropdownToolbarButton:hover,
+.overlayButton:hover,
+.findbar button:hover,
+.secondaryToolbarButton:hover {
+    background-color: var(--vscode-toolbar-hoverBackground) !important;
+}
+
 .toolbarButton.toggled,
 .dropdownToolbarButton > select{
     background-color: rgb(232 232 232) !important;
@@ -48,4 +149,224 @@ body.office-dark .pdfViewer .page {
 /* When dark mode is active, force the bright glyph so it stays visible */
 body.office-dark #darkModeToggle.toolbarButton::before {
     content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23f9f9fa' d='M6.2 1.4a6.6 6.6 0 1 0 8.4 8.4A5.2 5.2 0 0 1 6.2 1.4z'/%3E%3C/svg%3E");
+}
+.splitToolbarButton.toggled > .toolbarButton.toggled,
+.dropdownToolbarButton > select {
+    background-color: var(--vscode-list-activeSelectionBackground) !important;
+    color: var(--vscode-list-activeSelectionForeground) !important;
+}
+
+.doorHanger,
+.doorHangerRight {
+    background-color: var(--vscode-menu-background) !important;
+    border-color: var(--vscode-menu-border, var(--vscode-widget-border)) !important;
+}
+
+.doorHanger > .doorHangerSeparator,
+.doorHangerRight > .doorHangerSeparator {
+    background-color: var(--vscode-menu-separatorBackground) !important;
+}
+
+.doorHanger .toolbarButton:hover,
+.doorHangerRight .toolbarButton:hover {
+    background-color: var(--vscode-menu-selectionBackground) !important;
+    color: var(--vscode-menu-selectionForeground) !important;
+}
+
+#overlayContainer > .container > .dialog {
+    background-color: var(--vscode-editorWidget-background) !important;
+    color: var(--vscode-editorWidget-foreground, var(--vscode-foreground)) !important;
+    border-color: var(--vscode-widget-border) !important;
+}
+
+.dialog .separator {
+    background-color: var(--vscode-panel-border, var(--vscode-widget-border)) !important;
+}
+
+#errorWrapper {
+    color: var(--vscode-foreground) !important;
+}
+
+#errorMoreInfo {
+    color: var(--vscode-input-foreground) !important;
+    background-color: var(--vscode-input-background) !important;
+    border-color: var(--vscode-input-border, var(--vscode-widget-border)) !important;
+}
+
+/* Sidebar */
+#sidebarContainer {
+    border-top-color: var(--vscode-sideBar-border, var(--vscode-panel-border, transparent)) !important;
+    overflow: visible !important;
+}
+
+#sidebarContent,
+#toolbarSidebar,
+.treeItems,
+#outlineView,
+#attachmentsView,
+#layersView {
+    background-color: var(--vscode-sideBar-background) !important;
+}
+
+#sidebarContent {
+    box-shadow: inset -1px 0 0 var(--vscode-sideBar-border, rgba(0, 0, 0, 0.15)) !important;
+}
+
+html[dir="rtl"] #sidebarContent {
+    box-shadow: inset 1px 0 0 var(--vscode-sideBar-border, rgba(0, 0, 0, 0.15)) !important;
+}
+
+#toolbarSidebar {
+    box-shadow: inset -1px 0 0 var(--vscode-sideBar-border, rgba(0, 0, 0, 0.15)),
+        0 1px 0 var(--vscode-sideBar-border, rgba(0, 0, 0, 0.1)) !important;
+}
+
+#toolbarSidebar .splitToolbarButton > .toolbarButton:not(.toggled) {
+    background-color: transparent !important;
+    color: var(--vscode-sideBar-foreground) !important;
+}
+
+#toolbarSidebar .splitToolbarButton > .toolbarButton.toggled {
+    background-color: var(--vscode-list-activeSelectionBackground) !important;
+    color: var(--vscode-list-activeSelectionForeground) !important;
+}
+
+#toolbarSidebar .splitToolbarButton > .toolbarButton:not(.toggled):hover {
+    background-color: var(--vscode-toolbar-hoverBackground) !important;
+}
+
+#sidebarResizer {
+    width: 8px !important;
+    cursor: col-resize !important;
+    background: transparent;
+    transition: background-color 0.15s;
+}
+
+#sidebarResizer:hover,
+#outerContainer.sidebarResizing #sidebarResizer {
+    background-color: var(--vscode-sash-hoverBorder, var(--vscode-focusBorder)) !important;
+}
+
+html[dir="ltr"] #sidebarResizer {
+    right: -4px !important;
+}
+
+html[dir="rtl"] #sidebarResizer {
+    left: -4px !important;
+}
+
+html[dir="rtl"] #toolbarSidebar {
+    box-shadow: inset 1px 0 0 var(--vscode-sideBar-border, rgba(0, 0, 0, 0.15)),
+        0 1px 0 var(--vscode-sideBar-border, rgba(0, 0, 0, 0.1)) !important;
+}
+
+.treeItem > a {
+    color: var(--vscode-sideBar-foreground) !important;
+}
+
+.treeItem > a:hover,
+.treeItemToggler:hover,
+.treeItemToggler:hover + a {
+    background-color: var(--vscode-list-hoverBackground) !important;
+    color: var(--vscode-list-hoverForeground, var(--vscode-sideBar-foreground)) !important;
+}
+
+.treeItem.selected,
+.treeItem.selected > a {
+    background-color: var(--vscode-list-activeSelectionBackground) !important;
+    color: var(--vscode-list-activeSelectionForeground) !important;
+}
+
+a:focus > .thumbnail > .thumbnailSelectionRing,
+.thumbnail:hover > .thumbnailSelectionRing {
+    background-color: var(--vscode-list-hoverBackground) !important;
+}
+
+.thumbnail.selected > .thumbnailSelectionRing {
+    background-color: var(--vscode-list-activeSelectionBackground) !important;
+}
+
+.noResults {
+    color: var(--vscode-descriptionForeground) !important;
+}
+
+/* Toolbar icons follow VSCode theme */
+body.vscode-light,
+body[data-vscode-theme-kind="vscode-light"] {
+    --loading-icon: url(images/loading.svg);
+    --treeitem-expanded-icon: url(images/treeitem-expanded.svg);
+    --treeitem-collapsed-icon: url(images/treeitem-collapsed.svg);
+    --toolbarButton-menuArrow-icon: url(images/toolbarButton-menuArrow.svg);
+    --toolbarButton-sidebarToggle-icon: url(images/toolbarButton-sidebarToggle.svg);
+    --toolbarButton-secondaryToolbarToggle-icon: url(images/toolbarButton-secondaryToolbarToggle.svg);
+    --toolbarButton-pageUp-icon: url(images/toolbarButton-pageUp.svg);
+    --toolbarButton-pageDown-icon: url(images/toolbarButton-pageDown.svg);
+    --toolbarButton-zoomOut-icon: url(images/toolbarButton-zoomOut.svg);
+    --toolbarButton-zoomIn-icon: url(images/toolbarButton-zoomIn.svg);
+    --toolbarButton-presentationMode-icon: url(images/toolbarButton-presentationMode.svg);
+    --toolbarButton-print-icon: url(images/toolbarButton-print.svg);
+    --toolbarButton-openFile-icon: url(images/toolbarButton-openFile.svg);
+    --toolbarButton-download-icon: url(images/toolbarButton-download.svg);
+    --toolbarButton-bookmark-icon: url(images/toolbarButton-bookmark.svg);
+    --toolbarButton-viewThumbnail-icon: url(images/toolbarButton-viewThumbnail.svg);
+    --toolbarButton-viewOutline-icon: url(images/toolbarButton-viewOutline.svg);
+    --toolbarButton-viewAttachments-icon: url(images/toolbarButton-viewAttachments.svg);
+    --toolbarButton-viewLayers-icon: url(images/toolbarButton-viewLayers.svg);
+    --toolbarButton-search-icon: url(images/toolbarButton-search.svg);
+    --findbarButton-previous-icon: url(images/findbarButton-previous.svg);
+    --findbarButton-next-icon: url(images/findbarButton-next.svg);
+    --secondaryToolbarButton-firstPage-icon: url(images/secondaryToolbarButton-firstPage.svg);
+    --secondaryToolbarButton-lastPage-icon: url(images/secondaryToolbarButton-lastPage.svg);
+    --secondaryToolbarButton-rotateCcw-icon: url(images/secondaryToolbarButton-rotateCcw.svg);
+    --secondaryToolbarButton-rotateCw-icon: url(images/secondaryToolbarButton-rotateCw.svg);
+    --secondaryToolbarButton-selectTool-icon: url(images/secondaryToolbarButton-selectTool.svg);
+    --secondaryToolbarButton-handTool-icon: url(images/secondaryToolbarButton-handTool.svg);
+    --secondaryToolbarButton-scrollVertical-icon: url(images/secondaryToolbarButton-scrollVertical.svg);
+    --secondaryToolbarButton-scrollHorizontal-icon: url(images/secondaryToolbarButton-scrollHorizontal.svg);
+    --secondaryToolbarButton-scrollWrapped-icon: url(images/secondaryToolbarButton-scrollWrapped.svg);
+    --secondaryToolbarButton-spreadNone-icon: url(images/secondaryToolbarButton-spreadNone.svg);
+    --secondaryToolbarButton-spreadOdd-icon: url(images/secondaryToolbarButton-spreadOdd.svg);
+    --secondaryToolbarButton-spreadEven-icon: url(images/secondaryToolbarButton-spreadEven.svg);
+    --secondaryToolbarButton-documentProperties-icon: url(images/secondaryToolbarButton-documentProperties.svg);
+}
+
+body.vscode-dark,
+body.vscode-high-contrast,
+body[data-vscode-theme-kind="vscode-dark"],
+body[data-vscode-theme-kind="vscode-high-contrast"] {
+    --loading-icon: url(images/loading-dark.svg);
+    --treeitem-expanded-icon: url(images/treeitem-expanded-dark.svg);
+    --treeitem-collapsed-icon: url(images/treeitem-collapsed-dark.svg);
+    --toolbarButton-menuArrow-icon: url(images/toolbarButton-menuArrow-dark.svg);
+    --toolbarButton-sidebarToggle-icon: url(images/toolbarButton-sidebarToggle-dark.svg);
+    --toolbarButton-secondaryToolbarToggle-icon: url(images/toolbarButton-secondaryToolbarToggle-dark.svg);
+    --toolbarButton-pageUp-icon: url(images/toolbarButton-pageUp-dark.svg);
+    --toolbarButton-pageDown-icon: url(images/toolbarButton-pageDown-dark.svg);
+    --toolbarButton-zoomOut-icon: url(images/toolbarButton-zoomOut-dark.svg);
+    --toolbarButton-zoomIn-icon: url(images/toolbarButton-zoomIn-dark.svg);
+    --toolbarButton-presentationMode-icon: url(images/toolbarButton-presentationMode-dark.svg);
+    --toolbarButton-print-icon: url(images/toolbarButton-print-dark.svg);
+    --toolbarButton-openFile-icon: url(images/toolbarButton-openFile-dark.svg);
+    --toolbarButton-download-icon: url(images/toolbarButton-download-dark.svg);
+    --toolbarButton-bookmark-icon: url(images/toolbarButton-bookmark-dark.svg);
+    --toolbarButton-viewThumbnail-icon: url(images/toolbarButton-viewThumbnail-dark.svg);
+    --toolbarButton-viewOutline-icon: url(images/toolbarButton-viewOutline-dark.svg);
+    --toolbarButton-viewAttachments-icon: url(images/toolbarButton-viewAttachments-dark.svg);
+    --toolbarButton-viewLayers-icon: url(images/toolbarButton-viewLayers-dark.svg);
+    --toolbarButton-search-icon: url(images/toolbarButton-search-dark.svg);
+    --findbarButton-previous-icon: url(images/findbarButton-previous-dark.svg);
+    --findbarButton-next-icon: url(images/findbarButton-next-dark.svg);
+    --secondaryToolbarButton-firstPage-icon: url(images/secondaryToolbarButton-firstPage-dark.svg);
+    --secondaryToolbarButton-lastPage-icon: url(images/secondaryToolbarButton-lastPage-dark.svg);
+    --secondaryToolbarButton-rotateCcw-icon: url(images/secondaryToolbarButton-rotateCcw-dark.svg);
+    --secondaryToolbarButton-rotateCw-icon: url(images/secondaryToolbarButton-rotateCw-dark.svg);
+    --secondaryToolbarButton-selectTool-icon: url(images/secondaryToolbarButton-selectTool-dark.svg);
+    --secondaryToolbarButton-handTool-icon: url(images/secondaryToolbarButton-handTool-dark.svg);
+    --secondaryToolbarButton-scrollVertical-icon: url(images/secondaryToolbarButton-scrollVertical-dark.svg);
+    --secondaryToolbarButton-scrollHorizontal-icon: url(images/secondaryToolbarButton-scrollHorizontal-dark.svg);
+    --secondaryToolbarButton-scrollWrapped-icon: url(images/secondaryToolbarButton-scrollWrapped-dark.svg);
+    --secondaryToolbarButton-spreadNone-icon: url(images/secondaryToolbarButton-spreadNone-dark.svg);
+    --secondaryToolbarButton-spreadOdd-icon: url(images/secondaryToolbarButton-spreadOdd-dark.svg);
+    --secondaryToolbarButton-spreadEven-icon: url(images/secondaryToolbarButton-spreadEven-dark.svg);
+    --secondaryToolbarButton-documentProperties-icon: url(images/secondaryToolbarButton-documentProperties-dark.svg);
 }

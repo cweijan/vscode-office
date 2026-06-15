@@ -1,0 +1,81 @@
+.office-sponsor-bar {
+    --sponsor-bar-muted: #656d76;
+    --sponsor-bar-accent: #0969da;
+
+    position: fixed;
+    bottom: 8px;
+    z-index: 999;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 8px;
+    pointer-events: auto;
+}
+
+.office-sponsor-bar--center {
+    left: 0;
+    right: 0;
+    width: fit-content;
+    margin-inline: auto;
+}
+
+.office-sponsor-bar--right {
+    right: 12px;
+}
+
+.office-sponsor-bar--left {
+    left: 12px;
+}
+
+.office-sponsor-bar-text {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--sponsor-bar-muted);
+    white-space: nowrap;
+}
+
+.office-sponsor-bar-link {
+    color: var(--sponsor-bar-accent);
+    text-decoration: none;
+    font-weight: 600;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.office-sponsor-bar-logo-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: opacity 0.15s, transform 0.15s;
+    flex-shrink: 0;
+
+    &:hover {
+        opacity: 0.85;
+    }
+
+    &:active {
+        transform: translateY(0.5px);
+    }
+}
+
+.office-sponsor-bar-logo {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+}
+
+body.office-dark .office-sponsor-bar {
+    --sponsor-bar-muted: var(--vscode-descriptionForeground, rgba(204, 204, 204, 0.7));
+    --sponsor-bar-accent: var(--vscode-textLink-foreground, #3794ff);
+}

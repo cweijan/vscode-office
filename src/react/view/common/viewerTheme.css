@@ -1,0 +1,48 @@
+/* Shared VS Code theme tokens for sidebar viewers */
+.office-viewer-themed {
+    --viewer-bg: var(--vscode-editor-background, #ffffff);
+    --viewer-fg: var(--vscode-editor-foreground, #333333);
+    --viewer-muted: var(--vscode-descriptionForeground, #666666);
+    --viewer-border: var(--vscode-editorWidget-border, var(--vscode-panel-border, #d9d9d9));
+    --viewer-sider-bg: var(--vscode-sideBar-background, var(--vscode-editorGroupHeader-tabsBackground, #f5f5f5));
+    --viewer-header-bg: var(--vscode-editorGroupHeader-tabsBackground, #fafafa);
+    --viewer-hover: var(--vscode-list-hoverBackground, rgba(0, 0, 0, 0.04));
+    --viewer-active-bg: var(--vscode-list-activeSelectionBackground, rgba(22, 119, 255, 0.12));
+    --viewer-active-fg: var(--vscode-list-activeSelectionForeground, var(--vscode-textLink-foreground, #1677ff));
+    --viewer-accent: var(--vscode-textLink-foreground, #1677ff);
+    --viewer-placeholder: var(--vscode-input-background, #e8e8e8);
+    --viewer-toolbar-bg: var(--vscode-editorGroupHeader-tabsBackground, #fafafa);
+    --viewer-scrollbar-track: var(--vscode-editor-background, #ffffff);
+    --viewer-scrollbar-thumb: var(--vscode-scrollbarSlider-background, #c9d1d9);
+
+    color: var(--viewer-fg);
+    font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size: var(--vscode-font-size, 13px);
+    scrollbar-color: var(--viewer-scrollbar-thumb) var(--viewer-scrollbar-track);
+}
+
+.office-viewer-themed ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.office-viewer-themed ::-webkit-scrollbar-track {
+    background: var(--viewer-scrollbar-track);
+}
+
+.office-viewer-themed ::-webkit-scrollbar-thumb {
+    background-color: var(--viewer-scrollbar-thumb);
+    border-radius: 5px;
+    border: 2px solid var(--viewer-scrollbar-track);
+}
+
+.office-viewer-themed .office-sponsor {
+    --sponsor-muted: var(--vscode-descriptionForeground, rgba(204, 204, 204, 0.7));
+    --sponsor-accent: var(--vscode-textLink-foreground, #3794ff);
+    --sponsor-border: var(--vscode-editorWidget-border, var(--vscode-panel-border, rgba(128, 128, 128, 0.45)));
+    --sponsor-bg: color-mix(
+        in srgb,
+        var(--vscode-sideBar-background, var(--vscode-editorGroupHeader-tabsBackground, #252526)) 96%,
+        transparent
+    );
+}

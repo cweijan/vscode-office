@@ -1,4 +1,5 @@
 import ExcelJS from 'exceljs';
+import * as XLSX from 'xlsx/dist/xlsx.mini.min.js';
 import { inferSchema, initParser } from 'udsv';
 
 interface RowMap {
@@ -125,6 +126,93 @@ const loadWithExcelJs = async (buffer: ArrayBuffer): Promise<ExcelData> => {
     return convertExcelJsWorkbook(workbook);
 };
 
+const sheetJsColWidthToPx = (col?: XLSX.ColInfo) => {
+    if (!col) return null;
+    if (col.wpx != null) return col.wpx;
+    if (col.wch != null) return col.wch * CHAR_WIDTH;
+    if (col.width != null) return col.width * CHAR_WIDTH;
+    return null;
+};
+
+const buildColsFromSheetJsWorksheet = (worksheet: XLSX.WorkSheet, colCount: number) => {
+    const cols: Record<number, { width: number }> = {};
+    const sheetCols = worksheet['!cols'];
+    for (let i = 0; i < colCount; i += 1) {
+        const width = sheetJsColWidthToPx(sheetCols?.[i]) ?? DEFAULT_COL_WIDTH;
+        cols[i] = { width: clampColWidth(width) };
+    }
+    return cols;
+};
+
+const formatSheetJsCell = (cell: XLSX.CellObject) => {
+    if (cell.w) return cell.w;
+    if (cell.v == null) return '';
+    if (cell.v instanceof Date) return cell.v.toISOString().slice(0, 10);
+    return String(cell.v);
+};
+
+const convertSheetJsWorksheet = (worksheet: XLSX.WorkSheet): Pick<SheetInfo, 'rows' | 'cols'> => {
+    const rows: RowMap = {};
+    let maxCols = 0;
+    const ref = worksheet['!ref'];
+    if (!ref) {
+        return { rows, cols: {} };
+    }
+
+    const range = XLSX.utils.decode_range(ref);
+    for (let ri = range.s.r; ri <= range.e.r; ri += 1) {
+        const cells: Record<number, { text: string }> = {};
+        let hasContent = false;
+        for (let ci = range.s.c; ci <= range.e.c; ci += 1) {
+            const addr = XLSX.utils.encode_cell({ r: ri, c: ci });
+            const cell = worksheet[addr];
+            if (!cell) continue;
+            const text = formatSheetJsCell(cell);
+            if (!text) continue;
+            cells[ci] = { text };
+            hasContent = true;
+            if (ci + 1 > maxCols) maxCols = ci + 1;
+        }
+        if (hasContent) {
+            rows[ri] = { cells };
+        }
+    }
+
+    const colCount = Math.max(maxCols, range.e.c - range.s.c + 1);
+    return {
+        rows,
+        cols: buildColsFromSheetJsWorksheet(worksheet, colCount),
+    };
+};
+
+const convertSheetJsWorkbook = (workbook: XLSX.WorkBook): ExcelData => {
+    const sheets: SheetInfo[] = [];
+    let maxLength = 0;
+    let maxCols = 26;
+
+    for (const sheetName of workbook.SheetNames) {
+        const converted = convertSheetJsWorksheet(workbook.Sheets[sheetName]);
+        const rowCount = Object.keys(converted.rows).length;
+        if (maxLength < rowCount) maxLength = rowCount;
+
+        const colLen = Object.keys(converted.cols).length;
+        if (colLen > maxCols) maxCols = colLen;
+
+        sheets.push({
+            name: sheetName,
+            rows: converted.rows,
+            cols: converted.cols,
+        });
+    }
+
+    return { sheets, maxLength, maxCols };
+};
+
+const loadWithSheetJs = (buffer: ArrayBuffer): ExcelData => {
+    const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
+    return convertSheetJsWorkbook(workbook);
+};
+
 const loadCsv = (buffer: ArrayBuffer): ExcelData => {
     let maxCols = 26;
     const emptySheet = { maxCols, sheets: [{ name: 'Sheet1', rows: [] }] };
@@ -164,10 +252,14 @@ const loadCsv = (buffer: ArrayBuffer): ExcelData => {
 };
 
 const isCsvExt = (ext: string) => ext.toLowerCase().includes('csv');
+const isOdsExt = (ext: string) => ext.toLowerCase().includes('ods');
 
 export async function loadSheets(buffer: ArrayBuffer, ext: string): Promise<ExcelData> {
     if (isCsvExt(ext)) {
         return loadCsv(buffer);
+    }
+    if (isOdsExt(ext)) {
+        return loadWithSheetJs(buffer);
     }
     return loadWithExcelJs(buffer);
 }

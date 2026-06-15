@@ -1,82 +1,113 @@
 import { Output } from "@/common/Output";
 import { FileUtil } from "@/common/fileUtil";
 import { Handler } from "@/common/handler";
+import { isZipPasswordError } from '@/service/compress/passwordUtils';
+import { planExtractTarget, revealExtractResult } from '@/service/compress/archiveUtils';
 import prettyBytes from "@/service/zip/pretty-bytes";
-import { parseZipAsTree } from "@/service/zip/zipUtils";
-import { exec } from "child_process";
-import { existsSync, mkdirSync, rm, writeFileSync } from "fs";
-import { platform } from "os";
-import { basename, join, parse, resolve } from "path";
+import { ZipArchive } from "@/service/zip/zipArchive";
+import { mkdirSync, writeFileSync } from "fs";
+import { basename, resolve } from "path";
 import { Uri, commands, window, workspace } from "vscode";
 import { handlerCommonDecompress } from "./decompressHandler";
 
+function applyPassword(current: string | undefined, input?: string) {
+    return input !== undefined ? (input.trim() || undefined) : current;
+}
+
 export async function handleZip(uri: Uri, handler: Handler) {
-    const decompressPath = handlerCommonDecompress(uri, handler)
+    const decompressPath = handlerCommonDecompress(uri, handler);
+    let archivePassword: string | undefined;
+    let filenameEncoding: string | undefined;
+
     handler.on('init', async () => {
-        const data = (await workspace.fs.readFile(uri)) as Buffer
-        let { zip, files, folderMap, fileMap } = parseZipAsTree(data)
-        handler.emit('size', prettyBytes(data.length))
+        const data = (await workspace.fs.readFile(uri)) as Buffer;
+        let { archive, files, folderMap, fileMap, encrypted } = await ZipArchive.open(data, { encoding: filenameEncoding });
+
+        handler.emit('encrypted', encrypted);
+        handler.emit('size', prettyBytes(data.length));
         handler.emit('data', {
             files, folderMap,
             fileName: basename(uri.fsPath)
-        })
+        });
 
         handler.on('changeEncoding', async (encoding) => {
-            const info = parseZipAsTree(data, { encoding });
-            zip = info.zip;
-            files = info.files;
-            folderMap = info.folderMap;
-            fileMap = info.fileMap;
+            filenameEncoding = encoding;
+            const parsed = await archive.parse(encoding);
+            files = parsed.files;
+            folderMap = parsed.folderMap;
+            fileMap = parsed.fileMap;
             handler.emit('data', {
                 files, folderMap,
                 fileName: basename(uri.fsPath)
-            })
-        }).on('openPath', async info => {
-            const { entryName, isDirectory } = info
-            if (isDirectory) {
-                handler.emit('openDir', entryName)
-            } else {
-                await commands.executeCommand('workbench.action.keepEditor')
-                const file = fileMap[entryName]
-                const tempPath = `${decompressPath}/${entryName}`
-                mkdirSync(resolve(tempPath, '..'), { recursive: true })
-                writeFileSync(tempPath, file.getData())
-                const url = Uri.file(tempPath);
-                commands.executeCommand('vscode.open', url);
-            }
-        }).on('autoExtract', () => {
-            window.showInformationMessage("Start extracting...")
-            let target = resolve(uri.fsPath, '..');
-            if (files.length > 1) {
-                target = join(target, parse(uri.fsPath).name)
-                mkdirSync(target, { recursive: true })
-            }
-            zip.extractAllToAsync(target, true, false, (err) => {
-                if (err) {
-                    Output.debug(err)
-                    window.showErrorMessage(err.message)
-                } else {
-                    setTimeout(() => {
-                        window.showInformationMessage("Extract success!")
-                        commands.executeCommand('revealFileInOS', Uri.file(target))
-                    }, 100);
-                }
             });
-        }).on('addFile', async (currentDir = '') => {
-            const defaultUri = FileUtil.getLastPath('connectChoose')
-            const uris = await window.showOpenDialog({ defaultUri })
-            if (!uris) return;
-            const uri = uris[0]
-            const buf = await workspace.fs.readFile(uri) as Buffer
-            const prefix = currentDir ? `${currentDir}/` : '';
-            zip.addFile(`${prefix}${basename(uri.fsPath)}`, buf)
-            await workspace.fs.writeFile(uri, zip.toBuffer())
-            handler.emit('zipChange')
-        }).on('removeFile', async entryName => {
-            zip.deleteFile(entryName)
-            await workspace.fs.writeFile(uri, zip.toBuffer())
-            handler.emit('zipChange')
-        })
-    })
-}
+        }).on('openPath', async (payload) => {
+            const entry = payload?.entry ?? payload;
+            const { entryName, isDirectory } = entry;
+            archivePassword = applyPassword(archivePassword, payload?.password);
 
+            if (isDirectory) {
+                handler.emit('openDir', entryName);
+                return;
+            }
+
+            const file = fileMap[entryName];
+            const needsPassword = Boolean(file?.encrypted) || encrypted;
+            if (needsPassword && !archivePassword) return;
+
+            await commands.executeCommand('workbench.action.keepEditor');
+            const tempPath = `${decompressPath}/${entryName}`;
+            mkdirSync(resolve(tempPath, '..'), { recursive: true });
+            try {
+                writeFileSync(tempPath, await archive.readEntry(file, archivePassword));
+                commands.executeCommand('vscode.open', Uri.file(tempPath));
+            } catch (err) {
+                Output.debug(err);
+                if (isZipPasswordError(err)) {
+                    archivePassword = undefined;
+                    handler.emit('passwordError');
+                    window.showErrorMessage('Wrong password');
+                } else {
+                    window.showErrorMessage((err as Error).message);
+                }
+            }
+        }).on('autoExtract', async (inputPassword?: string) => {
+            archivePassword = applyPassword(archivePassword, inputPassword);
+            if (encrypted && !archivePassword) return;
+
+            window.showInformationMessage("Start extracting...");
+            const filePaths = Object.keys(fileMap);
+            const plan = planExtractTarget(uri.fsPath, filePaths.length);
+            if (plan.createSubfolder) {
+                mkdirSync(plan.targetDir, { recursive: true });
+            }
+            try {
+                await archive.extractAllTo(plan.targetDir, archivePassword, fileMap);
+                window.showInformationMessage("Extract success!");
+                await revealExtractResult(plan, filePaths);
+            } catch (err) {
+                Output.debug(err);
+                if (isZipPasswordError(err)) {
+                    archivePassword = undefined;
+                    handler.emit('passwordError');
+                    window.showErrorMessage('Wrong password');
+                } else {
+                    window.showErrorMessage((err as Error).message);
+                }
+            }
+        }).on('addFile', async (currentDir = '') => {
+            const defaultUri = FileUtil.getLastPath('connectChoose');
+            const uris = await window.showOpenDialog({ defaultUri });
+            if (!uris) return;
+            const fileUri = uris[0];
+            const buf = await workspace.fs.readFile(fileUri) as Buffer;
+            const prefix = currentDir ? `${currentDir}/` : '';
+            await archive.addFile(`${prefix}${basename(fileUri.fsPath)}`, buf, filenameEncoding);
+            await workspace.fs.writeFile(uri, archive.toBuffer());
+            handler.emit('zipChange');
+        }).on('removeFile', async entryName => {
+            await archive.removeFile(entryName, filenameEncoding);
+            await workspace.fs.writeFile(uri, archive.toBuffer());
+            handler.emit('zipChange');
+        });
+    });
+}

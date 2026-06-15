@@ -107,8 +107,6 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             const adjustRelPath = await MarkdownService.imgExtGuide(imagePath, relPath);
             vscode.env.clipboard.writeText(`![${fileName}](${adjustRelPath})`)
             vscode.commands.executeCommand("editor.action.clipboardPasteAction")
-        }).on("quickOpen", () => {
-            vscode.commands.executeCommand('workbench.action.quickOpen');
         }).on("editInVSCode", (full: boolean) => {
             const side = full ? vscode.ViewColumn.Active : vscode.ViewColumn.Beside;
             vscode.commands.executeCommand('vscode.openWith', uri, "default", side);

@@ -3,6 +3,7 @@ import { Card, Flex, Input } from 'antd'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useWindowSize } from '../../util/reactUtils'
 import { handler } from '../../util/vscode'
+import Sponsor from '../components/Sponsor'
 import './FontViewer.less'
 import { FontInfo, formatUnicode, loadFont, renderGlyphItem, renderGlyphPreview } from './fontViewerMain'
 
@@ -132,8 +133,8 @@ export default function FontViewer() {
                     </Card>
                 </div>
 
-                <div className="footer">
-                    Powered by OpenType.js
+                <div className="sidebar-bottom">
+                    <Sponsor variant="sidebar" />
                 </div>
             </Flex>
         </Flex>

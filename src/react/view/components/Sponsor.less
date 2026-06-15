@@ -1,0 +1,94 @@
+.office-sponsor {
+    --sponsor-muted: #656d76;
+    --sponsor-accent: #0969da;
+    --sponsor-border: #d8dee4;
+    --sponsor-bg: color-mix(in srgb, #f6f8fa 96%, transparent);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.office-sponsor--sidebar {
+    flex-shrink: 0;
+    width: 100%;
+    padding: 8px 10px;
+    border-top: 1px solid var(--sponsor-border);
+    background: var(--sponsor-bg);
+}
+
+.office-sponsor--fixed {
+    position: fixed;
+    bottom: 8px;
+    left: 12px;
+    z-index: 999;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--sponsor-border);
+    background: color-mix(in srgb, #ffffff 90%, transparent);
+    backdrop-filter: blur(4px);
+}
+
+.office-sponsor-text {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--sponsor-muted);
+    text-align: center;
+    white-space: nowrap;
+}
+
+.office-sponsor-link {
+    color: var(--sponsor-accent);
+    text-decoration: none;
+    font-weight: 600;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.office-sponsor-logo-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: opacity 0.15s, transform 0.15s;
+
+    &:hover {
+        opacity: 0.85;
+    }
+
+    &:active {
+        transform: translateY(0.5px);
+    }
+}
+
+.office-sponsor-logo {
+    height: 34px;
+    max-width: 220px;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+}
+
+body.office-dark .office-sponsor {
+    --sponsor-muted: var(--vscode-descriptionForeground, rgba(204, 204, 204, 0.7));
+    --sponsor-accent: var(--vscode-textLink-foreground, #3794ff);
+    --sponsor-border: var(--vscode-editorWidget-border, var(--vscode-panel-border, rgba(128, 128, 128, 0.45)));
+    --sponsor-bg: color-mix(
+        in srgb,
+        var(--vscode-sideBar-background, var(--vscode-editorGroupHeader-tabsBackground, #252526)) 96%,
+        transparent
+    );
+}
+
+body.office-dark .office-sponsor--fixed {
+    background: color-mix(in srgb, var(--vscode-editor-background, #1e1e1e) 90%, transparent);
+}

@@ -1,14 +1,15 @@
 import { ReactApp } from '@/common/reactApp';
 import { readFileSync } from 'fs';
-import { extname } from 'path';
 import * as vscode from 'vscode';
 import { Handler } from '../common/handler';
 import { Util } from '../common/util';
 import { handleClass } from './handlers/classHandler';
 import { handleImage, isImage } from './handlers/imageHanlder';
+import { getFileSuffix } from '@/service/compress/archiveUtils';
 import { handleZip } from './compress/zipHandler';
 import { handleRar } from './compress/rarHandler';
-import { workspace } from 'vscode';
+import { handleTarGz } from './compress/tarHandler';
+import { handleSevenZip } from './compress/sevenZipHandler';
 import { handleCommonEvent } from './compress/commonHandler';
 
 /**
@@ -23,7 +24,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
     }
 
     bindCustomEditors(viewOption: { webviewOptions: vscode.WebviewPanelOptions }) {
-        const viewers = ['cweijan.officeViewer', 'cweijan.imageViewer', 'cweijan.htmlViewer', 'cweijan.classViewer']
+        const viewers = ['cweijan.officeViewer', 'cweijan.imageViewer', 'cweijan.heicTiffViewer', 'cweijan.icnsViewer', 'cweijan.psdViewer', 'cweijan.xmindViewer', 'cweijan.htmlViewer', 'cweijan.classViewer']
         return viewers.map(viewer => vscode.window.registerCustomEditorProvider(viewer, this, viewOption))
     }
 
@@ -43,12 +44,14 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
         handleCommonEvent(uri, handler)
 
         let route: string;
-        const ext = extname(uri.fsPath).toLowerCase()
-        if (isImage(ext)) {
+        const suffix = getFileSuffix(uri.fsPath);
+        if (/\.svg$/i.test(suffix)) {
+            route = 'svg';
+        } else if (isImage(suffix)) {
             handleImage(handler, uri, webview)
             route = 'image'
         }
-        switch (ext) {
+        switch (suffix) {
             case ".xlsx":
             case ".xlsm":
             case ".xls":
@@ -60,16 +63,32 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".dotx":
                 route = 'word'
                 break;
-            case ".jar":
+            case ".pptx":
+            case ".pptm":
+                route = 'ppt'
+                break;
             case ".zip":
+            case ".jar":
             case ".apk":
             case ".vsix":
                 route = 'zip';
                 handleZip(uri, handler);
                 break;
+            case ".7z":
+                route = 'zip';
+                handleSevenZip(uri, handler);
+                break;
             case ".rar":
                 route = 'zip';
                 handleRar(uri, handler);
+                break;
+            case ".tar.gz":
+                route = 'zip';
+                handleTarGz(uri, handler, true);
+                break;
+            case ".tar":
+                route = 'zip';
+                handleTarGz(uri, handler, false);
                 break;
             case ".ttf":
             case ".woff":
@@ -80,6 +99,18 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
             case ".pdf":
                 webview.html = readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8')
                     .replace("{{baseUrl}}", this.getBaseUrl(webview, 'pdf'))
+                break;
+            case ".epub":
+                route = 'epub';
+                break;
+            case ".icns":
+                route = 'icns';
+                break;
+            case ".psd":
+                route = 'psd';
+                break;
+            case ".xmind":
+                route = 'xmind';
                 break;
             case ".class":
                 handleClass(uri, webviewPanel);

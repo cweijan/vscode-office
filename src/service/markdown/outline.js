@@ -9,7 +9,9 @@ export const createOutline = async (pdf, html) => {
     if (array.length > 0) {
         const dict = extractDict(pdfDoc);
         const dictArray = inflateDict(array, $, dict);
-        creatOutlines(pdfDoc, dictArray)
+        if (dictArray.length > 0) {
+            creatOutlines(pdfDoc, dictArray)
+        }
     }
 
     return await pdfDoc.save()
@@ -53,7 +55,14 @@ function extractDict(pdfDoc) {
 }
 
 function getKey(a) {
-    return "/" + escape(a.attr("href").replace("#", "")).replace(/%/g, '#');
+    const href = a.attr("href") || "";
+    const anchor = decodeURIComponent(href.replace(/^#/, ""));
+    return anchorToPdfDestKey(anchor);
+}
+
+function anchorToPdfDestKey(anchor) {
+    const encoded = encodeURIComponent(anchor);
+    return "/" + encoded.replace(/%/g, "#25");
 }
 
 
@@ -65,8 +74,6 @@ async function creatOutlines(doc, dictArray) {
         map.set(PDFName.Parent, parentRefer);
         if (nextOrPrev != null) {
             map.set(PDFName.of(dict.isLast ? "Prev" : "Next"), nextOrPrev);
-        } else {
-            map.set(PDFName.of("Next"), outlineRefer);
         }
         if (childRefs) {
             map.set(PDFName.of("First"), childRefs[0]);

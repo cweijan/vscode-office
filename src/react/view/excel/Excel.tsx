@@ -1,19 +1,58 @@
-import { message, Spin } from "antd";
+import { MoonOutlined, SunOutlined } from "@ant-design/icons";
+import { App, Spin } from "antd";
 import { useEffect, useRef, useState } from "react";
-import { handler } from "../../util/vscode.ts";
+import { handler, loadDarkMode, applyDarkMode } from "../../util/vscode.ts";
+import { getConfigs } from "../../util/vscodeConfig.ts";
 import VSCodeLogo from "../vscode.tsx";
+import SponsorBar from '../components/SponsorBar';
 import './Excel.less';
 import { loadSheets } from "./excel_reader.ts";
 import { export_xlsx } from "./excel_writer.ts";
 import Spreadsheet from './x-spreadsheet/index';
 
-export default function Excel() {
+function ExcelViewer() {
+    const { message } = App.useApp();
     const [loading, setLoading] = useState(true)
+    const [dark, setDark] = useState(loadDarkMode)
     const isCSV = useRef<boolean>(false)
+    const extRef = useRef('')
+    const spreadSheetRef = useRef<Spreadsheet | null>(null)
+    const saveSuccessText = getConfigs()?.language?.startsWith('zh') ? '保存成功' : 'Save done';
+
+    useEffect(() => {
+        document.body.classList.toggle('office-dark', dark)
+    }, [dark])
+
+    const toggleDark = () => {
+        setDark(prev => {
+            const next = !prev
+            applyDarkMode(next)
+            return next
+        })
+    }
+
+    useEffect(() => {
+        spreadSheetRef.current?.reRender()
+    }, [dark])
+
+    useEffect(() => {
+        const onKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.code === 'KeyS') {
+                e.preventDefault();
+                if (spreadSheetRef.current) {
+                    export_xlsx(spreadSheetRef.current, extRef.current);
+                }
+            }
+        };
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown);
+    }, []);
+
     useEffect(() => {
         const container = document.getElementById('container');
 
         handler.on("open", ({ path, ext }) => {
+            extRef.current = ext ?? '';
             const startTime = Date.now();
             console.log('Loading Excel file...');
             fetch(path).then(response => response.arrayBuffer()).then(async (res) => {
@@ -21,7 +60,6 @@ export default function Excel() {
                 isCSV.current = ext?.match(/csv/i) !== null;
                 container.innerHTML = ''
                 const spreadSheet = new Spreadsheet(container, {
-                    // showToolbar: !ext?.match(/csv/i),
                     showToolbar: false,
                     row: {
                         len: maxLength + 50,
@@ -34,11 +72,7 @@ export default function Excel() {
                         height: () => window.innerHeight - 2,
                     }
                 });
-                window.addEventListener('keydown', (e) => {
-                    if ((e.ctrlKey || e.metaKey) && e.code == "KeyS") {
-                        export_xlsx(spreadSheet, ext);
-                    }
-                });
+                spreadSheetRef.current = spreadSheet;
                 setLoading(false)
                 spreadSheet.loadData(sheets);
                 const endTime = Date.now();
@@ -49,20 +83,48 @@ export default function Excel() {
             });
         }).on("saveDone", () => {
             message.success({
-                duration: 1,
-                content: 'Save done',
-            })
+                duration: 2,
+                content: saveSuccessText,
+            });
         }).emit("init")
-    }, [])
+
+        let themeTimer: ReturnType<typeof setTimeout>;
+        const themeObserver = new MutationObserver(() => {
+            clearTimeout(themeTimer);
+            themeTimer = setTimeout(() => spreadSheetRef.current?.reRender(), 120);
+        });
+        themeObserver.observe(document.head, { childList: true, subtree: true });
+
+        return () => {
+            themeObserver.disconnect();
+            clearTimeout(themeTimer);
+        };
+    }, [message, saveSuccessText])
 
     return (
         <div className='excel-viewer'>
-            <Spin spinning={loading} fullscreen={true}>
-            </Spin>
+            <Spin spinning={loading} fullscreen={true} />
             <div id='container'></div>
+            <button
+                type="button"
+                className="dark-mode-toggle"
+                title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+                onClick={toggleDark}
+            >
+                {dark ? <SunOutlined /> : <MoonOutlined />}
+            </button>
             {
                 isCSV.current ? <VSCodeLogo /> : null
             }
+            <SponsorBar placement="right" />
         </div>
     )
+}
+
+export default function Excel() {
+    return (
+        <App>
+            <ExcelViewer />
+        </App>
+    );
 }

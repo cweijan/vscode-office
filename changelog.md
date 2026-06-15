@@ -1,25 +1,47 @@
 # Change log
 
+# 4.0.2 2026-6-15
+
+- Integrate HTTP client for `.http` and `.rest` files
+- Support XMind, PSD, ICNS, HEIC and TIFF formats
+
+# 4.0.1 2026-6-14
+
+- Better zip viewer
+- Fix excel save tip gone
+
+# 4.0.0 2026-6-14
+
+- Support pptx and epub files
+- Support 7zip and tar.gz archives
+- Better support for docx, excel, pdf and archives
+
 # 3.5.7 2026-6-12
+
 - Fixed paste image failed in markdown editor
 
 # 3.5.6 2026-6-10
+
 - Update puppeteer-core version
 - Beautify zip,font,image and markdown view
 - Fix command 'office.markdown.paste' hijacks ctrl/cmd+v
 
 # 3.5.5 2026-6-8
+
 - Update mermaid version
 - Integrate Vditor resources
 - Fix Excel cell shortcut keys not working on MacOS
 
 # 3.5.4 2025-4-28
+
 - Support edit excel and csv file.
 
 # 3.5.3 2025-4-17
+
 - Support view rar file.
 
 # 3.5.2 2025-4-10
+
 - Compatible with rest client.
 
 # 3.5.1 2025-4-7

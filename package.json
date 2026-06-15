@@ -1,8 +1,8 @@
 {
 	"name": "vscode-office",
 	"displayName": "Office Viewer",
-	"description": "View word,excel files and using WYSIWYG editor for markdown.",
-	"version": "3.5.7",
+	"description": "View word, excel, powerpoint files and using WYSIWYG editor for markdown.",
+	"version": "4.0.2",
 	"publisher": "cweijan",
 	"icon": "images/logo.png",
 	"engines": {
@@ -13,7 +13,9 @@
 		"word",
 		"markdown",
 		"xlsx",
-		"excel"
+		"excel",
+		"pptx",
+		"powerpoint"
 	],
 	"categories": [
 		"Visualization",
@@ -101,12 +103,6 @@
 		],
 		"commands": [
 			{
-				"command": "office.quickOpen",
-				"title": "Quick open",
-				"category": "ShortcutMenuBar",
-				"icon": "$(files)"
-			},
-			{
 				"command": "vscode-office.save-response-body",
 				"title": "Save Response",
 				"icon": "$(save)"
@@ -164,11 +160,6 @@
 		],
 		"menus": {
 			"editor/title": [
-				{
-					"when": "config.vscode-office.quickOpen",
-					"command": "office.quickOpen",
-					"group": "navigation@10"
-				},
 				{
 					"command": "office.markdown.switch",
 					"when": "resourceExtname == '.md'",
@@ -230,7 +221,16 @@
 						"filenamePattern": "*.dotx"
 					},
 					{
+						"filenamePattern": "*.pptx"
+					},
+					{
+						"filenamePattern": "*.pptm"
+					},
+					{
 						"filenamePattern": "*.pdf"
+					},
+					{
+						"filenamePattern": "*.epub"
 					},
 					{
 						"filenamePattern": "*.ttf"
@@ -251,7 +251,16 @@
 						"filenamePattern": "*.zip"
 					},
 					{
+						"filenamePattern": "*.7z"
+					},
+					{
 						"filenamePattern": "*.rar"
+					},
+					{
+						"filenamePattern": "*.tar.gz"
+					},
+					{
+						"filenamePattern": "*.tgz"
 					},
 					{
 						"filenamePattern": "*.apk"
@@ -261,6 +270,21 @@
 					},
 					{
 						"filenamePattern": "*.svg"
+					}
+				]
+			},
+			{
+				"viewType": "cweijan.heicTiffViewer",
+				"displayName": "Image Preview(Office Viewer)",
+				"selector": [
+					{
+						"filenamePattern": "*.heic"
+					},
+					{
+						"filenamePattern": "*.heif"
+					},
+					{
+						"filenamePattern": "*.tiff"
 					}
 				]
 			},
@@ -307,6 +331,33 @@
 					},
 					{
 						"filenamePattern": "*.webp"
+					}
+				]
+			},
+			{
+				"viewType": "cweijan.icnsViewer",
+				"displayName": "ICNS Viewer",
+				"selector": [
+					{
+						"filenamePattern": "*.icns"
+					}
+				]
+			},
+			{
+				"viewType": "cweijan.psdViewer",
+				"displayName": "PSD Viewer",
+				"selector": [
+					{
+						"filenamePattern": "*.psd"
+					}
+				]
+			},
+			{
+				"viewType": "cweijan.xmindViewer",
+				"displayName": "XMind Viewer",
+				"selector": [
+					{
+						"filenamePattern": "*.xmind"
 					}
 				]
 			},
@@ -358,141 +409,234 @@
 				]
 			}
 		],
-		"configuration": {
-			"type": "object",
-			"title": "Office",
-			"properties": {
-				"vscode-office.quickOpen": {
-					"title": "Quick open",
-					"type": "boolean",
-					"default": false,
-					"description": "show icon for Go to File, 'Quick Open'"
-				},
-				"vscode-office.viewAbsoluteLocal": {
-					"type": "boolean",
-					"default": false,
-					"description": "Support view absolute path image from markdown viewer."
-				},
-				"vscode-office.chromiumPath": {
-					"type": "string",
-					"description": "Set the chromium browser location for exporting markdown pdf."
-				},
-				"vscode-office.pdfMarginTop": {
-					"type": "integer",
-					"default": 25,
-					"description": "Printed pdf default top margin."
-				},
-				"vscode-office.openOutline": {
-					"type": "boolean",
-					"default": true,
-					"description": "Open markdown outline."
-				},
-				"vscode-office.hideToolbar": {
-					"type": "boolean",
-					"default": false,
-					"description": "Hide markdown toolbar."
-				},
-				"vscode-office.previewCode": {
-					"type": "boolean",
-					"default": true,
-					"description": "Preview code in markdown."
-				},
-				"vscode-office.preventMacOptionKey": {
-					"type": "boolean",
-					"default": true,
-					"description": "Prevent MacOS option key in the markdown editor."
-				},
-				"vscode-office.editorTheme": {
-					"type": "string",
-					"enum": [
-						"Auto",
-						"Light",
-						"Solarized",
-						"Warm Light",
-						"Dim Light",
-						"One Dark",
-						"Github Dark",
-						"Nord",
-						"Monokai",
-						"Dracula"
-					],
-					"default": "Light",
-					"markdownDescription": "The theme for the Markdown editor."
-				},
-				"vscode-office.previewCodeHighlight.style": {
-					"type": "string",
-					"enum": [
-						"abap",
-						"algol",
-						"algol_nu",
-						"arduino",
-						"autumn",
-						"borland",
-						"bw",
-						"colorful",
-						"dracula",
-						"emacs",
-						"friendly",
-						"fruity",
-						"github",
-						"igor",
-						"lovelace",
-						"manni",
-						"monokai",
-						"monokailight",
-						"murphy",
-						"native",
-						"paraiso-dark",
-						"paraiso-light",
-						"pastie",
-						"perldoc",
-						"pygments",
-						"rainbow_dash",
-						"rrt",
-						"solarized-dark",
-						"solarized-dark256",
-						"solarized-light",
-						"swapoff",
-						"tango",
-						"trac",
-						"vim",
-						"vs",
-						"xcode",
-						"ant-design"
-					],
-					"default": "dracula",
-					"markdownDescription": "Default syntax highlight style of markdown preview code. Refer to [Chroma Style Gallery](https://xyproto.github.io/splash/docs/longer/all.html). Only applies when `#vscode-office.previewCode#` is enabled."
-				},
-				"vscode-office.previewCodeHighlight.showLineNumber": {
-					"type": "boolean",
-					"default": true,
-					"markdownDescription": "Show line numbers in markdown preview code window. Only applies when `#vscode-office.previewCode#` is enabled."
-				},
-				"vscode-office.editorLanguage": {
-					"type": "string",
-					"enum": [
-						"en_US",
-						"ja_JP",
-						"ko_KR",
-						"ru_RU",
-						"zh_CN",
-						"zh_TW"
-					],
-					"default": "en_US",
-					"description": "You could change your editor language."
-				},
-				"vscode-office.workspacePathAsImageBasePath": {
-					"type": "boolean",
-					"default": false,
-					"description": "Using workspace path as markdown image base path."
-				},
-				"vscode-office.pasterImgPath": {
-					"type": "string",
-					"default": "image/${fileName}/${now}.png",
-					"description": "Markdown paste image path, variables: workspaceDir, fileName, now."
+		"configuration": [
+			{
+				"title": "Markdown",
+				"order": 1,
+				"properties": {
+					"vscode-office.viewAbsoluteLocal": {
+						"type": "boolean",
+						"default": false,
+						"description": "Support view absolute path image from markdown viewer."
+					},
+					"vscode-office.openOutline": {
+						"type": "boolean",
+						"default": true,
+						"description": "Open markdown outline."
+					},
+					"vscode-office.hideToolbar": {
+						"type": "boolean",
+						"default": false,
+						"description": "Hide markdown toolbar."
+					},
+					"vscode-office.previewCode": {
+						"type": "boolean",
+						"default": true,
+						"description": "Preview code in markdown."
+					},
+					"vscode-office.preventMacOptionKey": {
+						"type": "boolean",
+						"default": true,
+						"description": "Prevent MacOS option key in the markdown editor."
+					},
+					"vscode-office.editorTheme": {
+						"type": "string",
+						"enum": [
+							"Auto",
+							"Light",
+							"Solarized",
+							"Warm Light",
+							"Dim Light",
+							"One Dark",
+							"Github Dark",
+							"Nord",
+							"Monokai",
+							"Dracula"
+						],
+						"default": "Light",
+						"markdownDescription": "The theme for the Markdown editor."
+					},
+					"vscode-office.previewCodeHighlight.style": {
+						"type": "string",
+						"enum": [
+							"abap",
+							"algol",
+							"algol_nu",
+							"arduino",
+							"autumn",
+							"borland",
+							"bw",
+							"colorful",
+							"dracula",
+							"emacs",
+							"friendly",
+							"fruity",
+							"github",
+							"igor",
+							"lovelace",
+							"manni",
+							"monokai",
+							"monokailight",
+							"murphy",
+							"native",
+							"paraiso-dark",
+							"paraiso-light",
+							"pastie",
+							"perldoc",
+							"pygments",
+							"rainbow_dash",
+							"rrt",
+							"solarized-dark",
+							"solarized-dark256",
+							"solarized-light",
+							"swapoff",
+							"tango",
+							"trac",
+							"vim",
+							"vs",
+							"xcode",
+							"ant-design"
+						],
+						"default": "dracula",
+						"markdownDescription": "Default syntax highlight style of markdown preview code. Refer to [Chroma Style Gallery](https://xyproto.github.io/splash/docs/longer/all.html). Only applies when `#vscode-office.previewCode#` is enabled."
+					},
+					"vscode-office.previewCodeHighlight.showLineNumber": {
+						"type": "boolean",
+						"default": true,
+						"markdownDescription": "Show line numbers in markdown preview code window. Only applies when `#vscode-office.previewCode#` is enabled."
+					},
+					"vscode-office.editorLanguage": {
+						"type": "string",
+						"enum": [
+							"en_US",
+							"ja_JP",
+							"ko_KR",
+							"ru_RU",
+							"zh_CN",
+							"zh_TW"
+						],
+						"default": "en_US",
+						"description": "You could change your editor language."
+					},
+					"vscode-office.workspacePathAsImageBasePath": {
+						"type": "boolean",
+						"default": false,
+						"description": "Using workspace path as markdown image base path."
+					},
+					"vscode-office.pasterImgPath": {
+						"type": "string",
+						"default": "image/${fileName}/${now}.png",
+						"description": "Markdown paste image path, variables: workspaceDir, fileName, now."
+					}
+				}
+			},
+			{
+				"title": "Markdown PDF",
+				"order": 2,
+				"properties": {
+					"vscode-office.chromiumPath": {
+						"type": "string",
+						"description": "Set the chromium browser location for exporting markdown pdf."
+					},
+					"vscode-office.puppeteerArgs": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						},
+						"default": [],
+						"description": "Additional arguments to pass to Puppeteer/Chromium when exporting PDF. Example: [\"--no-sandbox\", \"--disable-setuid-sandbox\"] for Linux servers running as root."
+					},
+					"vscode-office.pdfMarginTop": {
+						"type": "integer",
+						"default": 25,
+						"description": "Printed pdf default top margin."
+					}
+				}
+			},
+			{
+				"title": "HTTP Client",
+				"order": 3,
+				"properties": {
+					"vscode-office.followredirect": {
+						"type": "boolean",
+						"default": true,
+						"scope": "resource",
+						"description": "Follow HTTP 3xx responses as redirects."
+					},
+					"vscode-office.environmentVariables": {
+						"type": "object",
+						"default": {
+							"$shared": {}
+						},
+						"scope": "resource",
+						"markdownDescription": "Sets the environments and custom variables belongs to it."
+					},
+					"vscode-office.previewOption": {
+						"type": "string",
+						"enum": [
+							"full",
+							"headers",
+							"body",
+							"exchange"
+						],
+						"default": "body",
+						"scope": "resource",
+						"description": "Response preview output option"
+					},
+					"vscode-office.previewColumn": {
+						"type": "string",
+						"enum": [
+							"current",
+							"beside"
+						],
+						"default": "beside",
+						"scope": "resource",
+						"description": "Response preview column option"
+					},
+					"vscode-office.formParamEncodingStrategy": {
+						"type": "string",
+						"enum": [
+							"automatic",
+							"never",
+							"always"
+						],
+						"default": "automatic",
+						"scope": "resource",
+						"description": "Form param encoding strategy for x-www-form-urlencoded body"
+					},
+					"vscode-office.addRequestBodyLineIndentationAroundBrackets": {
+						"type": "boolean",
+						"default": true,
+						"scope": "resource",
+						"description": "Add line indentation around brackets in request body"
+					},
+					"vscode-office.decodeEscapedUnicodeCharacters": {
+						"type": "boolean",
+						"default": false,
+						"scope": "resource",
+						"description": "Decode escaped unicode characters in response body."
+					},
+					"vscode-office.logLevel": {
+						"type": "string",
+						"enum": [
+							"error",
+							"warn",
+							"info",
+							"verbose"
+						],
+						"default": "error",
+						"scope": "resource",
+						"description": "The verbosity of logging in the REST output panel"
+					},
+					"vscode-office.enableCustomVariableReferencesCodeLens": {
+						"type": "boolean",
+						"default": true,
+						"scope": "resource",
+						"description": "Enable custom variable references CodeLens in request file"
+					}
 				}
 			}
-		}
+		]
 	},
 	"scripts": {
 		"dev": "vite --mode=development",
@@ -500,7 +644,7 @@
 		"build": "rm -rf out && vite build --mode=production",
 		"package": "vsce package --no-dependencies",
 		"publish": "vsce publish --no-dependencies && ovsx publish --no-dependencies",
-		"vscode:prepublish": "yarn run build"
+		"vscode:prepublish": "npm run build"
 	},
 	"devDependencies": {
 		"@types/node": "^22.10.0",
@@ -523,19 +667,31 @@
 		"vite": "^8.0.16"
 	},
 	"dependencies": {
+		"7z-wasm": "^1.2.0",
 		"@ant-design/icons": "^5.3.5",
-		"@types/adm-zip": "^0.5.0",
-		"adm-zip": "^0.5.10",
+		"@codemirror/commands": "^6.10.3",
+		"@codemirror/lang-xml": "^6.1.0",
+		"@codemirror/language": "^6.12.3",
+		"@codemirror/state": "^6.6.0",
+		"@codemirror/view": "^6.43.1",
+		"@lezer/highlight": "^1.2.3",
+		"@mind-elixir/import-xmind": "^1.0.8",
+		"@zip.js/zip.js": "^2.8.26",
+		"ag-psd": "^30.1.1",
 		"antd": "^5.15.4",
 		"axios": "^1.4.0",
+		"chart.js": "^4.5.1",
 		"cheerio": "^1.0.0",
 		"chrome-finder": "^1.0.7",
 		"date-format": "^4.0.14",
 		"docx-preview": "^0.3.0",
+		"epubjs": "^0.3.93",
 		"exceljs": "^4.4.0",
 		"file-type": "^19.6.0",
+		"heic2any": "^0.0.4",
 		"highlight.js": "^11.10.0",
 		"iconv-lite": "^0.6.3",
+		"jszip": "^3.10.1",
 		"katex": "^0.16.2",
 		"markdown-it": "^14.1.0",
 		"markdown-it-anchor": "^9.2.0",
@@ -543,14 +699,18 @@
 		"markdown-it-plantuml": "^1.4.1",
 		"markdown-it-toc-done-right": "^4.2.0",
 		"mermaid": "^11.15.0",
+		"mind-elixir": "^5.12.2",
 		"mustache": "^4.0.1",
 		"opentype.js": "1.3.4",
 		"pdf-lib": "^1.11.2",
+		"pptxviewjs": "^1.1.9",
 		"puppeteer-core": "^25.1.0",
 		"react": "^19.2.7",
 		"react-dom": "^19.2.7",
 		"react-image-gallery": "^1.3.0",
+		"tar": "^7.5.16",
 		"udsv": "^0.5.3",
+		"utif": "^3.1.0",
 		"vscode-html-to-docx": "^1.1.2",
 		"x-data-spreadsheet": "^1.1.9",
 		"xlsx": "^0.18.5"

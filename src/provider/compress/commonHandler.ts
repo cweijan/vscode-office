@@ -31,6 +31,17 @@ export function handleCommonEvent(uri: Uri, handler: Handler) {
             handler.emit("saveDone")
         })
         .on('developerTool', () => vscode.commands.executeCommand('workbench.action.toggleDevTools'))
+        .on('openSponsor', () => {
+            vscode.commands.executeCommand(
+                'workbench.extensions.action.showExtensionsWithIds',
+                ['cweijan.vscode-database-client2'],
+            );
+        })
+        .on('openExternal', (url: string) => {
+            if (url) {
+                vscode.env.openExternal(vscode.Uri.parse(url));
+            }
+        })
         .on('dispose', () => {
             delete fileSaveTimes[uri.toString()];
         })

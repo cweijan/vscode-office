@@ -54,7 +54,7 @@ function keydownEventHandler(evt) {
   }
   if (keyCode === 13 && !altKey) evt.preventDefault();
   // 不知道为什么单元格事件被吞了, Windows上正常
-  if (navigator.userAgent.includes('Mac OS')) {
+  if (evt.metaKey && navigator.userAgent.includes('Mac OS')) {
     const newEvent = new evt.constructor(evt.type, evt);
     document.body.dispatchEvent(newEvent);
   }
