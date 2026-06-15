@@ -77,6 +77,8 @@
         e.preventDefault();
         toggle();
       }
+    })
+  }
 
   function getSidebarWidth() {
     const value = getComputedStyle(document.documentElement).getPropertyValue(SIDEBAR_WIDTH_VAR).trim();

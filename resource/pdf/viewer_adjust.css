@@ -105,7 +105,6 @@ html[dir="rtl"] #toolbarContainer {
     background-color: var(--vscode-toolbar-hoverBackground) !important;
 }
 
-.toolbarButton.toggled,
 .dropdownToolbarButton > select{
     background-color: rgb(232 232 232) !important;
 }
@@ -129,27 +128,36 @@ body.office-dark .pdfViewer .page {
     box-shadow: 0 0 0 1px #444;
 }
 
-/* Toggle button look */
+/* Toggle button: transparent by default, hover background only */
+#darkModeToggle.toolbarButton,
 #darkModeToggle.toolbarButton.toggled {
-    background-color: rgb(232 232 232) !important;
+    background-color: transparent !important;
+    color: var(--vscode-icon-foreground, var(--vscode-foreground)) !important;
 }
 
-/* Crescent-moon icon for the dark-mode toggle (dark glyph for light toolbar) */
+#darkModeToggle.toolbarButton:hover,
+#darkModeToggle.toolbarButton.toggled:hover {
+    background-color: var(--vscode-toolbar-hoverBackground) !important;
+}
+
 #darkModeToggle.toolbarButton::before {
-    content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%230c0c0d' d='M6.2 1.4a6.6 6.6 0 1 0 8.4 8.4A5.2 5.2 0 0 1 6.2 1.4z'/%3E%3C/svg%3E");
+    content: '';
+    width: 16px;
+    height: 16px;
+    background-color: var(--vscode-foreground);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='black' d='M6.2 1.4a6.6 6.6 0 1 0 8.4 8.4A5.2 5.2 0 0 1 6.2 1.4z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
-/* Light glyph when the host editor is in a dark color scheme */
-@media (prefers-color-scheme: dark) {
-    #darkModeToggle.toolbarButton::before {
-        content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23f9f9fa' d='M6.2 1.4a6.6 6.6 0 1 0 8.4 8.4A5.2 5.2 0 0 1 6.2 1.4z'/%3E%3C/svg%3E");
-    }
+#darkModeToggle.toolbarButton.toggled::before {
+    mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2016%2016'%3E%3Cpath%20fill%3D'black'%20d%3D'M7.55%200h.9v1.15h-.9zM5.05%201.45l.58.98-.5.28L4.55%201.73zM10.95%201.45l-.58.98.5.28.58-.98zM2.85%204.35l.82.7-.48.42-.82-.7zM13.15%204.35l-.82.7.48.42.82-.7zM8%202.35a4.15%204.15%200%200%200-2.64%207.3v.8a.7.7%200%200%200%20.7.7h1.38v1.1a.7.7%200%200%200%20.7.7h1.02a.7.7%200%200%200%20.7-.7v-1.1h1.38a.7.7%200%200%200%20.7-.7v-.8A4.15%204.15%200%200%200%208%202.35zM6.15%2011.85h3.7v.42a.48.48%200%200%201-.48.48H6.63a.48.48%200%200%201-.48-.48v-.42zM6.8%2013h2.4v.72H6.8z'%2F%3E%3C%2Fsvg%3E") center / contain no-repeat;
 }
 
-/* When dark mode is active, force the bright glyph so it stays visible */
-body.office-dark #darkModeToggle.toolbarButton::before {
-    content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23f9f9fa' d='M6.2 1.4a6.6 6.6 0 1 0 8.4 8.4A5.2 5.2 0 0 1 6.2 1.4z'/%3E%3C/svg%3E");
+#darkModeToggle.toolbarButton:hover::before,
+#darkModeToggle.toolbarButton.toggled:hover::before {
+    opacity: 1;
 }
+
+.toolbarButton.toggled,
 .splitToolbarButton.toggled > .toolbarButton.toggled,
 .dropdownToolbarButton > select {
     background-color: var(--vscode-list-activeSelectionBackground) !important;
