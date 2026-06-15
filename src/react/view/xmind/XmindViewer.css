@@ -1,0 +1,204 @@
+@import '../../../../node_modules/mind-elixir/dist/MindElixir.css';
+
+html,
+body,
+#root {
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+}
+
+body {
+    background-color: #ececec !important;
+}
+
+.xmind-viewer {
+    height: 100vh;
+    min-height: 100vh;
+    background: #ececec;
+    overflow: hidden;
+}
+
+.xmind-viewer > .xmind-body.ant-layout {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+}
+
+.xmind-body {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+}
+
+.xmind-sider {
+    border-right: 1px solid #d9d9d9;
+    background: #f5f5f5 !important;
+    overflow: hidden;
+    height: 100% !important;
+}
+
+.xmind-sider-inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+.xmind-sider-header {
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    border-bottom: 1px solid #e8e8e8;
+    flex-shrink: 0;
+}
+
+.xmind-sheet-list {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 8px 0;
+}
+
+.xmind-sheet-item {
+    padding: 8px 12px;
+    font-size: 13px;
+    color: #333;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.xmind-sheet-item:hover {
+    background: #ebebeb;
+}
+
+.xmind-sheet-item.is-active {
+    background: #d6e4ff;
+    color: #1677ff;
+}
+
+.xmind-sider-bottom {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
+    padding: 6px 8px;
+    border-top: 1px solid #e8e8e8;
+}
+
+.xmind-sider-bottom .office-sponsor-bar {
+    position: static;
+    width: auto;
+    margin: 0;
+    padding: 0;
+}
+
+.xmind-main {
+    min-height: 0;
+    height: 100%;
+    background: #fff;
+    overflow: hidden;
+}
+
+.xmind-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 24px;
+}
+
+.xmind-map-wrap {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+.xmind-map-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px;
+    border-bottom: 1px solid #e8e8e8;
+    background: #fafafa;
+    flex-shrink: 0;
+}
+
+.xmind-map-footer {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    min-height: 36px;
+    padding: 4px 10px;
+    border-top: 1px solid #e8e8e8;
+    background: #fafafa;
+}
+
+.xmind-map-footer .office-sponsor-bar {
+    position: absolute;
+    right: 20px;
+    left: auto;
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
+    margin: 0;
+    padding: 0;
+    max-width: calc(50% - 60px);
+}
+
+.xmind-zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.xmind-zoom-btn {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #595959;
+}
+
+.xmind-zoom-btn:hover {
+    color: #1677ff;
+    background: #f0f0f0;
+}
+
+.xmind-zoom-label {
+    min-width: 44px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #333;
+    text-align: center;
+    user-select: none;
+}
+
+.xmind-map-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.xmind-map {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    position: relative;
+}
+
+.xmind-map .map-container {
+    height: 100% !important;
+}

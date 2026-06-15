@@ -2392,6 +2392,7 @@
     "tif": "image",
     "tiff": "image",
     "psd": "image",
+    "xmind": "roadmap",
     "bmp": "image",
     "webp": "image",
     "eps": "image",

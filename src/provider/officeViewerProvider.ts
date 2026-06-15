@@ -24,7 +24,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
     }
 
     bindCustomEditors(viewOption: { webviewOptions: vscode.WebviewPanelOptions }) {
-        const viewers = ['cweijan.officeViewer', 'cweijan.imageViewer', 'cweijan.heicTiffViewer', 'cweijan.icnsViewer', 'cweijan.psdViewer', 'cweijan.htmlViewer', 'cweijan.classViewer']
+        const viewers = ['cweijan.officeViewer', 'cweijan.imageViewer', 'cweijan.heicTiffViewer', 'cweijan.icnsViewer', 'cweijan.psdViewer', 'cweijan.xmindViewer', 'cweijan.htmlViewer', 'cweijan.classViewer']
         return viewers.map(viewer => vscode.window.registerCustomEditorProvider(viewer, this, viewOption))
     }
 
@@ -106,6 +106,9 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 break;
             case ".psd":
                 route = 'psd';
+                break;
+            case ".xmind":
+                route = 'xmind';
                 break;
             case ".class":
                 handleClass(uri, webviewPanel);
