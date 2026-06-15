@@ -453,7 +453,7 @@
 							"Monokai",
 							"Dracula"
 						],
-						"default": "Light",
+						"default": "Auto",
 						"markdownDescription": "The theme for the Markdown editor."
 					},
 					"vscode-office.previewCodeHighlight.style": {
