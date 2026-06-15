@@ -543,6 +543,83 @@
 					"type": "string",
 					"default": "image/${fileName}/${now}.png",
 					"description": "Markdown paste image path, variables: workspaceDir, fileName, now."
+				},
+				"vscode-office.followredirect": {
+					"type": "boolean",
+					"default": true,
+					"scope": "resource",
+					"description": "Follow HTTP 3xx responses as redirects."
+				},
+				"vscode-office.environmentVariables": {
+					"type": "object",
+					"default": {
+						"$shared": {}
+					},
+					"scope": "resource",
+					"markdownDescription": "Sets the environments and custom variables belongs to it."
+				},
+				"vscode-office.previewOption": {
+					"type": "string",
+					"enum": [
+						"full",
+						"headers",
+						"body",
+						"exchange"
+					],
+					"default": "body",
+					"scope": "resource",
+					"description": "Response preview output option"
+				},
+				"vscode-office.previewColumn": {
+					"type": "string",
+					"enum": [
+						"current",
+						"beside"
+					],
+					"default": "beside",
+					"scope": "resource",
+					"description": "Response preview column option"
+				},
+				"vscode-office.formParamEncodingStrategy": {
+					"type": "string",
+					"enum": [
+						"automatic",
+						"never",
+						"always"
+					],
+					"default": "automatic",
+					"scope": "resource",
+					"description": "Form param encoding strategy for x-www-form-urlencoded body"
+				},
+				"vscode-office.addRequestBodyLineIndentationAroundBrackets": {
+					"type": "boolean",
+					"default": true,
+					"scope": "resource",
+					"description": "Add line indentation around brackets in request body"
+				},
+				"vscode-office.decodeEscapedUnicodeCharacters": {
+					"type": "boolean",
+					"default": false,
+					"scope": "resource",
+					"description": "Decode escaped unicode characters in response body."
+				},
+				"vscode-office.logLevel": {
+					"type": "string",
+					"enum": [
+						"error",
+						"warn",
+						"info",
+						"verbose"
+					],
+					"default": "error",
+					"scope": "resource",
+					"description": "The verbosity of logging in the REST output panel"
+				},
+				"vscode-office.enableCustomVariableReferencesCodeLens": {
+					"type": "boolean",
+					"default": true,
+					"scope": "resource",
+					"description": "Enable custom variable references CodeLens in request file"
 				}
 			}
 		}

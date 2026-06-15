@@ -4,13 +4,12 @@ import { MarkdownEditorProvider } from './provider/markdownEditorProvider';
 import { OfficeViewerProvider } from './provider/officeViewerProvider';
 import { HtmlService } from './service/htmlService';
 import { MarkdownService } from './service/markdownService';
-import { Output } from './common/Output';
 import { FileUtil } from './common/fileUtil';
 import { ReactApp } from './common/reactApp';
-const httpExt = require('./bundle/extension');
+import { activateHttp } from './provider/http';
 
 export function activate(context: vscode.ExtensionContext) {
-	activeHTTP(context)
+	activateHttp(context);
 	const viewOption = { webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true } };
 	FileUtil.init(context)
 	ReactApp.init(context)
@@ -29,11 +28,3 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() { }
-
-async function activeHTTP(context: vscode.ExtensionContext) {
-	try {
-		httpExt.activate(context)
-	} catch (error) {
-		Output.debug(error)
-	}
-}
