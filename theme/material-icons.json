@@ -2432,6 +2432,7 @@
     "xlsx": "table",
     "xlsm": "table",
     "xls": "table",
+    "ods": "table",
     "csv": "table",
     "tsv": "table",
     "vscodeignore": "vscode",
