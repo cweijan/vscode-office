@@ -346,6 +346,15 @@
 				]
 			},
 			{
+				"viewType": "cweijan.icnsViewer",
+				"displayName": "ICNS Viewer",
+				"selector": [
+					{
+						"filenamePattern": "*.icns"
+					}
+				]
+			},
+			{
 				"viewType": "cweijan.markdownViewer",
 				"displayName": "Markdown Editor",
 				"selector": [

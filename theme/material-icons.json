@@ -2388,6 +2388,7 @@
     "jpg": "image",
     "gif": "image",
     "ico": "image",
+    "icns": "image",
     "tif": "image",
     "tiff": "image",
     "psd": "image",
