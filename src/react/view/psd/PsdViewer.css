@@ -1,0 +1,207 @@
+html,
+body,
+#root {
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+}
+
+body {
+    background-color: #ececec !important;
+}
+
+.psd-viewer {
+    height: 100vh;
+    min-height: 100vh;
+    background: #ececec;
+    overflow: hidden;
+}
+
+.psd-viewer > .psd-body.ant-layout {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+}
+
+.psd-body {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+}
+
+.psd-sider {
+    border-right: 1px solid #d9d9d9;
+    background: #f5f5f5 !important;
+    overflow: hidden;
+    height: 100% !important;
+}
+
+.psd-sider-inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+.psd-sider-header {
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    border-bottom: 1px solid #e8e8e8;
+    background: #fafafa;
+    flex-shrink: 0;
+}
+
+.psd-layer-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 8px 0;
+}
+
+.psd-sider-bottom {
+    flex-shrink: 0;
+}
+
+.psd-layer-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px 6px 0;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.psd-layer-item:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.psd-layer-item.is-active {
+    background: rgba(22, 119, 255, 0.12);
+}
+
+.psd-layer-thumb {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    margin-left: 12px;
+    background: transparent;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.psd-layer-thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.psd-layer-thumb-placeholder {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    margin-left: 12px;
+    border-radius: 4px;
+    background: #e8e8e8;
+}
+
+.psd-layer-label {
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
+    color: #333;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.psd-layer-item.is-hidden .psd-layer-label {
+    opacity: 0.45;
+}
+
+.psd-layer-item.is-group .psd-layer-label {
+    font-weight: 500;
+}
+
+.psd-layer-item.is-active .psd-layer-label {
+    color: #1677ff;
+}
+
+.psd-main.ant-layout-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+    background: #ececec;
+}
+
+.psd-preview-wrap {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow: auto;
+}
+
+.psd-preview-image {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    image-rendering: auto;
+}
+
+.psd-empty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 14px;
+}
+
+body.office-dark .psd-viewer {
+    background: #1e1e1e;
+}
+
+body.office-dark .psd-sider {
+    background: #252526 !important;
+    border-right-color: #3c3c3c;
+}
+
+body.office-dark .psd-sider-header {
+    background: #2d2d2d;
+    border-bottom-color: #3c3c3c;
+    color: #ccc;
+}
+
+body.office-dark .psd-layer-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+body.office-dark .psd-layer-item.is-active {
+    background: rgba(55, 148, 255, 0.18);
+}
+
+body.office-dark .psd-layer-label {
+    color: #ccc;
+}
+
+body.office-dark .psd-layer-item.is-active .psd-layer-label {
+    color: #3794ff;
+}
+
+body.office-dark .psd-layer-thumb-placeholder {
+    background: #3c3c3c;
+}
+
+body.office-dark .psd-main.ant-layout-content {
+    background: #1e1e1e;
+}
