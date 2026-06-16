@@ -1,6 +1,7 @@
 {
   "name": "One Dark Modern",
   "type": "dark",
+  "semanticHighlighting": true,
   "colors": {
     "actionBar.toggledBackground": "#525761",
     "activityBar.activeBorder": "#D8DAE1",
@@ -20,9 +21,9 @@
     "banner.background": "#21252b",
     "banner.foreground": "#abb2bf",
     "banner.iconForeground": "#61afef",
-    "breadcrumb.activeSelectionForeground": "#d7dae0",
-    "breadcrumb.focusForeground": "#d7dae0",
-    "breadcrumb.foreground": "#6f7784",
+    "breadcrumb.activeSelectionForeground": "#a8acb6",
+    "breadcrumb.focusForeground": "#a8acb6",
+    "breadcrumb.foreground": "#91959f",
     "breadcrumbPicker.background": "#21252b",
     "button.background": "#404754",
     "button.foreground": "#d7dae0",
@@ -255,7 +256,7 @@
     "panelSectionHeader.background": "#21252b",
     "panelSectionHeader.border": "#3e4452",
     "panelSectionHeader.foreground": "#abb2bf",
-    "panelTitle.activeBorder": "#1a65ff",
+    "panelTitle.activeBorder": "#b4b4b4",
     "panelTitle.activeForeground": "#d7dae0",
     "panelTitle.inactiveForeground": "#6f7784",
     "peekView.border": "#61afef",
@@ -369,7 +370,6 @@
     "tab.hoverBackground": "#2c313c",
     "tab.hoverForeground": "#b0b5be",
     "tab.inactiveBackground": "#21252b",
-    "tab.inactiveForeground": "#949aa5",
     "tab.lastPinnedBorder": "#3e4452",
     "tab.unfocusedActiveBackground": "#282c34",
     "tab.unfocusedActiveForeground": "#b0b5be",
@@ -396,8 +396,8 @@
     "terminal.border": "#3e4452",
     "terminal.foreground": "#abb2bf",
     "terminal.selectionBackground": "#abb2bf30",
-    "terminalCursor.background": "#282c34",
-    "terminalCursor.foreground": "#6799ff",
+    "terminalCursor.background": "#9da5b4c9",
+    "terminalCursor.foreground": "#9da5b4",
     "textBlockQuote.background": "#2e3440",
     "textBlockQuote.border": "#4b5362",
     "textCodeBlock.background": "#2c313c",
@@ -462,7 +462,7 @@
       "foreground": "#61afef"
     },
     "namespace": {
-      "foreground": "#abb2bf"
+      "foreground": "#e5c07b"
     },
     "number": {
       "foreground": "#d19a66"
@@ -471,13 +471,13 @@
       "foreground": "#56b6c2"
     },
     "parameter": {
-      "foreground": "#abb2bf"
+      "foreground": "#db7079"
     },
     "parameter.label:dart": {
       "foreground": "#abb2bf"
     },
     "property": {
-      "foreground": "#e06c75"
+      "foreground": "#db7079"
     },
     "property:dart": {
       "foreground": "#d19a66"
@@ -501,10 +501,10 @@
       "foreground": "#56b6c2"
     },
     "variable": {
-      "foreground": "#e06c75"
+      "foreground": "#db7079"
     },
     "variable.constant": {
-      "foreground": "#d19a66"
+      "foreground": "#e5c07b"
     },
     "variable.defaultLibrary": {
       "foreground": "#e5c07b"
@@ -514,6 +514,27 @@
     }
   },
   "tokenColors": [
+    {
+      "name": "ts/tsx imported variables",
+      "scope": "variable.other.readwrite.ts,variable.other.readwrite.tsx,variable.other.property.ts,variable.other.property.tsx",
+      "settings": {
+        "foreground": "#db7079"
+      }
+    },
+    {
+      "name": "ts/tsx module namespace",
+      "scope": "entity.name.type.module.ts,entity.name.type.module.tsx",
+      "settings": {
+        "foreground": "#e5c07b"
+      }
+    },
+    {
+      "name": "ts/tsx functions",
+      "scope": "entity.name.function.ts,entity.name.function.tsx,support.function.ts,support.function.tsx",
+      "settings": {
+        "foreground": "#61afef"
+      }
+    },
     {
       "name": "support.constant.edge",
       "scope": "support.constant.edge",
@@ -820,14 +841,14 @@
       "name": "js/ts console",
       "scope": "support.type.object.console",
       "settings": {
-        "foreground": "#db7079"
+        "foreground": "#e5c07b"
       }
     },
     {
       "name": "js/ts support.variable.property.process",
       "scope": "support.variable.property.process",
       "settings": {
-        "foreground": "#EBB07A"
+        "foreground": "#e5c07b"
       }
     },
     {
@@ -848,14 +869,14 @@
       "name": "js dom",
       "scope": "support.type.object.dom",
       "settings": {
-        "foreground": "#56b6c2"
+        "foreground": "#e5c07b"
       }
     },
     {
       "name": "js dom variable",
       "scope": "support.variable.dom,support.variable.property.dom",
       "settings": {
-        "foreground": "#db7079"
+        "foreground": "#e5c07b"
       }
     },
     {
@@ -1675,7 +1696,7 @@
       "name": "parameter function js/ts",
       "scope": "function.parameter",
       "settings": {
-        "foreground": "#abb2bf"
+        "foreground": "#db7079"
       }
     },
     {
