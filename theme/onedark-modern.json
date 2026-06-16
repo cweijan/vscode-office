@@ -40,8 +40,8 @@
     "checkbox.background": "#1d1f23",
     "checkbox.border": "#404754",
     "checkbox.foreground": "#abb2bf",
-    "debugIcon.breakpointForeground": "#c85f56",
-    "debugToolBar.background": "#21252b",
+    "debugIcon.breakpointForeground": "#e06c75",
+    "debugToolBar.background": "#2c313c",
     "descriptionForeground": "#6f7784",
     "diffEditor.border": "#3e4452",
     "diffEditor.insertedLineBackground": "#00809b22",
@@ -310,9 +310,9 @@
     "sideBarTitle.foreground": "#6f7784",
     "statusBar.background": "#21252b",
     "statusBar.border": "#181a1f",
-    "statusBar.debuggingBackground": "#cc6633",
-    "statusBar.debuggingBorder": "#cc6633",
-    "statusBar.debuggingForeground": "#f5f5f5",
+    "statusBar.debuggingBackground": "#383e4a",
+    "statusBar.debuggingBorder": "#3e4452",
+    "statusBar.debuggingForeground": "#d7dae0",
     "statusBar.focusBorder": "#1a65ff",
     "statusBar.foreground": "#9da5b4",
     "statusBar.noFolderBackground": "#21252b",
@@ -1798,7 +1798,7 @@
     {
       "scope": "token.debug-token",
       "settings": {
-        "foreground": "#b267e6"
+        "foreground": "#c678dd"
       }
     },
     {
