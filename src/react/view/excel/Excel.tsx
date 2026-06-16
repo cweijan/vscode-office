@@ -105,18 +105,20 @@ function ExcelViewer() {
         <div className='excel-viewer'>
             <Spin spinning={loading} fullscreen={true} />
             <div id='container'></div>
-            <button
-                type="button"
-                className="dark-mode-toggle"
-                title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-                onClick={toggleDark}
-            >
-                {dark ? <SunOutlined /> : <MoonOutlined />}
-            </button>
             {
                 isCSV.current ? <VSCodeLogo /> : null
             }
-            <SponsorBar placement="right" />
+            <div className="excel-footer-actions">
+                <button
+                    type="button"
+                    className="dark-mode-toggle"
+                    title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+                    onClick={toggleDark}
+                >
+                    {dark ? <SunOutlined /> : <MoonOutlined />}
+                </button>
+                <SponsorBar placement="right" />
+            </div>
         </div>
     )
 }

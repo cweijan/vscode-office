@@ -29,10 +29,7 @@
     }
 
     .dark-mode-toggle {
-        position: fixed;
-        top: 6px;
-        right: 20px;
-        z-index: 1000;
+        flex-shrink: 0;
         width: 32px;
         height: 32px;
         display: flex;
@@ -49,10 +46,29 @@
         }
     }
 
-    .office-sponsor-bar--right {
-        bottom: 6px;
+    .excel-footer-actions {
+        position: fixed;
         right: 12px;
+        bottom: 6px;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        pointer-events: none;
+
+        > * {
+            pointer-events: auto;
+        }
+
+        .office-sponsor-bar--right {
+            position: static;
+            right: auto;
+            bottom: auto;
+            padding: 0;
+        }
     }
+
+    --excel-footer-reserve: 270px;
 
     --excel-selection: rgb(33, 186, 69);
     --excel-selection-fill: rgba(33, 186, 69, 0.1);
@@ -85,7 +101,7 @@
         .x-spreadsheet-menu {
             flex: 1;
             min-width: 0;
-            max-width: calc(100vw - 220px);
+            max-width: calc(100vw - var(--excel-footer-reserve));
             overflow-x: auto;
             overflow-y: hidden;
             display: flex;
