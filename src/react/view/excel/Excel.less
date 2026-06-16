@@ -53,6 +53,26 @@
         bottom: 6px;
         right: 12px;
     }
+
+    .x-spreadsheet-bottombar {
+        overflow: hidden;
+
+        .x-spreadsheet-menu {
+            flex: 1;
+            min-width: 0;
+            max-width: calc(100vw - 220px);
+            overflow-x: auto;
+            overflow-y: hidden;
+            display: flex;
+            flex-wrap: nowrap;
+            float: none;
+
+            > li {
+                float: none;
+                flex-shrink: 0;
+            }
+        }
+    }
 }
 
 body.office-dark .excel-viewer {
@@ -140,6 +160,27 @@ body.office-dark .excel-viewer {
     .x-spreadsheet-bottombar {
         background: var(--excel-header-bg);
         border-top: 1px solid var(--excel-border);
+
+        .x-spreadsheet-menu {
+            scrollbar-color: var(--excel-scrollbar-thumb) var(--excel-scrollbar-track);
+
+            &::-webkit-scrollbar {
+                height: 8px;
+            }
+
+            &::-webkit-scrollbar-track {
+                background: var(--excel-scrollbar-track);
+            }
+
+            &::-webkit-scrollbar-thumb {
+                background-color: var(--excel-scrollbar-thumb);
+                border-radius: 4px;
+            }
+
+            &::-webkit-scrollbar-thumb:hover {
+                background-color: var(--excel-scrollbar-thumb-hover);
+            }
+        }
     }
 
     .x-spreadsheet-toolbar {

@@ -2,7 +2,6 @@ import { MoonOutlined, SunOutlined } from "@ant-design/icons";
 import { App, Spin } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { handler, loadDarkMode, applyDarkMode } from "../../util/vscode.ts";
-import { useWindowSize } from "../../util/reactUtils.ts";
 import { getConfigs } from "../../util/vscodeConfig.ts";
 import VSCodeLogo from "../vscode.tsx";
 import SponsorBar from '../components/SponsorBar';
@@ -18,8 +17,6 @@ function ExcelViewer() {
     const isCSV = useRef<boolean>(false)
     const extRef = useRef('')
     const spreadSheetRef = useRef<Spreadsheet | null>(null)
-    const [width] = useWindowSize()
-    const showSponsor = width >= 600
     const saveSuccessText = getConfigs()?.language?.startsWith('zh') ? '保存成功' : 'Save done';
 
     useEffect(() => {
@@ -119,7 +116,7 @@ function ExcelViewer() {
             {
                 isCSV.current ? <VSCodeLogo /> : null
             }
-            {showSponsor ? <SponsorBar placement="right" /> : null}
+            <SponsorBar placement="right" />
         </div>
     )
 }
