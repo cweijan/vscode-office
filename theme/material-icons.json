@@ -243,6 +243,15 @@
     "database": {
       "iconPath": "./../icons/database.svg"
     },
+    "sqlite": {
+      "iconPath": "./../icons/sqlite.svg"
+    },
+    "duckdb": {
+      "iconPath": "./../icons/duckdb.svg"
+    },
+    "parquet": {
+      "iconPath": "./../icons/parquet.svg"
+    },
     "lock": {
       "iconPath": "./../icons/lock.svg"
     },
@@ -2455,7 +2464,12 @@
     "pkb": "database",
     "accdb": "database",
     "mdb": "database",
-    "sqlite": "database",
+    "sqlite": "sqlite",
+    "sqlite3": "sqlite",
+    "db": "sqlite",
+    "db3": "sqlite",
+    "parquet": "parquet",
+    "duckdb": "duckdb",
     "pgsql": "database",
     "postgres": "database",
     "psql": "database",
