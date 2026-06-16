@@ -139,8 +139,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                 theme = await vscode.window.showQuickPick(themeItems, { placeHolder: "Select Editor Theme" });
                 if (!theme) return
             }
-            handler.emit('theme', theme.label)
-            Global.updateConfig('editorTheme', theme.label)
+            const label = typeof theme === 'string' ? theme : theme.label;
+            handler.emit('theme', label)
+            Global.updateConfig('editorTheme', label)
         }).on("saveOutline", (enable) => {
             config.update("openOutline", enable, true)
         }).on('developerTool', () => {

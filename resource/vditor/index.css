@@ -116,3 +116,35 @@ html {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.vditor-theme-toggle {
+    position: fixed;
+    top: 6px;
+    right: 12px;
+    z-index: 100;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--ext-border-color);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--bg-color) 90%, transparent);
+    color: var(--front-color);
+    cursor: pointer;
+    transition: background-color 0.15s;
+    padding: 0;
+}
+
+.vditor-theme-toggle:hover {
+    background: var(--dropdown-hover-background);
+}
+
+.vditor-theme-toggle[hidden] {
+    display: none !important;
+}
+
+.vditor-theme-toggle svg {
+    width: 16px;
+    height: 16px;
+}

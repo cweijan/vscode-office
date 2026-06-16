@@ -1,6 +1,6 @@
 :root {
-    --hr-bg: var(--vscode-panel-border);
-    --ext-border-color: var(--vscode-quickInputTitle-background);
+    --hr-bg: var(--vscode-panel-border, rgba(128, 128, 128, 0.35));
+    --ext-border-color: var(--vscode-editorWidget-border, var(--vscode-panel-border, var(--vscode-widget-border, rgba(128, 128, 128, 0.35))));
     --bg-color: var(--vscode-editor-background);
     --front-color: var(--vscode-editor-foreground);
     --second-bg-color: var(--vscode-editorSuggestWidget-background);
@@ -8,4 +8,9 @@
     --list-hover-color: var(--vscode-terminal-ansiBlue);
     --dropdown-hover-background: var(--vscode-menu-selectionBackground);
     --error-color: var(--vscode-charts-red);
+}
+
+#vditor[data-editor-theme="Auto"] {
+    --border-color: var(--ext-border-color);
+    --heading-border-color: var(--ext-border-color);
 }

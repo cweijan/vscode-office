@@ -1,4 +1,4 @@
-import { openLink, hotKeys, imageParser, getToolbar, autoSymbol, onToolbarClick, createContextMenu, scrollEditor } from "./util.js";
+import { openLink, hotKeys, imageParser, getToolbar, autoSymbol, onToolbarClick, createContextMenu, scrollEditor, initThemeToggle, updateThemeToggle } from "./util.js";
 
 let state;
 function loadConfigs() {
@@ -17,6 +17,7 @@ loadConfigs()
 handler.on("open", async (md) => {
   const { config, language } = md;
   addAutoTheme(md.rootPath, config.editorTheme)
+  initThemeToggle(config.editorTheme)
   handler.on('theme', theme => {
     loadTheme(md.rootPath, theme)
   })
@@ -100,6 +101,7 @@ function addAutoTheme(rootPath, theme) {
 function loadTheme(rootPath, theme) {
   loadCSS(rootPath, `theme/${theme}.css`)
   document.getElementById('vditor').setAttribute('data-editor-theme', theme)
+  updateThemeToggle(theme)
 }
 
 function loadCSS(rootPath, path) {
