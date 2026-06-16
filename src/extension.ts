@@ -7,9 +7,11 @@ import { MarkdownService } from './service/markdownService';
 import { FileUtil } from './common/fileUtil';
 import { ReactApp } from './common/reactApp';
 import { activateHttp } from './provider/http';
+import { activateYaml } from './provider/yaml';
 
 export function activate(context: vscode.ExtensionContext) {
 	activateHttp(context);
+	activateYaml(context);
 	const viewOption = { webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true } };
 	FileUtil.init(context)
 	ReactApp.init(context)

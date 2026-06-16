@@ -25,7 +25,8 @@
 		"zip",
 		"archive",
 		"font",
-		"toml"
+		"toml",
+		"yaml"
 	],
 	"categories": [
 		"Visualization",
@@ -740,6 +741,7 @@
 		"utif": "^3.1.0",
 		"vscode-html-to-docx": "^1.1.2",
 		"x-data-spreadsheet": "^1.1.9",
-		"xlsx": "^0.18.5"
+		"xlsx": "^0.18.5",
+		"yaml": "^2.9.0"
 	}
 }
