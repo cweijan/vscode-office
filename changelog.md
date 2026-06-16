@@ -1,5 +1,22 @@
 # Change log
 
+# 4.0.3
+
+Redesign the One Dark Modern theme
+
+New:
+  - Add SVG editor
+  - Add support for ODS format
+  - Add syntax highlighting for TOML
+  - Add YAML outline and anchor navigation support
+
+Update:
+  - Add dark mode toggle to PDF viewer
+  - Update markdown editor default theme
+  - Add icons for Parquet, SQLite, and DuckDB
+  - Change the default PPTX view to light mode
+  - Support quick switch color in markdown editor
+
 # 4.0.2 2026-6-15
 
 - Integrate HTTP client for `.http` and `.rest` files
