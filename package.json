@@ -24,7 +24,8 @@
 		"xmind",
 		"zip",
 		"archive",
-		"font"
+		"font",
+		"toml"
 	],
 	"categories": [
 		"Visualization",
@@ -90,6 +91,18 @@
 				],
 				"firstLine": "^(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS|CONNECT|TRACE)\\s+(.*?)HTTP/[0-9\\.]+$",
 				"configuration": "./syntaxes/http-language-configuration.json"
+			},
+			{
+				"id": "toml",
+				"aliases": [
+					"TOML",
+					"Toml",
+					"toml"
+				],
+				"extensions": [
+					".toml"
+				],
+				"configuration": "./syntaxes/toml-language-configuration.json"
 			}
 		],
 		"grammars": [
@@ -102,6 +115,11 @@
 				"language": "http",
 				"scopeName": "source.http",
 				"path": "./syntaxes/http.tmLanguage.json"
+			},
+			{
+				"language": "toml",
+				"scopeName": "source.toml",
+				"path": "./syntaxes/toml.tmLanguage.json"
 			}
 		],
 		"snippets": [
