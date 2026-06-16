@@ -11,11 +11,20 @@
 	"keywords": [
 		"pdf",
 		"word",
-		"markdown",
-		"xlsx",
+		"docx",
 		"excel",
+		"xlsx",
+		"csv",
+		"powerpoint",
 		"pptx",
-		"powerpoint"
+		"markdown",
+		"epub",
+		"svg",
+		"psd",
+		"xmind",
+		"zip",
+		"archive",
+		"font"
 	],
 	"categories": [
 		"Visualization",
