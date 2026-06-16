@@ -48,6 +48,11 @@ function insertText({ target }, itxt) {
 function keydownEventHandler(evt) {
   const { keyCode, altKey } = evt;
   if (keyCode !== 13 && keyCode !== 9) evt.stopPropagation();
+  // macOS Option key inserts special symbols; allow Option+Enter for newline only
+  if (altKey && keyCode !== 13) {
+    evt.preventDefault();
+    return;
+  }
   if (keyCode === 13 && altKey) {
     insertText.call(this, evt, '\n');
     evt.stopPropagation();

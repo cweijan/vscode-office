@@ -698,7 +698,7 @@ function sheetInitEvents() {
     if (!this.focusing) return;
     const keyCode = evt.keyCode || evt.which;
     const {
-      key, ctrlKey, shiftKey, metaKey,
+      key, ctrlKey, shiftKey, metaKey, altKey,
     } = evt;
     if (ctrlKey && metaKey) return;
     // console.log('keydown.evt: ', keyCode);
@@ -791,11 +791,11 @@ function sheetInitEvents() {
       if (key === 'Delete') {
         insertDeleteRowColumn.call(this, 'delete-cell-text');
         evt.preventDefault();
-      } else if ((keyCode >= 65 && keyCode <= 90)
+      } else if (!altKey && ((keyCode >= 65 && keyCode <= 90)
         || (keyCode >= 48 && keyCode <= 57)
         || (keyCode >= 96 && keyCode <= 105)
         || evt.key === '='
-      ) {
+      )) {
         dataSetCellText.call(this, evt.key, 'input');
         editorSet.call(this);
       } else if (keyCode === 113) {

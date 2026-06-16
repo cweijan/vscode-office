@@ -23,6 +23,11 @@ class SelectorElement {
       this.hideInput = h('input', '')
         .on('compositionend', (evt) => {
           this.inputChange(evt.target.value);
+        })
+        .on('keydown', (evt) => {
+          if (evt.altKey && evt.keyCode !== 13) {
+            evt.preventDefault();
+          }
         });
       this.el.child(this.hideInputDiv = h('div', 'hide-input').child(this.hideInput));
       this.el.child(this.hideInputDiv = h('div', 'hide-input').child(this.hideInput));
