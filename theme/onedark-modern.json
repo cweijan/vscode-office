@@ -330,6 +330,39 @@
     "statusBarItem.remoteForeground": "#ffffff",
     "statusBarItem.warningBackground": "#d19a66",
     "statusBarItem.warningForeground": "#f5f5f5",
+    "symbolIcon.arrayForeground": "#abb2bf",
+    "symbolIcon.booleanForeground": "#e06c75",
+    "symbolIcon.classForeground": "#e5c07b",
+    "symbolIcon.colorForeground": "#56b6c2",
+    "symbolIcon.constantForeground": "#d19a66",
+    "symbolIcon.constructorForeground": "#61afef",
+    "symbolIcon.enumeratorForeground": "#e5c07b",
+    "symbolIcon.enumeratorMemberForeground": "#56b6c2",
+    "symbolIcon.eventForeground": "#e5c07b",
+    "symbolIcon.fieldForeground": "#61afef",
+    "symbolIcon.fileForeground": "#abb2bf",
+    "symbolIcon.folderForeground": "#a3aab5",
+    "symbolIcon.functionForeground": "#61afef",
+    "symbolIcon.interfaceForeground": "#56b6c2",
+    "symbolIcon.keyForeground": "#d19a66",
+    "symbolIcon.keywordForeground": "#abb2bf",
+    "symbolIcon.methodForeground": "#61afef",
+    "symbolIcon.moduleForeground": "#abb2bf",
+    "symbolIcon.namespaceForeground": "#abb2bf",
+    "symbolIcon.nullForeground": "#e06c75",
+    "symbolIcon.numberForeground": "#d19a66",
+    "symbolIcon.objectForeground": "#abb2bf",
+    "symbolIcon.operatorForeground": "#56b6c2",
+    "symbolIcon.packageForeground": "#a3aab5",
+    "symbolIcon.propertyForeground": "#e06c75",
+    "symbolIcon.referenceForeground": "#abb2bf",
+    "symbolIcon.snippetForeground": "#a5cd88",
+    "symbolIcon.stringForeground": "#a5cd88",
+    "symbolIcon.structForeground": "#56b6c2",
+    "symbolIcon.textForeground": "#abb2bf",
+    "symbolIcon.typeParameterForeground": "#56b6c2",
+    "symbolIcon.unitForeground": "#abb2bf",
+    "symbolIcon.variableForeground": "#e06c75",
     "tab.activeBackground": "#282c34",
     "tab.activeBorder": "#b4b4b4",
     "tab.activeBorderTop": "#21252b",
@@ -415,7 +448,7 @@
       "foreground": "#61afef"
     },
     "function": {
-      "foreground": "#c678dd"
+      "foreground": "#61afef"
     },
     "interface": {
       "foreground": "#56b6c2"
@@ -427,7 +460,7 @@
       "foreground": "#c678dd"
     },
     "method": {
-      "foreground": "#c678dd"
+      "foreground": "#61afef"
     },
     "namespace": {
       "foreground": "#e5c07b"
@@ -469,7 +502,7 @@
       "foreground": "#56b6c2"
     },
     "variable": {
-      "foreground": "#61afef"
+      "foreground": "#db7079"
     },
     "variable.constant": {
       "foreground": "#e5c07b"
@@ -486,7 +519,7 @@
       "name": "ts/tsx imported variables",
       "scope": "variable.other.readwrite.ts,variable.other.readwrite.tsx,variable.other.property.ts,variable.other.property.tsx",
       "settings": {
-        "foreground": "#61afef"
+        "foreground": "#db7079"
       }
     },
     {
@@ -500,7 +533,7 @@
       "name": "ts/tsx functions",
       "scope": "entity.name.function.ts,entity.name.function.tsx,support.function.ts,support.function.tsx",
       "settings": {
-        "foreground": "#c678dd"
+        "foreground": "#61afef"
       }
     },
     {
@@ -671,7 +704,7 @@
       "name": "java modifier.import",
       "scope": "meta.method.java",
       "settings": {
-        "foreground": "#c678dd"
+        "foreground": "#61afef"
       }
     },
     {
@@ -769,7 +802,7 @@
       "name": "js variable readwrite",
       "scope": "variable.other.readwrite,meta.object-literal.key,support.variable.property,support.variable.object.process,support.variable.object.node",
       "settings": {
-        "foreground": "#61afef"
+        "foreground": "#db7079"
       }
     },
     {
@@ -823,7 +856,7 @@
       "name": "js console function",
       "scope": "entity.name.function,support.function.console",
       "settings": {
-        "foreground": "#c678dd"
+        "foreground": "#61afef"
       }
     },
     {
@@ -942,7 +975,7 @@
       "name": "python function-call.generic",
       "scope": "meta.function-call.generic.python",
       "settings": {
-        "foreground": "#c678dd"
+        "foreground": "#61afef"
       }
     },
     {
@@ -977,7 +1010,7 @@
       "name": "Variables",
       "scope": "variable",
       "settings": {
-        "foreground": "#61afef"
+        "foreground": "#db7079"
       }
     },
     {
@@ -1026,7 +1059,7 @@
         "variable.function"
       ],
       "settings": {
-        "foreground": "#c678dd"
+        "foreground": "#61afef"
       }
     },
     {
@@ -1100,7 +1133,7 @@
       "name": "Methods",
       "scope": "keyword.other.special-method",
       "settings": {
-        "foreground": "#c678dd"
+        "foreground": "#61afef"
       }
     },
     {
@@ -1580,7 +1613,7 @@
       "name": "php call-function",
       "scope": "meta.function-call.php,meta.function-call.object.php,meta.function-call.static.php",
       "settings": {
-        "foreground": "#c678dd"
+        "foreground": "#61afef"
       }
     },
     {
@@ -1643,7 +1676,7 @@
       "name": "python function decorator @",
       "scope": "meta.function.decorator.python",
       "settings": {
-        "foreground": "#c678dd"
+        "foreground": "#61afef"
       }
     },
     {
@@ -1933,7 +1966,7 @@
         "meta.method.groovy"
       ],
       "settings": {
-        "foreground": "#c678dd"
+        "foreground": "#61afef"
       }
     },
     {
