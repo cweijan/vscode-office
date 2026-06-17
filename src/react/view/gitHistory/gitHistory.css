@@ -828,8 +828,8 @@
     flex-wrap: wrap;
     align-items: baseline;
     gap: 0 8px;
-    font-size: 12px;
-    line-height: 16px;
+    font-size: 13px;
+    line-height: 18px;
     word-break: break-word;
 }
 
@@ -843,8 +843,8 @@
 
 .git-graph-cdv-body {
     margin-bottom: 6px;
-    font-size: 12px;
-    line-height: 16px;
+    font-size: 13px;
+    line-height: 18px;
     color: var(--git-graph-fg);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -874,10 +874,10 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    min-height: 18px;
+    min-height: 20px;
     padding: 1px 4px 1px 0;
-    font-size: 12px;
-    line-height: 16px;
+    font-size: 13px;
+    line-height: 18px;
     cursor: default;
     border-radius: 2px;
 }
@@ -951,8 +951,8 @@
     flex-shrink: 0;
     display: inline-flex;
     gap: 4px;
-    font-size: 11px;
-    line-height: 14px;
+    font-size: 12px;
+    line-height: 16px;
     opacity: 0.9;
 }
 
@@ -961,13 +961,13 @@
     align-items: center;
     gap: 4px;
     width: 100%;
-    min-height: 18px;
+    min-height: 20px;
     padding: 1px 4px 1px 0;
     border: none;
     background: transparent;
     color: var(--git-graph-fg);
-    font-size: 12px;
-    line-height: 16px;
+    font-size: 13px;
+    line-height: 18px;
     text-align: left;
     cursor: pointer;
     border-radius: 2px;

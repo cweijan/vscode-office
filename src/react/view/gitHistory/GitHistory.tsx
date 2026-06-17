@@ -13,6 +13,7 @@ import FindWidget from './components/FindWidget';
 import SettingsWidget from './components/SettingsWidget';
 import CommitTable from './components/CommitTable';
 import type { RefContextType } from './components/CommitTable';
+import { UNCOMMITTED } from './graph/layoutEngine';
 import CommitDetailPopup from './components/CommitDetailPopup';
 import { anchorFromElement, type PopupAnchor } from './util/commitDetailPopup';
 import { ContextMenu, useContextMenu } from './components/ContextMenu';
@@ -47,6 +48,16 @@ const TABLE_HEADER_HEIGHT = 28;
 const INITIAL_MAX_COMMITS = 300;
 const LOAD_MORE_COMMITS = 100;
 const QUICK_SYNC_DEFAULT_MESSAGE = 'Quick Sync';
+
+function countRealCommits(commits: ReadonlyArray<GitCommit>): number {
+    let count = 0;
+    for (const commit of commits) {
+        if (commit.hash !== UNCOMMITTED) {
+            count++;
+        }
+    }
+    return count;
+}
 
 function GitHistoryBottomBar({ commitCount = 0 }: { commitCount?: number }) {
     return (
@@ -1193,7 +1204,7 @@ function GitHistoryView({
                             />
                         )}
                     </div>
-                    <GitHistoryBottomBar commitCount={commits.length} />
+                    <GitHistoryBottomBar commitCount={countRealCommits(commits)} />
                 </div>
                 <SettingsWidget
                     open={settingsOpen}
