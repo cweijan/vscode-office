@@ -816,19 +816,21 @@
 
 .git-graph-cdv-meta {
     display: flex;
-    flex-direction: column;
-    gap: 1px;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 8px;
     font-size: 12px;
     line-height: 16px;
     word-break: break-word;
 }
 
 .git-graph-cdv-body {
-    margin-top: 6px;
+    margin-bottom: 6px;
     font-size: 12px;
     line-height: 16px;
-    white-space: pre-wrap;
-    word-break: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .git-graph-cdv-files {

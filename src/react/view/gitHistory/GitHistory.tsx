@@ -43,15 +43,16 @@ import SponsorBar from '../components/SponsorBar';
 
 const ROW_HEIGHT = 28;
 const TABLE_HEADER_HEIGHT = 28;
-const MAX_COMMITS = 300;
+const INITIAL_MAX_COMMITS = 300;
+const LOAD_MORE_COMMITS = 100;
 const QUICK_SYNC_DEFAULT_MESSAGE = 'Quick Sync';
 
-function GitHistoryBottomBar({ moreAvailable = false }: { moreAvailable?: boolean }) {
+function GitHistoryBottomBar({ commitCount = 0 }: { commitCount?: number }) {
     return (
-        <footer className={`git-graph-bottom-bar${moreAvailable ? ' has-more' : ''}`}>
-            {moreAvailable && (
+        <footer className={`git-graph-bottom-bar${commitCount > 0 ? ' has-more' : ''}`}>
+            {commitCount > 0 && (
                 <span className="git-graph-more">
-                    Showing latest {MAX_COMMITS} commits
+                    Showing {commitCount} commits
                 </span>
             )}
             <div className="git-graph-bottom-bar-sponsor">
@@ -120,6 +121,7 @@ function GitHistoryView({
     const [remoteWebUrls, setRemoteWebUrls] = useState<{ name: string; url: string }[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [moreAvailable, setMoreAvailable] = useState(false);
+    const [maxCommits, setMaxCommits] = useState(INITIAL_MAX_COMMITS);
     const [filePath, setFilePath] = useState<string | null>(null);
     const [fileName, setFileName] = useState<string | null>(null);
     const [relPath, setRelPath] = useState<string | null>(null);
@@ -257,6 +259,8 @@ function GitHistoryView({
     const remotesRef = useRef(remotes);
     const filePathRef = useRef<string | null>(null);
     const relPathRef = useRef<string | null>(null);
+    const maxCommitsRef = useRef(INITIAL_MAX_COMMITS);
+    const loadingMoreRef = useRef(false);
 
     repoRef.current = repo;
     selectedBranchRef.current = selectedBranch;
@@ -268,6 +272,12 @@ function GitHistoryView({
     branchesRef.current = branches;
     filePathRef.current = filePath;
     relPathRef.current = relPath;
+    maxCommitsRef.current = maxCommits;
+
+    const resetMaxCommits = useCallback(() => {
+        maxCommitsRef.current = INITIAL_MAX_COMMITS;
+        setMaxCommits(INITIAL_MAX_COMMITS);
+    }, []);
 
     const syncRelPath = useCallback((targetRepo: string, absoluteFilePath: string | null) => {
         if (!absoluteFilePath) {
@@ -287,7 +297,9 @@ function GitHistoryView({
         setCommitDetails(null);
         setDetailsError(null);
         setMoreAvailable(false);
-    }, []);
+        loadingMoreRef.current = false;
+        resetMaxCommits();
+    }, [resetMaxCommits]);
 
     const closeCommitDetails = useCallback(() => {
         setSelectedIndex(null);
@@ -325,7 +337,7 @@ function GitHistoryView({
             showStashes: true,
             invalidateCache,
             branches: branchFilter ? [branchFilter] : null,
-            maxCommits: MAX_COMMITS,
+            maxCommits: maxCommitsRef.current,
             showTags: true,
             includeCommitsMentionedByReflogs: false,
             onlyFollowFirstParent: false,
@@ -346,14 +358,20 @@ function GitHistoryView({
         stashList = stashesRef.current,
         remoteList = remotesRef.current,
         fileRelPath = relPathRef.current ?? undefined,
+        commitLimit = maxCommitsRef.current,
+        append = false,
     ) => {
         if (!targetRepo) return;
-        setLoading(true);
+        if (append) {
+            loadingMoreRef.current = true;
+        } else {
+            setLoading(true);
+        }
         setError(null);
         handler.emit('loadCommits', {
             repo: targetRepo,
             branches: branchFilter ? [branchFilter] : null,
-            maxCommits: MAX_COMMITS,
+            maxCommits: commitLimit,
             showTags: true,
             showRemoteBranches: remoteBranches,
             includeCommitsMentionedByReflogs: false,
@@ -393,6 +411,7 @@ function GitHistoryView({
     const applyCommitsData = useCallback((data: GitCommitData) => {
         setLoading(false);
         setRefreshing(false);
+        loadingMoreRef.current = false;
         if (data.error) {
             setError(data.error);
             return;
@@ -1000,6 +1019,47 @@ function GitHistoryView({
         loadCommits(repo, branch, author, searchValueRef.current || undefined);
     };
 
+    const loadMoreCommits = useCallback(() => {
+        if (!repo || loadingMoreRef.current || !moreAvailable || loading || refreshing) {
+            return;
+        }
+        loadingMoreRef.current = true;
+        const nextMax = maxCommitsRef.current + LOAD_MORE_COMMITS;
+        maxCommitsRef.current = nextMax;
+        setMaxCommits(nextMax);
+        loadCommits(
+            repo,
+            selectedBranchRef.current,
+            selectedAuthorRef.current,
+            searchValueRef.current || undefined,
+            showRemoteBranches,
+            stashesRef.current,
+            remotesRef.current,
+            relPathRef.current ?? undefined,
+            nextMax,
+            true,
+        );
+    }, [repo, moreAvailable, loading, refreshing, loadCommits, showRemoteBranches]);
+
+    useEffect(() => {
+        const content = contentRef.current;
+        if (!content) {
+            return;
+        }
+        const onScroll = () => {
+            if (!moreAvailable || loading || loadingMoreRef.current || refreshing) {
+                return;
+            }
+            const { scrollTop, clientHeight, scrollHeight } = content;
+            if (scrollTop > 0 && clientHeight > 0 && scrollHeight > 0
+                && scrollTop + clientHeight >= scrollHeight - 25) {
+                loadMoreCommits();
+            }
+        };
+        content.addEventListener('scroll', onScroll);
+        return () => content.removeEventListener('scroll', onScroll);
+    }, [moreAvailable, loading, refreshing, loadMoreCommits]);
+
     if (!initialized.current && loading && repos.length === 0) {
         return (
             <ConfigProvider theme={antTheme}>
@@ -1114,7 +1174,7 @@ function GitHistoryView({
                             />
                         )}
                     </div>
-                    <GitHistoryBottomBar moreAvailable={moreAvailable} />
+                    <GitHistoryBottomBar commitCount={commits.length} />
                 </div>
                 <SettingsWidget
                     open={settingsOpen}

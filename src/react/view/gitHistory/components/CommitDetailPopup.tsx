@@ -83,13 +83,18 @@ export default function CommitDetailPopup({
         body = (
             <>
                 <div className="git-graph-cdv-summary">
-                    <div className="git-graph-cdv-meta">
-                        <div>{details.author}</div>
-                        <div className="git-graph-muted">{formatLongDate(details.authorDate)}</div>
-                    </div>
                     {details.body && (
-                        <div className="git-graph-cdv-body">{details.body}</div>
+                        <div
+                            className="git-graph-cdv-body"
+                            title={details.body}
+                        >
+                            {details.body.split(/\r?\n/)[0]}
+                        </div>
                     )}
+                    <div className="git-graph-cdv-meta">
+                        <span>{details.author}</span>
+                        <span className="git-graph-muted">{formatLongDate(details.authorDate)}</span>
+                    </div>
                 </div>
                 <div className="git-graph-cdv-files">
                     {relPath && filterCurrentFile && fileChanges.length === 0 ? (
