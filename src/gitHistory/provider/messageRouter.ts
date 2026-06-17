@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import type { PanelHandler } from './panelHandler';
 import type { CommitService } from '../service/commitService';
 import type { GitActions } from '../service/gitActions';
+import { RepoFileWatcher } from '../service/repoFileWatcher';
 import type { RepoDiscovery } from '../service/repoDiscovery';
 import { getRelativeRepoPath } from '../util/repoPath';
 import type { GitHistoryPanelContext } from './gitHistoryPanelContext';
@@ -26,6 +27,8 @@ export class MessageRouter {
     private warmupPromise: ReturnType<CommitService['loadRepository']> | null = null;
     private warmupRepo: string | null = null;
     private warmupRelPath: string | undefined;
+    private watchedRepo: string | null = null;
+    private readonly repoFileWatcher: RepoFileWatcher;
 
     constructor(
         private readonly handler: PanelHandler,
@@ -35,52 +38,94 @@ export class MessageRouter {
         private readonly panelContext: GitHistoryPanelContext,
         private readonly gitActionHandler: GitActionHandler,
         private readonly extensionContext: vscode.ExtensionContext,
-    ) { }
+    ) {
+        this.repoFileWatcher = new RepoFileWatcher(() => this.onRepoFileChanged());
+    }
 
     bind(): void {
+        this.handler.panel.onDidDispose(() => {
+            this.repoFileWatcher.stop();
+        });
+
         this.handler
             .on('ready', () => this.onReady())
-            .on('loadRepository', (content) => this.onLoadRepository(content as LoadRepositoryRequest))
-            .on('loadRepoInfo', (content) => this.onLoadRepoInfo(content as LoadRepoInfoPayload))
-            .on('loadCommits', (content) => this.onLoadCommits(content as LoadCommitsPayload))
-            .on('commitDetails', (content) => this.onCommitDetails(content as CommitDetailsPayload))
-            .on('refresh', () => this.onRefresh())
-            .on('fetch', (content) => this.onFetch((content as { repo: string }).repo))
-            .on('push', (content) => this.onPush(content as { repo: string; branch: string; remote: string }))
-            .on('quickSync', (content) => this.onQuickSync(content as {
-                repo: string;
-                branch: string;
-                remote: string;
-                commitMessage: string;
-                noFastForward?: boolean;
-                squash?: boolean;
-            }))
-            .on('loadRepoConfig', (content) => this.onLoadRepoConfig((content as { repo: string }).repo))
-            .on('remoteAction', (content) => this.onRemoteAction(content as RemoteActionPayload))
-            .on('openRemote', (content) => this.onOpenRemote(content as { url: string }))
-            .on('gitAction', (content) => this.onGitAction(content as GitActionPayload))
-            .on('saveFileHistorySplitLayout', (content) =>
-                this.onSaveFileHistorySplitLayout(content as { layout: FileHistorySplitLayout }),
-            )
-            .on('openSponsor', () => {
+            .on('loadRepository', this.wrapHandler((content) =>
+                this.onLoadRepository(content as LoadRepositoryRequest)))
+            .on('loadRepoInfo', this.wrapHandler((content) =>
+                this.onLoadRepoInfo(content as LoadRepoInfoPayload)))
+            .on('loadCommits', this.wrapHandler((content) =>
+                this.onLoadCommits(content as LoadCommitsPayload)))
+            .on('commitDetails', this.wrapHandler((content) =>
+                this.onCommitDetails(content as CommitDetailsPayload)))
+            .on('refresh', this.wrapHandler(() => this.onRefresh()))
+            .on('fetch', this.wrapHandler((content) =>
+                this.onFetch((content as { repo: string }).repo)))
+            .on('push', this.wrapHandler((content) =>
+                this.onPush(content as { repo: string; branch: string; remote: string })))
+            .on('quickSync', this.wrapHandler((content) =>
+                this.onQuickSync(content as {
+                    repo: string;
+                    branch: string;
+                    remote: string;
+                    commitMessage: string;
+                    noFastForward?: boolean;
+                    squash?: boolean;
+                })))
+            .on('loadRepoConfig', this.wrapHandler((content) =>
+                this.onLoadRepoConfig((content as { repo: string }).repo)))
+            .on('remoteAction', this.wrapHandler((content) =>
+                this.onRemoteAction(content as RemoteActionPayload)))
+            .on('openRemote', this.wrapHandler((content) =>
+                this.onOpenRemote(content as { url: string })))
+            .on('gitAction', this.wrapHandler((content) =>
+                this.onGitAction(content as GitActionPayload)))
+            .on('saveFileHistorySplitLayout', this.wrapHandler((content) =>
+                this.onSaveFileHistorySplitLayout(content as { layout: FileHistorySplitLayout })))
+            .on('openSponsor', this.wrapHandler(() => {
                 void vscode.commands.executeCommand(
                     'workbench.extensions.action.showExtensionsWithIds',
                     ['cweijan.vscode-database-client2'],
                 );
-            })
-            .on('openExternal', (content) => {
+            }))
+            .on('openExternal', this.wrapHandler((content) => {
                 const url = typeof content === 'string' ? content : '';
                 if (url) {
                     void vscode.env.openExternal(vscode.Uri.parse(url));
                 }
-            })
-            .on('editorLayoutSingle', () => {
+            }))
+            .on('editorLayoutSingle', this.wrapHandler(() => {
                 this.handler.panel.reveal(
                     this.handler.panel.viewColumn ?? vscode.ViewColumn.Active,
                     false,
                 );
                 void vscode.commands.executeCommand('workbench.action.editorLayoutSingle');
-            });
+            }));
+    }
+
+    private wrapHandler<T>(fn: (content: T) => void | Promise<void>): (content: T) => Promise<void> {
+        return async (content) => {
+            this.repoFileWatcher.mute();
+            try {
+                await fn(content);
+            } finally {
+                this.repoFileWatcher.unmute();
+            }
+        };
+    }
+
+    private onRepoFileChanged(): void {
+        if (!this.handler.panel.visible) {
+            return;
+        }
+        this.handler.emit('refresh', { repos: this.repoDiscovery.getRepos() });
+    }
+
+    private startWatchingRepo(repo: string): void {
+        if (repo === this.watchedRepo) {
+            return;
+        }
+        this.watchedRepo = repo;
+        this.repoFileWatcher.start(repo);
     }
 
     private resolveInitialRepo(): string | null {
@@ -171,6 +216,7 @@ export class MessageRouter {
             relPath: relPath ?? null,
         });
         if (!result.repoInfo.error) {
+            this.startWatchingRepo(payload.repo);
             void this.loadRepoExtras(payload.repo, refreshId, result.repoInfo.remotes, 'repository');
         }
     }
