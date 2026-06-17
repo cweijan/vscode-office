@@ -53,81 +53,79 @@ export default function Toolbar({
 
     return (
         <div className={`git-graph-toolbar${showRepo ? '' : ' single-repo'}`}>
-            <div className="git-graph-toolbar-main">
-                <div className="git-graph-toolbar-search">
-                    <input
-                        type="text"
-                        className="vscode-input"
-                        placeholder="Enter to search commit"
-                        value={searchValue}
-                        onChange={(e) => onSearchChange(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === 'Enter') onSearch(); }}
-                    />
-                </div>
-
-                <div className="git-graph-toolbar-filters">
-                    {showRepo && (
-                        <VscodeDropdown
-                            label="Repo:"
-                            options={repos.map((r) => ({ value: r, label: repoLabel(r), hint: r }))}
-                            value={repo}
-                            filterPlaceholder="Filter repositories..."
-                            showAllOption={false}
-                            onChange={(v) => { if (typeof v === 'string' && v) onRepoChange(v); }}
-                        />
-                    )}
-                    <VscodeDropdown
-                        label="Branch:"
-                        options={branches.map((b) => ({ value: b, label: b }))}
-                        value={selectedBranch ?? ''}
-                        allLabel="All"
-                        filterPlaceholder="Filter branches..."
-                        onChange={(v) => onBranchChange(typeof v === 'string' && v ? v : null)}
-                    />
-                    <VscodeDropdown
-                        label="Author:"
-                        options={authors.map((a) => ({ value: a, label: a }))}
-                        value={selectedAuthor ?? ''}
-                        allLabel="All"
-                        filterPlaceholder="Filter authors..."
-                        onChange={(v) => onAuthorChange(typeof v === 'string' && v ? v : undefined)}
-                    />
-                </div>
-
-                <div className="git-graph-toolbar-actions">
-                    <RefreshIcon
-                        title="Refresh"
-                        onClick={onRefresh}
-                        disabled={refreshing}
-                        className={refreshing ? ' spinning' : ''}
-                    />
-                    <FetchIcon
-                        title="Fetch from remote(s)"
-                        onClick={onFetch}
-                        disabled={fetching || !repo}
-                        className={fetching ? ' busy' : ''}
-                    />
-                    <PushIcon
-                        title="Push current branch to remote"
-                        onClick={onPush}
-                        disabled={pushing || syncing || !canPush}
-                        className={pushing ? ' busy' : ''}
-                    />
-                    <QuickSyncIcon
-                        title="Quick sync repository"
-                        onClick={onQuickSync}
-                        disabled={syncing || pushing || fetching || !canQuickSync}
-                        className={syncing ? ' spinning' : ''}
-                    />
-                    <RemoteIcon
-                        title={hasRemoteUrl ? 'Open remote repository' : 'No remote URL configured'}
-                        onClick={onOpenRemote}
-                        disabled={!repo || !hasRemoteUrl}
-                    />
-                </div>
+            <div className="git-graph-toolbar-search">
+                <input
+                    type="text"
+                    className="vscode-input"
+                    placeholder="Enter to search commit"
+                    value={searchValue}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') onSearch(); }}
+                />
             </div>
 
-            <div className="git-graph-toolbar-end">
+            <div className="git-graph-toolbar-filters">
+                {showRepo && (
+                    <VscodeDropdown
+                        label="Repo:"
+                        options={repos.map((r) => ({ value: r, label: repoLabel(r), hint: r }))}
+                        value={repo}
+                        filterPlaceholder="Filter repositories..."
+                        showAllOption={false}
+                        onChange={(v) => { if (typeof v === 'string' && v) onRepoChange(v); }}
+                    />
+                )}
+                <VscodeDropdown
+                    label="Branch:"
+                    options={branches.map((b) => ({ value: b, label: b }))}
+                    value={selectedBranch ?? ''}
+                    allLabel="All"
+                    filterPlaceholder="Filter branches..."
+                    onChange={(v) => onBranchChange(typeof v === 'string' && v ? v : null)}
+                />
+                <VscodeDropdown
+                    label="Author:"
+                    options={authors.map((a) => ({ value: a, label: a }))}
+                    value={selectedAuthor ?? ''}
+                    allLabel="All"
+                    filterPlaceholder="Filter authors..."
+                    onChange={(v) => onAuthorChange(typeof v === 'string' && v ? v : undefined)}
+                />
+            </div>
+
+            <div className="git-graph-toolbar-actions">
+                <RefreshIcon
+                    title="Refresh"
+                    onClick={onRefresh}
+                    disabled={refreshing}
+                    className={refreshing ? ' spinning' : ''}
+                />
+                <FetchIcon
+                    title="Fetch from remote(s)"
+                    onClick={onFetch}
+                    disabled={fetching || !repo}
+                    className={fetching ? ' busy' : ''}
+                />
+                <PushIcon
+                    title="Push current branch to remote"
+                    onClick={onPush}
+                    disabled={pushing || syncing || !canPush}
+                    className={pushing ? ' busy' : ''}
+                />
+                <QuickSyncIcon
+                    title="Quick sync repository"
+                    onClick={onQuickSync}
+                    disabled={syncing || pushing || fetching || !canQuickSync}
+                    className={syncing ? ' spinning' : ''}
+                />
+                <RemoteIcon
+                    title={hasRemoteUrl ? 'Open remote repository' : 'No remote URL configured'}
+                    onClick={onOpenRemote}
+                    disabled={!repo || !hasRemoteUrl}
+                />
+            </div>
+
+            <div className="git-graph-toolbar-tools">
                 {splitView && (
                     <ExpandLayoutIcon
                         title="Expand to single editor layout"

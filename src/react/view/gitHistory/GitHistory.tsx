@@ -94,7 +94,9 @@ function GitHistoryView({
     onToggleColorMode: () => void;
 }) {
     const { graphConfig, antTheme, cssVars } = useGitHistoryTheme(colorMode);
-    const splitView = useSplitViewLayout();
+    const splitView = useSplitViewLayout(
+        (getConfigs()?.gitHistoryInit as GitHistoryInitPayload | undefined)?.viewColumn,
+    );
     const [repos, setRepos] = useState<string[]>([]);
     const [repo, setRepo] = useState('');
     const [branches, setBranches] = useState<string[]>([]);

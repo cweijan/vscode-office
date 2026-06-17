@@ -97,6 +97,7 @@ export interface GitHistoryInitPayload {
     fileName?: string | null;
     relPath?: string | null;
     fileHistorySplitLayout?: 'vertical' | 'horizontal';
+    viewColumn?: number;
 }
 
 export interface GitRemoteDetail {

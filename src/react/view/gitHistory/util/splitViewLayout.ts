@@ -1,8 +1,7 @@
-/** True when the view is in a split layout (either side-by-side or stacked). */
-export function isSplitViewLayout(width: number, height: number): boolean {
-    if (width <= 0 || height <= 0) {
-        return false;
+/** True when the view is in a split layout. */
+export function isSplitViewLayout(height: number, viewColumn?: number): boolean {
+    if (height > 0 && height < 500) {
+        return true;
     }
-    const ratio = Math.min(width, height) / Math.max(width, height);
-    return ratio < 0.65;
+    return viewColumn !== undefined && viewColumn >= 2;
 }

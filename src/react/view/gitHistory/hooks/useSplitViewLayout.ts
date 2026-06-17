@@ -1,19 +1,34 @@
 import { useEffect, useState } from 'react';
+import { handler } from '../../../util/vscode';
 import { isSplitViewLayout } from '../util/splitViewLayout';
 
-export function useSplitViewLayout(): boolean {
+export function useSplitViewLayout(initialViewColumn?: number): boolean {
+    const [viewColumn, setViewColumn] = useState(initialViewColumn);
     const [splitView, setSplitView] = useState(() =>
-        isSplitViewLayout(window.innerWidth, window.innerHeight),
+        isSplitViewLayout(window.innerHeight, initialViewColumn),
     );
 
     useEffect(() => {
+        handler.on('viewColumn', (content) => {
+            const column = (content as { viewColumn?: number })?.viewColumn;
+            if (typeof column === 'number') {
+                setViewColumn(column);
+            }
+        });
+    }, []);
+
+    useEffect(() => {
         const update = () => {
-            setSplitView(isSplitViewLayout(window.innerWidth, window.innerHeight));
+            setSplitView(isSplitViewLayout(window.innerHeight, viewColumn));
         };
         update();
-        window.addEventListener('resize', update);
-        return () => window.removeEventListener('resize', update);
-    }, []);
+        window.addEventListener('click', update);
+        window.addEventListener('focus', update);
+        return () => {
+            window.removeEventListener('click', update);
+            window.removeEventListener('focus', update);
+        };
+    }, [viewColumn]);
 
     return splitView;
 }

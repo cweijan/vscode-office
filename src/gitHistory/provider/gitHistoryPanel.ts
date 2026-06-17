@@ -190,7 +190,12 @@ export class GitHistoryPanel {
         );
         router.bind();
 
-        const gitHistoryInit = buildGitHistoryInitPayload(context, repoDiscovery, panelContext);
+        const gitHistoryInit = buildGitHistoryInitPayload(
+            context,
+            repoDiscovery,
+            panelContext,
+            panel.viewColumn,
+        );
         if (gitHistoryInit.initialRepo) {
             router.warmupRepository(
                 gitHistoryInit.initialRepo,
@@ -207,6 +212,10 @@ export class GitHistoryPanel {
             if (GitHistoryPanel.panelMap.get(key) === instance) {
                 GitHistoryPanel.panelMap.delete(key);
             }
+        });
+
+        panel.onDidChangeViewState(() => {
+            handler.emit('viewColumn', { viewColumn: panel.viewColumn ?? vscode.ViewColumn.One });
         });
     }
 

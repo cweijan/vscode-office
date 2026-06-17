@@ -14,6 +14,7 @@ export interface GitHistoryEmbeddedInit {
     fileName: string | null;
     relPath: string | null;
     fileHistorySplitLayout: FileHistorySplitLayout;
+    viewColumn?: number;
 }
 
 function resolveInitialRepo(
@@ -33,6 +34,7 @@ export function buildGitHistoryInitPayload(
     extensionContext: vscode.ExtensionContext,
     repoDiscovery: RepoDiscovery,
     panelContext: GitHistoryPanelContext,
+    viewColumn?: number,
 ): GitHistoryEmbeddedInit {
     const initialRepo = resolveInitialRepo(repoDiscovery, panelContext);
     const filePath = panelContext.fileUri?.fsPath ?? null;
@@ -46,5 +48,6 @@ export function buildGitHistoryInitPayload(
         fileName: filePath ? filePath.split(/[/\\]/).pop() ?? null : null,
         relPath,
         fileHistorySplitLayout: getFileHistorySplitLayout(extensionContext),
+        viewColumn,
     };
 }

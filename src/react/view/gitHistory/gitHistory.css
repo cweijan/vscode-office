@@ -93,8 +93,9 @@
 
 .git-graph-toolbar {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
+    gap: 6px 8px;
     padding: 4px 8px;
     min-height: 36px;
     border-bottom: 1px solid var(--git-graph-border);
@@ -102,45 +103,43 @@
     flex-shrink: 0;
 }
 
-.git-graph-toolbar-main {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex: 1;
-    min-width: 0;
-}
-
-.git-graph-toolbar-end {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    flex-shrink: 0;
-    margin-left: auto;
-    padding-left: 8px;
-    border-left: 1px solid color-mix(in srgb, var(--git-graph-border) 70%, transparent);
-}
-
 .git-graph-toolbar-search {
-    flex: 0 0 180px;
-    width: 180px;
+    flex: 1 1 140px;
+    min-width: 120px;
+    max-width: 180px;
 }
 
 .git-graph-toolbar-search .vscode-input {
-    width: 180px;
+    width: 100%;
+    min-width: 0;
 }
 
 .git-graph-toolbar-filters {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
-    flex-shrink: 0;
+    flex: 0 1 auto;
+    min-width: 0;
 }
 
 .git-graph-toolbar-actions {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 2px;
-    flex-shrink: 0;
+    flex: 0 0 auto;
+}
+
+.git-graph-toolbar-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+    flex: 0 0 auto;
+    margin-left: auto;
+    padding-left: 8px;
+    border-left: 1px solid color-mix(in srgb, var(--git-graph-border) 70%, transparent);
 }
 
 .git-graph-toolbar .git-graph-toolbar-btn-fetch {
@@ -1080,6 +1079,12 @@
 
 .git-graph-bottom-bar .office-sponsor-bar--center {
     margin-inline: auto;
+}
+
+@media (max-height: 299px) {
+    .git-graph-bottom-bar {
+        display: none !important;
+    }
 }
 
 .git-graph.git-graph-loading,
