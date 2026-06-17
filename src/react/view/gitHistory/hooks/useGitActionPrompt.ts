@@ -18,6 +18,7 @@ interface PromptState {
 
 interface PromptContext {
     remotes: string[];
+    branchHead: string | null;
 }
 
 export function useGitActionPrompt(

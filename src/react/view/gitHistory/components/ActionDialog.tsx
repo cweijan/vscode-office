@@ -1,11 +1,19 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import type { FormField, PromptStep, PromptSubmitValue } from '../util/gitActionPromptFlow';
+import type { PopupAnchor } from '../util/commitDetailPopup';
+import { AnchoredDialog, AnchoredDialogActions } from './AnchoredDialog';
 import DialogOverlay from './DialogOverlay';
 
 interface ActionDialogProps {
     step: PromptStep;
+    anchored?: boolean;
+    anchor?: PopupAnchor | null;
     onCancel: () => void;
     onSubmit: (value: PromptSubmitValue) => void;
+}
+
+function abbrevHash(hash: string): string {
+    return hash === '*' ? '*' : hash.substring(0, 8);
 }
 
 function buildInitialFormValues(fields: FormField[]): Record<string, string> {
@@ -13,6 +21,8 @@ function buildInitialFormValues(fields: FormField[]): Record<string, string> {
     for (const field of fields) {
         if (field.type === 'text') {
             initial[field.id] = field.defaultValue ?? '';
+        } else if (field.type === 'select') {
+            initial[field.id] = field.defaultValue ?? field.options[0]?.value ?? '';
         } else {
             initial[field.id] = field.defaultValue ? 'yes' : 'no';
         }
@@ -20,7 +30,172 @@ function buildInitialFormValues(fields: FormField[]): Record<string, string> {
     return initial;
 }
 
-export default function ActionDialog({ step, onCancel, onSubmit }: ActionDialogProps) {
+function renderFieldInfo(info?: string) {
+    if (!info) {
+        return null;
+    }
+    return (
+        <span className="git-graph-anchored-dialog-info" title={info}>
+            <span className="codicon codicon-info" aria-hidden />
+        </span>
+    );
+}
+
+function renderAnchoredFormFields(
+    fields: FormField[],
+    formValues: Record<string, string>,
+    onFormValuesChange: (values: Record<string, string>) => void,
+    onSubmit: () => void,
+    submitWhenEnter?: () => boolean,
+) {
+    return (
+        <table className="git-graph-anchored-dialog-form">
+            <tbody>
+                {fields.map((field) => {
+                    if (field.type === 'text') {
+                        return (
+                            <tr key={field.id}>
+                                <th scope="row">{field.label}:</th>
+                                <td>
+                                    <input
+                                        type="text"
+                                        className="git-graph-anchored-dialog-input"
+                                        placeholder={field.placeholder}
+                                        value={formValues[field.id] ?? ''}
+                                        autoFocus={field.id === fields[0]?.id}
+                                        onChange={(e) => {
+                                            onFormValuesChange({
+                                                ...formValues,
+                                                [field.id]: e.target.value,
+                                            });
+                                        }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && (!submitWhenEnter || submitWhenEnter())) {
+                                                e.preventDefault();
+                                                onSubmit();
+                                            }
+                                        }}
+                                    />
+                                    {renderFieldInfo(field.info)}
+                                </td>
+                            </tr>
+                        );
+                    }
+                    if (field.type === 'select') {
+                        return (
+                            <tr key={field.id}>
+                                <th scope="row">{field.label}:</th>
+                                <td>
+                                    <select
+                                        className="git-graph-anchored-dialog-select"
+                                        value={formValues[field.id] ?? ''}
+                                        onChange={(e) => {
+                                            onFormValuesChange({
+                                                ...formValues,
+                                                [field.id]: e.target.value,
+                                            });
+                                        }}
+                                    >
+                                        {field.options.map((option) => (
+                                            <option key={option.value} value={option.value}>
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {renderFieldInfo(field.info)}
+                                </td>
+                            </tr>
+                        );
+                    }
+                    return (
+                        <tr key={field.id}>
+                            <th scope="row">{field.label}:</th>
+                            <td>
+                                <label className="git-graph-anchored-dialog-checkbox">
+                                    <input
+                                        type="checkbox"
+                                        checked={formValues[field.id] === 'yes'}
+                                        onChange={(e) => {
+                                            onFormValuesChange({
+                                                ...formValues,
+                                                [field.id]: e.target.checked ? 'yes' : 'no',
+                                            });
+                                        }}
+                                    />
+                                </label>
+                                {renderFieldInfo(field.info)}
+                            </td>
+                        </tr>
+                    );
+                })}
+            </tbody>
+        </table>
+    );
+}
+
+function renderAnchoredCheckboxList(
+    fields: FormField[],
+    formValues: Record<string, string>,
+    onFormValuesChange: (values: Record<string, string>) => void,
+    centered = false,
+) {
+    return (
+        <div className={`git-graph-anchored-dialog-checkbox-list${centered ? ' centered' : ''}`}>
+            {fields.map((field) => {
+                if (field.type !== 'checkbox') {
+                    return null;
+                }
+                return (
+                    <label key={field.id} className="git-graph-anchored-dialog-checkbox-item">
+                        <input
+                            type="checkbox"
+                            checked={formValues[field.id] === 'yes'}
+                            onChange={(e) => {
+                                onFormValuesChange({
+                                    ...formValues,
+                                    [field.id]: e.target.checked ? 'yes' : 'no',
+                                });
+                            }}
+                        />
+                        <span>{field.label}</span>
+                        {renderFieldInfo(field.info)}
+                    </label>
+                );
+            })}
+        </div>
+    );
+}
+
+function renderAnchoredOptionList(
+    options: { value: string; label: string; description?: string }[],
+    pickValue: string,
+    onPick: (value: string) => void,
+    groupLabel: string,
+) {
+    return (
+        <div className="git-graph-anchored-dialog-option-list" role="radiogroup" aria-label={groupLabel}>
+            {options.map((option) => (
+                <button
+                    key={option.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={pickValue === option.value}
+                    className={`git-graph-anchored-dialog-option${pickValue === option.value ? ' selected' : ''}`}
+                    onClick={() => onPick(option.value)}
+                >
+                    <span className="git-graph-anchored-dialog-option-label">{option.label}</span>
+                    {option.description && (
+                        <span className="git-graph-anchored-dialog-option-desc">{option.description}</span>
+                    )}
+                </button>
+            ))}
+        </div>
+    );
+}
+
+export default function ActionDialog({
+    step, anchored = false, anchor, onCancel, onSubmit,
+}: ActionDialogProps) {
     const [inputValue, setInputValue] = useState('');
     const [pickValue, setPickValue] = useState('');
     const [formValues, setFormValues] = useState<Record<string, string>>({});
@@ -46,115 +221,410 @@ export default function ActionDialog({ step, onCancel, onSubmit }: ActionDialogP
         return () => document.removeEventListener('keydown', onKey);
     }, [onCancel]);
 
-    let body: ReactNode;
-    let confirmLabel = 'OK';
+    let primaryLabel = 'OK';
     let danger = false;
-    let confirmDisabled = false;
+    let primaryDisabled = false;
+    let repositionDeps: unknown[] = [];
+    let message: ReactNode = null;
+    let body: ReactNode = null;
 
     if (step.kind === 'confirm') {
-        confirmLabel = step.confirmLabel;
+        primaryLabel = step.confirmLabel;
         danger = Boolean(step.danger);
-        body = <p className="git-graph-dialog-message">{step.message}</p>;
+        if (anchored && step.variant === 'revertCommit' && step.commitHash) {
+            message = (
+                <>
+                    Are you sure you want to revert commit{' '}
+                    <strong><em>{abbrevHash(step.commitHash)}</em></strong>?
+                </>
+            );
+        } else {
+            message = step.message;
+        }
+        if (!anchored) {
+            body = <p className="git-graph-dialog-message">{step.message}</p>;
+        }
+        repositionDeps = [step.message, step.variant, step.commitHash];
     } else if (step.kind === 'input') {
-        confirmLabel = 'Continue';
-        confirmDisabled = !step.optional && !inputValue.trim();
-        body = (
-            <label className="git-graph-dialog-field">
-                <span className="git-graph-dialog-label">{step.label}</span>
-                <input
-                    type="text"
-                    className="vscode-input"
-                    placeholder={step.placeholder}
-                    value={inputValue}
-                    autoFocus
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' && (!confirmDisabled || step.optional)) {
-                            e.preventDefault();
-                            onSubmit(inputValue);
-                        }
-                    }}
-                />
-            </label>
-        );
-    } else if (step.kind === 'form') {
-        confirmLabel = step.submitLabel;
-        confirmDisabled = step.fields.some((field) => {
-            if (field.type !== 'text') {
-                return false;
-            }
-            return !formValues[field.id]?.trim();
-        });
-        body = (
-            <>
-                {step.message && <p className="git-graph-dialog-message">{step.message}</p>}
-                {step.fields.map((field) => {
-                    if (field.type === 'text') {
-                        return (
-                            <label key={field.id} className="git-graph-dialog-field">
-                                <span className="git-graph-dialog-label">{field.label}</span>
+        primaryLabel = 'Continue';
+        primaryDisabled = !step.optional && !inputValue.trim();
+        if (anchored) {
+            message = step.title;
+            body = (
+                <table className="git-graph-anchored-dialog-form">
+                    <tbody>
+                        <tr>
+                            <th scope="row">{step.label}:</th>
+                            <td>
                                 <input
                                     type="text"
-                                    className="vscode-input"
-                                    placeholder={field.placeholder}
-                                    value={formValues[field.id] ?? ''}
-                                    autoFocus={field.id === 'branchName'}
-                                    onChange={(e) => {
-                                        setFormValues((prev) => ({ ...prev, [field.id]: e.target.value }));
-                                    }}
+                                    className="git-graph-anchored-dialog-input"
+                                    placeholder={step.placeholder}
+                                    value={inputValue}
+                                    autoFocus
+                                    onChange={(e) => setInputValue(e.target.value)}
                                     onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && formValues.branchName?.trim()) {
+                                        if (e.key === 'Enter' && (!primaryDisabled || step.optional)) {
                                             e.preventDefault();
-                                            onSubmit(formValues);
+                                            onSubmit(inputValue);
                                         }
                                     }}
                                 />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            );
+        } else {
+            body = (
+                <label className="git-graph-dialog-field">
+                    <span className="git-graph-dialog-label">{step.label}</span>
+                    <input
+                        type="text"
+                        className="vscode-input"
+                        placeholder={step.placeholder}
+                        value={inputValue}
+                        autoFocus
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && (!primaryDisabled || step.optional)) {
+                                e.preventDefault();
+                                onSubmit(inputValue);
+                            }
+                        }}
+                    />
+                </label>
+            );
+        }
+        repositionDeps = [inputValue, step.label];
+    } else if (step.kind === 'form') {
+        primaryLabel = step.submitLabel;
+        if (step.variant === 'addTag') {
+            primaryDisabled = !formValues.tagName?.trim();
+        } else if (step.variant === 'deleteBranch' || step.variant === 'merge') {
+            primaryDisabled = false;
+        } else {
+            primaryDisabled = step.fields.some((field) => {
+                if (field.type !== 'text') {
+                    return false;
+                }
+                return !formValues[field.id]?.trim();
+            });
+        }
+        if (anchored) {
+            if (step.variant === 'createBranch') {
+                message = (
+                    <>
+                        Create branch at commit <em>{abbrevHash(step.commitHash ?? '')}</em>:
+                    </>
+                );
+                body = renderAnchoredFormFields(
+                    step.fields,
+                    formValues,
+                    setFormValues,
+                    () => onSubmit(formValues),
+                    () => Boolean(formValues.branchName?.trim()),
+                );
+            } else if (step.variant === 'addTag') {
+                message = (
+                    <>
+                        Add tag to commit <strong><em>{abbrevHash(step.commitHash ?? '')}</em></strong>:
+                    </>
+                );
+                body = renderAnchoredFormFields(
+                    step.fields,
+                    formValues,
+                    setFormValues,
+                    () => onSubmit(formValues),
+                    () => Boolean(formValues.tagName?.trim()),
+                );
+            } else if (step.variant === 'deleteBranch') {
+                message = (
+                    <>
+                        Are you sure you want to delete the branch{' '}
+                        <strong><em>{step.branchName}</em></strong>?
+                    </>
+                );
+                body = renderAnchoredCheckboxList(step.fields, formValues, setFormValues, true);
+            } else if (step.variant === 'merge') {
+                message = (
+                    <>
+                        Are you sure you want to merge {step.mergeOn}{' '}
+                        <strong><em>{step.mergeTarget}</em></strong> into{' '}
+                        {step.branchName ? (
+                            <>
+                                <strong><em>{step.branchName}</em></strong> (the current branch)
+                            </>
+                        ) : (
+                            'the current branch'
+                        )}
+                        ?
+                    </>
+                );
+                body = renderAnchoredCheckboxList(step.fields, formValues, setFormValues);
+            } else if (step.variant === 'cherryPick') {
+                message = (
+                    <>
+                        Are you sure you want to cherry pick commit{' '}
+                        <strong><em>{abbrevHash(step.commitHash ?? '')}</em></strong>?
+                    </>
+                );
+                body = (
+                    <>
+                        {step.fields.some((field) => field.type === 'select') && (
+                            <table className="git-graph-anchored-dialog-form">
+                                <tbody>
+                                    {step.fields.map((field) => {
+                                        if (field.type !== 'select') {
+                                            return null;
+                                        }
+                                        return (
+                                            <tr key={field.id}>
+                                                <th scope="row">{field.label}:</th>
+                                                <td>
+                                                    <select
+                                                        className="git-graph-anchored-dialog-select"
+                                                        value={formValues[field.id] ?? ''}
+                                                        onChange={(e) => {
+                                                            setFormValues((prev) => ({
+                                                                ...prev,
+                                                                [field.id]: e.target.value,
+                                                            }));
+                                                        }}
+                                                    >
+                                                        {field.options.map((option) => (
+                                                            <option key={option.value} value={option.value}>
+                                                                {option.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                    {renderFieldInfo(field.info)}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        )}
+                        {renderAnchoredCheckboxList(step.fields, formValues, setFormValues)}
+                    </>
+                );
+            } else {
+                if (step.message) {
+                    message = step.message;
+                } else {
+                    message = step.title;
+                }
+                body = (
+                    <table className="git-graph-anchored-dialog-form">
+                        <tbody>
+                            {step.fields.map((field) => {
+                                if (field.type === 'text') {
+                                    return (
+                                        <tr key={field.id}>
+                                            <th scope="row">{field.label}:</th>
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    className="git-graph-anchored-dialog-input"
+                                                    placeholder={field.placeholder}
+                                                    value={formValues[field.id] ?? ''}
+                                                    autoFocus={field.id === step.fields[0]?.id}
+                                                    onChange={(e) => {
+                                                        setFormValues((prev) => ({
+                                                            ...prev,
+                                                            [field.id]: e.target.value,
+                                                        }));
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter' && formValues.branchName?.trim()) {
+                                                            e.preventDefault();
+                                                            onSubmit(formValues);
+                                                        }
+                                                    }}
+                                                />
+                                            </td>
+                                        </tr>
+                                    );
+                                }
+                                if (field.type === 'select') {
+                                    return null;
+                                }
+                                return (
+                                    <tr key={field.id}>
+                                        <th scope="row">{field.label}:</th>
+                                        <td>
+                                            <label className="git-graph-anchored-dialog-checkbox">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={formValues[field.id] === 'yes'}
+                                                    onChange={(e) => {
+                                                        setFormValues((prev) => ({
+                                                            ...prev,
+                                                            [field.id]: e.target.checked ? 'yes' : 'no',
+                                                        }));
+                                                    }}
+                                                />
+                                            </label>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                );
+            }
+        } else {
+            body = (
+                <>
+                    {step.message && <p className="git-graph-dialog-message">{step.message}</p>}
+                    {step.fields.map((field) => {
+                        if (field.type === 'text') {
+                            return (
+                                <label key={field.id} className="git-graph-dialog-field">
+                                    <span className="git-graph-dialog-label">{field.label}</span>
+                                    <input
+                                        type="text"
+                                        className="vscode-input"
+                                        placeholder={field.placeholder}
+                                        value={formValues[field.id] ?? ''}
+                                        autoFocus={field.id === step.fields[0]?.id}
+                                        onChange={(e) => {
+                                            setFormValues((prev) => ({ ...prev, [field.id]: e.target.value }));
+                                        }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !primaryDisabled) {
+                                                e.preventDefault();
+                                                onSubmit(formValues);
+                                            }
+                                        }}
+                                    />
+                                </label>
+                            );
+                        }
+                        return (
+                            <label key={field.id} className="git-graph-dialog-checkbox">
+                                <input
+                                    type="checkbox"
+                                    checked={formValues[field.id] === 'yes'}
+                                    onChange={(e) => {
+                                        setFormValues((prev) => ({
+                                            ...prev,
+                                            [field.id]: e.target.checked ? 'yes' : 'no',
+                                        }));
+                                    }}
+                                />
+                                <span>{field.label}</span>
                             </label>
                         );
-                    }
-                    return (
-                        <label key={field.id} className="git-graph-dialog-checkbox">
-                            <input
-                                type="checkbox"
-                                checked={formValues[field.id] === 'yes'}
-                                onChange={(e) => {
-                                    setFormValues((prev) => ({
-                                        ...prev,
-                                        [field.id]: e.target.checked ? 'yes' : 'no',
-                                    }));
-                                }}
-                            />
-                            <span>{field.label}</span>
-                        </label>
-                    );
-                })}
-            </>
-        );
+                    })}
+                </>
+            );
+        }
+        repositionDeps = [formValues, step.message, step.variant];
     } else {
-        confirmLabel = 'Continue';
-        confirmDisabled = !pickValue;
-        body = (
-            <div className="git-graph-dialog-pick">
-                {step.message && <p className="git-graph-dialog-message">{step.message}</p>}
-                <div className="git-graph-dialog-options" role="listbox">
+        primaryLabel = step.submitLabel ?? 'Continue';
+        primaryDisabled = !pickValue;
+        if (anchored && step.variant === 'resetMode') {
+            primaryLabel = step.submitLabel ?? 'Reset';
+            message = (
+                <>
+                    Are you sure you want to reset{' '}
+                    {step.branchName ? (
+                        <>
+                            <strong><em>{step.branchName}</em></strong> (the current branch)
+                        </>
+                    ) : (
+                        'the current branch'
+                    )}
+                    {' '}to commit <strong><em>{abbrevHash(step.commitHash ?? '')}</em></strong>?
+                </>
+            );
+            body = (
+                <div className="git-graph-anchored-dialog-option-list" role="radiogroup" aria-label="Reset mode">
                     {step.options.map((option) => (
                         <button
                             key={option.value}
                             type="button"
-                            role="option"
-                            aria-selected={pickValue === option.value}
-                            className={`git-graph-dialog-option${pickValue === option.value ? ' selected' : ''}`}
+                            role="radio"
+                            aria-checked={pickValue === option.value}
+                            className={`git-graph-anchored-dialog-option${pickValue === option.value ? ' selected' : ''}`}
                             onClick={() => setPickValue(option.value)}
-                            onDoubleClick={() => onSubmit(option.value)}
                         >
-                            <span className="git-graph-dialog-option-label">{option.label}</span>
-                            {option.description && (
-                                <span className="git-graph-dialog-option-desc">{option.description}</span>
-                            )}
+                            {option.label}
                         </button>
                     ))}
                 </div>
-            </div>
+            );
+        } else if (anchored) {
+            message = step.message ?? step.title;
+            body = renderAnchoredOptionList(
+                step.options,
+                pickValue,
+                setPickValue,
+                step.title,
+            );
+        } else {
+            body = (
+                <div className="git-graph-dialog-pick">
+                    {step.message && <p className="git-graph-dialog-message">{step.message}</p>}
+                    <div className="git-graph-dialog-options" role="listbox">
+                        {step.options.map((option) => (
+                            <button
+                                key={option.value}
+                                type="button"
+                                role="option"
+                                aria-selected={pickValue === option.value}
+                                className={`git-graph-dialog-option${pickValue === option.value ? ' selected' : ''}`}
+                                onClick={() => setPickValue(option.value)}
+                                onDoubleClick={() => onSubmit(option.value)}
+                            >
+                                <span className="git-graph-dialog-option-label">{option.label}</span>
+                                {option.description && (
+                                    <span className="git-graph-dialog-option-desc">{option.description}</span>
+                                )}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+        repositionDeps = [pickValue, step.message, step.options.length, step.variant, step.branchName, step.commitHash];
+    }
+
+    const handlePrimary = () => {
+        if (step.kind === 'confirm') {
+            onSubmit('confirm');
+        } else if (step.kind === 'input') {
+            onSubmit(inputValue);
+        } else if (step.kind === 'form') {
+            onSubmit(formValues);
+        } else {
+            onSubmit(pickValue);
+        }
+    };
+
+    if (anchored) {
+        return (
+            <DialogOverlay onCancel={onCancel} anchored>
+                <AnchoredDialog
+                    anchor={anchor}
+                    ariaLabel={step.title}
+                    repositionDeps={repositionDeps}
+                >
+                    {message && (
+                        <p className="git-graph-anchored-dialog-message">{message}</p>
+                    )}
+                    {body}
+                    <AnchoredDialogActions
+                        primaryLabel={primaryLabel}
+                        primaryDisabled={primaryDisabled}
+                        danger={danger}
+                        onPrimary={handlePrimary}
+                        onCancel={onCancel}
+                    />
+                </AnchoredDialog>
+            </DialogOverlay>
         );
     }
 
@@ -181,20 +651,10 @@ export default function ActionDialog({ step, onCancel, onSubmit }: ActionDialogP
                     <button
                         type="button"
                         className={`git-graph-dialog-btn primary${danger ? ' danger' : ''}`}
-                        disabled={confirmDisabled}
-                        onClick={() => {
-                            if (step.kind === 'confirm') {
-                                onSubmit('confirm');
-                            } else if (step.kind === 'input') {
-                                onSubmit(inputValue);
-                            } else if (step.kind === 'form') {
-                                onSubmit(formValues);
-                            } else {
-                                onSubmit(pickValue);
-                            }
-                        }}
+                        disabled={primaryDisabled}
+                        onClick={handlePrimary}
                     >
-                        {confirmLabel}
+                        {primaryLabel}
                     </button>
                 </div>
             </div>

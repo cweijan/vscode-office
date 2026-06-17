@@ -5,9 +5,10 @@ import { themeStyle, useGitHistoryTheme } from '../theme/gitHistoryTheme';
 interface DialogOverlayProps {
     children: ReactNode;
     onCancel: () => void;
+    anchored?: boolean;
 }
 
-export default function DialogOverlay({ children, onCancel }: DialogOverlayProps) {
+export default function DialogOverlay({ children, onCancel, anchored = false }: DialogOverlayProps) {
     const { cssVars } = useGitHistoryTheme();
 
     useEffect(() => {
@@ -23,7 +24,10 @@ export default function DialogOverlay({ children, onCancel }: DialogOverlayProps
 
     return createPortal(
         <div className="git-graph" style={themeStyle(cssVars)}>
-            <div className="git-graph-dialog-overlay" onMouseDown={handleOverlayMouseDown}>
+            <div
+                className={`git-graph-dialog-overlay${anchored ? ' anchored' : ''}`}
+                onMouseDown={handleOverlayMouseDown}
+            >
                 {children}
             </div>
         </div>,

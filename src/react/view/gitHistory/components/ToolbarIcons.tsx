@@ -1,3 +1,4 @@
+import type { MouseEvent } from 'react';
 import { MoonOutlined, SunOutlined } from '@ant-design/icons';
 
 interface CodiconButtonProps {
@@ -5,7 +6,7 @@ interface CodiconButtonProps {
     title?: string;
     className?: string;
     variant?: 'fetch' | 'push' | 'remote' | 'sync';
-    onClick?: () => void;
+    onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
     disabled?: boolean;
 }
 

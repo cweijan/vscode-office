@@ -86,8 +86,21 @@ export class GitRepoCommands {
         return this.run(['reset', `--${mode}`, commit], repo);
     }
 
-    async merge(repo: string, ref: string): Promise<string | null> {
-        return this.run(['merge', ref], repo);
+    async merge(
+        repo: string,
+        ref: string,
+        options?: { createNewCommit?: boolean; squash?: boolean; noCommit?: boolean },
+    ): Promise<string | null> {
+        const args = ['merge', ref];
+        if (options?.squash) {
+            args.push('--squash');
+        } else if (options?.createNewCommit) {
+            args.push('--no-ff');
+        }
+        if (options?.noCommit) {
+            args.push('--no-commit');
+        }
+        return this.run(args, repo);
     }
 
     async pullBranch(

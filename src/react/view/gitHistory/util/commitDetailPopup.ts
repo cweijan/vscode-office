@@ -1,6 +1,8 @@
 export interface PopupAnchor {
     x: number;
     y: number;
+    /** Toolbar / repo settings: place below cursor when near top of view */
+    repoToolbar?: boolean;
 }
 
 export const COMMIT_DETAIL_POPUP_WIDTH = 400;
@@ -10,8 +12,10 @@ export function computeAnchoredDialogPosition(
     width: number,
     height: number,
 ): { left: number; top: number } {
-    const top = Math.max(Math.min(anchor.y - 90, window.innerHeight - height - 10), 10);
-    const left = Math.max(Math.min(anchor.x - 50, window.innerWidth - width - 10), 10);
+    const rawTop = anchor.repoToolbar && anchor.y < 120 ? anchor.y + 8 : anchor.y - 90;
+    const top = Math.max(Math.min(rawTop, window.innerHeight - height - 10), 10);
+    // Match legacy git-graph: only clamp minimum left edge
+    const left = Math.max(anchor.x - 50, 10);
     return { left, top };
 }
 
@@ -26,6 +30,13 @@ export function computeCommitDetailPopupPosition(
         0,
     );
     return { left, top };
+}
+
+export function anchorFromMouseEvent(
+    event: { clientX: number; clientY: number },
+    repoToolbar = false,
+): PopupAnchor {
+    return { x: event.clientX, y: event.clientY, repoToolbar };
 }
 
 export function anchorFromElement(element: Element): PopupAnchor {

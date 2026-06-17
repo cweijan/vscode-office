@@ -1,7 +1,6 @@
 const CONTEXT_MENU_ICONS: Record<string, string> = {
     copyHash: 'git-commit',
     copyMessage: 'copy',
-    copySubject: 'copy',
     reset: 'debug-restart',
     createBranch: 'git-branch-create',
     addTag: 'tag',

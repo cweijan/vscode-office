@@ -1447,6 +1447,11 @@
     background: color-mix(in srgb, var(--git-graph-fg) 28%, transparent);
 }
 
+.git-graph-dialog-overlay.anchored {
+    display: block;
+    padding: 0;
+}
+
 body.git-graph-dialog-open {
     overflow: hidden;
 }
@@ -1570,19 +1575,19 @@ body.git-graph-dialog-open {
 }
 
 .git-graph-dialog-btn {
-    min-width: 72px;
-    height: 28px;
-    padding: 0 12px;
-    border: 1px solid var(--git-graph-input-border);
-    border-radius: 2px;
-    background: var(--git-graph-input-bg);
-    color: var(--git-graph-fg);
+    min-width: 64px;
+    height: 24px;
+    padding: 0 10px;
+    border: 1px solid var(--vscode-button-border, transparent);
+    border-radius: 6px;
+    color: var(--vscode-button-secondaryForeground, var(--git-graph-fg));
+    background: var(--vscode-button-secondaryBackground, var(--git-graph-input-bg));
     font-size: 12px;
     cursor: pointer;
 }
 
 .git-graph-dialog-btn:hover:not(:disabled) {
-    background: var(--git-graph-hover);
+    background: var(--vscode-button-secondaryHoverBackground, var(--git-graph-hover));
 }
 
 .git-graph-dialog-btn:disabled {
@@ -1591,13 +1596,322 @@ body.git-graph-dialog-open {
 }
 
 .git-graph-dialog-btn.primary {
-    border-color: var(--git-graph-accent);
-    background: var(--git-graph-accent);
-    color: #ffffff;
+    color: var(--vscode-button-foreground, #ffffff);
+    background: var(--vscode-button-background, var(--git-graph-accent));
+    border-color: var(--vscode-button-border, transparent);
+}
+
+.git-graph-dialog-btn.primary:hover:not(:disabled) {
+    background: var(--vscode-button-hoverBackground, var(--git-graph-accent));
 }
 
 .git-graph-dialog-btn.primary.danger {
     border-color: var(--vscode-inputValidation-errorBorder, #be1100);
     background: var(--vscode-inputValidation-errorBackground, #5a1d1d);
     color: var(--vscode-inputValidation-errorForeground, #f48771);
+}
+
+.git-graph-create-branch-dialog,
+.git-graph-anchored-dialog {
+    position: fixed;
+    z-index: 1101;
+    visibility: hidden;
+    min-width: 280px;
+    max-width: min(360px, calc(100vw - 20px));
+    border: 1px solid color-mix(in srgb, var(--git-graph-fg) 35%, transparent);
+    border-radius: 5px;
+    background: var(--vscode-menu-background, var(--git-graph-input-bg));
+    color: var(--vscode-menu-foreground, var(--git-graph-fg));
+    box-shadow: 0 0 30px 5px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.35));
+    font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size: 13px;
+    line-height: 17px;
+    text-align: center;
+}
+
+.git-graph-create-branch-content,
+.git-graph-anchored-dialog-content {
+    padding: 10px;
+}
+
+.git-graph-create-branch-message,
+.git-graph-anchored-dialog-message {
+    margin: 0;
+    font-size: 13px;
+    line-height: 17px;
+    color: inherit;
+}
+
+.git-graph-create-branch-message em,
+.git-graph-anchored-dialog-message em {
+    font-style: italic;
+    font-weight: 400;
+}
+
+.git-graph-anchored-dialog-message strong em {
+    font-weight: 700;
+    font-style: italic;
+}
+
+.git-graph-create-branch-form,
+.git-graph-anchored-dialog-form {
+    display: inline-table;
+    width: 360px;
+    max-width: 100%;
+    margin-top: 4px;
+    border-collapse: collapse;
+}
+
+.git-graph-create-branch-form th,
+.git-graph-anchored-dialog-form th {
+    padding: 8px 5px 0 0;
+    font-weight: 400;
+    text-align: left;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+}
+
+.git-graph-create-branch-form td,
+.git-graph-anchored-dialog-form td {
+    padding-top: 8px;
+    width: 100%;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.git-graph-anchored-dialog-form td {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.git-graph-anchored-dialog-form td .git-graph-anchored-dialog-input,
+.git-graph-anchored-dialog-form td .git-graph-anchored-dialog-select {
+    flex: 1;
+    min-width: 0;
+}
+
+.git-graph-anchored-dialog-form.single-col td {
+    padding-top: 4px;
+}
+
+.git-graph-create-branch-input,
+.git-graph-anchored-dialog-input {
+    width: 100%;
+    padding: 4px 6px;
+    box-sizing: border-box;
+    outline: none;
+    border: 1px solid color-mix(in srgb, var(--git-graph-fg) 35%, transparent);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--git-graph-fg) 10%, transparent);
+    color: inherit;
+    font: inherit;
+    line-height: 17px;
+}
+
+.git-graph-create-branch-input:focus,
+.git-graph-anchored-dialog-input:focus {
+    border-color: var(--vscode-focusBorder, var(--git-graph-accent));
+}
+
+.git-graph-create-branch-input::placeholder,
+.git-graph-anchored-dialog-input::placeholder {
+    color: inherit;
+    opacity: 0.4;
+}
+
+.git-graph-anchored-dialog-select {
+    width: 100%;
+    padding: 4px 6px;
+    box-sizing: border-box;
+    outline: none;
+    border: 1px solid color-mix(in srgb, var(--git-graph-fg) 35%, transparent);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--git-graph-fg) 10%, transparent);
+    color: inherit;
+    font: inherit;
+    line-height: 17px;
+}
+
+.git-graph-anchored-dialog-select:focus {
+    border-color: var(--vscode-focusBorder, var(--git-graph-accent));
+}
+
+.git-graph-anchored-dialog-checkbox-list {
+    display: inline-block;
+    width: 360px;
+    max-width: 100%;
+    margin-top: 8px;
+    text-align: left;
+}
+
+.git-graph-anchored-dialog-checkbox-list.centered {
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+.git-graph-anchored-dialog-checkbox-list.centered .git-graph-anchored-dialog-checkbox-item {
+    display: inline-flex;
+    justify-content: center;
+}
+
+.git-graph-anchored-dialog-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 2px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.git-graph-anchored-dialog-checkbox-item input {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.git-graph-anchored-dialog-info {
+    display: inline-flex;
+    align-items: center;
+    opacity: 0.75;
+    cursor: help;
+}
+
+.git-graph-anchored-dialog-info .codicon {
+    font-size: 14px;
+}
+
+.git-graph-create-branch-checkbox,
+.git-graph-anchored-dialog-checkbox {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 22px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.git-graph-create-branch-checkbox input,
+.git-graph-anchored-dialog-checkbox input {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.git-graph-create-branch-actions,
+.git-graph-anchored-dialog-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    margin-top: 8px;
+    width: 100%;
+}
+
+.git-graph-create-branch-btn,
+.git-graph-anchored-dialog-btn {
+    display: inline-block;
+    min-height: 24px;
+    line-height: 22px;
+    padding: 0 14px;
+    margin: 0;
+    border: 1px solid var(--vscode-button-border, transparent);
+    border-radius: 6px;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--vscode-button-secondaryForeground, var(--vscode-foreground));
+    background: var(--vscode-button-secondaryBackground, color-mix(in srgb, var(--git-graph-fg) 12%, transparent));
+}
+
+.git-graph-create-branch-btn:hover:not(:disabled),
+.git-graph-anchored-dialog-btn:hover:not(:disabled) {
+    background: var(--vscode-button-secondaryHoverBackground, color-mix(in srgb, var(--git-graph-fg) 18%, transparent));
+}
+
+.git-graph-create-branch-btn.primary,
+.git-graph-anchored-dialog-btn.primary {
+    color: var(--vscode-button-foreground, #ffffff);
+    background: var(--vscode-button-background, var(--git-graph-accent));
+    border-color: var(--vscode-button-border, transparent);
+    box-shadow: none;
+}
+
+.git-graph-create-branch-btn.primary:hover:not(:disabled),
+.git-graph-anchored-dialog-btn.primary:hover:not(:disabled) {
+    background: var(--vscode-button-hoverBackground, var(--git-graph-accent));
+}
+
+.git-graph-create-branch-btn.primary:disabled,
+.git-graph-anchored-dialog-btn.primary:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.git-graph-anchored-dialog-btn.primary.danger {
+    border-color: var(--vscode-inputValidation-errorBorder, #be1100);
+    background: var(--vscode-inputValidation-errorBackground, #5a1d1d);
+    color: var(--vscode-inputValidation-errorForeground, #f48771);
+}
+
+.git-graph-anchored-dialog-btn.primary.danger:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--vscode-inputValidation-errorBackground, #5a1d1d) 85%, #ffffff);
+}
+
+.git-graph-anchored-dialog-option-list {
+    display: flex;
+    flex-direction: column;
+    width: 360px;
+    max-width: 100%;
+    margin-top: 10px;
+    border: 1px solid color-mix(in srgb, var(--git-graph-fg) 35%, transparent);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--git-graph-fg) 6%, transparent);
+    text-align: left;
+    overflow: hidden;
+}
+
+.git-graph-anchored-dialog-option {
+    display: block;
+    width: 100%;
+    padding: 6px 8px;
+    border: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--git-graph-fg) 18%, transparent);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 13px;
+    line-height: 17px;
+    text-align: left;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.git-graph-anchored-dialog-option:last-child {
+    border-bottom: none;
+}
+
+.git-graph-anchored-dialog-option:hover {
+    background: color-mix(in srgb, var(--git-graph-fg) 10%, transparent);
+}
+
+.git-graph-anchored-dialog-option.selected {
+    background: color-mix(in srgb, var(--git-graph-fg) 14%, transparent);
+}
+
+.git-graph-anchored-dialog-option-label {
+    display: block;
+    font-weight: 400;
+}
+
+.git-graph-anchored-dialog-option-desc {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    opacity: 0.75;
+    word-break: break-all;
 }

@@ -20,7 +20,7 @@ export interface ContextMenuState {
 interface ContextMenuProps {
     menu: ContextMenuState | null;
     onClose: () => void;
-    onSelect: (id: string) => void;
+    onSelect: (id: string, position: { x: number; y: number }) => void;
 }
 
 export function ContextMenu({ menu, onClose, onSelect }: ContextMenuProps) {
@@ -72,7 +72,7 @@ export function ContextMenu({ menu, onClose, onSelect }: ContextMenuProps) {
                         disabled={item.disabled}
                         onClick={(e) => {
                             e.stopPropagation();
-                            onSelect(item.id);
+                            onSelect(item.id, { x: e.clientX, y: e.clientY });
                             onClose();
                         }}
                     >

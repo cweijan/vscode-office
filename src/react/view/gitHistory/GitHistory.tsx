@@ -153,10 +153,18 @@ function GitHistoryView({
 
     const {
         currentStep: actionPromptStep,
+        promptAnchor: actionPromptAnchor,
         requestAction,
         submitStep: submitActionPrompt,
         cancelPrompt: cancelActionPrompt,
     } = useGitActionPrompt(executeGitAction);
+
+    const promptAnchorRef = useRef<PopupAnchor | null>(null);
+
+    const requestActionFromMenu = useCallback((action: GitActionRequest) => {
+        requestAction(action, { remotes, branchHead }, promptAnchorRef.current ?? undefined);
+        promptAnchorRef.current = null;
+    }, [requestAction, remotes, branchHead]);
 
     const menuContext = useMemo<MenuContext>(() => ({
         repo,
@@ -165,8 +173,8 @@ function GitHistoryView({
         branches,
         relPath,
         pullDefaults,
-        emit: (action) => requestAction(action, { remotes }),
-    }), [repo, branchHead, remotes, branches, relPath, pullDefaults, requestAction]);
+        emit: (action) => requestActionFromMenu(action),
+    }), [repo, branchHead, remotes, branches, relPath, pullDefaults, requestActionFromMenu]);
 
     menuContextRef.current = menuContext;
 
@@ -228,7 +236,8 @@ function GitHistoryView({
         );
     }, [commits, selectedIndex, menuContext, openContextMenu]);
 
-    const handleContextMenuSelect = useCallback((id: string) => {
+    const handleContextMenuSelect = useCallback((id: string, position: { x: number; y: number }) => {
+        promptAnchorRef.current = position;
         const meta = menuMetaRef.current[id];
         const ctx = menuContextRef.current;
         if (!meta || !ctx) return;
@@ -766,14 +775,11 @@ function GitHistoryView({
 
     const handleToolbarPromptSubmit = (value: PromptSubmitValue) => {
         const kind = toolbarPromptKind;
-        setToolbarPrompt(null);
-        setToolbarPromptKind(null);
         if (kind === 'quickSyncConfirm') {
             const formValues = typeof value === 'string' ? null : value;
             const commitMessage = formValues?.commitMessage?.trim() || QUICK_SYNC_DEFAULT_MESSAGE;
             pendingQuickSyncCommitMessageRef.current = commitMessage;
             if (remotes.length > 1) {
-                setToolbarPromptKind('quickSync');
                 setToolbarPrompt({
                     kind: 'pick',
                     id: 'remote',
@@ -781,11 +787,16 @@ function GitHistoryView({
                     message: `Sync "${branchHead}" with remote`,
                     options: remotes.map((remote) => ({ value: remote, label: remote })),
                 });
+                setToolbarPromptKind('quickSync');
                 return;
             }
+            setToolbarPrompt(null);
+            setToolbarPromptKind(null);
             runQuickSync(remotes[0], commitMessage);
             return;
         }
+        setToolbarPrompt(null);
+        setToolbarPromptKind(null);
         if (kind === 'quickSync') {
             if (typeof value !== 'string') {
                 return;
@@ -1123,6 +1134,8 @@ function GitHistoryView({
             {actionPromptStep && (
                 <ActionDialog
                     step={actionPromptStep}
+                    anchored
+                    anchor={actionPromptAnchor}
                     onCancel={cancelActionPrompt}
                     onSubmit={submitActionPrompt}
                 />

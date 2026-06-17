@@ -67,21 +67,43 @@ export class GitActionHandler {
             case 'pushBranch':
                 return this.commands.pushBranch(payload.repo, payload.remote, payload.branch, true);
             case 'merge':
-                return this.commands.merge(payload.repo, payload.ref);
+                return this.commands.merge(
+                    payload.repo,
+                    payload.ref,
+                    {
+                        createNewCommit: payload.createNewCommit,
+                        squash: payload.squash,
+                        noCommit: payload.noCommit,
+                    },
+                );
             case 'cherryPick':
-                return this.commands.cherryPick(payload.repo, payload.hash, payload.parentIndex ?? 0);
+                return this.commands.cherryPick(
+                    payload.repo,
+                    payload.hash,
+                    payload.parentIndex ?? 0,
+                    payload.recordOrigin ?? false,
+                    payload.noCommit ?? false,
+                );
             case 'revertCommit':
                 return this.commands.revertCommit(payload.repo, payload.hash, payload.parentIndex ?? 0);
             case 'resetToCommit':
                 return this.commands.resetToCommit(payload.repo, payload.hash, payload.mode);
-            case 'addTag':
-                return this.commands.addTag(
+            case 'addTag': {
+                const addError = await this.commands.addTag(
                     payload.repo,
                     payload.tagName,
                     payload.hash,
                     payload.annotated,
                     payload.message,
                 );
+                if (addError) {
+                    return addError;
+                }
+                if (payload.pushToRemote) {
+                    return this.commands.pushTag(payload.repo, payload.tagName, payload.pushToRemote);
+                }
+                return null;
+            }
             case 'deleteTag':
                 return this.commands.deleteTag(payload.repo, payload.tag);
             case 'pushTag':

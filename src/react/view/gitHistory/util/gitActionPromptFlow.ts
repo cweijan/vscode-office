@@ -1,6 +1,7 @@
 export type FormField =
-    | { type: 'text'; id: string; label: string; placeholder?: string; defaultValue?: string }
-    | { type: 'checkbox'; id: string; label: string; defaultValue?: boolean };
+    | { type: 'text'; id: string; label: string; placeholder?: string; defaultValue?: string; info?: string }
+    | { type: 'checkbox'; id: string; label: string; defaultValue?: boolean; info?: string }
+    | { type: 'select'; id: string; label: string; options: { value: string; label: string }[]; defaultValue?: string; info?: string };
 
 export type PromptStep =
     | {
@@ -10,6 +11,8 @@ export type PromptStep =
         message: string;
         confirmLabel: string;
         danger?: boolean;
+        variant?: 'revertCommit';
+        commitHash?: string;
     }
     | {
         kind: 'input';
@@ -26,6 +29,10 @@ export type PromptStep =
         title: string;
         message?: string;
         options: { value: string; label: string; description?: string }[];
+        variant?: 'resetMode';
+        branchName?: string | null;
+        commitHash?: string;
+        submitLabel?: string;
     }
     | {
         kind: 'form';
@@ -34,8 +41,11 @@ export type PromptStep =
         message?: string;
         submitLabel: string;
         fields: FormField[];
-        variant?: 'createBranch';
+        variant?: 'createBranch' | 'cherryPick' | 'merge' | 'addTag' | 'deleteBranch';
         commitHash?: string;
+        mergeOn?: 'commit' | 'branch';
+        mergeTarget?: string;
+        branchName?: string | null;
     };
 
 export type GitActionRequest = Record<string, unknown> & { action: string };
@@ -48,7 +58,7 @@ function abbrevHash(hash: string): string {
 
 export function getPromptSteps(
     payload: GitActionRequest,
-    ctx: { remotes: string[] },
+    ctx: { remotes: string[]; branchHead: string | null },
 ): PromptStep[] | null {
     switch (payload.action) {
         case 'createBranch':
@@ -66,13 +76,14 @@ export function getPromptSteps(
             }];
         case 'deleteBranch':
             return [{
-                kind: 'pick',
-                id: 'deleteMode',
+                kind: 'form',
+                id: 'deleteBranch',
                 title: 'Delete Branch',
-                message: `Delete branch "${payload.branch}"?`,
-                options: [
-                    { value: 'normal', label: 'Delete' },
-                    { value: 'force', label: 'Force Delete', description: 'Force delete even if not fully merged' },
+                variant: 'deleteBranch',
+                branchName: payload.branch as string,
+                submitLabel: 'Delete',
+                fields: [
+                    { type: 'checkbox', id: 'forceDelete', label: 'Force Delete', defaultValue: false },
                 ],
             }];
         case 'renameBranch':
@@ -103,61 +114,157 @@ export function getPromptSteps(
                 }];
             }
             return null;
-        case 'merge':
+        case 'merge': {
+            const mergeOn = payload.mergeOn === 'commit' ? 'commit' : 'branch';
+            const ref = payload.ref as string;
+            const mergeTarget = mergeOn === 'commit' ? abbrevHash(ref) : ref;
+            const branchName = ctx.branchHead && !ctx.branchHead.startsWith('(HEAD detached')
+                ? ctx.branchHead
+                : null;
+            const mergeKind = mergeOn === 'commit' ? 'commit' : 'branch';
             return [{
-                kind: 'confirm',
-                id: 'confirm',
+                kind: 'form',
+                id: 'merge',
                 title: 'Merge',
-                message: `Merge "${payload.ref}" into the current branch?`,
-                confirmLabel: 'Merge',
+                variant: 'merge',
+                mergeOn,
+                mergeTarget,
+                branchName,
+                submitLabel: 'Merge',
+                fields: [
+                    {
+                        type: 'checkbox',
+                        id: 'createNewCommit',
+                        label: 'Create a new commit even if fast-forward is possible',
+                        defaultValue: true,
+                    },
+                    {
+                        type: 'checkbox',
+                        id: 'squash',
+                        label: 'Squash Commits',
+                        defaultValue: false,
+                        info: `Create a single commit on the current branch whose effect is the same as merging this ${mergeKind}.`,
+                    },
+                    {
+                        type: 'checkbox',
+                        id: 'noCommit',
+                        label: 'No Commit',
+                        defaultValue: false,
+                        info: 'The changes of the merge will be staged but not committed, so that you can review and/or modify the merge result before committing.',
+                    },
+                ],
             }];
-        case 'cherryPick':
+        }
+        case 'cherryPick': {
+            const parents = Array.isArray(payload.parents) ? payload.parents as string[] : [];
+            const fields: FormField[] = [];
+            if (parents.length > 1) {
+                fields.push({
+                    type: 'select',
+                    id: 'parentIndex',
+                    label: 'Parent Hash',
+                    defaultValue: '1',
+                    info: 'Choose the parent hash on the main branch, to cherry pick the commit relative to.',
+                    options: parents.map((hash, index) => ({
+                        value: String(index + 1),
+                        label: abbrevHash(hash),
+                    })),
+                });
+            }
+            fields.push(
+                {
+                    type: 'checkbox',
+                    id: 'recordOrigin',
+                    label: 'Record Origin',
+                    defaultValue: false,
+                    info: 'Record that this commit was the origin of the cherry pick by appending a line to the original commit message that states "(cherry picked from commit ...)".',
+                },
+                {
+                    type: 'checkbox',
+                    id: 'noCommit',
+                    label: 'No Commit',
+                    defaultValue: false,
+                    info: 'Cherry picked changes will be staged but not committed, so that you can select and commit specific parts of this commit.',
+                },
+            );
             return [{
-                kind: 'confirm',
-                id: 'confirm',
+                kind: 'form',
+                id: 'cherryPick',
                 title: 'Cherry Pick',
-                message: `Cherry pick commit ${abbrevHash(payload.hash as string)}?`,
-                confirmLabel: 'Cherry Pick',
+                variant: 'cherryPick',
+                commitHash: payload.hash as string,
+                submitLabel: 'Cherry pick',
+                fields,
             }];
+        }
         case 'revertCommit':
             return [{
                 kind: 'confirm',
                 id: 'confirm',
                 title: 'Revert',
-                message: `Revert commit ${abbrevHash(payload.hash as string)}?`,
+                message: '',
+                variant: 'revertCommit',
+                commitHash: payload.hash as string,
                 confirmLabel: 'Revert',
             }];
-        case 'resetToCommit':
+        case 'resetToCommit': {
+            const branchName = ctx.branchHead && !ctx.branchHead.startsWith('(HEAD detached')
+                ? ctx.branchHead
+                : null;
             return [{
                 kind: 'pick',
                 id: 'mode',
                 title: 'Reset Branch',
-                message: `Reset current branch to ${abbrevHash(payload.hash as string)}`,
+                variant: 'resetMode',
+                branchName,
+                commitHash: payload.hash as string,
+                submitLabel: 'Reset',
                 options: [
-                    { value: 'soft', label: 'Soft — keep changes staged' },
-                    { value: 'mixed', label: 'Mixed — keep working tree' },
-                    { value: 'hard', label: 'Hard — discard all changes' },
+                    { value: 'soft', label: 'Soft - Keep all changes, but reset head' },
+                    { value: 'mixed', label: 'Mixed - Keep working tree, but reset index' },
+                    { value: 'hard', label: 'Hard - Discard all changes' },
                 ],
             }];
-        case 'addTag':
-            return [
+        }
+        case 'addTag': {
+            const fields: FormField[] = [
+                { type: 'text', id: 'tagName', label: 'Name', placeholder: 'v1.0.0' },
                 {
-                    kind: 'input',
-                    id: 'tagName',
-                    title: 'Add Tag',
-                    label: 'Tag name',
-                    placeholder: 'v1.0.0',
-                },
-                {
-                    kind: 'pick',
-                    id: 'annotated',
-                    title: 'Tag Type',
-                    options: [
-                        { value: 'lightweight', label: 'Lightweight' },
-                        { value: 'annotated', label: 'Annotated' },
-                    ],
+                    type: 'text',
+                    id: 'message',
+                    label: 'Message',
+                    placeholder: 'Optional',
                 },
             ];
+            if (ctx.remotes.length > 1) {
+                fields.push({
+                    type: 'select',
+                    id: 'pushToRemote',
+                    label: 'Push to remote',
+                    defaultValue: '-1',
+                    options: [
+                        { value: '-1', label: "Don't push" },
+                        ...ctx.remotes.map((remote, index) => ({ value: String(index), label: remote })),
+                    ],
+                });
+            } else if (ctx.remotes.length === 1) {
+                fields.push({
+                    type: 'checkbox',
+                    id: 'pushToRemote',
+                    label: 'Push to remote',
+                    defaultValue: false,
+                });
+            }
+            return [{
+                kind: 'form',
+                id: 'addTag',
+                title: 'Add Tag',
+                variant: 'addTag',
+                commitHash: payload.hash as string,
+                submitLabel: 'Add Tag',
+                fields,
+            }];
+        }
         case 'deleteTag':
             return [{
                 kind: 'confirm',
@@ -231,16 +338,6 @@ export function getFollowUpSteps(
             danger: true,
         }];
     }
-    if (payload.action === 'addTag' && step.kind === 'pick' && step.id === 'annotated' && answer === 'annotated') {
-        return [{
-            kind: 'input',
-            id: 'message',
-            title: 'Tag Message',
-            label: 'Annotation message',
-            placeholder: 'Optional — defaults to tag name',
-            optional: true,
-        }];
-    }
     return [];
 }
 
@@ -259,7 +356,7 @@ export function resolveGitActionPayload(
             };
         }
         case 'deleteBranch':
-            return { ...base, force: answers.deleteMode === 'force' };
+            return { ...base, force: answers.forceDelete === 'yes' };
         case 'renameBranch': {
             const newName = answers.newName?.trim();
             if (!newName || newName === base.branch) return null;
@@ -270,17 +367,45 @@ export function resolveGitActionPayload(
                 return { ...base, remote: answers.remote };
             }
             return base;
+        case 'cherryPick': {
+            const parents = Array.isArray(base.parents) ? base.parents as string[] : [];
+            const parentIndex = parents.length > 1
+                ? parseInt(answers.parentIndex ?? '1', 10)
+                : 0;
+            return {
+                ...base,
+                parentIndex,
+                recordOrigin: answers.recordOrigin === 'yes',
+                noCommit: answers.noCommit === 'yes',
+            };
+        }
+        case 'merge':
+            return {
+                ...base,
+                createNewCommit: answers.createNewCommit === 'yes',
+                squash: answers.squash === 'yes',
+                noCommit: answers.noCommit === 'yes',
+            };
         case 'resetToCommit':
             if (!answers.mode) return null;
             return { ...base, mode: answers.mode };
         case 'addTag': {
             const tagName = answers.tagName?.trim();
             if (!tagName) return null;
+            const remotes = Array.isArray(base.remotes) ? base.remotes as string[] : [];
+            let pushToRemote: string | null = null;
+            if (remotes.length > 1) {
+                const index = answers.pushToRemote ?? '-1';
+                pushToRemote = index !== '-1' ? remotes[parseInt(index, 10)] ?? null : null;
+            } else if (remotes.length === 1 && answers.pushToRemote === 'yes') {
+                pushToRemote = remotes[0];
+            }
             return {
                 ...base,
                 tagName,
-                annotated: answers.annotated === 'annotated',
+                annotated: true,
                 message: answers.message?.trim() ?? '',
+                pushToRemote,
             };
         }
         case 'branchFromStash': {

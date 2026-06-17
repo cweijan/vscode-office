@@ -11,11 +11,11 @@ export type GitActionPayload =
     | { action: 'deleteRemoteBranch'; repo: string; branch: string; remote: string }
     | { action: 'pullBranch'; repo: string; branch: string; remote: string; noFastForward?: boolean; squash?: boolean }
     | { action: 'pushBranch'; repo: string; branch: string; remote: string }
-    | { action: 'merge'; repo: string; ref: string }
-    | { action: 'cherryPick'; repo: string; hash: string; parentIndex?: number }
+    | { action: 'merge'; repo: string; ref: string; mergeOn?: 'commit' | 'branch' | 'remote'; createNewCommit?: boolean; squash?: boolean; noCommit?: boolean }
+    | { action: 'cherryPick'; repo: string; hash: string; parents?: string[]; parentIndex?: number; recordOrigin?: boolean; noCommit?: boolean }
     | { action: 'revertCommit'; repo: string; hash: string; parentIndex?: number }
     | { action: 'resetToCommit'; repo: string; hash: string; mode: GitResetMode }
-    | { action: 'addTag'; repo: string; hash: string; tagName: string; annotated: boolean; message?: string }
+    | { action: 'addTag'; repo: string; hash: string; remotes?: string[]; tagName: string; annotated: boolean; message?: string; pushToRemote?: string | null }
     | { action: 'deleteTag'; repo: string; tag: string }
     | { action: 'pushTag'; repo: string; tag: string; remote: string }
     | { action: 'applyStash'; repo: string; selector: string }

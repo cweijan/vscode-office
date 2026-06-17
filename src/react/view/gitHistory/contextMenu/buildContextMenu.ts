@@ -49,9 +49,6 @@ export function buildCommitContextMenu(commit: GitCommit, ctx: MenuContext): Con
         ...sep([
             { id: 'merge', label: 'Merge into current branch' },
         ]),
-        ...sep([
-            { id: 'copySubject', label: 'Copy Commit Subject' },
-        ]),
     ];
 
     return items.map((item) => ({
@@ -189,7 +186,6 @@ export function runContextMenuAction(
             emit({ action: 'copyToClipboard', text: meta._hash?.substring(0, 8) ?? '' });
             break;
         case 'copyMessage':
-        case 'copySubject':
             emit({ action: 'copyToClipboard', text: meta._message ?? '' });
             break;
         case 'reset':
@@ -199,19 +195,19 @@ export function runContextMenuAction(
             emit({ action: 'createBranch', repo, hash: meta._hash! });
             break;
         case 'addTag':
-            emit({ action: 'addTag', repo, hash: meta._hash! });
+            emit({ action: 'addTag', repo, hash: meta._hash!, remotes: ctx.remotes });
             break;
         case 'checkout':
             emit({ action: 'checkoutCommit', repo, hash: meta._hash! });
             break;
         case 'cherryPick':
-            emit({ action: 'cherryPick', repo, hash: meta._hash!, parentIndex: meta._parents && meta._parents.length > 1 ? 1 : 0 });
+            emit({ action: 'cherryPick', repo, hash: meta._hash!, parents: meta._parents ?? [] });
             break;
         case 'revert':
             emit({ action: 'revertCommit', repo, hash: meta._hash!, parentIndex: meta._parents && meta._parents.length > 1 ? 1 : 0 });
             break;
         case 'merge':
-            emit({ action: 'merge', repo, ref: meta._hash! });
+            emit({ action: 'merge', repo, ref: meta._hash!, mergeOn: 'commit' });
             break;
         case 'checkoutBranch':
             emit({ action: 'checkoutBranch', repo, branch: meta._branch!, hash: meta._hash });
@@ -223,7 +219,7 @@ export function runContextMenuAction(
             emit({ action: 'deleteBranch', repo, branch: meta._branch! });
             break;
         case 'mergeBranch':
-            emit({ action: 'merge', repo, ref: meta._branch! });
+            emit({ action: 'merge', repo, ref: meta._branch!, mergeOn: 'branch' });
             break;
         case 'pushBranch':
             if (ctx.remotes[0]) {
@@ -257,7 +253,7 @@ export function runContextMenuAction(
             });
             break;
         case 'mergeRemote':
-            emit({ action: 'merge', repo, ref: meta._ref! });
+            emit({ action: 'merge', repo, ref: meta._ref!, mergeOn: 'branch' });
             break;
         case 'deleteTag':
             emit({ action: 'deleteTag', repo, tag: meta._tag! });
