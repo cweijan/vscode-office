@@ -5,6 +5,7 @@ import { Handler } from '../common/handler';
 import { Util } from '../common/util';
 import { handleClass } from './handlers/classHandler';
 import { handleImage, isImage } from './handlers/imageHanlder';
+import { handleSvg } from './handlers/svgHandler';
 import { getFileSuffix } from '@/service/compress/archiveUtils';
 import { handleZip } from './compress/zipHandler';
 import { handleRar } from './compress/rarHandler';
@@ -41,12 +42,14 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
         }
 
         const handler = Handler.bind(webviewPanel, uri)
-        handleCommonEvent(uri, handler)
 
         let route: string;
         const suffix = getFileSuffix(uri.fsPath);
-        if (/\.svg$/i.test(suffix)) {
+        const isSvg = /\.svg$/i.test(suffix);
+        handleCommonEvent(uri, handler, isSvg ? { skipOpen: true } : undefined)
+        if (isSvg) {
             route = 'svg';
+            handleSvg(handler, uri);
         } else if (isImage(suffix)) {
             handleImage(handler, uri, webview)
             route = 'image'

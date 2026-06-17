@@ -1,5 +1,6 @@
 import { App } from 'antd';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useWindowSize } from '../../util/reactUtils';
 import { handler } from '../../util/vscode';
 import { getConfigs } from '../../util/vscodeConfig';
 import SponsorBar from '../components/SponsorBar';
@@ -17,13 +18,7 @@ import {
 } from './svgUtils';
 import './SvgViewer.less';
 
-async function fetchSvgContent(path: string): Promise<string> {
-    const response = await fetch(path);
-    if (!response.ok) {
-        throw new Error(`Failed to load SVG: ${response.status}`);
-    }
-    return response.text();
-}
+const NARROW_WIDTH_BREAKPOINT = 640;
 
 function FormatIcon() {
     return (
@@ -76,6 +71,7 @@ function SvgViewerInner() {
     const [error, setError] = useState('');
     const [exportingPng, setExportingPng] = useState(false);
     const [dirty, setDirty] = useState(false);
+    const [isGitScheme, setIsGitScheme] = useState(false);
 
     const contentRef = useRef('');
     const lastSavedRef = useRef('');
@@ -90,6 +86,10 @@ function SvgViewerInner() {
 
     const colors = useMemo(() => parseSvgColors(content), [content]);
     const [previewUrl, setPreviewUrl] = useState('');
+    const [width] = useWindowSize();
+    const effectiveWidth = width || window.innerWidth;
+    const isNarrowWidth = effectiveWidth <= NARROW_WIDTH_BREAKPOINT;
+    const previewOnly = isGitScheme || isNarrowWidth;
 
     useEffect(() => {
         const trimmed = content.trim();
@@ -114,39 +114,32 @@ function SvgViewerInner() {
         };
     }, [content]);
 
-    const loadContent = useCallback(async (path: string) => {
-        setLoading(true);
-        setError('');
-        try {
-            const text = await fetchSvgContent(path);
-            setContent(text);
-            contentRef.current = text;
-            lastSavedRef.current = text;
-            dirtyRef.current = false;
-            setDirty(false);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to load SVG');
-        } finally {
-            setLoading(false);
-        }
+    const applyContent = useCallback((text: string) => {
+        setContent(text);
+        contentRef.current = text;
+        lastSavedRef.current = text;
+        dirtyRef.current = false;
+        setDirty(false);
     }, []);
 
     useEffect(() => {
         handler
-            .on('open', ({ path }) => {
+            .on('open', ({ path, scheme, content, error: openError }) => {
                 filePathRef.current = path;
                 setFileName(getFileNameFromPath(path));
+                setIsGitScheme(scheme === 'git');
+                setLoading(false);
+                if (openError) {
+                    setError(openError);
+                    return;
+                }
                 setError('');
-                loadContent(path);
+                applyContent(content ?? '');
             })
             .emit('init');
-    }, [loadContent]);
+    }, [applyContent]);
 
     useEffect(() => {
-        handler.on('fileChange', () => {
-            if (dirtyRef.current || !filePathRef.current) return;
-            loadContent(filePathRef.current);
-        });
         handler.on('saveDone', () => {
             lastSavedRef.current = contentRef.current;
             dirtyRef.current = false;
@@ -156,7 +149,7 @@ function SvgViewerInner() {
                 content: saveSuccessText,
             });
         });
-    }, [loadContent, message, saveSuccessText]);
+    }, [message, saveSuccessText]);
 
     const updateContent = useCallback((value: string) => {
         setContent(value);
@@ -225,8 +218,8 @@ function SvgViewerInner() {
             {loading && <div className="svg-viewer__loading">Loading SVG…</div>}
             {error && <div className="svg-viewer__error">{error}</div>}
             {!loading && (
-                <div className="svg-viewer__main">
-                    <div className="svg-viewer__panel svg-viewer__panel--code">
+                <div className={`svg-viewer__main${previewOnly ? ' svg-viewer__main--preview-only' : ''}`}>
+                    {!previewOnly && <div className="svg-viewer__panel svg-viewer__panel--code">
                         <div className="svg-viewer__header">
                             <span className="svg-viewer__title">SVG</span>
                             <div className="svg-viewer__actions">
@@ -260,13 +253,13 @@ function SvgViewerInner() {
                             value={content}
                             onChange={updateContent}
                         />
-                    </div>
+                    </div>}
 
                     <div className="svg-viewer__panel svg-viewer__panel--preview">
                         <div className="svg-viewer__header">
                             <span className="svg-viewer__title">Preview</span>
                         </div>
-                        <div className="svg-viewer__controls">
+                        {!previewOnly && <div className="svg-viewer__controls">
                             <div className="svg-viewer__control-row">
                                 <span className="svg-viewer__label">BACKGROUND</span>
                                 <input
@@ -301,7 +294,7 @@ function SvgViewerInner() {
                                     spellCheck={false}
                                 />
                             </div>
-                        </div>
+                        </div>}
                         <div className="svg-viewer__canvas-wrap">
                             {previewUrl ? (
                                 <img
