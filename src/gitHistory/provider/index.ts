@@ -88,9 +88,6 @@ export async function activateGitHistory(context: vscode.ExtensionContext): Prom
             }
             await openGitHistory(context, { fileUri });
         }),
-        vscode.commands.registerCommand('office.gitHistory.find', () => {
-            GitHistoryPanel.emitToActivePanel('toggleFind');
-        }),
         vscode.window.registerWebviewPanelSerializer(
             GIT_HISTORY_VIEW_TYPE,
             new GitHistoryPanelSerializer(context, commitService, repoDiscovery, gitActions, gitActionHandler)

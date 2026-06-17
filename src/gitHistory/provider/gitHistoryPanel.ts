@@ -115,8 +115,9 @@ export class GitHistoryPanel {
         const title = panelContext.fileUri
             ? `Git History (${nodePath.basename(panelContext.fileUri.fsPath)})`
             : 'Git History';
+        const id = GIT_HISTORY_VIEW_TYPE + Date.now();
         const panel = vscode.window.createWebviewPanel(
-            GIT_HISTORY_VIEW_TYPE,
+            id,
             title,
             { viewColumn: column, preserveFocus: true },
             {
@@ -207,22 +208,6 @@ export class GitHistoryPanel {
                 GitHistoryPanel.panelMap.delete(key);
             }
         });
-    }
-
-    static emitToActivePanel(type: string, content?: unknown): boolean {
-        for (const instance of GitHistoryPanel.panelMap.values()) {
-            if (instance.panel.active) {
-                instance.handler.emit(type, content);
-                return true;
-            }
-        }
-        for (const instance of GitHistoryPanel.panelMap.values()) {
-            if (instance.panel.visible) {
-                instance.handler.emit(type, content);
-                return true;
-            }
-        }
-        return false;
     }
 
     static serializeState(context: GitHistoryPanelContext): GitHistoryPanelSerializedState {

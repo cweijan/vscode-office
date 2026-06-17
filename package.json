@@ -171,19 +171,9 @@
 				"command": "office.gitHistory.viewFileHistory",
 				"title": "View File History",
 				"icon": "$(history)"
-			},
-			{
-				"command": "office.gitHistory.find",
-				"title": "Find in Git History"
 			}
 		],
 		"keybindings": [
-			{
-				"command": "office.gitHistory.find",
-				"key": "ctrl+f",
-				"mac": "cmd+f",
-				"when": "activeWebviewPanelId == 'office-git-history'"
-			},
 			{
 				"command": "office.markdown.paste",
 				"key": "ctrl+v",

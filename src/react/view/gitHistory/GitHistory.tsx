@@ -872,12 +872,6 @@ function GitHistoryView({
     handleToggleFindRef.current = handleToggleFind;
 
     useEffect(() => {
-        handler.on('toggleFind', () => {
-            handleToggleFindRef.current();
-        });
-    }, []);
-
-    useEffect(() => {
         const onKeyDown = (e: KeyboardEvent) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
                 e.preventDefault();
