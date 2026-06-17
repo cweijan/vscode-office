@@ -93,6 +93,7 @@ export interface GitCommitDetailsData {
 export interface GitHistoryInitPayload {
     repos: string[];
     initialRepo: string | null;
+    preferredRepo?: string | null;
     filePath?: string | null;
     fileName?: string | null;
     relPath?: string | null;

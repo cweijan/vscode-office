@@ -206,6 +206,13 @@
 					"when": "scmProvider == git"
 				}
 			],
+			"scm/repository": [
+				{
+					"command": "office.gitHistory.view",
+					"group": "navigation",
+					"when": "scmProvider == git"
+				}
+			],
 			"scm/resourceState/context": [
 				{
 					"command": "office.gitHistory.viewFileHistory",

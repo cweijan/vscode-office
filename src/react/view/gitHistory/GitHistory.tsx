@@ -446,6 +446,8 @@ function GitHistoryView({
         }
     }, [updateDetailAnchorFromRow]);
 
+    const handleRepoChangeRef = useRef<(newRepo: string) => void>(() => {});
+
     useEffect(() => {
         const applyInitPayload = (payload: GitHistoryInitPayload): string | null => {
             const saved = loadGitHistoryState();
@@ -460,8 +462,8 @@ function GitHistoryView({
                 filePathRef.current = nextFilePath;
             }
 
-            let targetRepo = payload.initialRepo ?? null;
-            if (!nextFilePath && saved.repo && payload.repos.includes(saved.repo)) {
+            let targetRepo = payload.preferredRepo ?? payload.initialRepo ?? null;
+            if (!payload.preferredRepo && !nextFilePath && saved.repo && payload.repos.includes(saved.repo)) {
                 targetRepo = saved.repo;
             }
 
@@ -542,6 +544,17 @@ function GitHistoryView({
                 setRepos(payload.repos);
                 if (repoRef.current) {
                     loadRepositoryRef.current(repoRef.current, true);
+                }
+            })
+            .on('repos', (payload: { repos: string[] }) => {
+                setRepos(payload.repos);
+            })
+            .on('openRepo', (payload: { repo: string; repos?: string[] }) => {
+                if (payload.repos) {
+                    setRepos(payload.repos);
+                }
+                if (payload.repo && payload.repo !== repoRef.current) {
+                    handleRepoChangeRef.current(payload.repo);
                 }
             })
             .on('fetch', (payload: { error: string | null }) => {
@@ -673,6 +686,7 @@ function GitHistoryView({
         clearCommitList();
         loadRepository(newRepo, true);
     };
+    handleRepoChangeRef.current = handleRepoChange;
 
     const handleSelectCommit = (index: number, event?: MouseEvent) => {
         if (selectedIndex === index) {

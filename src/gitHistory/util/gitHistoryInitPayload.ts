@@ -2,6 +2,7 @@ import type * as vscode from 'vscode';
 import type { RepoDiscovery } from '../service/repoDiscovery';
 import type { GitHistoryPanelContext } from '../provider/gitHistoryPanelContext';
 import { getRelativeRepoPath } from './repoPath';
+import { resolvePreferredRepo } from './resolveGitHistoryCommandContext';
 import {
     getFileHistorySplitLayout,
     type FileHistorySplitLayout,
@@ -10,6 +11,7 @@ import {
 export interface GitHistoryEmbeddedInit {
     repos: string[];
     initialRepo: string | null;
+    preferredRepo: string | null;
     filePath: string | null;
     fileName: string | null;
     relPath: string | null;
@@ -21,11 +23,9 @@ function resolveInitialRepo(
     repoDiscovery: RepoDiscovery,
     panelContext: GitHistoryPanelContext,
 ): string | null {
-    if (panelContext.fileUri) {
-        const repo = repoDiscovery.getRepoForFile(panelContext.fileUri.fsPath);
-        if (repo) {
-            return repo;
-        }
+    const preferred = resolvePreferredRepo(panelContext, repoDiscovery);
+    if (preferred) {
+        return preferred;
     }
     return repoDiscovery.getInitialRepo();
 }
@@ -36,6 +36,7 @@ export function buildGitHistoryInitPayload(
     panelContext: GitHistoryPanelContext,
     viewColumn?: number,
 ): GitHistoryEmbeddedInit {
+    const preferredRepo = resolvePreferredRepo(panelContext, repoDiscovery);
     const initialRepo = resolveInitialRepo(repoDiscovery, panelContext);
     const filePath = panelContext.fileUri?.fsPath ?? null;
     const relPath = initialRepo && filePath
@@ -44,6 +45,7 @@ export function buildGitHistoryInitPayload(
     return {
         repos: repoDiscovery.getRepos(),
         initialRepo,
+        preferredRepo,
         filePath,
         fileName: filePath ? filePath.split(/[/\\]/).pop() ?? null : null,
         relPath,

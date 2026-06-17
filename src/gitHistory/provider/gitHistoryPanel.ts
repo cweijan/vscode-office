@@ -9,6 +9,7 @@ import type { GitActionHandler } from './gitActionHandler';
 import { MessageRouter } from './messageRouter';
 import { PanelHandler } from './panelHandler';
 import { buildGitHistoryInitPayload } from '../util/gitHistoryInitPayload';
+import { resolvePreferredRepo } from '../util/resolveGitHistoryCommandContext';
 import {
     getFileHistorySplitLayout,
     type FileHistorySplitLayout,
@@ -103,10 +104,19 @@ export class GitHistoryPanel {
         const key = getPanelKey(panelContext.fileUri);
         const existing = GitHistoryPanel.panelMap.get(key);
         if (existing) {
+            await repoDiscovery.discover();
             existing.panel.reveal(existing.panel.viewColumn ?? vscode.ViewColumn.One, true);
-            existing.handler.emit('refresh', {
-                repos: repoDiscovery.getRepos(),
-            });
+            const preferredRepo = resolvePreferredRepo(panelContext, repoDiscovery);
+            if (preferredRepo) {
+                existing.handler.emit('openRepo', {
+                    repo: preferredRepo,
+                    repos: repoDiscovery.getRepos(),
+                });
+            } else {
+                existing.handler.emit('repos', {
+                    repos: repoDiscovery.getRepos(),
+                });
+            }
             return;
         }
 
@@ -190,6 +200,7 @@ export class GitHistoryPanel {
         );
         router.bind();
 
+        await repoDiscovery.discover();
         const gitHistoryInit = buildGitHistoryInitPayload(
             context,
             repoDiscovery,

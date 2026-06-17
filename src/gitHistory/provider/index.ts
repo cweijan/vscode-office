@@ -9,6 +9,10 @@ import { GitActionHandler } from './gitActionHandler';
 import { GitHistoryPanel, GIT_HISTORY_VIEW_TYPE } from './gitHistoryPanel';
 import type { GitHistoryPanelContext } from './gitHistoryPanelContext';
 import { GitHistoryPanelSerializer } from './gitHistoryPanelSerializer';
+import {
+    buildPanelContextFromCommandArg,
+    resolvePreferredRepo,
+} from '../util/resolveGitHistoryCommandContext';
 
 let commitService: CommitService | undefined;
 let repoDiscovery: RepoDiscovery | undefined;
@@ -30,19 +34,31 @@ function resolveFileUri(arg?: vscode.Uri | { resourceUri?: vscode.Uri }): vscode
     return undefined;
 }
 
+function mergePanelContext(
+    base: GitHistoryPanelContext,
+    fromArg: GitHistoryPanelContext,
+): GitHistoryPanelContext {
+    return {
+        fileUri: base.fileUri ?? fromArg.fileUri,
+        preferredRepo: base.preferredRepo ?? fromArg.preferredRepo,
+    };
+}
+
 async function openGitHistory(
     context: vscode.ExtensionContext,
-    panelContext: GitHistoryPanelContext = {}
+    panelContext: GitHistoryPanelContext = {},
 ): Promise<void> {
     if (!commitService || !repoDiscovery || !gitActions || !gitRepoCommands || !gitActionHandler) {
         return;
     }
-    if (panelContext.fileUri) {
-        const repo = repoDiscovery.getRepoForFile(panelContext.fileUri.fsPath);
-        if (!repo) {
-            vscode.window.showErrorMessage('The file is not within a Git repository in the current workspace.');
-            return;
-        }
+    await repoDiscovery.discover();
+    const preferredRepo = resolvePreferredRepo(panelContext, repoDiscovery);
+    if (panelContext.fileUri && !preferredRepo) {
+        vscode.window.showErrorMessage('The file is not within a Git repository in the current workspace.');
+        return;
+    }
+    if (preferredRepo) {
+        panelContext = { ...panelContext, preferredRepo };
     }
     await GitHistoryPanel.createOrShow(
         context,
@@ -50,7 +66,7 @@ async function openGitHistory(
         repoDiscovery,
         gitActions,
         gitActionHandler,
-        panelContext
+        panelContext,
     );
 }
 
@@ -63,6 +79,7 @@ export async function activateGitHistory(context: vscode.ExtensionContext): Prom
         gitActions = new GitActions(executor);
         gitRepoCommands = new GitRepoCommands(executor);
         gitActionHandler = new GitActionHandler(gitRepoCommands);
+        repoDiscovery.bindToContext(context);
         await repoDiscovery.discover();
     } catch {
         context.subscriptions.push(
@@ -77,16 +94,18 @@ export async function activateGitHistory(context: vscode.ExtensionContext): Prom
     }
 
     context.subscriptions.push(
-        vscode.commands.registerCommand('office.gitHistory.view', async () => {
-            await openGitHistory(context);
+        vscode.commands.registerCommand('office.gitHistory.view', async (arg?: unknown) => {
+            const panelContext = buildPanelContextFromCommandArg(arg);
+            await openGitHistory(context, panelContext);
         }),
-        vscode.commands.registerCommand('office.gitHistory.viewFileHistory', async (arg?: vscode.Uri | { resourceUri?: vscode.Uri }) => {
-            const fileUri = resolveFileUri(arg);
+        vscode.commands.registerCommand('office.gitHistory.viewFileHistory', async (arg?: unknown) => {
+            const fromArg = buildPanelContextFromCommandArg(arg);
+            const fileUri = resolveFileUri(arg) ?? fromArg.fileUri;
             if (!fileUri) {
                 vscode.window.showWarningMessage('Open a file to view its Git history.');
                 return;
             }
-            await openGitHistory(context, { fileUri });
+            await openGitHistory(context, mergePanelContext({ fileUri }, fromArg));
         }),
         vscode.window.registerWebviewPanelSerializer(
             GIT_HISTORY_VIEW_TYPE,

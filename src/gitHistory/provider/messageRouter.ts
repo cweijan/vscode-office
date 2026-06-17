@@ -29,6 +29,7 @@ export class MessageRouter {
     private warmupRelPath: string | undefined;
     private watchedRepo: string | null = null;
     private readonly repoFileWatcher: RepoFileWatcher;
+    private disposeReposSubscription: vscode.Disposable | undefined;
 
     constructor(
         private readonly handler: PanelHandler,
@@ -45,6 +46,11 @@ export class MessageRouter {
     bind(): void {
         this.handler.panel.onDidDispose(() => {
             this.repoFileWatcher.stop();
+            this.disposeReposSubscription?.dispose();
+        });
+
+        this.disposeReposSubscription = this.repoDiscovery.subscribe((repos) => {
+            this.handler.emit('repos', { repos });
         });
 
         this.handler
@@ -146,8 +152,9 @@ export class MessageRouter {
         return getRelativeRepoPath(repo, this.panelContext.fileUri.fsPath) ?? undefined;
     }
 
-    private onReady(): void {
-        // Init payload is embedded in webview HTML; no IPC round-trip needed.
+    private async onReady(): Promise<void> {
+        await this.repoDiscovery.discover();
+        this.handler.emit('repos', { repos: this.repoDiscovery.getRepos() });
     }
 
     warmupRepository(repo: string, relPath?: string): void {
@@ -301,6 +308,7 @@ export class MessageRouter {
 
     private async onRefresh(): Promise<void> {
         await this.repoDiscovery.discover();
+        this.handler.emit('repos', { repos: this.repoDiscovery.getRepos() });
         this.handler.emit('refresh', { repos: this.repoDiscovery.getRepos() });
     }
 
