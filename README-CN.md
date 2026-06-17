@@ -10,9 +10,8 @@
 - Word: `.docx`、`.dotx`
 - PowerPoint: `.pptx`、`.pptm`
 - PDF 与电子书: `.pdf`、`.epub`
-- Svg: `.svg`
 - HEIC/TIFF: `.heic`、`.heif`、`.tiff`
-- 设计文件: `.psd`、`.xmind`、`.icns`
+- 设计文件: `.psd`、`.xmind`、`.icns`、`.svg`
 - 字体: `.ttf`、`.otf`、`.woff`、`.woff2`
 - Markdown: `.md`、`.markdown`
 - HTML: `.html`、`.htm`
@@ -54,6 +53,8 @@
 ## 其他功能
 
 - HTML: 编辑时按下 `Ctrl+Shift+V` 可实时预览
+- Git 历史: 在源代码管理视图或文件右键菜单中浏览提交图、查看文件历史、对比修订并执行常用 Git 操作
+- YAML: 支持文档大纲与锚点导航（别名引用可跳转到定义）
 - 图标主题: 内置 [Material Icon Theme](https://github.com/PKief/vscode-material-icon-theme) 部分图标，并提供 **Office Material Icon Theme** 与 **One Dark Modern** 配色主题
 - Excel: 支持预览和保存 `.xlsx`、`.xls`、`.xlsm`、`.csv`、`.ods` 等文件（注意保存 `.xlsx` 可能丢失格式；`.csv` 不支持 GBK 编码的中文）
 - HTTP: 在 `.http`、`.rest` 文件中发送请求（集成自 [REST Client](https://github.com/Huachao/vscode-restclient)，并修复了本地请求的已知问题）；按 `Ctrl+Enter` / `⌘ Enter` 发送

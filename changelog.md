@@ -2,7 +2,9 @@
 
 # 4.0.3
 
-Redesign the One Dark Modern theme
+Important:
+- Redesign the One Dark Modern theme
+- Add Git history management feature
 
 New:
   - Add SVG editor

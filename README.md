@@ -10,9 +10,8 @@ This extension lets you preview and edit common office and design files directly
 - Word: `.docx`, `.dotx`
 - PowerPoint: `.pptx`, `.pptm`
 - PDF & eBook: `.pdf`, `.epub`
-- Svg: `.svg`
 - HEIC/TIFF: `.heic`, `.heif`, `.tiff`
-- Design: `.psd`, `.xmind`, `.icns`
+- Design: `.psd`, `.xmind`, `.icns`, `.svg`
 - Font: `.ttf`, `.otf`, `.woff`, `.woff2`
 - Markdown: `.md`, `.markdown`
 - HTML: `.html`, `.htm`
@@ -54,6 +53,8 @@ Tips:
 ## Other features
 
 - HTML: live preview while editing; press `Ctrl+Shift+V` to open the live view
+- Git History: browse commit graph, view file history, compare revisions, and perform common Git operations from the Source Control view or file context menu
+- YAML: document outline and anchor navigation (Go to Definition for alias references)
 - Icon theme: includes a subset of [Material Icon Theme](https://github.com/PKief/vscode-material-icon-theme) icons, plus **Office Material Icon Theme** and **One Dark Modern** color themes
 - Excel: preview and save `.xlsx`, `.xls`, `.xlsm`, `.csv`, and `.ods` files (saving `.xlsx` may lose formatting; `.csv` does not support GBK-encoded Chinese)
 - HTTP: send requests from `.http` and `.rest` files (integrated from [REST Client](https://github.com/Huachao/vscode-restclient) with fixes for local request issues); press `Ctrl+Enter` / `⌘ Enter` to send
