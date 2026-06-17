@@ -5,7 +5,7 @@ import { handler } from '../../util/vscode';
 import ActionDialog from './components/ActionDialog';
 import RemoteFormDialog from './components/RemoteFormDialog';
 import { useGitActionPrompt } from './hooks/useGitActionPrompt';
-import type { PromptStep, GitActionRequest } from './util/gitActionPromptFlow';
+import type { PromptStep, GitActionRequest, PromptSubmitValue } from './util/gitActionPromptFlow';
 import { buildCheckoutStateUpdate } from './util/checkoutState';
 import Toolbar from './components/Toolbar';
 import FindWidget from './components/FindWidget';
@@ -41,6 +41,7 @@ import '@vscode/codicons/dist/codicon.css';
 
 const ROW_HEIGHT = 28;
 const MAX_COMMITS = 300;
+const QUICK_SYNC_DEFAULT_MESSAGE = 'Quick Sync';
 
 export default function GitHistory() {
     const { graphConfig, antTheme, cssVars } = useGitHistoryTheme();
@@ -66,6 +67,7 @@ export default function GitHistory() {
     const [loading, setLoading] = useState(true);
     const [fetching, setFetching] = useState(false);
     const [pushing, setPushing] = useState(false);
+    const [syncing, setSyncing] = useState(false);
     const [hasRemoteUrl, setHasRemoteUrl] = useState(false);
     const [remoteWebUrls, setRemoteWebUrls] = useState<{ name: string; url: string }[]>([]);
     const [error, setError] = useState<string | null>(null);
@@ -85,7 +87,7 @@ export default function GitHistory() {
         getFileHistorySplitLayout(),
     );
     const [toolbarPrompt, setToolbarPrompt] = useState<PromptStep | null>(null);
-    const [toolbarPromptKind, setToolbarPromptKind] = useState<'push' | 'openRemote' | null>(null);
+    const [toolbarPromptKind, setToolbarPromptKind] = useState<'push' | 'openRemote' | 'quickSyncConfirm' | 'quickSync' | null>(null);
     const [remoteForm, setRemoteForm] = useState<{ mode: 'add' | 'edit'; remote?: GitRemoteDetail } | null>(null);
     const [remoteDeleteName, setRemoteDeleteName] = useState<string | null>(null);
     const contentRef = useRef<HTMLDivElement>(null);
@@ -94,6 +96,7 @@ export default function GitHistory() {
     const { menu, showMenu, closeMenu } = useContextMenu();
     const menuContextRef = useRef<MenuContext | null>(null);
     const menuMetaRef = useRef<Record<string, MenuPayloadMeta>>({});
+    const pendingQuickSyncCommitMessageRef = useRef(QUICK_SYNC_DEFAULT_MESSAGE);
 
     const executeGitAction = useCallback((action: GitActionRequest) => {
         pendingGitActionRef.current = action;
@@ -456,6 +459,16 @@ export default function GitHistory() {
                     loadRepoInfoRef.current(repoRef.current, true);
                 }
             })
+            .on('quickSync', (payload: { error: string | null }) => {
+                setSyncing(false);
+                if (payload.error) {
+                    setError(payload.error);
+                    return;
+                }
+                if (repoRef.current) {
+                    loadRepoInfoRef.current(repoRef.current, true);
+                }
+            })
             .on('repoConfig', (payload: { remotes: GitRemoteDetail[] }) => {
                 setConfigRemotes(payload.remotes);
                 setConfigLoading(false);
@@ -598,6 +611,52 @@ export default function GitHistory() {
         handler.emit('push', { repo, branch: branchHead, remote: remotes[0] });
     };
 
+    const runQuickSync = (remote: string, commitMessage: string) => {
+        if (!repo || !branchHead) {
+            return;
+        }
+        setSyncing(true);
+        setError(null);
+        handler.emit('quickSync', {
+            repo,
+            branch: branchHead,
+            remote,
+            commitMessage,
+            noFastForward: pullDefaults.noFastForward,
+            squash: pullDefaults.squash,
+        });
+    };
+
+    const handleQuickSync = () => {
+        if (!repo || !branchHead) {
+            return;
+        }
+        if (remotes.length === 0) {
+            setError('No remotes configured.');
+            return;
+        }
+        if (branchHead.startsWith('(HEAD detached')) {
+            setError('Cannot quick sync in detached HEAD state.');
+            return;
+        }
+        setToolbarPromptKind('quickSyncConfirm');
+        setToolbarPrompt({
+            kind: 'form',
+            id: 'quickSync',
+            title: 'Quick Sync',
+            message: 'Uncommitted changes will be committed, then the branch will be pulled and pushed.',
+            submitLabel: 'Sync',
+            fields: [
+                {
+                    type: 'text',
+                    id: 'commitMessage',
+                    label: 'Commit message',
+                    defaultValue: QUICK_SYNC_DEFAULT_MESSAGE,
+                },
+            ],
+        });
+    };
+
     const handleOpenRemote = () => {
         if (!repo) return;
         if (remoteWebUrls.length === 0) {
@@ -622,15 +681,40 @@ export default function GitHistory() {
         handler.emit('openRemote', { url: remoteWebUrls[0].url });
     };
 
-    const handleToolbarPromptSubmit = (value: string) => {
+    const handleToolbarPromptSubmit = (value: PromptSubmitValue) => {
         const kind = toolbarPromptKind;
         setToolbarPrompt(null);
         setToolbarPromptKind(null);
-        if (kind === 'push' && repo && branchHead) {
+        if (kind === 'quickSyncConfirm') {
+            const formValues = typeof value === 'string' ? null : value;
+            const commitMessage = formValues?.commitMessage?.trim() || QUICK_SYNC_DEFAULT_MESSAGE;
+            pendingQuickSyncCommitMessageRef.current = commitMessage;
+            if (remotes.length > 1) {
+                setToolbarPromptKind('quickSync');
+                setToolbarPrompt({
+                    kind: 'pick',
+                    id: 'remote',
+                    title: 'Quick Sync',
+                    message: `Sync "${branchHead}" with remote`,
+                    options: remotes.map((remote) => ({ value: remote, label: remote })),
+                });
+                return;
+            }
+            runQuickSync(remotes[0], commitMessage);
+            return;
+        }
+        if (kind === 'quickSync') {
+            if (typeof value !== 'string') {
+                return;
+            }
+            runQuickSync(value, pendingQuickSyncCommitMessageRef.current);
+            return;
+        }
+        if (kind === 'push' && repo && branchHead && typeof value === 'string') {
             setPushing(true);
             setError(null);
             handler.emit('push', { repo, branch: branchHead, remote: value });
-        } else if (kind === 'openRemote') {
+        } else if (kind === 'openRemote' && typeof value === 'string') {
             handler.emit('openRemote', { url: value });
         }
     };
@@ -821,7 +905,9 @@ export default function GitHistory() {
                 loading={loading}
                 fetching={fetching}
                 pushing={pushing}
+                syncing={syncing}
                 canPush={Boolean(repo && branchHead && !branchHead.startsWith('(HEAD detached') && remotes.length > 0)}
+                canQuickSync={Boolean(repo && branchHead && !branchHead.startsWith('(HEAD detached') && remotes.length > 0)}
                 hasRemoteUrl={hasRemoteUrl}
                 findActive={findOpen}
                 settingsActive={settingsOpen}
@@ -840,6 +926,7 @@ export default function GitHistory() {
                 onSearch={handleSearch}
                 onFetch={handleFetch}
                 onPush={handlePush}
+                onQuickSync={handleQuickSync}
                 onOpenRemote={handleOpenRemote}
                 onToggleFind={handleToggleFind}
                 onRefresh={handleRefresh}

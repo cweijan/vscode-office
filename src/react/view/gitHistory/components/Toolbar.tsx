@@ -1,5 +1,5 @@
 import VscodeDropdown from './VscodeDropdown';
-import { FetchIcon, PushIcon, RefreshIcon, RemoteIcon, FindIcon, SettingsIcon } from './ToolbarIcons';
+import { FetchIcon, PushIcon, QuickSyncIcon, RefreshIcon, RemoteIcon, FindIcon, SettingsIcon } from './ToolbarIcons';
 
 interface ToolbarProps {
     repos: string[];
@@ -12,7 +12,9 @@ interface ToolbarProps {
     loading: boolean;
     fetching: boolean;
     pushing: boolean;
+    syncing: boolean;
     canPush: boolean;
+    canQuickSync: boolean;
     hasRemoteUrl: boolean;
     findActive: boolean;
     settingsActive: boolean;
@@ -23,6 +25,7 @@ interface ToolbarProps {
     onSearch: () => void;
     onFetch: () => void;
     onPush: () => void;
+    onQuickSync: () => void;
     onOpenRemote: () => void;
     onToggleFind: () => void;
     onRefresh: () => void;
@@ -36,11 +39,11 @@ function repoLabel(path: string): string {
 
 export default function Toolbar({
     repos, repo, branches, selectedBranch, authors, selectedAuthor,
-    searchValue, loading, fetching, pushing, canPush, hasRemoteUrl,
+    searchValue, loading, fetching, pushing, syncing, canPush, canQuickSync, hasRemoteUrl,
     findActive, settingsActive,
     onRepoChange, onBranchChange, onAuthorChange,
     onSearchChange, onSearch,
-    onFetch, onPush, onOpenRemote, onToggleFind, onRefresh, onToggleSettings,
+    onFetch, onPush, onQuickSync, onOpenRemote, onToggleFind, onRefresh, onToggleSettings,
 }: ToolbarProps) {
     const showRepo = repos.length > 1;
 
@@ -98,13 +101,19 @@ export default function Toolbar({
                         title="Fetch from remote(s)"
                         onClick={onFetch}
                         disabled={fetching || !repo}
-                        className={fetching ? ' spinning' : ''}
+                        className={fetching ? ' busy' : ''}
                     />
                     <PushIcon
                         title="Push current branch to remote"
                         onClick={onPush}
-                        disabled={pushing || !canPush}
-                        className={pushing ? ' spinning' : ''}
+                        disabled={pushing || syncing || !canPush}
+                        className={pushing ? ' busy' : ''}
+                    />
+                    <QuickSyncIcon
+                        title="Quick sync repository"
+                        onClick={onQuickSync}
+                        disabled={syncing || pushing || fetching || !canQuickSync}
+                        className={syncing ? ' spinning' : ''}
                     />
                     <RemoteIcon
                         title={hasRemoteUrl ? 'Open remote repository' : 'No remote URL configured'}

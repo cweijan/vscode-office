@@ -25,6 +25,10 @@
     --git-graph-input-bg: var(--vscode-input-background, #ffffff);
     --git-graph-input-fg: var(--vscode-input-foreground, #333333);
     --git-graph-input-border: var(--vscode-input-border, #d9d9d9);
+    --git-graph-toolbar-btn-fetch: var(--vscode-textLink-foreground, #1677ff);
+    --git-graph-toolbar-btn-push: var(--vscode-gitDecoration-addedResourceForeground, #73c991);
+    --git-graph-toolbar-btn-remote: var(--vscode-gitDecoration-modifiedResourceForeground, #e2c08d);
+    --git-graph-toolbar-btn-sync: var(--vscode-terminal-ansiCyan, #0598bc);
 
     display: flex;
     flex-direction: column;
@@ -137,6 +141,43 @@
     align-items: center;
     gap: 2px;
     flex-shrink: 0;
+}
+
+.git-graph-toolbar .git-graph-toolbar-btn-fetch {
+    color: var(--git-graph-toolbar-btn-fetch);
+}
+
+.git-graph-toolbar .git-graph-toolbar-btn-push {
+    color: var(--git-graph-toolbar-btn-push);
+}
+
+.git-graph-toolbar .git-graph-toolbar-btn-remote {
+    color: var(--git-graph-toolbar-btn-remote);
+}
+
+.git-graph-toolbar .git-graph-toolbar-btn-sync {
+    color: var(--git-graph-toolbar-btn-sync);
+}
+
+.git-graph-toolbar .git-graph-icon-btn.git-graph-toolbar-btn-fetch:hover:not(:disabled):not(.active) {
+    background: color-mix(in srgb, var(--git-graph-toolbar-btn-fetch) 16%, transparent);
+}
+
+.git-graph-toolbar .git-graph-icon-btn.git-graph-toolbar-btn-push:hover:not(:disabled):not(.active) {
+    background: color-mix(in srgb, var(--git-graph-toolbar-btn-push) 16%, transparent);
+}
+
+.git-graph-toolbar .git-graph-icon-btn.git-graph-toolbar-btn-remote:hover:not(:disabled):not(.active) {
+    background: color-mix(in srgb, var(--git-graph-toolbar-btn-remote) 16%, transparent);
+}
+
+.git-graph-toolbar .git-graph-icon-btn.git-graph-toolbar-btn-sync:hover:not(:disabled):not(.active) {
+    background: color-mix(in srgb, var(--git-graph-toolbar-btn-sync) 16%, transparent);
+}
+
+.git-graph-toolbar .git-graph-icon-btn.active {
+    background: var(--git-graph-selected-bg);
+    color: var(--git-graph-selected-fg);
 }
 
 .vscode-input {
@@ -370,9 +411,23 @@
     animation: git-graph-spin 0.9s linear infinite;
 }
 
+.git-graph-icon-btn.busy:disabled {
+    opacity: 0.8;
+    cursor: wait;
+}
+
+.git-graph-icon-btn.busy .codicon {
+    animation: git-graph-busy-pulse 1.1s ease-in-out infinite;
+}
+
 @keyframes git-graph-spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+}
+
+@keyframes git-graph-busy-pulse {
+    0%, 100% { opacity: 0.45; }
+    50% { opacity: 1; }
 }
 
 .git-graph-body {

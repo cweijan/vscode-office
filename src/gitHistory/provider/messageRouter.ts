@@ -40,6 +40,14 @@ export class MessageRouter {
             .on('refresh', () => this.onRefresh())
             .on('fetch', (content) => this.onFetch((content as { repo: string }).repo))
             .on('push', (content) => this.onPush(content as { repo: string; branch: string; remote: string }))
+            .on('quickSync', (content) => this.onQuickSync(content as {
+                repo: string;
+                branch: string;
+                remote: string;
+                commitMessage: string;
+                noFastForward?: boolean;
+                squash?: boolean;
+            }))
             .on('loadRepoConfig', (content) => this.onLoadRepoConfig((content as { repo: string }).repo))
             .on('remoteAction', (content) => this.onRemoteAction(content as RemoteActionPayload))
             .on('openRemote', (content) => this.onOpenRemote(content as { url: string }))
@@ -173,6 +181,30 @@ export class MessageRouter {
         }
         this.invalidateRepoCache(payload.repo);
         this.handler.emit('push', { error: null, cancelled: false });
+    }
+
+    private async onQuickSync(payload: {
+        repo: string;
+        branch: string;
+        remote: string;
+        commitMessage: string;
+        noFastForward?: boolean;
+        squash?: boolean;
+    }): Promise<void> {
+        const error = await this.gitActions.quickSync(
+            payload.repo,
+            payload.branch,
+            payload.remote,
+            payload.commitMessage,
+            {
+                noFastForward: payload.noFastForward,
+                squash: payload.squash,
+            },
+        );
+        if (!error) {
+            this.invalidateRepoCache(payload.repo);
+        }
+        this.handler.emit('quickSync', { error });
     }
 
     private async onLoadRepoConfig(repo: string): Promise<void> {

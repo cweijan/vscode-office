@@ -93,6 +93,10 @@ export function buildGitHistoryTheme(): GitHistoryTheme {
         '--git-graph-input-bg': getVscodeThemeColor('--vscode-input-background', dark ? '#3c3c3c' : '#ffffff'),
         '--git-graph-input-fg': getVscodeThemeColor('--vscode-input-foreground', dark ? '#cccccc' : '#333333'),
         '--git-graph-input-border': getVscodeThemeColor('--vscode-input-border', dark ? '#3c3c3c' : '#d9d9d9'),
+        '--git-graph-toolbar-btn-fetch': getVscodeThemeColor('--vscode-textLink-foreground', '#3794ff'),
+        '--git-graph-toolbar-btn-push': getVscodeThemeColor('--vscode-gitDecoration-addedResourceForeground', '#73c991'),
+        '--git-graph-toolbar-btn-remote': getVscodeThemeColor('--vscode-gitDecoration-modifiedResourceForeground', '#e2c08d'),
+        '--git-graph-toolbar-btn-sync': getVscodeThemeColor('--vscode-terminal-ansiCyan', '#0598bc'),
     };
 
     for (let i = 0; i < branchColours.length; i++) {

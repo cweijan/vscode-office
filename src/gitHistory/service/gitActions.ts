@@ -40,6 +40,48 @@ export class GitActions {
         }
     }
 
+    async quickSync(
+        repo: string,
+        branch: string,
+        remote: string,
+        commitMessage: string,
+        options?: { noFastForward?: boolean; squash?: boolean },
+    ): Promise<string | null> {
+        try {
+            const dirty = await this.executor.spawn(
+                ['status', '--porcelain'],
+                repo,
+                (stdout) => stdout.trim().length > 0,
+            );
+            if (dirty) {
+                await this.executor.spawn(['add', '-A'], repo, () => null);
+                const message = commitMessage.trim() || 'Quick Sync';
+                try {
+                    await this.executor.spawn(['commit', '-m', message], repo, () => null);
+                } catch (e) {
+                    const errorMessage = e instanceof Error ? e.message : String(e);
+                    if (!/nothing to commit/i.test(errorMessage)) {
+                        throw e;
+                    }
+                }
+            }
+
+            const pullArgs = ['pull'];
+            if (options?.noFastForward) {
+                pullArgs.push('--no-ff');
+            }
+            if (options?.squash) {
+                pullArgs.push('--squash');
+            }
+            pullArgs.push(remote, branch);
+            await this.executor.spawn(pullArgs, repo, () => null);
+            await this.executor.spawn(['push', remote, branch], repo, () => null);
+            return null;
+        } catch (e) {
+            return e instanceof Error ? e.message : String(e);
+        }
+    }
+
     async getRemoteWebUrls(repo: string): Promise<RemoteWebUrl[]> {
         const remotes = await this.executor.spawn(['remote'], repo, (stdout) =>
             stdout.split(/\r\n|\r|\n/).filter((line) => line.length > 0)
