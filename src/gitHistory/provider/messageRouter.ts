@@ -73,6 +73,13 @@ export class MessageRouter {
                 if (url) {
                     void vscode.env.openExternal(vscode.Uri.parse(url));
                 }
+            })
+            .on('editorLayoutSingle', () => {
+                this.handler.panel.reveal(
+                    this.handler.panel.viewColumn ?? vscode.ViewColumn.Active,
+                    false,
+                );
+                void vscode.commands.executeCommand('workbench.action.editorLayoutSingle');
             });
     }
 

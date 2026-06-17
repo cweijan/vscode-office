@@ -1,5 +1,5 @@
 import VscodeDropdown from './VscodeDropdown';
-import { FetchIcon, PushIcon, QuickSyncIcon, RefreshIcon, RemoteIcon, FindIcon, SettingsIcon, ThemeToggleIcon } from './ToolbarIcons';
+import { FetchIcon, PushIcon, QuickSyncIcon, RefreshIcon, RemoteIcon, FindIcon, SettingsIcon, ThemeToggleIcon, ExpandLayoutIcon } from './ToolbarIcons';
 
 interface ToolbarProps {
     repos: string[];
@@ -18,6 +18,7 @@ interface ToolbarProps {
     hasRemoteUrl: boolean;
     findActive: boolean;
     settingsActive: boolean;
+    splitView: boolean;
     adaptiveColorMode: boolean;
     onRepoChange: (repo: string) => void;
     onBranchChange: (branch: string | null) => void;
@@ -31,6 +32,7 @@ interface ToolbarProps {
     onToggleFind: () => void;
     onRefresh: () => void;
     onToggleSettings: () => void;
+    onExpandLayout: () => void;
     onToggleColorMode: () => void;
 }
 
@@ -42,10 +44,10 @@ function repoLabel(path: string): string {
 export default function Toolbar({
     repos, repo, branches, selectedBranch, authors, selectedAuthor,
     searchValue, refreshing, fetching, pushing, syncing, canPush, canQuickSync, hasRemoteUrl,
-    findActive, settingsActive, adaptiveColorMode,
+    findActive, settingsActive, splitView, adaptiveColorMode,
     onRepoChange, onBranchChange, onAuthorChange,
     onSearchChange, onSearch,
-    onFetch, onPush, onQuickSync, onOpenRemote, onToggleFind, onRefresh, onToggleSettings, onToggleColorMode,
+    onFetch, onPush, onQuickSync, onOpenRemote, onToggleFind, onRefresh, onToggleSettings, onExpandLayout, onToggleColorMode,
 }: ToolbarProps) {
     const showRepo = repos.length > 1;
 
@@ -126,6 +128,12 @@ export default function Toolbar({
             </div>
 
             <div className="git-graph-toolbar-end">
+                {splitView && (
+                    <ExpandLayoutIcon
+                        title="Expand to single editor layout"
+                        onClick={onExpandLayout}
+                    />
+                )}
                 <ThemeToggleIcon adaptive={adaptiveColorMode} onClick={onToggleColorMode} />
                 <FindIcon
                     title="Find in commit history (Ctrl+F)"

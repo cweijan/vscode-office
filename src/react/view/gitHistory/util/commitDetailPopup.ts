@@ -5,17 +5,48 @@ export interface PopupAnchor {
     repoToolbar?: boolean;
 }
 
+export interface ViewportBounds {
+    width: number;
+    height: number;
+}
+
 export const COMMIT_DETAIL_POPUP_WIDTH = 400;
+const POPUP_MARGIN = 10;
+const MAX_COMMIT_DETAIL_HEIGHT = 600;
+
+export function getViewportBounds(container?: HTMLElement | null): ViewportBounds {
+    if (container) {
+        const rect = container.getBoundingClientRect();
+        return {
+            width: Math.max(0, rect.width),
+            height: Math.max(0, rect.height),
+        };
+    }
+    return {
+        width: document.documentElement.clientWidth,
+        height: document.documentElement.clientHeight,
+    };
+}
+
+export interface CommitDetailPopupLayout {
+    left: number;
+    top: number;
+    maxHeight: number;
+    height: number;
+}
 
 export function computeAnchoredDialogPosition(
     anchor: PopupAnchor,
     width: number,
     height: number,
+    bounds?: ViewportBounds,
 ): { left: number; top: number } {
+    const viewport = bounds ?? getViewportBounds();
     const rawTop = anchor.repoToolbar && anchor.y < 120 ? anchor.y + 8 : anchor.y - 90;
-    const top = Math.max(Math.min(rawTop, window.innerHeight - height - 10), 10);
-    // Match legacy git-graph: only clamp minimum left edge
-    const left = Math.max(anchor.x - 50, 10);
+    const maxTop = Math.max(POPUP_MARGIN, viewport.height - height - POPUP_MARGIN);
+    const top = Math.min(Math.max(rawTop, POPUP_MARGIN), maxTop);
+    const maxLeft = Math.max(POPUP_MARGIN, viewport.width - width - POPUP_MARGIN);
+    const left = Math.min(Math.max(anchor.x - 50, POPUP_MARGIN), maxLeft);
     return { left, top };
 }
 
@@ -23,13 +54,26 @@ export function computeCommitDetailPopupPosition(
     anchor: PopupAnchor,
     popupHeight: number,
     popupWidth = COMMIT_DETAIL_POPUP_WIDTH,
-): { left: number; top: number } {
-    const left = Math.min(window.innerWidth - popupWidth, anchor.x + 100);
-    const top = Math.max(
-        Math.min(window.innerHeight - popupHeight - 10, Math.max(0, anchor.y - 80)),
-        0,
+    bounds?: ViewportBounds,
+): CommitDetailPopupLayout {
+    const viewport = bounds ?? getViewportBounds();
+    const viewportMaxHeight = Math.max(160, viewport.height - POPUP_MARGIN * 2);
+    const effectiveHeight = Math.min(popupHeight, viewportMaxHeight, MAX_COMMIT_DETAIL_HEIGHT);
+
+    const preferredTop = Math.max(POPUP_MARGIN, anchor.y - 80);
+    const maxTop = Math.max(POPUP_MARGIN, viewport.height - effectiveHeight - POPUP_MARGIN);
+    const top = Math.min(preferredTop, maxTop);
+
+    const preferredLeft = anchor.x + 100;
+    const maxLeft = Math.max(POPUP_MARGIN, viewport.width - popupWidth - POPUP_MARGIN);
+    const left = Math.min(Math.max(POPUP_MARGIN, preferredLeft), maxLeft);
+
+    const maxHeight = Math.min(
+        MAX_COMMIT_DETAIL_HEIGHT,
+        Math.max(160, viewport.height - top - POPUP_MARGIN),
     );
-    return { left, top };
+
+    return { left, top, maxHeight, height: effectiveHeight };
 }
 
 export function anchorFromMouseEvent(

@@ -5,6 +5,7 @@ import { handler } from '../../util/vscode';
 import ActionDialog from './components/ActionDialog';
 import RemoteFormDialog from './components/RemoteFormDialog';
 import { useGitActionPrompt } from './hooks/useGitActionPrompt';
+import { useSplitViewLayout } from './hooks/useSplitViewLayout';
 import type { PromptStep, GitActionRequest, PromptSubmitValue } from './util/gitActionPromptFlow';
 import { buildCheckoutStateUpdate } from './util/checkoutState';
 import Toolbar from './components/Toolbar';
@@ -93,6 +94,7 @@ function GitHistoryView({
     onToggleColorMode: () => void;
 }) {
     const { graphConfig, antTheme, cssVars } = useGitHistoryTheme(colorMode);
+    const splitView = useSplitViewLayout();
     const [repos, setRepos] = useState<string[]>([]);
     const [repo, setRepo] = useState('');
     const [branches, setBranches] = useState<string[]>([]);
@@ -141,6 +143,7 @@ function GitHistoryView({
     const [remoteForm, setRemoteForm] = useState<{ mode: 'add' | 'edit'; remote?: GitRemoteDetail } | null>(null);
     const [remoteDeleteName, setRemoteDeleteName] = useState<string | null>(null);
     const contentRef = useRef<HTMLDivElement>(null);
+    const viewRef = useRef<HTMLDivElement>(null);
     const settingsOpenRef = useRef(settingsOpen);
     settingsOpenRef.current = settingsOpen;
     const { menu, showMenu, closeMenu } = useContextMenu();
@@ -932,6 +935,10 @@ function GitHistoryView({
         });
     }, [findMatchIndex, scrollToCommitIndex]);
 
+    const handleExpandLayout = useCallback(() => {
+        handler.emit('editorLayoutSingle');
+    }, []);
+
     const handleToggleSettings = () => {
         const next = !settingsOpen;
         setSettingsOpen(next);
@@ -1092,7 +1099,7 @@ function GitHistoryView({
 
     return (
         <ConfigProvider theme={antTheme}>
-        <div className={`git-graph${colorMode === 'light' ? ' git-graph-light' : ''}`} style={themeStyle(cssVars)}>
+        <div ref={viewRef} className={`git-graph${colorMode === 'light' ? ' git-graph-light' : ''}`} style={themeStyle(cssVars)}>
             {filePath && (
                 <div className="git-graph-file-banner" title={relPath ?? filePath}>
                     <span className="codicon codicon-file" aria-hidden />
@@ -1117,6 +1124,7 @@ function GitHistoryView({
                 hasRemoteUrl={hasRemoteUrl}
                 findActive={findOpen}
                 settingsActive={settingsOpen}
+                splitView={splitView}
                 onRepoChange={handleRepoChange}
                 onBranchChange={(b) => {
                     setSelectedBranch(b);
@@ -1137,6 +1145,7 @@ function GitHistoryView({
                 onToggleFind={handleToggleFind}
                 onRefresh={handleRefresh}
                 onToggleSettings={handleToggleSettings}
+                onExpandLayout={handleExpandLayout}
                 adaptiveColorMode={adaptiveColorMode}
                 onToggleColorMode={onToggleColorMode}
             />
@@ -1232,6 +1241,7 @@ function GitHistoryView({
             {selectedIndex !== null && detailAnchor && commits[selectedIndex] && (
                 <CommitDetailPopup
                     anchor={detailAnchor}
+                    containerRef={viewRef}
                     repo={repo}
                     commitHash={commits[selectedIndex].hash}
                     hasParents={commits[selectedIndex].parents.length > 0}

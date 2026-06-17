@@ -54,6 +54,10 @@ export function FindIcon(props: Omit<CodiconButtonProps, 'icon' | 'variant'>) {
     return <CodiconButton icon="search" {...props} />;
 }
 
+export function ExpandLayoutIcon(props: Omit<CodiconButtonProps, 'icon' | 'variant'>) {
+    return <CodiconButton icon="expand-all" {...props} />;
+}
+
 export function ThemeToggleIcon({
     adaptive,
     onClick,

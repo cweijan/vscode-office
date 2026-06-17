@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import { Empty, Spin, Typography } from 'antd';
 import type { MouseEvent } from 'react';
 import type { GitCommitDetails, GitFileChange } from '../types';
@@ -6,6 +6,8 @@ import { fileTouchesPath } from '../util/repoPath';
 import {
     COMMIT_DETAIL_POPUP_WIDTH,
     computeCommitDetailPopupPosition,
+    getViewportBounds,
+    type CommitDetailPopupLayout,
     type PopupAnchor,
 } from '../util/commitDetailPopup';
 import type { FileViewMode } from '../util/commitFileTree';
@@ -15,6 +17,7 @@ const { Text } = Typography;
 
 interface CommitDetailPopupProps {
     anchor: PopupAnchor;
+    containerRef: RefObject<HTMLElement | null>;
     repo: string;
     commitHash: string;
     hasParents: boolean;
@@ -51,21 +54,61 @@ function filterFileChanges(
 }
 
 export default function CommitDetailPopup({
-    anchor, repo, commitHash, hasParents, details, loading, error, relPath, filterCurrentFile,
+    anchor, containerRef, repo, commitHash, hasParents, details, loading, error, relPath, filterCurrentFile,
     onClose, onToggleFilterCurrentFile, onFileAction, onFileContextMenu,
 }: CommitDetailPopupProps) {
     const popupRef = useRef<HTMLDivElement>(null);
     const [fileViewMode, setFileViewMode] = useState<FileViewMode>('tree');
-    const [position, setPosition] = useState(() =>
-        computeCommitDetailPopupPosition(anchor, 280),
-    );
+    const [layout, setLayout] = useState<CommitDetailPopupLayout>(() => {
+        const bounds = getViewportBounds();
+        return computeCommitDetailPopupPosition(anchor, 280, COMMIT_DETAIL_POPUP_WIDTH, bounds);
+    });
 
     const fileChanges = details ? filterFileChanges(details, relPath, filterCurrentFile) : [];
 
     useLayoutEffect(() => {
-        const height = popupRef.current?.offsetHeight ?? 280;
-        setPosition(computeCommitDetailPopupPosition(anchor, height));
-    }, [anchor, loading, error, details, filterCurrentFile, relPath, fileViewMode]);
+        const popup = popupRef.current;
+        const container = containerRef.current;
+        if (!popup) {
+            return;
+        }
+
+        const reposition = () => {
+            const bounds = getViewportBounds(container);
+            popup.style.maxHeight = '';
+            popup.style.height = 'auto';
+
+            const naturalHeight = popup.getBoundingClientRect().height || 280;
+            const provisional = computeCommitDetailPopupPosition(
+                anchor,
+                naturalHeight,
+                COMMIT_DETAIL_POPUP_WIDTH,
+                bounds,
+            );
+            const height = Math.min(naturalHeight, provisional.maxHeight);
+            const nextLayout = computeCommitDetailPopupPosition(
+                anchor,
+                height,
+                COMMIT_DETAIL_POPUP_WIDTH,
+                bounds,
+            );
+            setLayout({ ...nextLayout, height });
+        };
+
+        reposition();
+
+        const observer = typeof ResizeObserver !== 'undefined'
+            ? new ResizeObserver(reposition)
+            : null;
+        if (observer && container) {
+            observer.observe(container);
+        }
+        window.addEventListener('resize', reposition);
+        return () => {
+            observer?.disconnect();
+            window.removeEventListener('resize', reposition);
+        };
+    }, [anchor, containerRef, loading, error, details, filterCurrentFile, relPath, fileViewMode]);
 
     let body;
     if (loading) {
@@ -92,8 +135,8 @@ export default function CommitDetailPopup({
                         </div>
                     )}
                     <div className="git-graph-cdv-meta">
-                        <span>{details.author}</span>
-                        <span className="git-graph-muted">{formatLongDate(details.authorDate)}</span>
+                        <span className="git-graph-cdv-author">{details.author}</span>
+                        <span className="git-graph-cdv-date">{formatLongDate(details.authorDate)}</span>
                     </div>
                 </div>
                 <div className="git-graph-cdv-files">
@@ -123,7 +166,13 @@ export default function CommitDetailPopup({
         <div
             ref={popupRef}
             className="git-graph-cdv"
-            style={{ left: position.left, top: position.top, width: COMMIT_DETAIL_POPUP_WIDTH }}
+            style={{
+                left: layout.left,
+                top: layout.top,
+                width: COMMIT_DETAIL_POPUP_WIDTH,
+                maxHeight: layout.maxHeight,
+                height: layout.height,
+            }}
             onMouseDown={(e) => e.stopPropagation()}
         >
             <div className="git-graph-cdv-main">
