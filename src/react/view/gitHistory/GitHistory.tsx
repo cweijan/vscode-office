@@ -392,7 +392,7 @@ function GitHistoryView({
     }, [showRemoteBranches]);
 
     const requestCommitDetails = useCallback((targetRepo: string, commit: GitCommit) => {
-        if (!commit || commit.hash === '*') {
+        if (!commit) {
             setCommitDetails(null);
             setDetailsError(null);
             return;

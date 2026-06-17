@@ -13,6 +13,8 @@ import { BranchRefIcon, StashRefIcon, TagRefIcon } from './RefIcons';
 
 const { Text } = Typography;
 
+const UNCOMMITTED = '*';
+
 export type RefContextType = 'head' | 'tag' | 'remote' | 'stash';
 
 interface CommitTableProps {
@@ -233,7 +235,7 @@ export default function CommitTable({
                         <div
                             key={commit.hash + index}
                             data-commit-index={index}
-                            className={`git-graph-row${selectedIndex === index ? ' selected' : ''}${findMatchIndex === index ? ' find-match' : ''}${commitHead !== null && commit.hash === commitHead ? ' current-head' : ''}`}
+                            className={`git-graph-row${selectedIndex === index ? ' selected' : ''}${findMatchIndex === index ? ' find-match' : ''}${commitHead !== null && commit.hash === commitHead ? ' current-head' : ''}${commit.hash === UNCOMMITTED ? ' uncommitted' : ''}`}
                             style={{ height: rowHeight }}
                             onClick={(e) => onSelect(index, e)}
                             onContextMenu={(e) => onRowContextMenu(e, commit, index)}
@@ -250,7 +252,7 @@ export default function CommitTable({
                                     commitHead={commitHead}
                                     onRefContextMenu={onRefContextMenu}
                                 />
-                                <Text ellipsis className="git-graph-message">{commit.message}</Text>
+                                <Text ellipsis className={`git-graph-message${commit.hash === UNCOMMITTED ? ' git-graph-message-uncommitted' : ''}`}>{commit.message}</Text>
                             </span>
                             <span className="col-date">
                                 <Text ellipsis className="git-graph-muted">{formatDate(commit.date)}</Text>

@@ -333,7 +333,7 @@ export class CommitService {
 
     getCommitDetails(repo: string, commitHash: string, hasParents: boolean): Promise<GitCommitDetailsData> {
         if (commitHash === UNCOMMITTED) {
-            return Promise.resolve({ commitDetails: null, error: 'No details for uncommitted changes' });
+            return this.getUncommittedCommitDetails(repo);
         }
         const fromCommit = commitHash + (hasParents ? '^' : '');
         return Promise.all([
@@ -576,6 +576,38 @@ export class CommitService {
         ).catch(() => []);
     }
 
+    private getUncommittedCommitDetails(repo: string): Promise<GitCommitDetailsData> {
+        return Promise.all([
+            this.getStatusPorcelain(repo),
+            this.getDiffNumStat(repo, 'HEAD'),
+        ]).then(([nameStatus, numStat]) => {
+            const details: GitCommitDetails = {
+                hash: UNCOMMITTED,
+                parents: [],
+                author: '',
+                authorEmail: '',
+                authorDate: Math.round(Date.now() / 1000),
+                committer: '',
+                committerEmail: '',
+                committerDate: Math.round(Date.now() / 1000),
+                body: '',
+                fileChanges: generateFileChanges(nameStatus, numStat),
+            };
+            return { commitDetails: details, error: null };
+        }).catch((errorMessage: string) => ({
+            commitDetails: null,
+            error: errorMessage,
+        }));
+    }
+
+    private getStatusPorcelain(repo: string): Promise<NameStatusRecord[]> {
+        return this.executor.spawn(
+            ['status', '--porcelain', '--untracked-files=all'],
+            repo,
+            (stdout) => parseStatusPorcelain(stdout),
+        ).catch(() => []);
+    }
+
     private getUncommittedChanges(repo: string): Promise<number> {
         return this.executor.spawn(
             ['status', '--untracked-files=all', '--porcelain'],
@@ -606,9 +638,13 @@ export class CommitService {
         );
     }
 
-    private getDiffNameStatus(repo: string, from: string, to: string) {
+    private getDiffNameStatus(repo: string, from: string, to?: string) {
+        const args = ['diff', '--name-status', from];
+        if (to !== undefined) {
+            args.push(to);
+        }
         return this.executor.spawn(
-            ['diff', '--name-status', from, to],
+            args,
             repo,
             (stdout) => {
                 const records: { oldFilePath: string; newFilePath: string; type: GitFileStatus }[] = [];
@@ -628,9 +664,13 @@ export class CommitService {
         ).catch(() => []);
     }
 
-    private getDiffNumStat(repo: string, from: string, to: string) {
+    private getDiffNumStat(repo: string, from: string, to?: string) {
+        const args = ['diff', '--numstat', from];
+        if (to !== undefined) {
+            args.push(to);
+        }
         return this.executor.spawn(
-            ['diff', '--numstat', from, to],
+            args,
             repo,
             (stdout) => {
                 const records: { filePath: string; additions: number | null; deletions: number | null }[] = [];
@@ -660,6 +700,50 @@ interface NumStatRecord {
     filePath: string;
     additions: number | null;
     deletions: number | null;
+}
+
+function parseStatusPorcelain(stdout: string): NameStatusRecord[] {
+    const records: NameStatusRecord[] = [];
+    const lines = stdout.split(EOL_REGEX);
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (line.length < 4) {
+            continue;
+        }
+        const indexStatus = line[0];
+        const workTreeStatus = line[1];
+        if (indexStatus === '?' && workTreeStatus === '?') {
+            const filePath = line.substring(3);
+            records.push({ oldFilePath: filePath, newFilePath: filePath, type: 'U' });
+            continue;
+        }
+        if (indexStatus === ' ' && workTreeStatus === ' ') {
+            continue;
+        }
+
+        let filePath = line.substring(3);
+        let oldFilePath = filePath;
+        let newFilePath = filePath;
+        const arrowIndex = filePath.indexOf(' -> ');
+        if (arrowIndex !== -1) {
+            oldFilePath = filePath.substring(0, arrowIndex);
+            newFilePath = filePath.substring(arrowIndex + 4);
+            records.push({ oldFilePath, newFilePath, type: 'R' });
+            continue;
+        }
+
+        const status = indexStatus !== ' ' ? indexStatus : workTreeStatus;
+        let type: GitFileStatus = 'M';
+        if (status === 'A') {
+            type = 'A';
+        } else if (status === 'D') {
+            type = 'D';
+        } else if (status === 'R') {
+            type = 'R';
+        }
+        records.push({ oldFilePath, newFilePath, type });
+    }
+    return records;
 }
 
 function generateFileChanges(

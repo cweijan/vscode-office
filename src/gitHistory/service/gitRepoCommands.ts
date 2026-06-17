@@ -211,10 +211,15 @@ export class GitRepoCommands {
             return this.openFile(repo, newFilePath);
         }
 
+        const isWorkingTree = toHash === UNCOMMITTED;
         const leftRef = fromHash === UNCOMMITTED ? 'HEAD' : fromHash;
-        const leftHash = (fromHash === toHash && type !== 'A') ? `${leftRef}^` : leftRef;
+        const leftHash = isWorkingTree
+            ? 'HEAD'
+            : (fromHash === toHash && type !== 'A') ? `${leftRef}^` : leftRef;
         const leftUri = toGitUri(repo, oldFilePath, leftHash);
-        const rightUri = toGitUri(repo, newFilePath, toHash === UNCOMMITTED ? '' : toHash);
+        const rightUri = isWorkingTree
+            ? toWorkingTreeUri(repo, newFilePath)
+            : toGitUri(repo, newFilePath, toHash);
 
         const fileName = path.basename(newFilePath);
         const title = `${fileName} (${abbrevHash(leftHash)} ↔ ${toHash === UNCOMMITTED ? 'Working Tree' : abbrevHash(toHash)})`;
@@ -236,6 +241,9 @@ export class GitRepoCommands {
     }
 
     async viewFileAtRevision(repo: string, hash: string, filePath: string): Promise<string | null> {
+        if (hash === UNCOMMITTED) {
+            return this.openFile(repo, filePath);
+        }
         const uri = toGitUri(repo, filePath, hash);
         try {
             await vscode.commands.executeCommand('vscode.open', uri, { preview: true });
@@ -264,4 +272,9 @@ export function toGitUri(repo: string, filePath: string, ref: string): vscode.Ur
         scheme: 'git',
         query: JSON.stringify({ path: fileUri.fsPath, ref }),
     });
+}
+
+export function toWorkingTreeUri(repo: string, filePath: string): vscode.Uri {
+    const normalizedPath = filePath.replace(/\\/g, '/');
+    return vscode.Uri.file(path.normalize(path.join(repo, normalizedPath)));
 }

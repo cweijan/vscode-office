@@ -1,5 +1,7 @@
 import type { GitFileChange } from '../types';
 
+const UNCOMMITTED = '*';
+
 export function getFilePathForActions(change: GitFileChange): string {
     return change.type === 'D' ? change.oldFilePath : change.newFilePath;
 }
@@ -23,6 +25,17 @@ export function buildViewDiffAction(
     hasParents: boolean,
     change: GitFileChange,
 ): Record<string, unknown> & { action: string } {
+    if (commitHash === UNCOMMITTED) {
+        return {
+            action: 'viewDiff',
+            repo,
+            fromHash: UNCOMMITTED,
+            toHash: UNCOMMITTED,
+            oldFilePath: change.oldFilePath,
+            newFilePath: change.newFilePath,
+            type: change.type,
+        };
+    }
     const parent = hasParents ? `${commitHash}^` : commitHash;
     return {
         action: 'viewDiff',

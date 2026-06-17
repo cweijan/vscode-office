@@ -560,6 +560,11 @@
     color: inherit !important;
 }
 
+.git-graph-message-uncommitted {
+    color: var(--git-graph-uncommitted) !important;
+    font-style: italic;
+}
+
 .git-graph-muted {
     color: var(--git-graph-muted) !important;
     font-size: 12px;
