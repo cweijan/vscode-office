@@ -8,10 +8,12 @@ import { FileUtil } from './common/fileUtil';
 import { ReactApp } from './common/reactApp';
 import { activateHttp } from './provider/http';
 import { activateYaml } from './provider/yaml';
+import { activateGitHistory } from './gitHistory/provider';
 
 export function activate(context: vscode.ExtensionContext) {
 	activateHttp(context);
 	activateYaml(context);
+	activateGitHistory(context);
 	const viewOption = { webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true } };
 	FileUtil.init(context)
 	ReactApp.init(context)

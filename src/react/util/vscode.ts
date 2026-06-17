@@ -1,4 +1,5 @@
 const vscode = window['acquireVsCodeApi']?.();
+export { vscode as vscodeApi };
 const postMessage = (message) => { if (vscode) { vscode.postMessage(message) } }
 
 const DARK_MODE_KEY = 'office-dark-mode';
