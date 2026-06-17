@@ -1,5 +1,5 @@
-import { MoonOutlined, SunOutlined } from "@ant-design/icons";
-import { Alert, Pagination, Spin } from "antd";
+import { LeftOutlined, MoonOutlined, RightOutlined, SunOutlined } from "@ant-design/icons";
+import { Alert, Spin } from "antd";
 import * as docx from 'docx-preview';
 import { useCallback, useEffect, useRef, useState } from "react";
 import { handler, loadDarkMode, applyDarkMode } from "../../util/vscode";
@@ -21,6 +21,7 @@ export default function Word() {
     const [error, setError] = useState<string | null>(null);
     const [dark, setDark] = useState(loadDarkMode);
     const [pageInfo, setPageInfo] = useState({ current: 1, total: 0, pageSize: null as number | null });
+    const [pageDraft, setPageDraft] = useState('1');
 
     useEffect(() => {
         document.body.classList.toggle('office-dark', dark);
@@ -98,14 +99,28 @@ export default function Word() {
         };
     }, [loading, updatePageInfo]);
 
-    function onChange(page: number) {
+    useEffect(() => {
+        setPageDraft(String(pageInfo.current));
+    }, [pageInfo.current]);
+
+    function goToPage(page: number) {
         const container = containerRef.current;
-        if (!container) {
+        if (!container || pageInfo.total <= 0) {
             return;
         }
+        const nextPage = Math.min(Math.max(page, 1), pageInfo.total);
         const pageSize = pageInfo.pageSize ?? window.innerHeight - 85;
-        container.scrollTo(0, pageSize * (page - 1));
-        setPageInfo({ ...pageInfo, current: page });
+        container.scrollTo(0, pageSize * (nextPage - 1));
+        setPageInfo({ ...pageInfo, current: nextPage });
+    }
+
+    function commitPageJump() {
+        const page = Number.parseInt(pageDraft, 10);
+        if (!Number.isFinite(page) || page < 1) {
+            setPageDraft(String(pageInfo.current));
+            return;
+        }
+        goToPage(page);
     }
 
     return (
@@ -124,15 +139,45 @@ export default function Word() {
                 <div className="word-content" ref={contentRef} />
             </div>
             <div className="word-footer">
-                <Pagination
-                    className="word-pagination"
-                    onChange={onChange}
-                    current={pageInfo.current}
-                    total={pageInfo.total}
-                    defaultPageSize={1}
-                    showQuickJumper
-                    showSizeChanger={false}
-                />
+                {pageInfo.total > 0 && (
+                    <nav className="word-page-nav" aria-label="Document pages">
+                        <button
+                            type="button"
+                            className="word-page-btn"
+                            disabled={pageInfo.current <= 1}
+                            onClick={() => goToPage(pageInfo.current - 1)}
+                            aria-label="Previous page"
+                        >
+                            <LeftOutlined />
+                        </button>
+                        <label className="word-page-indicator">
+                            <input
+                                type="text"
+                                inputMode="numeric"
+                                className="word-page-input"
+                                aria-label="Current page"
+                                value={pageDraft}
+                                onChange={e => setPageDraft(e.target.value)}
+                                onKeyDown={e => {
+                                    if (e.key === 'Enter') {
+                                        e.currentTarget.blur();
+                                    }
+                                }}
+                                onBlur={commitPageJump}
+                            />
+                            <span className="word-page-total">/ {pageInfo.total}</span>
+                        </label>
+                        <button
+                            type="button"
+                            className="word-page-btn"
+                            disabled={pageInfo.current >= pageInfo.total}
+                            onClick={() => goToPage(pageInfo.current + 1)}
+                            aria-label="Next page"
+                        >
+                            <RightOutlined />
+                        </button>
+                    </nav>
+                )}
                 <SponsorBar placement="right" />
             </div>
         </div>

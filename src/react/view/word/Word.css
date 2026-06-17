@@ -55,50 +55,82 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 10px;
-    padding: 0 16px 10px;
-    min-height: 40px;
+    padding: 8px 16px 10px;
+    min-height: 44px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(10px);
 }
 
-.word-pagination {
-    margin: 0;
-    padding: 0;
-    text-align: center;
+.word-page-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px 4px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
-.word-pagination .ant-pagination-item,
-.word-pagination .ant-pagination-prev,
-.word-pagination .ant-pagination-next,
-.word-pagination .ant-pagination-jump-prev,
-.word-pagination .ant-pagination-jump-next {
-    background-color: #fff;
-    border-color: rgba(0, 0, 0, 0.15);
+.word-page-btn {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: rgba(0, 0, 0, 0.65);
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
 }
 
-.word-pagination .ant-pagination-item a,
-.word-pagination .ant-pagination-item-link,
-.word-pagination .ant-pagination-jump-prev .ant-pagination-item-container .ant-pagination-item-ellipsis,
-.word-pagination .ant-pagination-jump-next .ant-pagination-item-container .ant-pagination-item-ellipsis {
-    color: rgba(0, 0, 0, 0.88);
-}
-
-.word-pagination .ant-pagination-item-active {
-    background-color: #fff;
-    border-color: #1677ff;
-}
-
-.word-pagination .ant-pagination-item-active a {
+.word-page-btn:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.06);
     color: #1677ff;
 }
 
-.word-pagination .ant-pagination-options-quick-jumper {
-    color: rgba(0, 0, 0, 0.65);
+.word-page-btn:disabled {
+    color: rgba(0, 0, 0, 0.25);
+    cursor: not-allowed;
 }
 
-.word-pagination .ant-pagination-options-quick-jumper input {
+.word-page-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 10px;
+    min-width: 0;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.55);
+    user-select: none;
+}
+
+.word-page-input {
+    width: 3.2em;
+    border: none;
+    border-bottom: 1px solid transparent;
+    background: transparent;
     color: rgba(0, 0, 0, 0.88);
-    background-color: #fff;
-    border-color: rgba(0, 0, 0, 0.15);
+    font: inherit;
+    font-weight: 600;
+    text-align: center;
+    padding: 2px 4px;
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.word-page-input:hover,
+.word-page-input:focus {
+    border-bottom-color: rgba(22, 119, 255, 0.45);
+}
+
+.word-page-total {
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.45);
 }
 
 .dark-mode-toggle {
@@ -192,62 +224,45 @@ body.office-dark .dark-mode-toggle:hover {
     background-color: var(--vscode-toolbar-hoverBackground, rgba(90, 93, 94, 0.31));
 }
 
-body.office-dark .word-pagination .ant-pagination-item,
-body.office-dark .word-pagination .ant-pagination-prev,
-body.office-dark .word-pagination .ant-pagination-next,
-body.office-dark .word-pagination .ant-pagination-jump-prev,
-body.office-dark .word-pagination .ant-pagination-jump-next {
-    background-color: var(--vscode-editorWidget-background, #252526);
+body.office-dark .word-footer {
+    border-top-color: var(--vscode-editorWidget-border, rgba(128, 128, 128, 0.35));
+    background: color-mix(in srgb, var(--vscode-editor-background, #1e1e1e) 88%, transparent);
+}
+
+body.office-dark .word-page-nav {
+    background: var(--vscode-editorWidget-background, #252526);
     border-color: var(--vscode-editorWidget-border, rgba(128, 128, 128, 0.45));
+    box-shadow: 0 1px 4px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.36));
 }
 
-body.office-dark .word-pagination .ant-pagination-item a,
-body.office-dark .word-pagination .ant-pagination-item-link,
-body.office-dark .word-pagination .ant-pagination-jump-prev .ant-pagination-item-container .ant-pagination-item-ellipsis,
-body.office-dark .word-pagination .ant-pagination-jump-next .ant-pagination-item-container .ant-pagination-item-ellipsis {
-    color: var(--vscode-editor-foreground, #cccccc);
-}
-
-body.office-dark .word-pagination .ant-pagination-item:hover,
-body.office-dark .word-pagination .ant-pagination-prev:hover,
-body.office-dark .word-pagination .ant-pagination-next:hover {
-    border-color: var(--vscode-focusBorder, #007fd4);
-}
-
-body.office-dark .word-pagination .ant-pagination-item:hover a,
-body.office-dark .word-pagination .ant-pagination-prev:hover .ant-pagination-item-link,
-body.office-dark .word-pagination .ant-pagination-next:hover .ant-pagination-item-link {
-    color: var(--vscode-textLink-foreground, #3794ff);
-}
-
-body.office-dark .word-pagination .ant-pagination-item-active {
-    background-color: var(--vscode-list-activeSelectionBackground, #292d35);
-    border-color: var(--vscode-focusBorder, #007fd4);
-}
-
-body.office-dark .word-pagination .ant-pagination-item-active a {
-    color: var(--vscode-list-activeSelectionForeground, #d7dae0);
-}
-
-body.office-dark .word-pagination .ant-pagination-disabled .ant-pagination-item-link,
-body.office-dark .word-pagination .ant-pagination-disabled:hover .ant-pagination-item-link {
-    color: var(--vscode-disabledForeground, rgba(204, 204, 204, 0.4));
-    border-color: var(--vscode-editorWidget-border, rgba(128, 128, 128, 0.45));
-}
-
-body.office-dark .word-pagination .ant-pagination-options-quick-jumper {
+body.office-dark .word-page-btn {
     color: var(--vscode-descriptionForeground, rgba(204, 204, 204, 0.7));
 }
 
-body.office-dark .word-pagination .ant-pagination-options-quick-jumper input {
-    color: var(--vscode-input-foreground, #cccccc);
-    background-color: var(--vscode-input-background, #3c3c3c);
-    border-color: var(--vscode-input-border, rgba(128, 128, 128, 0.35));
+body.office-dark .word-page-btn:hover:not(:disabled) {
+    background: var(--vscode-toolbar-hoverBackground, rgba(90, 93, 94, 0.31));
+    color: var(--vscode-textLink-foreground, #3794ff);
 }
 
-body.office-dark .word-pagination .ant-pagination-options-quick-jumper input:focus {
-    border-color: var(--vscode-focusBorder, #007fd4);
-    box-shadow: none;
+body.office-dark .word-page-btn:disabled {
+    color: var(--vscode-disabledForeground, rgba(204, 204, 204, 0.4));
+}
+
+body.office-dark .word-page-indicator {
+    color: var(--vscode-descriptionForeground, rgba(204, 204, 204, 0.7));
+}
+
+body.office-dark .word-page-input {
+    color: var(--vscode-editor-foreground, #cccccc);
+}
+
+body.office-dark .word-page-input:hover,
+body.office-dark .word-page-input:focus {
+    border-bottom-color: var(--vscode-focusBorder, #007fd4);
+}
+
+body.office-dark .word-page-total {
+    color: var(--vscode-descriptionForeground, rgba(204, 204, 204, 0.55));
 }
 
 .word-viewer .word-footer .office-sponsor-bar--right {
