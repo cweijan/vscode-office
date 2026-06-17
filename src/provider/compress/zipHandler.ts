@@ -75,12 +75,12 @@ export async function handleZip(uri: Uri, handler: Handler) {
             if (encrypted && !archivePassword) return;
 
             window.showInformationMessage("Start extracting...");
-            const filePaths = Object.keys(fileMap);
-            const plan = planExtractTarget(uri.fsPath, filePaths.length);
+            const plan = planExtractTarget(uri.fsPath, files.length);
             if (plan.createSubfolder) {
                 mkdirSync(plan.targetDir, { recursive: true });
             }
             try {
+                const filePaths = Object.keys(fileMap);
                 await archive.extractAllTo(plan.targetDir, archivePassword, fileMap);
                 window.showInformationMessage("Extract success!");
                 await revealExtractResult(plan, filePaths);

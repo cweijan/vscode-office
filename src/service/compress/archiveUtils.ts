@@ -20,9 +20,9 @@ export interface ExtractPlan {
     createSubfolder: boolean;
 }
 
-export function planExtractTarget(archivePath: string, fileCount: number): ExtractPlan {
+export function planExtractTarget(archivePath: string, rootItemCount: number): ExtractPlan {
     const parentDir = resolve(archivePath, '..');
-    const createSubfolder = fileCount > 1;
+    const createSubfolder = rootItemCount > 1;
     return {
         targetDir: createSubfolder ? join(parentDir, getArchiveBaseName(archivePath)) : parentDir,
         createSubfolder,
@@ -35,6 +35,19 @@ export function getRevealPathAfterExtract(plan: ExtractPlan, extractedPaths: str
     }
     if (extractedPaths.length === 1) {
         return resolve(plan.targetDir, extractedPaths[0]);
+    }
+    let commonRoot: string | null = null;
+    for (const path of extractedPaths) {
+        const root = path.includes('/') ? path.split('/')[0] : path;
+        if (commonRoot === null) {
+            commonRoot = root;
+        } else if (commonRoot !== root) {
+            commonRoot = null;
+            break;
+        }
+    }
+    if (commonRoot) {
+        return resolve(plan.targetDir, commonRoot);
     }
     return plan.targetDir;
 }

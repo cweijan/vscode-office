@@ -121,6 +121,7 @@ export default function Zip() {
                         <Sidebar
                             name={info.fileName}
                             folderMap={info.folderMap}
+                            rootFiles={info.files}
                             currentDir={currentDir}
                             onClickFolder={changeFiles}
                         />

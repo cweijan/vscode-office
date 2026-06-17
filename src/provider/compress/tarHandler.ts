@@ -51,7 +51,7 @@ export async function handleTarGz(uri: Uri, handler: Handler, gzip = true) {
             }
         }).on('autoExtract', async () => {
             window.showInformationMessage('Start extracting...');
-            const plan = planExtractTarget(uri.fsPath, filePaths.length);
+            const plan = planExtractTarget(uri.fsPath, files.length);
             if (plan.createSubfolder) {
                 mkdirSync(plan.targetDir, { recursive: true });
             }

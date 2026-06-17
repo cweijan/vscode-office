@@ -6,8 +6,27 @@ import { FileInfo } from '../zipTypes';
 interface SidebarProps {
     name?: string;
     folderMap?: Record<string, FileInfo>;
+    rootFiles?: FileInfo[];
     currentDir: string;
     onClickFolder: (entryName: string | null) => void;
+}
+
+function getSingleExpandableFolderKey(rootFiles: FileInfo[], folderTree: FileInfo[]): string | null {
+    if (rootFiles.length !== 1) {
+        return null;
+    }
+    const only = rootFiles[0];
+    if (!only.isDirectory || !only.entryName) {
+        return null;
+    }
+    for (const node of folderTree) {
+        if (node.entryName !== only.entryName) {
+            continue;
+        }
+        const subfolders = node.children?.filter(child => child.isDirectory) ?? [];
+        return subfolders.length > 0 ? only.entryName : null;
+    }
+    return null;
 }
 
 function buildFolderTree(folderMap: Record<string, FileInfo>): FileInfo[] {
@@ -137,10 +156,14 @@ function FolderNodes({
     return <>{nodes}</>;
 }
 
-export default function Sidebar({ name = '', folderMap, currentDir, onClickFolder }: SidebarProps) {
+export default function Sidebar({ name = '', folderMap, rootFiles, currentDir, onClickFolder }: SidebarProps) {
     const rootKey = useRef('zip_sidebar_root');
     const folderTree = useMemo(() => buildFolderTree(folderMap ?? {}), [folderMap]);
     const hasFolders = folderTree.length > 0;
+    const autoExpandKey = useMemo(
+        () => getSingleExpandableFolderKey(rootFiles ?? [], folderTree),
+        [rootFiles, folderTree],
+    );
     const [expandedKeys, setExpandedKeys] = useState<Set<string>>(() => new Set());
 
     useEffect(() => {
@@ -151,9 +174,12 @@ export default function Sidebar({ name = '', folderMap, currentDir, onClickFolde
         setExpandedKeys(keys => {
             const next = new Set(keys);
             next.add(rootKey.current);
+            if (autoExpandKey) {
+                next.add(autoExpandKey);
+            }
             return next;
         });
-    }, [hasFolders]);
+    }, [hasFolders, autoExpandKey]);
 
     useEffect(() => {
         if (!currentDir || !hasFolders) return;
