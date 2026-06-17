@@ -402,6 +402,14 @@
     cursor: default;
 }
 
+.git-graph-theme-toggle {
+    font-size: 14px;
+}
+
+.git-graph-theme-toggle .anticon {
+    font-size: 14px;
+}
+
 .git-graph-icon-btn.active {
     background: var(--git-graph-selected-bg);
     color: var(--git-graph-selected-fg);
@@ -849,11 +857,13 @@
 
 .git-graph-cdv-file-icon {
     flex-shrink: 0;
-    width: 16px;
+    width: 15px;
+    height: 15px;
     font-size: 14px;
     line-height: 16px;
     text-align: center;
     color: var(--git-graph-fg);
+    object-fit: contain;
 }
 
 .git-graph-cdv-file-row.diff-possible {
@@ -941,12 +951,24 @@
 }
 
 .git-graph-cdv-folder-icon {
+    position: relative;
+    display: inline-block;
     flex-shrink: 0;
-    width: 16px;
-    font-size: 15px;
-    line-height: 16px;
-    text-align: center;
-    color: var(--git-graph-folder-icon);
+    width: 13px;
+    height: 16px;
+    vertical-align: top;
+}
+
+.git-graph-cdv-folder-tree-icon {
+    position: absolute;
+    width: 13px;
+    height: 16px;
+    fill: var(--git-graph-fg);
+    fill-opacity: 0.6;
+}
+
+.git-graph-cdv-folder-row:hover .git-graph-cdv-folder-tree-icon {
+    fill-opacity: 0.8;
 }
 
 .git-graph-cdv-folder-name {

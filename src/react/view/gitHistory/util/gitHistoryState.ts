@@ -12,6 +12,10 @@ export const DEFAULT_PULL_DEFAULTS: GitPullDefaults = {
 
 export type FileHistorySplitLayout = 'vertical' | 'horizontal';
 
+export type GitHistoryColorMode = 'adaptive' | 'light';
+
+export const DEFAULT_COLOR_MODE: GitHistoryColorMode = 'adaptive';
+
 export const DEFAULT_FILE_HISTORY_SPLIT_LAYOUT: FileHistorySplitLayout = 'vertical';
 
 export interface GitHistorySavedState {
@@ -23,6 +27,7 @@ export interface GitHistorySavedState {
     filePath?: string | null;
     pullDefaultsByRepo?: Record<string, GitPullDefaults>;
     fileHistorySplitLayout?: FileHistorySplitLayout;
+    colorMode?: GitHistoryColorMode;
 }
 
 export function loadGitHistoryState(): GitHistorySavedState {
@@ -53,4 +58,13 @@ export function getFileHistorySplitLayout(): FileHistorySplitLayout {
 
 export function saveFileHistorySplitLayout(layout: FileHistorySplitLayout): void {
     saveGitHistoryState({ fileHistorySplitLayout: layout });
+}
+
+export function getColorMode(): GitHistoryColorMode {
+    const state = loadGitHistoryState();
+    return state.colorMode === 'light' ? 'light' : DEFAULT_COLOR_MODE;
+}
+
+export function saveColorMode(mode: GitHistoryColorMode): void {
+    saveGitHistoryState({ colorMode: mode });
 }

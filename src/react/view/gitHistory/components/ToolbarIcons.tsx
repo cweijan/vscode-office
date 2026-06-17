@@ -1,3 +1,5 @@
+import { MoonOutlined, SunOutlined } from '@ant-design/icons';
+
 interface CodiconButtonProps {
     icon: string;
     title?: string;
@@ -49,4 +51,24 @@ export function SettingsIcon(props: Omit<CodiconButtonProps, 'icon' | 'variant'>
 
 export function FindIcon(props: Omit<CodiconButtonProps, 'icon' | 'variant'>) {
     return <CodiconButton icon="search" {...props} />;
+}
+
+export function ThemeToggleIcon({
+    adaptive,
+    onClick,
+}: {
+    adaptive: boolean;
+    onClick: () => void;
+}) {
+    return (
+        <button
+            type="button"
+            className="git-graph-icon-btn git-graph-theme-toggle"
+            title={adaptive ? '切换亮色' : '切换暗色（跟随 VS Code 主题）'}
+            aria-label={adaptive ? 'Switch to light mode' : 'Switch to adaptive dark mode'}
+            onClick={onClick}
+        >
+            {adaptive ? <SunOutlined /> : <MoonOutlined />}
+        </button>
+    );
 }

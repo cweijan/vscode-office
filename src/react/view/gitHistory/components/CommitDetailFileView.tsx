@@ -19,12 +19,12 @@ import {
     type FileTreeNode,
     type FileViewMode,
 } from '../util/commitFileTree';
+import { FileTypeIcon } from '../../components/FileTypeIcon';
+import { FolderTreeIcon } from './FileTreeIcons';
 import {
     folderRowPaddingLeft,
     fileRowPaddingLeft,
     getChangeIconPath,
-    getFileCodicon,
-    getFolderCodicon,
 } from '../util/fileIcon';
 
 export type FileChangeActionPayload = Record<string, unknown> & { action: string };
@@ -83,7 +83,7 @@ function FileChangeRow({
     const isCurrent = Boolean(
         relPath && fileTouchesPath(relPath, change.oldFilePath, change.newFilePath),
     );
-    const codicon = getFileCodicon(getChangeIconPath(change));
+    const iconPath = getChangeIconPath(change);
     const diffPossible = canViewFileDiff(change);
     const showRevision = canViewFileAtRevision(change);
     const showOpen = canOpenWorkingFile(change);
@@ -110,7 +110,10 @@ function FileChangeRow({
                 onContextMenu(event, change);
             }}
         >
-            <span className={`codicon codicon-${codicon} git-graph-cdv-file-icon`} aria-hidden />
+            <FileTypeIcon
+                name={iconPath.split(/[/\\]/).pop() ?? iconPath}
+                className="git-graph-cdv-file-icon"
+            />
             <span className="git-graph-cdv-file-name">{label}</span>
             <span className="git-graph-cdv-file-actions">
                 {showRevision && (
@@ -181,10 +184,7 @@ function TreeNodes({
                                 style={{ paddingLeft: folderRowPaddingLeft(depth) }}
                                 onClick={() => onToggleFolder(node.path)}
                             >
-                                <span
-                                    className={`codicon codicon-${getFolderCodicon(isOpen, depth)} git-graph-cdv-folder-icon`}
-                                    aria-hidden
-                                />
+                                <FolderTreeIcon isOpen={isOpen} />
                                 <span className="git-graph-cdv-folder-name">{node.name}</span>
                             </button>
                             {isOpen && (

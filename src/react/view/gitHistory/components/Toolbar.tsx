@@ -1,5 +1,5 @@
 import VscodeDropdown from './VscodeDropdown';
-import { FetchIcon, PushIcon, QuickSyncIcon, RefreshIcon, RemoteIcon, FindIcon, SettingsIcon } from './ToolbarIcons';
+import { FetchIcon, PushIcon, QuickSyncIcon, RefreshIcon, RemoteIcon, FindIcon, SettingsIcon, ThemeToggleIcon } from './ToolbarIcons';
 
 interface ToolbarProps {
     repos: string[];
@@ -18,6 +18,7 @@ interface ToolbarProps {
     hasRemoteUrl: boolean;
     findActive: boolean;
     settingsActive: boolean;
+    adaptiveColorMode: boolean;
     onRepoChange: (repo: string) => void;
     onBranchChange: (branch: string | null) => void;
     onAuthorChange: (author: string | undefined) => void;
@@ -30,6 +31,7 @@ interface ToolbarProps {
     onToggleFind: () => void;
     onRefresh: () => void;
     onToggleSettings: () => void;
+    onToggleColorMode: () => void;
 }
 
 function repoLabel(path: string): string {
@@ -40,10 +42,10 @@ function repoLabel(path: string): string {
 export default function Toolbar({
     repos, repo, branches, selectedBranch, authors, selectedAuthor,
     searchValue, refreshing, fetching, pushing, syncing, canPush, canQuickSync, hasRemoteUrl,
-    findActive, settingsActive,
+    findActive, settingsActive, adaptiveColorMode,
     onRepoChange, onBranchChange, onAuthorChange,
     onSearchChange, onSearch,
-    onFetch, onPush, onQuickSync, onOpenRemote, onToggleFind, onRefresh, onToggleSettings,
+    onFetch, onPush, onQuickSync, onOpenRemote, onToggleFind, onRefresh, onToggleSettings, onToggleColorMode,
 }: ToolbarProps) {
     const showRepo = repos.length > 1;
 
@@ -124,6 +126,7 @@ export default function Toolbar({
             </div>
 
             <div className="git-graph-toolbar-end">
+                <ThemeToggleIcon adaptive={adaptiveColorMode} onClick={onToggleColorMode} />
                 <FindIcon
                     title="Find in commit history (Ctrl+F)"
                     onClick={onToggleFind}

@@ -29,8 +29,8 @@ import {
     type MenuContext,
     type MenuPayloadMeta,
 } from './contextMenu/buildContextMenu';
-import { themeStyle, useGitHistoryTheme } from './theme/gitHistoryTheme';
-import { loadGitHistoryState, saveGitHistoryState, getPullDefaults, savePullDefaults, getFileHistorySplitLayout, saveFileHistorySplitLayout, type GitPullDefaults, type FileHistorySplitLayout } from './util/gitHistoryState';
+import { themeStyle, useGitHistoryTheme, GitHistoryColorModeProvider } from './theme/gitHistoryTheme';
+import { loadGitHistoryState, saveGitHistoryState, getPullDefaults, savePullDefaults, getFileHistorySplitLayout, saveFileHistorySplitLayout, getColorMode, saveColorMode, type GitPullDefaults, type FileHistorySplitLayout, type GitHistoryColorMode } from './util/gitHistoryState';
 import { getRelativeRepoPath } from './util/repoPath';
 import { getConfigs } from '../../util/vscodeConfig';
 import type {
@@ -62,7 +62,36 @@ function GitHistoryBottomBar({ moreAvailable = false }: { moreAvailable?: boolea
 }
 
 export default function GitHistory() {
-    const { graphConfig, antTheme, cssVars } = useGitHistoryTheme();
+    const [colorMode, setColorMode] = useState<GitHistoryColorMode>(getColorMode);
+    const toggleColorMode = useCallback(() => {
+        setColorMode((prev) => {
+            const next: GitHistoryColorMode = prev === 'adaptive' ? 'light' : 'adaptive';
+            saveColorMode(next);
+            return next;
+        });
+    }, []);
+
+    return (
+        <GitHistoryColorModeProvider mode={colorMode}>
+            <GitHistoryView
+                colorMode={colorMode}
+                adaptiveColorMode={colorMode === 'adaptive'}
+                onToggleColorMode={toggleColorMode}
+            />
+        </GitHistoryColorModeProvider>
+    );
+}
+
+function GitHistoryView({
+    colorMode,
+    adaptiveColorMode,
+    onToggleColorMode,
+}: {
+    colorMode: GitHistoryColorMode;
+    adaptiveColorMode: boolean;
+    onToggleColorMode: () => void;
+}) {
+    const { graphConfig, antTheme, cssVars } = useGitHistoryTheme(colorMode);
     const [repos, setRepos] = useState<string[]>([]);
     const [repo, setRepo] = useState('');
     const [branches, setBranches] = useState<string[]>([]);
@@ -954,7 +983,7 @@ export default function GitHistory() {
 
     return (
         <ConfigProvider theme={antTheme}>
-        <div className="git-graph" style={themeStyle(cssVars)}>
+        <div className={`git-graph${colorMode === 'light' ? ' git-graph-light' : ''}`} style={themeStyle(cssVars)}>
             {filePath && (
                 <div className="git-graph-file-banner" title={relPath ?? filePath}>
                     <span className="codicon codicon-file" aria-hidden />
@@ -999,6 +1028,8 @@ export default function GitHistory() {
                 onToggleFind={handleToggleFind}
                 onRefresh={handleRefresh}
                 onToggleSettings={handleToggleSettings}
+                adaptiveColorMode={adaptiveColorMode}
+                onToggleColorMode={onToggleColorMode}
             />
             <div className="git-graph-body">
                 <div className="git-graph-body-main">
@@ -1025,7 +1056,7 @@ export default function GitHistory() {
                                 findMatchIndex={findMatchIndex}
                                 rowHeight={ROW_HEIGHT}
                                 graphConfig={graphConfig}
-                                fileHistoryMode={Boolean(relPath)}
+                                fileHistoryMode={Boolean(relPath) || Boolean(searchValue.trim())}
                                 onSelect={handleSelectCommit}
                                 onRowContextMenu={handleRowContextMenu}
                                 onRefContextMenu={handleRefContextMenu}

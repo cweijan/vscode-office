@@ -1,13 +1,31 @@
-import type { CSSProperties } from 'react';
-import { useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, createElement, type ReactNode, type CSSProperties } from 'react';
 import { theme, type ThemeConfig } from 'antd';
 import { getVscodeThemeColor, isVscodeDarkTheme, observeVscodeThemeChange } from '../../../util/vscodeTheme';
 import type { GraphConfig } from '../graph/layoutEngine';
+import type { GitHistoryColorMode } from '../util/gitHistoryState';
+
+export type { GitHistoryColorMode };
 
 export interface GitHistoryTheme {
     graphConfig: GraphConfig;
     antTheme: ThemeConfig;
     cssVars: Record<string, string>;
+}
+
+const GitHistoryColorModeContext = createContext<GitHistoryColorMode>('adaptive');
+
+export function GitHistoryColorModeProvider({
+    mode,
+    children,
+}: {
+    mode: GitHistoryColorMode;
+    children: ReactNode;
+}) {
+    return createElement(GitHistoryColorModeContext.Provider, { value: mode }, children);
+}
+
+export function useGitHistoryColorMode(): GitHistoryColorMode {
+    return useContext(GitHistoryColorModeContext);
 }
 
 const GRAPH_COLOUR_VARS = [
@@ -49,7 +67,69 @@ export function getGraphBranchColours(): string[] {
     return uniqueColours(colours);
 }
 
-export function buildGitHistoryTheme(): GitHistoryTheme {
+const LIGHT_BRANCH_COLOURS = uniqueColours([...GRAPH_COLOUR_FALLBACKS]);
+
+function buildAntTheme(cssVars: Record<string, string>, dark: boolean): ThemeConfig {
+    return {
+        algorithm: dark ? theme.darkAlgorithm : theme.defaultAlgorithm,
+        token: {
+            colorBgContainer: cssVars['--git-graph-input-bg'],
+            colorBgElevated: dark
+                ? getVscodeThemeColor('--vscode-dropdown-background', cssVars['--git-graph-input-bg'])
+                : cssVars['--git-graph-input-bg'],
+            colorText: cssVars['--git-graph-fg'],
+            colorTextSecondary: cssVars['--git-graph-muted'],
+            colorTextTertiary: cssVars['--git-graph-muted'],
+            colorBorder: cssVars['--git-graph-border'],
+            colorPrimary: cssVars['--git-graph-accent'],
+            colorFillAlter: cssVars['--git-graph-hover'],
+            colorFillSecondary: cssVars['--git-graph-hover'],
+            controlOutline: `color-mix(in srgb, ${cssVars['--git-graph-accent']} 25%, transparent)`,
+        },
+        components: {
+            Table: {
+                headerBg: cssVars['--git-graph-toolbar-bg'],
+                rowHoverBg: cssVars['--git-graph-hover'],
+                borderColor: cssVars['--git-graph-border'],
+                colorText: cssVars['--git-graph-fg'],
+                colorTextHeading: cssVars['--git-graph-muted'],
+            },
+            Select: {
+                optionSelectedBg: cssVars['--git-graph-selected-bg'],
+                optionSelectedColor: cssVars['--git-graph-selected-fg'],
+            },
+            Button: {
+                defaultBg: cssVars['--git-graph-input-bg'],
+                defaultColor: cssVars['--git-graph-fg'],
+                defaultBorderColor: cssVars['--git-graph-border'],
+            },
+            Switch: {
+                colorPrimary: cssVars['--git-graph-accent'],
+            },
+            Alert: {
+                colorInfoBg: `color-mix(in srgb, ${cssVars['--git-graph-accent']} 12%, ${cssVars['--git-graph-bg']})`,
+                colorInfoBorder: cssVars['--git-graph-border'],
+            },
+        },
+    };
+}
+
+function buildGraphConfig(branchColours: string[], uncommittedColour: string): GraphConfig {
+    return {
+        colours: branchColours,
+        uncommittedColour,
+        style: 'rounded',
+        grid: { x: 16, y: 24, offsetX: 8, offsetY: 12 },
+    };
+}
+
+function applyBranchColourVars(cssVars: Record<string, string>, branchColours: string[]): void {
+    for (let i = 0; i < branchColours.length; i++) {
+        cssVars[`--git-graph-branch-${i}`] = branchColours[i];
+    }
+}
+
+function buildAdaptiveGitHistoryTheme(): GitHistoryTheme {
     const dark = isVscodeDarkTheme();
     const branchColours = getGraphBranchColours();
     const uncommittedColour = getVscodeThemeColor('--vscode-descriptionForeground', '#808080');
@@ -99,64 +179,82 @@ export function buildGitHistoryTheme(): GitHistoryTheme {
         '--git-graph-toolbar-btn-sync': getVscodeThemeColor('--vscode-terminal-ansiCyan', '#0598bc'),
     };
 
-    for (let i = 0; i < branchColours.length; i++) {
-        cssVars[`--git-graph-branch-${i}`] = branchColours[i];
-    }
+    applyBranchColourVars(cssVars, branchColours);
 
-    const graphConfig: GraphConfig = {
-        colours: branchColours,
-        uncommittedColour,
-        style: 'rounded',
-        grid: { x: 16, y: 24, offsetX: 8, offsetY: 12 },
+    return {
+        graphConfig: buildGraphConfig(branchColours, uncommittedColour),
+        antTheme: buildAntTheme(cssVars, dark),
+        cssVars,
     };
-
-    const antTheme: ThemeConfig = {
-        algorithm: dark ? theme.darkAlgorithm : theme.defaultAlgorithm,
-        token: {
-            colorBgContainer: cssVars['--git-graph-input-bg'],
-            colorBgElevated: getVscodeThemeColor('--vscode-dropdown-background', cssVars['--git-graph-input-bg']),
-            colorText: cssVars['--git-graph-fg'],
-            colorTextSecondary: cssVars['--git-graph-muted'],
-            colorTextTertiary: cssVars['--git-graph-muted'],
-            colorBorder: cssVars['--git-graph-border'],
-            colorPrimary: cssVars['--git-graph-accent'],
-            colorFillAlter: cssVars['--git-graph-hover'],
-            colorFillSecondary: cssVars['--git-graph-hover'],
-            controlOutline: `color-mix(in srgb, ${cssVars['--git-graph-accent']} 25%, transparent)`,
-        },
-        components: {
-            Table: {
-                headerBg: cssVars['--git-graph-toolbar-bg'],
-                rowHoverBg: cssVars['--git-graph-hover'],
-                borderColor: cssVars['--git-graph-border'],
-                colorText: cssVars['--git-graph-fg'],
-                colorTextHeading: cssVars['--git-graph-muted'],
-            },
-            Select: {
-                optionSelectedBg: cssVars['--git-graph-selected-bg'],
-                optionSelectedColor: cssVars['--git-graph-selected-fg'],
-            },
-            Button: {
-                defaultBg: cssVars['--git-graph-input-bg'],
-                defaultColor: cssVars['--git-graph-fg'],
-                defaultBorderColor: cssVars['--git-graph-border'],
-            },
-            Switch: {
-                colorPrimary: cssVars['--git-graph-accent'],
-            },
-            Alert: {
-                colorInfoBg: `color-mix(in srgb, ${cssVars['--git-graph-accent']} 12%, ${cssVars['--git-graph-bg']})`,
-                colorInfoBorder: cssVars['--git-graph-border'],
-            },
-        },
-    };
-
-    return { graphConfig, antTheme, cssVars };
 }
 
-export function useGitHistoryTheme(): GitHistoryTheme {
-    const [graphTheme, setGraphTheme] = useState(buildGitHistoryTheme);
-    useEffect(() => observeVscodeThemeChange(() => setGraphTheme(buildGitHistoryTheme())), []);
+function buildLightGitHistoryTheme(): GitHistoryTheme {
+    const branchColours = LIGHT_BRANCH_COLOURS;
+    const uncommittedColour = '#808080';
+    const cssVars: Record<string, string> = {
+        '--git-graph-bg': '#ffffff',
+        '--git-graph-fg': '#333333',
+        '--git-graph-muted': '#666666',
+        '--git-graph-border': '#d9d9d9',
+        '--git-graph-toolbar-bg': '#e8e8e8',
+        '--git-graph-settings-bg': '#f0f0f0',
+        '--git-graph-settings-header-bg': '#f3f3f3',
+        '--git-graph-hover': 'rgba(0, 0, 0, 0.04)',
+        '--git-graph-selected-bg': '#0060c0',
+        '--git-graph-selected-fg': '#ffffff',
+        '--git-graph-accent': '#1677ff',
+        '--git-graph-uncommitted': uncommittedColour,
+        '--git-graph-ref-head': '#1677ff',
+        '--git-graph-ref-tag': '#73c991',
+        '--git-graph-ref-remote': '#e2c08d',
+        '--git-graph-ref-stash': '#bc05bc',
+        '--git-graph-status-added': '#73c991',
+        '--git-graph-status-modified': '#e2c08d',
+        '--git-graph-status-deleted': '#c74e39',
+        '--git-graph-status-renamed': '#73c991',
+        '--git-graph-status-untracked': '#73c991',
+        '--git-graph-folder-icon': '#b8860b',
+        '--git-graph-code-bg': '#f0f0f0',
+        '--git-graph-input-bg': '#ffffff',
+        '--git-graph-input-fg': '#333333',
+        '--git-graph-input-border': '#d9d9d9',
+        '--git-graph-toolbar-btn-fetch': '#1677ff',
+        '--git-graph-toolbar-btn-push': '#73c991',
+        '--git-graph-toolbar-btn-remote': '#e2c08d',
+        '--git-graph-toolbar-btn-sync': '#0598bc',
+    };
+    applyBranchColourVars(cssVars, branchColours);
+
+    return {
+        graphConfig: buildGraphConfig(branchColours, uncommittedColour),
+        antTheme: buildAntTheme(cssVars, false),
+        cssVars,
+    };
+}
+
+export function buildGitHistoryTheme(mode: GitHistoryColorMode = 'adaptive'): GitHistoryTheme {
+    if (mode === 'light') {
+        return buildLightGitHistoryTheme();
+    }
+    return buildAdaptiveGitHistoryTheme();
+}
+
+export function useGitHistoryTheme(modeOverride?: GitHistoryColorMode): GitHistoryTheme {
+    const contextMode = useGitHistoryColorMode();
+    const mode = modeOverride ?? contextMode;
+    const [graphTheme, setGraphTheme] = useState(() => buildGitHistoryTheme(mode));
+
+    useEffect(() => {
+        setGraphTheme(buildGitHistoryTheme(mode));
+    }, [mode]);
+
+    useEffect(() => {
+        if (mode !== 'adaptive') {
+            return;
+        }
+        return observeVscodeThemeChange(() => setGraphTheme(buildGitHistoryTheme('adaptive')));
+    }, [mode]);
+
     return graphTheme;
 }
 
