@@ -8,6 +8,8 @@ import type { GitHistoryPanelContext } from './gitHistoryPanelContext';
 import type { GitActionPayload } from '../types/gitActions';
 import type { RemoteActionPayload } from '../types/repoConfig';
 import type { LoadCommitsPayload, LoadRepoInfoPayload, CommitDetailsPayload } from '../types/messages';
+import type { LoadRepositoryRequest } from '../types/git';
+import { buildGitHistoryInitPayload } from '../util/gitHistoryInitPayload';
 import { GitActionHandler } from './gitActionHandler';
 import {
     getFileHistorySplitLayout,
@@ -20,6 +22,10 @@ const DEFAULT_MAX_COMMITS = 300;
 export class MessageRouter {
     private loadCommitsId = 0;
     private loadRepoInfoId = 0;
+    private loadRepositoryId = 0;
+    private warmupPromise: ReturnType<CommitService['loadRepository']> | null = null;
+    private warmupRepo: string | null = null;
+    private warmupRelPath: string | undefined;
 
     constructor(
         private readonly handler: PanelHandler,
@@ -34,6 +40,7 @@ export class MessageRouter {
     bind(): void {
         this.handler
             .on('ready', () => this.onReady())
+            .on('loadRepository', (content) => this.onLoadRepository(content as LoadRepositoryRequest))
             .on('loadRepoInfo', (content) => this.onLoadRepoInfo(content as LoadRepoInfoPayload))
             .on('loadCommits', (content) => this.onLoadCommits(content as LoadCommitsPayload))
             .on('commitDetails', (content) => this.onCommitDetails(content as CommitDetailsPayload))
@@ -54,17 +61,27 @@ export class MessageRouter {
             .on('gitAction', (content) => this.onGitAction(content as GitActionPayload))
             .on('saveFileHistorySplitLayout', (content) =>
                 this.onSaveFileHistorySplitLayout(content as { layout: FileHistorySplitLayout }),
-            );
+            )
+            .on('openSponsor', () => {
+                void vscode.commands.executeCommand(
+                    'workbench.extensions.action.showExtensionsWithIds',
+                    ['cweijan.vscode-database-client2'],
+                );
+            })
+            .on('openExternal', (content) => {
+                const url = typeof content === 'string' ? content : '';
+                if (url) {
+                    void vscode.env.openExternal(vscode.Uri.parse(url));
+                }
+            });
     }
 
     private resolveInitialRepo(): string | null {
-        if (this.panelContext.fileUri) {
-            const repo = this.repoDiscovery.getRepoForFile(this.panelContext.fileUri.fsPath);
-            if (repo) {
-                return repo;
-            }
-        }
-        return this.repoDiscovery.getInitialRepo();
+        return buildGitHistoryInitPayload(
+            this.extensionContext,
+            this.repoDiscovery,
+            this.panelContext,
+        ).initialRepo;
     }
 
     private resolveRelPath(repo: string, relPath?: string): string | undefined {
@@ -78,19 +95,77 @@ export class MessageRouter {
     }
 
     private onReady(): void {
-        const initialRepo = this.resolveInitialRepo();
-        const filePath = this.panelContext.fileUri?.fsPath ?? null;
-        const relPath = initialRepo && filePath
-            ? getRelativeRepoPath(initialRepo, filePath)
-            : null;
-        this.handler.emit('init', {
-            repos: this.repoDiscovery.getRepos(),
-            initialRepo,
-            filePath,
-            fileName: filePath ? filePath.split(/[/\\]/).pop() ?? null : null,
+        // Init payload is embedded in webview HTML; no IPC round-trip needed.
+    }
+
+    warmupRepository(repo: string, relPath?: string): void {
+        this.warmupRepo = repo;
+        this.warmupRelPath = relPath;
+        this.warmupPromise = this.commitService.loadRepository(
+            this.buildDefaultLoadRequest(repo, relPath),
+        );
+    }
+
+    private buildDefaultLoadRequest(repo: string, relPath?: string): LoadRepositoryRequest {
+        return {
+            repo,
+            showRemoteBranches: true,
+            showStashes: true,
+            branches: null,
+            maxCommits: DEFAULT_MAX_COMMITS,
+            showTags: true,
+            includeCommitsMentionedByReflogs: false,
+            onlyFollowFirstParent: false,
+            commitOrdering: 'date',
+            hideRemotes: [],
             relPath,
-            fileHistorySplitLayout: getFileHistorySplitLayout(this.extensionContext),
+        };
+    }
+
+    private canReuseWarmup(payload: LoadRepositoryRequest, relPath?: string): boolean {
+        if (!this.warmupPromise || this.warmupRepo !== payload.repo || payload.invalidateCache) {
+            return false;
+        }
+        if (payload.branches !== null && payload.branches.length > 0) {
+            return false;
+        }
+        if (payload.author || payload.searchValue) {
+            return false;
+        }
+        const payloadRelPath = relPath ?? payload.relPath;
+        return payloadRelPath === this.warmupRelPath;
+    }
+
+    private async onLoadRepository(payload: LoadRepositoryRequest): Promise<void> {
+        const refreshId = ++this.loadRepositoryId;
+        const relPath = this.resolveRelPath(payload.repo, payload.relPath);
+        const request = { ...payload, relPath };
+
+        let resultPromise: ReturnType<CommitService['loadRepository']>;
+        if (this.canReuseWarmup(payload, relPath)) {
+            resultPromise = this.warmupPromise!;
+        } else {
+            if (payload.invalidateCache) {
+                this.invalidateRepoCache(payload.repo);
+            }
+            resultPromise = this.commitService.loadRepository(request);
+        }
+        this.warmupPromise = null;
+        this.warmupRepo = null;
+        this.warmupRelPath = undefined;
+
+        const result = await resultPromise;
+        if (refreshId !== this.loadRepositoryId) {
+            return;
+        }
+        this.handler.emit('repositoryLoaded', {
+            repoInfo: result.repoInfo,
+            commitData: result.commitData,
+            relPath: relPath ?? null,
         });
+        if (!result.repoInfo.error) {
+            void this.loadRepoExtras(payload.repo, refreshId, result.repoInfo.remotes, 'repository');
+        }
     }
 
     private async onSaveFileHistorySplitLayout(payload: { layout: FileHistorySplitLayout }): Promise<void> {
@@ -103,20 +178,35 @@ export class MessageRouter {
             this.invalidateRepoCache(payload.repo);
         }
         const refreshId = ++this.loadRepoInfoId;
-        const [info, authors, remoteUrls] = await Promise.all([
-            this.commitService.getRepoInfo(
-                payload.repo,
-                payload.showRemoteBranches,
-                payload.showStashes
-            ),
-            this.commitService.getAuthorsCached(payload.repo),
-            this.gitActions.getRemoteWebUrls(payload.repo),
-        ]);
+        const info = await this.commitService.getRepoInfo(
+            payload.repo,
+            payload.showRemoteBranches,
+            payload.showStashes,
+        );
         if (refreshId !== this.loadRepoInfoId) {
             return;
         }
-        this.handler.emit('repoInfo', {
-            ...info,
+        this.handler.emit('repoInfo', info);
+        void this.loadRepoExtras(payload.repo, refreshId, info.remotes, 'repoInfo');
+    }
+
+    private async loadRepoExtras(
+        repo: string,
+        refreshId: number,
+        remotes: ReadonlyArray<string>,
+        refreshKind: 'repoInfo' | 'repository' = 'repoInfo',
+    ): Promise<void> {
+        const [authors, remoteUrls] = await Promise.all([
+            this.commitService.getAuthorsCached(repo),
+            this.gitActions.getRemoteWebUrls(repo, remotes),
+        ]);
+        const stale = refreshKind === 'repository'
+            ? refreshId !== this.loadRepositoryId
+            : refreshId !== this.loadRepoInfoId;
+        if (stale) {
+            return;
+        }
+        this.handler.emit('repoExtras', {
             authors,
             hasRemoteUrl: remoteUrls.length > 0,
             remoteWebUrls: remoteUrls,

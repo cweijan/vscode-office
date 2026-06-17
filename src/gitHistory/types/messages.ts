@@ -1,4 +1,4 @@
-import type { GitCommitData, GitCommitDetailsData, GitRepoInfo } from './git';
+import type { GitCommitData, GitCommitDetailsData, GitRepoInfo, LoadRepositoryRequest } from './git';
 
 export interface GitHistoryReadyPayload {
     readonly repos: ReadonlyArray<string>;
@@ -42,13 +42,21 @@ export type { GitActionPayload, GitActionResult } from './gitActions';
 
 export type GitHistoryExtensionEvents =
     | { type: 'ready' }
+    | { type: 'loadRepository'; content: LoadRepositoryRequest }
     | { type: 'loadRepoInfo'; content: LoadRepoInfoPayload }
     | { type: 'loadCommits'; content: LoadCommitsPayload }
     | { type: 'commitDetails'; content: CommitDetailsPayload }
     | { type: 'refresh' };
 
+export interface RepositoryLoadedPayload {
+    readonly repoInfo: GitRepoInfo;
+    readonly commitData: GitCommitData;
+    readonly relPath?: string | null;
+}
+
 export type GitHistoryWebviewEvents =
     | { type: 'init'; content: GitHistoryReadyPayload }
+    | { type: 'repositoryLoaded'; content: RepositoryLoadedPayload }
     | { type: 'repoInfo'; content: GitRepoInfo }
     | { type: 'commits'; content: GitCommitData }
     | { type: 'commitDetails'; content: GitCommitDetailsData }

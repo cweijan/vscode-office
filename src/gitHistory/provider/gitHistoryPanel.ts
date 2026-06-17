@@ -8,6 +8,7 @@ import { getPanelKey, type GitHistoryPanelContext, type GitHistoryPanelSerialize
 import type { GitActionHandler } from './gitActionHandler';
 import { MessageRouter } from './messageRouter';
 import { PanelHandler } from './panelHandler';
+import { buildGitHistoryInitPayload } from '../util/gitHistoryInitPayload';
 import {
     getFileHistorySplitLayout,
     type FileHistorySplitLayout,
@@ -121,15 +122,17 @@ export class GitHistoryPanel {
             {
                 enableScripts: true,
                 retainContextWhenHidden: true,
-                localResourceRoots: [
-                    vscode.Uri.file(context.extensionPath + '/out/webview'),
-                ],
+                localResourceRoots: GitHistoryPanel.getLocalResourceRoots(context.extensionPath),
             }
         );
 
         await applyFileHistorySplitLayout(panelContext, layout);
 
         await GitHistoryPanel.attach(context, panel, commitService, repoDiscovery, gitActions, gitActionHandler, panelContext);
+    }
+
+    private static getLocalResourceRoots(extensionPath: string): vscode.Uri[] {
+        return [vscode.Uri.file(extensionPath)];
     }
 
     static async restore(
@@ -146,7 +149,6 @@ export class GitHistoryPanel {
         if (existing && existing.panel !== panel) {
             existing.panel.dispose();
         }
-        await repoDiscovery.discover();
         await GitHistoryPanel.attach(context, panel, commitService, repoDiscovery, gitActions, gitActionHandler, panelContext);
     }
 
@@ -172,9 +174,7 @@ export class GitHistoryPanel {
             ...panel.webview.options,
             enableScripts: true,
             retainContextWhenHidden: true,
-            localResourceRoots: [
-                vscode.Uri.file(context.extensionPath + '/out/webview'),
-            ],
+            localResourceRoots: GitHistoryPanel.getLocalResourceRoots(context.extensionPath),
         };
 
         const handler = PanelHandler.bind(panel);
@@ -189,7 +189,14 @@ export class GitHistoryPanel {
         );
         router.bind();
 
-        await ReactApp.view(panel.webview, { route: 'gitHistory' });
+        const gitHistoryInit = buildGitHistoryInitPayload(context, repoDiscovery, panelContext);
+        if (gitHistoryInit.initialRepo) {
+            router.warmupRepository(
+                gitHistoryInit.initialRepo,
+                gitHistoryInit.relPath ?? undefined,
+            );
+        }
+        await ReactApp.view(panel.webview, { route: 'gitHistory', gitHistoryInit });
 
         const key = getPanelKey(panelContext.fileUri);
         const instance = new GitHistoryPanel(panel, handler, panelContext);

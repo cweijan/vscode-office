@@ -82,21 +82,29 @@ export class GitActions {
         }
     }
 
-    async getRemoteWebUrls(repo: string): Promise<RemoteWebUrl[]> {
-        const remotes = await this.executor.spawn(['remote'], repo, (stdout) =>
+    async getRemoteWebUrls(repo: string, remoteNames?: ReadonlyArray<string>): Promise<RemoteWebUrl[]> {
+        const remotes = remoteNames ?? await this.executor.spawn(['remote'], repo, (stdout) =>
             stdout.split(/\r\n|\r|\n/).filter((line) => line.length > 0)
         );
-        const result: RemoteWebUrl[] = [];
-        for (const remote of remotes) {
+        const urls = await Promise.all(remotes.map(async (remote) => {
             try {
                 const url = await this.executor.spawn(
                     ['config', '--get', `remote.${remote}.url`],
                     repo,
-                    (stdout) => stdout.trim()
+                    (stdout) => stdout.trim(),
                 );
                 const webUrl = convertRemoteUrlToWebUrl(url);
-                if (webUrl) result.push({ name: remote, url: webUrl });
+                if (webUrl) {
+                    return { name: remote, url: webUrl };
+                }
             } catch { /* skip */ }
+            return null;
+        }));
+        const result: RemoteWebUrl[] = [];
+        for (const entry of urls) {
+            if (entry) {
+                result.push(entry);
+            }
         }
         return result;
     }

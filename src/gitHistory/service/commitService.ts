@@ -10,6 +10,8 @@ import type {
     GitRepoInfo,
     GitStash,
     LoadCommitsRequest,
+    LoadRepositoryRequest,
+    LoadRepositoryResult,
 } from '../types/git';
 import { UNCOMMITTED } from '../types/git';
 import type { GitExecutor } from './gitExecutor';
@@ -98,113 +100,222 @@ export class CommitService {
             this.getRefsCached(repo, showRemoteBranches, hideRemotes).catch(
                 (errorMessage: string) => errorMessage
             ),
-        ]).then(async ([commits, refData]) => {
-            let moreCommitsAvailable = commits.length === maxCommits + 1;
-            if (moreCommitsAvailable) commits = commits.slice(0, maxCommits);
+        ]).then(([rawCommits, refDataOrError]) =>
+            this.assembleCommitData({
+                repo,
+                rawCommits,
+                refDataOrError,
+                stashes,
+                remotes,
+                maxCommits,
+                showTags,
+            })
+        ).catch((errorMessage: string) => ({
+            commits: [],
+            head: null,
+            tags: [],
+            moreCommitsAvailable: false,
+            error: errorMessage,
+        }));
+    }
 
-            if (typeof refData === 'string') {
-                if (commits.length > 0) throw refData;
-                refData = { head: null, heads: [], tags: [], remotes: [] };
+    loadRepository(request: LoadRepositoryRequest): Promise<LoadRepositoryResult> {
+        const {
+            repo, showRemoteBranches, showStashes, hideRemotes = [], invalidateCache,
+            branches, maxCommits, showTags, includeCommitsMentionedByReflogs,
+            onlyFollowFirstParent, commitOrdering, author, searchValue, relPath,
+        } = request;
+
+        if (invalidateCache) {
+            this.invalidateRepoCache(repo);
+        }
+
+        return Promise.all([
+            this.getBranches(repo, showRemoteBranches, hideRemotes),
+            this.getRemotes(repo),
+            showStashes ? this.getStashes(repo) : Promise.resolve([] as GitStash[]),
+            this.getRefsCached(repo, showRemoteBranches, hideRemotes).catch(
+                (errorMessage: string) => errorMessage
+            ),
+        ]).then(([branchData, remotes, stashes, refDataOrError]) =>
+            this.getLog(
+                repo, branches, maxCommits + 1, showTags, showRemoteBranches,
+                includeCommitsMentionedByReflogs, onlyFollowFirstParent, commitOrdering,
+                remotes, hideRemotes, stashes, author, searchValue, relPath,
+            ).then((rawCommits) =>
+                this.assembleCommitData({
+                    repo,
+                    rawCommits,
+                    refDataOrError,
+                    stashes,
+                    remotes,
+                    maxCommits,
+                    showTags,
+                }).then((commitData) => ({
+                    repoInfo: {
+                        branches: branchData.branches,
+                        head: branchData.head,
+                        remotes,
+                        stashes,
+                        authors: [],
+                        hasRemoteUrl: false,
+                        remoteWebUrls: [],
+                        error: commitData.error,
+                    },
+                    commitData,
+                }))
+            )
+        ).catch((errorMessage: string) => ({
+            repoInfo: {
+                branches: [],
+                head: null,
+                remotes: [],
+                stashes: [],
+                authors: [],
+                hasRemoteUrl: false,
+                remoteWebUrls: [],
+                error: errorMessage,
+            },
+            commitData: {
+                commits: [],
+                head: null,
+                tags: [],
+                moreCommitsAvailable: false,
+                error: errorMessage,
+            },
+        }));
+    }
+
+    private assembleCommitData(params: {
+        repo: string;
+        rawCommits: GitCommitRecord[];
+        refDataOrError: GitRefData | string;
+        stashes: ReadonlyArray<GitStash>;
+        remotes: ReadonlyArray<string>;
+        maxCommits: number;
+        showTags: boolean;
+    }): Promise<GitCommitData> {
+        const { repo, rawCommits, refDataOrError, stashes, remotes, maxCommits, showTags } = params;
+        let commits = rawCommits;
+        let moreCommitsAvailable = commits.length === maxCommits + 1;
+        if (moreCommitsAvailable) {
+            commits = commits.slice(0, maxCommits);
+        }
+
+        let refData: GitRefData;
+        if (typeof refDataOrError === 'string') {
+            if (commits.length > 0) {
+                return Promise.reject(refDataOrError);
             }
+            refData = { head: null, heads: [], tags: [], remotes: [] };
+        } else {
+            refData = refDataOrError;
+        }
 
-            if (refData.head !== null) {
-                for (let i = 0; i < commits.length; i++) {
-                    if (refData.head === commits[i].hash) {
-                        const numUncommitted = await this.getUncommittedChanges(repo);
-                        if (numUncommitted > 0) {
-                            commits.unshift({
-                                hash: UNCOMMITTED,
-                                parents: [refData.head],
-                                author: '*',
-                                email: '',
-                                date: Math.round(Date.now() / 1000),
-                                message: `Uncommitted Changes (${numUncommitted})`,
-                            });
-                        }
-                        break;
-                    }
+        let uncommittedPromise: Promise<number> | null = null;
+        if (refData.head !== null) {
+            for (let i = 0; i < commits.length; i++) {
+                if (refData.head === commits[i].hash) {
+                    uncommittedPromise = this.getUncommittedChanges(repo);
+                    break;
                 }
             }
+        }
 
-            const commitNodes: GitCommit[] = [];
-            const commitLookup: Record<string, number> = {};
+        const commitNodes: GitCommit[] = [];
+        const commitLookup: Record<string, number> = {};
 
-            for (let i = 0; i < commits.length; i++) {
-                commitLookup[commits[i].hash] = i;
-                commitNodes.push({
-                    ...commits[i],
+        for (let i = 0; i < commits.length; i++) {
+            commitLookup[commits[i].hash] = i;
+            commitNodes.push({
+                ...commits[i],
+                heads: [],
+                tags: [],
+                remotes: [],
+                stash: null,
+            });
+        }
+
+        const toAdd: { index: number; data: GitStash }[] = [];
+        for (let i = 0; i < stashes.length; i++) {
+            if (typeof commitLookup[stashes[i].hash] === 'number') {
+                commitNodes[commitLookup[stashes[i].hash]].stash = {
+                    selector: stashes[i].selector,
+                    baseHash: stashes[i].baseHash,
+                    untrackedFilesHash: stashes[i].untrackedFilesHash,
+                };
+            } else if (typeof commitLookup[stashes[i].baseHash] === 'number') {
+                toAdd.push({ index: commitLookup[stashes[i].baseHash], data: stashes[i] });
+            }
+        }
+        toAdd.sort((a, b) => a.index !== b.index ? a.index - b.index : b.data.date - a.data.date);
+        for (let i = toAdd.length - 1; i >= 0; i--) {
+            const stash = toAdd[i].data;
+            commitNodes.splice(toAdd[i].index, 0, {
+                hash: stash.hash,
+                parents: [stash.baseHash],
+                author: stash.author,
+                email: stash.email,
+                date: stash.date,
+                message: stash.message,
+                heads: [], tags: [], remotes: [],
+                stash: {
+                    selector: stash.selector,
+                    baseHash: stash.baseHash,
+                    untrackedFilesHash: stash.untrackedFilesHash,
+                },
+            });
+        }
+        for (let i = 0; i < commitNodes.length; i++) {
+            commitLookup[commitNodes[i].hash] = i;
+        }
+
+        for (let i = 0; i < refData.heads.length; i++) {
+            const idx = commitLookup[refData.heads[i].hash];
+            if (typeof idx === 'number') {
+                (commitNodes[idx] as { heads: string[] }).heads.push(refData.heads[i].name);
+            }
+        }
+
+        if (showTags) {
+            for (let i = 0; i < refData.tags.length; i++) {
+                const idx = commitLookup[refData.tags[i].hash];
+                if (typeof idx === 'number') {
+                    (commitNodes[idx] as { tags: GitCommit['tags'] }).tags.push({
+                        name: refData.tags[i].name,
+                        annotated: refData.tags[i].annotated,
+                    });
+                }
+            }
+        }
+
+        for (let i = 0; i < refData.remotes.length; i++) {
+            const idx = commitLookup[refData.remotes[i].hash];
+            if (typeof idx === 'number') {
+                const name = refData.remotes[i].name;
+                const remote = remotes.find((r) => name.startsWith(r + '/')) ?? null;
+                (commitNodes[idx] as { remotes: GitCommit['remotes'] }).remotes.push({
+                    name,
+                    remote,
+                });
+            }
+        }
+
+        const finish = (numUncommitted: number): GitCommitData => {
+            if (numUncommitted > 0 && refData.head !== null) {
+                commitNodes.unshift({
+                    hash: UNCOMMITTED,
+                    parents: [refData.head],
+                    author: '*',
+                    email: '',
+                    date: Math.round(Date.now() / 1000),
+                    message: `Uncommitted Changes (${numUncommitted})`,
                     heads: [],
                     tags: [],
                     remotes: [],
                     stash: null,
                 });
             }
-
-            const toAdd: { index: number; data: GitStash }[] = [];
-            for (let i = 0; i < stashes.length; i++) {
-                if (typeof commitLookup[stashes[i].hash] === 'number') {
-                    commitNodes[commitLookup[stashes[i].hash]].stash = {
-                        selector: stashes[i].selector,
-                        baseHash: stashes[i].baseHash,
-                        untrackedFilesHash: stashes[i].untrackedFilesHash,
-                    };
-                } else if (typeof commitLookup[stashes[i].baseHash] === 'number') {
-                    toAdd.push({ index: commitLookup[stashes[i].baseHash], data: stashes[i] });
-                }
-            }
-            toAdd.sort((a, b) => a.index !== b.index ? a.index - b.index : b.data.date - a.data.date);
-            for (let i = toAdd.length - 1; i >= 0; i--) {
-                const stash = toAdd[i].data;
-                commitNodes.splice(toAdd[i].index, 0, {
-                    hash: stash.hash,
-                    parents: [stash.baseHash],
-                    author: stash.author,
-                    email: stash.email,
-                    date: stash.date,
-                    message: stash.message,
-                    heads: [], tags: [], remotes: [],
-                    stash: {
-                        selector: stash.selector,
-                        baseHash: stash.baseHash,
-                        untrackedFilesHash: stash.untrackedFilesHash,
-                    },
-                });
-            }
-            for (let i = 0; i < commitNodes.length; i++) {
-                commitLookup[commitNodes[i].hash] = i;
-            }
-
-            for (let i = 0; i < refData.heads.length; i++) {
-                const idx = commitLookup[refData.heads[i].hash];
-                if (typeof idx === 'number') {
-                    (commitNodes[idx] as { heads: string[] }).heads.push(refData.heads[i].name);
-                }
-            }
-
-            if (showTags) {
-                for (let i = 0; i < refData.tags.length; i++) {
-                    const idx = commitLookup[refData.tags[i].hash];
-                    if (typeof idx === 'number') {
-                        (commitNodes[idx] as { tags: GitCommit['tags'] }).tags.push({
-                            name: refData.tags[i].name,
-                            annotated: refData.tags[i].annotated,
-                        });
-                    }
-                }
-            }
-
-            for (let i = 0; i < refData.remotes.length; i++) {
-                const idx = commitLookup[refData.remotes[i].hash];
-                if (typeof idx === 'number') {
-                    const name = refData.remotes[i].name;
-                    const remote = remotes.find((r) => name.startsWith(r + '/')) ?? null;
-                    (commitNodes[idx] as { remotes: GitCommit['remotes'] }).remotes.push({
-                        name,
-                        remote,
-                    });
-                }
-            }
-
             return {
                 commits: commitNodes,
                 head: refData.head,
@@ -212,13 +323,12 @@ export class CommitService {
                 moreCommitsAvailable,
                 error: null,
             };
-        }).catch((errorMessage: string) => ({
-            commits: [],
-            head: null,
-            tags: [],
-            moreCommitsAvailable: false,
-            error: errorMessage,
-        }));
+        };
+
+        if (uncommittedPromise) {
+            return uncommittedPromise.then((numUncommitted) => finish(numUncommitted));
+        }
+        return Promise.resolve(finish(0));
     }
 
     getCommitDetails(repo: string, commitHash: string, hasParents: boolean): Promise<GitCommitDetailsData> {

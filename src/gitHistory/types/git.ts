@@ -107,6 +107,28 @@ export interface LoadCommitsRequest {
     readonly relPath?: string;
 }
 
+export interface LoadRepositoryRequest {
+    readonly repo: string;
+    readonly showRemoteBranches: boolean;
+    readonly showStashes: boolean;
+    readonly invalidateCache?: boolean;
+    readonly branches: ReadonlyArray<string> | null;
+    readonly maxCommits: number;
+    readonly showTags: boolean;
+    readonly includeCommitsMentionedByReflogs: boolean;
+    readonly onlyFollowFirstParent: boolean;
+    readonly commitOrdering: CommitOrdering;
+    readonly hideRemotes: ReadonlyArray<string>;
+    readonly author?: string;
+    readonly searchValue?: string;
+    readonly relPath?: string;
+}
+
+export interface LoadRepositoryResult {
+    readonly repoInfo: GitRepoInfo;
+    readonly commitData: GitCommitData;
+}
+
 export interface GitCommitRecord {
     readonly hash: string;
     readonly parents: ReadonlyArray<string>;

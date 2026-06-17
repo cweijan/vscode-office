@@ -603,12 +603,16 @@
 
 .git-graph-ref.active.git-graph-ref-head .git-graph-ref-name {
     color: var(--git-graph-ref-head);
-    font-weight: 600;
+    font-weight: 700;
+}
+
+.git-graph-ref.active.git-graph-ref-head .git-graph-ref-remote-name {
+    font-weight: 700;
 }
 
 .git-graph-ref.active.git-graph-ref-tag .git-graph-ref-name {
     color: var(--git-graph-ref-tag);
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .git-graph-ref-remote-name {
@@ -666,10 +670,16 @@
 
 .git-graph-row.selected .git-graph-ref.active.git-graph-ref-head .git-graph-ref-name {
     color: var(--git-graph-ref-head);
+    font-weight: 700;
+}
+
+.git-graph-row.selected .git-graph-ref.active.git-graph-ref-head .git-graph-ref-remote-name {
+    font-weight: 700;
 }
 
 .git-graph-row.selected .git-graph-ref.active.git-graph-ref-tag .git-graph-ref-name {
     color: var(--git-graph-ref-tag);
+    font-weight: 700;
 }
 
 .git-graph-row.selected .git-graph-ref {
@@ -964,21 +974,93 @@
 }
 
 .git-graph-more {
-    text-align: center;
-    padding: 4px;
+    flex-shrink: 0;
+    text-align: left;
+    padding: 0;
     font-size: 11px;
+    line-height: 1.4;
     color: var(--git-graph-muted);
-    border-top: 1px solid var(--git-graph-border);
+    white-space: nowrap;
 }
 
-.git-graph-loading,
-.git-graph-empty {
+.git-graph-bottom-bar {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    min-height: 32px;
+    padding: 2px 8px 4px;
+    border-top: 1px solid var(--git-graph-border);
+    background: var(--git-graph-bg);
+}
+
+.git-graph-bottom-bar.has-more {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+}
+
+.git-graph-bottom-bar.has-more .git-graph-more {
+    grid-column: 1;
+    justify-self: start;
+}
+
+.git-graph-bottom-bar-sponsor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.git-graph-bottom-bar.has-more .git-graph-bottom-bar-sponsor {
+    grid-column: 2;
+}
+
+.git-graph-bottom-bar .office-sponsor-bar {
+    --sponsor-bar-muted: var(--git-graph-muted);
+    --sponsor-bar-accent: var(--git-graph-accent);
+    position: static;
+    bottom: auto;
+    right: auto;
+    left: auto;
+    z-index: auto;
+    flex-shrink: 0;
+    gap: 6px;
+    padding: 0;
+}
+
+.git-graph-bottom-bar .office-sponsor-bar-logo {
+    width: 22px;
+    height: 22px;
+}
+
+.git-graph-bottom-bar .office-sponsor-bar--center {
+    margin-inline: auto;
+}
+
+.git-graph.git-graph-loading,
+.git-graph.git-graph-empty {
+    display: flex;
+    flex-direction: column;
     height: 100vh;
     background: var(--git-graph-bg);
     color: var(--git-graph-fg);
+}
+
+.git-graph-loading-main,
+.git-graph-empty-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    padding: 16px;
+}
+
+.git-graph-content-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
 }
 
 .git-graph-svg {

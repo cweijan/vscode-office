@@ -5,6 +5,7 @@ import './main.css'
 import { ConfigProvider } from 'antd';
 import { lazy } from 'react';
 import { antThemeConfig } from './antThemeConfig.ts';
+import GitHistory from './view/gitHistory/GitHistory.tsx';
 const Zip = lazy(() => import('./view/compress/Zip.tsx'))
 const Excel = lazy(() => import('./view/excel/Excel.tsx'))
 const Image = lazy(() => import('./view/image/Image.tsx'))
@@ -16,7 +17,6 @@ const Epub = lazy(() => import('./view/epub/Epub.tsx'))
 const IcnsViewer = lazy(() => import('./view/icns/IcnsViewer.tsx'))
 const PsdViewer = lazy(() => import('./view/psd/PsdViewer.tsx'))
 const XmindViewer = lazy(() => import('./view/xmind/XmindViewer.tsx'))
-const GitHistory = lazy(() => import('./view/gitHistory/GitHistory.tsx'))
 
 document.getElementById('_defaultStyles')?.parentNode?.removeChild(document.getElementById('_defaultStyles'))
 ReactDOM.createRoot(document.getElementById('root')).render(

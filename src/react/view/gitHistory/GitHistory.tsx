@@ -32,16 +32,34 @@ import {
 import { themeStyle, useGitHistoryTheme } from './theme/gitHistoryTheme';
 import { loadGitHistoryState, saveGitHistoryState, getPullDefaults, savePullDefaults, getFileHistorySplitLayout, saveFileHistorySplitLayout, type GitPullDefaults, type FileHistorySplitLayout } from './util/gitHistoryState';
 import { getRelativeRepoPath } from './util/repoPath';
+import { getConfigs } from '../../util/vscodeConfig';
 import type {
     GitCommit, GitCommitData, GitCommitDetails, GitCommitRemote, GitFileChange,
-    GitHistoryInitPayload, GitRepoInfo, GitStash, GitRemoteDetail,
+    GitHistoryInitPayload, GitRepoInfo, GitRepoExtras, GitStash, GitRemoteDetail,
 } from './types';
 import './gitHistory.css';
 import '@vscode/codicons/dist/codicon.css';
+import SponsorBar from '../components/SponsorBar';
 
 const ROW_HEIGHT = 28;
+const TABLE_HEADER_HEIGHT = 28;
 const MAX_COMMITS = 300;
 const QUICK_SYNC_DEFAULT_MESSAGE = 'Quick Sync';
+
+function GitHistoryBottomBar({ moreAvailable = false }: { moreAvailable?: boolean }) {
+    return (
+        <footer className={`git-graph-bottom-bar${moreAvailable ? ' has-more' : ''}`}>
+            {moreAvailable && (
+                <span className="git-graph-more">
+                    Showing latest {MAX_COMMITS} commits
+                </span>
+            )}
+            <div className="git-graph-bottom-bar-sponsor">
+                <SponsorBar placement="center" />
+            </div>
+        </footer>
+    );
+}
 
 export default function GitHistory() {
     const { graphConfig, antTheme, cssVars } = useGitHistoryTheme();
@@ -65,6 +83,7 @@ export default function GitHistory() {
     const [detailsLoading, setDetailsLoading] = useState(false);
     const [detailsError, setDetailsError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [fetching, setFetching] = useState(false);
     const [pushing, setPushing] = useState(false);
     const [syncing, setSyncing] = useState(false);
@@ -253,6 +272,35 @@ export default function GitHistory() {
         });
     }, []);
 
+    const loadRepository = useCallback((
+        targetRepo: string,
+        invalidateCache = false,
+        branchFilter: string | null = selectedBranchRef.current,
+        author?: string,
+        search?: string,
+        fileRelPath = relPathRef.current ?? undefined,
+    ) => {
+        if (!targetRepo) return;
+        setLoading(true);
+        setError(null);
+        handler.emit('loadRepository', {
+            repo: targetRepo,
+            showRemoteBranches,
+            showStashes: true,
+            invalidateCache,
+            branches: branchFilter ? [branchFilter] : null,
+            maxCommits: MAX_COMMITS,
+            showTags: true,
+            includeCommitsMentionedByReflogs: false,
+            onlyFollowFirstParent: false,
+            commitOrdering: 'date',
+            hideRemotes: [],
+            author,
+            searchValue: search,
+            relPath: fileRelPath,
+        });
+    }, [showRemoteBranches]);
+
     const loadCommits = useCallback((
         targetRepo: string,
         branchFilter: string | null,
@@ -284,15 +332,6 @@ export default function GitHistory() {
         });
     }, [showRemoteBranches]);
 
-    const loadRepoInfo = useCallback((targetRepo: string, invalidateCache = false) => {
-        handler.emit('loadRepoInfo', {
-            repo: targetRepo,
-            showRemoteBranches,
-            showStashes: true,
-            invalidateCache,
-        });
-    }, [showRemoteBranches]);
-
     const requestCommitDetails = useCallback((targetRepo: string, commit: GitCommit) => {
         if (!commit || commit.hash === '*') {
             setCommitDetails(null);
@@ -308,78 +347,113 @@ export default function GitHistory() {
         });
     }, []);
 
+    const loadRepositoryRef = useRef(loadRepository);
     const loadCommitsRef = useRef(loadCommits);
-    const loadRepoInfoRef = useRef(loadRepoInfo);
     const requestCommitDetailsRef = useRef(requestCommitDetails);
+    loadRepositoryRef.current = loadRepository;
     loadCommitsRef.current = loadCommits;
-    loadRepoInfoRef.current = loadRepoInfo;
     requestCommitDetailsRef.current = requestCommitDetails;
 
+    const applyCommitsData = useCallback((data: GitCommitData) => {
+        setLoading(false);
+        setRefreshing(false);
+        if (data.error) {
+            setError(data.error);
+            return;
+        }
+        setCommits(data.commits);
+        commitsRef.current = data.commits;
+        setCommitHead(data.head);
+        setMoreAvailable(data.moreCommitsAvailable);
+
+        const pendingHash = pendingCommitHashRef.current;
+        if (pendingHash) {
+            pendingCommitHashRef.current = null;
+            let index = -1;
+            for (let i = 0; i < data.commits.length; i++) {
+                if (data.commits[i].hash === pendingHash) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index >= 0) {
+                setSelectedIndex(index);
+                updateDetailAnchorFromRow(index);
+                requestAnimationFrame(() => {
+                    requestCommitDetailsRef.current(repoRef.current, data.commits[index]);
+                });
+            }
+        }
+    }, [updateDetailAnchorFromRow]);
+
     useEffect(() => {
-        handler
-            .on('init', (payload: GitHistoryInitPayload) => {
-                const saved = loadGitHistoryState();
-                setRepos(payload.repos);
+        const applyInitPayload = (payload: GitHistoryInitPayload): string | null => {
+            const saved = loadGitHistoryState();
+            setRepos(payload.repos);
 
-                const nextFilePath = payload.filePath ?? saved.filePath ?? null;
-                const nextFileName = payload.fileName
-                    ?? (nextFilePath ? nextFilePath.split(/[/\\]/).pop() ?? null : null);
+            const nextFilePath = payload.filePath ?? saved.filePath ?? null;
+            const nextFileName = payload.fileName
+                ?? (nextFilePath ? nextFilePath.split(/[/\\]/).pop() ?? null : null);
+            if (nextFilePath) {
+                setFilePath(nextFilePath);
+                setFileName(nextFileName);
+                filePathRef.current = nextFilePath;
+            }
+
+            let targetRepo = payload.initialRepo ?? null;
+            if (!nextFilePath && saved.repo && payload.repos.includes(saved.repo)) {
+                targetRepo = saved.repo;
+            }
+
+            if (saved.selectedBranch !== undefined) {
+                setSelectedBranch(saved.selectedBranch);
+                selectedBranchRef.current = saved.selectedBranch;
+            }
+            if (saved.selectedAuthor) {
+                setSelectedAuthor(saved.selectedAuthor);
+                selectedAuthorRef.current = saved.selectedAuthor;
+            }
+            if (saved.searchValue) {
+                setSearchValue(saved.searchValue);
+                searchValueRef.current = saved.searchValue;
+            }
+            if (saved.selectedCommitHash) {
+                pendingCommitHashRef.current = saved.selectedCommitHash;
+            }
+            if (payload.fileHistorySplitLayout) {
+                setFileHistorySplitLayout(payload.fileHistorySplitLayout);
+                saveFileHistorySplitLayout(payload.fileHistorySplitLayout);
+            } else if (saved.fileHistorySplitLayout) {
+                setFileHistorySplitLayout(saved.fileHistorySplitLayout);
+            }
+
+            if (targetRepo) {
+                setRepo(targetRepo);
+                repoRef.current = targetRepo;
+                setPullDefaults(getPullDefaults(targetRepo));
                 if (nextFilePath) {
-                    setFilePath(nextFilePath);
-                    setFileName(nextFileName);
-                    filePathRef.current = nextFilePath;
+                    syncRelPath(targetRepo, nextFilePath);
+                } else if (payload.relPath) {
+                    setRelPath(payload.relPath);
+                    relPathRef.current = payload.relPath;
                 }
+            } else {
+                setLoading(false);
+            }
+            initialized.current = true;
+            return targetRepo;
+        };
 
-                let targetRepo = payload.initialRepo ?? null;
-                if (!nextFilePath && saved.repo && payload.repos.includes(saved.repo)) {
-                    targetRepo = saved.repo;
-                }
+        const embeddedInit = getConfigs()?.gitHistoryInit as GitHistoryInitPayload | undefined;
+        const initialRepo = embeddedInit ? applyInitPayload(embeddedInit) : null;
 
-                if (saved.selectedBranch !== undefined) {
-                    setSelectedBranch(saved.selectedBranch);
-                    selectedBranchRef.current = saved.selectedBranch;
-                }
-                if (saved.selectedAuthor) {
-                    setSelectedAuthor(saved.selectedAuthor);
-                    selectedAuthorRef.current = saved.selectedAuthor;
-                }
-                if (saved.searchValue) {
-                    setSearchValue(saved.searchValue);
-                    searchValueRef.current = saved.searchValue;
-                }
-                if (saved.selectedCommitHash) {
-                    pendingCommitHashRef.current = saved.selectedCommitHash;
-                }
-                if (payload.fileHistorySplitLayout) {
-                    setFileHistorySplitLayout(payload.fileHistorySplitLayout);
-                    saveFileHistorySplitLayout(payload.fileHistorySplitLayout);
-                } else {
-                    const savedLayout = loadGitHistoryState().fileHistorySplitLayout;
-                    if (savedLayout) {
-                        setFileHistorySplitLayout(savedLayout);
-                    }
-                }
-
-                if (targetRepo) {
-                    setRepo(targetRepo);
-                    repoRef.current = targetRepo;
-                    setPullDefaults(getPullDefaults(targetRepo));
-                    if (nextFilePath) {
-                        syncRelPath(targetRepo, nextFilePath);
-                    } else if (payload.relPath) {
-                        setRelPath(payload.relPath);
-                        relPathRef.current = payload.relPath;
-                    }
-                    loadRepoInfoRef.current(targetRepo);
-                } else {
-                    setLoading(false);
-                }
-                initialized.current = true;
-            })
-            .on('repoInfo', (info: GitRepoInfo) => {
+        handler
+            .on('repositoryLoaded', (payload: { repoInfo: GitRepoInfo; commitData: GitCommitData }) => {
+                const info = payload.repoInfo;
                 if (info.error) {
                     setError(info.error);
                     setLoading(false);
+                    setRefreshing(false);
                     return;
                 }
                 setBranches(info.branches);
@@ -388,42 +462,16 @@ export default function GitHistory() {
                 setStashes(info.stashes);
                 stashesRef.current = info.stashes;
                 remotesRef.current = info.remotes;
-                setAuthors(info.authors);
-                setHasRemoteUrl(info.hasRemoteUrl);
-                setRemoteWebUrls(info.remoteWebUrls ?? []);
-                loadCommitsRef.current(
-                    repoRef.current,
-                    selectedBranchRef.current,
-                    selectedAuthorRef.current,
-                    searchValueRef.current || undefined,
-                );
+                branchesRef.current = info.branches;
+                applyCommitsData(payload.commitData);
+            })
+            .on('repoExtras', (extras: GitRepoExtras) => {
+                setAuthors(extras.authors);
+                setHasRemoteUrl(extras.hasRemoteUrl);
+                setRemoteWebUrls(extras.remoteWebUrls);
             })
             .on('commits', (data: GitCommitData) => {
-                setLoading(false);
-                if (data.error) {
-                    setError(data.error);
-                    return;
-                }
-                setCommits(data.commits);
-                setCommitHead(data.head);
-                setMoreAvailable(data.moreCommitsAvailable);
-
-                const pendingHash = pendingCommitHashRef.current;
-                if (pendingHash) {
-                    pendingCommitHashRef.current = null;
-                    let index = -1;
-                    for (let i = 0; i < data.commits.length; i++) {
-                        if (data.commits[i].hash === pendingHash) {
-                            index = i;
-                            break;
-                        }
-                    }
-                    if (index >= 0) {
-                        setSelectedIndex(index);
-                        updateDetailAnchorFromRow(index);
-                        requestCommitDetailsRef.current(repoRef.current, data.commits[index]);
-                    }
-                }
+                applyCommitsData(data);
             })
             .on('commitDetails', (data: { commitDetails: GitCommitDetails | null; error: string | null }) => {
                 setDetailsLoading(false);
@@ -433,7 +481,7 @@ export default function GitHistory() {
             .on('refresh', (payload: { repos: string[] }) => {
                 setRepos(payload.repos);
                 if (repoRef.current) {
-                    loadRepoInfoRef.current(repoRef.current, true);
+                    loadRepositoryRef.current(repoRef.current, true);
                 }
             })
             .on('fetch', (payload: { error: string | null }) => {
@@ -443,7 +491,7 @@ export default function GitHistory() {
                     return;
                 }
                 if (repoRef.current) {
-                    loadRepoInfoRef.current(repoRef.current, true);
+                    loadRepositoryRef.current(repoRef.current, true);
                 }
             })
             .on('push', (payload: { error: string | null; cancelled?: boolean }) => {
@@ -456,7 +504,7 @@ export default function GitHistory() {
                     return;
                 }
                 if (repoRef.current) {
-                    loadRepoInfoRef.current(repoRef.current, true);
+                    loadRepositoryRef.current(repoRef.current, true);
                 }
             })
             .on('quickSync', (payload: { error: string | null }) => {
@@ -466,7 +514,7 @@ export default function GitHistory() {
                     return;
                 }
                 if (repoRef.current) {
-                    loadRepoInfoRef.current(repoRef.current, true);
+                    loadRepositoryRef.current(repoRef.current, true);
                 }
             })
             .on('repoConfig', (payload: { remotes: GitRemoteDetail[] }) => {
@@ -480,7 +528,7 @@ export default function GitHistory() {
                     return;
                 }
                 if (payload.refresh && repoRef.current) {
-                    loadRepoInfoRef.current(repoRef.current, true);
+                    loadRepositoryRef.current(repoRef.current, true);
                     if (settingsOpenRef.current) {
                         setConfigLoading(true);
                         handler.emit('loadRepoConfig', { repo: repoRef.current });
@@ -521,11 +569,15 @@ export default function GitHistory() {
                 }
                 if (result.refresh && repoRef.current) {
                     clearCommitList();
-                    loadRepoInfoRef.current(repoRef.current, true);
+                    loadRepositoryRef.current(repoRef.current, true);
                 }
             })
             .emit('ready');
-    }, []);
+
+        if (initialRepo) {
+            loadRepositoryRef.current(initialRepo);
+        }
+    }, [applyCommitsData]);
 
     useEffect(() => {
         if (!repo) return;
@@ -557,7 +609,7 @@ export default function GitHistory() {
         }
         setPullDefaults(getPullDefaults(newRepo));
         clearCommitList();
-        loadRepoInfo(newRepo, true);
+        loadRepository(newRepo, true);
     };
 
     const handleSelectCommit = (index: number, event?: MouseEvent) => {
@@ -575,11 +627,13 @@ export default function GitHistory() {
     };
 
     const handleRefresh = () => {
-        handler.emit('refresh');
-        if (repo) {
-            clearCommitList();
-            loadRepoInfo(repo, true);
+        if (!repo || refreshing) {
+            return;
         }
+        setRefreshing(true);
+        handler.emit('refresh');
+        clearCommitList();
+        setLoading(true);
     };
 
     const handleFetch = () => {
@@ -727,7 +781,15 @@ export default function GitHistory() {
     const scrollToCommitIndex = useCallback((index: number | null) => {
         if (index === null || !contentRef.current) return;
         const row = contentRef.current.querySelector(`[data-commit-index="${index}"]`);
-        row?.scrollIntoView({ block: 'nearest' });
+        if (!(row instanceof HTMLElement)) return;
+        const container = contentRef.current;
+        const rowTopInContainer = row.getBoundingClientRect().top - container.getBoundingClientRect().top;
+        const rowBottomInContainer = row.getBoundingClientRect().bottom - container.getBoundingClientRect().top;
+        const minTop = TABLE_HEADER_HEIGHT;
+        const maxBottom = container.clientHeight;
+        if (rowTopInContainer < minTop || rowBottomInContainer > maxBottom) {
+            container.scrollTop += rowTopInContainer - minTop;
+        }
     }, []);
 
     const handleFindNavigate = useCallback((index: number | null) => {
@@ -864,7 +926,10 @@ export default function GitHistory() {
         return (
             <ConfigProvider theme={antTheme}>
                 <div className="git-graph git-graph-loading" style={themeStyle(cssVars)}>
-                    <Spin size="large" tip="Loading Git History..." />
+                    <div className="git-graph-loading-main">
+                        <Spin size="large" tip="Loading Git History..." />
+                    </div>
+                    <GitHistoryBottomBar />
                 </div>
             </ConfigProvider>
         );
@@ -874,11 +939,14 @@ export default function GitHistory() {
         return (
             <ConfigProvider theme={antTheme}>
                 <div className="git-graph git-graph-empty" style={themeStyle(cssVars)}>
-                    <Alert
-                        type="info"
-                        message="No Git repositories found"
-                        description="Open a workspace folder containing a Git repository."
-                    />
+                    <div className="git-graph-empty-main">
+                        <Alert
+                            type="info"
+                            message="No Git repositories found"
+                            description="Open a workspace folder containing a Git repository."
+                        />
+                    </div>
+                    <GitHistoryBottomBar />
                 </div>
             </ConfigProvider>
         );
@@ -902,7 +970,7 @@ export default function GitHistory() {
                 authors={authors}
                 selectedAuthor={selectedAuthor}
                 searchValue={searchValue}
-                loading={loading}
+                refreshing={refreshing}
                 fetching={fetching}
                 pushing={pushing}
                 syncing={syncing}
@@ -947,7 +1015,7 @@ export default function GitHistory() {
                     {error && <Alert type="error" message={error} closable style={{ margin: '8px 12px' }} />}
                     <div className="git-graph-content" ref={contentRef}>
                         {loading && commits.length === 0 ? (
-                            <div className="git-graph-loading"><Spin /></div>
+                            <div className="git-graph-content-loading"><Spin /></div>
                         ) : (
                             <CommitTable
                                 commits={commits}
@@ -964,11 +1032,7 @@ export default function GitHistory() {
                             />
                         )}
                     </div>
-                    {moreAvailable && (
-                        <div className="git-graph-more">
-                            Showing latest {MAX_COMMITS} commits
-                        </div>
-                    )}
+                    <GitHistoryBottomBar moreAvailable={moreAvailable} />
                 </div>
                 <SettingsWidget
                     open={settingsOpen}

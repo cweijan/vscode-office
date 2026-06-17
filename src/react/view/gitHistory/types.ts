@@ -38,6 +38,12 @@ export interface GitStash {
     message: string;
 }
 
+export interface GitRepoExtras {
+    authors: string[];
+    hasRemoteUrl: boolean;
+    remoteWebUrls: { name: string; url: string }[];
+}
+
 export interface GitRepoInfo {
     branches: string[];
     head: string | null;

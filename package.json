@@ -165,7 +165,7 @@
 			{
 				"command": "office.gitHistory.view",
 				"title": "View Git History",
-				"icon": "$(git-commit)"
+				"icon": "$(history)"
 			},
 			{
 				"command": "office.gitHistory.viewFileHistory",
@@ -212,7 +212,8 @@
 			"scm/title": [
 				{
 					"command": "office.gitHistory.view",
-					"group": "navigation"
+					"group": "navigation",
+					"when": "scmProvider == git"
 				}
 			],
 			"scm/resourceState/context": [

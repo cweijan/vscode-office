@@ -9,7 +9,7 @@ interface ToolbarProps {
     authors: string[];
     selectedAuthor: string | undefined;
     searchValue: string;
-    loading: boolean;
+    refreshing: boolean;
     fetching: boolean;
     pushing: boolean;
     syncing: boolean;
@@ -39,7 +39,7 @@ function repoLabel(path: string): string {
 
 export default function Toolbar({
     repos, repo, branches, selectedBranch, authors, selectedAuthor,
-    searchValue, loading, fetching, pushing, syncing, canPush, canQuickSync, hasRemoteUrl,
+    searchValue, refreshing, fetching, pushing, syncing, canPush, canQuickSync, hasRemoteUrl,
     findActive, settingsActive,
     onRepoChange, onBranchChange, onAuthorChange,
     onSearchChange, onSearch,
@@ -94,8 +94,8 @@ export default function Toolbar({
                     <RefreshIcon
                         title="Refresh"
                         onClick={onRefresh}
-                        disabled={loading}
-                        className={loading ? ' spinning' : ''}
+                        disabled={refreshing}
+                        className={refreshing ? ' spinning' : ''}
                     />
                     <FetchIcon
                         title="Fetch from remote(s)"

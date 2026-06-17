@@ -37,7 +37,6 @@ async function openGitHistory(
     if (!commitService || !repoDiscovery || !gitActions || !gitRepoCommands || !gitActionHandler) {
         return;
     }
-    await repoDiscovery.discover();
     if (panelContext.fileUri) {
         const repo = repoDiscovery.getRepoForFile(panelContext.fileUri.fsPath);
         if (!repo) {

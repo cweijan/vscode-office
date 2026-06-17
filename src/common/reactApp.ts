@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 
 interface ViewOption {
     route: string;
+    gitHistoryInit?: import('../gitHistory/util/gitHistoryInitPayload').GitHistoryEmbeddedInit;
 }
 
 export class ReactApp {
