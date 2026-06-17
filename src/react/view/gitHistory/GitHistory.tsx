@@ -290,6 +290,21 @@ function GitHistoryView({
     relPathRef.current = relPath;
     maxCommitsRef.current = maxCommits;
 
+    const clearBranchFilterIfMissing = (branchList: ReadonlyArray<string>): boolean => {
+        const current = selectedBranchRef.current;
+        if (!current) {
+            return false;
+        }
+        for (const branch of branchList) {
+            if (branch === current) {
+                return false;
+            }
+        }
+        setSelectedBranch(null);
+        selectedBranchRef.current = null;
+        return true;
+    };
+
     const resetMaxCommits = useCallback(() => {
         maxCommitsRef.current = INITIAL_MAX_COMMITS;
         setMaxCommits(INITIAL_MAX_COMMITS);
@@ -536,6 +551,16 @@ function GitHistoryView({
                 stashesRef.current = info.stashes;
                 remotesRef.current = info.remotes;
                 branchesRef.current = info.branches;
+                const filterWasCleared = clearBranchFilterIfMissing(info.branches);
+                if (filterWasCleared && repoRef.current) {
+                    loadCommitsRef.current(
+                        repoRef.current,
+                        null,
+                        selectedAuthorRef.current,
+                        searchValueRef.current || undefined,
+                    );
+                    return;
+                }
                 applyCommitsData(payload.commitData);
             })
             .on('repoExtras', (extras: GitRepoExtras) => {
@@ -644,12 +669,18 @@ function GitHistoryView({
                     if (checkoutUpdate.branches) {
                         setBranches(checkoutUpdate.branches);
                         branchesRef.current = checkoutUpdate.branches;
+                        clearBranchFilterIfMissing(checkoutUpdate.branches);
                     }
                     if (checkoutUpdate.commits) {
                         setCommits(checkoutUpdate.commits);
                         commitsRef.current = checkoutUpdate.commits;
                     }
                     return;
+                }
+                if (pendingAction?.action === 'deleteBranch'
+                    && pendingAction.branch === selectedBranchRef.current) {
+                    setSelectedBranch(null);
+                    selectedBranchRef.current = null;
                 }
                 if (result.refresh && repoRef.current) {
                     clearCommitList();
