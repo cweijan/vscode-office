@@ -1,6 +1,6 @@
 # Change log
 
-# 4.0.3
+# 4.0.3 2026-6-18
 
 Important:
 - Redesign the One Dark Modern theme
