@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { MenuPayloadMeta } from '../contextMenu/buildContextMenu';
+import { getContextMenuIcon } from '../contextMenu/contextMenuIcons';
 
 export interface ContextMenuItem {
     id: string;
@@ -59,7 +60,9 @@ export function ContextMenu({ menu, onClose, onSelect }: ContextMenuProps) {
             role="menu"
             onMouseDown={(e) => e.stopPropagation()}
         >
-            {menu.items.map((item) => (
+            {menu.items.map((item) => {
+                const icon = getContextMenuIcon(item.id);
+                return (
                 <li key={item.id} role="none">
                     {item.separatorBefore && <div className="git-graph-context-menu-divider" role="separator" />}
                     <button
@@ -73,10 +76,14 @@ export function ContextMenu({ menu, onClose, onSelect }: ContextMenuProps) {
                             onClose();
                         }}
                     >
-                        {item.label}
+                        <span className="git-graph-context-menu-icon" aria-hidden>
+                            {icon ? <span className={`codicon codicon-${icon}`} /> : null}
+                        </span>
+                        <span className="git-graph-context-menu-label">{item.label}</span>
                     </button>
                 </li>
-            ))}
+                );
+            })}
         </ul>,
         document.body
     );

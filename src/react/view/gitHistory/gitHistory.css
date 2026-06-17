@@ -458,6 +458,7 @@
     flex: 1;
     overflow: auto;
     min-height: 0;
+    position: relative;
 }
 
 .git-graph-table-wrapper {
@@ -1079,10 +1080,13 @@
 }
 
 .git-graph-content-loading {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 24px;
+    background: color-mix(in srgb, var(--git-graph-bg) 88%, transparent);
 }
 
 .git-graph-svg {
@@ -1129,25 +1133,53 @@
     color: var(--vscode-menu-foreground, var(--git-graph-fg));
     box-shadow: 0 1px 4px 1px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.2));
     border: 1px solid var(--vscode-menu-border, var(--git-graph-border));
+    font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size: var(--vscode-font-size, 13px);
     user-select: none;
 }
 
 .git-graph-context-menu-item {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     width: 100%;
-    padding: 6px 20px;
+    padding: 6px 20px 6px 8px;
     border: none;
     background: transparent;
     color: inherit;
     font: inherit;
-    font-size: 13px;
+    font-size: inherit;
     text-align: left;
     cursor: default;
+}
+
+.git-graph-context-menu-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+}
+
+.git-graph-context-menu-icon .codicon {
+    font-size: 16px;
+    line-height: 1;
+    opacity: 0.9;
+}
+
+.git-graph-context-menu-label {
+    flex: 1;
+    min-width: 0;
 }
 
 .git-graph-context-menu-item:hover:not(:disabled) {
     background: var(--vscode-menu-selectionBackground, var(--git-graph-hover));
     color: var(--vscode-menu-selectionForeground, var(--git-graph-fg));
+}
+
+.git-graph-context-menu-item:hover:not(:disabled) .git-graph-context-menu-icon .codicon {
+    opacity: 1;
 }
 
 .git-graph-context-menu-item:disabled {

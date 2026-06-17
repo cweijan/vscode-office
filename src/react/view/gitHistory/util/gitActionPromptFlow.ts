@@ -34,6 +34,8 @@ export type PromptStep =
         message?: string;
         submitLabel: string;
         fields: FormField[];
+        variant?: 'createBranch';
+        commitHash?: string;
     };
 
 export type GitActionRequest = Record<string, unknown> & { action: string };
@@ -54,7 +56,8 @@ export function getPromptSteps(
                 kind: 'form',
                 id: 'createBranch',
                 title: 'Create Branch',
-                message: `Create branch at commit ${abbrevHash(payload.hash as string)}:`,
+                variant: 'createBranch',
+                commitHash: payload.hash as string,
                 submitLabel: 'Create Branch',
                 fields: [
                     { type: 'text', id: 'branchName', label: 'Name', placeholder: 'branch-name' },

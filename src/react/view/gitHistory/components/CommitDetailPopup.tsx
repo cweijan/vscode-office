@@ -125,7 +125,7 @@ export default function CommitDetailPopup({
                 <div className="git-graph-cdv-content">{body}</div>
             </div>
             <div className="git-graph-cdv-controls">
-                <button type="button" className="git-graph-icon-btn" title="Close" onClick={onClose}>
+                <button type="button" className="git-graph-icon-btn" title="Close (Escape)" onClick={onClose}>
                     <span className="codicon codicon-close" aria-hidden />
                 </button>
                 <button

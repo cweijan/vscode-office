@@ -5,6 +5,16 @@ export interface PopupAnchor {
 
 export const COMMIT_DETAIL_POPUP_WIDTH = 400;
 
+export function computeAnchoredDialogPosition(
+    anchor: PopupAnchor,
+    width: number,
+    height: number,
+): { left: number; top: number } {
+    const top = Math.max(Math.min(anchor.y - 90, window.innerHeight - height - 10), 10);
+    const left = Math.max(Math.min(anchor.x - 50, window.innerWidth - width - 10), 10);
+    return { left, top };
+}
+
 export function computeCommitDetailPopupPosition(
     anchor: PopupAnchor,
     popupHeight: number,

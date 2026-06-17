@@ -38,16 +38,16 @@ export function buildCommitContextMenu(commit: GitCommit, ctx: MenuContext): Con
     const items: ContextMenuItem[] = [
         { id: 'copyHash', label: 'Copy Commit Hash' },
         { id: 'copyMessage', label: 'Copy Commit Message' },
-        { id: 'reset', label: 'Reset Branch...' },
-        { id: 'createBranch', label: 'Create Branch...' },
-        { id: 'addTag', label: 'Add Tag...' },
+        { id: 'reset', label: 'Reset Branch' },
+        { id: 'createBranch', label: 'Create Branch' },
+        { id: 'addTag', label: 'Add Tag' },
         ...sep([
-            { id: 'checkout', label: 'Checkout...' },
-            { id: 'cherryPick', label: 'Cherry Pick...' },
-            { id: 'revert', label: 'Revert...' },
+            { id: 'checkout', label: 'Checkout' },
+            { id: 'cherryPick', label: 'Cherry Pick' },
+            { id: 'revert', label: 'Revert' },
         ]),
         ...sep([
-            { id: 'merge', label: 'Merge into current branch...' },
+            { id: 'merge', label: 'Merge into current branch' },
         ]),
         ...sep([
             { id: 'copySubject', label: 'Copy Commit Subject' },
@@ -70,11 +70,11 @@ export function buildBranchContextMenu(
     const isHead = ctx.head === branchName;
     return [
         { id: 'checkoutBranch', label: 'Checkout Branch', disabled: isHead },
-        { id: 'renameBranch', label: 'Rename Branch...' },
-        { id: 'deleteBranch', label: 'Delete Branch...', disabled: isHead },
+        { id: 'renameBranch', label: 'Rename Branch' },
+        { id: 'deleteBranch', label: 'Delete Branch', disabled: isHead },
         ...sep([
-            { id: 'mergeBranch', label: 'Merge into current branch...', disabled: isHead },
-            { id: 'pushBranch', label: 'Push Branch...', disabled: ctx.remotes.length === 0 },
+            { id: 'mergeBranch', label: 'Merge into current branch', disabled: isHead },
+            { id: 'pushBranch', label: 'Push Branch', disabled: ctx.remotes.length === 0 },
         ]),
         ...sep([
             { id: 'copyBranch', label: 'Copy Branch Name' },
@@ -90,11 +90,11 @@ export function buildRemoteBranchContextMenu(
 ): ContextMenuItem[] {
     const localExists = ctx.branches.includes(branchName);
     return [
-        { id: 'checkoutRemote', label: 'Checkout Branch...' },
-        { id: 'deleteRemoteBranch', label: 'Delete Remote Branch...' },
+        { id: 'checkoutRemote', label: 'Checkout Branch' },
+        { id: 'deleteRemoteBranch', label: 'Delete Remote Branch' },
         ...sep([
-            { id: 'pullRemote', label: 'Pull into current branch...', disabled: !localExists },
-            { id: 'mergeRemote', label: 'Merge into current branch...' },
+            { id: 'pullRemote', label: 'Pull into current branch', disabled: !localExists },
+            { id: 'mergeRemote', label: 'Merge into current branch' },
         ]),
         ...sep([
             { id: 'copyRemote', label: 'Copy Branch Name' },
@@ -109,8 +109,8 @@ export function buildRemoteBranchContextMenu(
 
 export function buildTagContextMenu(tagName: string, ctx: MenuContext): ContextMenuItem[] {
     return [
-        { id: 'deleteTag', label: 'Delete Tag...' },
-        { id: 'pushTag', label: 'Push Tag...', disabled: ctx.remotes.length === 0 },
+        { id: 'deleteTag', label: 'Delete Tag' },
+        { id: 'pushTag', label: 'Push Tag', disabled: ctx.remotes.length === 0 },
         ...sep([{ id: 'copyTag', label: 'Copy Tag Name' }]),
     ].map((item) => ({ ...item, _tag: tagName })) as ContextMenuItem[];
 }
@@ -118,19 +118,19 @@ export function buildTagContextMenu(tagName: string, ctx: MenuContext): ContextM
 export function buildStashContextMenu(selector: string, _ctx: MenuContext): ContextMenuItem[] {
     return [
         { id: 'applyStash', label: 'Apply Stash' },
-        { id: 'popStash', label: 'Pop Stash...' },
-        { id: 'dropStash', label: 'Drop Stash...' },
-        ...sep([{ id: 'branchFromStash', label: 'Create Branch from Stash...' }]),
+        { id: 'popStash', label: 'Pop Stash' },
+        { id: 'dropStash', label: 'Drop Stash' },
+        ...sep([{ id: 'branchFromStash', label: 'Create Branch from Stash' }]),
     ].map((item) => ({ ...item, _selector: selector })) as ContextMenuItem[];
 }
 
 export function buildUncommittedContextMenu(_ctx: MenuContext): ContextMenuItem[] {
     return [
-        { id: 'pushStash', label: 'Stash uncommitted changes...' },
+        { id: 'pushStash', label: 'Stash uncommitted changes' },
         ...sep([
-            { id: 'resetUncommittedMixed', label: 'Reset uncommitted changes (Mixed)...' },
-            { id: 'resetUncommittedHard', label: 'Reset uncommitted changes (Hard)...' },
-            { id: 'cleanUntracked', label: 'Clean untracked files...' },
+            { id: 'resetUncommittedMixed', label: 'Reset uncommitted changes (Mixed)' },
+            { id: 'resetUncommittedHard', label: 'Reset uncommitted changes (Hard)' },
+            { id: 'cleanUntracked', label: 'Clean untracked files' },
         ]),
         ...sep([{ id: 'viewScm', label: 'Open Source Control View' }]),
     ];

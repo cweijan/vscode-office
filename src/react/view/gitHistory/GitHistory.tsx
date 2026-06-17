@@ -273,8 +273,6 @@ function GitHistoryView({
 
     const clearCommitList = useCallback(() => {
         setCommits([]);
-        setCommitHead(null);
-        setBranchHead(null);
         setSelectedIndex(null);
         setDetailAnchor(null);
         setCommitDetails(null);
@@ -626,6 +624,8 @@ function GitHistoryView({
     const handleRepoChange = (newRepo: string) => {
         setRepo(newRepo);
         repoRef.current = newRepo;
+        setBranchHead(null);
+        setCommitHead(null);
         setSelectedBranch(null);
         selectedBranchRef.current = null;
         setSelectedAuthor(undefined);
@@ -849,11 +849,49 @@ function GitHistoryView({
             if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
                 e.preventDefault();
                 handleToggleFindRef.current();
+                return;
+            }
+            if (e.key !== 'Escape') {
+                return;
+            }
+            if (menu) {
+                closeMenu();
+                e.preventDefault();
+                return;
+            }
+            if (toolbarPrompt || remoteForm || remoteDeleteName) {
+                return;
+            }
+            if (findOpen) {
+                setFindOpen(false);
+                setFindMatchIndex(null);
+                e.preventDefault();
+                return;
+            }
+            if (settingsOpen) {
+                setSettingsOpen(false);
+                e.preventDefault();
+                return;
+            }
+            if (selectedIndex !== null && detailAnchor) {
+                closeCommitDetails();
+                e.preventDefault();
             }
         };
         window.addEventListener('keydown', onKeyDown);
         return () => window.removeEventListener('keydown', onKeyDown);
-    }, []);
+    }, [
+        menu,
+        toolbarPrompt,
+        remoteForm,
+        remoteDeleteName,
+        findOpen,
+        settingsOpen,
+        selectedIndex,
+        detailAnchor,
+        closeMenu,
+        closeCommitDetails,
+    ]);
 
     useEffect(() => {
         if (findMatchIndex === null) {
@@ -1046,7 +1084,9 @@ function GitHistoryView({
                     {error && <Alert type="error" message={error} closable style={{ margin: '8px 12px' }} />}
                     <div className="git-graph-content" ref={contentRef}>
                         {loading && commits.length === 0 ? (
-                            <div className="git-graph-content-loading"><Spin /></div>
+                            <div className="git-graph-content-loading">
+                                <Spin size="large" tip="Loading..." />
+                            </div>
                         ) : (
                             <CommitTable
                                 commits={commits}

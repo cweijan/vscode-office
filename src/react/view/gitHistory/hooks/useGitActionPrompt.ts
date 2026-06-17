@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import type { PromptStep, PromptSubmitValue } from '../util/gitActionPromptFlow';
+import type { PopupAnchor } from '../util/commitDetailPopup';
 import {
     getFollowUpSteps,
     getPromptSteps,
@@ -12,6 +13,7 @@ interface PromptState {
     steps: PromptStep[];
     stepIndex: number;
     answers: Record<string, string>;
+    anchor?: PopupAnchor;
 }
 
 interface PromptContext {
@@ -27,13 +29,17 @@ export function useGitActionPrompt(
         setPrompt(null);
     }, []);
 
-    const requestAction = useCallback((payload: GitActionRequest, ctx: PromptContext) => {
+    const requestAction = useCallback((
+        payload: GitActionRequest,
+        ctx: PromptContext,
+        anchor?: PopupAnchor,
+    ) => {
         const steps = getPromptSteps(payload, ctx);
         if (!steps || steps.length === 0) {
             onExecute(payload);
             return;
         }
-        setPrompt({ base: payload, steps, stepIndex: 0, answers: {} });
+        setPrompt({ base: payload, steps, stepIndex: 0, answers: {}, anchor });
     }, [onExecute]);
 
     const submitStep = useCallback((value: PromptSubmitValue) => {
@@ -75,9 +81,11 @@ export function useGitActionPrompt(
     }, [onExecute]);
 
     const currentStep = prompt ? prompt.steps[prompt.stepIndex] ?? null : null;
+    const promptAnchor = prompt?.anchor ?? null;
 
     return {
         currentStep,
+        promptAnchor,
         requestAction,
         submitStep,
         cancelPrompt,
