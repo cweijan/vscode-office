@@ -100,6 +100,21 @@
     }
 }
 
+.svg-viewer__btn--active {
+    background: var(--vscode-button-background, #0e639c);
+    color: var(--vscode-button-foreground, #ffffff);
+
+    &:hover {
+        background: var(--vscode-button-hoverBackground, #1177bb);
+    }
+}
+
+.svg-viewer__btn--icon-only {
+    width: 28px;
+    padding: 0;
+    justify-content: center;
+}
+
 .svg-viewer__btn-icon {
     display: inline-flex;
     opacity: 0.9;

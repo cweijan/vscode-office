@@ -1,6 +1,6 @@
 import { defaultKeymap, history, historyKeymap, indentLess, indentMore, indentWithTab } from '@codemirror/commands';
 import { xml } from '@codemirror/lang-xml';
-import { EditorState } from '@codemirror/state';
+import { Compartment, EditorState } from '@codemirror/state';
 import {
     EditorView,
     highlightActiveLine,
@@ -14,6 +14,7 @@ import { svgEditorTheme, svgSyntaxHighlighting } from './svgCodeMirrorTheme';
 interface SvgCodeEditorProps {
     value: string;
     onChange: (value: string) => void;
+    lineWrap?: boolean;
 }
 
 function handleTabKey(event: KeyboardEvent, view: EditorView): boolean {
@@ -24,12 +25,15 @@ function handleTabKey(event: KeyboardEvent, view: EditorView): boolean {
     return command(view);
 }
 
-export default function SvgCodeEditor({ value, onChange }: SvgCodeEditorProps) {
+export default function SvgCodeEditor({ value, onChange, lineWrap = false }: SvgCodeEditorProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const viewRef = useRef<EditorView | null>(null);
     const onChangeRef = useRef(onChange);
+    const lineWrapCompartmentRef = useRef(new Compartment());
+    const lineWrapRef = useRef(lineWrap);
 
     onChangeRef.current = onChange;
+    lineWrapRef.current = lineWrap;
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -55,6 +59,7 @@ export default function SvgCodeEditor({ value, onChange }: SvgCodeEditorProps) {
                 xml(),
                 svgEditorTheme,
                 svgSyntaxHighlighting,
+                lineWrapCompartmentRef.current.of(lineWrapRef.current ? EditorView.lineWrapping : []),
                 updateListener,
             ],
         });
@@ -67,6 +72,15 @@ export default function SvgCodeEditor({ value, onChange }: SvgCodeEditorProps) {
             viewRef.current = null;
         };
     }, []);
+
+    useEffect(() => {
+        const view = viewRef.current;
+        if (!view) return;
+
+        view.dispatch({
+            effects: lineWrapCompartmentRef.current.reconfigure(lineWrap ? EditorView.lineWrapping : []),
+        });
+    }, [lineWrap]);
 
     useEffect(() => {
         const view = viewRef.current;

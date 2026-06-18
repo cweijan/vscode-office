@@ -29,6 +29,15 @@ function FormatIcon() {
     );
 }
 
+function LineWrapIcon() {
+    return (
+        <svg className="svg-viewer__btn-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+            <path fill="currentColor" d="M2 3.5h12v1H2zm0 3h8v1H2zm0 3h10v1H2zm0 3h6v1H2z" />
+            <path fill="currentColor" d="M12.5 9.5 15 12l-2.5 2.5-.7-.7L13.6 12l-1.8-1.8z" opacity="0.75" />
+        </svg>
+    );
+}
+
 function SaveIcon() {
     return (
         <svg className="svg-viewer__btn-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
@@ -71,6 +80,7 @@ function SvgViewerInner() {
     const [error, setError] = useState('');
     const [exportingPng, setExportingPng] = useState(false);
     const [dirty, setDirty] = useState(false);
+    const [lineWrap, setLineWrap] = useState(false);
     const [isGitScheme, setIsGitScheme] = useState(false);
 
     const contentRef = useRef('');
@@ -83,6 +93,7 @@ function SvgViewerInner() {
     const copySuccessText = isZh ? '已复制' : 'Copied';
     const saveText = isZh ? '保存' : 'Save';
     const saveSuccessText = isZh ? '保存成功' : 'Saved';
+    const lineWrapText = isZh ? '自动换行' : 'Line wrap';
 
     const colors = useMemo(() => parseSvgColors(content), [content]);
     const [previewUrl, setPreviewUrl] = useState('');
@@ -225,6 +236,16 @@ function SvgViewerInner() {
                             <div className="svg-viewer__actions">
                                 <button
                                     type="button"
+                                    className={`svg-viewer__btn svg-viewer__btn--icon-only${lineWrap ? ' svg-viewer__btn--active' : ''}`}
+                                    onClick={() => setLineWrap((enabled) => !enabled)}
+                                    title={lineWrapText}
+                                    aria-label={lineWrapText}
+                                    aria-pressed={lineWrap}
+                                >
+                                    <LineWrapIcon />
+                                </button>
+                                <button
+                                    type="button"
                                     className={`svg-viewer__btn${dirty ? ' svg-viewer__btn--primary' : ''}`}
                                     onClick={onSave}
                                     disabled={!dirty}
@@ -252,6 +273,7 @@ function SvgViewerInner() {
                         <SvgCodeEditor
                             value={content}
                             onChange={updateContent}
+                            lineWrap={lineWrap}
                         />
                     </div>}
 

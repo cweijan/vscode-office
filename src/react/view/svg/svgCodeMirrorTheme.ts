@@ -20,10 +20,10 @@ export const svgEditorTheme = EditorView.theme({
     '.cm-content': {
         padding: '14px 0',
         caretColor: 'var(--vscode-editorCursor-foreground, #aeafad)',
-        whiteSpace: 'pre',
     },
-    '.cm-line': {
-        whiteSpace: 'pre',
+    '&.cm-lineWrapping .cm-line': {
+        whiteSpace: 'break-spaces',
+        wordBreak: 'break-word',
     },
     '.cm-gutters': {
         backgroundColor: 'var(--vscode-editor-background, #1e1e1e)',
