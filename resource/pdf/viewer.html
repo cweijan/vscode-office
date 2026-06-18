@@ -283,8 +283,8 @@ See https://github.com/adobe-type-tools/cmap-resources
                   <span data-l10n-id="zoom_in_label">Zoom In</span>
                 </button>
               </div>
-              <span id="scaleSelectContainer" class="dropdownToolbarButton">
-                <select id="scaleSelect" title="Zoom" tabindex="23" data-l10n-id="zoom">
+              <span id="scaleSelectContainer" class="dropdownToolbarButton office-scale-select">
+                <select id="scaleSelect" class="office-scale-select-native" title="Zoom" tabindex="-1" data-l10n-id="zoom">
                   <option id="pageAutoOption" title="" value="auto" selected="selected" data-l10n-id="page_scale_auto">
                     Automatic Zoom</option>
                   <option id="pageActualOption" title="" value="page-actual" data-l10n-id="page_scale_actual">Actual
@@ -310,6 +310,12 @@ See https://github.com/adobe-type-tools/cmap-resources
                   <option title="" value="4" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 400 }'>400%
                   </option>
                 </select>
+                <button type="button" id="scaleSelectTrigger" class="office-scale-select-trigger" title="Zoom"
+                  tabindex="23" aria-haspopup="listbox" aria-expanded="false">
+                  <span id="scaleSelectLabel" class="office-scale-select-label">Automatic Zoom</span>
+                  <span class="office-scale-select-arrow" aria-hidden="true"></span>
+                </button>
+                <ul id="scaleSelectMenu" class="office-scale-select-menu hidden" role="listbox"></ul>
               </span>
             </div>
           </div>

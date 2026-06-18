@@ -36,6 +36,9 @@
     --doorhanger-separator-color: var(--vscode-menu-separatorBackground);
     --overlay-button-bg-color: var(--vscode-button-secondaryBackground);
     --overlay-button-hover-color: var(--vscode-button-secondaryHoverBackground);
+
+    --pdf-btn-radius: 6px;
+    --pdf-segment-radius: 8px;
 }
 
 body {
@@ -94,19 +97,150 @@ html[dir="rtl"] #toolbarContainer {
     color: var(--vscode-input-foreground) !important;
     background-color: var(--vscode-input-background) !important;
     border-color: var(--vscode-input-border, var(--vscode-widget-border)) !important;
+    border-radius: var(--pdf-btn-radius) !important;
+}
+
+.toolbarButton,
+.secondaryToolbarButton,
+.splitToolbarButton > .toolbarButton {
+    border-radius: var(--pdf-btn-radius) !important;
+}
+
+.dropdownToolbarButton,
+.dropdownToolbarButton > select {
+    border-radius: var(--pdf-btn-radius) !important;
+}
+
+#toolbarContainer .office-scale-select.dropdownToolbarButton {
+    position: relative;
+    display: inline-block;
+    padding: 0 !important;
+    overflow: visible !important;
+    margin-top: 0 !important;
+    border: 1px solid var(--vscode-dropdown-border, var(--vscode-input-border, var(--vscode-widget-border))) !important;
+    box-sizing: border-box;
+    background: transparent !important;
+}
+
+#toolbarContainer .office-scale-select.dropdownToolbarButton::after {
+    display: none !important;
+}
+
+.office-scale-select-native {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: -1px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.office-scale-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    height: 26px;
+    margin: 0;
+    padding: 0 8px;
+    border: none;
+    border-radius: var(--pdf-btn-radius);
+    background-color: var(--vscode-dropdown-background, var(--dropdown-btn-bg-color)) !important;
+    color: var(--vscode-dropdown-foreground, var(--vscode-input-foreground, var(--vscode-foreground))) !important;
+    font-family: inherit;
+    font-size: var(--vscode-font-size, 12px);
+    line-height: 26px;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.office-scale-select-trigger:hover,
+.office-scale-select.open .office-scale-select-trigger {
+    background-color: var(--vscode-toolbar-hoverBackground) !important;
+}
+
+.office-scale-select-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.office-scale-select-arrow {
+    flex-shrink: 0;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: 0.65;
+    transition: transform 0.15s ease;
+}
+
+.office-scale-select.open .office-scale-select-arrow {
+    transform: rotate(180deg);
+}
+
+.office-scale-select-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 100%;
+    max-height: 300px;
+    margin: 0;
+    padding: 4px;
+    overflow-y: auto;
+    list-style: none;
+    z-index: 40000;
+    background-color: var(--vscode-menu-background) !important;
+    color: var(--vscode-menu-foreground, var(--vscode-foreground)) !important;
+    border: 1px solid var(--vscode-menu-border, var(--vscode-widget-border)) !important;
+    border-radius: var(--pdf-segment-radius) !important;
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--vscode-foreground) 12%, transparent);
+    box-sizing: border-box;
+}
+
+.office-scale-select-item {
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.office-scale-select-item:hover {
+    background-color: var(--vscode-menu-selectionBackground) !important;
+    color: var(--vscode-menu-selectionForeground, var(--vscode-foreground)) !important;
+}
+
+.office-scale-select-item.selected {
+    background-color: var(--vscode-list-activeSelectionBackground) !important;
+    color: var(--vscode-list-activeSelectionForeground) !important;
+}
+
+#toolbarViewerMiddle .splitToolbarButton,
+#toolbarViewerLeft .splitToolbarButton {
+    background: transparent !important;
 }
 
 .toolbarButton:hover,
-.splitToolbarButton:hover,
-.dropdownToolbarButton:hover,
+.splitToolbarButton > .toolbarButton:hover,
 .overlayButton:hover,
 .findbar button:hover,
 .secondaryToolbarButton:hover {
     background-color: var(--vscode-toolbar-hoverBackground) !important;
 }
 
-.dropdownToolbarButton > select{
-    background-color: rgb(232 232 232) !important;
+#toolbarContainer .office-scale-select.dropdownToolbarButton:hover {
+    background: transparent !important;
 }
 
 /* ---- Dark mode (black background, white text) ---- */
@@ -147,8 +281,7 @@ body.office-dark .pdfViewer .page {
 }
 
 .toolbarButton.toggled,
-.splitToolbarButton.toggled > .toolbarButton.toggled,
-.dropdownToolbarButton > select {
+.splitToolbarButton.toggled > .toolbarButton.toggled {
     background-color: var(--vscode-list-activeSelectionBackground) !important;
     color: var(--vscode-list-activeSelectionForeground) !important;
 }
@@ -157,6 +290,7 @@ body.office-dark .pdfViewer .page {
 .doorHangerRight {
     background-color: var(--vscode-menu-background) !important;
     border-color: var(--vscode-menu-border, var(--vscode-widget-border)) !important;
+    border-radius: var(--pdf-segment-radius) !important;
 }
 
 .doorHanger > .doorHangerSeparator,
@@ -257,8 +391,17 @@ html[dir="rtl"] #toolbarSidebar {
         0 1px 0 var(--vscode-sideBar-border, rgba(0, 0, 0, 0.1)) !important;
 }
 
+.thumbnailSelectionRing {
+    border-radius: var(--pdf-btn-radius) !important;
+}
+
+.thumbnailImage {
+    border-radius: 4px !important;
+}
+
 .treeItem > a {
     color: var(--vscode-sideBar-foreground) !important;
+    border-radius: 4px;
 }
 
 .treeItem > a:hover,

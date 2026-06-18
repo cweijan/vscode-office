@@ -1,4 +1,4 @@
-#print,#download,#viewBookmark{
+#print,#download,#viewBookmark,#openFile,#secondaryOpenFile{
   display: none;
 
 }

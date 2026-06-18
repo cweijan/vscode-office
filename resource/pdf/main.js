@@ -119,6 +119,145 @@
     }
   }
 
+  function setupCustomScaleSelect() {
+    const container = document.getElementById('scaleSelectContainer');
+    const select = document.getElementById('scaleSelect');
+    const trigger = document.getElementById('scaleSelectTrigger');
+    const label = document.getElementById('scaleSelectLabel');
+    const menu = document.getElementById('scaleSelectMenu');
+    if (!container || !select || !trigger || !label || !menu) {
+      return;
+    }
+
+    let open = false;
+
+    function getSelectedOption() {
+      for (const option of select.options) {
+        if (option.selected) {
+          return option;
+        }
+      }
+      return select.options[0] || null;
+    }
+
+    function isOptionVisible(option) {
+      if (option.hidden && !option.selected) {
+        return false;
+      }
+      if (option.id === 'customScaleOption' && option.disabled && !option.selected) {
+        return false;
+      }
+      return true;
+    }
+
+    function syncLabel() {
+      const option = getSelectedOption();
+      label.textContent = option ? option.textContent.trim() : '';
+    }
+
+    function rebuildMenu() {
+      while (menu.firstChild) {
+        menu.removeChild(menu.firstChild);
+      }
+      for (const option of select.options) {
+        if (!isOptionVisible(option)) {
+          continue;
+        }
+        const item = document.createElement('li');
+        item.className = 'office-scale-select-item';
+        item.setAttribute('role', 'option');
+        item.dataset.value = option.value;
+        item.textContent = option.textContent.trim();
+        if (option.selected) {
+          item.classList.add('selected');
+          item.setAttribute('aria-selected', 'true');
+        } else {
+          item.setAttribute('aria-selected', 'false');
+        }
+        item.addEventListener('click', (event) => {
+          event.stopPropagation();
+          if (option.value === 'custom') {
+            return;
+          }
+          select.value = option.value;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+          closeMenu();
+        });
+        menu.appendChild(item);
+      }
+      syncLabel();
+    }
+
+    function openMenu() {
+      rebuildMenu();
+      menu.classList.remove('hidden');
+      trigger.setAttribute('aria-expanded', 'true');
+      container.classList.add('open');
+      open = true;
+    }
+
+    function closeMenu() {
+      menu.classList.add('hidden');
+      trigger.setAttribute('aria-expanded', 'false');
+      container.classList.remove('open');
+      open = false;
+      syncLabel();
+    }
+
+    trigger.addEventListener('click', (event) => {
+      event.stopPropagation();
+      if (open) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    });
+
+    document.addEventListener('click', () => {
+      if (open) {
+        closeMenu();
+      }
+    });
+
+    menu.addEventListener('click', (event) => {
+      event.stopPropagation();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && open) {
+        closeMenu();
+        trigger.focus();
+      }
+    });
+
+    const observer = new MutationObserver(() => {
+      syncLabel();
+      if (open) {
+        rebuildMenu();
+      }
+    });
+    observer.observe(select, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['selected', 'hidden', 'disabled'],
+      characterData: true,
+    });
+
+    select.addEventListener('change', syncLabel);
+
+    if (window.PDFViewerApplication?.eventBus) {
+      PDFViewerApplication.eventBus.on('localized', () => {
+        syncLabel();
+        if (open) {
+          rebuildMenu();
+        }
+      });
+    }
+
+    syncLabel();
+  }
+
   function initSidebarResize() {
     const resizer = document.getElementById('sidebarResizer');
     const outerContainer = document.getElementById('outerContainer');
@@ -200,6 +339,7 @@
 
   window.addEventListener('load', function () {
     setupDarkMode();
+    setupCustomScaleSelect();
     PDFViewerApplication.initializedPromise.then(() => {
       initSidebarResize();
       const optsOnLoad = () => {
