@@ -69,17 +69,37 @@
 			}
 		],
 		"languages": [
-			 {
-                "id": "kotlin",
-                "aliases": [
-                    "Kotlin"
-                ],
-                "extensions": [
-                    ".kt",
-                    ".kts"
-                ],
-                "configuration": "./syntaxes/kotlin-language-configuration.json"
-            },
+			{
+				"id": "nginx",
+				"aliases": [
+					"NGINX Conf",
+					"NGINX",
+					"nginx"
+				],
+				"extensions": [
+					".conf",
+					".conf.default",
+					".conf.template",
+					"mime.types",
+					"fastcgi_params",
+					"scgi_params",
+					"uwsgi_params",
+					"nginx.conf",
+					".nginx"
+				],
+				"configuration": "./syntaxes/nginx.configuration.json"
+			},
+			{
+				"id": "kotlin",
+				"aliases": [
+					"Kotlin"
+				],
+				"extensions": [
+					".kt",
+					".kts"
+				],
+				"configuration": "./syntaxes/kotlin-language-configuration.json"
+			},
 			{
 				"id": "reg",
 				"aliases": [
@@ -121,10 +141,18 @@
 		],
 		"grammars": [
 			{
-                "language": "kotlin",
-                "scopeName": "source.kotlin",
-                "path": "./syntaxes/kotlin.tmLanguage.json"
-            },
+				"language": "nginx",
+				"scopeName": "source.nginx",
+				"path": "./syntaxes/nginx.tmLanguage",
+				"embeddedLanguages": {
+					"meta.embedded.block.lua": "lua"
+				}
+			},
+			{
+				"language": "kotlin",
+				"scopeName": "source.kotlin",
+				"path": "./syntaxes/kotlin.tmLanguage.json"
+			},
 			{
 				"language": "reg",
 				"scopeName": "source.reg",
