@@ -14,6 +14,7 @@ import {
     getFileHistorySplitLayout,
     type FileHistorySplitLayout,
 } from '../util/gitHistoryPreferences';
+import { TelemetryService } from '@/service/telemetryService';
 
 export const GIT_HISTORY_VIEW_TYPE = 'office-git-history';
 
@@ -160,6 +161,7 @@ export class GitHistoryPanel {
         if (existing && existing.panel !== panel) {
             existing.panel.dispose();
         }
+        TelemetryService.get()?.trackGitHistoryView(panelContext.fileUri ? 'file' : 'repo');
         await GitHistoryPanel.attach(context, panel, commitService, repoDiscovery, gitActions, gitActionHandler, panelContext);
     }
 

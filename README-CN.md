@@ -66,6 +66,32 @@
 
 适用于 Visual Studio Code 的数据库客户端，支持 **MySQL/MariaDB、PostgreSQL、SQLite、Redis** 以及 **ElasticSearch** 等数据库的管理，且可作为一个 SSH 客户端，极大地提升您的生产力！[立刻安装](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2)。
 
+## 使用数据（Usage Data）
+
+Office Viewer 会收集**匿名使用数据**，用于了解各预览功能的使用情况，以便改进扩展。数据通过官方模块 [`@vscode/extension-telemetry`](https://www.npmjs.com/package/@vscode/extension-telemetry) 发送至 [Azure Application Insights](https://learn.microsoft.com/zh-cn/azure/azure-monitor/app/app-insights-overview)。
+
+### 收集内容
+
+| 事件 | 触发时机 | 属性 |
+|------|---------|------|
+| `view.open` | 打开自定义预览/编辑器 | `viewType`（如 `excel`、`markdown`、`pdf`）、`fileType`（仅扩展名，如 `xlsx`、`md`） |
+| `gitHistory.view` | 打开 Git 历史视图 | `mode`：`repo`（仓库历史）或 `file`（单文件历史） |
+
+**不会**收集文件路径、文件名、URL、仓库名、请求内容或其他可识别个人身份的信息。
+
+### 如何关闭
+
+仅在以下**两项均允许**时才会上报：
+
+1. VS Code 全局遥测已开启（`telemetry.telemetryLevel` 不为 `off`，或旧版中 `telemetry.enableTelemetry` 为 `true`）。
+2. 扩展遥测已开启：在设置中将 `vscode-office.enableTelemetry` 设为 `false` 可单独关闭本扩展的上报。
+
+也可在 **设置 → 应用程序 → 遥测** 中关闭 VS Code 的全部遥测。
+
+### 维护者配置
+
+若自行构建并发布本扩展，请参阅 [docs/telemetry.md](docs/telemetry.md) 配置 Azure Application Insights 及示例查询。
+
 ## Credits
 
 - PDF rendering: [mozilla/pdf.js](https://github.com/mozilla/pdf.js/)

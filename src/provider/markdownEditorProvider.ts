@@ -7,6 +7,8 @@ import { Util } from '../common/util';
 import { Holder } from '../service/markdown/holder';
 import { MarkdownService } from '../service/markdownService';
 import { Global } from '@/common/global';
+import { TelemetryService } from '@/service/telemetryService';
+import { fileTypeFromPath } from '@/service/officeViewType';
 import { platform } from 'os';
 
 /**
@@ -42,6 +44,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             localResourceRoots: [vscode.Uri.file("/"), ...this.getFolders()]
         }
         const handler = Handler.bind(webviewPanel, uri);
+        TelemetryService.get()?.trackViewOpen('markdown', fileTypeFromPath(uri.fsPath));
         this.handleMarkdown(document, handler, folderPath)
         handler.on('developerTool', () => vscode.commands.executeCommand('workbench.action.toggleDevTools'))
     }

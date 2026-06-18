@@ -66,6 +66,32 @@ Tips:
 
 Database Client for Visual Studio Code, supporting the management of **MySQL/MariaDB, PostgreSQL, SQLite, Redis**, and **ElasticSearch**, and works as an **SSH** client to boost your productivity! [Get it now](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2).
 
+## Usage data
+
+Office Viewer collects **anonymous usage data** to understand which preview features are used, so we can improve the extension. Data is sent to [Azure Application Insights](https://learn.microsoft.com/azure/azure-monitor/app/app-insights-overview) via the official [`@vscode/extension-telemetry`](https://www.npmjs.com/package/@vscode/extension-telemetry) module.
+
+### What we collect
+
+| Event | When | Properties |
+|-------|------|------------|
+| `view.open` | A custom preview/editor is opened | `viewType` (e.g. `excel`, `markdown`, `pdf`), `fileType` (extension only, e.g. `xlsx`, `md`) |
+| `gitHistory.view` | Git History is opened | `mode`: `repo` or `file` |
+
+We **do not** collect file paths, file names, URLs, repository names, request contents, or other personally identifiable information.
+
+### How to opt out
+
+Telemetry is sent only when **both** of the following allow it:
+
+1. VS Code global telemetry is enabled (`telemetry.telemetryLevel` is not `off`, or `telemetry.enableTelemetry` is `true` on older versions).
+2. Extension telemetry is enabled: set `vscode-office.enableTelemetry` to `false` in Settings.
+
+You can also disable all VS Code telemetry in **Settings → Application → Telemetry**.
+
+### Maintainer setup
+
+If you build and publish this extension yourself, see [docs/telemetry.md](docs/telemetry.md) for Azure Application Insights setup and sample queries.
+
 ## Credits
 
 - PDF rendering: [mozilla/pdf.js](https://github.com/mozilla/pdf.js/)

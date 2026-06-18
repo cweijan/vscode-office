@@ -756,6 +756,21 @@
 						"description": "Enable custom variable references CodeLens in request file"
 					}
 				}
+			},
+			{
+				"title": "Telemetry",
+				"order": 99,
+				"properties": {
+					"vscode-office.enableTelemetry": {
+						"type": "boolean",
+						"default": true,
+						"tags": [
+							"telemetry",
+							"usesOnlineServices"
+						],
+						"markdownDescription": "Enable anonymous usage data collection to help improve Office Viewer. This respects VS Code global telemetry settings (`#telemetry.telemetryLevel#`)."
+					}
+				}
 			}
 		]
 	},
@@ -798,6 +813,7 @@
 		"@lezer/highlight": "^1.2.3",
 		"@mind-elixir/import-xmind": "^1.0.8",
 		"@vscode/codicons": "^0.0.45",
+		"@vscode/extension-telemetry": "^1.5.2",
 		"@zip.js/zip.js": "^2.8.26",
 		"ag-psd": "^30.1.1",
 		"antd": "^5.15.4",

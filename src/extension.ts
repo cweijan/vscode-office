@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { TelemetryService } from './service/telemetryService';
 import { JavaDecompilerProvider } from './provider/javaDecompilerProvider';
 import { MarkdownEditorProvider } from './provider/markdownEditorProvider';
 import { OfficeViewerProvider } from './provider/officeViewerProvider';
@@ -11,6 +12,7 @@ import { activateYaml } from './provider/yaml';
 import { activateGitHistory } from './gitHistory/provider';
 
 export function activate(context: vscode.ExtensionContext) {
+	TelemetryService.init(context);
 	activateHttp(context);
 	activateYaml(context);
 	activateGitHistory(context);

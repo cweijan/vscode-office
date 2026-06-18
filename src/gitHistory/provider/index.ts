@@ -13,6 +13,7 @@ import {
     buildPanelContextFromCommandArg,
     resolvePreferredRepo,
 } from '../util/resolveGitHistoryCommandContext';
+import { TelemetryService } from '@/service/telemetryService';
 
 let commitService: CommitService | undefined;
 let repoDiscovery: RepoDiscovery | undefined;
@@ -60,6 +61,7 @@ async function openGitHistory(
     if (preferredRepo) {
         panelContext = { ...panelContext, preferredRepo };
     }
+    TelemetryService.get()?.trackGitHistoryView(panelContext.fileUri ? 'file' : 'repo');
     await GitHistoryPanel.createOrShow(
         context,
         commitService,

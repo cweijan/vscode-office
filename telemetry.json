@@ -1,0 +1,23 @@
+{
+	"events": {
+		"view.open": {
+			"viewType": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			},
+			"fileType": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			}
+		},
+		"gitHistory.view": {
+			"mode": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			}
+		}
+	}
+}

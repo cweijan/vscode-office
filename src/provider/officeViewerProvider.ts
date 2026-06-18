@@ -12,6 +12,7 @@ import { handleRar } from './compress/rarHandler';
 import { handleTarGz } from './compress/tarHandler';
 import { handleSevenZip } from './compress/sevenZipHandler';
 import { handleCommonEvent } from './compress/commonHandler';
+import { TelemetryService } from '@/service/telemetryService';
 
 /**
  * support view office files
@@ -129,6 +130,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 if (route) break;
                 vscode.commands.executeCommand('vscode.openWith', uri, "default");
         }
+        TelemetryService.get()?.trackOfficeViewOpen(uri.fsPath, route);
         if (route) return ReactApp.view(webview, { route })
     }
 
