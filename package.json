@@ -69,6 +69,17 @@
 			}
 		],
 		"languages": [
+			 {
+                "id": "kotlin",
+                "aliases": [
+                    "Kotlin"
+                ],
+                "extensions": [
+                    ".kt",
+                    ".kts"
+                ],
+                "configuration": "./syntaxes/kotlin-language-configuration.json"
+            },
 			{
 				"id": "reg",
 				"aliases": [
@@ -109,6 +120,11 @@
 			}
 		],
 		"grammars": [
+			{
+                "language": "kotlin",
+                "scopeName": "source.kotlin",
+                "path": "./syntaxes/kotlin.tmLanguage.json"
+            },
 			{
 				"language": "reg",
 				"scopeName": "source.reg",
