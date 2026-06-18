@@ -22,18 +22,35 @@
             "begin": "\\b(import)\\b\\s*",
             "beginCaptures": {
                 "1": {
-                    "name": "keyword.soft.kotlin"
+                    "name": "keyword.other.import.kotlin"
                 }
             },
-            "end": ";|$",
+            "end": "\\s*(;)|$",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.terminator.kotlin"
+                }
+            },
             "name": "meta.import.kotlin",
-            "contentName": "entity.name.package.kotlin",
+            "contentName": "storage.modifier.import.kotlin",
             "patterns": [
                 {
                     "include": "#comments"
                 },
                 {
-                    "include": "#hard-keywords"
+                    "match": "\\b(as)\\b\\s+([\\w.`]+)",
+                    "captures": {
+                        "1": {
+                            "name": "keyword.other.import.kotlin"
+                        },
+                        "2": {
+                            "name": "storage.modifier.import.kotlin"
+                        }
+                    }
+                },
+                {
+                    "match": "\\.",
+                    "name": "punctuation.separator.kotlin"
                 },
                 {
                     "match": "\\*",
@@ -45,15 +62,24 @@
             "begin": "\\b(package)\\b\\s*",
             "beginCaptures": {
                 "1": {
-                    "name": "keyword.hard.package.kotlin"
+                    "name": "keyword.other.package.kotlin"
                 }
             },
-            "end": ";|$",
+            "end": "\\s*(;)|$",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.terminator.kotlin"
+                }
+            },
             "name": "meta.package.kotlin",
-            "contentName": "entity.name.package.kotlin",
+            "contentName": "storage.modifier.package.kotlin",
             "patterns": [
                 {
                     "include": "#comments"
+                },
+                {
+                    "match": "\\.",
+                    "name": "punctuation.separator.kotlin"
                 }
             ]
         },
@@ -78,7 +104,7 @@
                     "include": "#class-declaration"
                 },
                 {
-                    "include": "#object"
+                    "include": "#object-declaration"
                 },
                 {
                     "include": "#type-alias"
@@ -87,7 +113,19 @@
                     "include": "#function"
                 },
                 {
+                    "include": "#destructuring-declaration"
+                },
+                {
                     "include": "#variable-declaration"
+                },
+                {
+                    "include": "#variable"
+                },
+                {
+                    "include": "#parameter-declaration"
+                },
+                {
+                    "include": "#lambda-parameter"
                 },
                 {
                     "include": "#type-constraint"
@@ -96,7 +134,19 @@
                     "include": "#type-annotation"
                 },
                 {
+                    "include": "#when-variable"
+                },
+                {
+                    "include": "#for-variable"
+                },
+                {
+                    "include": "#receiver-reference"
+                },
+                {
                     "include": "#function-call"
+                },
+                {
+                    "include": "#property-reference"
                 },
                 {
                     "include": "#method-reference"
@@ -139,6 +189,9 @@
                 },
                 {
                     "include": "#null-literal"
+                },
+                {
+                    "include": "#variable-reference"
                 }
             ]
         },
@@ -320,7 +373,7 @@
                 }
             }
         },
-        "object": {
+        "object-declaration": {
             "match": "\\b(object)(?:\\s+(\\b\\w+\\b|`[^`]+`))?",
             "captures": {
                 "1": {
@@ -371,19 +424,115 @@
             }
         },
         "variable-declaration": {
-            "match": "\\b(val|var)\\b\\s*(?<GROUP><([^<>]|\\g<GROUP>)+>)?",
+            "match": "\\b(val|var)\\b\\s+(\\b[a-zA-Z_]\\w*|`[^`]+`)",
             "captures": {
                 "1": {
                     "name": "keyword.hard.kotlin"
                 },
                 "2": {
-                    "patterns": [
-                        {
-                            "include": "#type-parameter"
-                        }
-                    ]
+                    "name": "variable.other.readwrite.kotlin"
                 }
             }
+        },
+        "destructuring-declaration": {
+            "begin": "\\b(val|var)\\b\\s*\\(",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.hard.kotlin"
+                }
+            },
+            "end": "\\)",
+            "patterns": [
+                {
+                    "include": "#comments"
+                },
+                {
+                    "match": "\\b(\\w+)\\b",
+                    "captures": {
+                        "1": {
+                            "name": "variable.other.readwrite.kotlin"
+                        }
+                    }
+                }
+            ]
+        },
+        "when-variable": {
+            "match": "(?<=\\bwhen\\s*\\(\\s*val\\s+)(\\w+)(?=\\s*=)",
+            "captures": {
+                "1": {
+                    "name": "variable.other.readwrite.kotlin"
+                }
+            }
+        },
+        "for-variable": {
+            "match": "(?<=\\bfor\\s*\\(\\s*)(\\w+)\\s+(?=in\\b)",
+            "captures": {
+                "1": {
+                    "name": "variable.other.readwrite.kotlin"
+                }
+            }
+        },
+        "variable": {
+            "match": "(\\b\\w+\\b|`[^`]+`)(?=\\s*(?:[:=]|by\\b|get\\b|set\\b))",
+            "captures": {
+                "1": {
+                    "name": "variable.other.readwrite.kotlin"
+                }
+            }
+        },
+        "parameter-declaration": {
+            "match": "\\b(\\w+)\\s*(:)\\s*(\\w+)(\\?)?(,)?",
+            "captures": {
+                "1": {
+                    "name": "variable.other.readwrite.kotlin"
+                },
+                "2": {
+                    "name": "keyword.operator.assignment.type.kotlin"
+                },
+                "3": {
+                    "name": "entity.name.type.kotlin"
+                },
+                "4": {
+                    "name": "keyword.operator.optional.kotlin"
+                },
+                "5": {
+                    "name": "punctuation.separator.delimiter.kotlin"
+                }
+            }
+        },
+        "lambda-parameter": {
+            "match": "(?<=\\{|,)\\s*(\\w+)\\s*(?=->)",
+            "captures": {
+                "1": {
+                    "name": "variable.parameter.kotlin"
+                }
+            }
+        },
+        "receiver-reference": {
+            "match": "(\\b\\w+\\b|`[^`]+`)(?=\\.)",
+            "captures": {
+                "1": {
+                    "name": "variable.other.object.kotlin"
+                }
+            }
+        },
+        "property-reference": {
+            "match": "(?:(\\?\\.)|(\\.))(\\w+|`[^`]+`)\\b",
+            "captures": {
+                "1": {
+                    "name": "punctuation.accessor.optional.kotlin"
+                },
+                "2": {
+                    "name": "punctuation.separator.period.kotlin"
+                },
+                "3": {
+                    "name": "variable.other.property.kotlin"
+                }
+            }
+        },
+        "variable-reference": {
+            "match": "\\b([a-zA-Z_][\\w]*|`[^`]+`)\\b",
+            "name": "variable.other.readwrite.kotlin"
         },
         "type-parameter": {
             "patterns": [
