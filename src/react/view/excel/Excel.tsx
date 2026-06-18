@@ -117,7 +117,7 @@ function ExcelViewer() {
                 >
                     {dark ? <SunOutlined /> : <MoonOutlined />}
                 </button>
-                <SponsorBar placement="right" />
+                {!loading && <SponsorBar placement="right" />}
             </div>
         </div>
     )
