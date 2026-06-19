@@ -29,7 +29,7 @@ export type PromptStep =
         title: string;
         message?: string;
         options: { value: string; label: string; description?: string }[];
-        variant?: 'resetMode';
+        variant?: 'resetMode' | 'pushRemote' | 'openRemote';
         branchName?: string | null;
         commitHash?: string;
         submitLabel?: string;
@@ -110,6 +110,7 @@ export function getPromptSteps(
                     id: 'remote',
                     title: 'Push Branch',
                     message: `Push "${payload.branch}" to remote`,
+                    variant: 'pushRemote',
                     options: ctx.remotes.map((remote) => ({ value: remote, label: remote })),
                 }];
             }

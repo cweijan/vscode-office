@@ -166,14 +166,32 @@ function renderAnchoredCheckboxList(
     );
 }
 
+function getPickAccentClass(variant?: string): string | null {
+    switch (variant) {
+        case 'resetMode':
+            return 'accent-reset';
+        case 'pushRemote':
+            return 'accent-push';
+        case 'openRemote':
+            return 'accent-remote';
+        default:
+            return null;
+    }
+}
+
 function renderAnchoredOptionList(
     options: { value: string; label: string; description?: string }[],
     pickValue: string,
     onPick: (value: string) => void,
     groupLabel: string,
+    accentClass?: string | null,
+    onDoublePick?: (value: string) => void,
 ) {
+    const listClass = accentClass
+        ? `git-graph-anchored-dialog-option-list accent-mode ${accentClass}`
+        : 'git-graph-anchored-dialog-option-list';
     return (
-        <div className="git-graph-anchored-dialog-option-list" role="radiogroup" aria-label={groupLabel}>
+        <div className={listClass} role="radiogroup" aria-label={groupLabel}>
             {options.map((option) => (
                 <button
                     key={option.value}
@@ -182,6 +200,9 @@ function renderAnchoredOptionList(
                     aria-checked={pickValue === option.value}
                     className={`git-graph-anchored-dialog-option${pickValue === option.value ? ' selected' : ''}`}
                     onClick={() => onPick(option.value)}
+                    onDoubleClick={onDoublePick
+                        ? () => onDoublePick(option.value)
+                        : undefined}
                 >
                     <span className="git-graph-anchored-dialog-option-label">{option.label}</span>
                     {option.description && (
@@ -222,7 +243,6 @@ export default function ActionDialog({
     }, [onCancel]);
 
     let primaryLabel = 'OK';
-    let danger = false;
     let primaryDisabled = false;
     let repositionDeps: unknown[] = [];
     let message: ReactNode = null;
@@ -230,7 +250,6 @@ export default function ActionDialog({
 
     if (step.kind === 'confirm') {
         primaryLabel = step.confirmLabel;
-        danger = Boolean(step.danger);
         if (anchored && step.variant === 'revertCommit' && step.commitHash) {
             message = (
                 <>
@@ -525,6 +544,14 @@ export default function ActionDialog({
     } else {
         primaryLabel = step.submitLabel ?? 'Continue';
         primaryDisabled = !pickValue;
+        if (step.variant === 'pushRemote') {
+            primaryLabel = step.submitLabel ?? 'Push';
+        } else if (step.variant === 'openRemote') {
+            primaryLabel = step.submitLabel ?? 'Open';
+        }
+        const pickDoubleSubmit = step.variant === 'pushRemote' || step.variant === 'openRemote'
+            ? (value: string) => onSubmit(value)
+            : undefined;
         if (anchored && step.variant === 'resetMode') {
             primaryLabel = step.submitLabel ?? 'Reset';
             message = (
@@ -540,21 +567,13 @@ export default function ActionDialog({
                     {' '}to commit <strong><em>{abbrevHash(step.commitHash ?? '')}</em></strong>?
                 </>
             );
-            body = (
-                <div className="git-graph-anchored-dialog-option-list" role="radiogroup" aria-label="Reset mode">
-                    {step.options.map((option) => (
-                        <button
-                            key={option.value}
-                            type="button"
-                            role="radio"
-                            aria-checked={pickValue === option.value}
-                            className={`git-graph-anchored-dialog-option${pickValue === option.value ? ' selected' : ''}`}
-                            onClick={() => setPickValue(option.value)}
-                        >
-                            {option.label}
-                        </button>
-                    ))}
-                </div>
+            body = renderAnchoredOptionList(
+                step.options,
+                pickValue,
+                setPickValue,
+                step.title,
+                getPickAccentClass(step.variant),
+                pickDoubleSubmit,
             );
         } else if (anchored) {
             message = step.message ?? step.title;
@@ -563,29 +582,21 @@ export default function ActionDialog({
                 pickValue,
                 setPickValue,
                 step.title,
+                getPickAccentClass(step.variant),
+                pickDoubleSubmit,
             );
         } else {
             body = (
                 <div className="git-graph-dialog-pick">
                     {step.message && <p className="git-graph-dialog-message">{step.message}</p>}
-                    <div className="git-graph-dialog-options" role="listbox">
-                        {step.options.map((option) => (
-                            <button
-                                key={option.value}
-                                type="button"
-                                role="option"
-                                aria-selected={pickValue === option.value}
-                                className={`git-graph-dialog-option${pickValue === option.value ? ' selected' : ''}`}
-                                onClick={() => setPickValue(option.value)}
-                                onDoubleClick={() => onSubmit(option.value)}
-                            >
-                                <span className="git-graph-dialog-option-label">{option.label}</span>
-                                {option.description && (
-                                    <span className="git-graph-dialog-option-desc">{option.description}</span>
-                                )}
-                            </button>
-                        ))}
-                    </div>
+                    {renderAnchoredOptionList(
+                        step.options,
+                        pickValue,
+                        setPickValue,
+                        step.title,
+                        getPickAccentClass(step.variant),
+                        pickDoubleSubmit,
+                    )}
                 </div>
             );
         }
@@ -619,7 +630,6 @@ export default function ActionDialog({
                     <AnchoredDialogActions
                         primaryLabel={primaryLabel}
                         primaryDisabled={primaryDisabled}
-                        danger={danger}
                         onPrimary={handlePrimary}
                         onCancel={onCancel}
                     />
@@ -650,7 +660,7 @@ export default function ActionDialog({
                     </button>
                     <button
                         type="button"
-                        className={`git-graph-dialog-btn primary${danger ? ' danger' : ''}`}
+                        className="git-graph-dialog-btn primary"
                         disabled={primaryDisabled}
                         onClick={handlePrimary}
                     >

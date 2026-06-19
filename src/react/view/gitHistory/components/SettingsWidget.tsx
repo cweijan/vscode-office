@@ -15,11 +15,17 @@ interface SettingsWidgetProps {
     onAddRemote: () => void;
     onEditRemote: (name: string) => void;
     onDeleteRemote: (name: string) => void;
+    canQuickSync: boolean;
+    syncing: boolean;
+    fetching: boolean;
+    pushing: boolean;
+    onQuickSync: () => void;
 }
 
 export default function SettingsWidget({
     open, repo, remotes, loading, pullDefaults, fileHistorySplitLayout, onClose,
     onPullDefaultsChange, onFileHistorySplitLayoutChange, onAddRemote, onEditRemote, onDeleteRemote,
+    canQuickSync, syncing, fetching, pushing, onQuickSync,
 }: SettingsWidgetProps) {
     const [localPull, setLocalPull] = useState(pullDefaults);
     const [localSplitLayout, setLocalSplitLayout] = useState(fileHistorySplitLayout);
@@ -105,19 +111,17 @@ export default function SettingsWidget({
                                         <tr>
                                             <th>Remote</th>
                                             <th>URL</th>
-                                            <th>Type</th>
                                             <th />
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {remotes.flatMap((remote) => [
-                                            <tr key={`${remote.name}-fetch`}>
-                                                <td rowSpan={2}>{remote.name}</td>
+                                        {remotes.map((remote) => (
+                                            <tr key={remote.name}>
+                                                <td>{remote.name}</td>
                                                 <td className="git-graph-settings-url" title={remote.url ?? ''}>
                                                     {remote.url ?? 'Not Set'}
                                                 </td>
-                                                <td>Fetch</td>
-                                                <td rowSpan={2} className="git-graph-settings-actions">
+                                                <td className="git-graph-settings-actions">
                                                     <button
                                                         type="button"
                                                         className="git-graph-icon-btn"
@@ -135,14 +139,8 @@ export default function SettingsWidget({
                                                         <span className="codicon codicon-trash" aria-hidden />
                                                     </button>
                                                 </td>
-                                            </tr>,
-                                            <tr key={`${remote.name}-push`}>
-                                                <td className="git-graph-settings-url" title={remote.pushUrl ?? remote.url ?? ''}>
-                                                    {remote.pushUrl ?? remote.url ?? 'Not Set'}
-                                                </td>
-                                                <td>Push</td>
-                                            </tr>,
-                                        ])}
+                                            </tr>
+                                        ))}
                                     </tbody>
                                 </table>
                             )}
@@ -150,6 +148,25 @@ export default function SettingsWidget({
                                 <button type="button" className="git-graph-settings-btn" onClick={onAddRemote}>
                                     <span className="codicon codicon-add" aria-hidden />
                                     Add Remote
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="git-graph-settings-section">
+                            <h3>Quick Sync</h3>
+                            <p className="git-graph-settings-hint">
+                                Commit uncommitted changes, then pull and push the current branch for{' '}
+                                <strong>{repoLabel}</strong>. Uses the default pull behaviour below.
+                            </p>
+                            <div className="git-graph-settings-section-actions">
+                                <button
+                                    type="button"
+                                    className={`git-graph-settings-btn sync${syncing ? ' running' : ''}`}
+                                    onClick={onQuickSync}
+                                    disabled={!canQuickSync || syncing || fetching || pushing}
+                                >
+                                    <span className="codicon codicon-sync" aria-hidden />
+                                    {syncing ? 'Syncing...' : 'Quick Sync'}
                                 </button>
                             </div>
                         </div>

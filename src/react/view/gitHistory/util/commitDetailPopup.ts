@@ -3,6 +3,8 @@ export interface PopupAnchor {
     y: number;
     /** Toolbar / repo settings: place below cursor when near top of view */
     repoToolbar?: boolean;
+    /** Center dialog horizontally on the anchor instead of biasing left */
+    centerHorizontally?: boolean;
 }
 
 export interface ViewportBounds {
@@ -46,7 +48,8 @@ export function computeAnchoredDialogPosition(
     const maxTop = Math.max(POPUP_MARGIN, viewport.height - height - POPUP_MARGIN);
     const top = Math.min(Math.max(rawTop, POPUP_MARGIN), maxTop);
     const maxLeft = Math.max(POPUP_MARGIN, viewport.width - width - POPUP_MARGIN);
-    const left = Math.min(Math.max(anchor.x - 50, POPUP_MARGIN), maxLeft);
+    const preferredLeft = anchor.centerHorizontally ? anchor.x - width / 2 : anchor.x - 50;
+    const left = Math.min(Math.max(preferredLeft, POPUP_MARGIN), maxLeft);
     return { left, top };
 }
 
@@ -79,8 +82,9 @@ export function computeCommitDetailPopupPosition(
 export function anchorFromMouseEvent(
     event: { clientX: number; clientY: number },
     repoToolbar = false,
+    centerHorizontally = false,
 ): PopupAnchor {
-    return { x: event.clientX, y: event.clientY, repoToolbar };
+    return { x: event.clientX, y: event.clientY, repoToolbar, centerHorizontally };
 }
 
 export function anchorFromElement(element: Element): PopupAnchor {

@@ -126,7 +126,8 @@ export class GitHistoryPanel {
         const title = panelContext.fileUri
             ? `Git History (${nodePath.basename(panelContext.fileUri.fsPath)})`
             : 'Git History';
-        const id = GIT_HISTORY_VIEW_TYPE + Date.now();
+        let id = GIT_HISTORY_VIEW_TYPE;
+        if (/Cursor/i.test(vscode.env.appName)) id += Date.now();
         const panel = vscode.window.createWebviewPanel(
             id,
             title,

@@ -83,6 +83,8 @@ export class MessageRouter {
                 this.onRemoteAction(content as RemoteActionPayload)))
             .on('openRemote', this.wrapHandler((content) =>
                 this.onOpenRemote(content as { url: string })))
+            .on('queryRemoteWebUrls', this.wrapHandler((content) =>
+                this.onQueryRemoteWebUrls((content as { repo: string }).repo)))
             .on('gitAction', this.wrapHandler((content) =>
                 this.onGitAction(content as GitActionPayload)))
             .on('saveFileHistorySplitLayout', this.wrapHandler((content) =>
@@ -384,6 +386,11 @@ export class MessageRouter {
         if (error) {
             this.handler.emit('error', error);
         }
+    }
+
+    private async onQueryRemoteWebUrls(repo: string): Promise<void> {
+        const remoteWebUrls = await this.gitActions.getRemoteWebUrls(repo);
+        this.handler.emit('remoteWebUrls', { repo, remoteWebUrls });
     }
 
     private async onGitAction(payload: GitActionPayload): Promise<void> {

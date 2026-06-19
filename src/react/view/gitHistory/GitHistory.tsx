@@ -15,7 +15,7 @@ import CommitTable from './components/CommitTable';
 import type { RefContextType } from './components/CommitTable';
 import { UNCOMMITTED } from './graph/layoutEngine';
 import CommitDetailPopup from './components/CommitDetailPopup';
-import { anchorFromElement, type PopupAnchor } from './util/commitDetailPopup';
+import { anchorFromElement, anchorFromMouseEvent, type PopupAnchor } from './util/commitDetailPopup';
 import { ContextMenu, useContextMenu } from './components/ContextMenu';
 import {
     buildBranchContextMenu,
@@ -33,7 +33,7 @@ import {
 } from './contextMenu/buildContextMenu';
 import { themeStyle, useGitHistoryTheme, GitHistoryColorModeProvider } from './theme/gitHistoryTheme';
 import { loadGitHistoryState, saveGitHistoryState, getPullDefaults, savePullDefaults, getFileHistorySplitLayout, saveFileHistorySplitLayout, getColorMode, saveColorMode, type GitPullDefaults, type FileHistorySplitLayout, type GitHistoryColorMode } from './util/gitHistoryState';
-import { getRelativeRepoPath } from './util/repoPath';
+import { getRelativeRepoPath, repoDisplayName } from './util/repoPath';
 import { getConfigs } from '../../util/vscodeConfig';
 import type {
     GitCommit, GitCommitData, GitCommitDetails, GitCommitRemote, GitFileChange,
@@ -153,6 +153,7 @@ function GitHistoryView({
     );
     const [toolbarPrompt, setToolbarPrompt] = useState<PromptStep | null>(null);
     const [toolbarPromptKind, setToolbarPromptKind] = useState<'push' | 'openRemote' | 'quickSyncConfirm' | 'quickSync' | null>(null);
+    const [toolbarPromptAnchor, setToolbarPromptAnchor] = useState<PopupAnchor | null>(null);
     const [remoteForm, setRemoteForm] = useState<{ mode: 'add' | 'edit'; remote?: GitRemoteDetail } | null>(null);
     const [remoteDeleteName, setRemoteDeleteName] = useState<string | null>(null);
     const contentRef = useRef<HTMLDivElement>(null);
@@ -163,6 +164,7 @@ function GitHistoryView({
     const menuContextRef = useRef<MenuContext | null>(null);
     const menuMetaRef = useRef<Record<string, MenuPayloadMeta>>({});
     const pendingQuickSyncCommitMessageRef = useRef(QUICK_SYNC_DEFAULT_MESSAGE);
+    const pendingOpenRemoteRepoRef = useRef<string | null>(null);
 
     const executeGitAction = useCallback((action: GitActionRequest) => {
         pendingGitActionRef.current = action;
@@ -435,6 +437,7 @@ function GitHistoryView({
     const loadRepositoryRef = useRef(loadRepository);
     const loadCommitsRef = useRef(loadCommits);
     const requestCommitDetailsRef = useRef(requestCommitDetails);
+    const openRemoteForRepoRef = useRef<(targetRepo: string, urls: ReadonlyArray<{ name: string; url: string }>) => void>(() => {});
     loadRepositoryRef.current = loadRepository;
     loadCommitsRef.current = loadCommits;
     requestCommitDetailsRef.current = requestCommitDetails;
@@ -644,6 +647,13 @@ function GitHistoryView({
                     }
                 }
             })
+            .on('remoteWebUrls', (payload: { repo: string; remoteWebUrls: { name: string; url: string }[] }) => {
+                if (pendingOpenRemoteRepoRef.current !== payload.repo) {
+                    return;
+                }
+                pendingOpenRemoteRepoRef.current = null;
+                openRemoteForRepoRef.current(payload.repo, payload.remoteWebUrls);
+            })
             .on('error', (message: string) => {
                 setError(message);
             })
@@ -761,19 +771,22 @@ function GitHistoryView({
         handler.emit('fetch', { repo });
     };
 
-    const handlePush = () => {
+    const handlePush = (event: MouseEvent<HTMLButtonElement>) => {
         if (!repo || !branchHead) return;
         if (remotes.length === 0) {
             setError('No remotes configured.');
             return;
         }
         if (remotes.length > 1) {
+            setToolbarPromptAnchor(anchorFromMouseEvent(event, true, true));
             setToolbarPromptKind('push');
             setToolbarPrompt({
                 kind: 'pick',
                 id: 'remote',
                 title: 'Push Branch',
                 message: `Push "${branchHead}" to remote`,
+                variant: 'pushRemote',
+                submitLabel: 'Push',
                 options: remotes.map((remote) => ({ value: remote, label: remote })),
             });
             return;
@@ -829,32 +842,75 @@ function GitHistoryView({
         });
     };
 
-    const handleOpenRemote = () => {
-        if (!repo) return;
-        if (remoteWebUrls.length === 0) {
-            setError('No remote URL found for this repository.');
+    const openRemoteForRepo = useCallback((
+        targetRepo: string,
+        urls: ReadonlyArray<{ name: string; url: string }>,
+    ) => {
+        if (urls.length === 0) {
+            setToolbarPrompt(null);
+            setToolbarPromptKind(null);
+            setToolbarPromptAnchor(null);
+            setError(`No remote URL found for ${repoDisplayName(targetRepo)}.`);
             return;
         }
-        if (remoteWebUrls.length > 1) {
+        if (urls.length > 1) {
             setToolbarPromptKind('openRemote');
             setToolbarPrompt({
                 kind: 'pick',
                 id: 'url',
                 title: 'Open Remote',
-                message: 'Select the remote to open in your browser',
-                options: remoteWebUrls.map((remote) => ({
+                message: 'Select remote repository',
+                variant: 'openRemote',
+                submitLabel: 'Open',
+                options: urls.map((remote) => ({
                     value: remote.url,
                     label: remote.name,
-                    description: remote.url,
                 })),
             });
             return;
         }
-        handler.emit('openRemote', { url: remoteWebUrls[0].url });
+        setToolbarPrompt(null);
+        setToolbarPromptKind(null);
+        setToolbarPromptAnchor(null);
+        handler.emit('openRemote', { url: urls[0].url });
+    }, []);
+    openRemoteForRepoRef.current = openRemoteForRepo;
+
+    const handleOpenRemote = (event: MouseEvent<HTMLButtonElement>) => {
+        const anchor = anchorFromMouseEvent(event, true, true);
+        if (repos.length > 1) {
+            setToolbarPromptAnchor(anchor);
+            setToolbarPromptKind('openRemote');
+            setToolbarPrompt({
+                kind: 'pick',
+                id: 'repo',
+                title: 'Open Remote',
+                message: 'Select repository',
+                variant: 'openRemote',
+                submitLabel: 'Open',
+                options: repos.map((r) => ({
+                    value: r,
+                    label: repoDisplayName(r),
+                })),
+            });
+            return;
+        }
+        if (!repo) return;
+        setToolbarPromptAnchor(anchor);
+        openRemoteForRepo(repo, remoteWebUrls);
+    };
+
+    const closeToolbarPrompt = (clearAnchor = true) => {
+        setToolbarPrompt(null);
+        setToolbarPromptKind(null);
+        if (clearAnchor) {
+            setToolbarPromptAnchor(null);
+        }
     };
 
     const handleToolbarPromptSubmit = (value: PromptSubmitValue) => {
         const kind = toolbarPromptKind;
+        const promptId = toolbarPrompt?.id;
         if (kind === 'quickSyncConfirm') {
             const formValues = typeof value === 'string' ? null : value;
             const commitMessage = formValues?.commitMessage?.trim() || QUICK_SYNC_DEFAULT_MESSAGE;
@@ -875,8 +931,17 @@ function GitHistoryView({
             runQuickSync(remotes[0], commitMessage);
             return;
         }
-        setToolbarPrompt(null);
-        setToolbarPromptKind(null);
+        if (kind === 'openRemote' && promptId === 'repo' && typeof value === 'string') {
+            closeToolbarPrompt(false);
+            if (value === repoRef.current) {
+                openRemoteForRepo(value, remoteWebUrls);
+            } else {
+                pendingOpenRemoteRepoRef.current = value;
+                handler.emit('queryRemoteWebUrls', { repo: value });
+            }
+            return;
+        }
+        closeToolbarPrompt();
         if (kind === 'quickSync') {
             if (typeof value !== 'string') {
                 return;
@@ -894,8 +959,7 @@ function GitHistoryView({
     };
 
     const handleToolbarPromptCancel = () => {
-        setToolbarPrompt(null);
-        setToolbarPromptKind(null);
+        closeToolbarPrompt();
     };
 
     const scrollToCommitIndex = useCallback((index: number | null) => {
@@ -1172,8 +1236,7 @@ function GitHistoryView({
                 pushing={pushing}
                 syncing={syncing}
                 canPush={Boolean(repo && branchHead && !branchHead.startsWith('(HEAD detached') && remotes.length > 0)}
-                canQuickSync={Boolean(repo && branchHead && !branchHead.startsWith('(HEAD detached') && remotes.length > 0)}
-                hasRemoteUrl={hasRemoteUrl}
+                hasRemoteUrl={hasRemoteUrl || repos.length > 1}
                 findActive={findOpen}
                 settingsActive={settingsOpen}
                 splitView={splitView}
@@ -1192,7 +1255,6 @@ function GitHistoryView({
                 onSearch={handleSearch}
                 onFetch={handleFetch}
                 onPush={handlePush}
-                onQuickSync={handleQuickSync}
                 onOpenRemote={handleOpenRemote}
                 onToggleFind={handleToggleFind}
                 onRefresh={handleRefresh}
@@ -1250,6 +1312,11 @@ function GitHistoryView({
                     onAddRemote={() => handleRemoteAction('add')}
                     onEditRemote={(name) => handleRemoteAction('edit', name)}
                     onDeleteRemote={(name) => handleRemoteAction('delete', name)}
+                    canQuickSync={Boolean(repo && branchHead && !branchHead.startsWith('(HEAD detached') && remotes.length > 0)}
+                    syncing={syncing}
+                    fetching={fetching}
+                    pushing={pushing}
+                    onQuickSync={handleQuickSync}
                 />
             </div>
             {actionPromptStep && (
@@ -1264,6 +1331,8 @@ function GitHistoryView({
             {toolbarPrompt && (
                 <ActionDialog
                     step={toolbarPrompt}
+                    anchored={toolbarPromptKind === 'push' || toolbarPromptKind === 'openRemote'}
+                    anchor={toolbarPromptAnchor}
                     onCancel={handleToolbarPromptCancel}
                     onSubmit={handleToolbarPromptSubmit}
                 />
