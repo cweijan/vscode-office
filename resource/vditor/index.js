@@ -38,7 +38,7 @@ handler.on("open", async (md) => {
     },
     mode: 'wysiwyg',
     lang: language == 'zh-cn' ? 'zh_CN' : config.editorLanguage,
-    icon: "material",
+    // icon: "material",
     tab: '\t',
     preview: {
       theme: {
@@ -98,6 +98,7 @@ const DARK_EDITOR_THEMES = new Set(['One Dark', 'Github Dark', 'Nord', 'Monokai'
 
 function addAutoTheme(rootPath, theme) {
   loadCSS(rootPath, 'base.css')
+  loadCSS(rootPath, 'codemirror.css')
   loadTheme(rootPath, theme)
   observeVscodeTheme()
 }

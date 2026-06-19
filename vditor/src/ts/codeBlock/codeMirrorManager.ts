@@ -3,10 +3,10 @@ import {LanguageDescription, LanguageSupport} from "@codemirror/language";
 import {languages} from "@codemirror/language-data";
 import {Compartment} from "@codemirror/state";
 import {EditorView, drawSelection, keymap} from "@codemirror/view";
-import {basicSetup} from "codemirror";
 
 import {processAfterRender} from "../ir/process";
 import {afterRenderEvent} from "../wysiwyg/afterRenderEvent";
+import {vditorCodeMirrorSetup} from "./codeMirrorSetup";
 
 const SPECIAL_LANGUAGES = [
     "mermaid", "flowchart", "echarts", "mindmap", "plantuml", "abc", "graphviz", "math",
@@ -296,7 +296,7 @@ const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor) => {
         doc: code.textContent || "",
         parent: editPre,
         extensions: [
-            basicSetup,
+            vditorCodeMirrorSetup,
             drawSelection(),
             keymap.of([...defaultKeymap, indentWithTab]),
             languageCompartment.of([]),

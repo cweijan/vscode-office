@@ -1,0 +1,237 @@
+body[data-vscode-theme-kind="vscode-light"] .vditor-cm-host span.cm-bracket {
+  color: var(--vscode-editor-foreground);
+}
+body[data-vscode-theme-kind="vscode-light"] .vditor-cm-host span.cm-keyword {
+  color: var(--vscode-charts-blue, #0000ff);
+}
+body[data-vscode-theme-kind="vscode-light"] .vditor-cm-host span.cm-number {
+  color: var(--vscode-charts-green, #008000);
+}
+body[data-vscode-theme-kind="vscode-light"] .vditor-cm-host span.cm-comment {
+  color: #008000;
+}
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Default Light+"] .vditor-cm-host span.cm-keyword,
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Visual Studio Light"] .vditor-cm-host span.cm-keyword,
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Default Light Modern"] .vditor-cm-host span.cm-keyword {
+  color: #0000ff;
+}
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Default Light+"] .vditor-cm-host span.cm-string,
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Visual Studio Light"] .vditor-cm-host span.cm-string,
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Default Light Modern"] .vditor-cm-host span.cm-string {
+  color: #a31515;
+}
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Default Light+"] .vditor-cm-host span.cm-number,
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Visual Studio Light"] .vditor-cm-host span.cm-number,
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Default Light Modern"] .vditor-cm-host span.cm-number {
+  color: var(--vscode-charts-green, #008000);
+}
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Default Light+"] .vditor-cm-host span.cm-comment,
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Visual Studio Light"] .vditor-cm-host span.cm-comment,
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Default Light Modern"] .vditor-cm-host span.cm-comment {
+  color: #008000;
+}
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Quiet Light"] .vditor-cm-host span.cm-keyword {
+  color: #4b69c6;
+}
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Quiet Light"] .vditor-cm-host span.cm-string {
+  color: #448c27;
+}
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Quiet Light"] .vditor-cm-host span.cm-number {
+  color: #9c5d27;
+}
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Quiet Light"] .vditor-cm-host span.cm-comment {
+  color: #aaaaaa;
+}
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Solarized Light"] .vditor-cm-host span.cm-keyword {
+  color: #859900;
+}
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Solarized Light"] .vditor-cm-host span.cm-string {
+  color: #2aa198;
+}
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Solarized Light"] .vditor-cm-host span.cm-number {
+  color: #d33682;
+}
+body[data-vscode-theme-kind="vscode-light"][data-vscode-theme-id="Solarized Light"] .vditor-cm-host span.cm-comment {
+  color: #aaaaaa;
+}
+body[data-vscode-theme-id="Default Dark+"] .vditor-cm-host span.cm-keyword,
+body[data-vscode-theme-id="Visual Studio Dark"] .vditor-cm-host span.cm-keyword,
+body[data-vscode-theme-id="Default Dark Modern"] .vditor-cm-host span.cm-keyword,
+body[data-vscode-theme-id="Default High Contrast"] .vditor-cm-host span.cm-keyword {
+  color: #569cd6;
+}
+body[data-vscode-theme-id="Default Dark+"] .vditor-cm-host span.cm-number,
+body[data-vscode-theme-id="Visual Studio Dark"] .vditor-cm-host span.cm-number,
+body[data-vscode-theme-id="Default Dark Modern"] .vditor-cm-host span.cm-number,
+body[data-vscode-theme-id="Default High Contrast"] .vditor-cm-host span.cm-number {
+  color: #B5C89B;
+}
+body[data-vscode-theme-id="Default Dark+"] .vditor-cm-host span.cm-string,
+body[data-vscode-theme-id="Visual Studio Dark"] .vditor-cm-host span.cm-string,
+body[data-vscode-theme-id="Default Dark Modern"] .vditor-cm-host span.cm-string,
+body[data-vscode-theme-id="Default High Contrast"] .vditor-cm-host span.cm-string {
+  color: #ce9178;
+}
+body[data-vscode-theme-id="Default Dark+"] .vditor-cm-host span.cm-comment,
+body[data-vscode-theme-id="Visual Studio Dark"] .vditor-cm-host span.cm-comment,
+body[data-vscode-theme-id="Default Dark Modern"] .vditor-cm-host span.cm-comment,
+body[data-vscode-theme-id="Default High Contrast"] .vditor-cm-host span.cm-comment {
+  color: #6a9955;
+}
+body[data-vscode-theme-id="Default Dark+"] .vditor-cm-host span.cm-string.cm-property,
+body[data-vscode-theme-id="Visual Studio Dark"] .vditor-cm-host span.cm-string.cm-property,
+body[data-vscode-theme-id="Default Dark Modern"] .vditor-cm-host span.cm-string.cm-property,
+body[data-vscode-theme-id="Default High Contrast"] .vditor-cm-host span.cm-string.cm-property {
+  color: #9cdcfe;
+}
+body[data-vscode-theme-id="Default Dark+"] .vditor-cm-host span.cm-atom,
+body[data-vscode-theme-id="Visual Studio Dark"] .vditor-cm-host span.cm-atom,
+body[data-vscode-theme-id="Default Dark Modern"] .vditor-cm-host span.cm-atom,
+body[data-vscode-theme-id="Default High Contrast"] .vditor-cm-host span.cm-atom {
+  color: #B5C89B;
+}
+.vditor-cm-host .cm-editor {
+  height: 100% !important;
+  font-size: var(--vscode-editor-font-size);
+  font-family: var(--vscode-editor-font-family);
+  color: var(--vscode-editor-foreground);
+}
+.vditor-cm-host .cm-editor,
+.vditor-cm-host .cm-scroller {
+  background: var(--cm-bg-color) !important;
+}
+.vditor-cm-host.cm-lineWrapping .cm-line,
+.vditor-cm-host .cm-lineWrapping .cm-line {
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.vditor-cm-host .cm-focused .cm-selectionBackground {
+  background: var(--vscode-notebook-selectedCellBackground) !important;
+}
+.vditor-cm-host .cm-selectionBackground {
+  background: var(--vscode-editor-selectionBackground) !important;
+}
+.vditor-cm-host .cm-gutters {
+  background: var(--cm-bg-color) !important;
+  border-right: 0;
+}
+.vditor-cm-host .cm-gutterElement {
+  color: var(--vscode-editorLineNumber-foreground, #6e6e6e);
+}
+.vditor-cm-host .cm-content {
+  caret-color: var(--cm-cursor-fg) !important;
+}
+.vditor-cm-host .cm-cursor,
+.vditor-cm-host .cm-dropCursor {
+  border-left-color: var(--cm-cursor-fg) !important;
+}
+.vditor-cm-host .cm-activeLine {
+  background: var(--cm-active-line-bg) !important;
+}
+.vditor-cm-host .cm-activeLineGutter {
+  background: var(--cm-active-line-bg) !important;
+}
+.vditor-cm-host .cm-activeLineGutter .cm-gutterElement {
+  color: var(--cm-active-line-gutter-fg, var(--vscode-editorLineNumber-activeForeground, var(--vscode-editorLineNumber-foreground))) !important;
+}
+.vditor-cm-host .cm-matchingBracket {
+  text-decoration: underline;
+  color: white !important;
+}
+.vditor-cm-host .cm-foldPlaceholder {
+  color: var(--cm-fold-fg) !important;
+  background-color: var(--cm-fold-bg, var(--vscode-editor-foldBackground, color-mix(in srgb, var(--cm-fold-fg) 12%, var(--cm-bg-color)))) !important;
+  border: 1px solid color-mix(in srgb, var(--cm-fold-fg) 35%, transparent);
+  border-radius: 3px;
+  padding: 0 4px;
+  text-shadow: unset;
+}
+.vditor-cm-host span.cm-comment {
+  color: #7f848e;
+}
+.vditor-cm-host span.cm-string {
+  color: var(--vscode-terminal-ansiGreen);
+}
+.vditor-cm-host span.cm-string.cm-property {
+  color: var(--vscode-terminal-ansiMagenta);
+}
+.vditor-cm-host span.cm-atom {
+  color: var(--vscode-terminal-ansiYellow);
+}
+.vditor-cm-host span.cm-number {
+  color: var(--vscode-terminal-ansiYellow);
+}
+.vditor-cm-host span.cm-property,
+.vditor-cm-host span.cm-attribute {
+  color: var(--vscode-symbolIcon-variableForeground);
+}
+.vditor-cm-host span.cm-keyword {
+  color: var(--vscode-terminal-ansiMagenta);
+}
+.vditor-cm-host span.cm-variable,
+.vditor-cm-host span.cm-variable-2 {
+  color: var(--vscode-symbolIcon-variableForeground);
+}
+.vditor-cm-host span.cm-def {
+  color: #d28445;
+}
+.vditor-cm-host span.cm-bracket {
+  color: #e0e0e0;
+}
+.vditor-cm-host span.cm-tag {
+  color: #ac4142;
+}
+.vditor-cm-host span.cm-link {
+  color: #aa759f;
+}
+.vditor-cm-host span.cm-error {
+  background: #ac4142;
+  color: #b0b0b0;
+}
+.vditor-cm-host .cm-foldGutter .cm-gutterElement {
+  color: var(--cm-fold-fg) !important;
+  cursor: pointer;
+  opacity: 0.9;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.vditor-cm-host .cm-foldGutter .cm-gutterElement:hover {
+  color: var(--cm-fold-fg-hover, var(--list-hover-color)) !important;
+  opacity: 1;
+}
+/* CM6 autocomplete — ported from show-hint.css (CM5) */
+.cm-tooltip.cm-tooltip-autocomplete {
+  z-index: 10001;
+  overflow: hidden;
+  list-style: none;
+  margin: 0;
+  padding: 2px;
+  box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  background: var(--vscode-editorSuggestWidget-background);
+  font-family: var(--vscode-editor-font-family);
+  font-weight: var(--vscode-font-weight);
+  font-size: var(--vscode-font-size);
+  max-height: 20em;
+  overflow-y: auto;
+  border: 1px solid var(--ext-border-color, var(--vscode-widget-border));
+}
+.cm-tooltip.cm-tooltip-autocomplete > ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cm-tooltip.cm-tooltip-autocomplete > ul > li {
+  margin: 0;
+  padding: 4px;
+  border-radius: 2px;
+  white-space: pre;
+  cursor: pointer;
+  color: var(--vscode-editorSuggestWidget-foreground);
+}
+.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected] {
+  background: var(--vscode-editorSuggestWidget-selectedBackground);
+  color: var(--vscode-editorSuggestWidget-selectedForeground);
+}

@@ -22,7 +22,7 @@
 
   .cm-content {
     padding: 0;
-    caret-color: var(--textarea-text-color);
+    caret-color: var(--cm-cursor-fg, var(--vscode-editorCursor-foreground, var(--textarea-text-color)));
   }
 
   .cm-gutters {
@@ -33,7 +33,7 @@
 
   .cm-activeLineGutter,
   .cm-activeLine {
-    background: rgba(127, 127, 127, 0.08);
+    background: var(--cm-active-line-bg, rgba(127, 127, 127, 0.08));
   }
 }
 

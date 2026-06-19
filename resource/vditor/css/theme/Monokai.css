@@ -5,6 +5,11 @@
     --front-color: #f8f8f2;
     --second-bg-color: #1e1f1c;
     --code-bg-color: #3e3d32;
+    --cm-bg-color: var(--code-bg-color);
+    --cm-active-line-bg: color-mix(in srgb, var(--front-color) 8%, var(--cm-bg-color));
+    --cm-fold-fg: var(--list-hover-color);
+    --cm-fold-fg-hover: var(--front-color);
+    --cm-cursor-fg: var(--list-hover-color);
     --list-hover-color: #66d9ef;
     --dropdown-hover-background: #49483e;
     --error-color: #f92672;

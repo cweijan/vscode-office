@@ -55,7 +55,7 @@
 
 #vditor:not([data-editor-theme="Auto"]),
 #vditor:not([data-editor-theme="Auto"]) .vditor-content,
-#vditor:not([data-editor-theme="Auto"]) .vditor-content *:not(.hljs, .hljs *, .katex, .katex *, a, hr, .vditor-reset--error, code) {
+#vditor:not([data-editor-theme="Auto"]) .vditor-content *:not(.hljs, .hljs *, .katex, .katex *, a, hr, .vditor-reset--error, code, .vditor-cm-host, .vditor-cm-host *) {
     background-color: var(--bg-color) !important;
     color: var(--front-color) !important;
 }

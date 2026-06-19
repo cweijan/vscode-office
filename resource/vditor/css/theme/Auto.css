@@ -14,6 +14,13 @@
     --blockquote-border: var(--vscode-textBlockQuote-border, var(--ext-border-color));
     --table-border: var(--ext-border-color);
     --table-stripe-bg: var(--vscode-list-hoverBackground, rgba(128, 128, 128, 0.08));
+    --cm-bg-color: var(--vscode-editorWidget-background, var(--code-bg-color));
+    --cm-active-line-bg: var(--vscode-editor-lineHighlightBackground, color-mix(in srgb, var(--vscode-editor-foreground) 6%, var(--cm-bg-color)));
+    --cm-active-line-gutter-fg: var(--vscode-editorLineNumber-activeForeground, var(--vscode-editorLineNumber-foreground));
+    --cm-fold-fg: var(--vscode-editorGutter-foldingControlForeground, var(--vscode-icon-foreground, var(--vscode-foreground)));
+    --cm-fold-fg-hover: var(--vscode-textLink-foreground);
+    --cm-fold-bg: var(--vscode-editor-foldBackground, color-mix(in srgb, var(--cm-fold-fg) 12%, var(--cm-bg-color)));
+    --cm-cursor-fg: var(--vscode-editorCursor-foreground, var(--vscode-foreground));
 }
 
 #vditor[data-editor-theme="Auto"] {
