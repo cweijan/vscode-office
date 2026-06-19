@@ -55,11 +55,13 @@
         return -1
     }
   }
-  const SUN_ICON = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 1a4 4 0 1 1 0-8 4 4 0 0 1 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 1 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/></svg>';
+  const ADAPTIVE_ICON = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 6.8a5 5 0 1 0-8.5 4.2c.3.7 1.2 1.3 2.5 1.3.5 0 1-.1 1.5-.25"/><circle cx="5.75" cy="7" r=".65" fill="currentColor" stroke="none"/><circle cx="8" cy="5.5" r=".65" fill="currentColor" stroke="none"/><circle cx="10.25" cy="7.25" r=".65" fill="currentColor" stroke="none"/></svg>';
 
-  const MOON_ICON = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/></svg>';
+  const BULB_ICON = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2a3.5 3.5 0 0 0-1.5 6.7V12h3V8.7A3.5 3.5 0 0 0 8 2z"/><path d="M6.25 12h3.5M6.75 13.5h2.5"/></svg>';
 
-  const PALETTE_ICON = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zM4.5 7.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm-2.5 5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm-5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>';
+  const MOON_ICON = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M14 8.53A6 6 0 1 1 7.48 2 4.67 4.67 0 0 0 14 8.53z"/></svg>';
+
+  const SUN_STROKE_ICON = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2.75"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.05 3.05l1.06 1.06M11.89 11.89l1.06 1.06M3.05 12.95l1.06-1.06M11.89 4.11l1.06-1.06"/></svg>';
 
   function setupThemeAdapt() {
     const STORAGE_KEY = 'office-pdf-adaptive-theme';
@@ -68,7 +70,7 @@
       const btn = document.getElementById('themeAdaptToggle');
       if (btn) {
         btn.classList.toggle('toggled', on);
-        btn.innerHTML = on ? PALETTE_ICON : SUN_ICON;
+        btn.innerHTML = on ? ADAPTIVE_ICON : SUN_STROKE_ICON;
         btn.title = on ? '使用默认亮色主题 (Ctrl/Cmd+Shift+L)' : '开启主题适配（跟随 VS Code 颜色）(Ctrl/Cmd+Shift+L)';
         btn.setAttribute('aria-label', on ? '使用默认亮色主题' : '开启主题适配');
       }
@@ -98,7 +100,7 @@
       const btn = document.getElementById('darkModeToggle');
       if (btn) {
         btn.classList.toggle('toggled', on);
-        btn.innerHTML = on ? SUN_ICON : MOON_ICON;
+        btn.innerHTML = on ? BULB_ICON : MOON_ICON;
         btn.title = on ? '切换 PDF 亮色模式 (Ctrl/Cmd+L)' : '切换 PDF 暗色模式 (Ctrl/Cmd+L)';
         btn.setAttribute('aria-label', on ? '切换 PDF 亮色模式' : '切换 PDF 暗色模式');
       }

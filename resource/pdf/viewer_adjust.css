@@ -12,6 +12,8 @@
     --office-hover-fg: rgba(0, 0, 0, 0.9);
     --office-active-bg: rgba(10, 132, 255, 0.14);
     --office-active-fg: rgba(0, 90, 200, 1);
+    --office-toolbar-active-bg: rgba(0, 0, 0, 0.07);
+    --office-toolbar-active-fg: rgba(0, 0, 0, 0.82);
 }
 
 .toolbarButton,
@@ -25,12 +27,13 @@
     border-radius: var(--pdf-btn-radius) !important;
 }
 
-#toolbarContainer .office-scale-select.dropdownToolbarButton {
+#toolbarContainer .office-scale-select.dropdownToolbarButton,
+#scaleSelectContainer.office-scale-select {
     position: relative;
     display: inline-block;
     padding: 0 !important;
     overflow: visible !important;
-    margin-top: 0 !important;
+    margin: 2px 2px 0 !important;
     border: 1px solid var(--field-border-color) !important;
     box-sizing: border-box;
     background: transparent !important;
@@ -76,7 +79,14 @@
 
 .office-scale-select-trigger:hover,
 .office-scale-select.open .office-scale-select-trigger {
-    background-color: var(--button-hover-color) !important;
+    background-color: var(--office-hover-bg) !important;
+    color: var(--office-hover-fg) !important;
+}
+
+body.office-adaptive-theme .office-scale-select-trigger:hover,
+body.office-adaptive-theme .office-scale-select.open .office-scale-select-trigger {
+    background-color: var(--vscode-toolbar-hoverBackground) !important;
+    color: var(--vscode-foreground) !important;
 }
 
 .office-scale-select-label {
@@ -131,12 +141,13 @@
 }
 
 .office-scale-select-item:hover {
-    background-color: var(--doorhanger-hover-color) !important;
+    background-color: var(--office-hover-bg) !important;
+    color: var(--office-hover-fg) !important;
 }
 
 .office-scale-select-item.selected {
-    background-color: var(--treeitem-active-bg-color) !important;
-    color: var(--treeitem-active-color) !important;
+    background-color: var(--office-toolbar-active-bg) !important;
+    color: var(--office-toolbar-active-fg) !important;
 }
 
 #toolbarViewerMiddle .splitToolbarButton,
@@ -279,7 +290,13 @@ body.office-adaptive-theme .office-scale-select-menu {
 }
 
 body.office-adaptive-theme .office-scale-select-item:hover {
-    color: var(--vscode-menu-selectionForeground, var(--vscode-foreground)) !important;
+    background-color: var(--vscode-list-hoverBackground) !important;
+    color: var(--vscode-list-hoverForeground, var(--vscode-foreground)) !important;
+}
+
+body.office-adaptive-theme .office-scale-select-item.selected {
+    background-color: var(--vscode-list-activeSelectionBackground) !important;
+    color: var(--vscode-list-activeSelectionForeground) !important;
 }
 
 body.office-adaptive-theme :is(.toolbarButton, .splitToolbarButton > .toolbarButton, .overlayButton, .findbar button, .secondaryToolbarButton):hover {
@@ -433,7 +450,7 @@ html[dir="rtl"] #sidebarResizer {
     border-radius: 4px !important;
 }
 
-/* Default light: outline & toolbar shared hover & active highlights */
+/* Default light: outline & toolbar hover & active highlights */
 body:not(.office-adaptive-theme) #outlineView .treeItem > a:hover,
 body:not(.office-adaptive-theme) #outlineView .treeItemToggler:hover + a,
 body:not(.office-adaptive-theme) :is(.toolbarButton, .splitToolbarButton > .toolbarButton, .overlayButton, .findbar button, .secondaryToolbarButton):not(#darkModeToggle):not(#themeAdaptToggle):hover,
@@ -442,11 +459,15 @@ body:not(.office-adaptive-theme) :is(.toolbarButton, .splitToolbarButton > .tool
     color: var(--office-hover-fg) !important;
 }
 
-body:not(.office-adaptive-theme) #outlineView .treeItem.selected > a,
-body:not(.office-adaptive-theme) :is(.toolbarButton.toggled, .splitToolbarButton.toggled > .toolbarButton.toggled, .secondaryToolbarButton.toggled):not(#darkModeToggle):not(#themeAdaptToggle),
-body:not(.office-adaptive-theme) :is(.toolbarButton.toggled, .splitToolbarButton.toggled > .toolbarButton.toggled, .secondaryToolbarButton.toggled):not(#darkModeToggle):not(#themeAdaptToggle):hover {
+body:not(.office-adaptive-theme) #outlineView .treeItem.selected > a {
     background-color: var(--office-active-bg) !important;
     color: var(--office-active-fg) !important;
+}
+
+body:not(.office-adaptive-theme) :is(.toolbarButton.toggled, .splitToolbarButton.toggled > .toolbarButton.toggled, .secondaryToolbarButton.toggled):not(#darkModeToggle):not(#themeAdaptToggle),
+body:not(.office-adaptive-theme) :is(.toolbarButton.toggled, .splitToolbarButton.toggled > .toolbarButton.toggled, .secondaryToolbarButton.toggled):not(#darkModeToggle):not(#themeAdaptToggle):hover {
+    background-color: var(--office-toolbar-active-bg) !important;
+    color: var(--office-toolbar-active-fg) !important;
 }
 
 /* ---- Dark mode (black background, white text) ---- */
