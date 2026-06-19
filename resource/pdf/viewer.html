@@ -263,7 +263,11 @@ See https://github.com/adobe-type-tools/cmap-resources
                 <span data-l10n-id="bookmark_label">Current View</span>
               </a>
 
-              <button id="darkModeToggle" class="toolbarButton" title="切换暗色模式 (Ctrl/Cmd+L)" tabindex="35" aria-label="切换暗色模式"></button>
+              <div class="splitToolbarButton office-theme-toggle-group">
+                <button id="themeAdaptToggle" class="toolbarButton" title="开启主题适配（跟随 VS Code 颜色）" tabindex="35" aria-label="开启主题适配"></button>
+                <div class="splitToolbarButtonSeparator"></div>
+                <button id="darkModeToggle" class="toolbarButton" title="切换 PDF 暗色模式 (Ctrl/Cmd+L)" tabindex="36" aria-label="切换 PDF 暗色模式"></button>
+              </div>
 
               <div class="verticalToolbarSeparator hiddenSmallView"></div>
 

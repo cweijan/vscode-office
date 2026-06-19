@@ -59,6 +59,38 @@
 
   const MOON_ICON = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/></svg>';
 
+  const PALETTE_ICON = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zM4.5 7.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm-2.5 5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm-5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>';
+
+  function setupThemeAdapt() {
+    const STORAGE_KEY = 'office-pdf-adaptive-theme';
+    const apply = (on) => {
+      document.body.classList.toggle('office-adaptive-theme', on);
+      const btn = document.getElementById('themeAdaptToggle');
+      if (btn) {
+        btn.classList.toggle('toggled', on);
+        btn.innerHTML = on ? PALETTE_ICON : SUN_ICON;
+        btn.title = on ? '使用默认亮色主题 (Ctrl/Cmd+Shift+L)' : '开启主题适配（跟随 VS Code 颜色）(Ctrl/Cmd+Shift+L)';
+        btn.setAttribute('aria-label', on ? '使用默认亮色主题' : '开启主题适配');
+      }
+    };
+    let enabled = false;
+    try { enabled = localStorage.getItem(STORAGE_KEY) === '1'; } catch (e) { }
+    apply(enabled);
+    const toggle = () => {
+      enabled = !enabled;
+      try { localStorage.setItem(STORAGE_KEY, enabled ? '1' : '0'); } catch (e) { }
+      apply(enabled);
+    };
+    const btn = document.getElementById('themeAdaptToggle');
+    if (btn) btn.addEventListener('click', toggle);
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && !e.altKey && e.key.toLowerCase() === 'l') {
+        e.preventDefault();
+        toggle();
+      }
+    });
+  }
+
   function setupDarkMode() {
     const STORAGE_KEY = 'office-pdf-dark-mode';
     const apply = (on) => {
@@ -67,8 +99,8 @@
       if (btn) {
         btn.classList.toggle('toggled', on);
         btn.innerHTML = on ? SUN_ICON : MOON_ICON;
-        btn.title = on ? '切换亮色模式 (Ctrl/Cmd+L)' : '切换暗色模式 (Ctrl/Cmd+L)';
-        btn.setAttribute('aria-label', btn.title);
+        btn.title = on ? '切换 PDF 亮色模式 (Ctrl/Cmd+L)' : '切换 PDF 暗色模式 (Ctrl/Cmd+L)';
+        btn.setAttribute('aria-label', on ? '切换 PDF 亮色模式' : '切换 PDF 暗色模式');
       }
     };
     let enabled = false;
@@ -338,6 +370,7 @@
   }
 
   window.addEventListener('load', function () {
+    setupThemeAdapt();
     setupDarkMode();
     setupCustomScaleSelect();
     PDFViewerApplication.initializedPromise.then(() => {
