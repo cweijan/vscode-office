@@ -498,8 +498,8 @@
 				]
 			},
 			{
-				"viewType": "cweijan.markdownViewer.optional",
-				"displayName": "Markdown Editor (Optional)",
+				"viewType": "cweijan.markdownPreview",
+				"displayName": "Markdown Preview",
 				"priority": "option",
 				"selector": [
 					{
