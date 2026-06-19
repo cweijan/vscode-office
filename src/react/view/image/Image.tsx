@@ -4,7 +4,6 @@ import "react-image-gallery/styles/css/image-gallery.css";
 import { handler } from '../../util/vscode';
 import { needsConversion, resolveImageSrc, revokeObjectUrl } from './convertImage';
 import './Image.less';
-import VSCodeLogo from "../vscode";
 import SponsorBar from '../components/SponsorBar';
 
 type WheelMode = 'navigate' | 'zoom';
@@ -130,7 +129,6 @@ export default function Image() {
 
     return (
         <div className="image-viewer">
-            <VSCodeLogo full={false} style={{ top: 6 }} />
             {loading && <div className="image-viewer__loading">Converting image…</div>}
             <div className="image-wheel-toolbar" role="toolbar" aria-label="Wheel mode">
                 <button
