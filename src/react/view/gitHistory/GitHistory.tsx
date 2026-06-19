@@ -777,9 +777,10 @@ function GitHistoryView({
             setError('No remotes configured.');
             return;
         }
+        const forceField = { type: 'checkbox' as const, id: 'force', label: 'Force Push', defaultValue: false };
+        setToolbarPromptAnchor(anchorFromMouseEvent(event, true, true));
+        setToolbarPromptKind('push');
         if (remotes.length > 1) {
-            setToolbarPromptAnchor(anchorFromMouseEvent(event, true, true));
-            setToolbarPromptKind('push');
             setToolbarPrompt({
                 kind: 'pick',
                 id: 'remote',
@@ -788,12 +789,20 @@ function GitHistoryView({
                 variant: 'pushRemote',
                 submitLabel: 'Push',
                 options: remotes.map((remote) => ({ value: remote, label: remote })),
+                fields: [forceField],
             });
             return;
         }
-        setPushing(true);
-        setError(null);
-        handler.emit('push', { repo, branch: branchHead, remote: remotes[0] });
+        setToolbarPrompt({
+            kind: 'pick',
+            id: 'remote',
+            title: 'Push Branch',
+            message: `Push "${branchHead}" to ${remotes[0]}`,
+            variant: 'pushRemote',
+            submitLabel: 'Push',
+            options: [],
+            fields: [forceField],
+        });
     };
 
     const runQuickSync = (remote: string, commitMessage: string) => {
@@ -949,10 +958,19 @@ function GitHistoryView({
             runQuickSync(value, pendingQuickSyncCommitMessageRef.current);
             return;
         }
-        if (kind === 'push' && repo && branchHead && typeof value === 'string') {
+        if (kind === 'push' && repo && branchHead && typeof value !== 'string') {
+            const remote = value.remote || remotes[0];
+            if (!remote) {
+                return;
+            }
             setPushing(true);
             setError(null);
-            handler.emit('push', { repo, branch: branchHead, remote: value });
+            handler.emit('push', {
+                repo,
+                branch: branchHead,
+                remote,
+                force: value.force === 'yes',
+            });
         } else if (kind === 'openRemote' && typeof value === 'string') {
             handler.emit('openRemote', { url: value });
         }

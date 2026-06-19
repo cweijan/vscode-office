@@ -31,9 +31,15 @@ export class GitActions {
         repo: string,
         branch: string,
         remote: string,
+        force = false,
     ): Promise<string | null> {
         try {
-            await this.executor.spawn(['push', '-u', remote, branch], repo, () => null);
+            const args = ['push'];
+            if (force) {
+                args.push('--force-with-lease');
+            }
+            args.push('-u', remote, branch);
+            await this.executor.spawn(args, repo, () => null);
             return null;
         } catch (e) {
             return e instanceof Error ? e.message : String(e);

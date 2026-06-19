@@ -10,7 +10,7 @@ export type GitActionPayload =
     | { action: 'renameBranch'; repo: string; branch: string; newName: string }
     | { action: 'deleteRemoteBranch'; repo: string; branch: string; remote: string }
     | { action: 'pullBranch'; repo: string; branch: string; remote: string; noFastForward?: boolean; squash?: boolean }
-    | { action: 'pushBranch'; repo: string; branch: string; remote: string }
+    | { action: 'pushBranch'; repo: string; branch: string; remote: string; force?: boolean }
     | { action: 'merge'; repo: string; ref: string; mergeOn?: 'commit' | 'branch' | 'remote'; createNewCommit?: boolean; squash?: boolean; noCommit?: boolean }
     | { action: 'cherryPick'; repo: string; hash: string; parents?: string[]; parentIndex?: number; recordOrigin?: boolean; noCommit?: boolean }
     | { action: 'revertCommit'; repo: string; hash: string; parentIndex?: number }

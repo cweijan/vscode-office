@@ -1798,6 +1798,17 @@ body.git-graph-dialog-open {
     text-align: center;
 }
 
+.git-graph-anchored-dialog.compact {
+    min-width: 230px;
+    max-width: min(290px, calc(100vw - 20px));
+}
+
+.git-graph-anchored-dialog.compact .git-graph-anchored-dialog-option-list,
+.git-graph-anchored-dialog.compact .git-graph-anchored-dialog-checkbox-list {
+    width: 100%;
+    box-sizing: border-box;
+}
+
 .git-graph-create-branch-content,
 .git-graph-anchored-dialog-content {
     padding: 10px;

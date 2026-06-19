@@ -59,6 +59,15 @@ export function useGitActionPrompt(
                 return null;
             }
 
+            if (step.kind === 'pick' && typeof value !== 'string') {
+                const answers = { ...current.answers, ...value };
+                const resolved = resolveGitActionPayload(current.base, answers);
+                if (resolved) {
+                    onExecute(resolved);
+                }
+                return null;
+            }
+
             const stringValue = typeof value === 'string' ? value : '';
             const answers = { ...current.answers, [step.id]: stringValue };
             const followUp = getFollowUpSteps(current.base, step, stringValue);

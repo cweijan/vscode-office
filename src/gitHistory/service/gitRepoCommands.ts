@@ -116,9 +116,20 @@ export class GitRepoCommands {
         return this.run(args, repo);
     }
 
-    async pushBranch(repo: string, remote: string, branchName: string, setUpstream: boolean): Promise<string | null> {
+    async pushBranch(
+        repo: string,
+        remote: string,
+        branchName: string,
+        setUpstream: boolean,
+        force = false,
+    ): Promise<string | null> {
         const args = ['push'];
-        if (setUpstream) args.push('-u');
+        if (force) {
+            args.push('--force-with-lease');
+        }
+        if (setUpstream) {
+            args.push('-u');
+        }
         args.push(remote, branchName);
         return this.run(args, repo);
     }

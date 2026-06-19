@@ -33,6 +33,7 @@ export type PromptStep =
         branchName?: string | null;
         commitHash?: string;
         submitLabel?: string;
+        fields?: FormField[];
     }
     | {
         kind: 'form';
@@ -103,7 +104,10 @@ export function getPromptSteps(
                 confirmLabel: 'Delete',
                 danger: true,
             }];
-        case 'pushBranch':
+        case 'pushBranch': {
+            const fields: FormField[] = [
+                { type: 'checkbox', id: 'force', label: 'Force Push', defaultValue: false },
+            ];
             if (ctx.remotes.length > 1) {
                 return [{
                     kind: 'pick',
@@ -111,10 +115,22 @@ export function getPromptSteps(
                     title: 'Push Branch',
                     message: `Push "${payload.branch}" to remote`,
                     variant: 'pushRemote',
+                    submitLabel: 'Push',
                     options: ctx.remotes.map((remote) => ({ value: remote, label: remote })),
+                    fields,
                 }];
             }
-            return null;
+            return [{
+                kind: 'pick',
+                id: 'remote',
+                title: 'Push Branch',
+                message: `Push "${payload.branch}" to ${ctx.remotes[0]}`,
+                variant: 'pushRemote',
+                submitLabel: 'Push',
+                options: [],
+                fields,
+            }];
+        }
         case 'merge': {
             const mergeOn = payload.mergeOn === 'commit' ? 'commit' : 'branch';
             const ref = payload.ref as string;
@@ -363,11 +379,13 @@ export function resolveGitActionPayload(
             if (!newName || newName === base.branch) return null;
             return { ...base, newName };
         }
-        case 'pushBranch':
-            if (answers.remote) {
-                return { ...base, remote: answers.remote };
+        case 'pushBranch': {
+            const remote = answers.remote || (base.remote as string | undefined);
+            if (!remote) {
+                return null;
             }
-            return base;
+            return { ...base, remote, force: answers.force === 'yes' };
+        }
         case 'cherryPick': {
             const parents = Array.isArray(base.parents) ? base.parents as string[] : [];
             const parentIndex = parents.length > 1

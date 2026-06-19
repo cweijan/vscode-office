@@ -226,6 +226,11 @@ export default function ActionDialog({
             setInputValue(step.defaultValue ?? '');
         } else if (step.kind === 'pick') {
             setPickValue(step.options[0]?.value ?? '');
+            if (step.fields) {
+                setFormValues(buildInitialFormValues(step.fields));
+            } else {
+                setFormValues({});
+            }
         } else if (step.kind === 'form') {
             setFormValues(buildInitialFormValues(step.fields));
         }
@@ -543,15 +548,25 @@ export default function ActionDialog({
         repositionDeps = [formValues, step.message, step.variant];
     } else {
         primaryLabel = step.submitLabel ?? 'Continue';
-        primaryDisabled = !pickValue;
+        primaryDisabled = step.options.length > 0 && !pickValue;
         if (step.variant === 'pushRemote') {
             primaryLabel = step.submitLabel ?? 'Push';
         } else if (step.variant === 'openRemote') {
             primaryLabel = step.submitLabel ?? 'Open';
         }
+        const submitPick = (value: string) => {
+            if (step.fields?.length) {
+                onSubmit({ [step.id]: value, ...formValues });
+                return;
+            }
+            onSubmit(value);
+        };
         const pickDoubleSubmit = step.variant === 'pushRemote' || step.variant === 'openRemote'
-            ? (value: string) => onSubmit(value)
+            ? submitPick
             : undefined;
+        const pickExtras = step.fields
+            ? renderAnchoredCheckboxList(step.fields, formValues, setFormValues)
+            : null;
         if (anchored && step.variant === 'resetMode') {
             primaryLabel = step.submitLabel ?? 'Reset';
             message = (
@@ -577,19 +592,9 @@ export default function ActionDialog({
             );
         } else if (anchored) {
             message = step.message ?? step.title;
-            body = renderAnchoredOptionList(
-                step.options,
-                pickValue,
-                setPickValue,
-                step.title,
-                getPickAccentClass(step.variant),
-                pickDoubleSubmit,
-            );
-        } else {
             body = (
-                <div className="git-graph-dialog-pick">
-                    {step.message && <p className="git-graph-dialog-message">{step.message}</p>}
-                    {renderAnchoredOptionList(
+                <>
+                    {step.options.length > 0 && renderAnchoredOptionList(
                         step.options,
                         pickValue,
                         setPickValue,
@@ -597,10 +602,26 @@ export default function ActionDialog({
                         getPickAccentClass(step.variant),
                         pickDoubleSubmit,
                     )}
+                    {pickExtras}
+                </>
+            );
+        } else {
+            body = (
+                <div className="git-graph-dialog-pick">
+                    {step.message && <p className="git-graph-dialog-message">{step.message}</p>}
+                    {step.options.length > 0 && renderAnchoredOptionList(
+                        step.options,
+                        pickValue,
+                        setPickValue,
+                        step.title,
+                        getPickAccentClass(step.variant),
+                        pickDoubleSubmit,
+                    )}
+                    {pickExtras}
                 </div>
             );
         }
-        repositionDeps = [pickValue, step.message, step.options.length, step.variant, step.branchName, step.commitHash];
+        repositionDeps = [pickValue, formValues, step.message, step.options.length, step.variant, step.branchName, step.commitHash];
     }
 
     const handlePrimary = () => {
@@ -610,18 +631,23 @@ export default function ActionDialog({
             onSubmit(inputValue);
         } else if (step.kind === 'form') {
             onSubmit(formValues);
+        } else if (step.fields?.length) {
+            onSubmit({ [step.id]: pickValue, ...formValues });
         } else {
             onSubmit(pickValue);
         }
     };
 
     if (anchored) {
+        const compact = step.kind === 'pick'
+            && (step.variant === 'pushRemote' || step.variant === 'openRemote');
         return (
             <DialogOverlay onCancel={onCancel} anchored>
                 <AnchoredDialog
                     anchor={anchor}
                     ariaLabel={step.title}
                     repositionDeps={repositionDeps}
+                    compact={compact}
                 >
                     {message && (
                         <p className="git-graph-anchored-dialog-message">{message}</p>

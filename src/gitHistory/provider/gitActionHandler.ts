@@ -65,7 +65,13 @@ export class GitActionHandler {
                     },
                 );
             case 'pushBranch':
-                return this.commands.pushBranch(payload.repo, payload.remote, payload.branch, true);
+                return this.commands.pushBranch(
+                    payload.repo,
+                    payload.remote,
+                    payload.branch,
+                    true,
+                    payload.force,
+                );
             case 'merge':
                 return this.commands.merge(
                     payload.repo,

@@ -7,6 +7,7 @@ interface AnchoredDialogProps {
     ariaLabel: string;
     repositionDeps?: unknown[];
     centerOffsetY?: number;
+    compact?: boolean;
     children: ReactNode;
 }
 
@@ -15,6 +16,7 @@ export function AnchoredDialog({
     ariaLabel,
     repositionDeps = [],
     centerOffsetY = 0,
+    compact = false,
     children,
 }: AnchoredDialogProps) {
     const dialogRef = useAnchoredDialogPosition(anchor, repositionDeps, centerOffsetY);
@@ -22,7 +24,7 @@ export function AnchoredDialog({
     return (
         <div
             ref={dialogRef}
-            className="git-graph-anchored-dialog"
+            className={`git-graph-anchored-dialog${compact ? ' compact' : ''}`}
             role="dialog"
             aria-modal="true"
             aria-label={ariaLabel}
