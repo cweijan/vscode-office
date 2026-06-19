@@ -10,53 +10,14 @@
     color: var(--error-color) !important;
 }
 
-
-.vditor-input {
-    border: 1px solid var(--ext-border-color);
-}
-
-.vditor-toolbar {
-    background-color: var(--bg-color);
-}
-
-.vditor-toolbar__item .vditor-tooltipped {
-    color: var(--front-color)
-}
-
-.vditor-content code:not(.hljs) {
-    background-color: var(--code-bg-color) !important;
-    color: var(--front-color) !important;
-}
-
 .vditor-reset {
-    font-size: var(--vscode-editor-font-size)
-}
-
-.vditor,
-.vditor-content,
-.vditor-content *:not(.hljs, .hljs *, .katex, .katex *, a, hr, .vditor-reset--error, code) {
-    background-color: var(--bg-color) !important;
-    color: var(--front-color) !important;
+    font-size: var(--vscode-editor-font-size);
 }
 
 .vditor-content .language-flowchart svg,
 .vditor-content .language-mermaid svg,
 .vditor-content .language-mindmap canvas {
     background-color: white !important;
-}
-
-
-.vditor-content .vditor-wysiwyg__preview>code {
-    color: var(--front-color);
-    background-color: var(--bg-color) !important;
-}
-
-.vditor-hint button:not(.vditor-menu--disabled):hover {
-    background-color: var(--second-bg-color) !important;
-}
-
-.vditor-content .vditor-outline li>span:hover>span {
-    color: var(--list-hover-color) !important;
 }
 
 .vditor-reset h1,
@@ -72,6 +33,44 @@
 
 .vditor-outline__title {
     display: none !important;
+}
+
+/* Preset themes: legacy variable overrides */
+#vditor:not([data-editor-theme="Auto"]) .vditor-input {
+    border: 1px solid var(--ext-border-color);
+}
+
+#vditor:not([data-editor-theme="Auto"]) .vditor-toolbar {
+    background-color: var(--bg-color);
+}
+
+#vditor:not([data-editor-theme="Auto"]) .vditor-toolbar__item .vditor-tooltipped {
+    color: var(--front-color);
+}
+
+#vditor:not([data-editor-theme="Auto"]) .vditor-content code:not(.hljs) {
+    background-color: var(--code-bg-color) !important;
+    color: var(--front-color) !important;
+}
+
+#vditor:not([data-editor-theme="Auto"]),
+#vditor:not([data-editor-theme="Auto"]) .vditor-content,
+#vditor:not([data-editor-theme="Auto"]) .vditor-content *:not(.hljs, .hljs *, .katex, .katex *, a, hr, .vditor-reset--error, code) {
+    background-color: var(--bg-color) !important;
+    color: var(--front-color) !important;
+}
+
+#vditor:not([data-editor-theme="Auto"]) .vditor-content .vditor-wysiwyg__preview > code {
+    color: var(--front-color);
+    background-color: var(--bg-color) !important;
+}
+
+#vditor:not([data-editor-theme="Auto"]) .vditor-hint button:not(.vditor-menu--disabled):hover {
+    background-color: var(--second-bg-color) !important;
+}
+
+#vditor:not([data-editor-theme="Auto"]) .vditor-content .vditor-outline li > span:hover > span {
+    color: var(--list-hover-color) !important;
 }
 
 #vditor[data-editor-theme="Light"] .vditor-content .vditor-outline,

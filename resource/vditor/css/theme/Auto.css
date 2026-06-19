@@ -1,16 +1,131 @@
 :root {
-    --hr-bg: var(--vscode-panel-border, rgba(128, 128, 128, 0.35));
-    --ext-border-color: var(--vscode-editorWidget-border, var(--vscode-panel-border, var(--vscode-widget-border, rgba(128, 128, 128, 0.35))));
+    --hr-bg: var(--vscode-textSeparator-foreground, rgba(128, 128, 128, 0.35));
+    --ext-border-color: var(--vscode-widget-border, var(--vscode-panel-border, rgba(128, 128, 128, 0.35)));
     --bg-color: var(--vscode-editor-background);
     --front-color: var(--vscode-editor-foreground);
-    --second-bg-color: var(--vscode-editorSuggestWidget-background);
-    --code-bg-color: var(--vscode-textBlockQuote-background);
-    --list-hover-color: var(--vscode-terminal-ansiBlue);
-    --dropdown-hover-background: var(--vscode-menu-selectionBackground);
-    --error-color: var(--vscode-charts-red);
+    --second-bg-color: var(--vscode-dropdown-background, var(--vscode-editorWidget-background));
+    --code-bg-color: var(--vscode-textCodeBlock-background, rgba(127, 127, 127, 0.15));
+    --code-fg-color: var(--vscode-textPreformat-foreground, var(--vscode-editor-foreground));
+    --list-hover-color: var(--vscode-textLink-foreground, var(--vscode-list-focusHighlightForeground, #3794ff));
+    --dropdown-hover-background: var(--vscode-list-hoverBackground, var(--vscode-menu-selectionBackground));
+    --error-color: var(--vscode-errorForeground, var(--vscode-charts-red));
+    --link-color: var(--vscode-textLink-foreground, #3794ff);
+    --blockquote-color: var(--vscode-descriptionForeground, var(--vscode-editor-foreground));
+    --blockquote-border: var(--vscode-textBlockQuote-border, var(--ext-border-color));
+    --table-border: var(--ext-border-color);
+    --table-stripe-bg: var(--vscode-list-hoverBackground, rgba(128, 128, 128, 0.08));
 }
 
 #vditor[data-editor-theme="Auto"] {
     --border-color: var(--ext-border-color);
+    --second-color: var(--vscode-input-placeholderForeground, color-mix(in srgb, var(--vscode-editor-foreground) 45%, transparent));
+    --panel-background-color: var(--vscode-editor-background);
+    --panel-shadow: 0 2px 8px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.2));
+    --toolbar-background-color: var(--vscode-editorGroupHeader-tabsBackground, var(--vscode-editor-background));
+    --toolbar-icon-color: var(--vscode-icon-foreground, var(--vscode-foreground));
+    --toolbar-icon-hover-color: var(--link-color);
+    --textarea-background-color: var(--vscode-editor-background);
+    --textarea-text-color: var(--vscode-editor-foreground);
+    --resize-icon-color: var(--vscode-icon-foreground, var(--second-color));
+    --resize-background-color: var(--vscode-scrollbarSlider-background, var(--second-color));
+    --resize-hover-icon-color: var(--vscode-editor-foreground);
+    --resize-hover-background-color: var(--vscode-scrollbarSlider-hoverBackground, var(--vscode-focusBorder));
+    --count-background-color: color-mix(in srgb, var(--vscode-badge-background, var(--vscode-editor-foreground)) 20%, transparent);
     --heading-border-color: var(--ext-border-color);
+    --blockquote-color: var(--vscode-descriptionForeground, var(--vscode-editor-foreground));
+}
+
+#vditor[data-editor-theme="Auto"].vditor--dark {
+    --ir-heading-color: var(--vscode-symbolIcon-keywordForeground, #c586c0);
+    --ir-title-color: var(--vscode-descriptionForeground);
+    --ir-bi-color: var(--vscode-symbolIcon-enumeratorForeground, #d7ba7d);
+    --ir-link-color: var(--vscode-symbolIcon-stringForeground, #ce9178);
+    --ir-bracket-color: var(--vscode-symbolIcon-operatorForeground, #569cd6);
+    --ir-paren-color: var(--vscode-symbolIcon-numberForeground, #b5cea8);
+}
+
+#vditor[data-editor-theme="Auto"] .vditor-reset {
+    color: var(--textarea-text-color);
+    font-family: var(--vscode-editor-font-family, inherit);
+}
+
+#vditor[data-editor-theme="Auto"] .vditor-reset a {
+    color: var(--link-color);
+}
+
+#vditor[data-editor-theme="Auto"] .vditor-reset hr {
+    background-color: var(--hr-bg);
+}
+
+#vditor[data-editor-theme="Auto"] .vditor-reset blockquote {
+    color: var(--blockquote-color);
+    border-left-color: var(--blockquote-border);
+    background-color: var(--vscode-textBlockQuote-background, transparent);
+}
+
+#vditor[data-editor-theme="Auto"] .vditor-reset code:not(.hljs):not(.highlight-chroma) {
+    background-color: var(--code-bg-color);
+    color: var(--code-fg-color);
+    font-family: var(--vscode-editor-font-family, monospace);
+}
+
+#vditor[data-editor-theme="Auto"] .vditor-reset pre > code {
+    background-color: var(--code-bg-color);
+    color: var(--code-fg-color);
+    background-image: none;
+    font-family: var(--vscode-editor-font-family, monospace);
+}
+
+#vditor[data-editor-theme="Auto"] .vditor-reset kbd {
+    color: var(--front-color);
+    background-color: var(--second-bg-color);
+    border-color: var(--ext-border-color);
+    box-shadow: inset 0 -1px 0 var(--ext-border-color);
+}
+
+#vditor[data-editor-theme="Auto"] .vditor-reset table tr {
+    border-top-color: var(--table-border);
+    background-color: transparent;
+}
+
+#vditor[data-editor-theme="Auto"] .vditor-reset table td,
+#vditor[data-editor-theme="Auto"] .vditor-reset table th {
+    border-color: var(--table-border);
+}
+
+#vditor[data-editor-theme="Auto"] .vditor-reset table tbody tr:nth-child(2n) {
+    background-color: var(--table-stripe-bg);
+}
+
+#vditor[data-editor-theme="Auto"] .vditor-reset iframe {
+    border-color: var(--ext-border-color);
+}
+
+#vditor[data-editor-theme="Auto"] .vditor-wysiwyg span[data-type="link-ref"],
+#vditor[data-editor-theme="Auto"] .vditor-wysiwyg sup[data-type="footnotes-ref"],
+#vditor[data-editor-theme="Auto"] .vditor-wysiwyg span[data-type="toc-h"],
+#vditor[data-editor-theme="Auto"] .vditor-toc {
+    color: var(--link-color);
+}
+
+#vditor[data-editor-theme="Auto"] .vditor-wysiwyg__block pre:first-child code {
+    color: var(--code-fg-color);
+}
+
+#vditor[data-editor-theme="Auto"] .vditor-content .vditor-wysiwyg__preview > code {
+    color: var(--code-fg-color);
+    background-color: var(--code-bg-color);
+}
+
+#vditor[data-editor-theme="Auto"] .vditor-hint button:not(.vditor-menu--disabled):hover {
+    background-color: var(--dropdown-hover-background);
+    color: var(--list-hover-color);
+}
+
+#vditor[data-editor-theme="Auto"] .vditor-content .vditor-outline li > span:hover > span {
+    color: var(--list-hover-color);
+}
+
+#vditor[data-editor-theme="Auto"] .vditor-input {
+    border-color: var(--ext-border-color);
 }

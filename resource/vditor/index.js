@@ -78,6 +78,7 @@ handler.on("open", async (md) => {
       emoji: {},
       extend: hotKeys
     }, after() {
+      syncVditorDarkClass(config.editorTheme)
       handler.on("update", content => {
         editor.setValue(content);
       })
@@ -93,14 +94,42 @@ handler.on("open", async (md) => {
 }).emit("init")
 
 
+const DARK_EDITOR_THEMES = new Set(['One Dark', 'Github Dark', 'Nord', 'Monokai', 'Dracula'])
+
 function addAutoTheme(rootPath, theme) {
   loadCSS(rootPath, 'base.css')
   loadTheme(rootPath, theme)
+  observeVscodeTheme()
+}
+
+function isVscodeDarkTheme() {
+  const kind = document.body.getAttribute('data-vscode-theme-kind')
+  if (kind === 'vscode-dark' || kind === 'vscode-high-contrast') return true
+  if (kind === 'vscode-light' || kind === 'vscode-high-contrast-light') return false
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
+}
+
+function syncVditorDarkClass(theme) {
+  const vditor = document.getElementById('vditor')
+  if (!vditor) return
+  const useDark = theme === 'Auto' ? isVscodeDarkTheme() : DARK_EDITOR_THEMES.has(theme)
+  vditor.classList.toggle('vditor--dark', useDark)
+}
+
+function observeVscodeTheme() {
+  if (observeVscodeTheme.started) return
+  observeVscodeTheme.started = true
+  const observer = new MutationObserver(() => {
+    const theme = document.getElementById('vditor')?.getAttribute('data-editor-theme')
+    if (theme === 'Auto') syncVditorDarkClass('Auto')
+  })
+  observer.observe(document.body, { attributes: true, attributeFilter: ['data-vscode-theme-kind'] })
 }
 
 function loadTheme(rootPath, theme) {
   loadCSS(rootPath, `theme/${theme}.css`)
   document.getElementById('vditor').setAttribute('data-editor-theme', theme)
+  syncVditorDarkClass(theme)
   updateThemeToggle(theme)
 }
 
