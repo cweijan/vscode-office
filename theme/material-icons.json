@@ -2404,6 +2404,7 @@
     "xmind": "roadmap",
     "bmp": "image",
     "webp": "image",
+    "avif": "image",
     "eps": "image",
     "heif": "image",
     "heic": "image",
