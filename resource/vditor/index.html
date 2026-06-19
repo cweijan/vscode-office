@@ -5,7 +5,7 @@
     <meta charset='utf-8'>
     <title>Page Title</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel="stylesheet" href="vditor.css" />
+    <link rel="stylesheet" href="dist/index.css" />
     <link rel="stylesheet" href="index.css" />
     <base href="{{baseUrl}}/">
     <meta id="configs" data-config='{{configs}}'>
@@ -17,13 +17,18 @@
         <div class="vditor-context-menu__group" role="group">
             <button class="vditor-context-menu__item" type="button" data-action="copy" role="menuitem">
                 <span class="vditor-context-menu__icon" aria-hidden="true">
-                    <svg viewBox="0 0 16 16" width="16" height="16"><path fill="currentColor" d="M5.5 1A1.5 1.5 0 0 0 4 2.5v11A1.5 1.5 0 0 0 5.5 15h6a1.5 1.5 0 0 0 1.5-1.5v-11A1.5 1.5 0 0 0 11.5 1h-6zM5 2.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 .5.5v11a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5v-11zM2 4.5A1.5 1.5 0 0 1 3.5 3H4v1H3.5a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5H11v1H3.5A1.5 1.5 0 0 1 2 13.5v-9z"/></svg>
+                    <svg viewBox="0 0 16 16" width="16" height="16">
+                        <path fill="currentColor"
+                            d="M5.5 1A1.5 1.5 0 0 0 4 2.5v11A1.5 1.5 0 0 0 5.5 15h6a1.5 1.5 0 0 0 1.5-1.5v-11A1.5 1.5 0 0 0 11.5 1h-6zM5 2.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 .5.5v11a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5v-11zM2 4.5A1.5 1.5 0 0 1 3.5 3H4v1H3.5a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5H11v1H3.5A1.5 1.5 0 0 1 2 13.5v-9z" />
+                    </svg>
                 </span>
                 <span class="vditor-context-menu__label">Copy</span>
             </button>
             <button class="vditor-context-menu__item" type="button" data-action="paste" role="menuitem">
                 <span class="vditor-context-menu__icon" aria-hidden="true">
-                    <svg viewBox="0 0 16 16" width="16" height="16"><path fill="currentColor" d="M5 2h2v1H5V2zm4 0h2v1H9V2zM3 4h10v9H3V4zm1 1v7h8V5H4z"/></svg>
+                    <svg viewBox="0 0 16 16" width="16" height="16">
+                        <path fill="currentColor" d="M5 2h2v1H5V2zm4 0h2v1H9V2zM3 4h10v9H3V4zm1 1v7h8V5H4z" />
+                    </svg>
                 </span>
                 <span class="vditor-context-menu__label">Paste</span>
             </button>
@@ -32,32 +37,45 @@
         <div class="vditor-context-menu__group" role="group">
             <button class="vditor-context-menu__item" type="button" data-action="exportPdf" role="menuitem">
                 <span class="vditor-context-menu__icon" aria-hidden="true">
-                    <svg viewBox="0 0 16 16" width="16" height="16"><path fill="currentColor" d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 0 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/></svg>
+                    <svg viewBox="0 0 16 16" width="16" height="16">
+                        <path fill="currentColor"
+                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 0 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z" />
+                    </svg>
                 </span>
                 <span class="vditor-context-menu__label">Export PDF</span>
             </button>
-            <button class="vditor-context-menu__item" type="button" data-action="exportPdfWithoutOutline" role="menuitem">
+            <button class="vditor-context-menu__item" type="button" data-action="exportPdfWithoutOutline"
+                role="menuitem">
                 <span class="vditor-context-menu__icon" aria-hidden="true">
-                    <svg viewBox="0 0 16 16" width="16" height="16"><path fill="currentColor" d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 0 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2zM6 10.5h4v1H6v-1z"/></svg>
+                    <svg viewBox="0 0 16 16" width="16" height="16">
+                        <path fill="currentColor"
+                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 0 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2zM6 10.5h4v1H6v-1z" />
+                    </svg>
                 </span>
                 <span class="vditor-context-menu__label">Export PDF (Without Outline)</span>
             </button>
             <button class="vditor-context-menu__item" type="button" data-action="exportDocx" role="menuitem">
                 <span class="vditor-context-menu__icon" aria-hidden="true">
-                    <svg viewBox="0 0 16 16" width="16" height="16"><path fill="currentColor" d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 0 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2zM5 8.5h6v1H5v-1zm0 2h4v1H5v-1z"/></svg>
+                    <svg viewBox="0 0 16 16" width="16" height="16">
+                        <path fill="currentColor"
+                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 0 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2zM5 8.5h6v1H5v-1zm0 2h4v1H5v-1z" />
+                    </svg>
                 </span>
                 <span class="vditor-context-menu__label">Export Docx</span>
             </button>
             <button class="vditor-context-menu__item" type="button" data-action="exportHtml" role="menuitem">
                 <span class="vditor-context-menu__icon" aria-hidden="true">
-                    <svg viewBox="0 0 16 16" width="16" height="16"><path fill="currentColor" d="M1.5 1h13v2h-13V1zm0 4h13v9h-13V5zm1 1v7h11V6H2.5zm2.1 1.4l1.4 1.4-1.4 1.4-.7-.7.7-.7-.7-.7.7-.7zm3.8 0l1.4 1.4-1.4 1.4-.7-.7.7-.7-.7-.7.7-.7zm3.8 0l1.4 1.4-1.4 1.4-.7-.7.7-.7-.7-.7.7-.7z"/></svg>
+                    <svg viewBox="0 0 16 16" width="16" height="16">
+                        <path fill="currentColor"
+                            d="M1.5 1h13v2h-13V1zm0 4h13v9h-13V5zm1 1v7h11V6H2.5zm2.1 1.4l1.4 1.4-1.4 1.4-.7-.7.7-.7-.7-.7.7-.7zm3.8 0l1.4 1.4-1.4 1.4-.7-.7.7-.7-.7-.7.7-.7zm3.8 0l1.4 1.4-1.4 1.4-.7-.7.7-.7-.7-.7.7-.7z" />
+                    </svg>
                 </span>
                 <span class="vditor-context-menu__label">Export HTML</span>
             </button>
         </div>
     </div>
 </body>
-<script src="vditor.js"></script>
+<script src="dist/index.min.js"></script>
 <script src="../lib/vscode.js"></script>
 <script src="index.js" type="module"></script>
 

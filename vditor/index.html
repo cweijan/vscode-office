@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+
+<head>
+    <meta charset="utf-8">
+    <title>Vditor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="https://unpkg.com/vditor/dist/images/logo.png">
+    <style>
+        :root {
+            --demo-accent: #4285f4;
+            --demo-accent-soft: #e8f0fe;
+            --demo-border: #e5e7eb;
+            --demo-text: #1f2937;
+            --demo-muted: #6b7280;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top left, rgba(66, 133, 244, 0.12), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(99, 102, 241, 0.1), transparent 24%),
+                linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+            color: var(--demo-text);
+        }
+
+        .demo-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 1200px;
+            height: calc(100vh - 40px);
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            box-shadow:
+                0 20px 45px rgba(15, 23, 42, 0.08),
+                0 2px 8px rgba(15, 23, 42, 0.04);
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+        }
+
+        .demo-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--demo-border);
+            background: linear-gradient(90deg, rgba(232, 240, 254, 0.9), rgba(255, 255, 255, 0.2));
+        }
+
+        .demo-brand {
+            min-width: 0;
+        }
+
+        .demo-title {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .demo-subtitle {
+            margin: 2px 0 0;
+            font-size: 12px;
+            color: var(--demo-muted);
+        }
+
+        .demo-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .demo-badge {
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: var(--demo-accent-soft);
+            color: #1d4ed8;
+            font-size: 11px;
+            line-height: 1.4;
+            white-space: nowrap;
+        }
+
+        .demo-editor {
+            flex: 1;
+            min-height: 0;
+            background: #fff;
+        }
+
+        #vditor {
+            height: 100%;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 12px;
+            }
+
+            .demo-container {
+                height: calc(100vh - 24px);
+                border-radius: 12px;
+            }
+
+            .demo-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .demo-badges {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="demo-container">
+        <header class="demo-header">
+            <div class="demo-brand">
+                <h1 class="demo-title">Vditor</h1>
+                <p class="demo-subtitle">所见即所得 Markdown 编辑器</p>
+            </div>
+            <div class="demo-badges">
+                <span class="demo-badge">Demo</span>
+            </div>
+        </header>
+        <div class="demo-editor">
+            <div id="vditor"></div>
+        </div>
+    </div>
+    <script type="module" src="./index.js"></script>
+</body>
+
+</html>

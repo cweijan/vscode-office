@@ -778,14 +778,16 @@
 		]
 	},
 	"scripts": {
-		"dev": "vite --mode=development",
+		"vditor:build": "cd vditor && npm run build",
+		"dev": "npm run vditor:build && vite --mode=development",
 		"lint:fix": "eslint src/**/*.ts --fix",
-		"build": "rm -rf out && vite build --mode=production",
+		"build": "rm -rf out && vite build --mode=production && npm run vditor:build",
 		"package": "vsce package --no-dependencies",
 		"publish": "vsce publish --no-dependencies && ovsx publish --no-dependencies",
 		"vscode:prepublish": "npm run build"
 	},
 	"devDependencies": {
+		"@types/diff-match-patch": "1.0.32",
 		"@types/node": "^22.10.0",
 		"@types/react": "^19.2.17",
 		"@types/react-dom": "^19.2.3",
@@ -803,7 +805,8 @@
 		"eslint-plugin-unused-imports": "^3.1.0",
 		"less": "^4.2.0",
 		"node-unrar-js": "^2.0.2",
-		"vite": "^8.0.16"
+		"vite": "^8.0.16",
+    "vite-plugin-static-copy": "^2.2.0"
 	},
 	"dependencies": {
 		"7z-wasm": "^1.2.0",
@@ -811,8 +814,11 @@
 		"@codemirror/commands": "^6.10.3",
 		"@codemirror/lang-xml": "^6.1.0",
 		"@codemirror/language": "^6.12.3",
+		"@codemirror/language-data": "^6.5.2",
 		"@codemirror/state": "^6.6.0",
 		"@codemirror/view": "^6.43.1",
+		"codemirror": "^6.0.2",
+		"diff-match-patch": "1.0.5",
 		"@lezer/highlight": "^1.2.3",
 		"@mind-elixir/import-xmind": "^1.0.8",
 		"@vscode/codicons": "^0.0.45",

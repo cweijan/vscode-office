@@ -1,0 +1,50 @@
+.vditor-cm-host {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+
+  > code {
+    display: none !important;
+  }
+
+  .cm-editor {
+    outline: none;
+    font-family: var(--code-font-family, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace);
+    font-size: var(--code-font-size, 85%);
+    line-height: 1.45;
+  }
+
+  .cm-scroller {
+    overflow: auto;
+    font-family: inherit;
+  }
+
+  .cm-content {
+    padding: 0;
+    caret-color: var(--textarea-text-color);
+  }
+
+  .cm-gutters {
+    background: transparent;
+    border-right: 0;
+    color: var(--second-color);
+  }
+
+  .cm-activeLineGutter,
+  .cm-activeLine {
+    background: rgba(127, 127, 127, 0.08);
+  }
+}
+
+.vditor-code-block--cm {
+  &.vditor-wysiwyg__block {
+    > pre:first-child {
+      margin-bottom: 0 !important;
+    }
+  }
+
+  > pre:first-child > code {
+    display: none !important;
+  }
+}
