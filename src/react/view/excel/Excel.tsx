@@ -6,6 +6,7 @@ import { getConfigs } from "../../util/vscodeConfig.ts";
 import VSCodeLogo from "../vscode.tsx";
 import SponsorBar from '../components/SponsorBar';
 import './Excel.less';
+import { detectCsvEncoding } from "./csvEncoding.ts";
 import { loadSheets } from "./excel_reader.ts";
 import { export_xlsx } from "./excel_writer.ts";
 import Spreadsheet from './x-spreadsheet/index';
@@ -17,6 +18,7 @@ function ExcelViewer() {
     const isCSV = useRef<boolean>(false)
     const extRef = useRef('')
     const spreadSheetRef = useRef<Spreadsheet | null>(null)
+    const csvEncodingRef = useRef<'utf8' | 'gbk'>('utf8')
     const saveSuccessText = getConfigs()?.language?.startsWith('zh') ? '保存成功' : 'Save done';
 
     useEffect(() => {
@@ -40,7 +42,7 @@ function ExcelViewer() {
             if ((e.ctrlKey || e.metaKey) && e.code === 'KeyS') {
                 e.preventDefault();
                 if (spreadSheetRef.current) {
-                    export_xlsx(spreadSheetRef.current, extRef.current);
+                    export_xlsx(spreadSheetRef.current, extRef.current, csvEncodingRef.current);
                 }
             }
         };
@@ -56,6 +58,9 @@ function ExcelViewer() {
             const startTime = Date.now();
             console.log('Loading Excel file...');
             fetch(path).then(response => response.arrayBuffer()).then(async (res) => {
+                if (ext?.match(/csv/i)) {
+                    csvEncodingRef.current = detectCsvEncoding(res);
+                }
                 const { sheets, maxLength, maxCols } = await loadSheets(res, ext);
                 isCSV.current = ext?.match(/csv/i) !== null;
                 container.innerHTML = ''

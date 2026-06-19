@@ -1,6 +1,7 @@
 import { handler } from "../../util/vscode";
 import * as XLSX from 'xlsx/dist/xlsx.mini.min.js';
 import Spreadsheet from "x-data-spreadsheet";
+import { CsvEncoding, encodeCsvText } from './csvEncoding';
 
 const DEFAULT_COL_WIDTH = 100;
 
@@ -48,7 +49,7 @@ function xtos(sdata) {
     return out;
 }
 
-export function export_xlsx(spreadSheet: Spreadsheet, extName: string) {
+export function export_xlsx(spreadSheet: Spreadsheet, extName: string, csvEncoding: CsvEncoding = 'utf8') {
     extName = extName.replace('.', '')
     if (extName == 'xlsx' || extName == 'xls' || extName == 'ods') {
         var new_wb = xtos(spreadSheet.getData());
@@ -57,6 +58,7 @@ export function export_xlsx(spreadSheet: Spreadsheet, extName: string) {
         handler.emit('save', array)
     } else if (extName == "csv") {
         const csvContent = XLSX.utils.sheet_to_csv(dataToSheet(spreadSheet.getData()[0]));
-        handler.emit('save', csvContent)
+        const bytes = encodeCsvText(csvContent, csvEncoding);
+        handler.emit('save', [...bytes])
     }
 };

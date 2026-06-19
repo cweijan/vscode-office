@@ -1,6 +1,7 @@
 import ExcelJS from 'exceljs';
 import * as XLSX from 'xlsx/dist/xlsx.mini.min.js';
 import { inferSchema, initParser } from 'udsv';
+import { decodeCsvBuffer } from './csvEncoding';
 
 interface RowMap {
     [rowIndex: number]: {
@@ -216,7 +217,7 @@ const loadWithSheetJs = (buffer: ArrayBuffer): ExcelData => {
 const loadCsv = (buffer: ArrayBuffer): ExcelData => {
     let maxCols = 26;
     const emptySheet = { maxCols, sheets: [{ name: 'Sheet1', rows: [] }] };
-    let csvStr = new TextDecoder('utf-8').decode(buffer);
+    let csvStr = decodeCsvBuffer(buffer);
     if (!csvStr) return emptySheet;
 
     try {
