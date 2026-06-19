@@ -96,7 +96,7 @@
     }
 
     .x-spreadsheet-bottombar {
-        overflow: hidden;
+        overflow: visible;
 
         .x-spreadsheet-menu {
             flex: 1;
@@ -112,6 +112,10 @@
                 float: none;
                 flex-shrink: 0;
             }
+        }
+
+        .x-spreadsheet-contextmenu {
+            z-index: 1002;
         }
     }
 }
