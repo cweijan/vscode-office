@@ -99,7 +99,7 @@ const DARK_EDITOR_THEMES = new Set(['One Dark', 'Github Dark', 'Nord', 'Monokai'
 
 function addAutoTheme(rootPath, theme) {
   loadCSS(rootPath, 'base.css')
-  loadCSS(rootPath, 'codemirror.css')
+  loadCodeMirrorCSS(rootPath)
   loadTheme(rootPath, theme)
   observeVscodeTheme()
 }
@@ -133,6 +133,12 @@ function loadTheme(rootPath, theme) {
   document.getElementById('vditor').setAttribute('data-editor-theme', theme)
   syncVditorDarkClass(theme)
   updateThemeToggle(theme)
+}
+
+function loadCodeMirrorCSS(rootPath) {
+  if (loadCodeMirrorCSS.loaded) return
+  loadCodeMirrorCSS.loaded = true
+  loadCSS(rootPath, 'codemirror.css')
 }
 
 function loadCSS(rootPath, path) {

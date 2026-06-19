@@ -33,7 +33,12 @@
 
   .cm-activeLineGutter,
   .cm-activeLine {
-    background: var(--cm-active-line-bg, rgba(127, 127, 127, 0.08));
+    background: transparent;
+  }
+
+  .cm-editor.cm-focused .cm-activeLineGutter,
+  .cm-editor.cm-focused .cm-activeLine {
+    background: var(--cm-active-line-bg, var(--vscode-editor-lineHighlightBackground, rgba(127, 127, 127, 0.08)));
   }
 }
 

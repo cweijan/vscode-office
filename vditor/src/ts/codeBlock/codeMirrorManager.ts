@@ -1,13 +1,13 @@
-import {defaultKeymap, indentWithTab} from "@codemirror/commands";
+import {indentWithTab} from "@codemirror/commands";
 import {LanguageDescription, LanguageSupport} from "@codemirror/language";
 import {languages} from "@codemirror/language-data";
 import {Compartment, EditorSelection} from "@codemirror/state";
-import {EditorView, drawSelection, keymap} from "@codemirror/view";
-import {basicSetup} from "codemirror";
+import {EditorView, keymap} from "@codemirror/view";
 
 import {processAfterRender} from "../ir/process";
 import {Constants} from "../constants";
 import {afterRenderEvent} from "../wysiwyg/afterRenderEvent";
+import {vditorCodeMirrorSetup} from "./codeMirrorSetup";
 
 export {focusCodeBlockLanguageInput, showCodeBlockLanguagePopover} from "./codeBlockLanguagePopover";
 
@@ -424,9 +424,8 @@ const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor) => {
         doc: code.textContent || "",
         parent: editPre,
         extensions: [
-            basicSetup,
-            drawSelection(),
-            keymap.of([...defaultKeymap, indentWithTab]),
+            vditorCodeMirrorSetup,
+            keymap.of([indentWithTab]),
             languageCompartment.of([]),
             EditorView.updateListener.of((update) => {
                 if (binding.updating || !update.docChanged) {
