@@ -65,7 +65,16 @@ function zoomElement(selector, rate = 5) {
     };
 }
 
+function isInsideCodeMirrorTarget(target) {
+    const node = target?.nodeType === 1 ? target : target?.parentElement;
+    return !!node?.closest?.(".vditor-code-block--cm .cm-editor");
+}
+
 window.addEventListener('keydown', e => {
     if (e.code == 'F12') window.vscodeEvent.emit('developerTool')
-    else if ((isCompose(e) && e.code == 'KeyV')) e.preventDefault()  // vscode的bug, hebrew(希伯来语)键盘会粘贴两次
-  })
+    else if ((isCompose(e) && e.code == 'KeyV')
+        && !isInsideCodeMirrorTarget(e.target)
+        && !isInsideCodeMirrorTarget(document.activeElement)) {
+        e.preventDefault()  // vscode的bug, hebrew(希伯来语)键盘会粘贴两次
+    }
+})

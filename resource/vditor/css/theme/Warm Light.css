@@ -10,6 +10,10 @@
     --cm-fold-fg: var(--list-hover-color);
     --cm-fold-fg-hover: var(--front-color);
     --cm-cursor-fg: var(--front-color);
+    --cm-selection-bg: color-mix(in srgb, var(--list-hover-color) 32%, transparent);
+    --cm-selection-bg-focused: color-mix(in srgb, var(--list-hover-color) 42%, transparent);
+    --cm-selection-bg-inactive: color-mix(in srgb, var(--list-hover-color) 24%, transparent);
+    --cm-selection-highlight-bg: color-mix(in srgb, var(--list-hover-color) 18%, transparent);
     --list-hover-color: #f97316;
     --dropdown-hover-background: #e7e5e4;
     --error-color: #ef4444;

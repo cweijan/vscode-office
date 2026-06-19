@@ -136,7 +136,9 @@ class IR {
 
             const cmBlock = (event.target as HTMLElement).closest?.("[data-type='code-block']") as HTMLElement;
             if (isCmCodeBlock(cmBlock)) {
-                focusCodeBlock(cmBlock, vditor);
+                if (!isInsideCodeMirror(event.target)) {
+                    focusCodeBlock(cmBlock, vditor);
+                }
                 showCodeBlockLanguagePopover(vditor, cmBlock);
                 clickToc(event, vditor);
                 highlightToolbarIR(vditor);

@@ -21,6 +21,10 @@
     --cm-fold-fg-hover: var(--vscode-textLink-foreground);
     --cm-fold-bg: var(--vscode-editor-foldBackground, color-mix(in srgb, var(--cm-fold-fg) 12%, var(--cm-bg-color)));
     --cm-cursor-fg: var(--vscode-editorCursor-foreground, var(--vscode-foreground));
+    --cm-selection-bg: var(--vscode-editor-selectionBackground, rgba(51, 153, 255, 0.3));
+    --cm-selection-bg-focused: var(--vscode-editor-selectionBackground, rgba(51, 153, 255, 0.35));
+    --cm-selection-bg-inactive: var(--vscode-editor-inactiveSelectionBackground, var(--cm-selection-bg));
+    --cm-selection-highlight-bg: var(--vscode-editor-selectionHighlightBackground, color-mix(in srgb, var(--link-color) 22%, transparent));
 }
 
 #vditor[data-editor-theme="Auto"] {

@@ -1,7 +1,7 @@
 import {defaultKeymap, indentWithTab} from "@codemirror/commands";
 import {LanguageDescription, LanguageSupport} from "@codemirror/language";
 import {languages} from "@codemirror/language-data";
-import {Compartment} from "@codemirror/state";
+import {Compartment, EditorSelection} from "@codemirror/state";
 import {EditorView, drawSelection, keymap} from "@codemirror/view";
 import {basicSetup} from "codemirror";
 
@@ -243,7 +243,23 @@ const applyLanguage = (blockElement: HTMLElement, binding: CodeMirrorBinding, la
     });
 };
 
-const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement) => ({
+const isClipboardShortcut = (event: KeyboardEvent) => {
+    if (!event.ctrlKey && !event.metaKey) {
+        return false;
+    }
+    const key = event.key.toLowerCase();
+    return key === "c" || key === "x" || key === "v" || key === "a" || key === "z" || key === "y";
+};
+
+const getCmSelectionText = (view: EditorView) => {
+    const parts: string[] = [];
+    for (const range of view.state.selection.ranges) {
+        parts.push(view.state.sliceDoc(range.from, range.to));
+    }
+    return parts.join("\n");
+};
+
+const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding: CodeMirrorBinding) => ({
     mousedown: (event: Event) => {
         event.stopPropagation();
         const block = (event.target as HTMLElement).closest("[data-type='code-block']") as HTMLElement;
@@ -258,7 +274,60 @@ const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement) => ({
         const block = (event.target as HTMLElement).closest("[data-type='code-block']") as HTMLElement;
         showLanguagePopover(vditor, block || blockElement);
     },
+    copy: (event: Event) => {
+        const clipboardEvent = event as ClipboardEvent;
+        const view = binding.view;
+        if (!view?.state || !clipboardEvent.clipboardData) {
+            return false;
+        }
+        const text = getCmSelectionText(view);
+        if (!text) {
+            return false;
+        }
+        event.stopPropagation();
+        clipboardEvent.preventDefault();
+        clipboardEvent.clipboardData.setData("text/plain", text);
+        return true;
+    },
+    cut: (event: Event) => {
+        const clipboardEvent = event as ClipboardEvent;
+        const view = binding.view;
+        if (!view?.state || !clipboardEvent.clipboardData) {
+            return false;
+        }
+        const text = getCmSelectionText(view);
+        if (!text) {
+            return false;
+        }
+        event.stopPropagation();
+        clipboardEvent.preventDefault();
+        clipboardEvent.clipboardData.setData("text/plain", text);
+        view.dispatch(view.state.changeByRange((range) => ({
+            changes: {from: range.from, to: range.to, insert: ""},
+            range: EditorSelection.cursor(range.from),
+        })));
+        syncCodeFromView(binding, vditor);
+        return true;
+    },
+    paste: (event: Event) => {
+        const clipboardEvent = event as ClipboardEvent;
+        const view = binding.view;
+        if (!view?.state || !clipboardEvent.clipboardData) {
+            return false;
+        }
+        const text = clipboardEvent.clipboardData.getData("text/plain");
+        event.stopPropagation();
+        clipboardEvent.preventDefault();
+        if (text) {
+            view.dispatch(view.state.replaceSelection(text));
+            syncCodeFromView(binding, vditor);
+        }
+        return true;
+    },
     keydown: (event: Event) => {
+        if (isClipboardShortcut(event as KeyboardEvent)) {
+            return false;
+        }
         event.stopPropagation();
     },
     keyup: (event: Event) => {
@@ -365,7 +434,7 @@ const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor) => {
                 }
                 syncCodeFromView(binding, vditor);
             }),
-            EditorView.domEventHandlers(cmDomEventHandlers(vditor, blockElement)),
+            EditorView.domEventHandlers(cmDomEventHandlers(vditor, blockElement, binding)),
         ],
     });
 
@@ -402,18 +471,21 @@ export const focusCodeMirror = (
     if (!binding) {
         return;
     }
+    const hadFocus = binding.view.hasFocus;
     binding.view.focus();
-    if (collapseToStart) {
-        binding.view.dispatch({
-            selection: {anchor: 0, head: 0},
-            scrollIntoView: true,
-        });
-    } else {
-        const length = binding.view.state.doc.length;
-        binding.view.dispatch({
-            selection: {anchor: length, head: length},
-            scrollIntoView: true,
-        });
+    if (!hadFocus) {
+        if (collapseToStart) {
+            binding.view.dispatch({
+                selection: {anchor: 0, head: 0},
+                scrollIntoView: true,
+            });
+        } else {
+            const length = binding.view.state.doc.length;
+            binding.view.dispatch({
+                selection: {anchor: length, head: length},
+                scrollIntoView: true,
+            });
+        }
     }
 };
 

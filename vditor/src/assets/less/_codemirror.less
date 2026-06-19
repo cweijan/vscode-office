@@ -48,3 +48,13 @@
     display: none !important;
   }
 }
+
+.vditor-wysiwyg:has(.cm-focused),
+.vditor-ir:has(.cm-focused) {
+  user-select: none;
+}
+
+.vditor-cm-host .cm-editor,
+.vditor-cm-host .cm-editor * {
+  user-select: text;
+}

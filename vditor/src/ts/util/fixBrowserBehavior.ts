@@ -1,5 +1,5 @@
 import {Constants} from "../constants";
-import {isCmCodeBlock} from "../codeBlock/codeMirrorManager";
+import {isCmCodeBlock, isInsideCodeMirror} from "../codeBlock/codeMirrorManager";
 import {input as IRInput} from "../ir/input";
 import {processAfterRender} from "../ir/process";
 import {processAfterRender as processSVAfterRender, processPaste} from "../sv/process";
@@ -1273,6 +1273,9 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
     pasteCode(code: string): void,
 }) => {
     if (vditor[vditor.currentMode].element.getAttribute("contenteditable") !== "true") {
+        return;
+    }
+    if (isInsideCodeMirror(event.target)) {
         return;
     }
     event.stopPropagation();

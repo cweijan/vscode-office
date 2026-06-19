@@ -1,4 +1,5 @@
 import { Constants } from "../constants";
+import { isInsideCodeMirror } from "../codeBlock/codeMirrorManager";
 import { processHeading } from "../ir/process";
 import { processKeydown as irProcessKeydown } from "../ir/processKeydown";
 import { getMarkdown } from "../markdown/getMarkdown";
@@ -246,6 +247,9 @@ export const hotkeyEvent = (vditor: IVditor, editorElement: HTMLElement) => {
 
 export const selectEvent = (vditor: IVditor, editorElement: HTMLElement) => {
     editorElement.addEventListener("selectstart", (event: Event & { target: HTMLElement }) => {
+        if (isInsideCodeMirror(event.target)) {
+            return;
+        }
         editorElement.onmouseup = () => {
             setTimeout(() => { // 鼠标放开后 range 没有即时更新
                 const selectText = getSelectText(vditor[vditor.currentMode].element);

@@ -347,6 +347,10 @@ function matchShortcut(hotkey, event) {
 /**
  * 自动补全符号
  */
+const isInsideCodeMirrorTarget = (target) => {
+    const node = target?.nodeType === 1 ? target : target?.parentElement;
+    return !!node?.closest?.(".vditor-code-block--cm .cm-editor");
+};
 // const keys = ['"', "{", "("];
 const keyCodes = [222, 219, 57];
 export const autoSymbol = (handler, editor, config) => {
@@ -376,6 +380,9 @@ export const autoSymbol = (handler, editor, config) => {
                     e.preventDefault();
                     break;
                 case 'KeyV':
+                    if (isInsideCodeMirrorTarget(e.target) || isInsideCodeMirrorTarget(document.activeElement)) {
+                        return;
+                    }
                     if (e.shiftKey) {
                         const text = await navigator.clipboard.readText();
                         if (text) document.execCommand('insertText', false, text.trim());

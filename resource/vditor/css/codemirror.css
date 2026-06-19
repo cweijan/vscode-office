@@ -106,11 +106,22 @@ body[data-vscode-theme-id="Default High Contrast"] .vditor-cm-host span.cm-atom 
   white-space: pre-wrap;
   word-break: break-all;
 }
-.vditor-cm-host .cm-focused .cm-selectionBackground {
-  background: var(--vscode-notebook-selectedCellBackground) !important;
-}
 .vditor-cm-host .cm-selectionBackground {
-  background: var(--vscode-editor-selectionBackground) !important;
+  background: var(--cm-selection-bg-inactive, var(--cm-selection-bg, var(--vscode-editor-inactiveSelectionBackground, var(--vscode-editor-selectionBackground, rgba(51, 153, 255, 0.28))))) !important;
+}
+.vditor-cm-host .cm-focused .cm-selectionBackground {
+  background: var(--cm-selection-bg-focused, var(--cm-selection-bg, var(--vscode-editor-selectionBackground, rgba(51, 153, 255, 0.35)))) !important;
+}
+.vditor-cm-host .cm-content ::selection {
+  background: var(--cm-selection-bg-focused, var(--cm-selection-bg, var(--vscode-editor-selectionBackground, rgba(51, 153, 255, 0.35)))) !important;
+  color: inherit;
+}
+.vditor-cm-host .cm-selectionMatch {
+  background: var(--cm-selection-highlight-bg, var(--vscode-editor-selectionHighlightBackground, rgba(51, 153, 255, 0.18))) !important;
+  border-radius: 2px;
+}
+.vditor-cm-host .cm-focused .cm-selectionMatch {
+  background: var(--cm-selection-highlight-bg, var(--vscode-editor-selectionHighlightBackground, rgba(51, 153, 255, 0.22))) !important;
 }
 .vditor-cm-host .cm-gutters {
   background: var(--cm-bg-color) !important;
@@ -234,4 +245,14 @@ body[data-vscode-theme-id="Default High Contrast"] .vditor-cm-host span.cm-atom 
 .cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected] {
   background: var(--vscode-editorSuggestWidget-selectedBackground);
   color: var(--vscode-editorSuggestWidget-selectedForeground);
+}
+
+.vditor-wysiwyg:has(.cm-focused),
+.vditor-ir:has(.cm-focused) {
+  user-select: none;
+}
+
+.vditor-cm-host .cm-editor,
+.vditor-cm-host .cm-editor * {
+  user-select: text;
 }

@@ -204,6 +204,9 @@ class WYSIWYG {
     }
 
     private copy(event: ClipboardEvent, vditor: IVditor) {
+        if (isInsideCodeMirror(event.target)) {
+            return;
+        }
         const range = getSelection().getRangeAt(0);
         if (range.toString() === "") {
             return;
@@ -455,7 +458,9 @@ class WYSIWYG {
             const cmBlock = (event.target as HTMLElement).closest?.("[data-type='code-block']") as HTMLElement;
             if (isCmCodeBlock(cmBlock)) {
                 highlightToolbarWYSIWYG(vditor);
-                focusWysiwygCodeBlock(cmBlock, vditor);
+                if (!isInsideCodeMirror(event.target)) {
+                    focusWysiwygCodeBlock(cmBlock, vditor);
+                }
                 showCodeBlockLanguagePopover(vditor, cmBlock);
                 clickToc(event, vditor);
                 return;
