@@ -7,9 +7,9 @@ export class PrettyData {
     private step: string;
     private readonly maxdeep: number;
 
-    constructor() {
+    constructor(step = '  ') {
         this.shift = ['\n'];
-        this.step = '  '; // 2 spaces
+        this.step = step;
         this.maxdeep = 100; // nesting level
 
         // initialize array with shifts

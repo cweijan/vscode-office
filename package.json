@@ -27,6 +27,7 @@
 		"font",
 		"toml",
 		"yaml",
+		"xml",
 		"git",
 		"git-history"
 	],

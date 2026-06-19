@@ -9,12 +9,14 @@ import { FileUtil } from './common/fileUtil';
 import { ReactApp } from './common/reactApp';
 import { activateHttp } from './provider/http';
 import { activateYaml } from './provider/yaml';
+import { activateXml } from './provider/xml';
 import { activateGitHistory } from './gitHistory/provider';
 
 export function activate(context: vscode.ExtensionContext) {
 	TelemetryService.init(context);
 	activateHttp(context);
 	activateYaml(context);
+	activateXml(context);
 	activateGitHistory(context);
 	const viewOption = { webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true } };
 	FileUtil.init(context)
