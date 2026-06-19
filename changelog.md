@@ -1,5 +1,17 @@
 # Change log
 
+# 4.0.4 2026-6-19
+
+New:
+  - Add Kotlin syntax highlighting
+  - Add Nginx conf syntax highlighting
+  - Add anonymous usage telemetry (respects VS Code global telemetry settings)
+
+Update:
+  - Beautify the SVG and PDF view
+  - Hide sponsor banner in Excel view while loading
+  - Refresh Git history after deleting filtered branches
+
 # 4.0.3 2026-6-18
 
 Important:
