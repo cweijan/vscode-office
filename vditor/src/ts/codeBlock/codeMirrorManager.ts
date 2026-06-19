@@ -200,6 +200,10 @@ const cmDomEventHandlers = () => ({
         event.stopPropagation();
     },
     keydown: (event: Event) => {
+        const e = event as KeyboardEvent;
+        if (e.metaKey || e.ctrlKey) {
+            return;
+        }
         event.stopPropagation();
     },
     keyup: (event: Event) => {

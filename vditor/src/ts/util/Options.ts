@@ -127,6 +127,7 @@ export class Options {
         },
         value: "",
         width: "auto",
+        preventMacOptionKey: true,
     };
 
     constructor(options: IOptions) {

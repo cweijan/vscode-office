@@ -25,6 +25,7 @@ handler.on("open", async (md) => {
     value: md.content,
     _lutePath: md.rootPath + '/dist/js/lute.min.js',
     cdn: md.rootPath,
+    preventMacOptionKey: config.preventMacOptionKey !== false,
     height: document.documentElement.clientHeight,
     outline: {
       enable: config.openOutline,

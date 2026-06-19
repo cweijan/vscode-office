@@ -2,6 +2,7 @@ import {Constants} from "../constants";
 import {setEditMode} from "../toolbar/EditMode";
 import {hidePanel} from "../toolbar/setToolbar";
 import {accessLocalStorage} from "../util/compatibility";
+import {macOptionSymbolEvent} from "../util/editorCommonEvent";
 import {setContentTheme} from "./setContentTheme";
 import {setTheme} from "./setTheme";
 
@@ -13,6 +14,7 @@ export const initUI = (vditor: IVditor) => {
     vditor.element.setAttribute("dir", "rtl")
   }
   setTheme(vditor);
+  macOptionSymbolEvent(vditor);
   setContentTheme(vditor.options.preview.theme.current, vditor.options.preview.theme.path);
   if (typeof vditor.options.height === "number") {
     vditor.element.style.height = vditor.options.height + "px";

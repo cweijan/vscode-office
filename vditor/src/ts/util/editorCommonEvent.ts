@@ -11,6 +11,7 @@ import { afterRenderEvent, handlerHistoryEvent } from "../wysiwyg/afterRenderEve
 import { processKeydown } from "../wysiwyg/processKeydown";
 import { removeHeading, setHeading } from "../wysiwyg/setHeading";
 import { getEventName, isCtrl } from "./compatibility";
+import { shouldBlockMacOptionSymbol } from "./macOptionSymbol";
 import { execAfterRender, paste } from "./fixBrowserBehavior";
 import { getSelectText } from "./getSelectText";
 import { hasClosestByAttribute, hasClosestByMatchTag } from "./hasClosest";
@@ -106,6 +107,18 @@ export const scrollCenter = (vditor: IVditor) => {
     if (vditor.options.height !== "auto" || vditor.element.classList.contains("vditor--fullscreen")) {
         editorElement.scrollTop = cursorTop + editorElement.scrollTop - editorElement.clientHeight / 2 + 10;
     }
+};
+
+export const macOptionSymbolEvent = (vditor: IVditor) => {
+    vditor.element.addEventListener("keydown", (event: KeyboardEvent) => {
+        if (vditor.options.preventMacOptionKey === false) {
+            return;
+        }
+        if (!shouldBlockMacOptionSymbol(event)) {
+            return;
+        }
+        event.preventDefault();
+    }, true);
 };
 
 export const hotkeyEvent = (vditor: IVditor, editorElement: HTMLElement) => {

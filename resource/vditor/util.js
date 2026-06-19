@@ -367,14 +367,8 @@ export const autoSymbol = (handler, editor, config) => {
             return handler.emit("editInVSCode", true);
         }
 
-        if (isMac && config.preventMacOptionKey && e.altKey && e.shiftKey && ['Digit1', 'Digit2', 'KeyW'].includes(e.code)) {
-            return e.preventDefault();
-        }
         if (e.code == 'F12') return handler.emit('developerTool')
         if (isCompose(e)) {
-            if (e.altKey && isMac) {
-                e.preventDefault()
-            }
             switch (e.code) {
                 case 'KeyS':
                     vscodeEvent.emit("doSave", editor.getValue());
