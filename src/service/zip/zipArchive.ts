@@ -13,6 +13,7 @@ import format from 'date-format';
 import { mkdirSync, writeFileSync } from 'fs';
 import { basename, resolve } from 'path';
 import prettyBytes from './pretty-bytes';
+import { unwrapCrx } from '@/service/compress/archiveUtils';
 
 export interface ZipDisplayEntry {
     name?: string;
@@ -188,10 +189,11 @@ async function rebuildZip(
 }
 
 export class ZipArchive {
-    private constructor(private data: Buffer) { }
+    private constructor(private data: Buffer, private crxPrefix?: Buffer) { }
 
     static async open(data: Buffer, options?: { encoding?: string }): Promise<ZipParseResult & { archive: ZipArchive }> {
-        const archive = new ZipArchive(data);
+        const { payload, prefix } = unwrapCrx(data);
+        const archive = new ZipArchive(payload, prefix);
         const parsed = await archive.parse(options?.encoding);
         return { archive, ...parsed };
     }
@@ -241,6 +243,9 @@ export class ZipArchive {
     }
 
     toBuffer(): Buffer {
+        if (this.crxPrefix) {
+            return Buffer.concat([this.crxPrefix, this.data]);
+        }
         return this.data;
     }
 }

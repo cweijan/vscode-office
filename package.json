@@ -390,6 +390,9 @@
 						"filenamePattern": "*.vsix"
 					},
 					{
+						"filenamePattern": "*.crx"
+					},
+					{
 						"filenamePattern": "*.svg"
 					}
 				]

@@ -7,6 +7,41 @@ export function getFileSuffix(fsPath: string): string {
     return extname(lower);
 }
 
+/** CRX (Chrome extension) wraps a ZIP payload after a binary header. */
+export function unwrapCrx(data: Buffer): { payload: Buffer; prefix?: Buffer } {
+    if (data.length < 12 || data.toString('ascii', 0, 4) !== 'Cr24') {
+        return { payload: data };
+    }
+    const version = data.readUInt32LE(4);
+    if (version === 2) {
+        if (data.length < 16) {
+            return { payload: data };
+        }
+        const pubKeyLength = data.readUInt32LE(8);
+        const sigLength = data.readUInt32LE(12);
+        const headerEnd = 16 + pubKeyLength + sigLength;
+        if (headerEnd > data.length) {
+            return { payload: data };
+        }
+        return {
+            prefix: data.subarray(0, headerEnd),
+            payload: data.subarray(headerEnd),
+        };
+    }
+    if (version === 3) {
+        const headerSize = data.readUInt32LE(8);
+        const headerEnd = 12 + headerSize;
+        if (headerEnd > data.length) {
+            return { payload: data };
+        }
+        return {
+            prefix: data.subarray(0, headerEnd),
+            payload: data.subarray(headerEnd),
+        };
+    }
+    return { payload: data };
+}
+
 export function getArchiveBaseName(fsPath: string): string {
     const lower = fsPath.toLowerCase();
     const name = basename(fsPath);

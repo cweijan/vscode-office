@@ -2447,6 +2447,7 @@
     "vscodeignore": "vscode",
     "vsixmanifest": "vscode",
     "vsix": "vscode",
+    "crx": "zip",
     "code-workplace": "vscode",
     "csproj": "visualstudio",
     "ruleset": "visualstudio",
