@@ -21,6 +21,7 @@ import {
     isCmCodeBlock,
     isInsideCodeMirror,
 } from "../codeBlock/codeMirrorManager";
+import {showCodeBlockLanguagePopover} from "../codeBlock/codeBlockLanguagePopover";
 import {expandMarker} from "./expandMarker";
 import {highlightToolbarIR} from "./highlightToolbarIR";
 import {input} from "./input";
@@ -29,6 +30,7 @@ import {processAfterRender, processHint} from "./process";
 class IR {
     public range: Range;
     public element: HTMLPreElement;
+    public popover: HTMLDivElement;
     public processTimeoutId: number;
     public hlToolbarTimeoutId: number;
     public composingLock: boolean = false;
@@ -39,9 +41,11 @@ class IR {
         divElement.className = "vditor-ir";
 
         divElement.innerHTML = `<pre class="vditor-reset" placeholder="${vditor.options.placeholder}"
- contenteditable="true" spellcheck="false"></pre>`;
+ contenteditable="true" spellcheck="false"></pre>
+<div class="vditor-panel vditor-panel--none"></div>`;
 
         this.element = divElement.firstElementChild as HTMLPreElement;
+        this.popover = divElement.firstElementChild.nextElementSibling as HTMLDivElement;
 
         this.bindEvent(vditor);
 
@@ -133,6 +137,7 @@ class IR {
             const cmBlock = (event.target as HTMLElement).closest?.("[data-type='code-block']") as HTMLElement;
             if (isCmCodeBlock(cmBlock)) {
                 focusCodeBlock(cmBlock, vditor);
+                showCodeBlockLanguagePopover(vditor, cmBlock);
                 clickToc(event, vditor);
                 highlightToolbarIR(vditor);
                 return;

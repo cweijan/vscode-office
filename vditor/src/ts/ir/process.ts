@@ -1,3 +1,5 @@
+import {isCmCodeBlock} from "../codeBlock/codeMirrorManager";
+import {matchCodeMirrorLanguages, matchPreviewCodeLanguages} from "../codeBlock/codeBlockLanguageHints";
 import {Constants} from "../constants";
 import {getMarkdown} from "../markdown/getMarkdown";
 import {removeCurrentToolbar} from "../toolbar/setToolbar";
@@ -19,18 +21,13 @@ export const processHint = (vditor: IVditor) => {
             const range = getEditorRange(vditor);
             range.selectNodeContents(preBeforeElement);
         } else {
-            const matchLangData: IHintData[] = [];
             const key =
                 preBeforeElement.textContent.substring(0, getSelectPosition(preBeforeElement, vditor.ir.element).start)
                     .replace(Constants.ZWSP, "");
-            Constants.CODE_LANGUAGES.forEach((keyName) => {
-                if (keyName.indexOf(key.toLowerCase()) > -1) {
-                    matchLangData.push({
-                        html: keyName,
-                        value: keyName,
-                    });
-                }
-            });
+            const codeBlockElement = preBeforeElement.closest("[data-type='code-block']") as HTMLElement;
+            const matchLangData = isCmCodeBlock(codeBlockElement)
+                ? matchCodeMirrorLanguages(key)
+                : matchPreviewCodeLanguages(key);
             vditor.hint.genHTML(matchLangData, key, vditor);
         }
     }

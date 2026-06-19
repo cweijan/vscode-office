@@ -3,6 +3,8 @@ import {disableToolbar, enableToolbar, removeCurrentToolbar, setCurrentToolbar} 
 import {hasClosestByAttribute, hasClosestByMatchTag} from "../util/hasClosest";
 import {hasClosestByHeadings} from "../util/hasClosestByHeadings";
 import {getEditorRange, selectIsEditor} from "../util/selection";
+import {isCmCodeBlock, isInsideCodeMirror, shouldShowLanguagePopover} from "../codeBlock/codeMirrorManager";
+import {showCodeBlockLanguagePopover} from "../codeBlock/codeBlockLanguagePopover";
 
 export const highlightToolbarIR = (vditor: IVditor) => {
     clearTimeout(vditor[vditor.currentMode].hlToolbarTimeoutId);
@@ -91,6 +93,16 @@ export const highlightToolbarIR = (vditor: IVditor) => {
         if (tableElement) {
             disableToolbar(vditor.toolbar.elements, ["headings", "list", "ordered-list", "check", "line",
                 "quote", "code", "table"]);
+        }
+
+        let cmCodeBlock = hasClosestByAttribute(typeElement, "data-type", "code-block") as HTMLElement;
+        if (!cmCodeBlock && isInsideCodeMirror(typeElement)) {
+            cmCodeBlock = hasClosestByAttribute(typeElement, "data-type", "code-block") as HTMLElement;
+        }
+        if (cmCodeBlock && shouldShowLanguagePopover(cmCodeBlock)) {
+            showCodeBlockLanguagePopover(vditor, cmCodeBlock);
+        } else if (vditor.ir.popover) {
+            vditor.ir.popover.style.display = "none";
         }
 
     }, 200);

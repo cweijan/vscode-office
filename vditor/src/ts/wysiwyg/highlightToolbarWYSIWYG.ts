@@ -23,11 +23,15 @@ import {
     hasClosestByTag,
 } from "../util/hasClosestByHeadings";
 import {processCodeRender} from "../util/processCode";
+import {matchPreviewCodeLanguages} from "../codeBlock/codeBlockLanguageHints";
 import {
     focusCodeMirror,
     isCmCodeBlock,
+    isInsideCodeMirror,
+    shouldShowLanguagePopover,
     updateCodeMirrorLanguage,
 } from "../codeBlock/codeMirrorManager";
+import {showCodeBlockLanguagePopover} from "../codeBlock/codeBlockLanguagePopover";
 import {
     getEditorRange,
     selectIsEditor,
@@ -596,6 +600,9 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
 
         // block popover: math-inline, math-block, html-block, html-inline, code-block, html-entity
         let blockRenderElement = hasClosestByClassName(typeElement, "vditor-wysiwyg__block") as HTMLElement;
+        if (!blockRenderElement && isInsideCodeMirror(typeElement)) {
+            blockRenderElement = hasClosestByAttribute(typeElement, "data-type", "code-block") as HTMLElement;
+        }
         const isBlock = blockRenderElement ? blockRenderElement.getAttribute("data-type").indexOf("block") > -1 : false;
         vditor.wysiwyg.element
             .querySelectorAll(".vditor-wysiwyg__preview")
@@ -611,8 +618,8 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
             });
         if (blockRenderElement && isBlock) {
             if (blockRenderElement.getAttribute("data-type") === "code-block" &&
-                isCmCodeBlock(blockRenderElement)) {
-                vditor.wysiwyg.popover.style.display = "none";
+                shouldShowLanguagePopover(blockRenderElement)) {
+                showCodeBlockLanguagePopover(vditor, blockRenderElement);
             } else {
                 vditor.wysiwyg.popover.innerHTML = "";
                 genUp(range, blockRenderElement, vditor);
@@ -636,8 +643,10 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
                         ? codeElement.className.split("-")[1].split(" ")[0]
                         : "";
                 language.oninput = (e: InputEvent) => {
-                    if (language.value.trim() !== "") {
-                        codeElement.className = `language-${language.value}`;
+                    const lang = language.value.trim();
+                    if (lang !== "") {
+                        codeElement.className = `language-${lang}`;
+                        vditor.hint.recentLanguage = lang;
                     } else {
                         codeElement.className = "";
                         vditor.hint.recentLanguage = "";
@@ -696,17 +705,8 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
                     ) {
                         return;
                     }
-                    const matchLangData: IHintData[] = [];
                     const key = language.value.substring(0, language.selectionStart);
-                    Constants.CODE_LANGUAGES.forEach((keyName) => {
-                        if (keyName.indexOf(key.toLowerCase()) > -1) {
-                            matchLangData.push({
-                                html: keyName,
-                                value: keyName,
-                            });
-                        }
-                    });
-                    vditor.hint.genHTML(matchLangData, key, vditor);
+                    vditor.hint.genHTML(matchPreviewCodeLanguages(key), key, vditor);
                     event.preventDefault();
                 };
                 vditor.wysiwyg.popover.insertAdjacentElement("beforeend", languageWrap);
@@ -717,7 +717,10 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
             blockRenderElement = undefined;
         }
         if (headingElement) {
-            vditor.wysiwyg.popover.innerHTML = "";
+            const cmBlock = hasClosestByAttribute(typeElement, "data-type", "code-block") as HTMLElement;
+            if (!(cmBlock && isCmCodeBlock(cmBlock))) {
+                vditor.wysiwyg.popover.innerHTML = "";
+            }
 
             const inputWrap = document.createElement("span");
             inputWrap.setAttribute("aria-label", "ID" + "<" + updateHotkeyTip("⌥Enter") + ">");
@@ -785,7 +788,10 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
 
                 setPopoverPosition(vditor, blockElement);
             } else {
-                vditor.wysiwyg.popover.style.display = "none";
+                const cmBlock = hasClosestByAttribute(typeElement, "data-type", "code-block") as HTMLElement;
+                if (!(cmBlock && shouldShowLanguagePopover(cmBlock))) {
+                    vditor.wysiwyg.popover.style.display = "none";
+                }
             }
         }
 
@@ -798,6 +804,12 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
         const backslashElement = hasClosestByAttribute(range.startContainer, "data-type", "backslash");
         if (backslashElement) {
             backslashElement.querySelector("span").style.display = "inline";
+        }
+
+        // CM 代码块语言 popover 保持在最上层，避免被后续逻辑清空
+        const activeCmBlock = hasClosestByAttribute(typeElement, "data-type", "code-block") as HTMLElement;
+        if (activeCmBlock && shouldShowLanguagePopover(activeCmBlock)) {
+            showCodeBlockLanguagePopover(vditor, activeCmBlock);
         }
     }, 200);
 };

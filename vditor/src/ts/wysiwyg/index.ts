@@ -28,6 +28,7 @@ import {genImagePopover, genLinkRefPopover, highlightToolbarWYSIWYG} from "./hig
 import {getRenderElementNextNode, modifyPre} from "./inlineTag";
 import {input} from "./input";
 import {focusCodeBlock, isCmCodeBlock, isInsideCodeMirror} from "../codeBlock/codeMirrorManager";
+import {showCodeBlockLanguagePopover} from "../codeBlock/codeBlockLanguagePopover";
 import {focusWysiwygCodeBlock, showCode} from "./showCode";
 import {getMarkdown} from "../markdown/getMarkdown";
 
@@ -451,14 +452,16 @@ class WYSIWYG {
                 }
             }
 
-            highlightToolbarWYSIWYG(vditor);
-
             const cmBlock = (event.target as HTMLElement).closest?.("[data-type='code-block']") as HTMLElement;
             if (isCmCodeBlock(cmBlock)) {
+                highlightToolbarWYSIWYG(vditor);
                 focusWysiwygCodeBlock(cmBlock, vditor);
+                showCodeBlockLanguagePopover(vditor, cmBlock);
                 clickToc(event, vditor);
                 return;
             }
+
+            highlightToolbarWYSIWYG(vditor);
 
             // 点击后光标落于预览区，需展开代码块（仅特殊语言块）
             let previewElement = hasClosestByClassName(event.target, "vditor-wysiwyg__preview");

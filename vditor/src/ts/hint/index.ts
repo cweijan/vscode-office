@@ -138,15 +138,21 @@ ${i === 0 ? "class='vditor-hint--current'" : ""}> ${html}</button>`;
         if (vditor.currentMode === "ir") {
             const preBeforeElement = hasClosestByAttribute(range.startContainer, "data-type", "code-block-info");
             if (preBeforeElement) {
-                preBeforeElement.textContent = Constants.ZWSP + value.trimRight();
+                const lang = value.trimRight();
+                preBeforeElement.textContent = Constants.ZWSP + lang;
                 range.selectNodeContents(preBeforeElement);
                 range.collapse(false);
+                const codeBlockElement = preBeforeElement.parentElement as HTMLElement;
+                if (isCmCodeBlock(codeBlockElement)) {
+                    updateCodeMirrorLanguage(codeBlockElement, lang);
+                } else {
+                    preBeforeElement.parentElement.querySelectorAll("code").forEach((item) => {
+                        item.className = "language-" + lang;
+                    });
+                    processCodeRender(preBeforeElement.parentElement.querySelector(".vditor-ir__preview"), vditor);
+                }
                 processAfterRender(vditor);
-                preBeforeElement.parentElement.querySelectorAll("code").forEach((item) => {
-                    item.className = "language-" + value.trimRight();
-                });
-                processCodeRender(preBeforeElement.parentElement.querySelector(".vditor-ir__preview"), vditor);
-                this.recentLanguage = value.trimRight();
+                this.recentLanguage = lang;
                 return;
             }
         }

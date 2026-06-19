@@ -1,4 +1,5 @@
 import {Constants} from "../constants";
+import {focusCodeBlockLanguageInput} from "../codeBlock/codeBlockLanguagePopover";
 import {
     focusCodeMirror,
     getCodeMirrorView,
@@ -50,9 +51,10 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
             return true;
         }
         if (!isCtrl(event) && !event.shiftKey && event.altKey && event.key === "Enter" && codeRenderElement) {
-            focusCodeMirror(codeRenderElement, false, vditor);
-            event.preventDefault();
-            return true;
+            if (focusCodeBlockLanguageInput(vditor)) {
+                event.preventDefault();
+                return true;
+            }
         }
         return false;
     }
@@ -132,16 +134,18 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
         // alt+enter: 代码块切换到语言 https://github.com/Vanessa219/vditor/issues/54
         if (!isCtrl(event) && !event.shiftKey && event.altKey && event.key === "Enter" &&
             codeRenderElement.getAttribute("data-type") === "code-block") {
-            if (hasCodeMirror(codeRenderElement) || isCmCodeBlock(codeRenderElement)) {
-                focusCodeMirror(codeRenderElement, false, vditor);
+            if (isCmCodeBlock(codeRenderElement)) {
+                if (focusCodeBlockLanguageInput(vditor)) {
+                    event.preventDefault();
+                    return true;
+                }
+            } else {
+                const inputElemment = (vditor.wysiwyg.popover.querySelector(".vditor-input") as HTMLInputElement);
+                inputElemment.focus();
+                inputElemment.select();
                 event.preventDefault();
                 return true;
             }
-            const inputElemment = (vditor.wysiwyg.popover.querySelector(".vditor-input") as HTMLInputElement);
-            inputElemment.focus();
-            inputElemment.select();
-            event.preventDefault();
-            return true;
         }
 
         if (codeRenderElement.getAttribute("data-block") === "0") {

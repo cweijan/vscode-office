@@ -3,10 +3,13 @@ import {LanguageDescription, LanguageSupport} from "@codemirror/language";
 import {languages} from "@codemirror/language-data";
 import {Compartment} from "@codemirror/state";
 import {EditorView, drawSelection, keymap} from "@codemirror/view";
+import {basicSetup} from "codemirror";
 
 import {processAfterRender} from "../ir/process";
+import {Constants} from "../constants";
 import {afterRenderEvent} from "../wysiwyg/afterRenderEvent";
-import {vditorCodeMirrorSetup} from "./codeMirrorSetup";
+
+export {focusCodeBlockLanguageInput, showCodeBlockLanguagePopover} from "./codeBlockLanguagePopover";
 
 const SPECIAL_LANGUAGES = [
     "mermaid", "flowchart", "echarts", "mindmap", "plantuml", "abc", "graphviz", "math",
@@ -29,6 +32,7 @@ const bindings = new WeakMap<HTMLElement, CodeMirrorBinding>();
 
 const languageMap: Record<string, LanguageDescription> = {};
 for (const language of languages) {
+    languageMap[language.name.toLowerCase()] = language;
     for (const alias of language.alias) {
         languageMap[alias.toLowerCase()] = language;
     }
@@ -67,9 +71,56 @@ export const isInsideCodeMirror = (target: EventTarget | Node | null) => {
 /** @deprecated use isInsideCodeMirror */
 export const isInsideWysiwygCodeMirror = isInsideCodeMirror;
 
-const getLanguageName = (codeElement: HTMLElement) => {
+export const getCodeLanguageName = (codeElement: HTMLElement) => {
     const match = codeElement.className.match(/language-([^\s]+)/);
     return match ? match[1] : "";
+};
+
+/** @deprecated use getCodeLanguageName */
+const getLanguageName = getCodeLanguageName;
+
+export const shouldShowLanguagePopover = (blockElement: HTMLElement | null) => {
+    if (!blockElement || blockElement.getAttribute("data-type") !== "code-block") {
+        return false;
+    }
+    return hasCodeMirror(blockElement) || isCmCodeBlock(blockElement);
+};
+
+export const resolveCmCodeBlock = (vditor: IVditor, blockElement?: HTMLElement | null) => {
+    if (blockElement?.isConnected && shouldShowLanguagePopover(blockElement)) {
+        return blockElement;
+    }
+    const fromActive = document.activeElement?.closest("[data-type='code-block']") as HTMLElement;
+    if (fromActive?.isConnected && shouldShowLanguagePopover(fromActive)) {
+        return fromActive;
+    }
+    const editor = getModeEditor(vditor);
+    if (editor) {
+        const focusedCm = editor.querySelector(`.${CM_BLOCK_CLASS} .cm-editor.cm-focused`);
+        const fromCm = focusedCm?.closest("[data-type='code-block']") as HTMLElement;
+        if (fromCm?.isConnected && shouldShowLanguagePopover(fromCm)) {
+            return fromCm;
+        }
+    }
+    return blockElement?.isConnected ? blockElement : null;
+};
+
+let popoverModulePromise: Promise<typeof import("./codeBlockLanguagePopover")> | null = null;
+const getPopoverModule = () => {
+    if (!popoverModulePromise) {
+        popoverModulePromise = import("./codeBlockLanguagePopover");
+    }
+    return popoverModulePromise;
+};
+
+const showLanguagePopover = (vditor: IVditor, blockElement: HTMLElement) => {
+    const block = resolveCmCodeBlock(vditor, blockElement);
+    if (!block) {
+        return;
+    }
+    void getPopoverModule().then((module) => {
+        module.showCodeBlockLanguagePopover(vditor, block);
+    });
 };
 
 const getBlockParts = (blockElement: HTMLElement) => {
@@ -192,18 +243,22 @@ const applyLanguage = (blockElement: HTMLElement, binding: CodeMirrorBinding, la
     });
 };
 
-const cmDomEventHandlers = () => ({
+const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement) => ({
     mousedown: (event: Event) => {
         event.stopPropagation();
+        const block = (event.target as HTMLElement).closest("[data-type='code-block']") as HTMLElement;
+        showLanguagePopover(vditor, block || blockElement);
+    },
+    focus: () => {
+        showLanguagePopover(vditor, blockElement);
+        return false;
     },
     click: (event: Event) => {
         event.stopPropagation();
+        const block = (event.target as HTMLElement).closest("[data-type='code-block']") as HTMLElement;
+        showLanguagePopover(vditor, block || blockElement);
     },
     keydown: (event: Event) => {
-        const e = event as KeyboardEvent;
-        if (e.metaKey || e.ctrlKey) {
-            return;
-        }
         event.stopPropagation();
     },
     keyup: (event: Event) => {
@@ -300,7 +355,7 @@ const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor) => {
         doc: code.textContent || "",
         parent: editPre,
         extensions: [
-            vditorCodeMirrorSetup,
+            basicSetup,
             drawSelection(),
             keymap.of([...defaultKeymap, indentWithTab]),
             languageCompartment.of([]),
@@ -310,7 +365,7 @@ const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor) => {
                 }
                 syncCodeFromView(binding, vditor);
             }),
-            EditorView.domEventHandlers(cmDomEventHandlers()),
+            EditorView.domEventHandlers(cmDomEventHandlers(vditor, blockElement)),
         ],
     });
 
@@ -374,12 +429,16 @@ export const focusCodeBlock = (blockElement: HTMLElement, vditor: IVditor, colla
 };
 
 export const updateCodeMirrorLanguage = (blockElement: HTMLElement, languageName: string) => {
+    const lang = languageName.trim();
     const binding = bindings.get(blockElement);
-    if (!binding) {
-        return;
+    if (binding) {
+        binding.syncCode.className = lang ? `language-${lang}` : "";
+        applyLanguage(blockElement, binding, lang);
     }
-    binding.syncCode.className = languageName ? `language-${languageName}` : "";
-    applyLanguage(blockElement, binding, languageName);
+    const infoElement = blockElement.querySelector('[data-type="code-block-info"]') as HTMLElement;
+    if (infoElement) {
+        infoElement.textContent = Constants.ZWSP + lang;
+    }
 };
 
 /** @deprecated use updateCodeMirrorLanguage */

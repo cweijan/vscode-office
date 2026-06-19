@@ -5,6 +5,10 @@ import {
     isCmCodeBlock,
     isInsideCodeMirror,
 } from "../codeBlock/codeMirrorManager";
+import {
+    focusIrCodeBlockLanguageMarker,
+    showCodeBlockLanguagePopover,
+} from "../codeBlock/codeBlockLanguagePopover";
 import {hidePanel} from "../toolbar/setToolbar";
 import {isCtrl} from "../util/compatibility";
 import {
@@ -43,6 +47,12 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
             getCodeMirrorView(codeRenderElement)?.contentDOM.blur();
             event.preventDefault();
             return true;
+        }
+        if (!isCtrl(event) && !event.shiftKey && event.altKey && event.key === "Enter" && codeRenderElement) {
+            if (focusIrCodeBlockLanguageMarker(codeRenderElement, vditor)) {
+                event.preventDefault();
+                return true;
+            }
         }
         return false;
     }

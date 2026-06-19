@@ -80,6 +80,10 @@ export const getCursorPosition = (editor: HTMLElement) => {
 };
 
 export const selectIsEditor = (editor: HTMLElement, range?: Range) => {
+    const activeElement = document.activeElement;
+    if (activeElement && editor.contains(activeElement)) {
+        return true;
+    }
     if (!range) {
         if (getSelection().rangeCount === 0) {
             return false;
