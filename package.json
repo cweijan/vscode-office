@@ -188,10 +188,6 @@
 				"icon": "$(copy)"
 			},
 			{
-				"command": "office.reg.jumpToKey",
-				"title": "REG: Jump to registry key"
-			},
-			{
 				"command": "office.markdown.switch",
 				"title": "Switch markdown editor",
 				"icon": {
@@ -201,7 +197,7 @@
 			},
 			{
 				"command": "office.markdown.paste",
-				"title": "Enhance pater in markdown"
+				"title": "Enhance paste in markdown"
 			},
 			{
 				"command": "office.html.preview",

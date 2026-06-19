@@ -22,7 +22,7 @@
 
 ## Markdown
 
-集成 [Vditor](https://github.com/Vanessa219/vditor) 实现 Markdown 所见即所得编辑。**注意：该编辑器已不再积极维护。**
+集成 [Vditor](https://github.com/Vanessa219/vditor) 实现 Markdown 所见即所得编辑。
 
 如需使用 VS Code 原生 Markdown 编辑器，请在 `settings.json` 中添加以下配置：
 

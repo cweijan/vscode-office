@@ -22,7 +22,7 @@
 
 ## Markdown
 
-整合 [Vditor](https://github.com/Vanessa219/vditor) 實現 Markdown 所見即所得編輯。**注意：此編輯器已不再積極維護。**
+整合 [Vditor](https://github.com/Vanessa219/vditor) 實現 Markdown 所見即所得編輯。
 
 如需使用 VS Code 原生 Markdown 編輯器，請在 `settings.json` 中新增以下設定：
 

@@ -22,7 +22,7 @@ This extension lets you preview and edit common office and design files directly
 
 ## Markdown
 
-This extension replaces the default Markdown editor with [Vditor](https://github.com/Vanessa219/vditor) for WYSIWYG editing. **Please note that this editor is no longer actively maintained.**
+This extension replaces the default Markdown editor with [Vditor](https://github.com/Vanessa219/vditor) for WYSIWYG editing.
 
 To use the built-in VS Code Markdown editor instead, add this to your `settings.json`:
 

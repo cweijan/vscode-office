@@ -2494,6 +2494,7 @@
     "java": "java",
     "jar": "java",
     "jsp": "java",
+    "class": "java",
     "c": "c",
     "m": "c",
     "i": "c",
