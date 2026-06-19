@@ -174,18 +174,16 @@
 
 .svg-viewer__controls {
     flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: max-content 32px 1fr;
+    align-items: center;
     gap: 10px;
     padding: 12px 14px;
     border-bottom: 1px solid var(--vscode-editorWidget-border, #454545);
 }
 
 .svg-viewer__control-row {
-    display: grid;
-    grid-template-columns: auto 32px 1fr;
-    align-items: center;
-    gap: 8px 10px;
+    display: contents;
 }
 
 .svg-viewer__label {
@@ -193,6 +191,7 @@
     font-weight: 600;
     letter-spacing: 0.06em;
     color: var(--vscode-descriptionForeground, rgba(204, 204, 204, 0.7));
+    text-align: start;
 }
 
 .svg-viewer__color {
@@ -269,6 +268,12 @@
     &::-webkit-scrollbar-thumb:hover {
         background-color: var(--svg-scrollbar-thumb-hover);
     }
+
+    cursor: grab;
+}
+
+.svg-viewer__canvas-wrap--dragging {
+    cursor: grabbing;
 }
 
 .svg-viewer__preview-img {

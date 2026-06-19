@@ -19,6 +19,8 @@ import {
 import './SvgViewer.less';
 
 const NARROW_WIDTH_BREAKPOINT = 640;
+const MIN_ZOOM = 0.25;
+const MAX_ZOOM = 5;
 
 function FormatIcon() {
     return (
@@ -88,6 +90,12 @@ function SvgViewerInner() {
     const dirtyRef = useRef(false);
     const filePathRef = useRef('');
     const previewUrlRef = useRef('');
+    const canvasWrapRef = useRef<HTMLDivElement>(null);
+    const offsetRef = useRef({ x: 0, y: 0 });
+    const dragRef = useRef<{ startX: number; startY: number; offsetX: number; offsetY: number } | null>(null);
+    const [offset, setOffset] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [dragging, setDragging] = useState(false);
 
     const isZh = getConfigs()?.language?.startsWith('zh');
     const copySuccessText = isZh ? '已复制' : 'Copied';
@@ -124,6 +132,64 @@ function SvgViewerInner() {
             }
         };
     }, [content]);
+
+    useEffect(() => {
+        offsetRef.current = offset;
+    }, [offset]);
+
+    useEffect(() => {
+        setOffset({ x: 0, y: 0 });
+        setZoom(1);
+    }, [previewUrl]);
+
+    useEffect(() => {
+        const el = canvasWrapRef.current;
+        if (!el) {
+            return;
+        }
+        const onWheel = (e: WheelEvent) => {
+            e.preventDefault();
+            const factor = Math.pow(1.001, -e.deltaY);
+            setZoom((value) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, value * factor)));
+        };
+        el.addEventListener('wheel', onWheel, { passive: false });
+        return () => el.removeEventListener('wheel', onWheel);
+    }, [previewUrl, loading]);
+
+    const onPreviewMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.button !== 0) {
+            return;
+        }
+        e.preventDefault();
+        dragRef.current = {
+            startX: e.clientX,
+            startY: e.clientY,
+            offsetX: offsetRef.current.x,
+            offsetY: offsetRef.current.y,
+        };
+        setDragging(true);
+
+        const onMouseMove = (ev: MouseEvent) => {
+            const drag = dragRef.current;
+            if (!drag) {
+                return;
+            }
+            setOffset({
+                x: drag.offsetX + ev.clientX - drag.startX,
+                y: drag.offsetY + ev.clientY - drag.startY,
+            });
+        };
+
+        const onMouseUp = () => {
+            dragRef.current = null;
+            setDragging(false);
+            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('mouseup', onMouseUp);
+        };
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+    }, []);
 
     const applyContent = useCallback((text: string) => {
         setContent(text);
@@ -283,23 +349,6 @@ function SvgViewerInner() {
                         </div>
                         {!previewOnly && <div className="svg-viewer__controls">
                             <div className="svg-viewer__control-row">
-                                <span className="svg-viewer__label">BACKGROUND</span>
-                                <input
-                                    type="color"
-                                    className="svg-viewer__color"
-                                    value={colors.background.startsWith('#') ? colors.background : '#ffffff'}
-                                    onChange={(e) => onBackgroundColorChange(e.target.value)}
-                                    aria-label="Background color"
-                                />
-                                <input
-                                    type="text"
-                                    className="svg-viewer__hex"
-                                    value={colors.background}
-                                    onChange={(e) => onBackgroundColorChange(e.target.value)}
-                                    spellCheck={false}
-                                />
-                            </div>
-                            <div className="svg-viewer__control-row">
                                 <span className="svg-viewer__label">FILL</span>
                                 <input
                                     type="color"
@@ -316,14 +365,36 @@ function SvgViewerInner() {
                                     spellCheck={false}
                                 />
                             </div>
+                            <div className="svg-viewer__control-row">
+                                <span className="svg-viewer__label">BACKGROUND</span>
+                                <input
+                                    type="color"
+                                    className="svg-viewer__color"
+                                    value={colors.background.startsWith('#') ? colors.background : '#ffffff'}
+                                    onChange={(e) => onBackgroundColorChange(e.target.value)}
+                                    aria-label="Background color"
+                                />
+                                <input
+                                    type="text"
+                                    className="svg-viewer__hex"
+                                    value={colors.background}
+                                    onChange={(e) => onBackgroundColorChange(e.target.value)}
+                                    spellCheck={false}
+                                />
+                            </div>
                         </div>}
-                        <div className="svg-viewer__canvas-wrap">
+                        <div
+                            ref={canvasWrapRef}
+                            className={`svg-viewer__canvas-wrap${dragging ? ' svg-viewer__canvas-wrap--dragging' : ''}`}
+                            onMouseDown={onPreviewMouseDown}
+                        >
                             {previewUrl ? (
                                 <img
                                     className="svg-viewer__preview-img"
                                     src={previewUrl}
                                     alt="SVG preview"
                                     draggable={false}
+                                    style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})` }}
                                 />
                             ) : null}
                         </div>
