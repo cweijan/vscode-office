@@ -19,6 +19,7 @@ import {
 import {getLastNode} from "./hasClosest";
 import {highlightToolbar} from "./highlightToolbar";
 import {matchHotKey} from "./hotKey";
+import {isPasteableUrl, linkifyPastePlainText} from "./linkifyPaste";
 import {processCodeRender, processPasteCode} from "./processCode";
 import {
     getEditorRange,
@@ -1252,6 +1253,22 @@ export const fixFirefoxArrowUpTable = (event: KeyboardEvent, blockElement: false
     return false;
 };
 
+const preparePastePlainText = (vditor: IVditor, text: string): string => {
+    const trimmed = text.trim();
+    if (!trimmed) {
+        return text;
+    }
+    const range = getEditorRange(vditor);
+    const selectedText = range.toString();
+    if (selectedText && isPasteableUrl(trimmed)) {
+        if (!range.collapsed) {
+            range.deleteContents();
+        }
+        return linkifyPastePlainText(text, selectedText);
+    }
+    return linkifyPastePlainText(text);
+};
+
 export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent) & { target: HTMLElement }, callback: {
     pasteCode(code: string): void,
 }) => {
@@ -1394,6 +1411,14 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
     } else if (code) {
         callback.pasteCode(code as any);
     } else {
+        let preparedPlain = textPlain;
+        if (textPlain.trim() !== "") {
+            preparedPlain = preparePastePlainText(vditor, textPlain);
+        }
+        if (preparedPlain !== textPlain) {
+            textPlain = preparedPlain;
+            textHTML = "";
+        }
         if (textHTML.trim() !== "") {
             const tempElement = document.createElement("div");
             tempElement.innerHTML = textHTML;
