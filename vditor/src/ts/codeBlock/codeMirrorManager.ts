@@ -232,6 +232,13 @@ const applyLanguage = (blockElement: HTMLElement, binding: CodeMirrorBinding, la
     if (binding.languageName === languageName) {
         return;
     }
+    if (!languageName) {
+        binding.view.dispatch({
+            effects: binding.languageCompartment.reconfigure([]),
+        });
+        binding.languageName = "";
+        return;
+    }
     loadLanguage(languageName).then((lang) => {
         if (!lang || !bindings.has(blockElement)) {
             return;

@@ -1,27 +1,35 @@
-import {languages} from "@codemirror/language-data";
+import { languages } from "@codemirror/language-data";
 
-import {Constants} from "../constants";
+import { Constants } from "../constants";
 
-const CODE_MIRROR_LANGUAGES: string[] = (() => {
-    const names = new Set<string>();
-    for (const language of languages) {
-        names.add(language.name);
-        for (const alias of language.alias) {
-            names.add(alias);
-        }
-    }
-    return Array.from(names).sort((a, b) => a.localeCompare(b, undefined, {sensitivity: "base"}));
-})();
+interface CodeMirrorLanguageEntry {
+    canonical: string;
+    terms: string[];
+}
+
+const CODE_MIRROR_LANGUAGE_ENTRIES: CodeMirrorLanguageEntry[] = languages.map((language) => ({
+    canonical: language.name,
+    terms: [language.name, ...language.alias],
+}));
 
 export const matchCodeMirrorLanguages = (key: string): IHintData[] => {
     const matchLangData: IHintData[] = [];
     const lower = key.toLowerCase();
-    for (const langName of CODE_MIRROR_LANGUAGES) {
-        if (langName.toLowerCase().indexOf(lower) > -1) {
-            matchLangData.push({html: langName, value: langName});
+    for (const entry of CODE_MIRROR_LANGUAGE_ENTRIES) {
+        let matched = false;
+        for (const term of entry.terms) {
+            if (term.toLowerCase().indexOf(lower) > -1) {
+                matched = true;
+                break;
+            }
+        }
+        if (matched) {
+            matchLangData.push({ html: entry.canonical, value: entry.canonical });
         }
     }
-    return matchLangData;
+    return matchLangData.sort((a, b) =>
+        a.value.localeCompare(b.value, undefined, { sensitivity: "base" }),
+    );
 };
 
 /** 脑图、mermaid 等特殊预览代码块的语言补全 */
@@ -30,7 +38,7 @@ export const matchPreviewCodeLanguages = (key: string): IHintData[] => {
     const lower = key.toLowerCase();
     for (const keyName of Constants.CODE_LANGUAGES) {
         if (keyName.indexOf(lower) > -1) {
-            matchLangData.push({html: keyName, value: keyName});
+            matchLangData.push({ html: keyName, value: keyName });
         }
     }
     return matchLangData;

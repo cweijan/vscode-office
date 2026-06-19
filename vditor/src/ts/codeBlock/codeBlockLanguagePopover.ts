@@ -80,7 +80,7 @@ export const showCodeBlockLanguagePopover = (vditor: IVditor, blockElement: HTML
     languageWrap.appendChild(language);
 
     language.className = "vditor-input";
-    language.setAttribute("placeholder", window.VditorI18n.language + "<" + updateHotkeyTip("⌥Enter") + ">");
+    language.setAttribute("placeholder", window.VditorI18n.language);
     language.value = getCodeLanguageName(codeElement);
 
     language.oninput = (e: InputEvent) => {

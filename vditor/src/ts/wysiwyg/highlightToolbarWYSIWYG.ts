@@ -636,8 +636,7 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
                 const codeElement = blockRenderElement.querySelector("pre code") as HTMLElement;
 
                 language.className = "vditor-input";
-                language.setAttribute("placeholder",
-                    window.VditorI18n.language + "<" + updateHotkeyTip("⌥Enter") + ">");
+                language.setAttribute("placeholder", window.VditorI18n.language);
                 language.value =
                     codeElement.className.indexOf("language-") > -1
                         ? codeElement.className.split("-")[1].split(" ")[0]

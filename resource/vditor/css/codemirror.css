@@ -1,3 +1,8 @@
+.vditor-code-block--cm.vditor-wysiwyg__block > pre:first-child:last-child,
+.vditor-code-block--cm[data-type="code-block"] > pre:first-child:last-child {
+  margin-bottom: 1em !important;
+}
+
 .vditor-cm-host .cm-editor {
   height: 100% !important;
   font-size: var(--vscode-editor-font-size);
