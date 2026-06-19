@@ -16,6 +16,7 @@ import {
     updateSvgBackground,
     updateSvgFill,
 } from './svgUtils';
+import { loadSvgLineWrap, saveSvgLineWrap } from './svgViewerSettings';
 import './SvgViewer.less';
 
 const NARROW_WIDTH_BREAKPOINT = 640;
@@ -82,7 +83,7 @@ function SvgViewerInner() {
     const [error, setError] = useState('');
     const [exportingPng, setExportingPng] = useState(false);
     const [dirty, setDirty] = useState(false);
-    const [lineWrap, setLineWrap] = useState(false);
+    const [lineWrap, setLineWrap] = useState(loadSvgLineWrap);
     const [isGitScheme, setIsGitScheme] = useState(false);
 
     const contentRef = useRef('');
@@ -97,6 +98,13 @@ function SvgViewerInner() {
     const [zoom, setZoom] = useState(1);
     const [dragging, setDragging] = useState(false);
 
+    const onToggleLineWrap = useCallback(() => {
+        setLineWrap((enabled) => {
+            const next = !enabled;
+            saveSvgLineWrap(next);
+            return next;
+        });
+    }, []);
     const isZh = getConfigs()?.language?.startsWith('zh');
     const copySuccessText = isZh ? '已复制' : 'Copied';
     const saveText = isZh ? '保存' : 'Save';
@@ -303,7 +311,7 @@ function SvgViewerInner() {
                                 <button
                                     type="button"
                                     className={`svg-viewer__btn svg-viewer__btn--icon-only${lineWrap ? ' svg-viewer__btn--active' : ''}`}
-                                    onClick={() => setLineWrap((enabled) => !enabled)}
+                                    onClick={onToggleLineWrap}
                                     title={lineWrapText}
                                     aria-label={lineWrapText}
                                     aria-pressed={lineWrap}
