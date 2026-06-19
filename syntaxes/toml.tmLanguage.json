@@ -50,50 +50,20 @@
     "table": {
       "patterns": [
         {
-          "name": "meta.table.toml",
-          "match": "^\\s*(\\[)\\s*((?:(?:(?:[A-Za-z0-9_+-]+)|(?:\"[^\"]+\")|(?:'[^']+'))\\s*\\.?\\s*)+)\\s*(\\])",
+          "name": "entity.name.section.table.array.toml",
+          "match": "^\\s*(\\[\\[)\\s*([^\\]]+?)\\s*(\\]\\])(?:\\s*(#.*))?$",
           "captures": {
-            "1": {
-              "name": "punctuation.definition.table.toml"
-            },
-            "2": {
-              "patterns": [
-                {
-                  "match": "(?:[A-Za-z0-9_+-]+)|(?:\"[^\"]+\")|(?:'[^']+')",
-                  "name": "support.type.property-name.table.toml"
-                },
-                {
-                  "match": "\\.",
-                  "name": "punctuation.separator.dot.toml"
-                }
-              ]
-            },
-            "3": {
-              "name": "punctuation.definition.table.toml"
+            "4": {
+              "name": "comment.line.number-sign.toml"
             }
           }
         },
         {
-          "name": "meta.array.table.toml",
-          "match": "^\\s*(\\[\\[)\\s*((?:(?:(?:[A-Za-z0-9_+-]+)|(?:\"[^\"]+\")|(?:'[^']+'))\\s*\\.?\\s*)+)\\s*(\\]\\])",
+          "name": "entity.name.section.table.toml",
+          "match": "^\\s*(\\[)\\s*([^\\[\\]]+?)\\s*(\\])(?:\\s*(#.*))?$",
           "captures": {
-            "1": {
-              "name": "punctuation.definition.array.table.toml"
-            },
-            "2": {
-              "patterns": [
-                {
-                  "match": "(?:[A-Za-z0-9_+-]+)|(?:\"[^\"]+\")|(?:'[^']+')",
-                  "name": "support.type.property-name.array.toml"
-                },
-                {
-                  "match": "\\.",
-                  "name": "punctuation.separator.dot.toml"
-                }
-              ]
-            },
-            "3": {
-              "name": "punctuation.definition.array.table.toml"
+            "4": {
+              "name": "comment.line.number-sign.toml"
             }
           }
         },
@@ -282,7 +252,7 @@
         },
         {
           "name": "meta.array.toml",
-          "begin": "(?<!\\w)(\\[)\\s*",
+          "begin": "(?:^\\s*(?!\\[(?:\\[\\[[^\\]]+\\]\\]|[^\\[\\]]+)\\]\\s*(?:#.*)?$)|(?<!\\w))(\\[)(?!\\[)\\s*",
           "end": "\\s*(\\])(?!\\w)",
           "beginCaptures": {
             "1": {
