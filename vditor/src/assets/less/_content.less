@@ -39,63 +39,6 @@
     position: relative;
   }
 
-  &-preview {
-    flex: 1;
-    min-width: 1px;
-    overflow: auto;
-    margin-left: -1px;
-    border-left: 1px solid var(--border-color);
-    box-sizing: border-box;
-    border-radius: 0 0 3px 0;
-    background-color: var(--textarea-background-color);
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-    &__action {
-      text-align: center;
-      padding: 10px;
-      background-color: var(--toolbar-background-color);
-
-      button {
-        background-color: var(--toolbar-background-color);
-        color: var(--toolbar-icon-color);
-        line-height: 20px;
-        border: 0;
-        margin: 0 10px;
-        cursor: pointer;
-        padding: 0 7px;
-        font-size: 12px;
-
-        &.vditor-preview__action--current,
-        &:hover {
-          color: var(--toolbar-icon-hover-color);
-          background-color: var(--toolbar-background-color);
-        }
-
-        &:focus {
-          outline: none;
-        }
-
-        svg {
-          fill: currentColor;
-          height: 15px;
-          width: 15px;
-          vertical-align: middle;
-        }
-      }
-    }
-
-    & > .vditor-reset {
-      padding: 10px;
-      margin: 0 auto;
-    }
-
-    img:not(.emoji) {
-      cursor: pointer;
-    }
-  }
-
   &-counter {
     position: absolute;
     right: 1vw;

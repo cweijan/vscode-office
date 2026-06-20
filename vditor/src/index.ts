@@ -19,7 +19,6 @@ import {getHTML} from "./ts/markdown/getHTML";
 import {getMarkdown} from "./ts/markdown/getMarkdown";
 import {setLute} from "./ts/markdown/setLute";
 import {Outline} from "./ts/outline/index";
-import {Preview} from "./ts/preview/index";
 import {Editor} from "./ts/sv/index";
 import {inputEvent} from "./ts/sv/inputEvent";
 import {processAfterRender as processSVAfterRender} from "./ts/sv/process";
@@ -31,7 +30,6 @@ import {initUI, UIUnbindListener} from "./ts/ui/initUI";
 import {setCodeTheme} from "./ts/ui/setCodeTheme";
 import {setEditorTheme as applyEditorTheme} from "./ts/ui/setEditorTheme";
 import {setContentTheme} from "./ts/ui/setContentTheme";
-import {setPreviewMode} from "./ts/ui/setPreviewMode";
 import {setTheme} from "./ts/ui/setTheme";
 import {Undo} from "./ts/undo/index";
 import {Upload} from "./ts/upload/index";
@@ -206,11 +204,6 @@ class Vditor {
         }
     }
 
-    /** 设置预览区域内容 */
-    public renderPreview(value?: string) {
-        this.vditor.preview.render(this.vditor, value);
-    }
-
     /** 获取焦点位置 */
     public getCursorPosition() {
         return getCursorPosition(this.vditor[this.vditor.currentMode].element);
@@ -259,11 +252,6 @@ class Vditor {
     /** 消息提示。time 为 0 将一直显示 */
     public tip(text: string, time?: number) {
         this.vditor.tip.show(text, time);
-    }
-
-    /** 设置预览模式 */
-    public setPreviewMode(mode: "both" | "editor") {
-        setPreviewMode(mode, this.vditor);
     }
 
     /** 删除选中内容 */
@@ -416,8 +404,6 @@ class Vditor {
                 sanitize: this.vditor.options.preview.markdown.sanitize,
                 toc: this.vditor.options.preview.markdown.toc,
             });
-
-            this.vditor.preview = new Preview(this.vditor);
 
             initUI(this.vditor);
 

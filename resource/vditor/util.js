@@ -155,7 +155,6 @@ export async function getToolbar(resPath, sponsorBaseUrl, language) {
         "redo",
         "|",
         "edit-mode",
-        "preview",
         {
             tip: helpTip,
             tipPosition: 'nw',

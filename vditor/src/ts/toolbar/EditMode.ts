@@ -32,18 +32,12 @@ export const setEditMode = (vditor: IVditor, type: string, event: Event | string
     if (vditor.currentMode === type && typeof event !== "string") {
         return;
     }
-    if (vditor.options.preview.mode === "both" && type === "sv") {
-        vditor.preview.element.style.display = "block";
-    } else {
-        vditor.preview.element.style.display = "none";
-    }
 
     enableToolbar(vditor.toolbar.elements, Constants.EDIT_TOOLBARS);
     removeCurrentToolbar(vditor.toolbar.elements, Constants.EDIT_TOOLBARS);
     disableToolbar(vditor.toolbar.elements, ["outdent", "indent"]);
 
     if (type === "ir") {
-        hideToolbar(vditor.toolbar.elements, ["both"]);
         showToolbar(vditor.toolbar.elements, ["outdent", "indent", "outline", "insert-before", "insert-after"]);
         vditor.sv.element.style.display = "none";
         vditor.wysiwyg.element.parentElement.style.display = "none";
@@ -75,7 +69,6 @@ export const setEditMode = (vditor: IVditor, type: string, event: Event | string
             });
         });
     } else if (type === "wysiwyg") {
-        hideToolbar(vditor.toolbar.elements, ["both"]);
         showToolbar(vditor.toolbar.elements, ["outdent", "indent", "outline", "insert-before", "insert-after"]);
         vditor.sv.element.style.display = "none";
         vditor.wysiwyg.element.parentElement.style.display = "block";
@@ -102,15 +95,10 @@ export const setEditMode = (vditor: IVditor, type: string, event: Event | string
         });
         vditor.wysiwyg.popover.style.display = "none";
     } else if (type === "sv") {
-        showToolbar(vditor.toolbar.elements, ["both"]);
         hideToolbar(vditor.toolbar.elements, ["outdent", "indent", "outline", "insert-before", "insert-after"]);
         vditor.wysiwyg.element.parentElement.style.display = "none";
         vditor.ir.element.parentElement.style.display = "none";
-        if (vditor.options.preview.mode === "both") {
-            vditor.sv.element.style.display = "block";
-        } else if (vditor.options.preview.mode === "editor") {
-            vditor.sv.element.style.display = "block";
-        }
+        vditor.sv.element.style.display = "block";
 
         vditor.lute.SetVditorIR(false);
         vditor.lute.SetVditorWYSIWYG(false);

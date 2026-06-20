@@ -48,8 +48,6 @@ export const initUI = (vditor: IVditor) => {
 
   contentElement.appendChild(vditor.ir.element.parentElement);
 
-  contentElement.appendChild(vditor.preview.element);
-
   if (vditor.options.outline.position === "right") {
     vditor.outline.element.classList.add("vditor-outline--right");
     contentElement.appendChild(vditor.outline.element);
@@ -110,16 +108,6 @@ export const setPadding = (vditor: IVditor) => {
     const padding = (vditor.ir.element.parentElement.clientWidth
       - vditor.options.preview.maxWidth) / 2;
     vditor.ir.element.style.padding = `10px ${Math.max(minPadding, padding)}px`;
-  }
-
-  if (vditor.preview.element.style.display !== "block") {
-    // 修复工具栏乱跳
-    // vditor.toolbar.element.style.paddingLeft = Math.max(5,
-    //   parseInt(vditor[vditor.currentMode].element.style.paddingLeft || "0", 10) +
-    //   (vditor.options.outline.position === "left" ? vditor.outline.element.offsetWidth : 0)) + "px";
-  } else {
-    vditor.toolbar.element.style.paddingLeft = (5 +
-      (vditor.options.outline.position === "left" ? vditor.outline.element.offsetWidth : 0)) + "px";
   }
 };
 

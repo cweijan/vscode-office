@@ -53,23 +53,6 @@ class Editor {
             });
         });
 
-        this.element.addEventListener("scroll", () => {
-            if (vditor.preview.element.style.display !== "block") {
-                return;
-            }
-            const textScrollTop = this.element.scrollTop;
-            const textHeight = this.element.clientHeight;
-            const textScrollHeight = this.element.scrollHeight - parseFloat(this.element.style.paddingBottom || "0");
-            const preview = vditor.preview.element;
-            if ((textScrollTop / textHeight > 0.5)) {
-                preview.scrollTop = (textScrollTop + textHeight) *
-                    preview.scrollHeight / textScrollHeight - textHeight;
-            } else {
-                preview.scrollTop = textScrollTop *
-                    preview.scrollHeight / textScrollHeight;
-            }
-        });
-
         this.element.addEventListener("compositionstart", (event: InputEvent) => {
             this.composingLock = true;
         });

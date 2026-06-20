@@ -115,8 +115,6 @@ export const processAfterRender = (vditor: IVditor, options = {
         vditor.hint.render(vditor);
     }
 
-    vditor.preview.render(vditor);
-
     const text = getMarkdown(vditor);
     if (typeof vditor.options.input === "function" && options.enableInput) {
         vditor.options.input(text);

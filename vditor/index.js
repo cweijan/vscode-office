@@ -40,8 +40,6 @@ if (window.innerWidth < 768) {
     {
       name: 'more',
       toolbar: [
-        'both',
-        'preview',
         'info',
         'help',
       ],

@@ -57,14 +57,7 @@ export class Outline {
     }
 
     public render(vditor: IVditor) {
-        let html = "";
-        if (vditor.preview.element.style.display === "block") {
-            html = outlineRender(vditor.preview.element.lastElementChild as HTMLElement,
-                this.contentElement, vditor);
-        } else {
-            html = outlineRender(vditor[vditor.currentMode].element, this.contentElement, vditor);
-        }
-        return html;
+        return outlineRender(vditor[vditor.currentMode].element, this.contentElement, vditor);
     }
 
     public toggle(vditor: IVditor, show = true) {

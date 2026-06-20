@@ -44,13 +44,11 @@ export class Options {
         },
         placeholder: "",
         preview: {
-            actions: ["desktop", "tablet", "mobile", "mp-wechat", "zhihu"],
             delay: 1000,
             hljs: Constants.HLJS_OPTIONS,
             markdown: Constants.MARKDOWN_OPTIONS,
             math: Constants.MATH_OPTIONS,
             maxWidth: 800,
-            mode: "both",
             theme: Constants.THEME_OPTIONS,
         },
         theme: "classic",
@@ -85,11 +83,9 @@ export class Options {
             {
                 name: "more",
                 toolbar: [
-                    "both",
                     "code-theme",
                     "content-theme",
                     "outline",
-                    "preview",
                     "info",
                     "help",
                 ],
@@ -291,15 +287,6 @@ export class Options {
         }, {
             icon: '<svg><use xlink:href="#vditor-icon-edit"></use></svg>',
             name: "edit-mode",
-            tipPosition: "nw",
-        }, {
-            hotkey: "⌘P",
-            icon: '<svg><use xlink:href="#vditor-icon-both"></use></svg>',
-            name: "both",
-            tipPosition: "nw",
-        }, {
-            icon: '<svg><use xlink:href="#vditor-icon-preview"></use></svg>',
-            name: "preview",
             tipPosition: "nw",
         }, {
             icon: '<svg><use xlink:href="#vditor-icon-align-center"></use></svg>',

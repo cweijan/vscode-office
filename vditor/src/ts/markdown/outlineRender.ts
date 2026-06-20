@@ -9,8 +9,8 @@ const stripIrOutlineMarkers = (element: HTMLElement) => {
     return clone;
 };
 
-const getOutlineHeadingHTML = (item: HTMLElement, vditor?: IVditor, contentElement?: HTMLElement) => {
-    if (vditor?.currentMode === "ir" && contentElement && !vditor.preview.element.contains(contentElement)) {
+const getOutlineHeadingHTML = (item: HTMLElement, vditor?: IVditor) => {
+    if (vditor?.currentMode === "ir") {
         return stripIrOutlineMarkers(item).outerHTML;
     }
     return item.outerHTML.replace("<wbr>", "");
@@ -36,7 +36,7 @@ export const outlineRender = (contentElement: HTMLElement, targetElement: Elemen
                 }
             }
             ids.push(item.id);
-            tocHTML += getOutlineHeadingHTML(item, vditor, contentElement);
+            tocHTML += getOutlineHeadingHTML(item, vditor);
         }
     });
     if (tocHTML === "") {
@@ -46,10 +46,8 @@ export const outlineRender = (contentElement: HTMLElement, targetElement: Elemen
     const tempElement = document.createElement("div");
     if (vditor) {
         vditor.lute.SetToC(true);
-        if (vditor.currentMode === "wysiwyg" && !vditor.preview.element.contains(contentElement)) {
+        if (vditor.currentMode === "wysiwyg") {
             tempElement.innerHTML = vditor.lute.SpinVditorDOM("<p>[ToC]</p>" + tocHTML);
-        } else if (vditor.currentMode === "ir" && !vditor.preview.element.contains(contentElement)) {
-            tempElement.innerHTML = vditor.lute.HTML2VditorDOM("<p>[ToC]</p>" + tocHTML);
         } else {
             tempElement.innerHTML = vditor.lute.HTML2VditorDOM("<p>[ToC]</p>" + tocHTML);
         }
@@ -123,11 +121,7 @@ export const outlineRender = (contentElement: HTMLElement, targetElement: Elemen
                         if (vditor.element.offsetTop < window.scrollY) {
                             window.scrollTo(window.scrollX, vditor.element.offsetTop);
                         }
-                        if (vditor.preview.element.contains(contentElement)) {
-                            contentElement.parentElement.scrollTop = idElement.offsetTop;
-                        } else {
-                            scrollOutlineTarget(contentElement, idElement);
-                        }
+                        scrollOutlineTarget(contentElement, idElement);
                     }
                 } else {
                     window.scrollTo(window.scrollX, idElement.offsetTop);

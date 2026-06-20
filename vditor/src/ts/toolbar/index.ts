@@ -1,5 +1,4 @@
 import {getEventName} from "../util/compatibility";
-import {Both} from "./Both";
 import {Br} from "./Br";
 import {CodeTheme} from "./CodeTheme";
 import {ContentTheme} from "./ContentTheme";
@@ -19,7 +18,6 @@ import {InsertBefore} from "./InsertBefore";
 import {MenuItem} from "./MenuItem";
 import {Outdent} from "./Outdent";
 import {Outline} from "./Outline";
-import {Preview} from "./Preview";
 import {Redo} from "./Redo";
 import {toggleSubMenu} from "./setToolbar";
 import {Undo} from "./Undo";
@@ -105,12 +103,6 @@ export class Toolbar {
                 break;
             case "help":
                 menuItemObj = new Help(vditor, menuItem);
-                break;
-            case "both":
-                menuItemObj = new Both(vditor, menuItem);
-                break;
-            case "preview":
-                menuItemObj = new Preview(vditor, menuItem);
                 break;
             case "upload":
                 menuItemObj = new Upload(vditor, menuItem);
