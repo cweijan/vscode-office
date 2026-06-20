@@ -26,6 +26,7 @@
     --cm-selection-bg-inactive: var(--vscode-editor-inactiveSelectionBackground, var(--cm-selection-bg));
     --cm-selection-highlight-bg: var(--vscode-editor-selectionHighlightBackground, color-mix(in srgb, var(--link-color) 22%, transparent));
     --cm-lang-search-focus-color: var(--vscode-textLink-foreground, #4285f4);
+    --cm-lang-trigger-bg: var(--vscode-input-background, var(--second-bg-color, color-mix(in srgb, var(--vscode-editor-foreground) 14%, var(--vscode-editor-background))));
 }
 
 #vditor[data-editor-theme="Auto"] {

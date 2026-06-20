@@ -245,20 +245,19 @@
   flex-shrink: 0;
   height: 28px;
   padding: 0 10px;
-  border: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 16%, transparent);
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--cm-bg-color, var(--panel-background-color)) 88%, transparent);
+  border: none;
+  border-radius: 8px;
+  background: var(--cm-lang-trigger-bg, var(--second-bg-color, color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 18%, var(--bg-color, var(--panel-background-color)))));
   color: var(--cm-fg-color, var(--toolbar-icon-color));
   font-size: 12px;
   font-weight: 500;
   line-height: 1;
   cursor: pointer;
   pointer-events: auto;
-  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 
   &:hover {
-    background: var(--dropdown-hover-background, var(--toolbar-background-color));
-    border-color: color-mix(in srgb, var(--list-hover-color, var(--toolbar-icon-hover-color)) 35%, transparent);
+    background: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 10%, var(--cm-lang-trigger-bg, var(--second-bg-color, var(--dropdown-hover-background, var(--toolbar-background-color)))));
   }
 }
 
@@ -282,32 +281,30 @@
   flex-shrink: 0;
   height: 28px;
   padding: 0 10px;
-  border: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 16%, transparent);
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--cm-bg-color, var(--panel-background-color)) 88%, transparent);
+  border: none;
+  border-radius: 8px;
+  background: var(--cm-lang-trigger-bg, var(--second-bg-color, color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 18%, var(--bg-color, var(--panel-background-color)))));
   color: var(--cm-fg-color, var(--toolbar-icon-color));
   font-size: 12px;
   font-weight: 500;
   line-height: 1;
   cursor: pointer;
   pointer-events: auto;
-  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 
   &:hover {
-    background: var(--dropdown-hover-background, var(--toolbar-background-color));
-    border-color: color-mix(in srgb, var(--list-hover-color, var(--toolbar-icon-hover-color)) 35%, transparent);
+    background: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 10%, var(--cm-lang-trigger-bg, var(--second-bg-color, var(--dropdown-hover-background, var(--toolbar-background-color)))));
   }
 
   &--done {
-    background: var(--dropdown-hover-background, var(--toolbar-background-color));
-    border-color: color-mix(in srgb, var(--list-hover-color, #3fb950) 35%, transparent);
+    background: color-mix(in srgb, var(--cm-copy-done-color, var(--link-color, #3794ff)) 12%, var(--cm-lang-trigger-bg, var(--second-bg-color, var(--dropdown-hover-background, var(--toolbar-background-color)))));
 
     .vditor-cm-chrome__copy-label {
-      color: var(--list-hover-color, #3fb950);
+      color: var(--cm-copy-done-color, var(--link-color, #3794ff));
     }
 
     .vditor-cm-chrome__copy-icon .codicon {
-      color: var(--list-hover-color, #3fb950);
+      color: var(--cm-copy-done-color, var(--link-color, #3794ff));
     }
   }
 }
@@ -315,7 +312,7 @@
 .vditor-cm-chrome__copy-icon {
   display: inline-flex;
   flex-shrink: 0;
-  color: var(--list-hover-color, #3fb950);
+  color: var(--cm-copy-color, var(--link-color, #3794ff));
 
   .codicon {
     font-size: 16px;
@@ -341,20 +338,19 @@
   gap: 6px;
   height: 28px;
   padding: 0 10px;
-  border: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 14%, transparent);
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--cm-bg-color, var(--panel-background-color)) 90%, transparent);
+  border: none;
+  border-radius: 8px;
+  background: var(--cm-lang-trigger-bg, var(--second-bg-color, color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 18%, var(--bg-color, var(--panel-background-color)))));
   color: var(--cm-fg-color, var(--toolbar-icon-color));
   font-size: 12px;
   font-weight: 500;
   line-height: 1;
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 
   &:hover:not(:disabled) {
-    background: var(--dropdown-hover-background, var(--toolbar-background-color));
+    background: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 10%, var(--cm-lang-trigger-bg, var(--second-bg-color, var(--dropdown-hover-background, var(--toolbar-background-color)))));
     color: var(--list-hover-color, var(--toolbar-icon-hover-color));
-    border-color: color-mix(in srgb, var(--list-hover-color, var(--toolbar-icon-hover-color)) 35%, transparent);
   }
 
   &:disabled {

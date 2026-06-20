@@ -6,6 +6,7 @@
     --second-bg-color:#21222c;
     --code-bg-color:  #222222;
     --cm-bg-color: var(--code-bg-color);
+    --cm-lang-trigger-bg: #44475a;
     --cm-active-line-bg: color-mix(in srgb, var(--front-color) 8%, var(--cm-bg-color));
     --cm-fold-fg: var(--list-hover-color);
     --cm-fold-fg-hover: var(--front-color);

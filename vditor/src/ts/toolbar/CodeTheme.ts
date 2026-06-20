@@ -5,7 +5,10 @@ import {getEventName} from "../util/compatibility";
 import {MenuItem} from "./MenuItem";
 import {hidePanel, toggleSubMenu} from "./setToolbar";
 
-const formatThemeLabel = (themeId: string) => themeId.replace(/-/g, " ");
+const formatThemeLabel = (themeId: string) => themeId
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 
 const buildCodeThemePanelHTML = (currentTheme: string) => {
     return buildThemePickerPanelHTML(CM_THEME_GROUPS, currentTheme, formatThemeLabel);
