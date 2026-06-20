@@ -277,3 +277,172 @@ export const insertHTML = (html: string, vditor: IVditor) => {
         setSelectionFocus(range);
     }
 };
+
+const getCaretRangeFromPoint = (doc: Document, x: number, y: number): Range | null => {
+    if (doc.caretRangeFromPoint) {
+        return doc.caretRangeFromPoint(x, y);
+    }
+    const caretPositionFromPoint = (doc as Document & {
+        caretPositionFromPoint?(x: number, y: number): { offsetNode: Node; offset: number } | null;
+    }).caretPositionFromPoint;
+    if (caretPositionFromPoint) {
+        const pos = caretPositionFromPoint(x, y);
+        if (!pos) {
+            return null;
+        }
+        const range = doc.createRange();
+        range.setStart(pos.offsetNode, pos.offset);
+        range.collapse(true);
+        return range;
+    }
+    return null;
+};
+
+const isSameCaretPosition = (a: Range, b: Range) => {
+    return a.startContainer === b.startContainer && a.startOffset === b.startOffset;
+};
+
+const expandRangeForClientRect = (range: Range): Range => {
+    const probe = range.cloneRange();
+    if (probe.startContainer.nodeType === 3) {
+        const text = probe.startContainer.textContent || "";
+        if (probe.startOffset < text.length) {
+            probe.setEnd(probe.startContainer, probe.startOffset + 1);
+        } else if (probe.startOffset > 0) {
+            probe.setStart(probe.startContainer, probe.startOffset - 1);
+        }
+        return probe;
+    }
+    if (probe.startContainer.nodeType === 1) {
+        const el = probe.startContainer as Element;
+        if (probe.startOffset < el.childNodes.length) {
+            const child = el.childNodes[probe.startOffset];
+            if (child.nodeType === 3) {
+                const text = child.textContent || "";
+                if (text.length > 0) {
+                    probe.setStart(child, 0);
+                    probe.setEnd(child, 1);
+                }
+            }
+        } else if (probe.startOffset > 0) {
+            const prev = el.childNodes[probe.startOffset - 1];
+            if (prev.nodeType === 3) {
+                const text = prev.textContent || "";
+                if (text.length > 0) {
+                    probe.setStart(prev, text.length - 1);
+                    probe.setEnd(prev, text.length);
+                }
+            } else if (prev.nodeType === 1) {
+                probe.selectNodeContents(prev);
+                probe.collapse(false);
+            }
+        }
+    }
+    return probe;
+};
+
+const getRangeClientY = (range: Range): number | null => {
+    const probe = expandRangeForClientRect(range);
+    const rects = probe.getClientRects();
+    if (rects.length > 0) {
+        const rect = rects[0];
+        return rect.top + rect.height / 2;
+    }
+    if (range.startContainer.nodeType === 1) {
+        const child = range.startContainer.childNodes[range.startOffset] as Element | undefined;
+        if (child && child.nodeType === 1) {
+            const childRects = child.getClientRects();
+            if (childRects.length > 0) {
+                return childRects[0].top + childRects[0].height / 2;
+            }
+        }
+    }
+    const blockElement = hasClosestBlock(range.startContainer);
+    if (blockElement) {
+        const blockRects = blockElement.getClientRects();
+        if (blockRects.length > 0) {
+            return blockRects[0].top + blockRects[0].height / 2;
+        }
+    }
+    return null;
+};
+
+const isClickOnCaretGlyph = (event: MouseEvent, caretRange: Range, tolerance = 3): boolean => {
+    const probe = expandRangeForClientRect(caretRange);
+    const rects = probe.getClientRects();
+    for (let i = 0; i < rects.length; i++) {
+        const rect = rects[i];
+        if (event.clientX >= rect.left - tolerance && event.clientX <= rect.right + tolerance &&
+            event.clientY >= rect.top - tolerance && event.clientY <= rect.bottom + tolerance) {
+            return true;
+        }
+    }
+    return false;
+};
+
+const shouldSkipImpreciseClickTarget = (target: HTMLElement): boolean => {
+    if (target.tagName === "INPUT" || target.tagName === "IMG" || target.tagName === "A") {
+        return true;
+    }
+    if (target.closest(".vditor-panel, .cm-editor, .vditor-wysiwyg__preview, table")) {
+        return true;
+    }
+    const blockElement = hasClosestBlock(target);
+    if (blockElement && (blockElement as HTMLElement).closest("[data-type='code-block']")) {
+        return true;
+    }
+    return false;
+};
+
+const getLineEndForImpreciseLineStartClick = (event: MouseEvent, editor: HTMLElement): Range | null => {
+    if (event.button !== 0 || event.shiftKey) {
+        return null;
+    }
+    const target = event.target as HTMLElement;
+    if (shouldSkipImpreciseClickTarget(target)) {
+        return null;
+    }
+
+    const doc = editor.ownerDocument;
+    const clickRange = getCaretRangeFromPoint(doc, event.clientX, event.clientY);
+    if (!clickRange || !editor.contains(clickRange.startContainer)) {
+        return null;
+    }
+
+    const caretY = getRangeClientY(clickRange) ?? event.clientY;
+
+    const editorRect = editor.getBoundingClientRect();
+    const editorStyle = window.getComputedStyle(editor);
+    const paddingLeft = parseFloat(editorStyle.paddingLeft) || 0;
+    const paddingRight = parseFloat(editorStyle.paddingRight) || 0;
+    const contentLeft = editorRect.left + paddingLeft;
+    const contentRight = editorRect.right - paddingRight;
+
+    const lineStartRange = getCaretRangeFromPoint(doc, contentLeft + 1, caretY);
+    const lineEndRange = getCaretRangeFromPoint(doc, contentRight - 1, caretY);
+    if (!lineStartRange || !lineEndRange) {
+        return null;
+    }
+    if (isSameCaretPosition(lineStartRange, lineEndRange)) {
+        return null;
+    }
+    if (!isSameCaretPosition(clickRange, lineStartRange)) {
+        return null;
+    }
+    if (isClickOnCaretGlyph(event, lineStartRange)) {
+        return null;
+    }
+    return lineEndRange;
+};
+
+/** mousedown 捕获：非精确点击会落行首时，阻止默认行为并直接落到行尾 */
+export const preventImpreciseLineStartClick = (event: MouseEvent, editor: HTMLElement): boolean => {
+    const lineEndRange = getLineEndForImpreciseLineStartClick(event, editor);
+    if (!lineEndRange) {
+        return false;
+    }
+    event.preventDefault();
+    editor.focus({preventScroll: true});
+    setSelectionFocus(lineEndRange);
+    return true;
+};

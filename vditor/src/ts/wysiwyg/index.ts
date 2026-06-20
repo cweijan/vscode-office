@@ -16,6 +16,7 @@ import {
 } from "../util/hasClosest";
 import {hasClosestByHeadings} from "../util/hasClosestByHeadings";
 import {
+    preventImpreciseLineStartClick,
     getCursorPosition,
     getEditorRange,
     getSelectPosition,
@@ -40,6 +41,7 @@ class WYSIWYG {
     public preventInput: boolean;
     public composingLock = false;
     private scrollListener: () => void;
+    private impreciseLineClickHandled = false;
 
     constructor(vditor: IVditor) {
         const divElement = document.createElement("div");
@@ -257,6 +259,20 @@ class WYSIWYG {
 
             input(vditor, range, event);
         });
+
+        this.element.addEventListener("mousedown", (event: MouseEvent & { target: HTMLElement }) => {
+            if (isInsideCodeMirror(event.target)) {
+                return;
+            }
+            this.impreciseLineClickHandled = preventImpreciseLineStartClick(event, this.element);
+        }, true);
+
+        this.element.addEventListener("mouseup", (event: MouseEvent) => {
+            if (this.impreciseLineClickHandled) {
+                event.preventDefault();
+                this.impreciseLineClickHandled = false;
+            }
+        }, true);
 
         this.element.addEventListener("click", (event: MouseEvent & { target: HTMLElement }) => {
             if (event.target.tagName === "INPUT") {
