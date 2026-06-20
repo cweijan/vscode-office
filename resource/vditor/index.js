@@ -48,10 +48,6 @@ handler.on("open", async (md) => {
         toc: true,
         codeBlockPreview: config.previewCode,
       },
-      hljs: {
-        style: config.previewCodeHighlight.style,
-        lineNumber: config.previewCodeHighlight.showLineNumber
-      },
       extPath: md.rootPath,
       math: {
         inlineDigit: true

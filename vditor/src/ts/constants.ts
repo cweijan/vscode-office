@@ -12,11 +12,8 @@ export abstract class Constants {
   public static readonly EDIT_TOOLBARS: string[] = ["emoji", "headings", "bold", "italic", "strike", "link", "list",
     "ordered-list", "outdent", "indent", "check", "line", "quote", "code", "inline-code", "insert-after",
     "insert-before", "upload", "record", "table"];
-  public static readonly CODE_THEME: string[] = ["abap", "algol", "algol_nu", "arduino", "autumn", "borland", "bw",
-    "colorful", "dracula", "emacs", "friendly", "fruity", "github", "igor", "lovelace", "manni", "monokai",
-    "monokailight", "murphy", "native", "paraiso-dark", "paraiso-light", "pastie", "perldoc", "pygments",
-    "rainbow_dash", "rrt", "solarized-dark", "solarized-dark256", "solarized-light", "swapoff", "tango", "trac",
-    "vim", "vs", "xcode", "ant-design"];
+  /** Code block theme ids; UI only until CodeMirror themes are wired in setCodeTheme. */
+  public static readonly CODE_THEME: string[] = ["default", "github", "dracula", "monokai", "one-dark"];
   public static readonly CODE_LANGUAGES: string[] = ["mermaid", "plantuml", "apache",
     "js", "ts", "html",
     // common
@@ -47,7 +44,7 @@ export abstract class Constants {
   public static readonly HLJS_OPTIONS = {
     enable: true,
     lineNumber: false,
-    style: "github",
+    style: "default",
   };
   public static readonly MATH_OPTIONS: IMath = {
     inlineDigit: false,

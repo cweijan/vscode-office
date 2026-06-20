@@ -1,7 +1,7 @@
 import "./assets/less/index.less";
 import * as adapterRender from "./ts/markdown/adapterRender";
 import {codeRender} from "./ts/markdown/codeRender";
-import {highlightRender} from "./ts/markdown/highlightRender";
+import {codeMirrorPreviewRender, destroyPreviewCodeMirrors} from "./ts/codeBlock/codeMirrorPreviewRender";
 import {lazyLoadImageRender} from "./ts/markdown/lazyLoadImageRender";
 import {mathRender} from "./ts/markdown/mathRender";
 import {mediaRender} from "./ts/markdown/mediaRender";
@@ -51,7 +51,8 @@ class Vditor {
     public static adapterRender = adapterRender;
     public static previewImage = previewImage;
     public static codeRender = codeRender;
-    public static highlightRender = highlightRender;
+    public static codeMirrorPreviewRender = codeMirrorPreviewRender;
+    public static destroyPreviewCodeMirrors = destroyPreviewCodeMirrors;
     public static mathRender = mathRender;
     public static mermaidRender = mermaidRender;
     public static plantumlRender = plantumlRender;
@@ -131,7 +132,7 @@ class Vditor {
         }
         if (codeTheme) {
             this.vditor.options.preview.hljs.style = codeTheme;
-            setCodeTheme(codeTheme, this.vditor.options.cdn);
+            setCodeTheme(codeTheme);
         }
     }
 

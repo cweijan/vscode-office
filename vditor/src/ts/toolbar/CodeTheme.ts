@@ -15,18 +15,19 @@ export class CodeTheme extends MenuItem {
         const panelElement = document.createElement("div");
         panelElement.className = `vditor-hint${menuItem.level === 2 ? "" : " vditor-panel--arrow"}`;
         let innerHTML = "";
-        Constants.CODE_THEME.forEach((theme) => {
+        for (const theme of Constants.CODE_THEME) {
             innerHTML += `<button>${theme}</button>`;
-        });
+        }
         panelElement.innerHTML =
             `<div style="overflow: auto;max-height:${window.innerHeight / 2}px">${innerHTML}</div>`;
         panelElement.addEventListener(getEventName(), (event: MouseEvent & { target: HTMLElement }) => {
             if (event.target.tagName === "BUTTON") {
                 hidePanel(vditor, ["subToolbar"]);
-                vditor.options.preview.hljs.style = event.target.textContent;
-                setCodeTheme(event.target.textContent, vditor.options.cdn);
-                if(vditor.options.changeCodeTheme){
-                    vditor.options.changeCodeTheme(event.target.textContent)
+                const theme = event.target.textContent || "";
+                vditor.options.preview.hljs.style = theme;
+                setCodeTheme(theme);
+                if (vditor.options.changeCodeTheme) {
+                    vditor.options.changeCodeTheme(theme);
                 }
                 event.preventDefault();
                 event.stopPropagation();

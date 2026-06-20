@@ -26,6 +26,7 @@ export const exportPDF = (vditor: IVditor) => {
     const iframe = document.querySelector("iframe");
     iframe.contentDocument.open();
     iframe.contentDocument.write(`<link rel="stylesheet" href="${vditor.options.cdn}/dist/index.css"/>
+<link rel="stylesheet" href="${vditor.options.extPath}/css/codemirror.css"/>
 <script src="${vditor.options.cdn}/dist/index.min.js"></script>
 <div id="preview"></div>
 <script>
@@ -37,9 +38,7 @@ window.addEventListener("message", (e) => {
     markdown: {
       theme: "${vditor.options.preview.theme}"
     },
-    hljs: {
-      style: "${vditor.options.preview.hljs.style}"
-    }
+    hljs: ${JSON.stringify(vditor.options.preview.hljs)}
   });
   setTimeout(() => {
         window.print();
@@ -55,6 +54,7 @@ window.addEventListener("message", (e) => {
 export const exportHTML = (vditor: IVditor) => {
     const content = getHTML(vditor);
     const html = `<html><head><link rel="stylesheet" type="text/css" href="${vditor.options.cdn}/dist/index.css"/>
+<link rel="stylesheet" type="text/css" href="${vditor.options.extPath}/css/codemirror.css"/>
     <script src="${vditor.options.extPath}/dist/js/i18n/${vditor.options.lang}.js"></script>
 <script src="${vditor.options.cdn}/dist/index.min.js"></script></head>
 <body><div class="vditor-reset" id="preview">${content}</div>
@@ -62,7 +62,7 @@ export const exportHTML = (vditor: IVditor) => {
     const previewElement = document.getElementById('preview')
     Vditor.setContentTheme('${vditor.options.preview.theme.current}', '${vditor.options.preview.theme.path}');
     Vditor.codeRender(previewElement);
-    Vditor.highlightRender(${JSON.stringify(vditor.options.preview.hljs)}, previewElement, '${vditor.options.cdn}');
+    Vditor.codeMirrorPreviewRender(${JSON.stringify(vditor.options.preview.hljs)}, previewElement);
     Vditor.mathRender(previewElement, {
         cdn: '${vditor.options.cdn}',
         math: ${JSON.stringify(vditor.options.preview.math)},

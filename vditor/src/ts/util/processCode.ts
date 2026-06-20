@@ -1,5 +1,5 @@
+import {codeMirrorPreviewRender} from "../codeBlock/codeMirrorPreviewRender";
 import {codeRender} from "../markdown/codeRender";
-import {highlightRender} from "../markdown/highlightRender";
 import {mathRender} from "../markdown/mathRender";
 import {mermaidRender} from "../markdown/mermaidRender";
 import {plantumlRender} from "../markdown/plantumlRender";
@@ -34,8 +34,8 @@ export const processCodeRender = (previewPanel: HTMLElement, vditor: IVditor) =>
     } else if (language === "math") {
         mathRender(previewPanel, {cdn: vditor.options.cdn,extPath: vditor.options.extPath, math: vditor.options.preview.math});
     } else {
-        highlightRender(Object.assign({}, vditor.options.preview.hljs), previewPanel, vditor.options.cdn);
         codeRender(previewPanel);
+        codeMirrorPreviewRender(Object.assign({}, vditor.options.preview.hljs), previewPanel);
     }
 
     previewPanel.setAttribute("data-render", "1");

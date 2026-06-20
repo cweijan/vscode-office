@@ -198,3 +198,17 @@
   background: var(--vscode-editorSuggestWidget-selectedBackground);
   color: var(--vscode-editorSuggestWidget-selectedForeground);
 }
+
+.vditor-cm-preview-host .cm-editor {
+  outline: none;
+}
+
+.vditor-cm-preview-host .cm-cursor,
+.vditor-cm-preview-host .cm-dropCursor {
+  display: none !important;
+}
+
+.vditor-cm-preview-host .cm-focused .cm-activeLine,
+.vditor-cm-preview-host .cm-focused .cm-activeLineGutter {
+  background: transparent !important;
+}

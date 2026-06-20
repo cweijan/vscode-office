@@ -4,8 +4,8 @@ import {addScript} from "../util/addScript";
 import {hasClosestByClassName, hasClosestByMatchTag} from "../util/hasClosest";
 import {merge} from "../util/merge";
 import {anchorRender} from "./anchorRender";
+import {codeMirrorPreviewRender, destroyPreviewCodeMirrors} from "../codeBlock/codeMirrorPreviewRender";
 import {codeRender} from "./codeRender";
-import {highlightRender} from "./highlightRender";
 import {lazyLoadImageRender} from "./lazyLoadImageRender";
 import {mathRender} from "./mathRender";
 import {mediaRender} from "./mediaRender";
@@ -76,6 +76,7 @@ export const previewRender = async (previewElement: HTMLDivElement, markdown: st
     if (mergedOptions.transform) {
         html = mergedOptions.transform(html);
     }
+    destroyPreviewCodeMirrors(previewElement);
     previewElement.innerHTML = html;
     previewElement.classList.add("vditor-reset");
 
@@ -107,7 +108,7 @@ export const previewRender = async (previewElement: HTMLDivElement, markdown: st
         previewElement.classList.add("vditor-reset--anchor");
     }
     codeRender(previewElement);
-    highlightRender(mergedOptions.hljs, previewElement, mergedOptions.cdn);
+    codeMirrorPreviewRender(mergedOptions.hljs, previewElement);
     mathRender(previewElement, {
         cdn: mergedOptions.cdn,
         extPath: mergedOptions.extPath,

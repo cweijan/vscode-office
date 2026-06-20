@@ -1,6 +1,6 @@
+import {codeMirrorPreviewRender, destroyPreviewCodeMirrors} from "../codeBlock/codeMirrorPreviewRender";
 import { codeRender } from "../markdown/codeRender";
 import { getMarkdown } from "../markdown/getMarkdown";
-import { highlightRender } from "../markdown/highlightRender";
 import { mathRender } from "../markdown/mathRender";
 import { mediaRender } from "../markdown/mediaRender";
 import { mermaidRender } from "../markdown/mermaidRender";
@@ -131,14 +131,17 @@ export class Preview {
             return;
         }
 
+        const previewContent = this.element.lastElementChild as HTMLElement;
         if (value) {
-            this.element.lastElementChild.innerHTML = value;
+            destroyPreviewCodeMirrors(previewContent);
+            previewContent.innerHTML = value;
             return;
         }
 
         if (getMarkdown(vditor)
             .replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, "") === "") {
-            this.element.lastElementChild.innerHTML = "";
+            destroyPreviewCodeMirrors(previewContent);
+            previewContent.innerHTML = "";
             return;
         }
 
@@ -160,14 +163,16 @@ export class Preview {
                             if (vditor.options.preview.transform) {
                                 responseJSON.data = vditor.options.preview.transform(responseJSON.data);
                             }
-                            this.element.lastElementChild.innerHTML = responseJSON.data;
+                            destroyPreviewCodeMirrors(previewContent);
+                            previewContent.innerHTML = responseJSON.data;
                             this.afterRender(vditor, renderStartTime);
                         } else {
                             let html = vditor.lute.Md2HTML(markdownText);
                             if (vditor.options.preview.transform) {
                                 html = vditor.options.preview.transform(html);
                             }
-                            this.element.lastElementChild.innerHTML = html;
+                            destroyPreviewCodeMirrors(previewContent);
+                            previewContent.innerHTML = html;
                             this.afterRender(vditor, renderStartTime);
                         }
                     }
@@ -179,7 +184,8 @@ export class Preview {
                 if (vditor.options.preview.transform) {
                     html = vditor.options.preview.transform(html);
                 }
-                this.element.lastElementChild.innerHTML = html;
+                destroyPreviewCodeMirrors(previewContent);
+                previewContent.innerHTML = html;
                 this.afterRender(vditor, renderStartTime);
             }
         }, vditor.options.preview.delay);
@@ -202,9 +208,9 @@ export class Preview {
         if (cmtFocusElement) {
             cmtFocusElement.classList.remove("vditor-comment--focus");
         }
-        codeRender(vditor.preview.element.lastElementChild as HTMLElement);
-        highlightRender(vditor.options.preview.hljs, vditor.preview.element.lastElementChild as HTMLElement,
-            vditor.options.cdn);
+        const previewRoot = vditor.preview.element.lastElementChild as HTMLElement;
+        codeRender(previewRoot);
+        codeMirrorPreviewRender(vditor.options.preview.hljs, previewRoot);
         mermaidRender(vditor.preview.element.lastElementChild as HTMLElement, vditor.options.cdn, vditor.options.theme);
         plantumlRender(vditor.preview.element.lastElementChild as HTMLElement, vditor.options.cdn);
         mediaRender(vditor.preview.element.lastElementChild as HTMLElement);
