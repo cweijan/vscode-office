@@ -13,17 +13,25 @@ export const processCodeRender = (previewPanel: HTMLElement, vditor: IVditor) =>
     if (!previewPanel) {
         return;
     }
-    if (previewPanel.parentElement.getAttribute("data-type") === "html-block") {
+    const parentElement = previewPanel.parentElement;
+    if (!parentElement) {
+        return;
+    }
+    if (parentElement.getAttribute("data-type") === "html-block") {
         previewPanel.setAttribute("data-render", "1");
         return;
     }
     if ((vditor.currentMode === "wysiwyg" || vditor.currentMode === "ir") &&
-        isCmCodeBlock(previewPanel.parentElement as HTMLElement)) {
+        isCmCodeBlock(parentElement)) {
         renderCodeBlocks(vditor);
         previewPanel.setAttribute("data-render", "1");
         return;
     }
-    const language = previewPanel.firstElementChild.className.replace("language-", "");
+    const codeElement = previewPanel.firstElementChild as HTMLElement | null;
+    if (!codeElement) {
+        return;
+    }
+    const language = codeElement.className.replace("language-", "");
     if (!language) {
         return;
     }

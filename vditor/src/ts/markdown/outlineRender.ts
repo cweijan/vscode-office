@@ -1,17 +1,42 @@
 import {hasClosestByHeadings} from "../util/hasClosestByHeadings";
 import {mathRender} from "./mathRender";
 
+const stripIrOutlineMarkers = (element: HTMLElement) => {
+    const clone = element.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll(".vditor-ir__marker, wbr").forEach((node) => {
+        node.remove();
+    });
+    return clone;
+};
+
+const getOutlineHeadingHTML = (item: HTMLElement, vditor?: IVditor, contentElement?: HTMLElement) => {
+    if (vditor?.currentMode === "ir" && contentElement && !vditor.preview.element.contains(contentElement)) {
+        return stripIrOutlineMarkers(item).outerHTML;
+    }
+    return item.outerHTML.replace("<wbr>", "");
+};
+
+const scrollOutlineTarget = (scrollElement: HTMLElement, idElement: HTMLElement) => {
+    const scrollRect = scrollElement.getBoundingClientRect();
+    const targetRect = idElement.getBoundingClientRect();
+    scrollElement.scrollTop += targetRect.top - scrollRect.top;
+};
+
 export const outlineRender = (contentElement: HTMLElement, targetElement: Element, vditor?: IVditor) => {
     let tocHTML = "";
     const ids: string[] = [];
     Array.from(contentElement.children).forEach((item: HTMLElement, index: number) => {
         if (hasClosestByHeadings(item)) {
             if (vditor) {
-                const lastIndex = item.id.lastIndexOf("_");
-                item.id = item.id.substring(0, lastIndex === -1 ? undefined : lastIndex) + "_" + index;
+                if (!item.id) {
+                    item.id = `vditor-outline-target-${index}`;
+                } else {
+                    const lastIndex = item.id.lastIndexOf("_");
+                    item.id = item.id.substring(0, lastIndex === -1 ? undefined : lastIndex) + "_" + index;
+                }
             }
             ids.push(item.id);
-            tocHTML += item.outerHTML.replace("<wbr>", "");
+            tocHTML += getOutlineHeadingHTML(item, vditor, contentElement);
         }
     });
     if (tocHTML === "") {
@@ -24,7 +49,7 @@ export const outlineRender = (contentElement: HTMLElement, targetElement: Elemen
         if (vditor.currentMode === "wysiwyg" && !vditor.preview.element.contains(contentElement)) {
             tempElement.innerHTML = vditor.lute.SpinVditorDOM("<p>[ToC]</p>" + tocHTML);
         } else if (vditor.currentMode === "ir" && !vditor.preview.element.contains(contentElement)) {
-            tempElement.innerHTML = vditor.lute.SpinVditorIRDOM("<p>[ToC]</p>" + tocHTML);
+            tempElement.innerHTML = vditor.lute.HTML2VditorDOM("<p>[ToC]</p>" + tocHTML);
         } else {
             tempElement.innerHTML = vditor.lute.HTML2VditorDOM("<p>[ToC]</p>" + tocHTML);
         }
@@ -35,7 +60,12 @@ export const outlineRender = (contentElement: HTMLElement, targetElement: Elemen
         lute.SetToC(true);
         tempElement.innerHTML = lute.HTML2VditorDOM("<p>[ToC]</p>" + tocHTML);
     }
-    const headingsElement = tempElement.firstElementChild.querySelectorAll("li > span[data-target-id]");
+    const tocRoot = tempElement.firstElementChild;
+    if (!tocRoot) {
+        targetElement.innerHTML = "";
+        return "";
+    }
+    const headingsElement = tocRoot.querySelectorAll("li > span[data-target-id]");
     headingsElement.forEach((item, index) => {
         if (item.nextElementSibling && item.nextElementSibling.tagName === "UL") {
             let iconHTML = "<svg class='vditor-outline__action'><use xlink:href='#vditor-icon-down'></use></svg>";
@@ -48,7 +78,7 @@ export const outlineRender = (contentElement: HTMLElement, targetElement: Elemen
         }
         item.setAttribute("data-target-id", ids[index]);
     });
-    tocHTML = tempElement.firstElementChild.innerHTML;
+    tocHTML = tocRoot.innerHTML;
     if (headingsElement.length === 0) {
         targetElement.innerHTML = "";
         return tocHTML;
@@ -61,7 +91,7 @@ export const outlineRender = (contentElement: HTMLElement, targetElement: Elemen
             math: vditor.options.preview.math,
         });
     }
-    targetElement.firstElementChild.addEventListener("click", (event: Event) => {
+    targetElement.firstElementChild?.addEventListener("click", (event: Event) => {
         let target = event.target as HTMLElement;
         while (target && !target.isEqualNode(targetElement)) {
             if (target.classList.contains("vditor-outline__action")) {
@@ -96,7 +126,7 @@ export const outlineRender = (contentElement: HTMLElement, targetElement: Elemen
                         if (vditor.preview.element.contains(contentElement)) {
                             contentElement.parentElement.scrollTop = idElement.offsetTop;
                         } else {
-                            contentElement.scrollTop = idElement.offsetTop;
+                            scrollOutlineTarget(contentElement, idElement);
                         }
                     }
                 } else {

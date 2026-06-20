@@ -70,6 +70,10 @@ export const processAfterRender = (vditor: IVditor, options = {
         if (options.enableAddUndoStack) {
             vditor.undo.addToUndoStack(vditor);
         }
+
+        if (vditor.options.outline.enable) {
+            vditor.outline.render(vditor);
+        }
     }, vditor.options.undoDelay);
 };
 

@@ -146,7 +146,9 @@ export const setEditMode = (vditor: IVditor, type: string, event: Event | string
         vditor.toolbar.elements["edit-mode"].querySelectorAll("button").forEach((item) => {
             item.classList.remove("vditor-menu--current");
         });
-        vditor.toolbar.elements["edit-mode"].querySelector(`button[data-mode="${vditor.currentMode}"]`).classList.add("vditor-menu--current");
+        const currentModeBtn = vditor.toolbar.elements["edit-mode"]
+            .querySelector(`button[data-mode="${vditor.currentMode}"]`);
+        currentModeBtn?.classList.add("vditor-menu--current");
     }
 
     vditor.outline.toggle(vditor, vditor.currentMode !== "sv" && vditor.options.outline.enable);
@@ -176,7 +178,6 @@ export class EditMode extends MenuItem {
         panelElement.children.item(0).addEventListener(getEventName(), (event: Event) => {
             // wysiwyg
             setEditMode(vditor, "wysiwyg", event);
-            vditor.options.changeEditMode("wysiwyg")
             event.preventDefault();
             event.stopPropagation();
         });
@@ -184,7 +185,6 @@ export class EditMode extends MenuItem {
         panelElement.children.item(1).addEventListener(getEventName(), (event: Event) => {
             // ir
             setEditMode(vditor, "ir", event);
-            vditor.options.changeEditMode("ir")
             event.preventDefault();
             event.stopPropagation();
         });
@@ -192,7 +192,6 @@ export class EditMode extends MenuItem {
         panelElement.children.item(2).addEventListener(getEventName(), (event: Event) => {
             // markdown
             setEditMode(vditor, "sv", event);
-            vditor.options.changeEditMode("sv")
             event.preventDefault();
             event.stopPropagation();
         });

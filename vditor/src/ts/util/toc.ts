@@ -37,7 +37,10 @@ export const clickToc = (event: MouseEvent & { target: HTMLElement }, vditor: IV
                 if (vditor.element.offsetTop < window.scrollY) {
                     window.scrollTo(window.scrollX, vditor.element.offsetTop);
                 }
-                vditor[vditor.currentMode].element.scrollTop = headingElement.offsetTop;
+                const editorElement = vditor[vditor.currentMode].element;
+                const scrollRect = editorElement.getBoundingClientRect();
+                const targetRect = headingElement.getBoundingClientRect();
+                editorElement.scrollTop += targetRect.top - scrollRect.top;
             }
         }
         return;
