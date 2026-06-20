@@ -24,7 +24,6 @@ class Undo {
     private dmp: diff_match_patch;
     private wysiwyg: IUndo;
     private ir: IUndo;
-    private sv: IUndo;
 
     constructor() {
         this.resetStack();
@@ -157,12 +156,10 @@ class Undo {
         if (vditor.currentMode === "wysiwyg" || vditor.currentMode === "ir") {
             remountCodeMirrorsAfterDomReplace(vditor);
         }
-        if (vditor.currentMode !== "sv") {
-            vditor[vditor.currentMode].element.querySelectorAll(`.vditor-${vditor.currentMode}__preview[data-render='2']`)
-                .forEach((blockElement: HTMLElement) => {
-                    processCodeRender(blockElement, vditor);
-                });
-        }
+        vditor[vditor.currentMode].element.querySelectorAll(`.vditor-${vditor.currentMode}__preview[data-render='2']`)
+            .forEach((blockElement: HTMLElement) => {
+                processCodeRender(blockElement, vditor);
+            });
 
         if (!vditor[vditor.currentMode].element.querySelector("wbr")) {
             // Safari 第一次输入没有光标，需手动定位到结尾
@@ -208,12 +205,6 @@ class Undo {
             redoStack: [],
             undoStack: [],
         };
-        this.sv = {
-            hasUndo: false,
-            lastText: "",
-            redoStack: [],
-            undoStack: [],
-        };
         this.wysiwyg = {
             hasUndo: false,
             lastText: "",
@@ -227,7 +218,7 @@ class Undo {
         if (getSelection().rangeCount !== 0 && !vditor[vditor.currentMode].element.querySelector("wbr")) {
             const range = getSelection().getRangeAt(0);
             if (vditor[vditor.currentMode].element.contains(range.startContainer) &&
-                !(vditor.currentMode !== "sv" && isInsideCodeMirror(range.startContainer))) {
+                !isInsideCodeMirror(range.startContainer)) {
                 cloneRange = range.cloneRange();
                 const wbrElement = document.createElement("span");
                 wbrElement.className = "vditor-wbr";

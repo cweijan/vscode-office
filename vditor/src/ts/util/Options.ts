@@ -13,9 +13,6 @@ export class Options {
             enable: false,
         },
         cdn: Constants.CDN,
-        classes: {
-            preview: "",
-        },
         counter: {
             enable: false,
             type: "markdown",
@@ -46,13 +43,11 @@ export class Options {
             position: "left",
         },
         placeholder: "",
+        editorMaxWidth: 800,
         preview: {
-            delay: 1000,
             hljs: Constants.HLJS_OPTIONS,
             markdown: Constants.MARKDOWN_OPTIONS,
             math: Constants.MATH_OPTIONS,
-            maxWidth: 800,
-            theme: Constants.THEME_OPTIONS,
         },
         theme: "classic",
         toolbar: [
@@ -87,7 +82,6 @@ export class Options {
                 name: "more",
                 toolbar: [
                     "code-theme",
-                    "content-theme",
                     "outline",
                     "info",
                     "help",
@@ -126,9 +120,6 @@ export class Options {
             } else {
                 this.options.toolbar = this.mergeToolbar(this.defaultOptions.toolbar);
             }
-            if (this.options.preview?.theme?.list) {
-                this.defaultOptions.preview.theme.list = this.options.preview.theme.list;
-            }
             if (this.options.hint?.emoji) {
                 this.defaultOptions.hint.emoji = this.options.hint.emoji;
             }
@@ -139,6 +130,10 @@ export class Options {
         }
 
         const mergedOptions = merge(this.defaultOptions, this.options);
+
+        if (mergedOptions.mode === "sv") {
+            mergedOptions.mode = "ir";
+        }
 
         if (mergedOptions.cache.enable && !mergedOptions.cache.id) {
             throw new Error(
@@ -302,10 +297,6 @@ export class Options {
         }, {
             icon: toolbarIcon("editor-theme", '<svg><use xlink:href="#vditor-icon-theme"></use></svg>'),
             name: "editor-theme",
-            tipPosition: "e",
-        }, {
-            icon: toolbarIcon("content-theme", '<svg><use xlink:href="#vditor-icon-theme"></use></svg>'),
-            name: "content-theme",
             tipPosition: "e",
         }, {
             icon: toolbarIcon("code-theme", '<svg><use xlink:href="#vditor-icon-code-theme"></use></svg>'),

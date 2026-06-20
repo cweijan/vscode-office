@@ -1,3 +1,4 @@
+import {pinOutlineActive} from "../outline/updateOutlineActive";
 import {mathRender} from "../markdown/mathRender";
 import {scrollOutlineTarget, OUTLINE_SCROLL_OFFSET} from "../markdown/outlineRender";
 import {execAfterRender, insertAfterBlock, insertBeforeBlock} from "./fixBrowserBehavior";
@@ -21,9 +22,6 @@ const scrollToHeading = (vditor: IVditor, headingElement: HTMLElement) => {
 };
 
 export const renderToc = (vditor: IVditor) => {
-    if (vditor.currentMode === "sv") {
-        return;
-    }
     const editorElement = vditor[vditor.currentMode].element;
     let tocHTML = vditor.outline.render(vditor);
     if (tocHTML === "") {
@@ -55,6 +53,7 @@ export const clickToc = (event: MouseEvent & { target: HTMLElement }, vditor: IV
             event.stopPropagation();
             const headingElement = editorElement.querySelector("#" + CSS.escape(targetId)) as HTMLElement;
             if (headingElement) {
+                pinOutlineActive(vditor, targetId);
                 scrollToHeading(vditor, headingElement);
             }
             return;

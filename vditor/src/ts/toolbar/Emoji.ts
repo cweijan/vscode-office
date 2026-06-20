@@ -49,7 +49,7 @@ data-value=":${key}: " data-key=":${key}:" class="vditor-emojis__icon" src="${em
                 } else if (vditor.currentMode === "ir") {
                     html = vditor.lute.SpinVditorIRDOM(value);
                 }
-                if (value.indexOf(":") > -1 && vditor.currentMode !== "sv") {
+                if (value.indexOf(":") > -1) {
                     const tempElement = document.createElement("div");
                     tempElement.innerHTML = html;
                     html = tempElement.firstElementChild.firstElementChild.outerHTML + " ";

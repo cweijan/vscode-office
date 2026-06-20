@@ -1,0 +1,45 @@
+html[data-editor-theme="Github Dark"],
+#vditor[data-editor-theme="Github Dark"] {
+    --hr-bg: #444c56;
+    --ext-border-color: #444c56;
+    --bg-color: #0d1117;
+    --front-color: #adbac7;
+    --second-bg-color: #2d333b;
+    --code-bg-color: #1c2128;
+    --code-fg-color: var(--front-color);
+    --list-hover-color: #539bf5;
+    --dropdown-hover-background: rgba(99, 110, 123, 0.4);
+    --error-color: #f14c4c;
+    --link-color: var(--list-hover-color);
+    --blockquote-color: var(--front-color);
+    --blockquote-border: var(--ext-border-color);
+    --table-border: var(--ext-border-color);
+    --table-stripe-bg: color-mix(in srgb, var(--front-color) 8%, var(--bg-color));
+    --cm-bg-color: var(--code-bg-color);
+    --cm-fg-color: var(--front-color);
+    --cm-lang-trigger-bg: var(--second-bg-color);
+    --cm-active-line-bg: color-mix(in srgb, var(--front-color) 8%, var(--cm-bg-color));
+    --cm-fold-fg: var(--list-hover-color);
+    --cm-fold-fg-hover: var(--front-color);
+    --cm-cursor-fg: var(--list-hover-color);
+    --cm-line-number-fg: color-mix(in srgb, var(--front-color) 55%, transparent);
+    --cm-line-number-active-fg: var(--front-color);
+    --cm-selection-bg: color-mix(in srgb, var(--list-hover-color) 35%, transparent);
+    --cm-selection-bg-focused: color-mix(in srgb, var(--list-hover-color) 48%, transparent);
+    --cm-selection-bg-inactive: color-mix(in srgb, var(--list-hover-color) 26%, transparent);
+    --cm-selection-highlight-bg: color-mix(in srgb, var(--list-hover-color) 20%, transparent);
+    --cm-lang-search-focus-color: var(--list-hover-color);
+    --outline-bg-color: #0f131a;
+    --outline-hover-bg: #141a23;
+    --outline-active-bg: #1a222d;
+    --mermaid-bg: var(--bg-color);
+}
+
+#vditor[data-editor-theme="Github Dark"] {
+    --ir-heading-color: #dcbdfb;
+    --ir-title-color: #adbac7;
+    --ir-bi-color: #f0883e;
+    --ir-link-color: #96d0ff;
+    --ir-bracket-color: #539bf5;
+    --ir-paren-color: #6cb6ff;
+}

@@ -1,0 +1,203 @@
+body {
+    padding: 0;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+.win32 * {
+    text-shadow: 0 0 0.55px #7c7c7cdd;
+}
+
+html {
+    scrollbar-color: unset;
+}
+
+.vditor-context-menu {
+    position: fixed;
+    z-index: 10000;
+    min-width: 200px;
+    max-width: min(320px, calc(100vw - 8px));
+    padding: 4px 0;
+    border: 1px solid var(--ext-border-color);
+    border-radius: 5px;
+    background-color: var(--second-bg-color);
+    color: var(--front-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    font-size: var(--vscode-font-size, 13px);
+    line-height: 22px;
+    font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    user-select: none;
+    overflow: hidden;
+    --ctx-icon-copy: var(--vscode-textLink-foreground, #3794ff);
+    --ctx-icon-paste: var(--vscode-charts-green, #89d185);
+    --ctx-icon-pdf: var(--vscode-charts-red, #e51400);
+    --ctx-icon-pdf-plain: var(--vscode-charts-red, #e51400);
+    --ctx-icon-docx: var(--vscode-charts-blue, #3794ff);
+    --ctx-icon-html: var(--vscode-symbolIcon-stringForeground, #ce9178);
+}
+
+.vditor-context-menu[hidden] {
+    display: none !important;
+}
+
+.vditor-context-menu__group {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+
+.vditor-context-menu__separator {
+    height: 1px;
+    margin: 4px 0;
+    background-color: var(--hr-bg);
+    opacity: 0.6;
+}
+
+.vditor-context-menu__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 26px;
+    padding: 2px 12px 2px 8px;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.1s ease;
+}
+
+.vditor-context-menu__item:hover,
+.vditor-context-menu__item:focus-visible {
+    background-color: var(--dropdown-hover-background);
+    color: var(--front-color);
+    outline: none;
+}
+
+.vditor-context-menu__item:hover .vditor-context-menu__icon .codicon,
+.vditor-context-menu__item:focus-visible .vditor-context-menu__icon .codicon {
+    opacity: 1;
+    filter: brightness(1.12);
+}
+
+.vditor-context-menu__icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+}
+
+.vditor-context-menu__icon .codicon {
+    font-size: 16px;
+    line-height: 1;
+    opacity: 0.92;
+    transition: opacity 0.1s ease, filter 0.1s ease;
+}
+
+.vditor-context-menu__item[data-action="copy"] .codicon {
+    color: var(--ctx-icon-copy);
+}
+
+.vditor-context-menu__item[data-action="paste"] .codicon {
+    color: var(--ctx-icon-paste);
+}
+
+.vditor-context-menu__item[data-action="exportPdf"] .codicon {
+    color: var(--ctx-icon-pdf);
+}
+
+.vditor-context-menu__item[data-action="exportPdfWithoutOutline"] .codicon {
+    color: var(--ctx-icon-pdf-plain);
+}
+
+.vditor-context-menu__item[data-action="exportDocx"] .codicon {
+    color: var(--ctx-icon-docx);
+}
+
+.vditor-context-menu__item[data-action="exportHtml"] .codicon {
+    color: var(--ctx-icon-html);
+}
+
+.vditor-context-menu__label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vditor-help-tip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 14px;
+    padding-top: 14px;
+    font-size: 14px;
+    line-height: 22px;
+}
+
+.vditor-help-tip__links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    white-space: nowrap;
+}
+
+.vditor-help-tip__divider {
+    opacity: 0.4;
+}
+
+.vditor-help-sponsor {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.vditor-help-sponsor-logo-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.vditor-help-sponsor-logo-btn:hover {
+    opacity: 0.85;
+}
+
+.vditor-help-sponsor-logo {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    display: block;
+}
+
+.vditor-help-sponsor-text {
+    color: var(--vscode-descriptionForeground, #656d76);
+    font-size: 13px;
+}
+
+.vditor-help-sponsor-text a {
+    color: var(--vscode-textLink-foreground, #0969da);
+    font-weight: 600;
+}
+
+.vditor-help-sponsor-text a:hover {
+    text-decoration: underline;
+}

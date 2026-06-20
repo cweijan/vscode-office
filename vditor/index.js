@@ -27,16 +27,13 @@ if (window.innerWidth < 768) {
     'insert-after',
     '|',
     'upload',
-    'record',
     'table',
     '|',
     'undo',
     'redo',
     '|',
     'edit-mode',
-    'content-theme',
     'code-theme',
-    'export',
     {
       name: 'more',
       toolbar: [
@@ -97,7 +94,7 @@ window.vditor = new Vditor('vditor', {
           if ('vditor'.indexOf(key.toLocaleLowerCase()) > -1) {
             return [{
               value: '#Vditor',
-              html: '<span style="color: #999;">#Vditor</span> ♏ 一款浏览器端的 Markdown 编辑器，支持所见即所得（富文本）、即时渲染（类似 Typora）和分屏预览模式。',
+              html: '<span style="color: #999;">#Vditor</span> ♏ 一款浏览器端的 Markdown 编辑器，支持所见即所得（富文本）、即时渲染（类似 Typora）。',
             }]
           }
           return []

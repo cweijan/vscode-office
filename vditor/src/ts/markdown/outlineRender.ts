@@ -1,3 +1,4 @@
+import { pinOutlineActive } from "../outline/updateOutlineActive";
 import { hasClosestByHeadings } from "../util/hasClosestByHeadings";
 import { mathRender } from "./mathRender";
 
@@ -16,7 +17,15 @@ const getOutlineHeadingHTML = (item: HTMLElement, vditor?: IVditor) => {
     return item.outerHTML.replace("<wbr>", "");
 };
 
-export const OUTLINE_SCROLL_OFFSET = 12;
+export const OUTLINE_SCROLL_OFFSET = 15;
+
+export const getOutlineActiveReferenceY = (vditor: IVditor, contentElement: HTMLElement) => {
+    let referenceY = contentElement.getBoundingClientRect().top + OUTLINE_SCROLL_OFFSET;
+    if (vditor.options.height === "auto" && !vditor.options.toolbarConfig.pin) {
+        referenceY += vditor.toolbar.element.getBoundingClientRect().height;
+    }
+    return referenceY;
+};
 
 export const scrollOutlineTarget = (scrollElement: HTMLElement, idElement: HTMLElement) => {
     const scrollRect = scrollElement.getBoundingClientRect();
@@ -108,11 +117,13 @@ export const outlineRender = (contentElement: HTMLElement, targetElement: Elemen
             } else if (target.getAttribute("data-target-id")) {
                 event.preventDefault();
                 event.stopPropagation();
-                const idElement = document.getElementById(target.getAttribute("data-target-id"));
+                const targetId = target.getAttribute("data-target-id");
+                const idElement = document.getElementById(targetId);
                 if (!idElement) {
                     return;
                 }
                 if (vditor) {
+                    pinOutlineActive(vditor, targetId);
                     if (vditor.options.height === "auto") {
                         let windowScrollY = idElement.offsetTop + vditor.element.offsetTop;
                         if (!vditor.options.toolbarConfig.pin) {

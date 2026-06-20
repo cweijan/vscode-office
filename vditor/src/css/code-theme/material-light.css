@@ -1,0 +1,31 @@
+html[data-cm-theme="material-light"],
+#vditor[data-cm-theme="material-light"] {
+    --cm-bg-color: #fafafa;
+    --cm-lang-trigger-bg: #ffffff;
+    --cm-copy-color: #6182b8;
+    --cm-copy-done-color: #39adb5;
+    --cm-delete-color: #ff5370;
+    --cm-fg-color: #546e7a;
+    --cm-active-line-bg: rgba(0, 0, 0, 0.04);
+    --cm-cursor-fg: #546e7a;
+    --cm-line-number-fg: #90a4ae;
+    --cm-line-number-active-fg: #546e7a;
+    --cm-selection-bg-inactive: rgba(128, 203, 196, 0.3);
+    --cm-selection-bg-focused: rgba(128, 203, 196, 0.45);
+    --cm-selection-highlight-bg: rgba(128, 203, 196, 0.15);
+    --cm-bracket-match-bg: rgba(128, 203, 196, 0.25);
+    --cm-bracket-match-border: #80cbc4;
+    --cm-syntax-comment: #90a4ae;
+    --cm-syntax-keyword: #7c4dff;
+    --cm-syntax-string: #39adb5;
+    --cm-syntax-number: #f76d47;
+    --cm-syntax-atom: #f76d47;
+    --cm-syntax-property: #9c27b0;
+    --cm-syntax-attribute: #ff5370;
+    --cm-syntax-variable: #546e7a;
+    --cm-syntax-def: #6182b8;
+    --cm-syntax-bracket: #546e7a;
+    --cm-syntax-tag: #e53935;
+    --cm-syntax-link: #6182b8;
+    --cm-syntax-error: #ff5370;
+}

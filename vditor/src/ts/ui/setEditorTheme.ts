@@ -1,4 +1,3 @@
-import {addStyle} from "../util/addStyle";
 import {
     EDITOR_DARK_THEMES,
     EDITOR_THEME_IDS,
@@ -6,12 +5,9 @@ import {
 } from "./editorThemeCatalog";
 import {initEditorThemeToggle, updateEditorThemeToggle} from "./editorThemeToggle";
 
-const EDITOR_BASE_CSS_ID = "vditor-editor-base-css";
-const EDITOR_THEME_LINK_ID = "vditor-editor-theme-css";
+const LEGACY_THEME_LINK_ID = "vditor-editor-theme-css";
 
 let vscodeThemeObserverStarted = false;
-
-const getAssetRoot = (vditor: IVditor) => vditor.options.extPath ?? vditor.options.cdn;
 
 const isVscodeDarkTheme = () => {
     const kind = document.body.getAttribute("data-vscode-theme-kind");
@@ -29,20 +25,10 @@ export const syncEditorDarkClass = (element: HTMLElement, theme: string) => {
     element.classList.toggle("vditor--dark", useDark);
 };
 
-const setThemeStylesheet = (vditor: IVditor, theme: string) => {
-    const root = getAssetRoot(vditor);
-    const href = `${root}/css/theme/${theme}.css`;
-    let link = document.getElementById(EDITOR_THEME_LINK_ID) as HTMLLinkElement | null;
-    if (!link) {
-        link = document.createElement("link");
-        link.id = EDITOR_THEME_LINK_ID;
-        link.rel = "stylesheet";
-        link.type = "text/css";
-        document.head.appendChild(link);
-    }
-    if (link.getAttribute("href") !== href) {
-        link.setAttribute("href", href);
-    }
+const applyEditorThemeAttribute = (vditor: IVditor, theme: string) => {
+    document.documentElement.setAttribute("data-editor-theme", theme);
+    vditor.element.setAttribute("data-editor-theme", theme);
+    document.getElementById(LEGACY_THEME_LINK_ID)?.remove();
 };
 
 const observeVscodeTheme = (vditor: IVditor) => {
@@ -59,22 +45,15 @@ const observeVscodeTheme = (vditor: IVditor) => {
     observer.observe(document.body, {attributes: true, attributeFilter: ["data-vscode-theme-kind"]});
 };
 
-export const ensureEditorThemeAssets = (vditor: IVditor) => {
-    const root = getAssetRoot(vditor);
-    addStyle(`${root}/css/base.css`, EDITOR_BASE_CSS_ID);
-};
-
-/** Apply markdown editor chrome theme (resource css/theme/*.css). */
+/** Apply bundled editor theme via data-editor-theme (css bundled in index.css). */
 export const setEditorTheme = (vditor: IVditor, theme: string, notify = true) => {
     const resolved = resolveEditorTheme(theme);
     if (!EDITOR_THEME_IDS.includes(resolved)) {
         return;
     }
 
-    ensureEditorThemeAssets(vditor);
-    setThemeStylesheet(vditor, resolved);
+    applyEditorThemeAttribute(vditor, resolved);
     vditor.options.editorTheme = resolved;
-    vditor.element.setAttribute("data-editor-theme", resolved);
     syncEditorDarkClass(vditor.element, resolved);
     updateEditorThemeToggle(resolved);
     observeVscodeTheme(vditor);

@@ -15,7 +15,7 @@ export class Info extends MenuItem {
     <img src="https://unpkg.com/vditor/dist/images/logo.png" style="margin: 0 auto;height: 68px"/>
     <div>&nbsp;&nbsp;</div>
     <div style="flex: 1;min-width: 250px">
-        Vditor 是一款浏览器端的 Markdown 编辑器，支持所见即所得、即时渲染（类似 Typora）和分屏预览模式。
+        Vditor 是一款浏览器端的 Markdown 编辑器，支持所见即所得、即时渲染（类似 Typora）。
         它使用 TypeScript 实现，支持原生 JavaScript 以及 Vue、React、Angular 和 Svelte 等框架。
     </div>
 </div>

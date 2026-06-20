@@ -1,0 +1,45 @@
+html[data-editor-theme="Nord"],
+#vditor[data-editor-theme="Nord"] {
+    --hr-bg: #4c566a;
+    --ext-border-color: #3b4252;
+    --bg-color: #2e3440;
+    --front-color: #d8dee9;
+    --second-bg-color: #3b4252;
+    --code-bg-color: #434c5e;
+    --code-fg-color: var(--front-color);
+    --list-hover-color: #88c0d0;
+    --dropdown-hover-background: #434c5e;
+    --error-color: #bf616a;
+    --link-color: var(--list-hover-color);
+    --blockquote-color: var(--front-color);
+    --blockquote-border: var(--ext-border-color);
+    --table-border: var(--ext-border-color);
+    --table-stripe-bg: color-mix(in srgb, var(--front-color) 8%, var(--bg-color));
+    --cm-bg-color: var(--code-bg-color);
+    --cm-fg-color: var(--front-color);
+    --cm-lang-trigger-bg: var(--second-bg-color);
+    --cm-active-line-bg: color-mix(in srgb, var(--front-color) 8%, var(--cm-bg-color));
+    --cm-fold-fg: var(--list-hover-color);
+    --cm-fold-fg-hover: var(--front-color);
+    --cm-cursor-fg: var(--list-hover-color);
+    --cm-line-number-fg: color-mix(in srgb, var(--front-color) 55%, transparent);
+    --cm-line-number-active-fg: var(--front-color);
+    --cm-selection-bg: color-mix(in srgb, var(--list-hover-color) 35%, transparent);
+    --cm-selection-bg-focused: color-mix(in srgb, var(--list-hover-color) 48%, transparent);
+    --cm-selection-bg-inactive: color-mix(in srgb, var(--list-hover-color) 26%, transparent);
+    --cm-selection-highlight-bg: color-mix(in srgb, var(--list-hover-color) 20%, transparent);
+    --cm-lang-search-focus-color: var(--list-hover-color);
+    --outline-bg-color: #2c313d;
+    --outline-hover-bg: #323846;
+    --outline-active-bg: #383e4b;
+    --mermaid-bg: var(--bg-color);
+}
+
+#vditor[data-editor-theme="Nord"] {
+    --ir-heading-color: #b48ead;
+    --ir-title-color: #d8dee9;
+    --ir-bi-color: #ebcb8b;
+    --ir-link-color: #a3be8c;
+    --ir-bracket-color: #88c0d0;
+    --ir-paren-color: #8fbcbb;
+}

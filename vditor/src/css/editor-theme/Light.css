@@ -1,0 +1,36 @@
+html[data-editor-theme="Light"],
+#vditor[data-editor-theme="Light"] {
+    --hr-bg: rgba(128, 128, 128, 0.35);
+    --ext-border-color: rgba(128, 128, 128, 0.35);
+    --bg-color: #f5f5f5;
+    --front-color: #333333;
+    --second-bg-color: #f3f3f3;
+    --code-bg-color: #e5e5e5;
+    --code-fg-color: var(--front-color);
+    --list-hover-color: #0451a5;
+    --dropdown-hover-background: #c4d9b1;
+    --error-color: #e51400;
+    --link-color: var(--list-hover-color);
+    --blockquote-color: var(--front-color);
+    --blockquote-border: var(--ext-border-color);
+    --table-border: var(--ext-border-color);
+    --table-stripe-bg: color-mix(in srgb, var(--front-color) 6%, var(--bg-color));
+    --cm-bg-color: var(--code-bg-color);
+    --cm-fg-color: var(--front-color);
+    --cm-lang-trigger-bg: var(--second-bg-color);
+    --cm-active-line-bg: color-mix(in srgb, var(--front-color) 6%, var(--cm-bg-color));
+    --cm-fold-fg: var(--list-hover-color);
+    --cm-fold-fg-hover: var(--front-color);
+    --cm-cursor-fg: var(--front-color);
+    --cm-line-number-fg: color-mix(in srgb, var(--front-color) 55%, transparent);
+    --cm-line-number-active-fg: var(--front-color);
+    --cm-selection-bg: color-mix(in srgb, var(--list-hover-color) 32%, transparent);
+    --cm-selection-bg-focused: color-mix(in srgb, var(--list-hover-color) 42%, transparent);
+    --cm-selection-bg-inactive: color-mix(in srgb, var(--list-hover-color) 24%, transparent);
+    --cm-selection-highlight-bg: color-mix(in srgb, var(--list-hover-color) 18%, transparent);
+    --cm-lang-search-focus-color: var(--list-hover-color);
+    --outline-bg-color: #f2f2f2;
+    --outline-hover-bg: #ededed;
+    --outline-active-bg: #e6e6e6;
+    --mermaid-bg: var(--bg-color);
+}

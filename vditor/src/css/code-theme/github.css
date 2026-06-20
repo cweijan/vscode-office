@@ -1,0 +1,31 @@
+html[data-cm-theme="github"],
+#vditor[data-cm-theme="github"] {
+    --cm-bg-color: #f6f8fa;
+    --cm-lang-trigger-bg: #ffffff;
+    --cm-copy-color: #0969da;
+    --cm-copy-done-color: #0550ae;
+    --cm-delete-color: #cf222e;
+    --cm-fg-color: #24292f;
+    --cm-active-line-bg: rgba(0, 0, 0, 0.04);
+    --cm-cursor-fg: #24292f;
+    --cm-line-number-fg: #656d76;
+    --cm-line-number-active-fg: #24292f;
+    --cm-selection-bg-inactive: rgba(84, 174, 255, 0.25);
+    --cm-selection-bg-focused: rgba(84, 174, 255, 0.35);
+    --cm-selection-highlight-bg: rgba(84, 174, 255, 0.15);
+    --cm-bracket-match-bg: rgba(84, 174, 255, 0.2);
+    --cm-bracket-match-border: #54aeff;
+    --cm-syntax-comment: #6a737d;
+    --cm-syntax-keyword: #cf222e;
+    --cm-syntax-string: #0a3069;
+    --cm-syntax-number: #0550ae;
+    --cm-syntax-atom: #0550ae;
+    --cm-syntax-property: #953800;
+    --cm-syntax-attribute: #116329;
+    --cm-syntax-variable: #24292f;
+    --cm-syntax-def: #8250df;
+    --cm-syntax-bracket: #24292f;
+    --cm-syntax-tag: #116329;
+    --cm-syntax-link: #0969da;
+    --cm-syntax-error: #cf222e;
+}

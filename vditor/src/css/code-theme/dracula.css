@@ -1,0 +1,31 @@
+html[data-cm-theme="dracula"],
+#vditor[data-cm-theme="dracula"] {
+    --cm-bg-color: #282a36;
+    --cm-lang-trigger-bg: #44475a;
+    --cm-copy-color: #8be9fd;
+    --cm-copy-done-color: #66d9ef;
+    --cm-delete-color: #ff5555;
+    --cm-fg-color: #f8f8f2;
+    --cm-active-line-bg: rgba(255, 255, 255, 0.06);
+    --cm-cursor-fg: #f8f8f2;
+    --cm-line-number-fg: #6272a4;
+    --cm-line-number-active-fg: #f8f8f2;
+    --cm-selection-bg-inactive: rgba(68, 71, 90, 0.6);
+    --cm-selection-bg-focused: rgba(68, 71, 90, 0.85);
+    --cm-selection-highlight-bg: rgba(68, 71, 90, 0.35);
+    --cm-bracket-match-bg: rgba(255, 255, 255, 0.1);
+    --cm-bracket-match-border: #bd93f9;
+    --cm-syntax-comment: #6272a4;
+    --cm-syntax-keyword: #ff79c6;
+    --cm-syntax-string: #f1fa8c;
+    --cm-syntax-number: #bd93f9;
+    --cm-syntax-atom: #bd93f9;
+    --cm-syntax-property: #66d9ef;
+    --cm-syntax-attribute: #50fa7b;
+    --cm-syntax-variable: #f8f8f2;
+    --cm-syntax-def: #50fa7b;
+    --cm-syntax-bracket: #f8f8f2;
+    --cm-syntax-tag: #ff79c6;
+    --cm-syntax-link: #8be9fd;
+    --cm-syntax-error: #ff5555;
+}

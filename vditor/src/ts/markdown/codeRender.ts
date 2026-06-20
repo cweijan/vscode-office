@@ -1,7 +1,7 @@
 import {code160to32} from "../util/code160to32";
 
 export const codeRender = (element: HTMLElement) => {
-    element.querySelectorAll("pre > code").forEach((e: HTMLElement, index: number) => {
+    element.querySelectorAll("pre > code").forEach((e: HTMLElement) => {
         if (e.parentElement.classList.contains("vditor-wysiwyg__pre") ||
             e.parentElement.classList.contains("vditor-ir__marker--pre")) {
             return;
@@ -13,11 +13,6 @@ export const codeRender = (element: HTMLElement) => {
         }
 
         if (e.style.maxHeight.indexOf("px") > -1) {
-            return;
-        }
-
-        // 避免预览区在渲染后由于代码块过多产生性能问题 https://github.com/b3log/vditor/issues/67
-        if (element.classList.contains("vditor-preview") && index > 5) {
             return;
         }
 

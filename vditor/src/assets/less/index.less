@@ -11,29 +11,30 @@
 @max-width: 520px;
 
 .vditor {
-  --border-color: #d1d5da;
+  --border-color: var(--ext-border-color, #d1d5da);
   --second-color: rgba(88, 96, 105, 0.36);
 
-  --panel-background-color: #fff;
+  --panel-background-color: var(--bg-color, #fff);
   --panel-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 
-  --toolbar-background-color: #f6f8fa;
-  --toolbar-icon-color: #586069;
-  --toolbar-icon-hover-color: @blurColor;
+  --toolbar-background-color: var(--bg-color, #f6f8fa);
+  --toolbar-icon-color: var(--front-color, #586069);
+  --toolbar-icon-hover-color: var(--list-hover-color, @blurColor);
   --toolbar-height: 35px;
   --toolbar-divider-margin-top: 8px;
 
-  --textarea-background-color: #fafbfc;
-  --textarea-text-color: #24292e;
+  --textarea-background-color: var(--bg-color, #fafbfc);
+  --textarea-text-color: var(--front-color, #24292e);
 
   --count-background-color: rgba(27, 31, 35, 0.05);
-  --heading-border-color: #eaecef;
-  --blockquote-color: #6a737d;
-  --blockquote-border: var(--vscode-textBlockQuote-border, #eaecef);
-  --table-row-border: #c6cbd1;
-  --table-border: #dfe2e5;
-  --outline-hover-bg: rgba(27, 31, 35, 0.06);
-  --outline-bg-color: color-mix(in srgb, var(--textarea-text-color) 2%, var(--panel-background-color));
+  --heading-border-color: var(--ext-border-color, #eaecef);
+  --blockquote-color: var(--front-color, #6a737d);
+  --blockquote-border: var(--ext-border-color, var(--vscode-textBlockQuote-border, #eaecef));
+  --table-row-border: var(--ext-border-color, #c6cbd1);
+  --table-border: var(--ext-border-color, #dfe2e5);
+  --outline-bg-color: #f8f9fb;
+  --outline-hover-bg: #f2f4f7;
+  --outline-active-bg: #eceff3;
 
   --ir-heading-color: #660e7a;
   --ir-title-color: #808080;
@@ -43,27 +44,28 @@
   --ir-paren-color: #008000;
 
   &--dark {
-    --border-color: #141414;
+    --border-color: var(--ext-border-color, #141414);
     --second-color: rgba(185, 185, 185, 0.36);
 
-    --panel-background-color: #24292e;
+    --panel-background-color: var(--bg-color, #24292e);
     --panel-shadow: 0 1px 2px rgba(255, 255, 255, 0.2);
 
-    --toolbar-background-color: #1d2125;
-    --toolbar-icon-color: #b9b9b9;
-    --toolbar-icon-hover-color: #fff;
+    --toolbar-background-color: var(--bg-color, #1d2125);
+    --toolbar-icon-color: var(--front-color, #b9b9b9);
+    --toolbar-icon-hover-color: var(--list-hover-color, #fff);
 
-    --textarea-background-color: #2f363d;
-    --textarea-text-color: #d1d5da;
+    --textarea-background-color: var(--bg-color, #2f363d);
+    --textarea-text-color: var(--front-color, #d1d5da);
 
     --count-background-color: rgba(@blurColor, 0.36);
-    --heading-border-color: var(--textarea-text-color);
-    --blockquote-color: var(--toolbar-icon-color);
-    --blockquote-border: var(--vscode-textBlockQuote-border, #3d444d);
-    --table-row-border: #3d444d;
-    --table-border: #444c56;
-    --outline-hover-bg: rgba(255, 255, 255, 0.06);
-    --outline-bg-color: color-mix(in srgb, var(--textarea-text-color) 2%, var(--panel-background-color));
+    --heading-border-color: var(--ext-border-color, var(--textarea-text-color));
+    --blockquote-color: var(--front-color, var(--toolbar-icon-color));
+    --blockquote-border: var(--ext-border-color, var(--vscode-textBlockQuote-border, #3d444d));
+    --table-row-border: var(--ext-border-color, #3d444d);
+    --table-border: var(--ext-border-color, #444c56);
+    --outline-bg-color: #2c333a;
+    --outline-hover-bg: #323a42;
+    --outline-active-bg: #38414a;
 
     --ir-heading-color: #9876aa;
     --ir-title-color: #808080;
@@ -81,8 +83,10 @@
 @import "_content";
 @import "_hint";
 @import "_editorTheme";
+@import "_editorThemes";
+@import "_editorThemeApply";
+@import "_codeMirrorThemes";
 @import "_reset";
 @import "_wysiwyg";
 @import "_codemirror";
 @import "_ir";
-@import "_sv";

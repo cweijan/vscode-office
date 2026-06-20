@@ -13,7 +13,7 @@ export abstract class Constants {
   public static readonly CLASS_MENU_DISABLED: string = "vditor-menu--disabled";
   public static readonly EDIT_TOOLBARS: string[] = ["emoji", "headings", "bold", "italic", "strike", "link", "list",
     "ordered-list", "outdent", "indent", "check", "line", "quote", "code", "inline-code", "insert-after",
-    "insert-before", "upload", "record", "table"];
+    "insert-before", "upload", "table"];
   /** CodeMirror color theme ids (see setCodeTheme). */
   public static readonly CODE_THEME: string[] = CM_THEME_IDS;
   public static readonly CODE_LANGUAGES: string[] = ["mermaid", "plantuml", "apache",
@@ -51,15 +51,5 @@ export abstract class Constants {
   public static readonly MATH_OPTIONS: IMath = {
     inlineDigit: false,
     macros: {},
-  };
-  public static readonly THEME_OPTIONS = {
-    current: "light",
-    list: {
-      "ant-design": "Ant Design",
-      "dark": "Dark",
-      "light": "Light",
-      "wechat": "WeChat",
-    },
-    path: `css/content-theme`,
   };
 }

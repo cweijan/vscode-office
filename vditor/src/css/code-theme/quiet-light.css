@@ -1,0 +1,31 @@
+html[data-cm-theme="quiet-light"],
+#vditor[data-cm-theme="quiet-light"] {
+    --cm-bg-color: #f5f5f5;
+    --cm-lang-trigger-bg: #ffffff;
+    --cm-copy-color: #006699;
+    --cm-copy-done-color: #004276;
+    --cm-delete-color: #cc0000;
+    --cm-fg-color: #333333;
+    --cm-active-line-bg: rgba(0, 0, 0, 0.04);
+    --cm-cursor-fg: #333333;
+    --cm-line-number-fg: #999999;
+    --cm-line-number-active-fg: #333333;
+    --cm-selection-bg-inactive: rgba(163, 184, 204, 0.4);
+    --cm-selection-bg-focused: rgba(163, 184, 204, 0.55);
+    --cm-selection-highlight-bg: rgba(163, 184, 204, 0.2);
+    --cm-bracket-match-bg: rgba(163, 184, 204, 0.35);
+    --cm-bracket-match-border: #a3b8cc;
+    --cm-syntax-comment: #777777;
+    --cm-syntax-keyword: #004276;
+    --cm-syntax-string: #bc670f;
+    --cm-syntax-number: #004276;
+    --cm-syntax-atom: #004276;
+    --cm-syntax-property: #004276;
+    --cm-syntax-attribute: #006699;
+    --cm-syntax-variable: #333333;
+    --cm-syntax-def: #006699;
+    --cm-syntax-bracket: #333333;
+    --cm-syntax-tag: #004276;
+    --cm-syntax-link: #006699;
+    --cm-syntax-error: #cc0000;
+}

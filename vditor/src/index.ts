@@ -1,14 +1,11 @@
 import "./assets/less/index.less";
 import * as adapterRender from "./ts/markdown/adapterRender";
 import {codeRender} from "./ts/markdown/codeRender";
-import {codeMirrorPreviewRender, destroyPreviewCodeMirrors} from "./ts/codeBlock/codeMirrorPreviewRender";
-import {lazyLoadImageRender} from "./ts/markdown/lazyLoadImageRender";
+import {codeMirrorPreviewRender} from "./ts/codeBlock/codeMirrorPreviewRender";
 import {mathRender} from "./ts/markdown/mathRender";
-import {mediaRender} from "./ts/markdown/mediaRender";
 import {mermaidRender} from "./ts/markdown/mermaidRender";
 import {outlineRender} from "./ts/markdown/outlineRender";
 import {plantumlRender} from "./ts/markdown/plantumlRender";
-import {md2html, previewRender} from "./ts/markdown/previewRender";
 import {previewImage} from "./ts/preview/image";
 import {Constants, VDITOR_VERSION} from "./ts/constants";
 import {Hint} from "./ts/hint/index";
@@ -19,9 +16,6 @@ import {getHTML} from "./ts/markdown/getHTML";
 import {getMarkdown} from "./ts/markdown/getMarkdown";
 import {setLute} from "./ts/markdown/setLute";
 import {Outline} from "./ts/outline/index";
-import {Editor} from "./ts/sv/index";
-import {inputEvent} from "./ts/sv/inputEvent";
-import {processAfterRender as processSVAfterRender} from "./ts/sv/process";
 import {Tip} from "./ts/tip/index";
 import {Toolbar} from "./ts/toolbar/index";
 import {disableToolbar, hidePanel} from "./ts/toolbar/setToolbar";
@@ -29,7 +23,6 @@ import {enableToolbar} from "./ts/toolbar/setToolbar";
 import {initUI, UIUnbindListener} from "./ts/ui/initUI";
 import {setCodeTheme} from "./ts/ui/setCodeTheme";
 import {setEditorTheme as applyEditorTheme} from "./ts/ui/setEditorTheme";
-import {setContentTheme} from "./ts/ui/setContentTheme";
 import {setTheme} from "./ts/ui/setTheme";
 import {Undo} from "./ts/undo/index";
 import {Upload} from "./ts/upload/index";
@@ -49,18 +42,12 @@ class Vditor {
     public static previewImage = previewImage;
     public static codeRender = codeRender;
     public static codeMirrorPreviewRender = codeMirrorPreviewRender;
-    public static destroyPreviewCodeMirrors = destroyPreviewCodeMirrors;
     public static mathRender = mathRender;
     public static mermaidRender = mermaidRender;
     public static plantumlRender = plantumlRender;
     public static outlineRender = outlineRender;
-    public static mediaRender = mediaRender;
-    public static lazyLoadImageRender = lazyLoadImageRender;
-    public static md2html = md2html;
-    public static preview = previewRender;
     public static setCodeTheme = setCodeTheme;
     public static setEditorTheme = applyEditorTheme;
-    public static setContentTheme = setContentTheme;
 
     public readonly version: string;
     public vditor: IVditor;
@@ -117,16 +104,10 @@ class Vditor {
     /** 设置主题 */
     public setTheme(
         theme: "dark" | "classic",
-        contentTheme?: string,
         codeTheme?: string,
-        contentThemePath?: string,
     ) {
         this.vditor.options.theme = theme;
         setTheme(this.vditor);
-        if (contentTheme) {
-            this.vditor.options.preview.theme.current = contentTheme;
-            setContentTheme(contentTheme, contentThemePath || this.vditor.options.preview.theme.path);
-        }
         if (codeTheme) {
             this.vditor.options.codeMirrorTheme = codeTheme;
             this.vditor.options.preview.hljs.style = codeTheme;
@@ -134,7 +115,7 @@ class Vditor {
         }
     }
 
-    /** 设置 Markdown 编辑器主题（resource css/theme） */
+    /** 设置 Markdown 编辑器主题（bundled in index.css） */
     public setEditorTheme(editorTheme: string) {
         applyEditorTheme(this.vditor, editorTheme, false);
     }
@@ -151,9 +132,7 @@ class Vditor {
 
     /** 聚焦到编辑器 */
     public focus() {
-        if (this.vditor.currentMode === "sv") {
-            this.vditor.sv.element.focus();
-        } else if (this.vditor.currentMode === "wysiwyg") {
+        if (this.vditor.currentMode === "wysiwyg") {
             this.vditor.wysiwyg.element.focus();
         } else if (this.vditor.currentMode === "ir") {
             this.vditor.ir.element.focus();
@@ -162,9 +141,7 @@ class Vditor {
 
     /** 让编辑器失焦 */
     public blur() {
-        if (this.vditor.currentMode === "sv") {
-            this.vditor.sv.element.blur();
-        } else if (this.vditor.currentMode === "wysiwyg") {
+        if (this.vditor.currentMode === "wysiwyg") {
             this.vditor.wysiwyg.element.blur();
         } else if (this.vditor.currentMode === "ir") {
             this.vditor.ir.element.blur();
@@ -198,9 +175,8 @@ class Vditor {
     public getSelection() {
         if (this.vditor.currentMode === "wysiwyg") {
             return getSelectText(this.vditor.wysiwyg.element);
-        } else if (this.vditor.currentMode === "sv") {
-            return getSelectText(this.vditor.sv.element);
-        } else if (this.vditor.currentMode === "ir") {
+        }
+        if (this.vditor.currentMode === "ir") {
             return getSelectText(this.vditor.ir.element);
         }
     }
@@ -275,12 +251,7 @@ class Vditor {
         const tmpElement = document.createElement("template");
         tmpElement.innerHTML = value;
         range.insertNode(tmpElement.content.cloneNode(true));
-        if (this.vditor.currentMode === "sv") {
-            this.vditor.sv.preventInput = true;
-            if (render) {
-                inputEvent(this.vditor);
-            }
-        } else if (this.vditor.currentMode === "wysiwyg") {
+        if (this.vditor.currentMode === "wysiwyg") {
             this.vditor.wysiwyg.preventInput = true;
             if (render) {
                 input(this.vditor, getSelection().getRangeAt(0));
@@ -295,14 +266,7 @@ class Vditor {
 
     /** 设置编辑器内容 */
     public setValue(markdown: string, clearStack = false) {
-        if (this.vditor.currentMode === "sv") {
-            this.vditor.sv.element.innerHTML = `<div data-block='0'>${this.vditor.lute.SpinVditorSVDOM(markdown)}</div>`;
-            processSVAfterRender(this.vditor, {
-                enableAddUndoStack: true,
-                enableHint: false,
-                enableInput: false,
-            });
-        } else if (this.vditor.currentMode === "wysiwyg") {
+        if (this.vditor.currentMode === "wysiwyg") {
             renderDomByMd(this.vditor, markdown, {
                 enableAddUndoStack: true,
                 enableHint: false,
@@ -369,7 +333,6 @@ class Vditor {
             tip: new Tip(),
         };
 
-        this.vditor.sv = new Editor(this.vditor);
         this.vditor.undo = new Undo();
         this.vditor.wysiwyg = new WYSIWYG(this.vditor);
         this.vditor.ir = new IR(this.vditor);

@@ -94,18 +94,6 @@ const mountPreviewCodeMirror = (pre: HTMLElement, code: HTMLElement, showLineNum
     }
 };
 
-export const destroyPreviewCodeMirrors = (element: HTMLElement | Document = document) => {
-    const root = element instanceof Document ? element.body : element;
-    root.querySelectorAll(`.${PREVIEW_HOST_CLASS}`).forEach((pre) => {
-        const view = previewViews.get(pre as HTMLElement);
-        if (view) {
-            view.destroy();
-            previewViews.delete(pre as HTMLElement);
-            removePreviewCodeBlockChrome(pre as HTMLElement);
-        }
-    });
-};
-
 export const codeMirrorPreviewRender = (
     hljsOption?: IHljs,
     element: HTMLElement | Document = document,
@@ -116,17 +104,11 @@ export const codeMirrorPreviewRender = (
 
     const root = element instanceof Document ? element.body : element;
     const showLineNumber = hljsOption?.lineNumber ?? false;
-    const inSplitPreview = !!root.closest?.(".vditor-preview");
-    let rendered = 0;
 
     for (const code of root.querySelectorAll("pre > code")) {
         if (!isPreviewCodeElement(code as HTMLElement)) {
             continue;
         }
-        if (inSplitPreview && rendered > 5) {
-            continue;
-        }
         mountPreviewCodeMirror(code.parentElement as HTMLElement, code as HTMLElement, showLineNumber);
-        rendered++;
     }
 };

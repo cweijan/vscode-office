@@ -145,7 +145,6 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
                     "upload",
                     "link",
                     "table",
-                    "record",
                 ]);
                 setCurrentToolbar(vditor.toolbar.elements, ["code"]);
             } else {
@@ -163,7 +162,6 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
                     "upload",
                     "link",
                     "table",
-                    "record",
                 ]);
                 setCurrentToolbar(vditor.toolbar.elements, ["inline-code"]);
             }

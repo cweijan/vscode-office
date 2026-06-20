@@ -1,7 +1,6 @@
 import {getEventName} from "../util/compatibility";
 import {Br} from "./Br";
 import {CodeTheme} from "./CodeTheme";
-import {ContentTheme} from "./ContentTheme";
 import {Counter} from "./Counter";
 import {Custom} from "./Custom";
 import {Divider} from "./Divider";
@@ -136,9 +135,6 @@ export class Toolbar {
                 break;
             case "editor-theme":
                 menuItemObj = new EditorTheme(vditor, menuItem);
-                break;
-            case "content-theme":
-                menuItemObj = new ContentTheme(vditor, menuItem);
                 break;
             default:
                 menuItemObj = new Custom(vditor, menuItem);

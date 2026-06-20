@@ -28,7 +28,6 @@ const TOOLBAR_CODICONS: Record<string, string> = {
     "edit-mode": "edit",
     outline: "list-tree",
     "editor-theme": "color-mode",
-    "content-theme": "preview",
     "code-theme": "file-code",
     info: "info",
     help: "question",

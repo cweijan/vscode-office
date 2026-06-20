@@ -4,8 +4,6 @@ import { processHeading } from "../ir/process";
 import { processKeydown as irProcessKeydown } from "../ir/processKeydown";
 import { getMarkdown } from "../markdown/getMarkdown";
 import { previewImage } from "../preview/image";
-import { processHeading as processHeadingSV } from "../sv/process";
-import { processKeydown as mdProcessKeydown } from "../sv/processKeydown";
 import { setEditMode } from "../toolbar/EditMode";
 import { hidePanel } from "../toolbar/setToolbar";
 import { afterRenderEvent, handlerHistoryEvent } from "../wysiwyg/afterRenderEvent";
@@ -45,7 +43,7 @@ export const blurEvent = (vditor: IVditor, editorElement: HTMLElement) => {
                 expandElement.classList.remove("vditor-ir__node--expand");
             }
         }
-        if (vditor.currentMode === "wysiwyg" || vditor.currentMode === "ir" || vditor.currentMode === "sv") {
+        if (vditor.currentMode === "wysiwyg" || vditor.currentMode === "ir") {
             clearTimeout(vditor[vditor.currentMode].hlToolbarTimeoutId);
         }
         clearActiveHeadingMarker(vditor);
@@ -116,11 +114,7 @@ export const hotkeyEvent = (vditor: IVditor, editorElement: HTMLElement) => {
             return;
         }
 
-        if (vditor.currentMode === "sv") {
-            if (mdProcessKeydown(vditor, event)) {
-                return;
-            }
-        } else if (vditor.currentMode === "wysiwyg") {
+        if (vditor.currentMode === "wysiwyg") {
             if (processKeydown(vditor, event)) {
                 event.stopPropagation()
                 return;
@@ -175,8 +169,6 @@ export const hotkeyEvent = (vditor: IVditor, editorElement: HTMLElement) => {
                     setHeading(vditor, tagName);
                 }
                 afterRenderEvent(vditor);
-            } else if (vditor.currentMode === "sv") {
-                processHeadingSV(vditor, "#".repeat(parseInt(event.code.replace("Digit", ""), 10)) + " ");
             } else if (vditor.currentMode === "ir") {
                 processHeading(vditor, "#".repeat(parseInt(event.code.replace("Digit", ""), 10)) + " ");
             }
@@ -185,13 +177,11 @@ export const hotkeyEvent = (vditor: IVditor, editorElement: HTMLElement) => {
         }
 
         // toggle edit mode
-        if (isCtrl(event) && event.altKey && !event.shiftKey && /^Digit[7-9]$/.test(event.code)) {
+        if (isCtrl(event) && event.altKey && !event.shiftKey && /^Digit[7-8]$/.test(event.code)) {
             if (event.code === "Digit7") {
                 setEditMode(vditor, "wysiwyg", event);
             } else if (event.code === "Digit8") {
                 setEditMode(vditor, "ir", event);
-            } else if (event.code === "Digit9") {
-                setEditMode(vditor, "sv", event);
             }
             return true;
         }

@@ -2,9 +2,8 @@ import {Constants} from "../constants";
 import {processAfterRender} from "../ir/process";
 import {getMarkdown} from "../markdown/getMarkdown";
 import {mathRender} from "../markdown/mathRender";
-import {processAfterRender as processSVAfterRender, processSpinVditorSVDOM} from "../sv/process";
 import {setPadding} from "../ui/initUI";
-import {getEventName, updateHotkeyTip} from "../util/compatibility";
+import {getEventName} from "../util/compatibility";
 import {highlightToolbar} from "../util/highlightToolbar";
 import {processCodeRender} from "../util/processCode";
 import {renderToc} from "../util/toc";
@@ -15,12 +14,14 @@ import {
     disableToolbar,
     enableToolbar,
     hidePanel,
-    hideToolbar,
     removeCurrentToolbar,
     showToolbar, toggleSubMenu,
 } from "./setToolbar";
 
 export const setEditMode = (vditor: IVditor, type: string, event: Event | string) => {
+    if (type === "sv") {
+        type = "ir";
+    }
     let markdownText;
     if (typeof event !== "string") {
         hidePanel(vditor, ["subToolbar", "hint"]);
@@ -39,13 +40,11 @@ export const setEditMode = (vditor: IVditor, type: string, event: Event | string
 
     if (type === "ir") {
         showToolbar(vditor.toolbar.elements, ["outdent", "indent", "outline", "insert-before", "insert-after"]);
-        vditor.sv.element.style.display = "none";
         vditor.wysiwyg.element.parentElement.style.display = "none";
         vditor.ir.element.parentElement.style.display = "block";
 
         vditor.lute.SetVditorIR(true);
         vditor.lute.SetVditorWYSIWYG(false);
-        vditor.lute.SetVditorSV(false);
 
         vditor.currentMode = "ir";
         vditor.ir.element.innerHTML = vditor.lute.Md2VditorIRDOM(markdownText);
@@ -70,13 +69,11 @@ export const setEditMode = (vditor: IVditor, type: string, event: Event | string
         });
     } else if (type === "wysiwyg") {
         showToolbar(vditor.toolbar.elements, ["outdent", "indent", "outline", "insert-before", "insert-after"]);
-        vditor.sv.element.style.display = "none";
         vditor.wysiwyg.element.parentElement.style.display = "block";
         vditor.ir.element.parentElement.style.display = "none";
 
         vditor.lute.SetVditorIR(false);
         vditor.lute.SetVditorWYSIWYG(true);
-        vditor.lute.SetVditorSV(false);
 
         vditor.currentMode = "wysiwyg";
 
@@ -94,29 +91,6 @@ export const setEditMode = (vditor: IVditor, type: string, event: Event | string
             });
         });
         vditor.wysiwyg.popover.style.display = "none";
-    } else if (type === "sv") {
-        hideToolbar(vditor.toolbar.elements, ["outdent", "indent", "outline", "insert-before", "insert-after"]);
-        vditor.wysiwyg.element.parentElement.style.display = "none";
-        vditor.ir.element.parentElement.style.display = "none";
-        vditor.sv.element.style.display = "block";
-
-        vditor.lute.SetVditorIR(false);
-        vditor.lute.SetVditorWYSIWYG(false);
-        vditor.lute.SetVditorSV(true);
-
-        vditor.currentMode = "sv";
-        let svHTML = processSpinVditorSVDOM(markdownText, vditor);
-        if (svHTML === "<div data-block='0'></div>") {
-            // https://github.com/Vanessa219/vditor/issues/654 SV 模式 Placeholder 显示问题
-            svHTML = "";
-        }
-        vditor.sv.element.innerHTML = svHTML;
-        processSVAfterRender(vditor, {
-            enableAddUndoStack: true,
-            enableHint: false,
-            enableInput: false,
-        });
-        setPadding(vditor);
     }
     vditor.undo.resetIcon(vditor);
     if (typeof event !== "string") {
@@ -135,7 +109,7 @@ export const setEditMode = (vditor: IVditor, type: string, event: Event | string
         currentModeBtn?.classList.add("vditor-menu--current");
     }
 
-    vditor.outline.toggle(vditor, vditor.currentMode !== "sv" && vditor.options.outline.enable);
+    vditor.outline.toggle(vditor, vditor.options.outline.enable);
 };
 
 export class EditMode extends MenuItem {
@@ -146,9 +120,8 @@ export class EditMode extends MenuItem {
 
         const panelElement = document.createElement("div");
         panelElement.className = `vditor-hint${menuItem.level === 2 ? "" : " vditor-panel--arrow"}`;
-        panelElement.innerHTML = `<button data-mode="wysiwyg">${window.VditorI18n.wysiwyg} &lt;${updateHotkeyTip("⌥⌘7")}></button>
-<button data-mode="ir">${window.VditorI18n.instantRendering} &lt;${updateHotkeyTip("⌥⌘8")}></button>
-<button data-mode="sv">${window.VditorI18n.splitView} &lt;${updateHotkeyTip("⌥⌘9")}></button>`;
+        panelElement.innerHTML = `<button data-mode="wysiwyg">${window.VditorI18n.wysiwyg}</button>
+<button data-mode="ir">${window.VditorI18n.instantRendering}</button>`;
 
         this.element.appendChild(panelElement);
 
@@ -169,13 +142,6 @@ export class EditMode extends MenuItem {
         panelElement.children.item(1).addEventListener(getEventName(), (event: Event) => {
             // ir
             setEditMode(vditor, "ir", event);
-            event.preventDefault();
-            event.stopPropagation();
-        });
-
-        panelElement.children.item(2).addEventListener(getEventName(), (event: Event) => {
-            // markdown
-            setEditMode(vditor, "sv", event);
             event.preventDefault();
             event.stopPropagation();
         });

@@ -1,0 +1,45 @@
+html[data-editor-theme="Monokai"],
+#vditor[data-editor-theme="Monokai"] {
+    --hr-bg: #49483e;
+    --ext-border-color: #49483e;
+    --bg-color: #272822;
+    --front-color: #f8f8f2;
+    --second-bg-color: #1e1f1c;
+    --code-bg-color: #3e3d32;
+    --code-fg-color: var(--front-color);
+    --list-hover-color: #66d9ef;
+    --dropdown-hover-background: #49483e;
+    --error-color: #f92672;
+    --link-color: var(--list-hover-color);
+    --blockquote-color: var(--front-color);
+    --blockquote-border: var(--ext-border-color);
+    --table-border: var(--ext-border-color);
+    --table-stripe-bg: color-mix(in srgb, var(--front-color) 8%, var(--bg-color));
+    --cm-bg-color: var(--code-bg-color);
+    --cm-fg-color: var(--front-color);
+    --cm-lang-trigger-bg: var(--second-bg-color);
+    --cm-active-line-bg: color-mix(in srgb, var(--front-color) 8%, var(--cm-bg-color));
+    --cm-fold-fg: var(--list-hover-color);
+    --cm-fold-fg-hover: var(--front-color);
+    --cm-cursor-fg: var(--list-hover-color);
+    --cm-line-number-fg: color-mix(in srgb, var(--front-color) 55%, transparent);
+    --cm-line-number-active-fg: var(--front-color);
+    --cm-selection-bg: color-mix(in srgb, var(--list-hover-color) 35%, transparent);
+    --cm-selection-bg-focused: color-mix(in srgb, var(--list-hover-color) 48%, transparent);
+    --cm-selection-bg-inactive: color-mix(in srgb, var(--list-hover-color) 26%, transparent);
+    --cm-selection-highlight-bg: color-mix(in srgb, var(--list-hover-color) 20%, transparent);
+    --cm-lang-search-focus-color: var(--list-hover-color);
+    --outline-bg-color: #262722;
+    --outline-hover-bg: #2b2a25;
+    --outline-active-bg: #302f29;
+    --mermaid-bg: var(--bg-color);
+}
+
+#vditor[data-editor-theme="Monokai"] {
+    --ir-heading-color: #ae81ff;
+    --ir-title-color: #75715e;
+    --ir-bi-color: #e6db74;
+    --ir-link-color: #a6e22e;
+    --ir-bracket-color: #66d9ef;
+    --ir-paren-color: #a1efe4;
+}

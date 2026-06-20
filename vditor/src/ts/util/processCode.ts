@@ -5,7 +5,7 @@ import {mermaidRender} from "../markdown/mermaidRender";
 import {plantumlRender} from "../markdown/plantumlRender";
 import {isCmCodeBlock, renderCodeBlocks} from "../codeBlock/codeMirrorManager";
 
-export const processPasteCode = (html: string, text: string, type = "sv") => {
+export const processPasteCode = (html: string, text: string, type = "ir") => {
     return false;
 };
 

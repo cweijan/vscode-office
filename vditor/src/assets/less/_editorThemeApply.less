@@ -1,0 +1,169 @@
+// VS Code integration: structural overrides. Color tokens bundled in _editorThemes.less.
+
+#vditor[data-editor-theme]:not([data-editor-theme="Auto"]) {
+  --border-color: var(--ext-border-color);
+  --table-border: var(--ext-border-color);
+  --table-row-border: var(--ext-border-color);
+  --heading-border-color: var(--ext-border-color);
+  --panel-background-color: var(--bg-color);
+  --toolbar-background-color: var(--bg-color);
+  --toolbar-icon-color: var(--front-color);
+  --toolbar-icon-hover-color: var(--list-hover-color);
+  --textarea-background-color: var(--bg-color);
+  --textarea-text-color: var(--front-color);
+}
+
+.vditor-content hr {
+  background-color: var(--hr-bg) !important;
+}
+
+.vditor-reset--error {
+  color: var(--error-color) !important;
+}
+
+.vditor-reset {
+  font-size: var(--vscode-editor-font-size, 16px);
+}
+
+.vditor-content .language-mermaid svg {
+  background-color: var(--mermaid-bg, #fff) !important;
+}
+
+.vditor-reset h1,
+.vditor-reset h2 {
+  padding-bottom: 0 !important;
+  border-bottom: none !important;
+}
+
+.vditor-toolbar {
+  border: none !important;
+}
+
+#vditor .vditor-outline {
+  border: none !important;
+}
+
+.vditor-outline__title {
+  display: none !important;
+}
+
+@media (max-width: 700px) {
+  .vditor-outline {
+    display: none !important;
+  }
+}
+
+#vditor[data-editor-theme] .vditor-input {
+  border-color: var(--ext-border-color, var(--border-color));
+}
+
+#vditor[data-editor-theme]:not([data-editor-theme="Auto"]) .vditor-input {
+  border: 1px solid var(--ext-border-color);
+}
+
+#vditor[data-editor-theme]:not([data-editor-theme="Auto"]) .vditor-toolbar {
+  background-color: var(--bg-color);
+}
+
+#vditor[data-editor-theme]:not([data-editor-theme="Auto"]) .vditor-toolbar__item .vditor-tooltipped {
+  color: var(--front-color);
+}
+
+#vditor[data-editor-theme]:not([data-editor-theme="Auto"]) .vditor-content code:not(.hljs) {
+  background-color: var(--code-bg-color) !important;
+  color: var(--code-fg-color, var(--front-color)) !important;
+}
+
+#vditor[data-editor-theme]:not([data-editor-theme="Auto"]),
+#vditor[data-editor-theme]:not([data-editor-theme="Auto"]) .vditor-content,
+#vditor[data-editor-theme]:not([data-editor-theme="Auto"]) .vditor-content *:not(.hljs, .hljs *, .katex, .katex *, a, hr, .vditor-reset--error, code, .vditor-cm-host, .vditor-cm-host *, .vditor-outline, .vditor-outline *) {
+  background-color: var(--bg-color) !important;
+  color: var(--front-color) !important;
+}
+
+#vditor[data-editor-theme]:not([data-editor-theme="Auto"]) .vditor-content .vditor-wysiwyg__preview > code {
+  color: var(--code-fg-color, var(--front-color));
+  background-color: var(--code-bg-color) !important;
+}
+
+#vditor[data-editor-theme] .vditor-reset {
+  color: var(--textarea-text-color, var(--front-color));
+}
+
+#vditor[data-editor-theme] .vditor-reset a {
+  color: var(--link-color, var(--toolbar-icon-hover-color));
+}
+
+#vditor[data-editor-theme] .vditor-reset hr {
+  background-color: var(--hr-bg);
+}
+
+#vditor[data-editor-theme] .vditor-reset blockquote {
+  color: var(--blockquote-color);
+  background-color: var(--blockquote-bg, transparent);
+}
+
+#vditor[data-editor-theme] .vditor-reset code:not(.hljs):not(.highlight-chroma) {
+  background-color: var(--code-bg-color);
+  color: var(--code-fg-color, var(--front-color));
+  font-family: var(--vscode-editor-font-family, monospace);
+}
+
+#vditor[data-editor-theme] .vditor-reset pre > code {
+  background-color: var(--code-bg-color);
+  color: var(--code-fg-color, var(--front-color));
+  background-image: none;
+  font-family: var(--vscode-editor-font-family, monospace);
+}
+
+#vditor[data-editor-theme] .vditor-reset kbd {
+  color: var(--front-color, var(--textarea-text-color));
+  background-color: var(--second-bg-color, var(--code-bg-color));
+  border-color: var(--ext-border-color, var(--border-color));
+  box-shadow: inset 0 -1px 0 var(--ext-border-color, var(--border-color));
+}
+
+#vditor[data-editor-theme] .vditor-reset table tr {
+  border-top-color: var(--table-border);
+  background-color: var(--table-row-bg, transparent);
+}
+
+#vditor[data-editor-theme] .vditor-reset table td,
+#vditor[data-editor-theme] .vditor-reset table th {
+  border-color: var(--table-border);
+}
+
+#vditor[data-editor-theme] .vditor-reset table tbody tr:nth-child(2n) {
+  background-color: var(--table-stripe-bg, transparent);
+}
+
+#vditor[data-editor-theme] .vditor-reset iframe {
+  border-color: var(--ext-border-color, var(--border-color));
+}
+
+#vditor[data-editor-theme] .vditor-wysiwyg span[data-type="link-ref"],
+#vditor[data-editor-theme] .vditor-wysiwyg sup[data-type="footnotes-ref"],
+#vditor[data-editor-theme] .vditor-wysiwyg span[data-type="toc-h"],
+#vditor[data-editor-theme] .vditor-toc {
+  color: var(--link-color, var(--toolbar-icon-hover-color));
+}
+
+#vditor[data-editor-theme] .vditor-wysiwyg__block pre:first-child code {
+  color: var(--code-fg-color, var(--front-color));
+}
+
+#vditor[data-editor-theme] .vditor-content .vditor-wysiwyg__preview > code {
+  color: var(--code-fg-color, var(--front-color));
+  background-color: var(--code-bg-color);
+}
+
+#vditor[data-editor-theme] .vditor-hint button:not(.vditor-menu--disabled):hover {
+  background-color: var(--dropdown-hover-background, var(--second-bg-color)) !important;
+  color: var(--list-hover-color, var(--toolbar-icon-hover-color));
+}
+
+#vditor[data-editor-theme] .vditor-cm-theme-panel button.vditor-theme-option--current {
+  background-color: var(--second-bg-color, var(--dropdown-hover-background)) !important;
+  color: var(--list-hover-color, var(--toolbar-icon-hover-color)) !important;
+  font-weight: 600;
+}

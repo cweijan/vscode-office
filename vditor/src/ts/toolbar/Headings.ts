@@ -1,6 +1,5 @@
 import {Constants} from "../constants";
 import {processHeading} from "../ir/process";
-import {processHeading as processHeadingSV} from "../sv/process";
 import {getEventName, updateHotkeyTip} from "../util/compatibility";
 import {afterRenderEvent} from "../wysiwyg/afterRenderEvent";
 import {removeHeading, setHeading} from "../wysiwyg/setHeading";
@@ -59,8 +58,6 @@ export class Headings extends MenuItem {
                 } else if (vditor.currentMode === "ir") {
                     processHeading(vditor, (event.target as HTMLElement).getAttribute("data-value"));
                     actionBtn.classList.add("vditor-menu--current");
-                } else {
-                    processHeadingSV(vditor, (event.target as HTMLElement).getAttribute("data-value"));
                 }
                 panelElement.style.display = "none";
             });

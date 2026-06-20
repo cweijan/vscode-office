@@ -1,0 +1,45 @@
+html[data-editor-theme="Dracula"],
+#vditor[data-editor-theme="Dracula"] {
+    --hr-bg: #bd93f9;
+    --ext-border-color: rgba(255, 255, 255, 0.1);
+    --bg-color: #282a36;
+    --front-color: #f8f8f2;
+    --second-bg-color: #21222c;
+    --code-bg-color: #222222;
+    --code-fg-color: var(--front-color);
+    --list-hover-color: #bd93f9;
+    --dropdown-hover-background: #44475a;
+    --error-color: #ff5555;
+    --link-color: var(--list-hover-color);
+    --blockquote-color: var(--front-color);
+    --blockquote-border: var(--ext-border-color);
+    --table-border: var(--ext-border-color);
+    --table-stripe-bg: color-mix(in srgb, var(--front-color) 8%, var(--bg-color));
+    --cm-bg-color: var(--code-bg-color);
+    --cm-fg-color: var(--front-color);
+    --cm-lang-trigger-bg: #44475a;
+    --cm-active-line-bg: color-mix(in srgb, var(--front-color) 8%, var(--cm-bg-color));
+    --cm-fold-fg: var(--list-hover-color);
+    --cm-fold-fg-hover: var(--front-color);
+    --cm-cursor-fg: var(--list-hover-color);
+    --cm-line-number-fg: color-mix(in srgb, var(--front-color) 55%, transparent);
+    --cm-line-number-active-fg: var(--front-color);
+    --cm-selection-bg: color-mix(in srgb, var(--list-hover-color) 35%, transparent);
+    --cm-selection-bg-focused: color-mix(in srgb, var(--list-hover-color) 48%, transparent);
+    --cm-selection-bg-inactive: color-mix(in srgb, var(--list-hover-color) 26%, transparent);
+    --cm-selection-highlight-bg: color-mix(in srgb, var(--list-hover-color) 20%, transparent);
+    --cm-lang-search-focus-color: var(--list-hover-color);
+    --outline-bg-color: #272833;
+    --outline-hover-bg: #2c2e3c;
+    --outline-active-bg: #323447;
+    --mermaid-bg: var(--bg-color);
+}
+
+#vditor[data-editor-theme="Dracula"] {
+    --ir-heading-color: #bd93f9;
+    --ir-title-color: #6272a4;
+    --ir-bi-color: #ffb86c;
+    --ir-link-color: #50fa7b;
+    --ir-bracket-color: #8be9fd;
+    --ir-paren-color: #f1fa8c;
+}

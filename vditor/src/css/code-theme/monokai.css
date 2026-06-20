@@ -1,0 +1,31 @@
+html[data-cm-theme="monokai"],
+#vditor[data-cm-theme="monokai"] {
+    --cm-bg-color: #272822;
+    --cm-lang-trigger-bg: #3e3d32;
+    --cm-copy-color: #66d9ef;
+    --cm-copy-done-color: #7ec8e8;
+    --cm-delete-color: #f92672;
+    --cm-fg-color: #f8f8f2;
+    --cm-active-line-bg: rgba(255, 255, 255, 0.05);
+    --cm-cursor-fg: #f8f8f2;
+    --cm-line-number-fg: #75715e;
+    --cm-line-number-active-fg: #f8f8f2;
+    --cm-selection-bg-inactive: rgba(73, 72, 62, 0.7);
+    --cm-selection-bg-focused: rgba(73, 72, 62, 0.95);
+    --cm-selection-highlight-bg: rgba(73, 72, 62, 0.45);
+    --cm-bracket-match-bg: rgba(255, 255, 255, 0.1);
+    --cm-bracket-match-border: #a6e22e;
+    --cm-syntax-comment: #75715e;
+    --cm-syntax-keyword: #f92672;
+    --cm-syntax-string: #e6db74;
+    --cm-syntax-number: #ae81ff;
+    --cm-syntax-atom: #ae81ff;
+    --cm-syntax-property: #a6e22e;
+    --cm-syntax-attribute: #a6e22e;
+    --cm-syntax-variable: #f8f8f2;
+    --cm-syntax-def: #a6e22e;
+    --cm-syntax-bracket: #f8f8f2;
+    --cm-syntax-tag: #f92672;
+    --cm-syntax-link: #66d9ef;
+    --cm-syntax-error: #f92672;
+}

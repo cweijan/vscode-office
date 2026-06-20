@@ -168,8 +168,8 @@ export class GitHistoryPanel {
 
     private static applyPanelIcon(panel: vscode.WebviewPanel, extensionPath: string): void {
         panel.iconPath = {
-            light: vscode.Uri.file(`${extensionPath}/images/git-history-light.svg`),
-            dark: vscode.Uri.file(`${extensionPath}/images/git-history-dark.svg`),
+            light: vscode.Uri.file(`${extensionPath}/image/git-history-light.svg`),
+            dark: vscode.Uri.file(`${extensionPath}/image/git-history-dark.svg`),
         };
     }
 

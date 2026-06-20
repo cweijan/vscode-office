@@ -11,8 +11,7 @@ export class Indent extends MenuItem {
 
         this.element.children[0].addEventListener(getEventName(), (event) => {
             event.preventDefault();
-            if (this.element.firstElementChild.classList.contains(Constants.CLASS_MENU_DISABLED) ||
-                vditor.currentMode === "sv") {
+            if (this.element.firstElementChild.classList.contains(Constants.CLASS_MENU_DISABLED)) {
                 return;
             }
             const range = getEditorRange(vditor);

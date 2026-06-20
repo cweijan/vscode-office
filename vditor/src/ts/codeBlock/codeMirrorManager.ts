@@ -1,22 +1,22 @@
-import {indentWithTab} from "@codemirror/commands";
-import {LanguageSupport} from "@codemirror/language";
-import {Compartment, EditorSelection, Prec} from "@codemirror/state";
-import {EditorView, keymap} from "@codemirror/view";
+import { indentWithTab } from "@codemirror/commands";
+import { LanguageSupport } from "@codemirror/language";
+import { Compartment, EditorSelection, Prec } from "@codemirror/state";
+import { EditorView, keymap } from "@codemirror/view";
 
-import {expandMarker} from "../ir/expandMarker";
-import {processAfterRender} from "../ir/process";
-import {Constants} from "../constants";
-import {getEditorRange, preserveEditorScroll, setRangeByWbr, setSelectionFocus} from "../util/selection";
-import {afterRenderEvent} from "../wysiwyg/afterRenderEvent";
+import { expandMarker } from "../ir/expandMarker";
+import { processAfterRender } from "../ir/process";
+import { Constants } from "../constants";
+import { getEditorRange, preserveEditorScroll, setRangeByWbr, setSelectionFocus } from "../util/selection";
+import { afterRenderEvent } from "../wysiwyg/afterRenderEvent";
 import {
     ensureCodeBlockChrome,
     removeCodeBlockChrome,
     updateCodeBlockChromeLanguage,
 } from "./codeBlockChrome";
-import {buildCodeMirrorLanguageMap} from "./codeBlockLanguageHints";
-import {vditorCodeMirrorSetup} from "./codeMirrorSetup";
+import { buildCodeMirrorLanguageMap } from "./codeBlockLanguageHints";
+import { vditorCodeMirrorSetup } from "./codeMirrorSetup";
 
-export {focusCodeBlockChromeLanguage, isInsideCodeBlockChrome} from "./codeBlockChrome";
+export { focusCodeBlockChromeLanguage, isInsideCodeBlockChrome } from "./codeBlockChrome";
 export {
     focusCodeBlockLanguageInput,
     focusIrCodeBlockLanguageMarker,
@@ -125,7 +125,7 @@ const getBlockParts = (blockElement: HTMLElement) => {
     const preview = blockElement.querySelector(
         ".vditor-wysiwyg__preview, .vditor-ir__preview",
     ) as HTMLElement;
-    return {editPre, code, preview};
+    return { editPre, code, preview };
 };
 
 const getModeEditor = (vditor: IVditor) => {
@@ -154,7 +154,7 @@ export const prepareCmBlockDom = (blockElement: HTMLElement) => {
     if (!parts) {
         return;
     }
-    const {editPre, code, preview} = parts;
+    const { editPre, code, preview } = parts;
     blockElement.classList.add(CM_BLOCK_CLASS);
     if (blockElement.classList.contains("vditor-ir__node")) {
         blockElement.classList.add("vditor-ir__node--expand");
@@ -214,7 +214,7 @@ const syncViewFromCode = (binding: CodeMirrorBinding) => {
     }
     binding.updating = true;
     binding.view.dispatch({
-        changes: {from: 0, to: binding.view.state.doc.length, insert: codeText},
+        changes: { from: 0, to: binding.view.state.doc.length, insert: codeText },
     });
     binding.updating = false;
 };
@@ -267,7 +267,7 @@ const getCmSelectionText = (view: EditorView) => {
 };
 
 const clearCmSelection = (view: EditorView) => {
-    const {from, to, head} = view.state.selection.main;
+    const { from, to, head } = view.state.selection.main;
     if (from === to) {
         return;
     }
@@ -277,11 +277,11 @@ const clearCmSelection = (view: EditorView) => {
 };
 
 const focusEditorWithoutScroll = (editor: HTMLElement) => {
-    editor.focus({preventScroll: true});
+    editor.focus({ preventScroll: true });
 };
 
 const focusCmViewWithoutScroll = (view: EditorView) => {
-    view.contentDOM.focus({preventScroll: true});
+    view.contentDOM.focus({ preventScroll: true });
 };
 
 const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding: CodeMirrorBinding) => ({
@@ -330,7 +330,7 @@ const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding:
         clipboardEvent.preventDefault();
         clipboardEvent.clipboardData.setData("text/plain", text);
         view.dispatch(view.state.changeByRange((range) => ({
-            changes: {from: range.from, to: range.to, insert: ""},
+            changes: { from: range.from, to: range.to, insert: "" },
             range: EditorSelection.cursor(range.from),
         })));
         syncCodeFromView(binding, vditor);
@@ -629,7 +629,7 @@ const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor) => {
         return;
     }
 
-    const {editPre, code} = parts;
+    const { editPre, code } = parts;
     const languageCompartment = new Compartment();
     const languageName = getLanguageName(code);
 
@@ -643,8 +643,11 @@ const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor) => {
         languageName: "",
     };
 
+    const rawCode = code.textContent || "";
+
     const view = new EditorView({
-        doc: code.textContent || "",
+        // Lute有bug, 会给代码块末尾生成一行空行
+        doc: rawCode.trimEnd(),
         parent: editPre,
         extensions: [
             vditorCodeMirrorSetup,
@@ -703,13 +706,13 @@ export const focusCodeMirror = (
         if (!hadFocus) {
             if (collapseToStart) {
                 binding.view.dispatch({
-                    selection: {anchor: 0, head: 0},
+                    selection: { anchor: 0, head: 0 },
                     scrollIntoView: false,
                 });
             } else {
                 const length = binding.view.state.doc.length;
                 binding.view.dispatch({
-                    selection: {anchor: length, head: length},
+                    selection: { anchor: length, head: length },
                     scrollIntoView: false,
                 });
             }
@@ -800,7 +803,7 @@ export const getCodeMirrorSelectionTextForCopy = (vditor: IVditor) => {
         if (!view) {
             continue;
         }
-        const {from, to} = view.state.selection.main;
+        const { from, to } = view.state.selection.main;
         if (from !== to) {
             return getCmSelectionText(view);
         }

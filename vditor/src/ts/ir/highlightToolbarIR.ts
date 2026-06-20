@@ -33,15 +33,12 @@ export const highlightToolbarIR = (vditor: IVditor) => {
             typeElement = typeElement.childNodes[range.startOffset] as HTMLElement;
         }
 
-        const headingElement = vditor.currentMode === "sv" ?
-            hasClosestByAttribute(typeElement, "data-type", "heading") : hasClosestByHeadings(typeElement);
+        const headingElement = hasClosestByHeadings(typeElement);
         if (headingElement) {
             setCurrentToolbar(vditor.toolbar.elements, ["headings"]);
         }
 
-        const quoteElement =
-            vditor.currentMode === "sv" ? hasClosestByAttribute(typeElement, "data-type", "blockquote") :
-                hasClosestByMatchTag(typeElement, "BLOCKQUOTE");
+        const quoteElement = hasClosestByMatchTag(typeElement, "BLOCKQUOTE");
         if (quoteElement) {
             setCurrentToolbar(vditor.toolbar.elements, ["quote"]);
         }
@@ -83,14 +80,14 @@ export const highlightToolbarIR = (vditor: IVditor) => {
         const codeBlockElement = hasClosestByAttribute(typeElement, "data-type", "code-block");
         if (codeBlockElement) {
             disableToolbar(vditor.toolbar.elements, ["headings", "bold", "italic", "strike", "line", "quote",
-                "list", "ordered-list", "check", "code", "inline-code", "upload", "link", "table", "record"]);
+                "list", "ordered-list", "check", "code", "inline-code", "upload", "link", "table"]);
             setCurrentToolbar(vditor.toolbar.elements, ["code"]);
         }
 
         const codeElement = hasClosestByAttribute(typeElement, "data-type", "code");
         if (codeElement) {
             disableToolbar(vditor.toolbar.elements, ["headings", "bold", "italic", "strike", "line", "quote",
-                "list", "ordered-list", "check", "code", "upload", "link", "table", "record"]);
+                "list", "ordered-list", "check", "code", "upload", "link", "table"]);
             setCurrentToolbar(vditor.toolbar.elements, ["inline-code"]);
         }
 

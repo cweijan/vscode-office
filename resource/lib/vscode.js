@@ -50,19 +50,30 @@ function isCompose(e) {
     return e.metaKey || e.ctrlKey;
 }
 
-function zoomElement(selector, rate = 5) {
-    window.onmousewheel = document.onmousewheel = e => {
+function zoomElement(selector, rate = 12) {
+    const zoomBase = Math.pow(1 + rate / 100, 1 / 100);
+    const minZoom = 25;
+    const maxZoom = 2000;
+
+    const onWheel = (e) => {
         if (!e.ctrlKey || e.metaKey) return;
+
         const eles = document.querySelectorAll(selector);
+        if (!eles.length) return;
+
+        e.preventDefault();
+
+        const factor = Math.pow(zoomBase, -e.deltaY);
         for (const ele of eles) {
-            const zoom = ele.style.zoom ? parseInt(ele.style.zoom.replace("%", "")) : 100
-            if (e.deltaY > 0) {
-                ele.style.zoom = `${zoom - rate}%`;
-            } else {
-                ele.style.zoom = `${zoom + rate}%`;
-            }
+            const current = ele.style.zoom
+                ? parseFloat(ele.style.zoom.replace("%", ""))
+                : 100;
+            const next = Math.min(maxZoom, Math.max(minZoom, current * factor));
+            ele.style.zoom = `${next}%`;
         }
     };
+
+    window.addEventListener('wheel', onWheel, { passive: false });
 }
 
 function isInsideCodeMirrorTarget(target) {

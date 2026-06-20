@@ -4,7 +4,7 @@ import { defineConfig, type Plugin } from "vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import pkg from "./package.json";
 
-const resourceVditorDir = resolve(__dirname, "../resource/vditor");
+const resourceMarkdownDir = resolve(__dirname, "../resource/markdown");
 
 function copyBuildToResource(): Plugin {
   return {
@@ -12,7 +12,7 @@ function copyBuildToResource(): Plugin {
     closeBundle() {
       cpSync(
         resolve(__dirname, "dist"),
-        resolve(resourceVditorDir, "dist"),
+        resolve(resourceMarkdownDir, "dist"),
         { recursive: true },
       );
     },
@@ -20,8 +20,6 @@ function copyBuildToResource(): Plugin {
 }
 
 export default defineConfig(({ mode }) => {
-  const dest = mode === "development" ? "dist" : ".";
-
   return {
     define: {
       VDITOR_VERSION: JSON.stringify(pkg.version),
@@ -53,9 +51,9 @@ export default defineConfig(({ mode }) => {
     plugins: [
       viteStaticCopy({
         targets: [
-          { src: "src/css", dest },
-          { src: "src/images", dest },
-          { src: "src/js", dest },
+          { src: "src/css", dest: "." },
+          { src: "src/images", dest: "." },
+          { src: "src/js", dest: "." },
         ],
       }),
       copyBuildToResource(),

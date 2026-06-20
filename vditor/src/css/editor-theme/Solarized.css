@@ -1,0 +1,36 @@
+html[data-editor-theme="Solarized"],
+#vditor[data-editor-theme="Solarized"] {
+    --hr-bg: #ddd6c1;
+    --ext-border-color: #ddd6c1;
+    --bg-color: #fdf6e3;
+    --front-color: #657b83;
+    --second-bg-color: #eee8d5;
+    --code-bg-color: #f2f2f2;
+    --code-fg-color: var(--front-color);
+    --list-hover-color: #268bd2;
+    --dropdown-hover-background: #dfca88;
+    --error-color: #e51400;
+    --link-color: var(--list-hover-color);
+    --blockquote-color: var(--front-color);
+    --blockquote-border: var(--ext-border-color);
+    --table-border: var(--ext-border-color);
+    --table-stripe-bg: color-mix(in srgb, var(--front-color) 6%, var(--bg-color));
+    --cm-bg-color: var(--code-bg-color);
+    --cm-fg-color: var(--front-color);
+    --cm-lang-trigger-bg: var(--second-bg-color);
+    --cm-active-line-bg: color-mix(in srgb, var(--front-color) 6%, var(--cm-bg-color));
+    --cm-fold-fg: var(--list-hover-color);
+    --cm-fold-fg-hover: var(--front-color);
+    --cm-cursor-fg: var(--front-color);
+    --cm-line-number-fg: color-mix(in srgb, var(--front-color) 55%, transparent);
+    --cm-line-number-active-fg: var(--front-color);
+    --cm-selection-bg: color-mix(in srgb, var(--list-hover-color) 32%, transparent);
+    --cm-selection-bg-focused: color-mix(in srgb, var(--list-hover-color) 42%, transparent);
+    --cm-selection-bg-inactive: color-mix(in srgb, var(--list-hover-color) 24%, transparent);
+    --cm-selection-highlight-bg: color-mix(in srgb, var(--list-hover-color) 18%, transparent);
+    --cm-lang-search-focus-color: var(--list-hover-color);
+    --outline-bg-color: #faf3dd;
+    --outline-hover-bg: #f6eed4;
+    --outline-active-bg: #f0e8ca;
+    --mermaid-bg: var(--bg-color);
+}

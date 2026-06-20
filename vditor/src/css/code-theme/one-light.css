@@ -1,0 +1,31 @@
+html[data-cm-theme="one-light"],
+#vditor[data-cm-theme="one-light"] {
+    --cm-bg-color: #fafafa;
+    --cm-lang-trigger-bg: #ffffff;
+    --cm-copy-color: #4078f2;
+    --cm-copy-done-color: #526fff;
+    --cm-delete-color: #e45649;
+    --cm-fg-color: #383a42;
+    --cm-active-line-bg: rgba(0, 0, 0, 0.04);
+    --cm-cursor-fg: #526fff;
+    --cm-line-number-fg: #9d9d9f;
+    --cm-line-number-active-fg: #383a42;
+    --cm-selection-bg-inactive: rgba(184, 184, 184, 0.35);
+    --cm-selection-bg-focused: rgba(184, 184, 184, 0.5);
+    --cm-selection-highlight-bg: rgba(184, 184, 184, 0.2);
+    --cm-bracket-match-bg: rgba(184, 184, 184, 0.25);
+    --cm-bracket-match-border: #526fff;
+    --cm-syntax-comment: #a0a1a7;
+    --cm-syntax-keyword: #a626a4;
+    --cm-syntax-string: #50a14f;
+    --cm-syntax-number: #986801;
+    --cm-syntax-atom: #986801;
+    --cm-syntax-property: #e45649;
+    --cm-syntax-attribute: #986801;
+    --cm-syntax-variable: #e45649;
+    --cm-syntax-def: #4078f2;
+    --cm-syntax-bracket: #383a42;
+    --cm-syntax-tag: #e45649;
+    --cm-syntax-link: #4078f2;
+    --cm-syntax-error: #e45649;
+}

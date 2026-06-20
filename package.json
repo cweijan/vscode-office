@@ -4,7 +4,7 @@
 	"description": "View word, excel, powerpoint files and using WYSIWYG editor for markdown.",
 	"version": "4.0.4",
 	"publisher": "cweijan",
-	"icon": "images/logo.png",
+	"icon": "image/logo.png",
 	"engines": {
 		"vscode": "^1.64.0"
 	},
@@ -190,10 +190,7 @@
 			{
 				"command": "office.markdown.switch",
 				"title": "Switch markdown editor",
-				"icon": {
-					"dark": "./images/switch.svg",
-					"light": "./images/switch_light.svg"
-				}
+				"icon": "$(edit)"
 			},
 			{
 				"command": "office.markdown.paste",
