@@ -111,10 +111,11 @@ export async function getToolbar(resPath, sponsorBaseUrl, language) {
         "link",
         "|",
         {
+            name: 'edit-in-vscode',
             tipPosition: 'e',
             tip: `Edit In VSCode (${shortcutTip})`,
             className: 'right',
-            icon: codicon('vscode'),
+            icon: await loadRes(`${resPath}/icon/vscode.svg`),
             click() {
                 handler.emit("editInVSCode", true)
             }
