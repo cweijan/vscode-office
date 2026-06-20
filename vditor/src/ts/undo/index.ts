@@ -1,5 +1,9 @@
 import {diff_match_patch, patch_obj} from "diff-match-patch";
-import {isInsideCodeMirror} from "../codeBlock/codeMirrorManager";
+import {
+    deactivateAllCodeMirrors,
+    isInsideCodeMirror,
+    remountCodeMirrorsAfterDomReplace,
+} from "../codeBlock/codeMirrorManager";
 import {disableToolbar, enableToolbar, hidePanel} from "../toolbar/setToolbar";
 import {isFirefox, isSafari} from "../util/compatibility";
 import {execAfterRender} from "../util/fixBrowserBehavior";
@@ -146,7 +150,13 @@ class Undo {
         }
 
         this[vditor.currentMode].lastText = text;
+        if (vditor.currentMode === "wysiwyg" || vditor.currentMode === "ir") {
+            deactivateAllCodeMirrors(vditor);
+        }
         vditor[vditor.currentMode].element.innerHTML = text;
+        if (vditor.currentMode === "wysiwyg" || vditor.currentMode === "ir") {
+            remountCodeMirrorsAfterDomReplace(vditor);
+        }
         if (vditor.currentMode !== "sv") {
             vditor[vditor.currentMode].element.querySelectorAll(`.vditor-${vditor.currentMode}__preview[data-render='2']`)
                 .forEach((blockElement: HTMLElement) => {

@@ -219,6 +219,51 @@
   pointer-events: none;
 }
 
+.vditor-cm-chrome__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.vditor-cm-chrome__delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 16%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--cm-bg-color, var(--panel-background-color)) 88%, transparent);
+  color: var(--cm-fg-color, var(--toolbar-icon-color));
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background: var(--dropdown-hover-background, var(--toolbar-background-color));
+    border-color: color-mix(in srgb, var(--list-hover-color, var(--toolbar-icon-hover-color)) 35%, transparent);
+  }
+}
+
+.vditor-cm-chrome__delete-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  color: var(--cm-delete-color, var(--vscode-errorForeground, #f85149));
+
+  .codicon {
+    font-size: 16px;
+    line-height: 1;
+  }
+}
+
 .vditor-cm-chrome__copy {
   display: inline-flex;
   align-items: center;
@@ -244,6 +289,15 @@
 
   &--done {
     background: var(--dropdown-hover-background, var(--toolbar-background-color));
+    border-color: color-mix(in srgb, var(--list-hover-color, #3fb950) 35%, transparent);
+
+    .vditor-cm-chrome__copy-label {
+      color: var(--list-hover-color, #3fb950);
+    }
+
+    .vditor-cm-chrome__copy-icon .codicon {
+      color: var(--list-hover-color, #3fb950);
+    }
   }
 }
 
@@ -251,6 +305,11 @@
   display: inline-flex;
   flex-shrink: 0;
   color: var(--list-hover-color, #3fb950);
+
+  .codicon {
+    font-size: 16px;
+    line-height: 1;
+  }
 }
 
 .vditor-cm-chrome__copy-label {
@@ -300,12 +359,24 @@
 .vditor-cm-chrome__lang-chevron {
   display: inline-flex;
   flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 2px;
   opacity: 0.72;
-  transition: transform 0.15s ease;
+  color: var(--cm-fg-color, var(--toolbar-icon-color));
+
+  .codicon {
+    font-size: 16px;
+    line-height: 1;
+    color: inherit;
+  }
 }
 
-.vditor-cm-chrome__lang--open .vditor-cm-chrome__lang-chevron {
-  transform: rotate(180deg);
+.vditor-cm-chrome__lang-trigger:hover:not(:disabled) .vditor-cm-chrome__lang-chevron {
+  opacity: 1;
+  color: var(--list-hover-color, var(--toolbar-icon-hover-color));
 }
 
 .vditor-cm-chrome__lang-panel {

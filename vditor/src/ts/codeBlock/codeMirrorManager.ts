@@ -1,10 +1,12 @@
 import {indentWithTab} from "@codemirror/commands";
 import {LanguageSupport} from "@codemirror/language";
-import {Compartment, EditorSelection} from "@codemirror/state";
+import {Compartment, EditorSelection, Prec} from "@codemirror/state";
 import {EditorView, keymap} from "@codemirror/view";
 
+import {expandMarker} from "../ir/expandMarker";
 import {processAfterRender} from "../ir/process";
 import {Constants} from "../constants";
+import {getEditorRange, setRangeByWbr, setSelectionFocus} from "../util/selection";
 import {afterRenderEvent} from "../wysiwyg/afterRenderEvent";
 import {
     ensureCodeBlockChrome,
@@ -357,6 +359,107 @@ const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding:
     },
 });
 
+const focusAdjacentEditorBlock = (
+    vditor: IVditor,
+    blockElement: HTMLElement,
+    direction: "up" | "down",
+) => {
+    const editor = getModeEditor(vditor);
+    if (!editor) {
+        return;
+    }
+
+    const focusBlockPosition = (element: HTMLElement, toStart: boolean) => {
+        editor.focus();
+        const range = getEditorRange(vditor);
+        range.selectNodeContents(element);
+        range.collapse(toStart);
+        setSelectionFocus(range);
+        if (vditor.currentMode === "ir") {
+            expandMarker(range, vditor);
+        }
+    };
+
+    const insertAdjacentEmptyBlock = (position: "before" | "after") => {
+        const html = `<p data-block="0">${Constants.ZWSP}<wbr></p>`;
+        if (position === "before") {
+            blockElement.insertAdjacentHTML("beforebegin", html);
+        } else {
+            blockElement.insertAdjacentHTML("afterend", html);
+        }
+        editor.focus();
+        const range = getEditorRange(vditor);
+        setRangeByWbr(editor, range);
+        setSelectionFocus(range);
+    };
+
+    if (direction === "up") {
+        const previousElement = blockElement.previousElementSibling as HTMLElement | null;
+        if (isCmCodeBlock(previousElement)) {
+            focusCodeMirror(previousElement, false, vditor);
+        } else if (!previousElement ||
+            previousElement.tagName === "TABLE" ||
+            previousElement.getAttribute("data-type")) {
+            insertAdjacentEmptyBlock("before");
+        } else {
+            focusBlockPosition(previousElement, false);
+        }
+        return;
+    }
+
+    const nextElement = blockElement.nextElementSibling as HTMLElement | null;
+    if (isCmCodeBlock(nextElement)) {
+        focusCodeMirror(nextElement, true, vditor);
+    } else if (!nextElement ||
+        nextElement.tagName === "TABLE" ||
+        nextElement.getAttribute("data-type")) {
+        insertAdjacentEmptyBlock("after");
+    } else {
+        focusBlockPosition(nextElement, true);
+    }
+};
+
+const exitCodeMirrorToAdjacentBlock = (
+    view: EditorView,
+    vditor: IVditor,
+    blockElement: HTMLElement,
+    direction: "up" | "down",
+) => {
+    view.contentDOM.blur();
+    focusAdjacentEditorBlock(vditor, blockElement, direction);
+    if (vditor.currentMode === "wysiwyg") {
+        afterRenderEvent(vditor);
+    } else if (vditor.currentMode === "ir") {
+        processAfterRender(vditor);
+    }
+};
+
+const buildCodeMirrorNavigationKeymap = (vditor: IVditor, blockElement: HTMLElement) =>
+    Prec.high(keymap.of([
+        {
+            key: "ArrowUp",
+            run: (view) => {
+                const line = view.state.doc.lineAt(view.state.selection.main.head);
+                if (line.number > 1) {
+                    return false;
+                }
+                exitCodeMirrorToAdjacentBlock(view, vditor, blockElement, "up");
+                return true;
+            },
+        },
+        {
+            key: "ArrowDown",
+            run: (view) => {
+                const line = view.state.doc.lineAt(view.state.selection.main.head);
+                if (line.number < view.state.doc.lines) {
+                    return false;
+                }
+                exitCodeMirrorToAdjacentBlock(view, vditor, blockElement, "down");
+                return true;
+            },
+        },
+    ]));
+
 const destroyCodeMirror = (blockElement: HTMLElement) => {
     const binding = bindings.get(blockElement);
     if (!binding) {
@@ -369,6 +472,69 @@ const destroyCodeMirror = (blockElement: HTMLElement) => {
     binding.editPre.querySelector(".cm-editor")?.remove();
     removeCodeBlockChrome(blockElement);
     prepareCmBlockDom(blockElement);
+};
+
+export const removeCmCodeBlock = (vditor: IVditor, blockElement: HTMLElement) => {
+    if (!isCmCodeBlock(blockElement)) {
+        return;
+    }
+
+    const editor = getModeEditor(vditor);
+    if (!editor) {
+        blockElement.remove();
+        return;
+    }
+
+    const previousElement = blockElement.previousElementSibling as HTMLElement | null;
+    const nextElement = blockElement.nextElementSibling as HTMLElement | null;
+
+    const binding = bindings.get(blockElement);
+    if (binding) {
+        window.clearTimeout(binding.syncTimer);
+        binding.syncCode.textContent = binding.view.state.doc.toString();
+        binding.view.destroy();
+        bindings.delete(blockElement);
+        binding.editPre.querySelector(".cm-editor")?.remove();
+    }
+    removeCodeBlockChrome(blockElement);
+    blockElement.remove();
+
+    editor.focus();
+    const range = getEditorRange(vditor);
+
+    if (previousElement) {
+        if (isCmCodeBlock(previousElement)) {
+            focusCodeMirror(previousElement, false, vditor);
+        } else {
+            range.selectNodeContents(previousElement);
+            range.collapse(false);
+            setSelectionFocus(range);
+            if (vditor.currentMode === "ir") {
+                expandMarker(range, vditor);
+            }
+        }
+    } else if (nextElement) {
+        if (isCmCodeBlock(nextElement)) {
+            focusCodeMirror(nextElement, true, vditor);
+        } else {
+            range.selectNodeContents(nextElement);
+            range.collapse(true);
+            setSelectionFocus(range);
+            if (vditor.currentMode === "ir") {
+                expandMarker(range, vditor);
+            }
+        }
+    } else {
+        editor.insertAdjacentHTML("beforeend", `<p data-block="0">${Constants.ZWSP}<wbr></p>`);
+        setRangeByWbr(editor, range);
+        setSelectionFocus(range);
+    }
+
+    if (vditor.currentMode === "wysiwyg") {
+        afterRenderEvent(vditor);
+    } else if (vditor.currentMode === "ir") {
+        processAfterRender(vditor);
+    }
 };
 
 export const destroyAllCodeMirrors = (vditor: IVditor) => {
@@ -403,11 +569,33 @@ export const deactivateAllCodeMirrors = (vditor: IVditor) => {
 /** @deprecated use deactivateAllCodeMirrors */
 export const deactivateAllWysiwygCodeMirrors = deactivateAllCodeMirrors;
 
+/** undo/redo 等整页 DOM 替换后，清理残留 CM 挂载并重新初始化 */
+export const remountCodeMirrorsAfterDomReplace = (vditor: IVditor) => {
+    if (vditor.currentMode !== "wysiwyg" && vditor.currentMode !== "ir") {
+        return;
+    }
+    renderCodeBlocks(vditor);
+};
+
+const cleanupStaleCmArtifacts = (blockElement: HTMLElement) => {
+    if (bindings.has(blockElement)) {
+        return;
+    }
+    removeCodeBlockChrome(blockElement);
+    blockElement.querySelectorAll(".vditor-cm-chrome").forEach((chrome) => {
+        chrome.remove();
+    });
+    blockElement.querySelectorAll(".cm-editor").forEach((editor) => {
+        editor.remove();
+    });
+};
+
 const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor) => {
     if (!isCmCodeBlock(blockElement)) {
         return;
     }
 
+    cleanupStaleCmArtifacts(blockElement);
     prepareCmBlockDom(blockElement);
 
     const parts = getBlockParts(blockElement);
@@ -450,6 +638,7 @@ const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor) => {
         extensions: [
             vditorCodeMirrorSetup,
             keymap.of([indentWithTab]),
+            buildCodeMirrorNavigationKeymap(vditor, blockElement),
             languageCompartment.of([]),
             EditorView.updateListener.of((update) => {
                 if (binding.updating || !update.docChanged) {

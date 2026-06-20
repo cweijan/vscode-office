@@ -1,9 +1,10 @@
-import {updateHotkeyTip} from "../util/compatibility";
-import {filterCodeMirrorLanguageNames} from "./codeBlockLanguageHints";
-import {applyCodeBlockLanguageChange} from "./codeBlockLanguageInput";
+import { updateHotkeyTip } from "../util/compatibility";
+import { filterCodeMirrorLanguageNames } from "./codeBlockLanguageHints";
+import { applyCodeBlockLanguageChange } from "./codeBlockLanguageInput";
 import {
     focusCodeMirror,
     getCodeLanguageName,
+    removeCmCodeBlock,
     resolveCmCodeBlock,
 } from "./codeMirrorManager";
 
@@ -18,12 +19,13 @@ export const isInsideCodeBlockChrome = (target: EventTarget | Node | null) => {
     return !!node?.closest(`.${CHROME_CLASS}`);
 };
 
-const COPY_ICON = `<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"/><path fill="currentColor" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/></svg>`;
-const CHEVRON_ICON = `<svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path fill="currentColor" d="m4.427 9.427 3.396-3.396a.25.25 0 0 1 .354-.354l3.396 3.396a.25.25 0 0 1-.354.354L4.604 6.604a.25.25 0 0 1-.177.427Z"/></svg>`;
+const codicon = (name: string, className = "") =>
+    `<span class="codicon codicon-${name}${className ? ` ${className}` : ""}" aria-hidden="true"></span>`;
 
 interface ICodeBlockChrome {
     root: HTMLElement;
     toolbar: HTMLElement;
+    deleteBtn?: HTMLButtonElement;
     copyBtn: HTMLButtonElement;
     copyLabel: HTMLElement;
     langWrap: HTMLElement;
@@ -32,6 +34,7 @@ interface ICodeBlockChrome {
     langPanel: HTMLElement;
     langSearch: HTMLInputElement;
     langList: HTMLElement;
+    langChevron: HTMLElement;
     editable: boolean;
     getCodeText: () => string;
     langActiveIndex: number;
@@ -68,8 +71,49 @@ const copyToClipboard = async (text: string) => {
     }
 };
 
-const bindCopyButton = (copyBtn: HTMLButtonElement, copyLabel: HTMLElement, getCodeText: () => string) => {
+const bindDeleteButton = (
+    vditor: IVditor,
+    blockElement: HTMLElement,
+    deleteBtn: HTMLButtonElement,
+) => {
+    deleteBtn.addEventListener("mousedown", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+    });
+    deleteBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        closeLangPanel();
+        const block = resolveCmCodeBlock(vditor, blockElement) || blockElement;
+        removeCmCodeBlock(vditor, block);
+    });
+};
+
+const bindCopyButton = (copyBtn: HTMLButtonElement, getCodeText: () => string) => {
+    if (copyBtn.dataset.copyBound === "true") {
+        return;
+    }
+    copyBtn.dataset.copyBound = "true";
+
     const defaultLabel = window.VditorI18n.copy || "Copy";
+    const copiedLabel = window.VditorI18n.copied || "Copied";
+
+    const getCopyLabel = () => copyBtn.querySelector(".vditor-cm-chrome__copy-label") as HTMLElement | null;
+    const getCopyIcon = () => copyBtn.querySelector(".vditor-cm-chrome__copy-icon .codicon") as HTMLElement | null;
+
+    const resetCopyState = () => {
+        const label = getCopyLabel();
+        const icon = getCopyIcon();
+        if (label) {
+            label.textContent = defaultLabel;
+        }
+        if (icon) {
+            icon.classList.remove("codicon-check");
+            icon.classList.add("codicon-copy");
+        }
+        copyBtn.classList.remove("vditor-cm-chrome__copy--done");
+    };
+
     copyBtn.addEventListener("mousedown", (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -81,14 +125,20 @@ const bindCopyButton = (copyBtn: HTMLButtonElement, copyLabel: HTMLElement, getC
         if (!copied) {
             return;
         }
-        const copiedLabel = window.VditorI18n.copied || "Copied";
-        copyLabel.textContent = copiedLabel;
+        const label = getCopyLabel();
+        const icon = getCopyIcon();
+        if (label) {
+            label.textContent = copiedLabel;
+        }
+        if (icon) {
+            icon.classList.remove("codicon-copy");
+            icon.classList.add("codicon-check");
+        }
         copyBtn.classList.add("vditor-cm-chrome__copy--done");
         window.clearTimeout(Number(copyBtn.dataset.copyTimer || 0));
         copyBtn.dataset.copyTimer = String(window.setTimeout(() => {
-            copyLabel.textContent = defaultLabel;
-            copyBtn.classList.remove("vditor-cm-chrome__copy--done");
-        }, 1600));
+            resetCopyState();
+        }, 500));
     });
 };
 
@@ -119,11 +169,17 @@ const ensureDocumentCloseListener = () => {
     document.addEventListener("pointerdown", handleOutsidePointer, true);
 };
 
+const updateLangChevron = (chevron: HTMLElement, open: boolean) => {
+    chevron.classList.remove("codicon-chevron-up", "codicon-chevron-down");
+    chevron.classList.add(open ? "codicon-chevron-down" : "codicon-chevron-up");
+};
+
 const closeLangPanel = () => {
     if (!openLangChrome) {
         return;
     }
     openLangChrome.langSearch.blur();
+    updateLangChevron(openLangChrome.langChevron, false);
     openLangChrome.langWrap.classList.remove("vditor-cm-chrome__lang--open");
     openLangChrome.langWrap.classList.remove("vditor-cm-chrome__lang--focused");
     openLangChrome.langActiveIndex = -1;
@@ -177,6 +233,7 @@ const setLangPanelOpen = (chrome: ICodeBlockChrome, open: boolean) => {
             closeLangPanel();
         }
         chrome.langWrap.classList.add("vditor-cm-chrome__lang--open");
+        updateLangChevron(chrome.langChevron, true);
         openLangChrome = chrome;
         chrome.langSearch.value = "";
         chrome.langActiveIndex = -1;
@@ -323,8 +380,9 @@ const createChromeRoot = (editable: boolean) => {
     );
     langTrigger.innerHTML =
         `<span class="vditor-cm-chrome__lang-label"></span>` +
-        `<span class="vditor-cm-chrome__lang-chevron">${CHEVRON_ICON}</span>`;
+        `<span class="vditor-cm-chrome__lang-chevron">${codicon("chevron-up")}</span>`;
     langWrap.appendChild(langTrigger);
+    const langChevron = langTrigger.querySelector(".vditor-cm-chrome__lang-chevron .codicon") as HTMLElement;
 
     const langPanel = document.createElement("div");
     langPanel.className = "vditor-cm-chrome__lang-panel";
@@ -341,17 +399,31 @@ const createChromeRoot = (editable: boolean) => {
 
     langWrap.appendChild(langPanel);
 
+    const actions = document.createElement("div");
+    actions.className = "vditor-cm-chrome__actions";
+
+    let deleteBtn: HTMLButtonElement | undefined;
+    if (editable) {
+        deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "vditor-cm-chrome__delete";
+        deleteBtn.setAttribute("aria-label", window.VditorI18n.remove || "Remove");
+        deleteBtn.innerHTML = `<span class="vditor-cm-chrome__delete-icon">${codicon("trash")}</span>`;
+        actions.appendChild(deleteBtn);
+    }
+
     const copyBtn = document.createElement("button");
     copyBtn.type = "button";
     copyBtn.className = "vditor-cm-chrome__copy";
     const copyLabel = document.createElement("span");
     copyLabel.className = "vditor-cm-chrome__copy-label";
     copyLabel.textContent = window.VditorI18n.copy || "Copy";
-    copyBtn.innerHTML = `<span class="vditor-cm-chrome__copy-icon">${COPY_ICON}</span>`;
+    copyBtn.innerHTML = `<span class="vditor-cm-chrome__copy-icon">${codicon("copy")}</span>`;
     copyBtn.appendChild(copyLabel);
+    actions.appendChild(copyBtn);
 
     toolbar.appendChild(langWrap);
-    toolbar.appendChild(copyBtn);
+    toolbar.appendChild(actions);
     root.appendChild(toolbar);
 
     if (!editable) {
@@ -362,6 +434,7 @@ const createChromeRoot = (editable: boolean) => {
     return {
         root,
         toolbar,
+        deleteBtn,
         copyBtn,
         copyLabel,
         langWrap,
@@ -370,6 +443,7 @@ const createChromeRoot = (editable: boolean) => {
         langPanel,
         langSearch,
         langList,
+        langChevron,
     };
 };
 
@@ -394,7 +468,7 @@ export const ensurePreviewCodeBlockChrome = (
     };
     chromeMap.set(host, chrome);
     host.insertBefore(chrome.root, host.firstChild);
-    bindCopyButton(chrome.copyBtn, chrome.copyLabel, () => chrome.getCodeText());
+    bindCopyButton(chrome.copyBtn, () => chrome.getCodeText());
     updateCodeBlockChromeLanguage(host, languageName);
 };
 
@@ -428,7 +502,10 @@ export const ensureCodeBlockChrome = (
         };
         chromeMap.set(blockElement, chrome);
         host.insertBefore(chrome.root, host.firstChild);
-        bindCopyButton(chrome.copyBtn, chrome.copyLabel, () => chrome.getCodeText());
+        bindCopyButton(chrome.copyBtn, () => chrome.getCodeText());
+        if (chrome.deleteBtn) {
+            bindDeleteButton(vditor, blockElement, chrome.deleteBtn);
+        }
         bindChromeEventIsolation(chrome.root);
         ensureDocumentCloseListener();
 

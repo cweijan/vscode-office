@@ -52,6 +52,8 @@ export default defineConfig(({ mode }) => {
           { src: "src/css", dest },
           { src: "src/images", dest },
           { src: "src/js", dest },
+          { src: "../node_modules/@vscode/codicons/dist/codicon.css", dest: "codicon" },
+          { src: "../node_modules/@vscode/codicons/dist/codicon.ttf", dest: "codicon" },
         ],
       }),
       ...(mode === "production" ? [copyBuildToResource()] : []),

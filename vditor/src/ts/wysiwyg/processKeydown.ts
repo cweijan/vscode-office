@@ -1,5 +1,6 @@
 import {Constants} from "../constants";
 import {focusCodeBlockLanguageInput} from "../codeBlock/codeBlockLanguagePopover";
+import {tryFocusAdjacentCodeMirror} from "../codeBlock/codeMirrorNavigation";
 import {
     focusCodeMirror,
     getCodeMirrorView,
@@ -105,6 +106,10 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
 
     const blockElement = hasClosestBlock(startContainer);
     const pElement = hasClosestByMatchTag(startContainer, "P");
+
+    if (tryFocusAdjacentCodeMirror(vditor, event, range)) {
+        return true;
+    }
 
     // md 处理
     if (fixMarkdown(event, vditor, pElement, range)) {
