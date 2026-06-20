@@ -250,12 +250,21 @@ const applyLanguage = (blockElement: HTMLElement, binding: CodeMirrorBinding, la
     });
 };
 
-const isClipboardShortcut = (event: KeyboardEvent) => {
+const isCopyPasteShortcut = (event: KeyboardEvent) => {
     if (!event.ctrlKey && !event.metaKey) {
         return false;
     }
     const key = event.key.toLowerCase();
-    return key === "c" || key === "x" || key === "v" || key === "a" || key === "z" || key === "y";
+    return key === "c" || key === "x" || key === "v";
+};
+
+/** 全选 / 撤销 / 重做：阻止冒泡，避免触发外层编辑器 */
+const shouldStopKeydownBubble = (event: KeyboardEvent) => {
+    if (!event.ctrlKey && !event.metaKey) {
+        return false;
+    }
+    const key = event.key.toLowerCase();
+    return key === "a" || key === "z" || key === "y";
 };
 
 const getCmSelectionText = (view: EditorView) => {
@@ -266,6 +275,16 @@ const getCmSelectionText = (view: EditorView) => {
     return parts.join("\n");
 };
 
+const clearCmSelection = (view: EditorView) => {
+    const {from, to, head} = view.state.selection.main;
+    if (from === to) {
+        return;
+    }
+    view.dispatch({
+        selection: EditorSelection.cursor(head),
+    });
+};
+
 const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding: CodeMirrorBinding) => ({
     mousedown: (event: Event) => {
         event.stopPropagation();
@@ -274,6 +293,15 @@ const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding:
     },
     focus: () => {
         showLanguagePopover(vditor, blockElement);
+        return false;
+    },
+    blur: () => {
+        window.setTimeout(() => {
+            if (!bindings.has(blockElement) || binding.view.hasFocus) {
+                return;
+            }
+            clearCmSelection(binding.view);
+        }, 0);
         return false;
     },
     click: (event: Event) => {
@@ -332,7 +360,12 @@ const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding:
         return true;
     },
     keydown: (event: Event) => {
-        if (isClipboardShortcut(event as KeyboardEvent)) {
+        const keyboardEvent = event as KeyboardEvent;
+        if (shouldStopKeydownBubble(keyboardEvent)) {
+            event.stopPropagation();
+            return false;
+        }
+        if (isCopyPasteShortcut(keyboardEvent)) {
             return false;
         }
         event.stopPropagation();

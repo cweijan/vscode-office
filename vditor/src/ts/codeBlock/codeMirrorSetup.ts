@@ -6,9 +6,11 @@ import {highlightSelectionMatches, searchKeymap} from "@codemirror/search";
 import {closeBrackets, autocompletion, closeBracketsKeymap, completionKeymap} from "@codemirror/autocomplete";
 import {lintKeymap} from "@codemirror/lint";
 import {vditorSyntaxHighlighting} from "./codeMirrorHighlight";
+import {vditorEditorTheme} from "./codeMirrorTheme";
 
 /** basicSetup without defaultHighlightStyle — syntax colors come from css/codemirror.css */
 export const vditorCodeMirrorSetup = [
+    vditorEditorTheme,
     lineNumbers(),
     highlightActiveLineGutter(),
     highlightSpecialChars(),
@@ -17,6 +19,7 @@ export const vditorCodeMirrorSetup = [
     drawSelection(),
     dropCursor(),
     EditorState.allowMultipleSelections.of(true),
+    EditorState.tabSize.of(4),
     indentOnInput(),
     vditorSyntaxHighlighting,
     bracketMatching(),

@@ -3,9 +3,23 @@
   margin-bottom: 1em !important;
 }
 
+.vditor-code-block--cm > pre.vditor-cm-host:first-child,
+.vditor-code-block--cm > pre:first-child.vditor-cm-host {
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.vditor-cm-host {
+  border-radius: 6px;
+  overflow: hidden;
+}
+
 .vditor-cm-host .cm-editor {
-  font-size: var(--vscode-editor-font-size);
-  font-family: var(--vscode-editor-font-family);
+  font-size: var(--vscode-editor-font-size, 13px);
+  font-family: var(--vscode-editor-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-weight: var(--vscode-editor-font-weight, normal);
+  font-feature-settings: "liga" 0, "calt" 0;
+  font-variant-ligatures: none;
   color: var(--vscode-editor-foreground);
 }
 
@@ -14,11 +28,32 @@
   background: var(--cm-bg-color) !important;
 }
 
+.vditor-cm-host .cm-scroller {
+  line-height: calc(var(--vscode-editor-font-size, 13px) * 1.35);
+}
+
 .vditor-cm-host.cm-lineWrapping .cm-line,
 .vditor-cm-host .cm-lineWrapping .cm-line {
   word-wrap: break-word;
-  white-space: pre-wrap;
-  word-break: break-all;
+  white-space: break-spaces;
+  word-break: break-word;
+}
+
+.vditor-cm-host .cm-content {
+  padding: 8px 0;
+}
+
+.vditor-cm-host .cm-line {
+  padding: 0 12px 0 4px;
+}
+
+.vditor-cm-host .cm-gutter.cm-lineNumbers .cm-gutterElement {
+  min-width: 3ch;
+  padding: 0 12px 0 8px;
+  text-align: right;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .vditor-cm-host .cm-selectionBackground {
@@ -59,6 +94,7 @@
 .vditor-cm-host .cm-cursor,
 .vditor-cm-host .cm-dropCursor {
   border-left-color: var(--cm-cursor-fg) !important;
+  border-left-width: 2px;
 }
 
 .vditor-cm-host .cm-activeLine,
@@ -98,8 +134,8 @@
   color: var(--cm-fold-fg) !important;
   cursor: pointer;
   opacity: 0.9;
-  font-size: 14px;
-  line-height: 1;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .vditor-cm-host .cm-foldGutter .cm-gutterElement:hover {
@@ -199,6 +235,11 @@
   color: var(--vscode-editorSuggestWidget-selectedForeground);
 }
 
+.vditor-cm-preview-host {
+  border-radius: 6px;
+  overflow: hidden;
+}
+
 .vditor-cm-preview-host .cm-editor {
   outline: none;
 }
@@ -211,4 +252,30 @@
 .vditor-cm-preview-host .cm-focused .cm-activeLine,
 .vditor-cm-preview-host .cm-focused .cm-activeLineGutter {
   background: transparent !important;
+}
+
+.vditor-wysiwyg:has(.cm-focused),
+.vditor-ir:has(.cm-focused) {
+  user-select: none;
+}
+
+.vditor-cm-host .cm-editor,
+.vditor-cm-host .cm-editor .cm-scroller,
+.vditor-cm-host .cm-editor .cm-content,
+.vditor-cm-host .cm-editor .cm-line {
+  font-family: var(--vscode-editor-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace) !important;
+  font-size: var(--vscode-editor-font-size, 13px);
+  font-weight: var(--vscode-editor-font-weight, normal);
+  font-feature-settings: "liga" 0, "calt" 0;
+  font-variant-ligatures: none;
+}
+
+.vditor-cm-preview-host .cm-editor,
+.vditor-cm-preview-host .cm-editor .cm-scroller {
+  font-family: var(--vscode-editor-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace) !important;
+}
+
+.vditor-cm-host .cm-editor,
+.vditor-cm-host .cm-editor * {
+  user-select: text;
 }

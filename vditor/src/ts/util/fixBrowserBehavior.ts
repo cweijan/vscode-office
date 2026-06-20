@@ -960,8 +960,11 @@ export const fixTable = (vditor: IVditor, event: KeyboardEvent, range: Range) =>
 };
 
 export const fixCodeBlock = (vditor: IVditor, event: KeyboardEvent, codeRenderElement: HTMLElement, range: Range) => {
-    // 行级代码块中 command + a，近对当前代码块进行全选
+    // 行级代码块中 command + a，仅对当前代码块进行全选（CodeMirror 块由 CM 自行处理）
     if (codeRenderElement.tagName === "PRE" && matchHotKey("⌘A", event)) {
+        if (codeRenderElement.closest(".vditor-code-block--cm") || isInsideCodeMirror(event.target)) {
+            return false;
+        }
         range.selectNodeContents(codeRenderElement.firstElementChild);
         event.preventDefault();
         return true;
