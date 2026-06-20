@@ -1,14 +1,9 @@
-import { abcRender } from "../markdown/abcRender";
-import { chartRender } from "../markdown/chartRender";
 import { codeRender } from "../markdown/codeRender";
-import { flowchartRender } from "../markdown/flowchartRender";
 import { getMarkdown } from "../markdown/getMarkdown";
-import { graphvizRender } from "../markdown/graphvizRender";
 import { highlightRender } from "../markdown/highlightRender";
 import { mathRender } from "../markdown/mathRender";
 import { mediaRender } from "../markdown/mediaRender";
 import { mermaidRender } from "../markdown/mermaidRender";
-import { mindmapRender } from "../markdown/mindmapRender";
 import { plantumlRender } from "../markdown/plantumlRender";
 import { getEventName } from "../util/compatibility";
 import { hasClosestByClassName, hasClosestByMatchTag } from "../util/hasClosest";
@@ -211,12 +206,7 @@ export class Preview {
         highlightRender(vditor.options.preview.hljs, vditor.preview.element.lastElementChild as HTMLElement,
             vditor.options.cdn);
         mermaidRender(vditor.preview.element.lastElementChild as HTMLElement, vditor.options.cdn, vditor.options.theme);
-        flowchartRender(vditor.preview.element.lastElementChild as HTMLElement, vditor.options.cdn);
-        graphvizRender(vditor.preview.element.lastElementChild as HTMLElement, vditor.options.cdn);
-        chartRender(vditor.preview.element.lastElementChild as HTMLElement, vditor.options.cdn, vditor.options.theme);
-        mindmapRender(vditor.preview.element.lastElementChild as HTMLElement, vditor.options.cdn, vditor.options.theme);
         plantumlRender(vditor.preview.element.lastElementChild as HTMLElement, vditor.options.cdn);
-        abcRender(vditor.preview.element.lastElementChild as HTMLElement, vditor.options.cdn);
         mediaRender(vditor.preview.element.lastElementChild as HTMLElement);
         // toc render
         const editorElement = vditor.preview.element;

@@ -14,9 +14,7 @@
     font-size: var(--vscode-editor-font-size);
 }
 
-.vditor-content .language-flowchart svg,
-.vditor-content .language-mermaid svg,
-.vditor-content .language-mindmap canvas {
+.vditor-content .language-mermaid svg {
     background-color: white !important;
 }
 

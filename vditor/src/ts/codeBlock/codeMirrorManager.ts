@@ -12,7 +12,7 @@ import {vditorCodeMirrorSetup} from "./codeMirrorSetup";
 export {focusCodeBlockLanguageInput, showCodeBlockLanguagePopover} from "./codeBlockLanguagePopover";
 
 const SPECIAL_LANGUAGES = [
-    "mermaid", "flowchart", "echarts", "mindmap", "plantuml", "abc", "graphviz", "math",
+    "mermaid", "plantuml", "math",
 ];
 
 const CM_HOST_CLASS = "vditor-cm-host";
