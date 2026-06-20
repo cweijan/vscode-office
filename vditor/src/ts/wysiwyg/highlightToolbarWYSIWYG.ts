@@ -41,10 +41,12 @@ import {
 import {afterRenderEvent} from "./afterRenderEvent";
 import {removeBlockElement} from "./processKeydown";
 import {renderToc} from "../util/toc";
+import {updateActiveHeadingMarker} from "../util/updateActiveHeadingMarker";
 
 export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
     clearTimeout(vditor.wysiwyg.hlToolbarTimeoutId);
     vditor.wysiwyg.hlToolbarTimeoutId = window.setTimeout(() => {
+        try {
         if (
             vditor.wysiwyg.element.getAttribute("contenteditable") === "false"
         ) {
@@ -744,6 +746,9 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
         const activeCmBlock = hasClosestByAttribute(typeElement, "data-type", "code-block") as HTMLElement;
         if (activeCmBlock && shouldShowLanguagePopover(activeCmBlock) && !isCmCodeBlock(activeCmBlock)) {
             showCodeBlockLanguagePopover(vditor, activeCmBlock);
+        }
+        } finally {
+            updateActiveHeadingMarker(vditor);
         }
     }, 200);
 };

@@ -33,6 +33,46 @@ const buildLanguageEntries = (): CodeMirrorLanguageEntry[] => {
 
 const CODE_MIRROR_LANGUAGE_ENTRIES: CodeMirrorLanguageEntry[] = buildLanguageEntries();
 
+export const getPlainTextLanguageLabel = (): string =>
+    window.VditorI18n?.plaintext || "Plain Text";
+
+const PLAIN_TEXT_LANGUAGE_TERMS = ["plain text", "plaintext", "plain", "text"];
+
+export const toCodeBlockLanguageName = (displayName: string): string => {
+    if (displayName === getPlainTextLanguageLabel() || displayName === "Plain Text") {
+        return "";
+    }
+    return displayName;
+};
+
+const plainTextMatchesQuery = (query: string): boolean => {
+    const lower = query.trim().toLowerCase();
+    if (!lower) {
+        return true;
+    }
+    const label = getPlainTextLanguageLabel().toLowerCase();
+    if (label.includes(lower)) {
+        return true;
+    }
+    for (const term of PLAIN_TEXT_LANGUAGE_TERMS) {
+        if (term.includes(lower) || lower.includes(term)) {
+            return true;
+        }
+    }
+    return false;
+};
+
+const prependPlainTextLanguage = (names: string[]): string[] => {
+    const label = getPlainTextLanguageLabel();
+    const rest: string[] = [];
+    for (const name of names) {
+        if (name !== label) {
+            rest.push(name);
+        }
+    }
+    return [label, ...rest];
+};
+
 export const buildCodeMirrorLanguageMap = (): Record<string, LanguageDescription> => {
     const map: Record<string, LanguageDescription> = {};
     for (const language of languages) {
@@ -116,7 +156,7 @@ export const getAllCodeMirrorLanguageNames = (): string[] => {
     for (const entry of CODE_MIRROR_LANGUAGE_ENTRIES) {
         names.push(entry.canonical);
     }
-    return sortLanguageNamesWithPinnedFirst(names);
+    return prependPlainTextLanguage(sortLanguageNamesWithPinnedFirst(names));
 };
 
 export const filterCodeMirrorLanguageNames = (query: string): string[] => {
@@ -126,6 +166,9 @@ export const filterCodeMirrorLanguageNames = (query: string): string[] => {
         return all;
     }
     const matched = new Set<string>();
+    if (plainTextMatchesQuery(lower)) {
+        matched.add(getPlainTextLanguageLabel());
+    }
     for (const entry of CODE_MIRROR_LANGUAGE_ENTRIES) {
         for (const term of entry.terms) {
             if (term.toLowerCase().includes(lower)) {
@@ -134,12 +177,15 @@ export const filterCodeMirrorLanguageNames = (query: string): string[] => {
             }
         }
     }
-    return sortLanguageNamesWithPinnedFirst([...matched]);
+    return prependPlainTextLanguage(sortLanguageNamesWithPinnedFirst([...matched]));
 };
 
 export const matchCodeMirrorLanguages = (key: string): IHintData[] => {
     const matchLangData: IHintData[] = [];
     const lower = key.toLowerCase();
+    if (plainTextMatchesQuery(lower)) {
+        matchLangData.push({ html: getPlainTextLanguageLabel(), value: getPlainTextLanguageLabel() });
+    }
     for (const entry of CODE_MIRROR_LANGUAGE_ENTRIES) {
         let matched = false;
         for (const term of entry.terms) {

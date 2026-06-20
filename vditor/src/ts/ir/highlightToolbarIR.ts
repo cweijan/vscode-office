@@ -5,10 +5,12 @@ import {hasClosestByHeadings} from "../util/hasClosestByHeadings";
 import {getEditorRange, selectIsEditor} from "../util/selection";
 import {isCmCodeBlock, isInsideCodeBlockChrome, isInsideCodeMirror, shouldShowLanguagePopover} from "../codeBlock/codeMirrorManager";
 import {showCodeBlockLanguagePopover} from "../codeBlock/codeBlockLanguagePopover";
+import {updateActiveHeadingMarker} from "../util/updateActiveHeadingMarker";
 
 export const highlightToolbarIR = (vditor: IVditor) => {
     clearTimeout(vditor[vditor.currentMode].hlToolbarTimeoutId);
     vditor[vditor.currentMode].hlToolbarTimeoutId = window.setTimeout(() => {
+        try {
         if (vditor[vditor.currentMode].element.getAttribute("contenteditable") === "false") {
             return;
         }
@@ -107,6 +109,8 @@ export const highlightToolbarIR = (vditor: IVditor) => {
         } else if (vditor.ir.popover) {
             vditor.ir.popover.style.display = "none";
         }
-
+        } finally {
+            updateActiveHeadingMarker(vditor);
+        }
     }, 200);
 };

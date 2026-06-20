@@ -207,6 +207,15 @@
   z-index: 2;
   pointer-events: none;
   border-radius: inherit;
+
+  &:has(.vditor-cm-chrome__lang--open) {
+    z-index: 10;
+  }
+}
+
+:is(.vditor-wysiwyg__block, .vditor-ir__node, [data-type="code-block"]):has(.vditor-cm-chrome__lang--open) {
+  position: relative;
+  z-index: 100;
 }
 
 .vditor-cm-chrome__toolbar {
@@ -384,7 +393,7 @@
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
-  z-index: 5;
+  z-index: 20;
   width: min(280px, calc(100vw - 32px));
   padding: 10px;
   border: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 14%, transparent);

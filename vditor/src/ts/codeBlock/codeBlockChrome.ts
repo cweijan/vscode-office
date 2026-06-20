@@ -1,5 +1,5 @@
 import { updateHotkeyTip } from "../util/compatibility";
-import { filterCodeMirrorLanguageNames } from "./codeBlockLanguageHints";
+import { filterCodeMirrorLanguageNames, toCodeBlockLanguageName } from "./codeBlockLanguageHints";
 import { applyCodeBlockLanguageChange } from "./codeBlockLanguageInput";
 import {
     focusCodeMirror,
@@ -262,7 +262,7 @@ const renderLangList = (chrome: ICodeBlockChrome, query: string) => {
         item.className = "vditor-cm-chrome__lang-item";
         item.tabIndex = -1;
         item.textContent = name;
-        item.dataset.lang = name;
+        item.setAttribute("data-lang", toCodeBlockLanguageName(name));
         chrome.langList.appendChild(item);
     }
     updateLangActiveItem(chrome, 0);
@@ -286,8 +286,9 @@ export const updateCodeBlockChromeLanguage = (target: HTMLElement, languageName:
 };
 
 const selectLanguage = (vditor: IVditor, blockElement: HTMLElement, chrome: ICodeBlockChrome, lang: string) => {
-    applyCodeBlockLanguageChange(vditor, blockElement, lang);
-    syncCodeBlockChromeLanguageLabel(blockElement, lang.trim());
+    const languageName = toCodeBlockLanguageName(lang.trim());
+    applyCodeBlockLanguageChange(vditor, blockElement, languageName);
+    syncCodeBlockChromeLanguageLabel(blockElement, languageName);
     closeLangPanel();
 };
 
@@ -331,9 +332,10 @@ const bindLanguagePanel = (vditor: IVditor, blockElement: HTMLElement, chrome: I
             const query = chrome.langSearch.value.trim();
             const items = getLangListItems(chrome);
             const activeItem = items[chrome.langActiveIndex];
-            const lang = activeItem?.dataset.lang || query;
-            if (lang) {
-                selectLanguage(vditor, getBlock(), chrome, lang);
+            if (activeItem?.hasAttribute("data-lang")) {
+                selectLanguage(vditor, getBlock(), chrome, activeItem.getAttribute("data-lang") ?? "");
+            } else if (query) {
+                selectLanguage(vditor, getBlock(), chrome, query);
             }
             event.preventDefault();
         }
@@ -354,10 +356,10 @@ const bindLanguagePanel = (vditor: IVditor, blockElement: HTMLElement, chrome: I
     chrome.langList.addEventListener("click", (event) => {
         event.stopPropagation();
         const item = (event.target as HTMLElement).closest(".vditor-cm-chrome__lang-item") as HTMLElement;
-        if (!item?.dataset.lang) {
+        if (!item?.hasAttribute("data-lang")) {
             return;
         }
-        selectLanguage(vditor, getBlock(), chrome, item.dataset.lang);
+        selectLanguage(vditor, getBlock(), chrome, item.getAttribute("data-lang") ?? "");
     });
 };
 

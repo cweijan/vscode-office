@@ -73,8 +73,18 @@
   & > .vditor-reset > h3:before,
   & > .vditor-reset > h4:before,
   & > .vditor-reset > h5:before,
-  & > .vditor-reset > h6:before,
-  div.vditor-wysiwyg__block:before,
+  & > .vditor-reset > h6:before {
+    content: none;
+  }
+
+  & > .vditor-reset > h1.vditor-heading--active:before,
+  & > .vditor-reset > h2.vditor-heading--active:before,
+  & > .vditor-reset > h3.vditor-heading--active:before,
+  & > .vditor-reset > h4.vditor-heading--active:before,
+  & > .vditor-reset > h5.vditor-heading--active:before,
+  & > .vditor-reset > h6.vditor-heading--active:before,
+  div.vditor-wysiwyg__block[data-type="yaml-front-matter"]:before,
+  div.vditor-wysiwyg__block[data-type="math-block"]:before,
   div[data-type="link-ref-defs-block"]:before,
   div[data-type="footnotes-block"]:before,
   .vditor-toc:before {
@@ -87,23 +97,23 @@
     color: var(--second-color);
   }
 
-  & > .vditor-reset > h2:before {
+  & > .vditor-reset > h2.vditor-heading--active:before {
     content: 'H2';
   }
 
-  & > .vditor-reset > h3:before {
+  & > .vditor-reset > h3.vditor-heading--active:before {
     content: 'H3';
   }
 
-  & > .vditor-reset > h4:before {
+  & > .vditor-reset > h4.vditor-heading--active:before {
     content: 'H4';
   }
 
-  & > .vditor-reset > h5:before {
+  & > .vditor-reset > h5.vditor-heading--active:before {
     content: 'H5';
   }
 
-  & > .vditor-reset > h6:before {
+  & > .vditor-reset > h6.vditor-heading--active:before {
     content: 'H6';
   }
 
@@ -113,10 +123,6 @@
 
   div[data-type="footnotes-block"]:before {
     content: '^F';
-  }
-
-  div.vditor-wysiwyg__block:before {
-    content: "</>";
   }
 
   div.vditor-wysiwyg__block[data-type="yaml-front-matter"]:before {
@@ -179,7 +185,8 @@
     h4:before,
     h5:before,
     h6:before,
-    div.vditor-wysiwyg__block:before,
+    div.vditor-wysiwyg__block[data-type="yaml-front-matter"]:before,
+    div.vditor-wysiwyg__block[data-type="math-block"]:before,
     div[data-type="link-ref-defs-block"]:before,
     div[data-type="footnotes-block"]:before,
     .vditor-toc:before {
