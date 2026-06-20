@@ -101,6 +101,7 @@ function showOfficeHelpTip(vditor, sponsorBaseUrl) {
 
 export async function getToolbar(resPath, sponsorBaseUrl, language) {
     const helpTip = language?.toLowerCase().startsWith('zh') ? '帮助' : 'Help';
+    const codicon = (name) => `<span class="codicon codicon-${name}" aria-hidden="true"></span>`;
     return [
         'outline',
         "headings",
@@ -110,19 +111,19 @@ export async function getToolbar(resPath, sponsorBaseUrl, language) {
         "link",
         "|",
         {
-            tipPosition: 's',
+            tipPosition: 'e',
             tip: `Edit In VSCode (${shortcutTip})`,
             className: 'right',
-            icon: await loadRes(`${resPath}/icon/vscode.svg`),
+            icon: codicon('vscode'),
             click() {
                 handler.emit("editInVSCode", true)
             }
         },
         {
-            tipPosition: 's',
+            tipPosition: 'e',
             tip: 'Export To Pdf',
             className: 'right',
-            icon: await loadRes(`${resPath}/icon/pdf.svg`),
+            icon: codicon('file-pdf'),
             click() {
                 handler.emit("export")
             }
@@ -131,12 +132,11 @@ export async function getToolbar(resPath, sponsorBaseUrl, language) {
         "|",
         {
             name: 'editor-theme-label',
-            tipPosition: 's',
+            tipPosition: 'e',
         },
         {
             name: 'editor-theme',
-            tipPosition: 's',
-            icon: await loadRes(`${resPath}/icon/theme.svg`),
+            tipPosition: 'e',
         },
         "code-theme",
         "|",
@@ -157,8 +157,8 @@ export async function getToolbar(resPath, sponsorBaseUrl, language) {
         "edit-mode",
         {
             tip: helpTip,
-            tipPosition: 'nw',
-            icon: '<svg><use xlink:href="#vditor-icon-help"></use></svg>',
+            tipPosition: 'e',
+            icon: codicon('question'),
             click(event, vditor) {
                 showOfficeHelpTip(vditor, sponsorBaseUrl);
             }

@@ -8,7 +8,7 @@ window.VditorI18n = {
   'check': '任務列表',
   'close': '關閉',
   'code': '代碼塊',
-  'code-theme': '修改 CodeMirror 主題',
+  'code-theme': 'CodeMirror 主題',
   'code-theme-section-system': '系統',
   'code-theme-section-light': '亮色主題',
   'code-theme-section-dark': '暗色主題',

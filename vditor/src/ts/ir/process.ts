@@ -7,6 +7,7 @@ import {accessLocalStorage} from "../util/compatibility";
 import {listToggle} from "../util/fixBrowserBehavior";
 import {hasClosestBlock, hasClosestByAttribute, hasClosestByClassName, hasClosestByMatchTag} from "../util/hasClosest";
 import {getEditorRange, getSelectPosition, setRangeByWbr, setSelectionFocus} from "../util/selection";
+import {renderToc} from "../util/toc";
 import {highlightToolbarIR} from "./highlightToolbarIR";
 import {input} from "./input";
 
@@ -68,7 +69,7 @@ export const processAfterRender = (vditor: IVditor, options = {
         }
 
         if (vditor.options.outline.enable) {
-            vditor.outline.render(vditor);
+            renderToc(vditor);
         }
     }, vditor.options.undoDelay);
 };

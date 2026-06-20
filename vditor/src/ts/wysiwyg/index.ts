@@ -27,7 +27,10 @@ import {afterRenderEvent} from "./afterRenderEvent";
 import {genImagePopover, genLinkRefPopover, highlightToolbarWYSIWYG} from "./highlightToolbarWYSIWYG";
 import {getRenderElementNextNode, modifyPre} from "./inlineTag";
 import {input} from "./input";
-import {focusCodeBlock, isCmCodeBlock, isInsideCodeBlockChrome, isInsideCodeMirror} from "../codeBlock/codeMirrorManager";
+import {focusCodeBlock, isCmCodeBlock, isInsideCodeBlockChrome, isInsideCodeMirror,
+    getCodeMirrorSelectionTextForCopy,
+    sanitizeCodeBlocksInCopyFragment,
+} from "../codeBlock/codeMirrorManager";
 import {focusWysiwygCodeBlock, showCode} from "./showCode";
 import {getMarkdown} from "../markdown/getMarkdown";
 
@@ -70,11 +73,26 @@ class WYSIWYG {
     }
 
     private copy(event: ClipboardEvent, vditor: IVditor) {
+        const cmSelectionText = getCodeMirrorSelectionTextForCopy(vditor);
+
         if (isInsideCodeMirror(event.target)) {
+            if (!event.defaultPrevented && cmSelectionText) {
+                event.preventDefault();
+                event.stopPropagation();
+                event.clipboardData.setData("text/plain", cmSelectionText);
+                event.clipboardData.setData("text/html", "");
+            }
             return;
         }
+
         const range = getSelection().getRangeAt(0);
         if (range.toString() === "") {
+            if (cmSelectionText) {
+                event.preventDefault();
+                event.stopPropagation();
+                event.clipboardData.setData("text/plain", cmSelectionText);
+                event.clipboardData.setData("text/html", "");
+            }
             return;
         }
         event.stopPropagation();
@@ -109,6 +127,7 @@ class WYSIWYG {
 
         const tempElement = document.createElement("div");
         tempElement.appendChild(range.cloneContents());
+        sanitizeCodeBlocksInCopyFragment(tempElement, vditor.wysiwyg.element);
 
         event.clipboardData.setData("text/plain", vditor.lute.VditorDOM2Md(tempElement.innerHTML).trim());
         event.clipboardData.setData("text/html", "");

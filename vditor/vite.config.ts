@@ -29,6 +29,9 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3135,
       host: "127.0.0.1",
+      fs: {
+        allow: [resolve(__dirname, "..")],
+      },
     },
     build: {
       outDir: "dist",
@@ -53,8 +56,6 @@ export default defineConfig(({ mode }) => {
           { src: "src/css", dest },
           { src: "src/images", dest },
           { src: "src/js", dest },
-          { src: "../node_modules/@vscode/codicons/dist/codicon.css", dest: "codicon" },
-          { src: "../node_modules/@vscode/codicons/dist/codicon.ttf", dest: "codicon" },
         ],
       }),
       copyBuildToResource(),

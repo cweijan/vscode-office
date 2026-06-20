@@ -156,6 +156,9 @@ export const prepareCmBlockDom = (blockElement: HTMLElement) => {
     }
     const {editPre, code, preview} = parts;
     blockElement.classList.add(CM_BLOCK_CLASS);
+    if (blockElement.classList.contains("vditor-ir__node")) {
+        blockElement.classList.add("vditor-ir__node--expand");
+    }
     editPre.classList.add(CM_HOST_CLASS);
     editPre.setAttribute("contenteditable", "false");
     editPre.style.display = "block";
@@ -767,6 +770,44 @@ const sanitizeCmBlockCloneForMarkdown = (liveBlock: HTMLElement, cloneBlock: HTM
     const infoElement = cloneBlock.querySelector('[data-type="code-block-info"]') as HTMLElement;
     if (infoElement) {
         infoElement.textContent = Constants.ZWSP + languageName;
+    }
+};
+
+/** 复制时读取 CodeMirror 内部选区（DOM Selection 通常为空） */
+export const getCodeMirrorSelectionTextForCopy = (vditor: IVditor) => {
+    const editor = getModeEditor(vditor);
+    if (!editor) {
+        return null;
+    }
+    const blocks = editor.querySelectorAll(`.${CM_BLOCK_CLASS}[data-type='code-block']`);
+    for (let i = 0; i < blocks.length; i++) {
+        const view = getCodeMirrorView(blocks[i] as HTMLElement);
+        if (!view) {
+            continue;
+        }
+        const {from, to} = view.state.selection.main;
+        if (from !== to) {
+            return getCmSelectionText(view);
+        }
+    }
+    return null;
+};
+
+/** 复制/导出前还原 CM 代码块 DOM，供 Lute 正确转为 Markdown */
+export const sanitizeCodeBlocksInCopyFragment = (root: ParentNode, editor: HTMLElement) => {
+    const liveBlocks = editor.querySelectorAll(`.${CM_BLOCK_CLASS}[data-type='code-block']`);
+    const cloneBlocks = root.querySelectorAll("[data-type='code-block']");
+    for (let i = 0; i < cloneBlocks.length; i++) {
+        const cloneBlock = cloneBlocks[i] as HTMLElement;
+        let liveBlock = cloneBlock.getAttribute("data-block") != null
+            ? editor.querySelector(`[data-type='code-block'][data-block="${cloneBlock.getAttribute("data-block")}"]`) as HTMLElement | null
+            : null;
+        if (!liveBlock && i < liveBlocks.length) {
+            liveBlock = liveBlocks[i] as HTMLElement;
+        }
+        if (liveBlock) {
+            sanitizeCmBlockCloneForMarkdown(liveBlock, cloneBlock);
+        }
     }
 };
 

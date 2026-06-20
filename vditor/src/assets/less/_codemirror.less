@@ -79,6 +79,7 @@
   .cm-gutters {
     background: var(--cm-bg-color) !important;
     border-right: 0;
+    user-select: none;
   }
 
   .cm-gutterElement {
@@ -226,6 +227,7 @@
   min-height: 36px;
   padding: 6px 14px;
   pointer-events: none;
+  user-select: none;
 }
 
 .vditor-cm-chrome__actions {
@@ -531,9 +533,28 @@
   }
 }
 
+.vditor-ir__node.vditor-code-block--cm {
+  display: block;
+  position: relative;
+  margin-bottom: 1em;
+
+  pre.vditor-cm-host {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+}
+
 .vditor-wysiwyg:has(.cm-focused),
 .vditor-ir:has(.cm-focused) {
   user-select: none;
+
+  .vditor-cm-host .cm-editor,
+  .vditor-cm-host .cm-content,
+  .vditor-cm-host .cm-line {
+    user-select: text;
+  }
 }
 
 .vditor-cm-host .cm-editor,
@@ -569,11 +590,6 @@
   .cm-focused .cm-activeLineGutter {
     background: transparent !important;
   }
-}
-
-.vditor-cm-host .cm-editor,
-.vditor-cm-host .cm-editor * {
-  user-select: text;
 }
 
 .cm-tooltip.cm-tooltip-autocomplete {

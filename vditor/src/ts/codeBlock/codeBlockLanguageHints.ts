@@ -62,17 +62,6 @@ const plainTextMatchesQuery = (query: string): boolean => {
     return false;
 };
 
-const prependPlainTextLanguage = (names: string[]): string[] => {
-    const label = getPlainTextLanguageLabel();
-    const rest: string[] = [];
-    for (const name of names) {
-        if (name !== label) {
-            rest.push(name);
-        }
-    }
-    return [label, ...rest];
-};
-
 export const buildCodeMirrorLanguageMap = (): Record<string, LanguageDescription> => {
     const map: Record<string, LanguageDescription> = {};
     for (const language of languages) {
@@ -152,11 +141,11 @@ const sortHintDataWithPinnedFirst = (items: IHintData[]) => {
 };
 
 export const getAllCodeMirrorLanguageNames = (): string[] => {
-    const names: string[] = [];
+    const names: string[] = [getPlainTextLanguageLabel()];
     for (const entry of CODE_MIRROR_LANGUAGE_ENTRIES) {
         names.push(entry.canonical);
     }
-    return prependPlainTextLanguage(sortLanguageNamesWithPinnedFirst(names));
+    return sortLanguageNamesWithPinnedFirst(names);
 };
 
 export const filterCodeMirrorLanguageNames = (query: string): string[] => {
@@ -177,7 +166,7 @@ export const filterCodeMirrorLanguageNames = (query: string): string[] => {
             }
         }
     }
-    return prependPlainTextLanguage(sortLanguageNamesWithPinnedFirst([...matched]));
+    return sortLanguageNamesWithPinnedFirst([...matched]);
 };
 
 export const matchCodeMirrorLanguages = (key: string): IHintData[] => {

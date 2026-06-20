@@ -57,6 +57,17 @@
         height: 15px;
       }
 
+      .codicon {
+        font-size: 16px;
+        line-height: 1;
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      .vditor-codicon-undo {
+        transform: scaleX(-1);
+      }
+
       input {
         position: absolute;
         width: 25px;
@@ -186,4 +197,12 @@
   .vditor-toolbar__item .vditor-tooltipped:hover {
     color: var(--toolbar-icon-hover-color);
   }
+
+  .vditor-toolbar__item .vditor-tooltipped[data-type="outline"]:not(.vditor-menu--current):hover {
+    color: var(--toolbar-icon-color);
+  }
+}
+
+.vditor-toolbar__item .vditor-tooltipped[data-type="outline"].vditor-menu--current {
+  color: var(--list-hover-color, var(--toolbar-icon-hover-color)) !important;
 }

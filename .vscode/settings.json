@@ -4,7 +4,8 @@
         "out": false // set this to true to hide the "out" folder with the compiled JS files
     },
     "search.exclude": {
-        "out": true
+        "out": true,
+        "vditor/src/js/lute": true
     },
     // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
     "typescript.tsc.autoDetect": "off"

@@ -20,6 +20,8 @@ import {
     isCmCodeBlock,
     isInsideCodeBlockChrome,
     isInsideCodeMirror,
+    getCodeMirrorSelectionTextForCopy,
+    sanitizeCodeBlocksInCopyFragment,
 } from "../codeBlock/codeMirrorManager";
 import {expandMarker} from "./expandMarker";
 import {highlightToolbarIR} from "./highlightToolbarIR";
@@ -59,8 +61,26 @@ class IR {
     }
 
     private copy(event: ClipboardEvent, vditor: IVditor) {
+        const cmSelectionText = getCodeMirrorSelectionTextForCopy(vditor);
+
+        if (isInsideCodeMirror(event.target)) {
+            if (!event.defaultPrevented && cmSelectionText) {
+                event.preventDefault();
+                event.stopPropagation();
+                event.clipboardData.setData("text/plain", cmSelectionText);
+                event.clipboardData.setData("text/html", "");
+            }
+            return;
+        }
+
         const range = getSelection().getRangeAt(0);
         if (range.toString() === "") {
+            if (cmSelectionText) {
+                event.preventDefault();
+                event.stopPropagation();
+                event.clipboardData.setData("text/plain", cmSelectionText);
+                event.clipboardData.setData("text/html", "");
+            }
             return;
         }
         event.stopPropagation();
@@ -68,6 +88,7 @@ class IR {
 
         const tempElement = document.createElement("div");
         tempElement.appendChild(range.cloneContents());
+        sanitizeCodeBlocksInCopyFragment(tempElement, vditor.ir.element);
 
         event.clipboardData.setData("text/plain", vditor.lute.VditorIRDOM2Md(tempElement.innerHTML).trim());
         event.clipboardData.setData("text/html", "");

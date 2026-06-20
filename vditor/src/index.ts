@@ -39,6 +39,7 @@ import {Options} from "./ts/util/Options";
 import {processCodeRender} from "./ts/util/processCode";
 import {getCursorPosition, getEditorRange} from "./ts/util/selection";
 import {afterRenderEvent} from "./ts/wysiwyg/afterRenderEvent";
+import {renderToc} from "./ts/util/toc";
 import {WYSIWYG} from "./ts/wysiwyg/index";
 import {input} from "./ts/wysiwyg/input";
 import {renderDomByMd} from "./ts/wysiwyg/renderDomByMd";
@@ -321,7 +322,7 @@ class Vditor {
             });
         }
 
-        this.vditor.outline.render(this.vditor);
+        renderToc(this.vditor);
 
         if (!markdown) {
             hidePanel(this.vditor, ["emoji", "headings", "submenu", "hint"]);

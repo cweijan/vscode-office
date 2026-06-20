@@ -46,6 +46,9 @@ const previousIsNode = (range: Range) => {
 
 export const expandMarker = (range: Range, vditor: IVditor) => {
     vditor.ir.element.querySelectorAll(".vditor-ir__node--expand").forEach((item) => {
+        if ((item as HTMLElement).classList.contains("vditor-code-block--cm")) {
+            return;
+        }
         item.classList.remove("vditor-ir__node--expand");
     });
 

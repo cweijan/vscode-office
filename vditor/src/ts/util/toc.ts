@@ -1,7 +1,24 @@
 import {mathRender} from "../markdown/mathRender";
+import {scrollOutlineTarget} from "../markdown/outlineRender";
 import {execAfterRender, insertAfterBlock, insertBeforeBlock} from "./fixBrowserBehavior";
-import {hasClosestByClassName, hasClosestByMatchTag} from "./hasClosest";
+import {hasClosestByAttribute, hasClosestByClassName} from "./hasClosest";
 import {getSelectPosition} from "./selection";
+
+const scrollToHeading = (vditor: IVditor, headingElement: HTMLElement) => {
+    const editorElement = vditor[vditor.currentMode].element;
+    if (vditor.options.height === "auto") {
+        let windowScrollY = headingElement.offsetTop + vditor.element.offsetTop;
+        if (!vditor.options.toolbarConfig.pin) {
+            windowScrollY += vditor.toolbar.element.offsetHeight;
+        }
+        window.scrollTo(window.scrollX, windowScrollY);
+        return;
+    }
+    if (vditor.element.offsetTop < window.scrollY) {
+        window.scrollTo(window.scrollX, vditor.element.offsetTop);
+    }
+    scrollOutlineTarget(editorElement, headingElement);
+};
 
 export const renderToc = (vditor: IVditor) => {
     if (vditor.currentMode === "sv") {
@@ -23,27 +40,26 @@ export const renderToc = (vditor: IVditor) => {
 };
 
 export const clickToc = (event: MouseEvent & { target: HTMLElement }, vditor: IVditor) => {
-    const spanElement = hasClosestByMatchTag(event.target, "SPAN");
-    if (spanElement && hasClosestByClassName(spanElement, "vditor-toc")) {
-        const headingElement = vditor[vditor.currentMode].element.querySelector("#" + spanElement.getAttribute("data-target-id")) as HTMLElement;
-        if (headingElement) {
-            if (vditor.options.height === "auto") {
-                let windowScrollY = headingElement.offsetTop + vditor.element.offsetTop;
-                if (!vditor.options.toolbarConfig.pin) {
-                    windowScrollY += vditor.toolbar.element.offsetHeight;
-                }
-                window.scrollTo(window.scrollX, windowScrollY);
-            } else {
-                if (vditor.element.offsetTop < window.scrollY) {
-                    window.scrollTo(window.scrollX, vditor.element.offsetTop);
-                }
-                const editorElement = vditor[vditor.currentMode].element;
-                const scrollRect = editorElement.getBoundingClientRect();
-                const targetRect = headingElement.getBoundingClientRect();
-                editorElement.scrollTop += targetRect.top - scrollRect.top;
-            }
-        }
+    const editorElement = vditor[vditor.currentMode].element;
+    const tocElement = hasClosestByClassName(event.target, "vditor-toc")
+        || hasClosestByAttribute(event.target, "data-type", "toc-block");
+    if (!tocElement || !editorElement.contains(tocElement as HTMLElement)) {
         return;
+    }
+
+    let target = event.target as HTMLElement;
+    while (target && (tocElement as HTMLElement).contains(target)) {
+        const targetId = target.getAttribute("data-target-id");
+        if (targetId) {
+            event.preventDefault();
+            event.stopPropagation();
+            const headingElement = editorElement.querySelector("#" + CSS.escape(targetId)) as HTMLElement;
+            if (headingElement) {
+                scrollToHeading(vditor, headingElement);
+            }
+            return;
+        }
+        target = target.parentElement;
     }
 };
 

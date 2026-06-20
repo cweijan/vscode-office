@@ -49,6 +49,7 @@ if (window.innerWidth < 768) {
 window.vditor = new Vditor('vditor', {
   cdn: rootPath,
   extPath: rootPath,
+  codeMirrorTheme: 'one-dark',
   toolbar,
   mode: 'wysiwyg',
   height: document.querySelector('.demo-editor').clientHeight,
@@ -62,17 +63,6 @@ window.vditor = new Vditor('vditor', {
   },
   debugger: true,
   placeholder: 'Hello, Vditor!',
-  preview: {
-    markdown: {
-      toc: true,
-      mark: true,
-      footnotes: true,
-      autoSpace: true,
-    },
-    math: {
-      inlineDigit: true,
-    },
-  },
   toolbarConfig: {
     pin: true,
   },

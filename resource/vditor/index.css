@@ -95,6 +95,12 @@ html {
     font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
     user-select: none;
     overflow: hidden;
+    --ctx-icon-copy: var(--vscode-textLink-foreground, #3794ff);
+    --ctx-icon-paste: var(--vscode-charts-green, #89d185);
+    --ctx-icon-pdf: var(--vscode-charts-red, #e51400);
+    --ctx-icon-pdf-plain: var(--vscode-charts-red, #e51400);
+    --ctx-icon-docx: var(--vscode-charts-blue, #3794ff);
+    --ctx-icon-html: var(--vscode-symbolIcon-stringForeground, #ce9178);
 }
 
 .vditor-context-menu[hidden] {
@@ -138,9 +144,10 @@ html {
     outline: none;
 }
 
-.vditor-context-menu__item:hover .vditor-context-menu__icon,
-.vditor-context-menu__item:focus-visible .vditor-context-menu__icon {
-    color: var(--list-hover-color);
+.vditor-context-menu__item:hover .vditor-context-menu__icon .codicon,
+.vditor-context-menu__item:focus-visible .vditor-context-menu__icon .codicon {
+    opacity: 1;
+    filter: brightness(1.12);
 }
 
 .vditor-context-menu__icon {
@@ -150,8 +157,37 @@ html {
     justify-content: center;
     width: 16px;
     height: 16px;
-    color: var(--front-color);
-    opacity: 0.85;
+}
+
+.vditor-context-menu__icon .codicon {
+    font-size: 16px;
+    line-height: 1;
+    opacity: 0.92;
+    transition: opacity 0.1s ease, filter 0.1s ease;
+}
+
+.vditor-context-menu__item[data-action="copy"] .codicon {
+    color: var(--ctx-icon-copy);
+}
+
+.vditor-context-menu__item[data-action="paste"] .codicon {
+    color: var(--ctx-icon-paste);
+}
+
+.vditor-context-menu__item[data-action="exportPdf"] .codicon {
+    color: var(--ctx-icon-pdf);
+}
+
+.vditor-context-menu__item[data-action="exportPdfWithoutOutline"] .codicon {
+    color: var(--ctx-icon-pdf-plain);
+}
+
+.vditor-context-menu__item[data-action="exportDocx"] .codicon {
+    color: var(--ctx-icon-docx);
+}
+
+.vditor-context-menu__item[data-action="exportHtml"] .codicon {
+    color: var(--ctx-icon-html);
 }
 
 .vditor-context-menu__label {

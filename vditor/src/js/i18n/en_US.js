@@ -8,7 +8,7 @@ window.VditorI18n = {
   'check': 'Task List',
   'close': 'Close',
   'code': 'Code Block',
-  'code-theme': 'Change CodeMirror Theme',
+  'code-theme': 'CodeMirror Theme',
   'code-theme-section-system': 'System',
   'code-theme-section-light': 'Light Themes',
   'code-theme-section-dark': 'Dark Themes',

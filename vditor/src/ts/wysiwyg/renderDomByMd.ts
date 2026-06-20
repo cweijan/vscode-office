@@ -1,5 +1,6 @@
 import {isCmCodeBlock, renderCodeBlocks} from "../codeBlock/codeMirrorManager";
 import {processCodeRender} from "../util/processCode";
+import {renderToc} from "../util/toc";
 import {afterRenderEvent} from "./afterRenderEvent";
 
 export const renderDomByMd = (vditor: IVditor, md: string, options = {
@@ -19,5 +20,6 @@ export const renderDomByMd = (vditor: IVditor, md: string, options = {
     });
     renderCodeBlocks(vditor);
 
+    renderToc(vditor);
     afterRenderEvent(vditor, options);
 };

@@ -16,7 +16,7 @@ const getOutlineHeadingHTML = (item: HTMLElement, vditor?: IVditor) => {
     return item.outerHTML.replace("<wbr>", "");
 };
 
-const scrollOutlineTarget = (scrollElement: HTMLElement, idElement: HTMLElement) => {
+export const scrollOutlineTarget = (scrollElement: HTMLElement, idElement: HTMLElement) => {
     const scrollRect = scrollElement.getBoundingClientRect();
     const targetRect = idElement.getBoundingClientRect();
     scrollElement.scrollTop += targetRect.top - scrollRect.top;
