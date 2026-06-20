@@ -416,6 +416,66 @@ export const isHrMD = (text: string) => {
     return false;
 };
 
+export const fixHeadingEnter = (vditor: IVditor, range: Range, headingElement: HTMLElement) => {
+    const afterRange = range.cloneRange();
+    afterRange.selectNodeContents(headingElement);
+    afterRange.setStart(range.startContainer, range.startOffset);
+    const afterFragment = afterRange.extractContents();
+
+    const isEmpty = (text: string) => !text || text.replace(Constants.ZWSP, "").trim() === "";
+    const headingEmpty = isEmpty(headingElement.textContent);
+    const afterEmpty = isEmpty(afterFragment.textContent);
+
+    if (headingEmpty && afterEmpty) {
+        headingElement.outerHTML = `<p data-block="0"><wbr>\n</p>`;
+        setRangeByWbr(vditor.wysiwyg.element, range);
+        return;
+    }
+
+    if (headingEmpty) {
+        const pElement = document.createElement("p");
+        pElement.setAttribute("data-block", "0");
+        pElement.innerHTML = `<wbr>\n`;
+        const newHeading = document.createElement(headingElement.tagName);
+        newHeading.setAttribute("data-block", "0");
+        newHeading.appendChild(afterFragment);
+        headingElement.parentElement.insertBefore(pElement, headingElement);
+        headingElement.parentElement.insertBefore(newHeading, headingElement);
+        headingElement.remove();
+        setRangeByWbr(vditor.wysiwyg.element, range);
+        return;
+    }
+
+    const pElement = document.createElement("p");
+    pElement.setAttribute("data-block", "0");
+    if (afterEmpty) {
+        pElement.innerHTML = `<wbr>\n`;
+    } else {
+        pElement.appendChild(afterFragment);
+        pElement.insertAdjacentElement("afterbegin", document.createElement("wbr"));
+    }
+    headingElement.insertAdjacentElement("afterend", pElement);
+    setRangeByWbr(vditor.wysiwyg.element, range);
+};
+
+export const splitHeadingOnNewline = (vditor: IVditor, headingElement: HTMLElement) => {
+    if (!headingElement.textContent || !headingElement.textContent.includes("\n")) {
+        return false;
+    }
+    const parts = headingElement.textContent.split("\n");
+    headingElement.textContent = parts[0];
+
+    let refElement: HTMLElement = headingElement;
+    for (let i = 1; i < parts.length; i++) {
+        const pElement = document.createElement("p");
+        pElement.setAttribute("data-block", "0");
+        pElement.textContent = parts[i] === "" ? "\n" : parts[i];
+        refElement.insertAdjacentElement("afterend", pElement);
+        refElement = pElement;
+    }
+    return true;
+};
+
 export const isHeadingMD = (text: string) => {
     // - =
     const textArray = text.trimRight().split("\n");

@@ -9,7 +9,7 @@ import {
     hotkeyEvent,
     selectEvent,
 } from "../util/editorCommonEvent";
-import {isHeadingMD, isHrMD, paste} from "../util/fixBrowserBehavior";
+import {isHeadingMD, isHrMD, paste, splitHeadingOnNewline} from "../util/fixBrowserBehavior";
 import {
     hasClosestBlock, hasClosestByAttribute,
     hasClosestByClassName, hasClosestByMatchTag,
@@ -264,6 +264,8 @@ class WYSIWYG {
                 // heading 为空删除 https://github.com/Vanessa219/vditor/issues/150
                 renderToc(vditor);
                 headingElement.remove();
+            } else if (headingElement && splitHeadingOnNewline(vditor, headingElement)) {
+                renderToc(vditor);
             }
 
             if ((startSpace && blockElement.getAttribute("data-type") !== "code-block")

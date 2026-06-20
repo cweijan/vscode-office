@@ -13,6 +13,7 @@ import {isCtrl, isFirefox} from "../util/compatibility";
 import {
     fixBlockquote, fixCJKPosition,
     fixCodeBlock, fixCursorDownInlineMath, fixDelete, fixFirefoxArrowUpTable, fixGSKeyBackspace, fixHR,
+    fixHeadingEnter,
     fixList,
     fixMarkdown,
     fixTab,
@@ -29,7 +30,7 @@ import {
 import {hasClosestByHeadings} from "../util/hasClosestByHeadings";
 import {matchHotKey} from "../util/hotKey";
 import {getEditorRange, getSelectPosition, setSelectionFocus} from "../util/selection";
-import {keydownToc} from "../util/toc";
+import {keydownToc, renderToc} from "../util/toc";
 import {afterRenderEvent} from "./afterRenderEvent";
 import { moveDown, moveUp } from "./highlightToolbarWYSIWYG";
 import {nextIsCode} from "./inlineTag";
@@ -214,15 +215,10 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
     // h1-h6
     const headingElement = hasClosestByHeadings(startContainer);
     if (headingElement) {
-        if (headingElement.tagName === "H6" && startContainer.textContent.length === range.startOffset &&
-            !isCtrl(event) && !event.shiftKey && !event.altKey && event.key === "Enter") {
-            // enter: H6 回车解析问题 https://github.com/Vanessa219/vditor/issues/48
-            const pTempElement = document.createElement("p");
-            pTempElement.textContent = "\n";
-            pTempElement.setAttribute("data-block", "0");
-            startContainer.parentElement.insertAdjacentElement("afterend", pTempElement);
-            range.setStart(pTempElement, 0);
-            setSelectionFocus(range);
+        if (!isCtrl(event) && !event.altKey && event.key === "Enter") {
+            // enter/shift+enter: 标题换行时新行应为段落 https://github.com/Vanessa219/vditor/issues/48
+            fixHeadingEnter(vditor, range, headingElement);
+            renderToc(vditor);
             afterRenderEvent(vditor);
             event.preventDefault();
             return true;
@@ -300,6 +296,7 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
 
     // shift+enter：软换行，但 table/hr/heading 处理、cell 内换行、block render 换行处理单独写在上面，li & p 使用浏览器默认
     if (!isCtrl(event) && event.shiftKey && !event.altKey && event.key === "Enter" &&
+        !headingElement &&
         startContainer.parentElement.tagName !== "LI" && startContainer.parentElement.tagName !== "P") {
         if (["STRONG", "STRIKE", "S", "I", "EM", "B"].includes(startContainer.parentElement.tagName)) {
             // 行内元素软换行需继续 https://github.com/Vanessa219/vditor/issues/170

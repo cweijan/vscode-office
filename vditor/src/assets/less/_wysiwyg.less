@@ -12,6 +12,11 @@
     height: 100%;
     box-sizing: border-box;
 
+    // 纯文本段落作为首段时与编辑器顶部保持间距
+    > p:first-child {
+      margin-top: 18px;
+    }
+
     &[contenteditable="false"] {
       opacity: 0.3;
       cursor: not-allowed;
