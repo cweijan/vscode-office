@@ -161,6 +161,7 @@ export async function getToolbar(resPath) {
         "undo",
         "redo",
         "|",
+        "edit-mode",
         "preview",
         "help",
     ]
