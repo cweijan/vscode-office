@@ -121,8 +121,8 @@
 
     blockquote {
       padding: 0 1em;
-      color: #6a737d;
-      border-left: 0.25em solid #eaecef;
+      color: var(--blockquote-color);
+      border-left: 5px solid var(--blockquote-border);
       margin: 0 0 16px 0;
 
       & > :first-child {
@@ -139,7 +139,7 @@
     }
 
     iframe {
-      border: 1px solid #d1d5da;
+      border: 1px solid var(--border-color);
       max-width: 100%;
       box-sizing: border-box;
 
@@ -161,13 +161,13 @@
 
       tr {
         background-color: #fafbfc;
-        border-top: 1px solid #c6cbd1;
+        border-top: 1px solid var(--table-row-border);
       }
 
       td,
       th {
         padding: 6px 13px;
-        border: 1px solid #dfe2e5;
+        border: 1px solid var(--table-border);
         word-break: normal;
         white-space: nowrap;
 
@@ -245,9 +245,9 @@
       color: #24292e;
       vertical-align: middle;
       background-color: #fafbfc;
-      border: solid 1px #d1d5da;
+      border: solid 1px var(--border-color);
       border-radius: 3px;
-      box-shadow: inset 0 -1px 0 #d1d5da;
+      box-shadow: inset 0 -1px 0 var(--border-color);
     }
 
     summary {
@@ -481,10 +481,10 @@
     position: relative;
     flex-shrink: 0;
     width: 240px;
-    border-right: 1px solid var(--border-color);
-    background-color: var(--panel-background-color);
+    background-color: var(--outline-bg-color, var(--panel-background-color));
     display: none;
     overflow: hidden;
+    font-size: 14px;
 
     @media (max-width: 1450px) {
       width: 210px;
@@ -499,9 +499,6 @@
     }
 
     &--right {
-      border-right: 0;
-      border-left: 1px solid var(--border-color);
-
       .vditor-outline__resize {
         right: auto;
         left: -2px;
@@ -530,46 +527,87 @@
       }
     }
 
-    &::-webkit-scrollbar {
-      display: none;
-    }
-
     &__content {
       overflow: auto;
       height: 100%;
+      padding: 10px 8px 14px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--second-color) transparent;
 
       & > ul {
         padding-left: 0;
       }
 
       &::-webkit-scrollbar {
-        display: none;
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background-color: var(--second-color);
+        border-radius: 3px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent;
       }
     }
 
     ul {
       list-style: none !important;
-      padding-left: 1em;
+      padding-left: 0;
       margin: 0;
+    }
+
+    ul ul {
+      margin: 2px 0 4px 0;
+      padding-left: 1em;
+    }
+
+    li + li {
+      margin-top: 1px;
+    }
+
+    &__content > ul > li > span > span {
+      font-size: 14px;
+    }
+
+    li li > span > span {
+      font-size: 13.5px;
+    }
+
+    li li li > span > span {
+      font-size: 13px;
     }
 
     li > span {
       display: flex;
       align-items: center;
       min-width: 0;
-      padding: 5px 10px;
+      margin: 0 2px;
+      padding: 5px 8px;
+      border-radius: 4px;
       cursor: pointer;
       color: var(--textarea-text-color);
+      transition: background-color 0.15s ease, color 0.15s ease;
 
       & > svg {
         flex-shrink: 0;
-        height: 10px;
-        width: 10px;
-        margin-right: 5px;
+        height: 12px;
+        width: 12px;
+        margin-right: 6px;
+      }
+
+      & > svg:not(.vditor-outline__action) {
+        visibility: hidden;
       }
 
       &:hover {
-        color: var(--toolbar-icon-hover-color);
+        background-color: var(--outline-hover-bg, color-mix(in srgb, var(--second-color) 24%, transparent));
+        color: var(--textarea-text-color);
+
+        & > span {
+          color: inherit;
+        }
       }
 
       & > span {
@@ -578,6 +616,7 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        line-height: 1.45;
       }
     }
 
@@ -589,13 +628,18 @@
     }
 
     &__action {
-      transition: @transition;
+      transition: transform 0.15s ease, opacity 0.15s ease;
       fill: currentColor;
       flex-shrink: 0;
+      opacity: 0.55;
 
       &--close {
         transform: rotate(-90deg);
       }
+    }
+
+    li > span:hover .vditor-outline__action {
+      opacity: 0.95;
     }
   }
 }

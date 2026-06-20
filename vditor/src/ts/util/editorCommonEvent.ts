@@ -38,15 +38,21 @@ export const dblclickEvent = (vditor: IVditor, editorElement: HTMLElement) => {
 };
 
 export const blurEvent = (vditor: IVditor, editorElement: HTMLElement) => {
-    editorElement.addEventListener("blur", (event) => {
+    editorElement.addEventListener("blur", (event: FocusEvent) => {
         if (vditor.currentMode === "ir") {
             const expandElement = vditor.ir.element.querySelector(".vditor-ir__node--expand");
             if (expandElement) {
                 expandElement.classList.remove("vditor-ir__node--expand");
             }
         }
+        if (vditor.currentMode === "wysiwyg" || vditor.currentMode === "ir" || vditor.currentMode === "sv") {
+            clearTimeout(vditor[vditor.currentMode].hlToolbarTimeoutId);
+        }
         clearActiveHeadingMarker(vditor);
-        vditor[vditor.currentMode].range = getEditorRange(vditor);
+        const relatedTarget = event.relatedTarget as Node | null;
+        if (!relatedTarget || (!isInsideCodeMirror(relatedTarget) && !isInsideCodeBlockChrome(relatedTarget))) {
+            vditor[vditor.currentMode].range = getEditorRange(vditor);
+        }
         if (vditor.options.blur) {
             vditor.options.blur(getMarkdown(vditor));
         }

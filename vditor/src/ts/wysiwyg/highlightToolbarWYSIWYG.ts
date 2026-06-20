@@ -575,11 +575,12 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
         }
 
         // block popover: math-inline, math-block, html-block, html-inline, code-block, html-entity
-        let blockRenderElement = hasClosestByClassName(typeElement, "vditor-wysiwyg__block") as HTMLElement;
+        let blockRenderElement: HTMLElement | false = hasClosestByClassName(typeElement, "vditor-wysiwyg__block");
         if (!blockRenderElement && isInsideCodeMirror(typeElement)) {
-            blockRenderElement = hasClosestByAttribute(typeElement, "data-type", "code-block") as HTMLElement;
+            blockRenderElement = hasClosestByAttribute(typeElement, "data-type", "code-block");
         }
-        const isBlock = blockRenderElement ? blockRenderElement.getAttribute("data-type").indexOf("block") > -1 : false;
+        const blockType = blockRenderElement !== false ? (blockRenderElement.getAttribute("data-type") ?? "") : "";
+        const isBlock = blockType.endsWith("-block");
         vditor.wysiwyg.element
             .querySelectorAll(".vditor-wysiwyg__preview")
             .forEach((itemElement) => {
@@ -587,12 +588,12 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
                 if (isCmCodeBlock(block)) {
                     return;
                 }
-                if (!blockRenderElement || (blockRenderElement && isBlock && !blockRenderElement.contains(itemElement))) {
+                if (!blockRenderElement || (blockRenderElement !== false && isBlock && !blockRenderElement.contains(itemElement))) {
                     const previousElement = itemElement.previousElementSibling as HTMLElement;
                     previousElement.style.display = "none";
                 }
             });
-        if (blockRenderElement && isBlock) {
+        if (blockRenderElement !== false && isBlock) {
             if (blockRenderElement.getAttribute("data-type") === "code-block" &&
                 shouldShowLanguagePopover(blockRenderElement) &&
                 !isCmCodeBlock(blockRenderElement)) {
@@ -691,7 +692,7 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
                 setPopoverPosition(vditor, blockRenderElement);
             }
         } else {
-            blockRenderElement = undefined;
+            blockRenderElement = false;
         }
         if (headingElement) {
             vditor.wysiwyg.popover.style.display = "none";

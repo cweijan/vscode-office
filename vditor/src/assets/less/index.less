@@ -1,10 +1,7 @@
 @errorColor: #d23f31;
 @blurColor: #4285f4;
 
-@font-family-base: "Helvetica Neue", "Luxi Sans", "DejaVu Sans",
-  "Hiragino Sans GB", "Microsoft Yahei", sans-serif, "Apple Color Emoji",
-  "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji",
-  "EmojiSymbols";
+@font-family-base: inherit;
 @font-family-code: mononoki, Consolas, "Liberation Mono", Menlo, Courier,
   monospace, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
   "Segoe UI Symbol", "Android Emoji", "EmojiSymbols";
@@ -32,6 +29,11 @@
   --count-background-color: rgba(27, 31, 35, 0.05);
   --heading-border-color: #eaecef;
   --blockquote-color: #6a737d;
+  --blockquote-border: var(--vscode-textBlockQuote-border, #eaecef);
+  --table-row-border: #c6cbd1;
+  --table-border: #dfe2e5;
+  --outline-hover-bg: rgba(27, 31, 35, 0.06);
+  --outline-bg-color: color-mix(in srgb, var(--textarea-text-color) 2%, var(--panel-background-color));
 
   --ir-heading-color: #660e7a;
   --ir-title-color: #808080;
@@ -57,6 +59,11 @@
     --count-background-color: rgba(@blurColor, 0.36);
     --heading-border-color: var(--textarea-text-color);
     --blockquote-color: var(--toolbar-icon-color);
+    --blockquote-border: var(--vscode-textBlockQuote-border, #3d444d);
+    --table-row-border: #3d444d;
+    --table-border: #444c56;
+    --outline-hover-bg: rgba(255, 255, 255, 0.06);
+    --outline-bg-color: color-mix(in srgb, var(--textarea-text-color) 2%, var(--panel-background-color));
 
     --ir-heading-color: #9876aa;
     --ir-title-color: #808080;

@@ -1,7 +1,26 @@
+import {isInsideCodeBlockChrome, isInsideCodeMirror} from "../codeBlock/codeMirrorManager";
+import {hasClosestByClassName, hasTopClosestByAttribute} from "./hasClosest";
 import {hasClosestByHeadings} from "./hasClosestByHeadings";
 import {getEditorRange, selectIsEditor} from "./selection";
 
 const ACTIVE_CLASS = "vditor-heading--active";
+const MATH_BLOCK_ACTIVE_CLASS = "vditor-math-block--active";
+
+const isEditorAreaFocused = (vditor: IVditor) => {
+    const activeElement = document.activeElement;
+    if (!activeElement) {
+        return false;
+    }
+    const editorElement = vditor[vditor.currentMode].element;
+    if (editorElement.isEqualNode(activeElement) || editorElement.contains(activeElement)) {
+        return true;
+    }
+    const editorRoot = editorElement.parentElement;
+    if (editorRoot?.contains(activeElement)) {
+        return true;
+    }
+    return isInsideCodeMirror(activeElement) || isInsideCodeBlockChrome(activeElement);
+};
 
 export const clearActiveHeadingMarker = (vditor: IVditor) => {
     if (vditor.currentMode !== "wysiwyg" && vditor.currentMode !== "ir") {
@@ -11,6 +30,11 @@ export const clearActiveHeadingMarker = (vditor: IVditor) => {
     for (const item of editorElement.querySelectorAll(`.${ACTIVE_CLASS}`)) {
         item.classList.remove(ACTIVE_CLASS);
     }
+    if (vditor.currentMode === "wysiwyg") {
+        for (const item of editorElement.querySelectorAll(`.${MATH_BLOCK_ACTIVE_CLASS}`)) {
+            item.classList.remove(MATH_BLOCK_ACTIVE_CLASS);
+        }
+    }
 };
 
 export const updateActiveHeadingMarker = (vditor: IVditor) => {
@@ -19,7 +43,7 @@ export const updateActiveHeadingMarker = (vditor: IVditor) => {
     }
     const editorElement = vditor[vditor.currentMode].element;
     clearActiveHeadingMarker(vditor);
-    if (!selectIsEditor(editorElement)) {
+    if (!selectIsEditor(editorElement) || !isEditorAreaFocused(vditor)) {
         return;
     }
 
@@ -30,11 +54,17 @@ export const updateActiveHeadingMarker = (vditor: IVditor) => {
     }
 
     const headingElement = hasClosestByHeadings(typeElement) as HTMLElement | false;
-    if (!headingElement || !editorElement.contains(headingElement)) {
-        return;
+    if (headingElement && editorElement.contains(headingElement) && headingElement.parentElement === editorElement) {
+        headingElement.classList.add(ACTIVE_CLASS);
     }
-    if (headingElement.parentElement !== editorElement) {
-        return;
+
+    if (vditor.currentMode === "wysiwyg" && !hasClosestByClassName(typeElement, "vditor-wysiwyg__preview")) {
+        const mathBlockElement = hasTopClosestByAttribute(typeElement, "data-type", "math-block") as HTMLElement | false;
+        if (mathBlockElement
+            && mathBlockElement.getAttribute("data-type") === "math-block"
+            && mathBlockElement.classList.contains("vditor-wysiwyg__block")
+            && editorElement.contains(mathBlockElement)) {
+            mathBlockElement.classList.add(MATH_BLOCK_ACTIVE_CLASS);
+        }
     }
-    headingElement.classList.add(ACTIVE_CLASS);
 };

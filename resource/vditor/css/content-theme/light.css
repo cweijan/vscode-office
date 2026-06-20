@@ -35,7 +35,7 @@
 
 .vditor-reset blockquote {
     color: #6a737d;
-    border-left: .25em solid #eaecef
+    border-left: 5px solid var(--vscode-textBlockQuote-border, #eaecef)
 }
 
 .vditor-reset iframe {

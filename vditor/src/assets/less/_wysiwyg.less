@@ -88,8 +88,8 @@
   & > .vditor-reset > h4.vditor-heading--active:before,
   & > .vditor-reset > h5.vditor-heading--active:before,
   & > .vditor-reset > h6.vditor-heading--active:before,
+  div.vditor-wysiwyg__block[data-type="math-block"].vditor-math-block--active:before,
   div.vditor-wysiwyg__block[data-type="yaml-front-matter"]:before,
-  div.vditor-wysiwyg__block[data-type="math-block"]:before,
   div[data-type="link-ref-defs-block"]:before,
   div[data-type="footnotes-block"]:before,
   .vditor-toc:before {
@@ -134,7 +134,7 @@
     content: "F";
   }
 
-  div.vditor-wysiwyg__block[data-type="math-block"]:before {
+  div.vditor-wysiwyg__block[data-type="math-block"].vditor-math-block--active:before {
     content: "$$";
   }
 
@@ -191,7 +191,7 @@
     h5:before,
     h6:before,
     div.vditor-wysiwyg__block[data-type="yaml-front-matter"]:before,
-    div.vditor-wysiwyg__block[data-type="math-block"]:before,
+    div.vditor-wysiwyg__block[data-type="math-block"].vditor-math-block--active:before,
     div[data-type="link-ref-defs-block"]:before,
     div[data-type="footnotes-block"]:before,
     .vditor-toc:before {

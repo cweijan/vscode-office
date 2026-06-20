@@ -29,9 +29,9 @@ body {
     overflow: auto;
 }
 
-.vditor * {
+/* .vditor * {
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Helvetica Neue", "Helvetica", "Arial", "Microsoft YaHei", sans-serif;
-}
+} */
 
 code {
     color: #24292e;

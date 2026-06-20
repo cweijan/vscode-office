@@ -1,5 +1,5 @@
-import {hasClosestByHeadings} from "../util/hasClosestByHeadings";
-import {mathRender} from "./mathRender";
+import { hasClosestByHeadings } from "../util/hasClosestByHeadings";
+import { mathRender } from "./mathRender";
 
 const stripIrOutlineMarkers = (element: HTMLElement) => {
     const clone = element.cloneNode(true) as HTMLElement;
@@ -16,10 +16,12 @@ const getOutlineHeadingHTML = (item: HTMLElement, vditor?: IVditor) => {
     return item.outerHTML.replace("<wbr>", "");
 };
 
+export const OUTLINE_SCROLL_OFFSET = 12;
+
 export const scrollOutlineTarget = (scrollElement: HTMLElement, idElement: HTMLElement) => {
     const scrollRect = scrollElement.getBoundingClientRect();
     const targetRect = idElement.getBoundingClientRect();
-    scrollElement.scrollTop += targetRect.top - scrollRect.top;
+    scrollElement.scrollTop += targetRect.top - scrollRect.top - OUTLINE_SCROLL_OFFSET;
 };
 
 export const outlineRender = (contentElement: HTMLElement, targetElement: Element, vditor?: IVditor) => {
@@ -116,7 +118,7 @@ export const outlineRender = (contentElement: HTMLElement, targetElement: Elemen
                         if (!vditor.options.toolbarConfig.pin) {
                             windowScrollY += vditor.toolbar.element.offsetHeight;
                         }
-                        window.scrollTo(window.scrollX, windowScrollY);
+                        window.scrollTo(window.scrollX, windowScrollY - OUTLINE_SCROLL_OFFSET);
                     } else {
                         if (vditor.element.offsetTop < window.scrollY) {
                             window.scrollTo(window.scrollX, vditor.element.offsetTop);
@@ -124,7 +126,7 @@ export const outlineRender = (contentElement: HTMLElement, targetElement: Elemen
                         scrollOutlineTarget(contentElement, idElement);
                     }
                 } else {
-                    window.scrollTo(window.scrollX, idElement.offsetTop);
+                    window.scrollTo(window.scrollX, idElement.offsetTop - OUTLINE_SCROLL_OFFSET);
                 }
                 break;
             }

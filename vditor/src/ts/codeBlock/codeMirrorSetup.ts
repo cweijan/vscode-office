@@ -1,21 +1,16 @@
-import {lineNumbers, highlightActiveLineGutter, highlightSpecialChars, drawSelection, dropCursor, rectangularSelection, crosshairCursor, highlightActiveLine, keymap} from "@codemirror/view";
+import {highlightSpecialChars, drawSelection, dropCursor, rectangularSelection, crosshairCursor, highlightActiveLine, keymap} from "@codemirror/view";
 import {EditorState} from "@codemirror/state";
-import {foldGutter, indentOnInput, bracketMatching, foldKeymap} from "@codemirror/language";
+import {indentOnInput, bracketMatching} from "@codemirror/language";
 import {history, defaultKeymap, historyKeymap} from "@codemirror/commands";
 import {highlightSelectionMatches, searchKeymap} from "@codemirror/search";
 import {closeBrackets, autocompletion, closeBracketsKeymap, completionKeymap} from "@codemirror/autocomplete";
 import {lintKeymap} from "@codemirror/lint";
 import {vditorSyntaxHighlighting} from "./codeMirrorHighlight";
-import {vditorEditorTheme} from "./codeMirrorTheme";
 
-/** basicSetup without defaultHighlightStyle — syntax colors come from _codemirror.less (dist/index.css) */
+/** basicSetup without defaultHighlightStyle — layout in _codemirror.less, colors via CSS variables / theme files */
 export const vditorCodeMirrorSetup = [
-    vditorEditorTheme,
-    lineNumbers(),
-    highlightActiveLineGutter(),
     highlightSpecialChars(),
     history(),
-    foldGutter(),
     drawSelection(),
     dropCursor(),
     EditorState.allowMultipleSelections.of(true),
@@ -34,7 +29,6 @@ export const vditorCodeMirrorSetup = [
         ...defaultKeymap,
         ...searchKeymap,
         ...historyKeymap,
-        ...foldKeymap,
         ...completionKeymap,
         ...lintKeymap,
     ]),

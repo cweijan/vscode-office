@@ -27,6 +27,8 @@
     --cm-selection-highlight-bg: var(--vscode-editor-selectionHighlightBackground, color-mix(in srgb, var(--link-color) 22%, transparent));
     --cm-lang-search-focus-color: var(--vscode-textLink-foreground, #4285f4);
     --cm-lang-trigger-bg: var(--vscode-input-background, var(--second-bg-color, color-mix(in srgb, var(--vscode-editor-foreground) 14%, var(--vscode-editor-background))));
+    --outline-hover-bg: var(--dropdown-hover-background);
+    --outline-bg-color: color-mix(in srgb, var(--front-color) 2%, var(--bg-color));
 }
 
 #vditor[data-editor-theme="Auto"] {
@@ -45,6 +47,7 @@
     --resize-hover-background-color: var(--vscode-scrollbarSlider-hoverBackground, var(--vscode-focusBorder));
     --count-background-color: color-mix(in srgb, var(--vscode-badge-background, var(--vscode-editor-foreground)) 20%, transparent);
     --heading-border-color: var(--ext-border-color);
+    --table-row-border: var(--ext-border-color);
     --blockquote-color: var(--vscode-descriptionForeground, var(--vscode-editor-foreground));
 }
 
@@ -72,7 +75,6 @@
 
 #vditor[data-editor-theme="Auto"] .vditor-reset blockquote {
     color: var(--blockquote-color);
-    border-left-color: var(--blockquote-border);
     background-color: var(--vscode-textBlockQuote-background, transparent);
 }
 
@@ -139,10 +141,6 @@
     background-color: var(--dropdown-hover-background) !important;
     color: var(--list-hover-color) !important;
     font-weight: 600;
-}
-
-#vditor[data-editor-theme="Auto"] .vditor-content .vditor-outline li > span:hover > span {
-    color: var(--list-hover-color);
 }
 
 #vditor[data-editor-theme="Auto"] .vditor-input {

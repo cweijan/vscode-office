@@ -6,7 +6,7 @@ import {EditorView, keymap} from "@codemirror/view";
 import {expandMarker} from "../ir/expandMarker";
 import {processAfterRender} from "../ir/process";
 import {Constants} from "../constants";
-import {getEditorRange, setRangeByWbr, setSelectionFocus} from "../util/selection";
+import {getEditorRange, preserveEditorScroll, setRangeByWbr, setSelectionFocus} from "../util/selection";
 import {afterRenderEvent} from "../wysiwyg/afterRenderEvent";
 import {
     ensureCodeBlockChrome,
@@ -276,6 +276,14 @@ const clearCmSelection = (view: EditorView) => {
     });
 };
 
+const focusEditorWithoutScroll = (editor: HTMLElement) => {
+    editor.focus({preventScroll: true});
+};
+
+const focusCmViewWithoutScroll = (view: EditorView) => {
+    view.contentDOM.focus({preventScroll: true});
+};
+
 const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding: CodeMirrorBinding) => ({
     mousedown: (event: Event) => {
         event.stopPropagation();
@@ -373,7 +381,7 @@ const focusAdjacentEditorBlock = (
     }
 
     const focusBlockPosition = (element: HTMLElement, toStart: boolean) => {
-        editor.focus();
+        focusEditorWithoutScroll(editor);
         const range = getEditorRange(vditor);
         range.selectNodeContents(element);
         range.collapse(toStart);
@@ -390,7 +398,7 @@ const focusAdjacentEditorBlock = (
         } else {
             blockElement.insertAdjacentHTML("afterend", html);
         }
-        editor.focus();
+        focusEditorWithoutScroll(editor);
         const range = getEditorRange(vditor);
         setRangeByWbr(editor, range);
         setSelectionFocus(range);
@@ -502,7 +510,7 @@ export const removeCmCodeBlock = (vditor: IVditor, blockElement: HTMLElement) =>
     removeCodeBlockChrome(blockElement);
     blockElement.remove();
 
-    editor.focus();
+    focusEditorWithoutScroll(editor);
     const range = getEditorRange(vditor);
 
     if (previousElement) {
@@ -690,20 +698,27 @@ export const focusCodeMirror = (
         return;
     }
     const hadFocus = binding.view.hasFocus;
-    binding.view.focus();
-    if (!hadFocus) {
-        if (collapseToStart) {
-            binding.view.dispatch({
-                selection: {anchor: 0, head: 0},
-                scrollIntoView: true,
-            });
-        } else {
-            const length = binding.view.state.doc.length;
-            binding.view.dispatch({
-                selection: {anchor: length, head: length},
-                scrollIntoView: true,
-            });
+    const applyFocus = () => {
+        focusCmViewWithoutScroll(binding.view);
+        if (!hadFocus) {
+            if (collapseToStart) {
+                binding.view.dispatch({
+                    selection: {anchor: 0, head: 0},
+                    scrollIntoView: false,
+                });
+            } else {
+                const length = binding.view.state.doc.length;
+                binding.view.dispatch({
+                    selection: {anchor: length, head: length},
+                    scrollIntoView: false,
+                });
+            }
         }
+    };
+    if (vditor) {
+        preserveEditorScroll(vditor, applyFocus);
+    } else {
+        applyFocus();
     }
 };
 

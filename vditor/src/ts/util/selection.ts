@@ -14,11 +14,18 @@ export const getEditorRange = (vditor: IVditor) => {
     if (vditor[vditor.currentMode].range) {
         return vditor[vditor.currentMode].range;
     }
-    element.focus();
+    element.focus({preventScroll: true});
     range = element.ownerDocument.createRange();
     range.setStart(element, 0);
     range.collapse(true);
     return range;
+};
+
+export const preserveEditorScroll = (vditor: IVditor, action: () => void) => {
+    const scrollEl = vditor[vditor.currentMode].element;
+    const scrollTop = scrollEl.scrollTop;
+    action();
+    scrollEl.scrollTop = scrollTop;
 };
 
 export const getCursorPosition = (editor: HTMLElement) => {

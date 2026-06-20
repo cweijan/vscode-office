@@ -14,6 +14,9 @@
   .cm-editor {
     outline: none;
     min-height: 1.35em;
+    max-height: 500px;
+    border-radius: 6px;
+    overflow: hidden;
     color: var(--cm-fg-color, var(--vscode-editor-foreground));
   }
 
@@ -24,6 +27,7 @@
 
   .cm-scroller {
     overflow: auto;
+    max-height: 400px;
     font-family: inherit;
     line-height: calc(var(--vscode-editor-font-size, 13px) * 1.35);
   }
@@ -36,22 +40,13 @@
   }
 
   .cm-content {
-    padding-top: 48px;
-    padding-bottom: 6px;
+    padding-top: 44px;
+    padding-bottom: 10px;
     caret-color: var(--cm-cursor-fg) !important;
   }
 
   .cm-line {
-    padding: 0 12px 0 4px;
-  }
-
-  .cm-gutter.cm-lineNumbers .cm-gutterElement {
-    min-width: 3ch;
-    padding: 0 12px 0 8px;
-    text-align: right;
-    font-family: inherit;
-    font-size: inherit;
-    line-height: inherit;
+    padding: 0 18px;
   }
 
   .cm-selectionBackground {
@@ -224,8 +219,10 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  min-height: 36px;
-  padding: 6px 14px;
+  min-height: 32px;
+  padding: 6px 16px;
+  background-color: var(--cm-bg-color);
+  border-radius: inherit inherit 0 0;
   pointer-events: none;
   user-select: none;
 }

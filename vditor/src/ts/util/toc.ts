@@ -1,5 +1,5 @@
 import {mathRender} from "../markdown/mathRender";
-import {scrollOutlineTarget} from "../markdown/outlineRender";
+import {scrollOutlineTarget, OUTLINE_SCROLL_OFFSET} from "../markdown/outlineRender";
 import {execAfterRender, insertAfterBlock, insertBeforeBlock} from "./fixBrowserBehavior";
 import {hasClosestByAttribute, hasClosestByClassName} from "./hasClosest";
 import {getSelectPosition} from "./selection";
@@ -11,7 +11,7 @@ const scrollToHeading = (vditor: IVditor, headingElement: HTMLElement) => {
         if (!vditor.options.toolbarConfig.pin) {
             windowScrollY += vditor.toolbar.element.offsetHeight;
         }
-        window.scrollTo(window.scrollX, windowScrollY);
+        window.scrollTo(window.scrollX, windowScrollY - OUTLINE_SCROLL_OFFSET);
         return;
     }
     if (vditor.element.offsetTop < window.scrollY) {
