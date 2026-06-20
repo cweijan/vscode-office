@@ -133,6 +133,12 @@
     color: var(--list-hover-color);
 }
 
+#vditor[data-editor-theme="Auto"] .vditor-cm-theme-panel button.vditor-theme-option--current {
+    background-color: var(--dropdown-hover-background) !important;
+    color: var(--list-hover-color) !important;
+    font-weight: 600;
+}
+
 #vditor[data-editor-theme="Auto"] .vditor-content .vditor-outline li > span:hover > span {
     color: var(--list-hover-color);
 }

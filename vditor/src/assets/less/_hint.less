@@ -85,4 +85,21 @@
     cursor: default;
     user-select: none;
   }
+
+  button.vditor-theme-option--current {
+    background-color: var(--toolbar-background-color) !important;
+    color: var(--list-hover-color, var(--toolbar-icon-hover-color)) !important;
+    font-weight: 600;
+    border-left: 2px solid var(--list-hover-color, var(--toolbar-icon-hover-color));
+    padding-left: 8px;
+
+    &::before {
+      content: "✓";
+      display: inline-block;
+      width: 14px;
+      margin-right: 4px;
+      font-size: 11px;
+      opacity: 0.9;
+    }
+  }
 }

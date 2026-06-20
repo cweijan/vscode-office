@@ -29,6 +29,7 @@ import {disableToolbar, hidePanel} from "./ts/toolbar/setToolbar";
 import {enableToolbar} from "./ts/toolbar/setToolbar";
 import {initUI, UIUnbindListener} from "./ts/ui/initUI";
 import {setCodeTheme} from "./ts/ui/setCodeTheme";
+import {setEditorTheme as applyEditorTheme} from "./ts/ui/setEditorTheme";
 import {setContentTheme} from "./ts/ui/setContentTheme";
 import {setPreviewMode} from "./ts/ui/setPreviewMode";
 import {setTheme} from "./ts/ui/setTheme";
@@ -59,6 +60,7 @@ class Vditor {
     public static md2html = md2html;
     public static preview = previewRender;
     public static setCodeTheme = setCodeTheme;
+    public static setEditorTheme = applyEditorTheme;
     public static setContentTheme = setContentTheme;
 
     public readonly version: string;
@@ -131,6 +133,11 @@ class Vditor {
             this.vditor.options.preview.hljs.style = codeTheme;
             setCodeTheme(codeTheme, this.vditor.element);
         }
+    }
+
+    /** 设置 Markdown 编辑器主题（resource css/theme） */
+    public setEditorTheme(editorTheme: string) {
+        applyEditorTheme(this.vditor, editorTheme, false);
     }
 
     /** 获取 Markdown 内容 */

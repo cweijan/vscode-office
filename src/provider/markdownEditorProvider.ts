@@ -83,6 +83,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             handler.emit("open", {
                 title: basename(uri.fsPath),
                 config, scrollTop,
+                editorTheme: Global.getConfig("editorTheme", "Auto"),
                 codeMirrorTheme: Global.getConfig("codeMirrorTheme", "default"),
                 language: vscode.env.language,
                 rootPath, content,
@@ -117,6 +118,14 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             if (validThemes.includes(theme)) {
                 Global.updateConfig("codeMirrorTheme", theme);
             }
+        }).on("editorTheme", (theme: string) => {
+            const validThemes = [
+                "Auto", "Light", "Solarized", "Warm Light", "Dim Light",
+                "One Dark", "Github Dark", "Nord", "Monokai", "Dracula",
+            ];
+            if (validThemes.includes(theme)) {
+                Global.updateConfig("editorTheme", theme);
+            }
         }).on("img", async (img) => {
             const { relPath, fullPath } = adjustImgPath(uri)
             const imagePath = isAbsolute(fullPath) ? fullPath : `${resolve(uri.fsPath, "..")}/${relPath}`.replace(/\\/g, "/");
@@ -143,25 +152,6 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         }).on("export", (option) => {
             vscode.commands.executeCommand('workbench.action.files.save');
             new MarkdownService(this.context).exportMarkdown(uri, option)
-        }).on("theme", async (theme) => {
-            if (!theme) {
-                const themes = [
-                    "Auto", "|",
-                    "Light", "Solarized", "Warm Light", "Dim Light", "|",
-                    "One Dark", "Github Dark",
-                    "Nord", "Monokai", "Dracula",
-                ];
-                const editorTheme = Global.getConfig('editorTheme');
-                const themeItems: vscode.QuickPickItem[] = themes.map(theme => {
-                    if (theme == '|') return { label: '|', kind: vscode.QuickPickItemKind.Separator }
-                    return { label: theme, description: theme == editorTheme ? 'Current' : undefined }
-                })
-                theme = await vscode.window.showQuickPick(themeItems, { placeHolder: "Select Editor Theme" });
-                if (!theme) return
-            }
-            const label = typeof theme === 'string' ? theme : theme.label;
-            handler.emit('theme', label)
-            Global.updateConfig('editorTheme', label)
         }).on("saveOutline", (enable) => {
             config.update("openOutline", enable, true)
         }).on('developerTool', () => {

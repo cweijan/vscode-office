@@ -3,6 +3,7 @@ import {setEditMode} from "../toolbar/EditMode";
 import {hidePanel} from "../toolbar/setToolbar";
 import {accessLocalStorage} from "../util/compatibility";
 import {macOptionSymbolEvent} from "../util/editorCommonEvent";
+import {initEditorTheme} from "./setEditorTheme";
 import {resolveCodeMirrorTheme, setCodeTheme} from "./setCodeTheme";
 import {setContentTheme} from "./setContentTheme";
 import {setTheme} from "./setTheme";
@@ -69,6 +70,8 @@ export const initUI = (vditor: IVditor) => {
   });
 
   setEditMode(vditor, vditor.options.mode, afterRender(vditor));
+
+  initEditorTheme(vditor);
 
   document.execCommand("DefaultParagraphSeparator", false, "p");
 

@@ -67,6 +67,12 @@
     background-color: var(--second-bg-color) !important;
 }
 
+#vditor .vditor-cm-theme-panel button.vditor-theme-option--current {
+    background-color: var(--second-bg-color, var(--dropdown-hover-background)) !important;
+    color: var(--list-hover-color, var(--toolbar-icon-hover-color)) !important;
+    font-weight: 600;
+}
+
 #vditor:not([data-editor-theme="Auto"]) .vditor-content .vditor-outline li > span:hover > span {
     color: var(--list-hover-color) !important;
 }

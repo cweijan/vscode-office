@@ -113,6 +113,7 @@ export class Options {
         value: "",
         width: "auto",
         preventMacOptionKey: true,
+        editorTheme: "Auto",
     };
 
     constructor(options: IOptions) {
@@ -303,6 +304,14 @@ export class Options {
         }, {
             icon: '<svg><use xlink:href="#vditor-icon-align-center"></use></svg>',
             name: "outline",
+            tipPosition: "nw",
+        }, {
+            name: "editor-theme-label",
+            tipPosition: "s",
+            icon: "Theme:",
+        }, {
+            icon: '<svg><use xlink:href="#vditor-icon-theme"></use></svg>',
+            name: "editor-theme",
             tipPosition: "nw",
         }, {
             icon: '<svg><use xlink:href="#vditor-icon-theme"></use></svg>',

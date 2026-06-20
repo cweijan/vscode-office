@@ -7,6 +7,8 @@ import {Counter} from "./Counter";
 import {Custom} from "./Custom";
 import {Divider} from "./Divider";
 import {EditMode} from "./EditMode";
+import {EditorTheme} from "./EditorTheme";
+import {EditorThemeLabel} from "./EditorThemeLabel";
 import {Emoji} from "./Emoji";
 import {Headings} from "./Headings";
 import {Help} from "./Help";
@@ -136,6 +138,12 @@ export class Toolbar {
                 break;
             case "code-theme":
                 menuItemObj = new CodeTheme(vditor, menuItem);
+                break;
+            case "editor-theme-label":
+                menuItemObj = new EditorThemeLabel(vditor, menuItem);
+                break;
+            case "editor-theme":
+                menuItemObj = new EditorTheme(vditor, menuItem);
                 break;
             case "content-theme":
                 menuItemObj = new ContentTheme(vditor, menuItem);
