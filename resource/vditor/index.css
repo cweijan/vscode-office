@@ -146,7 +146,7 @@ html {
 
 .vditor-theme-toggle {
     position: fixed;
-    top: 6px;
+    top: 4px;
     right: 12px;
     z-index: 100;
     width: 28px;
