@@ -127,8 +127,9 @@ class Vditor {
             setContentTheme(contentTheme, contentThemePath || this.vditor.options.preview.theme.path);
         }
         if (codeTheme) {
+            this.vditor.options.codeMirrorTheme = codeTheme;
             this.vditor.options.preview.hljs.style = codeTheme;
-            setCodeTheme(codeTheme);
+            setCodeTheme(codeTheme, this.vditor.element);
         }
     }
 

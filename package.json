@@ -577,6 +577,24 @@
 						"default": "Auto",
 						"markdownDescription": "The theme for the Markdown editor."
 					},
+					"vscode-office.codeMirrorTheme": {
+						"type": "string",
+						"enum": [
+							"default",
+							"github",
+							"solarized-light",
+							"material-light",
+							"quiet-light",
+							"one-light",
+							"dracula",
+							"monokai",
+							"one-dark",
+							"solarized-dark",
+							"material-dark"
+						],
+						"default": "default",
+						"markdownDescription": "CodeMirror syntax theme for code blocks in the Markdown editor."
+					},
 					"vscode-office.previewCodeHighlight.style": {
 						"type": "string",
 						"enum": [

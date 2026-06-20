@@ -83,6 +83,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             handler.emit("open", {
                 title: basename(uri.fsPath),
                 config, scrollTop,
+                codeMirrorTheme: Global.getConfig("codeMirrorTheme", "default"),
                 language: vscode.env.language,
                 rootPath, content,
                 sponsorBaseUrl,
@@ -108,6 +109,14 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             }
         }).on("scroll", ({ scrollTop }) => {
             this.state.update(`scrollTop_${document.uri.fsPath}`, scrollTop)
+        }).on("codeMirrorTheme", (theme: string) => {
+            const validThemes = [
+                "default", "github", "solarized-light", "material-light", "quiet-light", "one-light",
+                "dracula", "monokai", "one-dark", "solarized-dark", "material-dark",
+            ];
+            if (validThemes.includes(theme)) {
+                Global.updateConfig("codeMirrorTheme", theme);
+            }
         }).on("img", async (img) => {
             const { relPath, fullPath } = adjustImgPath(uri)
             const imagePath = isAbsolute(fullPath) ? fullPath : `${resolve(uri.fsPath, "..")}/${relPath}`.replace(/\\/g, "/");

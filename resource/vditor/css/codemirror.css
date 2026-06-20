@@ -20,7 +20,7 @@
   font-weight: var(--vscode-editor-font-weight, normal);
   font-feature-settings: "liga" 0, "calt" 0;
   font-variant-ligatures: none;
-  color: var(--vscode-editor-foreground);
+  color: var(--cm-fg-color, var(--vscode-editor-foreground));
 }
 
 .vditor-cm-host .cm-editor,
@@ -84,7 +84,7 @@
 }
 
 .vditor-cm-host .cm-gutterElement {
-  color: var(--vscode-editorLineNumber-foreground);
+  color: var(--cm-line-number-fg, var(--vscode-editorLineNumber-foreground));
 }
 
 .vditor-cm-host .cm-content {
@@ -108,17 +108,23 @@
 }
 
 .vditor-cm-host .cm-activeLineGutter .cm-gutterElement {
-  color: var(--vscode-editorLineNumber-foreground);
+  color: var(--cm-line-number-fg, var(--vscode-editorLineNumber-foreground));
 }
 
 .vditor-cm-host .cm-editor.cm-focused .cm-activeLineGutter .cm-gutterElement {
-  color: var(--cm-active-line-gutter-fg, var(--vscode-editorLineNumber-activeForeground)) !important;
+  color: var(--cm-line-number-active-fg, var(--cm-active-line-gutter-fg, var(--vscode-editorLineNumber-activeForeground))) !important;
 }
 
-.vditor-cm-host .cm-matchingBracket {
-  background-color: var(--vscode-editorBracketMatch-background);
-  outline: 1px solid var(--vscode-editorBracketMatch-border);
+.vditor-cm-host .cm-editor.cm-focused .cm-matchingBracket {
+  background-color: var(--cm-bracket-match-bg, var(--vscode-editorBracketMatch-background)) !important;
+  outline: 1px solid var(--cm-bracket-match-border, var(--vscode-editorBracketMatch-border));
   color: inherit !important;
+}
+
+.vditor-cm-host .cm-editor:not(.cm-focused) .cm-matchingBracket,
+.vditor-cm-host .cm-editor:not(.cm-focused) .cm-nonmatchingBracket {
+  background-color: transparent !important;
+  outline: none !important;
 }
 
 .vditor-cm-host .cm-foldPlaceholder {
@@ -144,57 +150,57 @@
 }
 
 .vditor-cm-host span.cm-comment {
-  color: var(--vscode-editorGutter-commentRangeForeground, var(--vscode-descriptionForeground));
+  color: var(--cm-syntax-comment, var(--vscode-editorGutter-commentRangeForeground, var(--vscode-descriptionForeground)));
   font-style: italic;
 }
 
 .vditor-cm-host span.cm-keyword {
-  color: var(--vscode-debugView-valueChangedHighlight, var(--vscode-terminal-ansiBlue, var(--vscode-charts-blue)));
+  color: var(--cm-syntax-keyword, var(--vscode-debugView-valueChangedHighlight, var(--vscode-terminal-ansiBlue, var(--vscode-charts-blue))));
 }
 
 .vditor-cm-host span.cm-string {
-  color: var(--vscode-debugTokenExpression-string, var(--vscode-terminal-ansiRed));
+  color: var(--cm-syntax-string, var(--vscode-debugTokenExpression-string, var(--vscode-terminal-ansiRed)));
 }
 
 .vditor-cm-host span.cm-number {
-  color: var(--vscode-debugTokenExpression-number, var(--vscode-terminal-ansiYellow));
+  color: var(--cm-syntax-number, var(--vscode-debugTokenExpression-number, var(--vscode-terminal-ansiYellow)));
 }
 
 .vditor-cm-host span.cm-atom {
-  color: var(--vscode-debugTokenExpression-boolean, var(--vscode-symbolIcon-constantForeground));
+  color: var(--cm-syntax-atom, var(--vscode-debugTokenExpression-boolean, var(--vscode-symbolIcon-constantForeground)));
 }
 
 .vditor-cm-host span.cm-property {
-  color: var(--vscode-symbolIcon-fieldForeground, var(--vscode-debugTokenExpression-name));
+  color: var(--cm-syntax-property, var(--vscode-symbolIcon-fieldForeground, var(--vscode-debugTokenExpression-name)));
 }
 
 .vditor-cm-host span.cm-attribute {
-  color: var(--vscode-gitDecoration-modifiedResourceForeground, var(--vscode-symbolIcon-propertyForeground));
+  color: var(--cm-syntax-attribute, var(--vscode-gitDecoration-modifiedResourceForeground, var(--vscode-symbolIcon-propertyForeground)));
 }
 
 .vditor-cm-host span.cm-variable {
-  color: var(--vscode-debugTokenExpression-name, var(--vscode-symbolIcon-variableForeground));
+  color: var(--cm-syntax-variable, var(--vscode-debugTokenExpression-name, var(--vscode-symbolIcon-variableForeground)));
 }
 
 .vditor-cm-host span.cm-def {
-  color: var(--vscode-textPreformat-foreground, var(--vscode-symbolIcon-functionForeground));
+  color: var(--cm-syntax-def, var(--vscode-textPreformat-foreground, var(--vscode-symbolIcon-functionForeground)));
 }
 
 .vditor-cm-host span.cm-bracket {
-  color: var(--vscode-symbolIcon-operatorForeground, var(--vscode-editor-foreground));
+  color: var(--cm-syntax-bracket, var(--vscode-symbolIcon-operatorForeground, var(--vscode-editor-foreground)));
 }
 
 .vditor-cm-host span.cm-tag {
-  color: var(--vscode-symbolIcon-classForeground, var(--vscode-debugConsole-errorForeground));
+  color: var(--cm-syntax-tag, var(--vscode-symbolIcon-classForeground, var(--vscode-debugConsole-errorForeground)));
 }
 
 .vditor-cm-host span.cm-link {
-  color: var(--vscode-textLink-foreground);
+  color: var(--cm-syntax-link, var(--vscode-textLink-foreground));
   text-decoration: underline;
 }
 
 .vditor-cm-host span.cm-error {
-  color: var(--vscode-debugTokenExpression-error, var(--vscode-errorForeground));
+  color: var(--cm-syntax-error, var(--vscode-debugTokenExpression-error, var(--vscode-errorForeground)));
   background: var(--vscode-inputValidation-errorBackground, transparent);
 }
 

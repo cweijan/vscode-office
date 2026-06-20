@@ -183,9 +183,8 @@ export async function getToolbar(resPath, sponsorBaseUrl, language) {
                 handler.emit("theme")
             }
         },
-        "|",
-        // "edit-mode",  // 屏蔽掉, 现版本都是针对一种模式优化
         "code-theme",
+        "|",
         // "|",
         "list",
         "ordered-list",

@@ -3,6 +3,7 @@ import {setEditMode} from "../toolbar/EditMode";
 import {hidePanel} from "../toolbar/setToolbar";
 import {accessLocalStorage} from "../util/compatibility";
 import {macOptionSymbolEvent} from "../util/editorCommonEvent";
+import {resolveCodeMirrorTheme, setCodeTheme} from "./setCodeTheme";
 import {setContentTheme} from "./setContentTheme";
 import {setTheme} from "./setTheme";
 
@@ -16,6 +17,7 @@ export const initUI = (vditor: IVditor) => {
   setTheme(vditor);
   macOptionSymbolEvent(vditor);
   setContentTheme(vditor.options.preview.theme.current, vditor.options.preview.theme.path);
+  setCodeTheme(resolveCodeMirrorTheme(vditor.options), vditor.element);
   if (typeof vditor.options.height === "number") {
     vditor.element.style.height = vditor.options.height + "px";
   } else {
