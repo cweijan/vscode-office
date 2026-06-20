@@ -175,3 +175,75 @@ html {
     width: 16px;
     height: 16px;
 }
+
+.vditor-tip__content:has(.vditor-help-tip) {
+    text-align: center;
+}
+
+.vditor-help-tip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 14px;
+    padding-top: 14px;
+    font-size: 14px;
+    line-height: 22px;
+}
+
+.vditor-help-tip__links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    white-space: nowrap;
+}
+
+.vditor-help-tip__divider {
+    opacity: 0.4;
+}
+
+.vditor-help-sponsor {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.vditor-help-sponsor-logo-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.vditor-help-sponsor-logo-btn:hover {
+    opacity: 0.85;
+}
+
+.vditor-help-sponsor-logo {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    display: block;
+}
+
+.vditor-help-sponsor-text {
+    color: var(--vscode-descriptionForeground, #656d76);
+    font-size: 13px;
+}
+
+.vditor-help-sponsor-text a {
+    color: var(--vscode-textLink-foreground, #0969da);
+    font-weight: 600;
+}
+
+.vditor-help-sponsor-text a:hover {
+    text-decoration: underline;
+}

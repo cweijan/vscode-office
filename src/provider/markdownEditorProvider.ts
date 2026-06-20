@@ -41,7 +41,11 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         const folderPath = vscode.Uri.joinPath(uri, '..')
         webview.options = {
             enableScripts: true,
-            localResourceRoots: [vscode.Uri.file("/"), ...this.getFolders()]
+            localResourceRoots: [
+                vscode.Uri.file(this.extensionPath),
+                vscode.Uri.file("/"),
+                ...this.getFolders(),
+            ],
         }
         const handler = Handler.bind(webviewPanel, uri);
         TelemetryService.get()?.trackViewOpen('markdown', fileTypeFromPath(uri.fsPath));
@@ -71,13 +75,17 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
         let lastManualSaveTime: number;
         const config = vscode.workspace.getConfiguration("vscode-office");
+        const sponsorBaseUrl = webview.asWebviewUri(
+            vscode.Uri.file(`${this.extensionPath}/resource/sponsor`)
+        ).toString();
         handler.on("init", () => {
             const scrollTop = this.state.get(`scrollTop_${document.uri.fsPath}`, 0);
             handler.emit("open", {
                 title: basename(uri.fsPath),
                 config, scrollTop,
                 language: vscode.env.language,
-                rootPath, content
+                rootPath, content,
+                sponsorBaseUrl,
             })
             this.updateCount(content)
             this.countStatus.show()
@@ -149,6 +157,15 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             config.update("openOutline", enable, true)
         }).on('developerTool', () => {
             vscode.commands.executeCommand('workbench.action.toggleDevTools')
+        }).on('openSponsor', () => {
+            vscode.commands.executeCommand(
+                'workbench.extensions.action.showExtensionsWithIds',
+                ['cweijan.vscode-database-client2'],
+            );
+        }).on('openExternal', (url: string) => {
+            if (url) {
+                vscode.env.openExternal(vscode.Uri.parse(url));
+            }
         })
 
         const basePath = Global.getConfig('workspacePathAsImageBasePath') ?
@@ -159,7 +176,8 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                 .replace("{{rootPath}}", rootPath)
                 .replace("{{baseUrl}}", baseUrl)
                 .replace(`{{configs}}`, JSON.stringify({
-                    platform: platform()
+                    platform: platform(),
+                    sponsorBaseUrl,
                 })),
             webview, contextPath);
     }

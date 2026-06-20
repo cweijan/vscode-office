@@ -100,7 +100,46 @@ export function updateThemeToggle(theme) {
     themeToggleBtn.setAttribute('aria-label', themeToggleBtn.title);
 }
 
-export async function getToolbar(resPath) {
+const SPONSOR_URL = 'https://database-client.com/';
+
+function bindOfficeHelpTip(tipRoot) {
+    tipRoot.querySelector('[data-action="openSponsor"]')?.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        handler.emit('openSponsor');
+    });
+    tipRoot.querySelector('[data-action="openSponsorSite"]')?.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        handler.emit('openExternal', SPONSOR_URL);
+    });
+}
+
+function showOfficeHelpTip(vditor, sponsorBaseUrl) {
+    const tipEl = vditor.tip.element;
+    if (tipEl.classList.contains('vditor-tip--show') && tipEl.querySelector('.vditor-help-tip')) {
+        vditor.tip.hide();
+        return;
+    }
+    const sponsorHtml = sponsorBaseUrl ? `
+    <div class="vditor-help-sponsor">
+        <button type="button" class="vditor-help-sponsor-logo-btn" data-action="openSponsor" title="Database Client">
+            <img class="vditor-help-sponsor-logo" src="${sponsorBaseUrl}/icon.png" alt="Database Client" draggable="false"/>
+        </button>
+        <span class="vditor-help-sponsor-text">Supported by <a href="${SPONSOR_URL}" data-action="openSponsorSite">Database Client</a></span>
+    </div>` : '';
+    vditor.tip.show(`<div class="vditor-help-tip">
+    <div class="vditor-help-tip__links">
+        <a href="https://github.com/cweijan/vscode-office/issues" target="_blank">Issues</a>
+        <span class="vditor-help-tip__divider">|</span>
+        <a href="https://ld246.com/article/1582778815353" target="_blank">键盘快捷键</a>
+    </div>${sponsorHtml}
+</div>`, 0);
+    bindOfficeHelpTip(vditor.tip.element);
+}
+
+export async function getToolbar(resPath, sponsorBaseUrl, language) {
+    const helpTip = language?.toLowerCase().startsWith('zh') ? '帮助' : 'Help';
     return [
         'outline',
         "headings",
@@ -163,7 +202,14 @@ export async function getToolbar(resPath) {
         "|",
         "edit-mode",
         "preview",
-        "help",
+        {
+            tip: helpTip,
+            tipPosition: 'nw',
+            icon: '<svg><use xlink:href="#vditor-icon-help"></use></svg>',
+            click(event, vditor) {
+                showOfficeHelpTip(vditor, sponsorBaseUrl);
+            }
+        },
     ]
 }
 

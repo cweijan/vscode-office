@@ -16,6 +16,7 @@ loadConfigs()
 
 handler.on("open", async (md) => {
   const { config, language } = md;
+  const sponsorBaseUrl = md.sponsorBaseUrl || state?.sponsorBaseUrl;
   addAutoTheme(md.rootPath, config.editorTheme)
   initThemeToggle(config.editorTheme)
   handler.on('theme', theme => {
@@ -53,7 +54,7 @@ handler.on("open", async (md) => {
         inlineDigit: true
       }
     },
-    toolbar: await getToolbar(md.rootPath),
+    toolbar: await getToolbar(md.rootPath, sponsorBaseUrl, language),
     extPath: md.rootPath,
     input(content) {
       handler.emit("save", content)
