@@ -437,6 +437,10 @@ const getLineEndForImpreciseLineStartClick = (event: MouseEvent, editor: HTMLEle
 
 /** mousedown 捕获：非精确点击会落行首时，阻止默认行为并直接落到行尾 */
 export const preventImpreciseLineStartClick = (event: MouseEvent, editor: HTMLElement): boolean => {
+    const target = event.target;
+    if (target instanceof Element && target.closest(".vditor-cm-chrome")) {
+        return false;
+    }
     const lineEndRange = getLineEndForImpreciseLineStartClick(event, editor);
     if (!lineEndRange) {
         return false;

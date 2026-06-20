@@ -5,6 +5,7 @@ import {isCtrl} from "../util/compatibility";
 import {execAfterRender} from "../util/fixBrowserBehavior";
 import {hasClosestByAttribute, hasClosestByClassName} from "../util/hasClosest";
 import {processCodeRender} from "../util/processCode";
+import {applyCodeBlockLanguageChange} from "../codeBlock/codeBlockLanguageInput";
 import {isCmCodeBlock, updateCodeMirrorLanguage} from "../codeBlock/codeMirrorManager";
 import {getCursorPosition, insertHTML, setSelectionFocus} from "../util/selection";
 
@@ -132,6 +133,19 @@ ${i === 0 ? "class='vditor-hint--current'" : ""}> ${html}</button>`;
         this.element.style.display = "none";
 
         const value = decodeURIComponent(element.getAttribute("data-value"));
+        const cmLangSearch = document.activeElement?.classList.contains("vditor-cm-chrome__lang-search")
+            ? document.activeElement as HTMLInputElement
+            : null;
+        if (cmLangSearch) {
+            const lang = value.trimRight();
+            const codeBlockElement = cmLangSearch.closest("[data-type='code-block']") as HTMLElement;
+            if (codeBlockElement) {
+                applyCodeBlockLanguageChange(vditor, codeBlockElement, lang);
+            }
+            this.recentLanguage = lang;
+            return;
+        }
+
         const range: Range = window.getSelection().getRangeAt(0);
 
         // 代码提示

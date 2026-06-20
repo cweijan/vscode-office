@@ -1,5 +1,5 @@
 import { Constants } from "../constants";
-import { isInsideCodeMirror } from "../codeBlock/codeMirrorManager";
+import { isInsideCodeBlockChrome, isInsideCodeMirror } from "../codeBlock/codeMirrorManager";
 import { processHeading } from "../ir/process";
 import { processKeydown as irProcessKeydown } from "../ir/processKeydown";
 import { getMarkdown } from "../markdown/getMarkdown";
@@ -99,6 +99,9 @@ export const macOptionSymbolEvent = (vditor: IVditor) => {
 
 export const hotkeyEvent = (vditor: IVditor, editorElement: HTMLElement) => {
     editorElement.addEventListener("keydown", (event: KeyboardEvent & { target: HTMLElement }) => {
+        if (isInsideCodeBlockChrome(event.target)) {
+            return;
+        }
         // hint: 上下选择
         if ((vditor.options.hint.extend.length > 1 || vditor.toolbar.elements.emoji) &&
             vditor.hint.select(event, vditor)) {
@@ -216,7 +219,7 @@ export const hotkeyEvent = (vditor: IVditor, editorElement: HTMLElement) => {
 
 export const selectEvent = (vditor: IVditor, editorElement: HTMLElement) => {
     editorElement.addEventListener("selectstart", (event: Event & { target: HTMLElement }) => {
-        if (isInsideCodeMirror(event.target)) {
+        if (isInsideCodeMirror(event.target) || isInsideCodeBlockChrome(event.target)) {
             return;
         }
         editorElement.onmouseup = () => {

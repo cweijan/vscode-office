@@ -1,20 +1,15 @@
 import {Compartment, EditorState} from "@codemirror/state";
 import {EditorView, lineNumbers} from "@codemirror/view";
-import {LanguageDescription, LanguageSupport} from "@codemirror/language";
-import {languages} from "@codemirror/language-data";
+import {LanguageSupport} from "@codemirror/language";
 
 import {vditorSyntaxHighlighting} from "./codeMirrorHighlight";
+import {ensurePreviewCodeBlockChrome, removePreviewCodeBlockChrome} from "./codeBlockChrome";
+import {buildCodeMirrorLanguageMap} from "./codeBlockLanguageHints";
 
 const PREVIEW_HOST_CLASS = "vditor-cm-preview-host";
 const previewViews = new WeakMap<HTMLElement, EditorView>();
 
-const languageMap: Record<string, LanguageDescription> = {};
-for (const language of languages) {
-    languageMap[language.name.toLowerCase()] = language;
-    for (const alias of language.alias) {
-        languageMap[alias.toLowerCase()] = language;
-    }
-}
+const languageMap = buildCodeMirrorLanguageMap();
 
 const isPreviewCodeElement = (code: HTMLElement) => {
     const pre = code.parentElement;
@@ -57,6 +52,7 @@ const mountPreviewCodeMirror = (pre: HTMLElement, code: HTMLElement, showLineNum
 
     pre.classList.add(PREVIEW_HOST_CLASS, "vditor-cm-host");
     pre.querySelector(".cm-editor")?.remove();
+    removePreviewCodeBlockChrome(pre);
     code.setAttribute("hidden", "");
     code.setAttribute("aria-hidden", "true");
     code.style.display = "none";
@@ -80,6 +76,12 @@ const mountPreviewCodeMirror = (pre: HTMLElement, code: HTMLElement, showLineNum
     });
     previewViews.set(pre, view);
 
+    ensurePreviewCodeBlockChrome(
+        pre,
+        languageName,
+        () => view.state.doc.toString(),
+    );
+
     if (languageName) {
         loadLanguage(languageName).then((lang) => {
             if (!lang || previewViews.get(pre) !== view) {
@@ -99,6 +101,7 @@ export const destroyPreviewCodeMirrors = (element: HTMLElement | Document = docu
         if (view) {
             view.destroy();
             previewViews.delete(pre as HTMLElement);
+            removePreviewCodeBlockChrome(pre as HTMLElement);
         }
     });
 };

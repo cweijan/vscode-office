@@ -27,8 +27,7 @@ import {afterRenderEvent} from "./afterRenderEvent";
 import {genImagePopover, genLinkRefPopover, highlightToolbarWYSIWYG} from "./highlightToolbarWYSIWYG";
 import {getRenderElementNextNode, modifyPre} from "./inlineTag";
 import {input} from "./input";
-import {focusCodeBlock, isCmCodeBlock, isInsideCodeMirror} from "../codeBlock/codeMirrorManager";
-import {showCodeBlockLanguagePopover} from "../codeBlock/codeBlockLanguagePopover";
+import {focusCodeBlock, isCmCodeBlock, isInsideCodeBlockChrome, isInsideCodeMirror} from "../codeBlock/codeMirrorManager";
 import {focusWysiwygCodeBlock, showCode} from "./showCode";
 import {getMarkdown} from "../markdown/getMarkdown";
 
@@ -172,7 +171,7 @@ class WYSIWYG {
         });
 
         this.element.addEventListener("compositionend", (event: InputEvent) => {
-            if (isInsideCodeMirror(event.target)) {
+            if (isInsideCodeMirror(event.target) || isInsideCodeBlockChrome(event.target)) {
                 return;
             }
             const headingElement = hasClosestByHeadings(getSelection().getRangeAt(0).startContainer);
@@ -188,7 +187,7 @@ class WYSIWYG {
         });
 
         this.element.addEventListener("input", (event: InputEvent) => {
-            if (isInsideCodeMirror(event.target)) {
+            if (isInsideCodeMirror(event.target) || isInsideCodeBlockChrome(event.target)) {
                 return;
             }
             if (event.inputType === "deleteByDrag" || event.inputType === "insertFromDrop") {
@@ -261,7 +260,7 @@ class WYSIWYG {
         });
 
         this.element.addEventListener("mousedown", (event: MouseEvent & { target: HTMLElement }) => {
-            if (isInsideCodeMirror(event.target)) {
+            if (isInsideCodeMirror(event.target) || isInsideCodeBlockChrome(event.target)) {
                 return;
             }
             this.impreciseLineClickHandled = preventImpreciseLineStartClick(event, this.element);
@@ -321,11 +320,10 @@ class WYSIWYG {
 
             const cmBlock = (event.target as HTMLElement).closest?.("[data-type='code-block']") as HTMLElement;
             if (isCmCodeBlock(cmBlock)) {
-                highlightToolbarWYSIWYG(vditor);
-                if (!isInsideCodeMirror(event.target)) {
+                if (!isInsideCodeMirror(event.target) && !isInsideCodeBlockChrome(event.target)) {
+                    highlightToolbarWYSIWYG(vditor);
                     focusWysiwygCodeBlock(cmBlock, vditor);
                 }
-                showCodeBlockLanguagePopover(vditor, cmBlock);
                 clickToc(event, vditor);
                 return;
             }
@@ -352,7 +350,7 @@ class WYSIWYG {
             if (event.isComposing || isCtrl(event)) {
                 return;
             }
-            if (isInsideCodeMirror(event.target)) {
+            if (isInsideCodeMirror(event.target) || isInsideCodeBlockChrome(event.target)) {
                 return;
             }
             if ((event.key === "Backspace" || event.key === "Delete") &&

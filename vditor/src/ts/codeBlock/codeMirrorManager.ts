@@ -1,15 +1,25 @@
 import {indentWithTab} from "@codemirror/commands";
-import {LanguageDescription, LanguageSupport} from "@codemirror/language";
-import {languages} from "@codemirror/language-data";
+import {LanguageSupport} from "@codemirror/language";
 import {Compartment, EditorSelection} from "@codemirror/state";
 import {EditorView, keymap} from "@codemirror/view";
 
 import {processAfterRender} from "../ir/process";
 import {Constants} from "../constants";
 import {afterRenderEvent} from "../wysiwyg/afterRenderEvent";
+import {
+    ensureCodeBlockChrome,
+    removeCodeBlockChrome,
+    updateCodeBlockChromeLanguage,
+} from "./codeBlockChrome";
+import {buildCodeMirrorLanguageMap} from "./codeBlockLanguageHints";
 import {vditorCodeMirrorSetup} from "./codeMirrorSetup";
 
-export {focusCodeBlockLanguageInput, showCodeBlockLanguagePopover} from "./codeBlockLanguagePopover";
+export {focusCodeBlockChromeLanguage, isInsideCodeBlockChrome} from "./codeBlockChrome";
+export {
+    focusCodeBlockLanguageInput,
+    focusIrCodeBlockLanguageMarker,
+    showCodeBlockLanguagePopover,
+} from "./codeBlockLanguagePopover";
 
 const SPECIAL_LANGUAGES = [
     "mermaid", "plantuml", "math",
@@ -30,13 +40,7 @@ interface CodeMirrorBinding {
 
 const bindings = new WeakMap<HTMLElement, CodeMirrorBinding>();
 
-const languageMap: Record<string, LanguageDescription> = {};
-for (const language of languages) {
-    languageMap[language.name.toLowerCase()] = language;
-    for (const alias of language.alias) {
-        languageMap[alias.toLowerCase()] = language;
-    }
-}
+const languageMap = buildCodeMirrorLanguageMap();
 
 export const isSpecialCodeLanguage = (codeElement: HTMLElement) => {
     for (const lang of SPECIAL_LANGUAGES) {
@@ -103,24 +107,6 @@ export const resolveCmCodeBlock = (vditor: IVditor, blockElement?: HTMLElement |
         }
     }
     return blockElement?.isConnected ? blockElement : null;
-};
-
-let popoverModulePromise: Promise<typeof import("./codeBlockLanguagePopover")> | null = null;
-const getPopoverModule = () => {
-    if (!popoverModulePromise) {
-        popoverModulePromise = import("./codeBlockLanguagePopover");
-    }
-    return popoverModulePromise;
-};
-
-const showLanguagePopover = (vditor: IVditor, blockElement: HTMLElement) => {
-    const block = resolveCmCodeBlock(vditor, blockElement);
-    if (!block) {
-        return;
-    }
-    void getPopoverModule().then((module) => {
-        module.showCodeBlockLanguagePopover(vditor, block);
-    });
 };
 
 const getBlockParts = (blockElement: HTMLElement) => {
@@ -288,13 +274,8 @@ const clearCmSelection = (view: EditorView) => {
 const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding: CodeMirrorBinding) => ({
     mousedown: (event: Event) => {
         event.stopPropagation();
-        const block = (event.target as HTMLElement).closest("[data-type='code-block']") as HTMLElement;
-        showLanguagePopover(vditor, block || blockElement);
     },
-    focus: () => {
-        showLanguagePopover(vditor, blockElement);
-        return false;
-    },
+    focus: () => false,
     blur: () => {
         window.setTimeout(() => {
             if (!bindings.has(blockElement) || binding.view.hasFocus) {
@@ -306,8 +287,6 @@ const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding:
     },
     click: (event: Event) => {
         event.stopPropagation();
-        const block = (event.target as HTMLElement).closest("[data-type='code-block']") as HTMLElement;
-        showLanguagePopover(vditor, block || blockElement);
     },
     copy: (event: Event) => {
         const clipboardEvent = event as ClipboardEvent;
@@ -388,6 +367,7 @@ const destroyCodeMirror = (blockElement: HTMLElement) => {
     binding.view.destroy();
     bindings.delete(blockElement);
     binding.editPre.querySelector(".cm-editor")?.remove();
+    removeCodeBlockChrome(blockElement);
     prepareCmBlockDom(blockElement);
 };
 
@@ -443,6 +423,10 @@ const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor) => {
             existing.syncCode.className = parts.code.className;
             applyLanguage(blockElement, existing, languageName);
         }
+        ensureCodeBlockChrome(vditor, blockElement, {
+            getCodeText: () => existing.view.state.doc.toString(),
+        });
+        updateCodeBlockChromeLanguage(blockElement, languageName);
         return;
     }
 
@@ -480,6 +464,9 @@ const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor) => {
     binding.view = view;
     bindings.set(blockElement, binding);
     applyLanguage(blockElement, binding, languageName);
+    ensureCodeBlockChrome(vditor, blockElement, {
+        getCodeText: () => binding.view.state.doc.toString(),
+    });
 };
 
 export const renderCodeBlocks = (vditor: IVditor) => {
@@ -550,6 +537,7 @@ export const updateCodeMirrorLanguage = (blockElement: HTMLElement, languageName
     if (infoElement) {
         infoElement.textContent = Constants.ZWSP + lang;
     }
+    updateCodeBlockChromeLanguage(blockElement, lang);
 };
 
 /** @deprecated use updateCodeMirrorLanguage */
@@ -564,3 +552,50 @@ export const getCodeMirrorView = (blockElement: HTMLElement) => bindings.get(blo
 
 /** @deprecated use getCodeMirrorView */
 export const getWysiwygCodeMirrorView = getCodeMirrorView;
+
+const sanitizeCmBlockCloneForMarkdown = (liveBlock: HTMLElement, cloneBlock: HTMLElement) => {
+    const binding = bindings.get(liveBlock);
+    const parts = getBlockParts(liveBlock);
+    if (!parts) {
+        return;
+    }
+    const languageName = getCodeLanguageName(parts.code);
+    const codeText = binding ? binding.view.state.doc.toString() : (parts.code.textContent || "");
+    const clonePre = cloneBlock.querySelector("pre") as HTMLElement;
+    if (!clonePre) {
+        return;
+    }
+    const isWysiwygPre = clonePre.classList.contains("vditor-wysiwyg__pre") ||
+        liveBlock.closest(".vditor-wysiwyg") !== null;
+    clonePre.className = isWysiwygPre ? "vditor-wysiwyg__pre" : "vditor-ir__marker--pre";
+    clonePre.removeAttribute("contenteditable");
+    clonePre.style.display = "";
+    const cloneCode = document.createElement("code");
+    cloneCode.className = languageName ? `language-${languageName}` : "";
+    cloneCode.textContent = codeText;
+    clonePre.replaceChildren(cloneCode);
+    cloneBlock.classList.remove(CM_BLOCK_CLASS);
+    const infoElement = cloneBlock.querySelector('[data-type="code-block-info"]') as HTMLElement;
+    if (infoElement) {
+        infoElement.textContent = Constants.ZWSP + languageName;
+    }
+};
+
+/** 导出 Markdown 前还原 CM 代码块为标准 Lute 可识别的 DOM */
+export const buildEditorHtmlForMarkdown = (vditor: IVditor) => {
+    const editor = getModeEditor(vditor);
+    if (!editor) {
+        return "";
+    }
+    const clone = editor.cloneNode(true) as HTMLElement;
+    const liveBlocks = editor.querySelectorAll(`.${CM_BLOCK_CLASS}`);
+    const cloneBlocks = clone.querySelectorAll(`.${CM_BLOCK_CLASS}`);
+    for (let i = 0; i < liveBlocks.length; i++) {
+        const cloneBlock = cloneBlocks[i] as HTMLElement | undefined;
+        if (!cloneBlock) {
+            break;
+        }
+        sanitizeCmBlockCloneForMarkdown(liveBlocks[i] as HTMLElement, cloneBlock);
+    }
+    return clone.innerHTML;
+};

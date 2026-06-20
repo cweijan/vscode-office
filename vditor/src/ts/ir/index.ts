@@ -18,9 +18,9 @@ import {clickToc} from "../util/toc";
 import {
     focusCodeBlock,
     isCmCodeBlock,
+    isInsideCodeBlockChrome,
     isInsideCodeMirror,
 } from "../codeBlock/codeMirrorManager";
-import {showCodeBlockLanguagePopover} from "../codeBlock/codeBlockLanguagePopover";
 import {expandMarker} from "./expandMarker";
 import {highlightToolbarIR} from "./highlightToolbarIR";
 import {input} from "./input";
@@ -87,7 +87,7 @@ class IR {
         });
 
         this.element.addEventListener("compositionend", (event: InputEvent) => {
-            if (isInsideCodeMirror(event.target)) {
+            if (isInsideCodeMirror(event.target) || isInsideCodeBlockChrome(event.target)) {
                 return;
             }
             if (!isFirefox()) {
@@ -97,7 +97,7 @@ class IR {
         });
 
         this.element.addEventListener("input", (event: InputEvent) => {
-            if (isInsideCodeMirror(event.target)) {
+            if (isInsideCodeMirror(event.target) || isInsideCodeBlockChrome(event.target)) {
                 return;
             }
             if (event.inputType === "deleteByDrag" || event.inputType === "insertFromDrop") {
@@ -135,12 +135,11 @@ class IR {
 
             const cmBlock = (event.target as HTMLElement).closest?.("[data-type='code-block']") as HTMLElement;
             if (isCmCodeBlock(cmBlock)) {
-                if (!isInsideCodeMirror(event.target)) {
+                if (!isInsideCodeMirror(event.target) && !isInsideCodeBlockChrome(event.target)) {
+                    highlightToolbarIR(vditor);
                     focusCodeBlock(cmBlock, vditor);
                 }
-                showCodeBlockLanguagePopover(vditor, cmBlock);
                 clickToc(event, vditor);
-                highlightToolbarIR(vditor);
                 return;
             }
 
@@ -210,7 +209,7 @@ class IR {
             if (event.isComposing || isCtrl(event)) {
                 return;
             }
-            if (isInsideCodeMirror(event.target)) {
+            if (isInsideCodeMirror(event.target) || isInsideCodeBlockChrome(event.target)) {
                 return;
             }
             if (event.key === "Enter") {

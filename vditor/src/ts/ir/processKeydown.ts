@@ -3,11 +3,11 @@ import {
     focusCodeMirror,
     getCodeMirrorView,
     isCmCodeBlock,
+    isInsideCodeBlockChrome,
     isInsideCodeMirror,
 } from "../codeBlock/codeMirrorManager";
 import {
     focusIrCodeBlockLanguageMarker,
-    showCodeBlockLanguagePopover,
 } from "../codeBlock/codeBlockLanguagePopover";
 import {hidePanel} from "../toolbar/setToolbar";
 import {isCtrl} from "../util/compatibility";
@@ -39,6 +39,11 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
     vditor.ir.composingLock = event.isComposing;
     if (event.isComposing) {
         return false;
+    }
+
+    if (isInsideCodeBlockChrome(event.target)) {
+        event.stopPropagation();
+        return true;
     }
 
     if (isInsideCodeMirror(event.target)) {

@@ -1,6 +1,6 @@
-import {EditorView} from "@codemirror/view";
+import { EditorView } from "@codemirror/view";
 
-/** CodeMirror 布局与字体（配色由 css/codemirror.css 控制） */
+/** CodeMirror 布局与字体（配色由 _codemirror.less / dist/index.css 控制） */
 export const vditorEditorTheme = EditorView.theme({
     "&": {
         borderRadius: "6px",
@@ -17,9 +17,6 @@ export const vditorEditorTheme = EditorView.theme({
         fontFeatureSettings: "\"liga\" 0, \"calt\" 0",
         fontVariantLigatures: "none",
         lineHeight: "calc(var(--vscode-editor-font-size, 13px) * 1.35)",
-    },
-    ".cm-content": {
-        padding: "8px 0",
     },
     ".cm-line": {
         padding: "0 12px 0 4px",

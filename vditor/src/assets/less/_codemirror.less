@@ -4,7 +4,8 @@
   padding: 0;
   background: transparent !important;
   border-radius: 6px;
-  overflow: hidden;
+  overflow: visible;
+  --cm-lang-search-focus-color: var(--vscode-textLink-foreground, #4285f4);
 
   > code {
     display: none !important;
@@ -13,11 +14,423 @@
   .cm-editor {
     outline: none;
     min-height: 1.35em;
+    color: var(--cm-fg-color, var(--vscode-editor-foreground));
+  }
+
+  .cm-editor,
+  .cm-scroller {
+    background: var(--cm-bg-color) !important;
   }
 
   .cm-scroller {
     overflow: auto;
     font-family: inherit;
+    line-height: calc(var(--vscode-editor-font-size, 13px) * 1.35);
+  }
+
+  &.cm-lineWrapping .cm-line,
+  .cm-lineWrapping .cm-line {
+    word-wrap: break-word;
+    white-space: break-spaces;
+    word-break: break-word;
+  }
+
+  .cm-content {
+    padding-top: 48px;
+    padding-bottom: 6px;
+    caret-color: var(--cm-cursor-fg) !important;
+  }
+
+  .cm-line {
+    padding: 0 12px 0 4px;
+  }
+
+  .cm-gutter.cm-lineNumbers .cm-gutterElement {
+    min-width: 3ch;
+    padding: 0 12px 0 8px;
+    text-align: right;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  .cm-selectionBackground {
+    background: var(--cm-selection-bg-inactive) !important;
+  }
+
+  .cm-focused .cm-selectionBackground {
+    background: var(--cm-selection-bg-focused) !important;
+  }
+
+  .cm-content ::selection {
+    background: var(--cm-selection-bg-focused) !important;
+    color: inherit;
+  }
+
+  .cm-selectionMatch {
+    background: var(--cm-selection-highlight-bg) !important;
+    border-radius: 2px;
+  }
+
+  .cm-focused .cm-selectionMatch {
+    background: var(--cm-selection-highlight-bg) !important;
+  }
+
+  .cm-gutters {
+    background: var(--cm-bg-color) !important;
+    border-right: 0;
+  }
+
+  .cm-gutterElement {
+    color: var(--cm-line-number-fg, var(--vscode-editorLineNumber-foreground));
+  }
+
+  .cm-cursor,
+  .cm-dropCursor {
+    border-left-color: var(--cm-cursor-fg) !important;
+    border-left-width: 2px;
+  }
+
+  .cm-activeLine,
+  .cm-activeLineGutter {
+    background: transparent !important;
+  }
+
+  .cm-editor.cm-focused .cm-activeLine,
+  .cm-editor.cm-focused .cm-activeLineGutter {
+    background: var(--cm-active-line-bg) !important;
+  }
+
+  .cm-activeLineGutter .cm-gutterElement {
+    color: var(--cm-line-number-fg, var(--vscode-editorLineNumber-foreground));
+  }
+
+  .cm-editor.cm-focused .cm-activeLineGutter .cm-gutterElement {
+    color: var(--cm-line-number-active-fg, var(--cm-active-line-gutter-fg, var(--vscode-editorLineNumber-activeForeground))) !important;
+  }
+
+  .cm-editor.cm-focused .cm-matchingBracket {
+    background-color: var(--cm-bracket-match-bg, var(--vscode-editorBracketMatch-background)) !important;
+    outline: 1px solid var(--cm-bracket-match-border, var(--vscode-editorBracketMatch-border));
+    color: inherit !important;
+  }
+
+  .cm-editor:not(.cm-focused) .cm-matchingBracket,
+  .cm-editor:not(.cm-focused) .cm-nonmatchingBracket {
+    background-color: transparent !important;
+    outline: none !important;
+  }
+
+  .cm-foldPlaceholder {
+    color: var(--cm-fold-fg) !important;
+    background-color: var(--cm-fold-bg, color-mix(in srgb, var(--cm-fold-fg) 12%, var(--cm-bg-color))) !important;
+    border: 1px solid color-mix(in srgb, var(--cm-fold-fg) 35%, transparent);
+    border-radius: 3px;
+    padding: 0 4px;
+    text-shadow: unset;
+  }
+
+  .cm-foldGutter .cm-gutterElement {
+    color: var(--cm-fold-fg) !important;
+    cursor: pointer;
+    opacity: 0.9;
+    font-size: inherit;
+    line-height: inherit;
+
+    &:hover {
+      color: var(--cm-fold-fg-hover) !important;
+      opacity: 1;
+    }
+  }
+
+  span.cm-comment {
+    color: var(--cm-syntax-comment, var(--vscode-editorGutter-commentRangeForeground, var(--vscode-descriptionForeground)));
+    font-style: italic;
+  }
+
+  span.cm-keyword {
+    color: var(--cm-syntax-keyword, var(--vscode-debugView-valueChangedHighlight, var(--vscode-terminal-ansiBlue, var(--vscode-charts-blue))));
+  }
+
+  span.cm-string {
+    color: var(--cm-syntax-string, var(--vscode-debugTokenExpression-string, var(--vscode-terminal-ansiRed)));
+  }
+
+  span.cm-number {
+    color: var(--cm-syntax-number, var(--vscode-debugTokenExpression-number, var(--vscode-terminal-ansiYellow)));
+  }
+
+  span.cm-atom {
+    color: var(--cm-syntax-atom, var(--vscode-debugTokenExpression-boolean, var(--vscode-symbolIcon-constantForeground)));
+  }
+
+  span.cm-property {
+    color: var(--cm-syntax-property, var(--vscode-symbolIcon-fieldForeground, var(--vscode-debugTokenExpression-name)));
+  }
+
+  span.cm-attribute {
+    color: var(--cm-syntax-attribute, var(--vscode-gitDecoration-modifiedResourceForeground, var(--vscode-symbolIcon-propertyForeground)));
+  }
+
+  span.cm-variable {
+    color: var(--cm-syntax-variable, var(--vscode-debugTokenExpression-name, var(--vscode-symbolIcon-variableForeground)));
+  }
+
+  span.cm-def {
+    color: var(--cm-syntax-def, var(--vscode-textPreformat-foreground, var(--vscode-symbolIcon-functionForeground)));
+  }
+
+  span.cm-bracket {
+    color: var(--cm-syntax-bracket, var(--vscode-symbolIcon-operatorForeground, var(--vscode-editor-foreground)));
+  }
+
+  span.cm-tag {
+    color: var(--cm-syntax-tag, var(--vscode-symbolIcon-classForeground, var(--vscode-debugConsole-errorForeground)));
+  }
+
+  span.cm-link {
+    color: var(--cm-syntax-link, var(--vscode-textLink-foreground));
+    text-decoration: underline;
+  }
+
+  span.cm-error {
+    color: var(--cm-syntax-error, var(--vscode-debugTokenExpression-error, var(--vscode-errorForeground)));
+    background: var(--vscode-inputValidation-errorBackground, transparent);
+  }
+}
+
+.vditor-cm-chrome {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.vditor-cm-chrome__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 36px;
+  padding: 6px 14px;
+  pointer-events: none;
+}
+
+.vditor-cm-chrome__copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 16%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--cm-bg-color, var(--panel-background-color)) 88%, transparent);
+  color: var(--cm-fg-color, var(--toolbar-icon-color));
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background: var(--dropdown-hover-background, var(--toolbar-background-color));
+    border-color: color-mix(in srgb, var(--list-hover-color, var(--toolbar-icon-hover-color)) 35%, transparent);
+  }
+
+  &--done {
+    background: var(--dropdown-hover-background, var(--toolbar-background-color));
+  }
+}
+
+.vditor-cm-chrome__copy-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--list-hover-color, #3fb950);
+}
+
+.vditor-cm-chrome__copy-label {
+  white-space: nowrap;
+  color: var(--cm-fg-color, var(--toolbar-icon-color));
+}
+
+.vditor-cm-chrome__lang {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  pointer-events: auto;
+}
+
+.vditor-cm-chrome__lang-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 14%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--cm-bg-color, var(--panel-background-color)) 90%, transparent);
+  color: var(--cm-fg-color, var(--toolbar-icon-color));
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--dropdown-hover-background, var(--toolbar-background-color));
+    color: var(--list-hover-color, var(--toolbar-icon-hover-color));
+    border-color: color-mix(in srgb, var(--list-hover-color, var(--toolbar-icon-hover-color)) 35%, transparent);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.92;
+  }
+}
+
+.vditor-cm-chrome__lang-label {
+  white-space: nowrap;
+}
+
+.vditor-cm-chrome__lang-chevron {
+  display: inline-flex;
+  flex-shrink: 0;
+  opacity: 0.72;
+  transition: transform 0.15s ease;
+}
+
+.vditor-cm-chrome__lang--open .vditor-cm-chrome__lang-chevron {
+  transform: rotate(180deg);
+}
+
+.vditor-cm-chrome__lang-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 5;
+  width: min(280px, calc(100vw - 32px));
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 14%, transparent);
+  border-radius: 8px;
+  background: var(--cm-bg-color, var(--panel-background-color));
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--cm-fg-color, #000) 12%, transparent);
+  pointer-events: auto;
+  transition: box-shadow 0.15s ease;
+}
+
+.vditor-cm-chrome__lang--open .vditor-cm-chrome__lang-panel {
+  display: block;
+}
+
+.vditor-cm-chrome__lang--focused .vditor-cm-chrome__lang-panel {
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--cm-fg-color, #000) 10%, transparent);
+}
+
+.vditor-cm-chrome__lang-search {
+  box-sizing: border-box;
+  width: 100%;
+  height: 34px;
+  margin-bottom: 8px;
+  padding: 0 12px;
+  border: 2px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 14%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--cm-bg-color, var(--panel-background-color)) 96%, transparent);
+  color: var(--cm-fg-color, var(--toolbar-icon-color));
+  font-size: 13px;
+  line-height: 1.4;
+  outline: none;
+  box-shadow: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:focus,
+  .vditor-cm-chrome__lang--focused & {
+    border-color: var(--cm-lang-search-focus-color, #4285f4);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--cm-lang-search-focus-color, #4285f4) 28%, transparent);
+  }
+
+  &::placeholder {
+    color: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 55%, transparent);
+  }
+}
+
+.vditor-cm-chrome__lang-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.vditor-cm-chrome__lang-item {
+  display: block;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--cm-fg-color, var(--toolbar-icon-color));
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover,
+  &--active {
+    font-weight: 600;
+    background: color-mix(in srgb, var(--list-hover-color, var(--toolbar-icon-hover-color)) 12%, transparent);
+  }
+}
+
+.vditor-cm-chrome__lang-empty {
+  padding: 8px;
+  color: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 55%, transparent);
+  font-size: 12px;
+  text-align: center;
+}
+
+.vditor-cm-preview-host {
+  .vditor-cm-chrome__lang-trigger {
+    cursor: default;
+  }
+}
+
+.vditor-popover--cm-lang {
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  pointer-events: none;
+
+  .vditor-tooltipped {
+    pointer-events: auto;
+  }
+
+  .vditor-cm-lang-input {
+    width: min(180px, calc(100vw - 48px));
+    height: 26px;
+    padding: 0 10px;
+    border: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 14%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--cm-bg-color, var(--panel-background-color)) 90%, transparent);
+    color: var(--cm-fg-color, var(--toolbar-icon-color));
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 26px;
+    outline: none;
+    box-shadow: 0 1px 4px color-mix(in srgb, var(--cm-fg-color, #000) 8%, transparent);
+
+    &:focus {
+      border-color: color-mix(in srgb, var(--list-hover-color, var(--toolbar-icon-hover-color)) 45%, transparent);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--list-hover-color, var(--toolbar-icon-hover-color)) 18%, transparent);
+    }
+
+    &::placeholder {
+      color: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 55%, transparent);
+      font-weight: 500;
+    }
   }
 }
 
@@ -30,7 +443,7 @@
   > pre.vditor-cm-host:first-child,
   > pre:first-child.vditor-cm-host {
     border-radius: 6px;
-    overflow: hidden;
+    overflow: visible;
   }
 
   > pre:first-child > code {
@@ -56,7 +469,7 @@
 
 .vditor-cm-preview-host {
   border-radius: 6px;
-  overflow: hidden;
+  overflow: visible;
 
   .cm-editor {
     outline: none;
@@ -81,4 +494,41 @@
 .vditor-cm-host .cm-editor,
 .vditor-cm-host .cm-editor * {
   user-select: text;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete {
+  z-index: 10001;
+  overflow: hidden;
+  list-style: none;
+  margin: 0;
+  padding: 2px;
+  box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  background: var(--vscode-editorSuggestWidget-background);
+  font-family: var(--vscode-editor-font-family);
+  font-weight: var(--vscode-font-weight);
+  font-size: var(--vscode-font-size);
+  max-height: 20em;
+  overflow-y: auto;
+  border: 1px solid var(--vscode-widget-border);
+
+  > ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    > li {
+      margin: 0;
+      padding: 4px;
+      border-radius: 2px;
+      white-space: pre;
+      cursor: pointer;
+      color: var(--vscode-editorSuggestWidget-foreground);
+
+      &[aria-selected] {
+        background: var(--vscode-editorSuggestWidget-selectedBackground);
+        color: var(--vscode-editorSuggestWidget-selectedForeground);
+      }
+    }
+  }
 }

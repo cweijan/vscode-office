@@ -1,3 +1,4 @@
+import {LanguageDescription} from "@codemirror/language";
 import { languages } from "@codemirror/language-data";
 
 import { Constants } from "../constants";
@@ -7,10 +8,134 @@ interface CodeMirrorLanguageEntry {
     terms: string[];
 }
 
-const CODE_MIRROR_LANGUAGE_ENTRIES: CodeMirrorLanguageEntry[] = languages.map((language) => ({
-    canonical: language.name,
-    terms: [language.name, ...language.alias],
-}));
+/** 在 @codemirror/language-data 之外补充的语言别名 */
+const EXTRA_LANGUAGE_ALIASES: Record<string, string[]> = {
+    Shell: ["bash", "sh", "zsh", "shell", "shellscript", "console", "terminal"],
+};
+
+const buildLanguageEntries = (): CodeMirrorLanguageEntry[] => {
+    const entries: CodeMirrorLanguageEntry[] = [];
+    for (const language of languages) {
+        const terms = new Set<string>([language.name, ...language.alias]);
+        const extra = EXTRA_LANGUAGE_ALIASES[language.name];
+        if (extra) {
+            for (const alias of extra) {
+                terms.add(alias);
+            }
+        }
+        entries.push({
+            canonical: language.name,
+            terms: [...terms],
+        });
+    }
+    return entries;
+};
+
+const CODE_MIRROR_LANGUAGE_ENTRIES: CodeMirrorLanguageEntry[] = buildLanguageEntries();
+
+export const buildCodeMirrorLanguageMap = (): Record<string, LanguageDescription> => {
+    const map: Record<string, LanguageDescription> = {};
+    for (const language of languages) {
+        map[language.name.toLowerCase()] = language;
+        for (const alias of language.alias) {
+            map[alias.toLowerCase()] = language;
+        }
+        const extra = EXTRA_LANGUAGE_ALIASES[language.name];
+        if (extra) {
+            for (const alias of extra) {
+                map[alias.toLowerCase()] = language;
+            }
+        }
+    }
+    return map;
+};
+
+const PINNED_CODE_MIRROR_LANGUAGES = [
+    "Shell",
+    "JavaScript",
+    "TypeScript",
+    "Python",
+    "Java",
+    "C",
+    "C++",
+    "C#",
+    "Go",
+    "Rust",
+    "SQL",
+    "HTML",
+    "CSS",
+    "JSON",
+    "YAML",
+    "Markdown",
+    "PHP",
+    "Ruby",
+    "Kotlin",
+    "Swift",
+    "Vue",
+    "XML",
+    "SCSS",
+];
+
+const pinnedLanguageOrder = new Map(PINNED_CODE_MIRROR_LANGUAGES.map((name, index) => [name, index]));
+
+const sortLanguageNamesWithPinnedFirst = (names: string[]) => {
+    const remaining = new Set(names);
+    const sorted: string[] = [];
+    for (const pinned of PINNED_CODE_MIRROR_LANGUAGES) {
+        if (remaining.has(pinned)) {
+            sorted.push(pinned);
+            remaining.delete(pinned);
+        }
+    }
+    const rest = [...remaining].sort((a, b) => a.localeCompare(b, undefined, {sensitivity: "base"}));
+    for (const name of rest) {
+        sorted.push(name);
+    }
+    return sorted;
+};
+
+const sortHintDataWithPinnedFirst = (items: IHintData[]) => {
+    return items.sort((a, b) => {
+        const aPinned = pinnedLanguageOrder.get(a.value);
+        const bPinned = pinnedLanguageOrder.get(b.value);
+        if (aPinned !== undefined && bPinned !== undefined) {
+            return aPinned - bPinned;
+        }
+        if (aPinned !== undefined) {
+            return -1;
+        }
+        if (bPinned !== undefined) {
+            return 1;
+        }
+        return a.value.localeCompare(b.value, undefined, {sensitivity: "base"});
+    });
+};
+
+export const getAllCodeMirrorLanguageNames = (): string[] => {
+    const names: string[] = [];
+    for (const entry of CODE_MIRROR_LANGUAGE_ENTRIES) {
+        names.push(entry.canonical);
+    }
+    return sortLanguageNamesWithPinnedFirst(names);
+};
+
+export const filterCodeMirrorLanguageNames = (query: string): string[] => {
+    const lower = query.trim().toLowerCase();
+    const all = getAllCodeMirrorLanguageNames();
+    if (!lower) {
+        return all;
+    }
+    const matched = new Set<string>();
+    for (const entry of CODE_MIRROR_LANGUAGE_ENTRIES) {
+        for (const term of entry.terms) {
+            if (term.toLowerCase().includes(lower)) {
+                matched.add(entry.canonical);
+                break;
+            }
+        }
+    }
+    return sortLanguageNamesWithPinnedFirst([...matched]);
+};
 
 export const matchCodeMirrorLanguages = (key: string): IHintData[] => {
     const matchLangData: IHintData[] = [];
@@ -27,9 +152,7 @@ export const matchCodeMirrorLanguages = (key: string): IHintData[] => {
             matchLangData.push({ html: entry.canonical, value: entry.canonical });
         }
     }
-    return matchLangData.sort((a, b) =>
-        a.value.localeCompare(b.value, undefined, { sensitivity: "base" }),
-    );
+    return sortHintDataWithPinnedFirst(matchLangData);
 };
 
 /** 脑图、mermaid 等特殊预览代码块的语言补全 */

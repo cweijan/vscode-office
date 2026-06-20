@@ -7,7 +7,6 @@ import {
 import {initEditorThemeToggle, updateEditorThemeToggle} from "./editorThemeToggle";
 
 const EDITOR_BASE_CSS_ID = "vditor-editor-base-css";
-const EDITOR_CODEMIRROR_CSS_ID = "vditor-editor-cm-css";
 const EDITOR_THEME_LINK_ID = "vditor-editor-theme-css";
 
 let vscodeThemeObserverStarted = false;
@@ -63,7 +62,6 @@ const observeVscodeTheme = (vditor: IVditor) => {
 export const ensureEditorThemeAssets = (vditor: IVditor) => {
     const root = getAssetRoot(vditor);
     addStyle(`${root}/css/base.css`, EDITOR_BASE_CSS_ID);
-    addStyle(`${root}/css/codemirror.css`, EDITOR_CODEMIRROR_CSS_ID);
 };
 
 /** Apply markdown editor chrome theme (resource css/theme/*.css). */

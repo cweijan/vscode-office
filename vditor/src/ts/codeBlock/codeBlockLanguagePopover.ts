@@ -1,15 +1,16 @@
-import {processAfterRender} from "../ir/process";
-import {isCtrl, updateHotkeyTip} from "../util/compatibility";
-import {processCodeRender} from "../util/processCode";
-import {afterRenderEvent} from "../wysiwyg/afterRenderEvent";
-import {matchCodeMirrorLanguages} from "./codeBlockLanguageHints";
+import {updateHotkeyTip} from "../util/compatibility";
+import {bindCodeBlockLanguageInput} from "./codeBlockLanguageInput";
+import {focusCodeBlockChromeLanguage} from "./codeBlockChrome";
 import {
-    focusCodeMirror,
     getCodeLanguageName,
+    isCmCodeBlock,
     resolveCmCodeBlock,
     shouldShowLanguagePopover,
-    updateCodeMirrorLanguage,
 } from "./codeMirrorManager";
+
+const CM_LANG_POPOVER_CLASS = "vditor-popover--cm-lang";
+const LANG_INSET_TOP = 8;
+const LANG_INSET_LEFT = 8;
 
 export const getModePopover = (vditor: IVditor) => {
     if (vditor.currentMode === "wysiwyg") {
@@ -39,24 +40,19 @@ const setCodeBlockPopoverPosition = (vditor: IVditor, blockElement: HTMLElement)
     }
     popover.style.display = "block";
     popover.style.top =
-        Math.max(-8, blockElement.offsetTop - 21 - editorElement.scrollTop) + "px";
+        Math.max(-8, blockElement.offsetTop + LANG_INSET_TOP - editorElement.scrollTop) + "px";
     popover.style.left =
-        Math.min(blockElement.offsetLeft, editorElement.clientWidth - popover.clientWidth) + "px";
-    popover.setAttribute("data-top", (blockElement.offsetTop - 21).toString());
+        Math.min(
+            blockElement.offsetLeft + LANG_INSET_LEFT,
+            editorElement.clientWidth - popover.clientWidth - 8,
+        ) + "px";
+    popover.setAttribute("data-top", (blockElement.offsetTop + LANG_INSET_TOP).toString());
 };
 
-const afterCodeBlockLanguageChange = (vditor: IVditor) => {
-    if (vditor.currentMode === "wysiwyg") {
-        afterRenderEvent(vditor);
-    } else if (vditor.currentMode === "ir") {
-        processAfterRender(vditor);
-    }
-};
-
-/** 在代码块上方显示语言输入 popover（WYSIWYG / IR 通用） */
+/** 非 CM 代码块：popover 语言输入 */
 export const showCodeBlockLanguagePopover = (vditor: IVditor, blockElement: HTMLElement) => {
     const block = resolveCmCodeBlock(vditor, blockElement);
-    if (!block || !shouldShowLanguagePopover(block)) {
+    if (!block || !shouldShowLanguagePopover(block) || isCmCodeBlock(block)) {
         return;
     }
     const popover = getModePopover(vditor);
@@ -71,6 +67,7 @@ export const showCodeBlockLanguagePopover = (vditor: IVditor, blockElement: HTML
 
     const getBlock = () => resolveCmCodeBlock(vditor, block) || block;
 
+    popover.classList.add(CM_LANG_POPOVER_CLASS);
     popover.innerHTML = "";
 
     const languageWrap = document.createElement("span");
@@ -83,81 +80,20 @@ export const showCodeBlockLanguagePopover = (vditor: IVditor, blockElement: HTML
     language.setAttribute("placeholder", window.VditorI18n.language);
     language.value = getCodeLanguageName(codeElement);
 
-    language.oninput = (e: InputEvent) => {
-        const currentBlock = getBlock();
-        const currentCode = currentBlock.querySelector("pre code") as HTMLElement;
-        if (!currentCode) {
-            return;
-        }
-        const lang = language.value.trim();
-        if (lang !== "") {
-            currentCode.className = `language-${lang}`;
-            vditor.hint.recentLanguage = lang;
-        } else {
-            currentCode.className = "";
-            vditor.hint.recentLanguage = "";
-        }
-        if (vditor.currentMode === "wysiwyg" &&
-            currentBlock.lastElementChild?.classList.contains("vditor-wysiwyg__preview")) {
-            currentBlock.lastElementChild.innerHTML = currentBlock.firstElementChild.innerHTML;
-            processCodeRender(currentBlock.lastElementChild as HTMLElement, vditor);
-        }
-        updateCodeMirrorLanguage(currentBlock, lang);
-        afterCodeBlockLanguageChange(vditor);
-        setCodeBlockPopoverPosition(vditor, currentBlock);
-        if (e.detail === 1) {
-            focusCodeMirror(currentBlock, true, vditor);
-        }
-    };
-
-    language.onkeydown = (event: KeyboardEvent) => {
-        if (event.isComposing) {
-            return;
-        }
-        if (event.key === "Escape" && vditor.hint.element.style.display === "block") {
-            vditor.hint.element.style.display = "none";
-            event.preventDefault();
-            return;
-        }
-        vditor.hint.select(event, vditor);
-        if (!isCtrl(event) && !event.shiftKey && event.key === "Enter") {
-            const currentBlock = getBlock();
-            focusCodeMirror(currentBlock, false, vditor);
-            event.preventDefault();
-            event.stopPropagation();
-        }
-    };
-
-    language.onkeyup = (event: KeyboardEvent) => {
-        if (
-            event.isComposing ||
-            event.key === "Enter" ||
-            event.key === "ArrowUp" ||
-            event.key === "Escape" ||
-            event.key === "ArrowDown"
-        ) {
-            return;
-        }
-        const key = language.value.substring(0, language.selectionStart);
-        vditor.hint.genHTML(matchCodeMirrorLanguages(key), key, vditor);
-        event.preventDefault();
-    };
+    bindCodeBlockLanguageInput(vditor, language, getBlock, {
+        onAfterInput: (currentBlock) => {
+            setCodeBlockPopoverPosition(vditor, currentBlock);
+        },
+    });
 
     popover.insertAdjacentElement("beforeend", languageWrap);
     setCodeBlockPopoverPosition(vditor, block);
 };
 
-export const focusCodeBlockLanguageInput = (vditor: IVditor) => {
-    const inputElement = getModePopover(vditor)?.querySelector(".vditor-input") as HTMLInputElement;
-    if (!inputElement) {
-        return false;
-    }
-    inputElement.focus();
-    inputElement.select();
-    return true;
+export const focusCodeBlockLanguageInput = (vditor: IVditor, blockElement?: HTMLElement | null) => {
+    return focusCodeBlockChromeLanguage(vditor, blockElement);
 };
 
 export const focusIrCodeBlockLanguageMarker = (blockElement: HTMLElement, vditor: IVditor) => {
-    showCodeBlockLanguagePopover(vditor, blockElement);
-    return focusCodeBlockLanguageInput(vditor);
+    return focusCodeBlockChromeLanguage(vditor, blockElement);
 };

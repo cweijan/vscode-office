@@ -26,6 +26,7 @@ import {matchPreviewCodeLanguages} from "../codeBlock/codeBlockLanguageHints";
 import {
     focusCodeMirror,
     isCmCodeBlock,
+    isInsideCodeBlockChrome,
     isInsideCodeMirror,
     shouldShowLanguagePopover,
     updateCodeMirrorLanguage,
@@ -50,6 +51,9 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
             return;
         }
         if (!selectIsEditor(vditor.wysiwyg.element)) {
+            return;
+        }
+        if (isInsideCodeBlockChrome(document.activeElement)) {
             return;
         }
 
@@ -588,7 +592,8 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
             });
         if (blockRenderElement && isBlock) {
             if (blockRenderElement.getAttribute("data-type") === "code-block" &&
-                shouldShowLanguagePopover(blockRenderElement)) {
+                shouldShowLanguagePopover(blockRenderElement) &&
+                !isCmCodeBlock(blockRenderElement)) {
                 showCodeBlockLanguagePopover(vditor, blockRenderElement);
             } else {
                 vditor.wysiwyg.popover.innerHTML = "";
@@ -596,7 +601,8 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
                 genDown(range, blockRenderElement, vditor);
                 genClose(blockRenderElement, vditor);
 
-                if (blockRenderElement.getAttribute("data-type") === "code-block") {
+                if (blockRenderElement.getAttribute("data-type") === "code-block" &&
+                    !isCmCodeBlock(blockRenderElement)) {
                     const languageWrap = document.createElement("span");
                 languageWrap.setAttribute("aria-label", window.VditorI18n.language + "<" + updateHotkeyTip("⌥Enter") + ">");
                 languageWrap.className = "vditor-tooltipped vditor-tooltipped__n";
@@ -735,9 +741,8 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
             backslashElement.querySelector("span").style.display = "inline";
         }
 
-        // CM 代码块语言 popover 保持在最上层，避免被后续逻辑清空
         const activeCmBlock = hasClosestByAttribute(typeElement, "data-type", "code-block") as HTMLElement;
-        if (activeCmBlock && shouldShowLanguagePopover(activeCmBlock)) {
+        if (activeCmBlock && shouldShowLanguagePopover(activeCmBlock) && !isCmCodeBlock(activeCmBlock)) {
             showCodeBlockLanguagePopover(vditor, activeCmBlock);
         }
     }, 200);

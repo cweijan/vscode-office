@@ -8,7 +8,7 @@ import {lintKeymap} from "@codemirror/lint";
 import {vditorSyntaxHighlighting} from "./codeMirrorHighlight";
 import {vditorEditorTheme} from "./codeMirrorTheme";
 
-/** basicSetup without defaultHighlightStyle — syntax colors come from css/codemirror.css */
+/** basicSetup without defaultHighlightStyle — syntax colors come from _codemirror.less (dist/index.css) */
 export const vditorCodeMirrorSetup = [
     vditorEditorTheme,
     lineNumbers(),

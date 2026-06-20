@@ -5,6 +5,7 @@ import {
     getCodeMirrorView,
     hasCodeMirror,
     isCmCodeBlock,
+    isInsideCodeBlockChrome,
     isInsideCodeMirror,
 } from "../codeBlock/codeMirrorManager";
 import {isCtrl, isFirefox} from "../util/compatibility";
@@ -39,6 +40,11 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
     vditor.wysiwyg.composingLock = event.isComposing;
     if (event.isComposing) {
         return false;
+    }
+
+    if (isInsideCodeBlockChrome(event.target)) {
+        event.stopPropagation();
+        return true;
     }
 
     if (isInsideCodeMirror(event.target)) {
