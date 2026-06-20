@@ -8,7 +8,6 @@ import {setHeaders} from "../upload/setHeaders";
 import {afterRenderEvent} from "../wysiwyg/afterRenderEvent";
 import {input} from "../wysiwyg/input";
 import {isCtrl, isFirefox} from "./compatibility";
-import {scrollCenter} from "./editorCommonEvent";
 import {
     getTopList,
     hasClosestBlock,
@@ -566,7 +565,6 @@ export const fixMarkdown = (event: KeyboardEvent, vditor: IVditor, pElement: HTM
             pElement.outerHTML = vditor.lute.SpinVditorDOM(tableHeaderMD);
             setRangeByWbr(vditor[vditor.currentMode].element, range);
             execAfterRender(vditor);
-            scrollCenter(vditor);
             event.preventDefault();
             return true;
         }
@@ -586,7 +584,6 @@ export const fixMarkdown = (event: KeyboardEvent, vditor: IVditor, pElement: HTM
             pElement.remove();
             setRangeByWbr(vditor[vditor.currentMode].element, range);
             execAfterRender(vditor);
-            scrollCenter(vditor);
             event.preventDefault();
             return true;
         }
@@ -600,7 +597,6 @@ export const fixMarkdown = (event: KeyboardEvent, vditor: IVditor, pElement: HTM
             }
             setRangeByWbr(vditor[vditor.currentMode].element, range);
             execAfterRender(vditor);
-            scrollCenter(vditor);
             event.preventDefault();
             return true;
         }
@@ -740,7 +736,6 @@ export const fixTable = (vditor: IVditor, event: KeyboardEvent, range: Range) =>
             range.insertNode(brElement);
             range.setStartAfter(brElement);
             execAfterRender(vditor);
-            scrollCenter(vditor);
             event.preventDefault();
             return true;
         }
@@ -1011,7 +1006,6 @@ export const fixCodeBlock = (vditor: IVditor, event: KeyboardEvent, codeRenderEl
                 IRInput(vditor, range);
             }
         }
-        scrollCenter(vditor);
         event.preventDefault();
         return true;
     }
@@ -1185,7 +1179,6 @@ export const fixTask = (vditor: IVditor, range: Range, event: KeyboardEvent) => 
             }
             setRangeByWbr(vditor[vditor.currentMode].element, range);
             execAfterRender(vditor);
-            scrollCenter(vditor);
             event.preventDefault();
             return true;
         }
@@ -1386,10 +1379,8 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
         textHTML = doc.body.innerHTML;
     }
     textHTML = Lute.Sanitize(textHTML);
-    vditor.wysiwyg.getComments(vditor);
 
     // process code
-    const height = vditor[vditor.currentMode].element.scrollHeight;
     const code = processPasteCode(textHTML, textPlain, vditor.currentMode);
     const codeElement = vditor.currentMode === "sv" ?
         hasClosestByAttribute(event.target, "data-type", "code-block") :
@@ -1512,10 +1503,5 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
                 processCodeRender(item, vditor);
             });
     }
-    vditor.wysiwyg.triggerRemoveComment(vditor);
     execAfterRender(vditor);
-    if (vditor[vditor.currentMode].element.scrollHeight - height >
-        Math.min(vditor[vditor.currentMode].element.clientHeight, window.innerHeight) / 2) {
-        scrollCenter(vditor);
-    }
 };

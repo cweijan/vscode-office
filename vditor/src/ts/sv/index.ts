@@ -5,7 +5,6 @@ import {
     dropEvent,
     focusEvent,
     hotkeyEvent,
-    scrollCenter,
     selectEvent,
 } from "../util/editorCommonEvent";
 import {paste} from "../util/fixBrowserBehavior";
@@ -116,7 +115,6 @@ class Editor {
                 return;
             }
             if (event.key === "Enter") {
-                scrollCenter(vditor);
             }
         });
     }

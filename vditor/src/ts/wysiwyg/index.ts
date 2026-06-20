@@ -7,7 +7,6 @@ import {
     dropEvent,
     focusEvent,
     hotkeyEvent,
-    scrollCenter,
     selectEvent,
 } from "../util/editorCommonEvent";
 import {isHeadingMD, isHrMD, paste} from "../util/fixBrowserBehavior";
@@ -36,12 +35,10 @@ class WYSIWYG {
     public range: Range;
     public element: HTMLPreElement;
     public popover: HTMLDivElement;
-    public selectPopover: HTMLDivElement;
     public afterRenderTimeoutId: number;
     public hlToolbarTimeoutId: number;
     public preventInput: boolean;
     public composingLock = false;
-    public commentIds: string[] = [];
     private scrollListener: () => void;
 
     constructor(vditor: IVditor) {
@@ -50,16 +47,10 @@ class WYSIWYG {
 
         divElement.innerHTML = `<pre class="vditor-reset" placeholder="${vditor.options.placeholder}"
  contenteditable="true" spellcheck="false"></pre>
-<div class="vditor-panel vditor-panel--none"></div>
-<div class="vditor-panel vditor-panel--none">
-    <button type="button" aria-label="${window.VditorI18n.comment}" class="vditor-icon vditor-tooltipped vditor-tooltipped__n">
-        <svg><use xlink:href="#vditor-icon-comment"></use></svg>
-    </button>
-</div>`;
+<div class="vditor-panel vditor-panel--none"></div>`;
 
         this.element = divElement.firstElementChild as HTMLPreElement;
-        this.popover = divElement.firstElementChild.nextElementSibling as HTMLDivElement;
-        this.selectPopover = divElement.lastElementChild as HTMLDivElement;
+        this.popover = divElement.lastElementChild as HTMLDivElement;
 
         this.bindEvent(vditor);
 
@@ -71,132 +62,6 @@ class WYSIWYG {
         dropEvent(vditor, this.element);
         copyEvent(vditor, this.element, this.copy);
         cutEvent(vditor, this.element, this.copy);
-
-        if (vditor.options.comment.enable) {
-            this.selectPopover.querySelector("button").onclick = () => {
-                const id = Lute.NewNodeID();
-                const range = getSelection().getRangeAt(0);
-                const rangeClone = range.cloneRange();
-                const contents = range.extractContents();
-                let blockStartElement: HTMLElement;
-                let blockEndElement: HTMLElement;
-                let removeStart = false;
-                let removeEnd = false;
-                contents.childNodes.forEach((item: HTMLElement, index: number) => {
-                    let wrap = false;
-                    if (item.nodeType === 3) {
-                        wrap = true;
-                    } else if (!item.classList.contains("vditor-comment")) {
-                        wrap = true;
-                    } else if (item.classList.contains("vditor-comment")) {
-                        item.setAttribute("data-cmtids", item.getAttribute("data-cmtids") + " " + id);
-                    }
-                    if (wrap) {
-                        if (item.nodeType !== 3 && item.getAttribute("data-block") === "0"
-                            && index === 0 && rangeClone.startOffset > 0) {
-                            item.innerHTML =
-                                `<span class="vditor-comment" data-cmtids="${id}">${item.innerHTML}</span>`;
-                            blockStartElement = item;
-                        } else if (item.nodeType !== 3 && item.getAttribute("data-block") === "0"
-                            && index === contents.childNodes.length - 1
-                            && rangeClone.endOffset < rangeClone.endContainer.textContent.length) {
-                            item.innerHTML =
-                                `<span class="vditor-comment" data-cmtids="${id}">${item.innerHTML}</span>`;
-                            blockEndElement = item;
-                        } else if (item.nodeType !== 3 && item.getAttribute("data-block") === "0") {
-                            if (index === 0) {
-                                removeStart = true;
-                            } else if (index === contents.childNodes.length - 1) {
-                                removeEnd = true;
-                            }
-                            item.innerHTML =
-                                `<span class="vditor-comment" data-cmtids="${id}">${item.innerHTML}</span>`;
-                        } else {
-                            const commentElement = document.createElement("span");
-                            commentElement.classList.add("vditor-comment");
-                            commentElement.setAttribute("data-cmtids", id);
-                            item.parentNode.insertBefore(commentElement, item);
-                            commentElement.appendChild(item);
-                        }
-                    }
-                });
-                const startElement = hasClosestBlock(rangeClone.startContainer);
-                if (startElement) {
-                    if (blockStartElement) {
-                        startElement.insertAdjacentHTML("beforeend", blockStartElement.innerHTML);
-                        blockStartElement.remove();
-                    } else if (startElement.textContent.trim().replace(Constants.ZWSP, "") === "" && removeStart) {
-                        startElement.remove();
-                    }
-                }
-                const endElement = hasClosestBlock(rangeClone.endContainer);
-                if (endElement) {
-                    if (blockEndElement) {
-                        endElement.insertAdjacentHTML("afterbegin", blockEndElement.innerHTML);
-                        blockEndElement.remove();
-                    } else if (endElement.textContent.trim().replace(Constants.ZWSP, "") === "" && removeEnd) {
-                        endElement.remove();
-                    }
-                }
-                range.insertNode(contents);
-                vditor.options.comment.add(id, range.toString(), this.getComments(vditor, true));
-                afterRenderEvent(vditor, {
-                    enableAddUndoStack: true,
-                    enableHint: false,
-                    enableInput: false,
-                });
-                this.hideComment();
-            };
-        }
-    }
-
-    public getComments(vditor: IVditor, getData = false) {
-        if (vditor.currentMode === "wysiwyg" && vditor.options.comment.enable) {
-            this.commentIds = [];
-            this.element.querySelectorAll(".vditor-comment").forEach((item) => {
-                this.commentIds =
-                    this.commentIds.concat(item.getAttribute("data-cmtids").split(" "));
-            });
-            this.commentIds = Array.from(new Set(this.commentIds));
-
-            const comments: ICommentsData[] = [];
-            if (getData) {
-                this.commentIds.forEach((id) => {
-                    comments.push({
-                        id,
-                        top:
-                        (this.element.querySelector(`.vditor-comment[data-cmtids="${id}"]`) as HTMLElement).offsetTop,
-                    });
-                });
-                return comments;
-            }
-        } else {
-            return [];
-        }
-    }
-
-    public triggerRemoveComment(vditor: IVditor) {
-        const difference = (a: string[], b: string[]) => {
-            const s = new Set(b);
-            return a.filter((x) => !s.has(x));
-        };
-        if (vditor.currentMode === "wysiwyg" && vditor.options.comment.enable && vditor.wysiwyg.commentIds.length > 0) {
-            const oldIds = JSON.parse(JSON.stringify(this.commentIds));
-            this.getComments(vditor);
-            const removedIds = difference(oldIds, this.commentIds);
-            if (removedIds.length > 0) {
-                vditor.options.comment.remove(removedIds);
-            }
-        }
-    }
-
-    public showComment() {
-        const position = getCursorPosition(this.element);
-        this.selectPopover.setAttribute("style", `left:${position.left}px;display:block;top:${Math.max(-8, position.top - 21)}px`);
-    }
-
-    public hideComment() {
-        this.selectPopover.setAttribute("style", "display:none");
     }
 
     public unbindListener() {
@@ -252,39 +117,24 @@ class WYSIWYG {
         this.unbindListener();
         window.addEventListener("scroll", this.scrollListener = () => {
             hidePanel(vditor, ["hint"]);
-            if (this.popover.style.display !== "block" || this.selectPopover.style.display !== "block") {
+            if (this.popover.style.display !== "block") {
                 return;
             }
             const top = parseInt(this.popover.getAttribute("data-top"), 10);
             if (vditor.options.height !== "auto") {
                 if (vditor.options.toolbarConfig.pin && vditor.toolbar.element.getBoundingClientRect().top === 0) {
-                    const popoverTop = Math.max(window.scrollY - vditor.element.offsetTop - 8,
+                    this.popover.style.top = Math.max(window.scrollY - vditor.element.offsetTop - 8,
                         Math.min(top - vditor.wysiwyg.element.scrollTop, this.element.clientHeight - 21)) + "px";
-                    if (this.popover.style.display === "block") {
-                        this.popover.style.top = popoverTop;
-                    }
-                    if (this.selectPopover.style.display === "block") {
-                        this.selectPopover.style.top = popoverTop;
-                    }
                 }
                 return;
             } else if (!vditor.options.toolbarConfig.pin) {
                 return;
             }
-            const popoverTop1 = Math.max(top, (window.scrollY - vditor.element.offsetTop - 8)) + "px";
-            if (this.popover.style.display === "block") {
-                this.popover.style.top = popoverTop1;
-            }
-            if (this.selectPopover.style.display === "block") {
-                this.selectPopover.style.top = popoverTop1;
-            }
+            this.popover.style.top = Math.max(top, (window.scrollY - vditor.element.offsetTop - 8)) + "px";
         });
 
         this.element.addEventListener("scroll", () => {
             hidePanel(vditor, ["hint"]);
-            if (vditor.options.comment && vditor.options.comment.enable && vditor.options.comment.scroll) {
-                vditor.options.comment.scroll(vditor.wysiwyg.element.scrollTop);
-            }
             if (this.popover.style.display !== "block") {
                 return;
             }
@@ -293,9 +143,7 @@ class WYSIWYG {
             if (vditor.options.toolbarConfig.pin && vditor.toolbar.element.getBoundingClientRect().top === 0) {
                 max = window.scrollY - vditor.element.offsetTop + max;
             }
-            const topPx = Math.max(max, Math.min(top, this.element.clientHeight - 21)) + "px";
-            this.popover.style.top = topPx;
-            this.selectPopover.style.top = topPx;
+            this.popover.style.top = Math.max(max, Math.min(top, this.element.clientHeight - 21)) + "px";
         });
 
         this.element.addEventListener("paste", (event: ClipboardEvent & { target: HTMLElement }) => {
@@ -490,11 +338,6 @@ class WYSIWYG {
             }
             if (isInsideCodeMirror(event.target)) {
                 return;
-            }
-            // 除 md 处理、cell 内换行、table 添加新行/列、代码块语言切换、block render 换行、跳出/逐层跳出 blockquote、h6 换行、
-            // 任务列表换行、软换行外需在换行时调整文档位置
-            if (event.key === "Enter") {
-                scrollCenter(vditor);
             }
             if ((event.key === "Backspace" || event.key === "Delete") &&
                 vditor.wysiwyg.element.innerHTML !== "" && vditor.wysiwyg.element.childNodes.length === 1 &&

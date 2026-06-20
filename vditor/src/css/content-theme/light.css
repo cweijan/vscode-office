@@ -70,16 +70,6 @@
     box-shadow: inset 0 -1px 0 #d1d5da;
 }
 
-.vditor-speech {
-    background-color: #f6f8fa;
-    border: 1px solid #d1d5da;
-    color: #586069;
-}
-
-.vditor-speech--current, .vditor-speech:hover {
-    color: #4285f4;
-}
-
 .vditor-linkcard a {
     background-color: #f6f8fa;
 }

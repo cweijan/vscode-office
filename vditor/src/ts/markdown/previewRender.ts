@@ -12,7 +12,6 @@ import {mediaRender} from "./mediaRender";
 import {mermaidRender} from "./mermaidRender";
 import {plantumlRender} from "./plantumlRender";
 import {setLute} from "./setLute";
-import {speechRender} from "./speechRender";
 
 const mergeOptions = (options?: IPreviewOptions) => {
     const defaultOption: IPreviewOptions = {
@@ -28,9 +27,6 @@ const mergeOptions = (options?: IPreviewOptions) => {
         markdown: Constants.MARKDOWN_OPTIONS,
         math: Constants.MATH_OPTIONS,
         mode: "light",
-        speech: {
-            enable: false,
-        },
         theme: Constants.THEME_OPTIONS,
     };
     return merge(defaultOption, options);
@@ -117,9 +113,6 @@ export const previewRender = async (previewElement: HTMLDivElement, markdown: st
     mermaidRender(previewElement, mergedOptions.cdn, mergedOptions.mode);
     plantumlRender(previewElement, mergedOptions.cdn);
     mediaRender(previewElement);
-    if (mergedOptions.speech.enable) {
-        speechRender(previewElement);
-    }
     if (mergedOptions.anchor !== 0) {
         anchorRender(mergedOptions.anchor);
     }

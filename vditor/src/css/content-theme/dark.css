@@ -78,16 +78,6 @@
     color: #b9b9b9
 }
 
-.vditor-speech {
-    background-color: #1d2125;
-    border: 1px solid #141414;
-    color: #b9b9b9
-}
-
-.vditor-speech--current, .vditor-speech:hover {
-    color: #fff
-}
-
 .vditor-linkcard a {
     background-color: #1d2125;
 }

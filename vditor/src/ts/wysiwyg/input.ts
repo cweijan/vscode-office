@@ -53,21 +53,6 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
             item.removeAttribute("style");
         });
 
-        // 移除空评论
-        blockElement.querySelectorAll(".vditor-comment").forEach((item) => {
-            if (item.textContent.trim() === "") {
-                item.classList.remove("vditor-comment", "vditor-comment--focus");
-                item.removeAttribute("data-cmtids");
-            }
-        });
-        //  在有评论的行首换行后，该行的前一段会带有评论标识
-        blockElement.previousElementSibling?.querySelectorAll(".vditor-comment").forEach((item) => {
-            if (item.textContent.trim() === "") {
-                item.classList.remove("vditor-comment", "vditor-comment--focus");
-                item.removeAttribute("data-cmtids");
-            }
-        });
-
         let html = "";
         if (blockElement.getAttribute("data-type") === "link-ref-defs-block") {
             // 修改链接引用
@@ -232,12 +217,6 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
                 }
                 processCodeRender(item, vditor);
             });
-
-        if (event && (event.inputType === "deleteContentBackward" || event.inputType === "deleteContentForward") &&
-            vditor.options.comment.enable) {
-            vditor.wysiwyg.triggerRemoveComment(vditor);
-            vditor.options.comment.adjustTop(vditor.wysiwyg.getComments(vditor, true));
-        }
     }
     renderToc(vditor);
     afterRenderEvent(vditor, {

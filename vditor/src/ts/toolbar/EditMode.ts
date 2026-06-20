@@ -3,7 +3,7 @@ import {processAfterRender} from "../ir/process";
 import {getMarkdown} from "../markdown/getMarkdown";
 import {mathRender} from "../markdown/mathRender";
 import {processAfterRender as processSVAfterRender, processSpinVditorSVDOM} from "../sv/process";
-import {setPadding, setTypewriterPosition} from "../ui/initUI";
+import {setPadding} from "../ui/initUI";
 import {getEventName, updateHotkeyTip} from "../util/compatibility";
 import {highlightToolbar} from "../util/highlightToolbar";
 import {processCodeRender} from "../util/processCode";
@@ -31,9 +31,6 @@ export const setEditMode = (vditor: IVditor, type: string, event: Event | string
     }
     if (vditor.currentMode === type && typeof event !== "string") {
         return;
-    }
-    if (vditor.devtools) {
-        vditor.devtools.renderEchart(vditor);
     }
     if (vditor.options.preview.mode === "both" && type === "sv") {
         vditor.preview.element.style.display = "block";
@@ -140,7 +137,6 @@ export const setEditMode = (vditor: IVditor, type: string, event: Event | string
         highlightToolbar(vditor);
     }
     renderToc(vditor);
-    setTypewriterPosition(vditor);
 
     if (vditor.toolbar.elements["edit-mode"]) {
         vditor.toolbar.elements["edit-mode"].querySelectorAll("button").forEach((item) => {

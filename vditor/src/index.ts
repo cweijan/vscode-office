@@ -9,10 +9,8 @@ import {mermaidRender} from "./ts/markdown/mermaidRender";
 import {outlineRender} from "./ts/markdown/outlineRender";
 import {plantumlRender} from "./ts/markdown/plantumlRender";
 import {md2html, previewRender} from "./ts/markdown/previewRender";
-import {speechRender} from "./ts/markdown/speechRender";
 import {previewImage} from "./ts/preview/image";
 import {Constants, VDITOR_VERSION} from "./ts/constants";
-import {DevTools} from "./ts/devtools/index";
 import {Hint} from "./ts/hint/index";
 import {IR} from "./ts/ir/index";
 import {input as irInput} from "./ts/ir/input";
@@ -22,7 +20,6 @@ import {getMarkdown} from "./ts/markdown/getMarkdown";
 import {setLute} from "./ts/markdown/setLute";
 import {Outline} from "./ts/outline/index";
 import {Preview} from "./ts/preview/index";
-import {Resize} from "./ts/resize/index";
 import {Editor} from "./ts/sv/index";
 import {inputEvent} from "./ts/sv/inputEvent";
 import {processAfterRender as processSVAfterRender} from "./ts/sv/process";
@@ -58,7 +55,6 @@ class Vditor {
     public static plantumlRender = plantumlRender;
     public static outlineRender = outlineRender;
     public static mediaRender = mediaRender;
-    public static speechRender = speechRender;
     public static lazyLoadImageRender = lazyLoadImageRender;
     public static md2html = md2html;
     public static preview = previewRender;
@@ -173,7 +169,7 @@ class Vditor {
         hidePanel(this.vditor, ["subToolbar", "hint", "popover"]);
         disableToolbar(
             this.vditor.toolbar.elements,
-            Constants.EDIT_TOOLBARS.concat(["undo", "redo", "fullscreen", "edit-mode"]),
+            Constants.EDIT_TOOLBARS.concat(["undo", "redo", "edit-mode"]),
         );
         this.vditor[this.vditor.currentMode].element.setAttribute(
             "contenteditable",
@@ -185,7 +181,7 @@ class Vditor {
     public enable() {
         enableToolbar(
             this.vditor.toolbar.elements,
-            Constants.EDIT_TOOLBARS.concat(["undo", "redo", "fullscreen", "edit-mode"]),
+            Constants.EDIT_TOOLBARS.concat(["undo", "redo", "edit-mode"]),
         );
         this.vditor.undo.resetIcon(this.vditor);
         this.vditor[this.vditor.currentMode].element.setAttribute("contenteditable", "true");
@@ -364,109 +360,6 @@ class Vditor {
         this.vditor.wysiwyg.unbindListener();
     }
 
-    /** 获取评论 ID */
-    public getCommentIds() {
-        if (this.vditor.currentMode !== "wysiwyg") {
-            return [];
-        }
-        return this.vditor.wysiwyg.getComments(this.vditor, true);
-    }
-
-    /** 高亮评论 */
-    public hlCommentIds(ids: string[]) {
-        if (this.vditor.currentMode !== "wysiwyg") {
-            return;
-        }
-        const hlItem = (item: Element) => {
-            item.classList.remove("vditor-comment--hover");
-            ids.forEach((id) => {
-                if (item.getAttribute("data-cmtids").indexOf(id) > -1) {
-                    item.classList.add("vditor-comment--hover");
-                }
-            });
-        };
-        this.vditor.wysiwyg.element
-            .querySelectorAll(".vditor-comment")
-            .forEach((item) => {
-                hlItem(item);
-            });
-        if (this.vditor.preview.element.style.display !== "none") {
-            this.vditor.preview.element
-                .querySelectorAll(".vditor-comment")
-                .forEach((item) => {
-                    hlItem(item);
-                });
-        }
-    }
-
-    /** 取消评论高亮 */
-    public unHlCommentIds(ids: string[]) {
-        if (this.vditor.currentMode !== "wysiwyg") {
-            return;
-        }
-        const unHlItem = (item: Element) => {
-            ids.forEach((id) => {
-                if (item.getAttribute("data-cmtids").indexOf(id) > -1) {
-                    item.classList.remove("vditor-comment--hover");
-                }
-            });
-        };
-        this.vditor.wysiwyg.element
-            .querySelectorAll(".vditor-comment")
-            .forEach((item) => {
-                unHlItem(item);
-            });
-        if (this.vditor.preview.element.style.display !== "none") {
-            this.vditor.preview.element
-                .querySelectorAll(".vditor-comment")
-                .forEach((item) => {
-                    unHlItem(item);
-                });
-        }
-    }
-
-    /** 删除评论 */
-    public removeCommentIds(removeIds: string[]) {
-        if (this.vditor.currentMode !== "wysiwyg") {
-            return;
-        }
-
-        const removeItem = (item: Element, removeId: string) => {
-            const ids = item.getAttribute("data-cmtids").split(" ");
-            ids.find((id, index) => {
-                if (id === removeId) {
-                    ids.splice(index, 1);
-                    return true;
-                }
-            });
-            if (ids.length === 0) {
-                item.outerHTML = item.innerHTML;
-                getEditorRange(this.vditor).collapse(true);
-            } else {
-                item.setAttribute("data-cmtids", ids.join(" "));
-            }
-        };
-        removeIds.forEach((removeId) => {
-            this.vditor.wysiwyg.element
-                .querySelectorAll(".vditor-comment")
-                .forEach((item) => {
-                    removeItem(item, removeId);
-                });
-            if (this.vditor.preview.element.style.display !== "none") {
-                this.vditor.preview.element
-                    .querySelectorAll(".vditor-comment")
-                    .forEach((item) => {
-                        removeItem(item, removeId);
-                    });
-            }
-        });
-        afterRenderEvent(this.vditor, {
-            enableAddUndoStack: true,
-            enableHint: false,
-            enableInput: false,
-        });
-    }
-
     private init(id: HTMLElement, mergedOptions: IOptions) {
         this.vditor = {
             currentMode: mergedOptions.mode,
@@ -484,14 +377,6 @@ class Vditor {
         this.vditor.wysiwyg = new WYSIWYG(this.vditor);
         this.vditor.ir = new IR(this.vditor);
         this.vditor.toolbar = new Toolbar(this.vditor);
-
-        if (mergedOptions.resize.enable) {
-            this.vditor.resize = new Resize(this.vditor);
-        }
-
-        if (this.vditor.toolbar.elements.devtools) {
-            this.vditor.devtools = new DevTools();
-        }
 
         if (mergedOptions.upload.url || mergedOptions.upload.handler) {
             this.vditor.upload = new Upload();

@@ -2,7 +2,6 @@ import {diff_match_patch, patch_obj} from "diff-match-patch";
 import {isInsideCodeMirror} from "../codeBlock/codeMirrorManager";
 import {disableToolbar, enableToolbar, hidePanel} from "../toolbar/setToolbar";
 import {isFirefox, isSafari} from "../util/compatibility";
-import {scrollCenter} from "../util/editorCommonEvent";
 import {execAfterRender} from "../util/fixBrowserBehavior";
 import {highlightToolbar} from "../util/highlightToolbar";
 import {processCodeRender} from "../util/processCode";
@@ -163,7 +162,6 @@ class Undo {
         } else {
             setRangeByWbr(
                 vditor[vditor.currentMode].element, vditor[vditor.currentMode].element.ownerDocument.createRange());
-            scrollCenter(vditor);
         }
 
         renderToc(vditor);

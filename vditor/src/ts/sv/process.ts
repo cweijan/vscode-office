@@ -1,6 +1,5 @@
 import {getMarkdown} from "../markdown/getMarkdown";
 import {accessLocalStorage} from "../util/compatibility";
-import {scrollCenter} from "../util/editorCommonEvent";
 import {hasClosestBlock, hasClosestByAttribute} from "../util/hasClosest";
 import {hasClosestByTag} from "../util/hasClosestByHeadings";
 import {log} from "../util/log";
@@ -32,7 +31,6 @@ export const processPaste = (vditor: IVditor, text: string) => {
     }
     setRangeByWbr(vditor.sv.element, range);
 
-    scrollCenter(vditor);
 };
 
 export const getSideByType = (spanNode: Node, type: string, isPrevious = true) => {
@@ -133,10 +131,6 @@ export const processAfterRender = (vditor: IVditor, options = {
         if (vditor.options.cache.after) {
             vditor.options.cache.after(text);
         }
-    }
-
-    if (vditor.devtools) {
-        vditor.devtools.renderEchart(vditor);
     }
 
     clearTimeout(vditor.sv.processTimeoutId);

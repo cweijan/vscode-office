@@ -4,7 +4,6 @@ import {enableToolbar} from "../toolbar/setToolbar";
 import {removeCurrentToolbar} from "../toolbar/setToolbar";
 import {setCurrentToolbar} from "../toolbar/setToolbar";
 import {isCtrl, updateHotkeyTip} from "../util/compatibility";
-import {scrollCenter} from "../util/editorCommonEvent";
 import {
     deleteColumn,
     deleteRow,
@@ -115,35 +114,6 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
             hasClosestByMatchTag(typeElement, "S")
         ) {
             setCurrentToolbar(vditor.toolbar.elements, ["strike"]);
-        }
-
-        // comments
-        vditor.wysiwyg.element
-            .querySelectorAll(".vditor-comment--focus")
-            .forEach((item) => {
-                item.classList.remove("vditor-comment--focus");
-            });
-        const commentElement = hasClosestByClassName(typeElement, "vditor-comment");
-        if (commentElement) {
-            let ids = commentElement.getAttribute("data-cmtids").split(" ");
-            if (ids.length > 1 && commentElement.nextSibling.isSameNode(commentElement.nextElementSibling)) {
-                const nextIds = commentElement.nextElementSibling
-                    .getAttribute("data-cmtids")
-                    .split(" ");
-                ids.find((id) => {
-                    if (nextIds.includes(id)) {
-                        ids = [id];
-                        return true;
-                    }
-                });
-            }
-            vditor.wysiwyg.element
-                .querySelectorAll(".vditor-comment")
-                .forEach((item) => {
-                    if (item.getAttribute("data-cmtids").indexOf(ids[0]) > -1) {
-                        item.classList.add("vditor-comment--focus");
-                    }
-                });
         }
 
         const aElement = hasClosestByMatchTag(typeElement, "A");
@@ -716,47 +686,7 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
             blockRenderElement = undefined;
         }
         if (headingElement) {
-            const cmBlock = hasClosestByAttribute(typeElement, "data-type", "code-block") as HTMLElement;
-            if (!(cmBlock && isCmCodeBlock(cmBlock))) {
-                vditor.wysiwyg.popover.innerHTML = "";
-            }
-
-            const inputWrap = document.createElement("span");
-            inputWrap.setAttribute("aria-label", "ID" + "<" + updateHotkeyTip("⌥Enter") + ">");
-            inputWrap.className = "vditor-tooltipped vditor-tooltipped__n";
-            const input = document.createElement("input");
-            inputWrap.appendChild(input);
-            input.className = "vditor-input";
-            input.setAttribute("placeholder", "ID" + "<" + updateHotkeyTip("⌥Enter") + ">");
-            input.style.width = "120px";
-            input.value = headingElement.getAttribute("data-id") || "";
-            input.oninput = () => {
-                headingElement.setAttribute("data-id", input.value);
-            };
-            input.onkeydown = (event) => {
-                if (event.isComposing) {
-                    return;
-                }
-                if (
-                    !isCtrl(event) &&
-                    !event.shiftKey &&
-                    event.altKey &&
-                    event.key === "Enter"
-                ) {
-                    range.selectNodeContents(headingElement);
-                    range.collapse(false);
-                    setSelectionFocus(range);
-                    event.preventDefault();
-                    return;
-                }
-                removeBlockElement(vditor, event);
-            };
-
-            genUp(range, headingElement, vditor);
-            genDown(range, headingElement, vditor);
-            genClose(headingElement, vditor);
-            vditor.wysiwyg.popover.insertAdjacentElement("beforeend", inputWrap);
-            setPopoverPosition(vditor, headingElement);
+            vditor.wysiwyg.popover.style.display = "none";
         }
 
         // a popover
@@ -1152,7 +1082,6 @@ export function moveDown(range: Range, vditor: IVditor) {
     setRangeByWbr(vditor.wysiwyg.element, range);
     afterRenderEvent(vditor);
     highlightToolbarWYSIWYG(vditor);
-    scrollCenter(vditor);
 }
 
 export function moveUp(range: Range, vditor: IVditor) {
@@ -1166,6 +1095,5 @@ export function moveUp(range: Range, vditor: IVditor) {
     setRangeByWbr(vditor.wysiwyg.element, range);
     afterRenderEvent(vditor);
     highlightToolbarWYSIWYG(vditor);
-    scrollCenter(vditor);
 }
 

@@ -47,10 +47,6 @@ export const initUI = (vditor: IVditor) => {
 
   contentElement.appendChild(vditor.preview.element);
 
-  if (vditor.toolbar.elements.devtools) {
-    contentElement.appendChild(vditor.devtools.element);
-  }
-
   if (vditor.options.outline.position === "right") {
     vditor.outline.element.classList.add("vditor-outline--right");
     contentElement.appendChild(vditor.outline.element);
@@ -58,10 +54,6 @@ export const initUI = (vditor: IVditor) => {
 
   if (vditor.upload) {
     contentElement.appendChild(vditor.upload.element);
-  }
-
-  if (vditor.options.resize.enable) {
-    contentElement.appendChild(vditor.resize.element);
   }
 
   contentElement.appendChild(vditor.hint.element);
@@ -73,12 +65,6 @@ export const initUI = (vditor: IVditor) => {
   contentElement.addEventListener("click", () => {
     hidePanel(vditor, ["subToolbar"]);
   });
-
-  if (vditor.toolbar.elements.export) {
-    // for export pdf
-    vditor.element.insertAdjacentHTML("beforeend",
-      '<iframe style="width: 100%;height: 0;border: 0"></iframe>');
-  }
 
   setEditMode(vditor, vditor.options.mode, afterRender(vditor));
 
@@ -132,28 +118,6 @@ export const setPadding = (vditor: IVditor) => {
   }
 };
 
-export const setTypewriterPosition = (vditor: IVditor) => {
-  if (!vditor.options.typewriterMode) {
-    return;
-  }
-  let height: number = window.innerHeight;
-  if (typeof vditor.options.height === "number") {
-    height = vditor.options.height;
-    if (typeof vditor.options.minHeight === "number") {
-      height = Math.max(height, vditor.options.minHeight);
-    }
-    height = Math.min(window.innerHeight, height);
-  } else {
-    height = vditor.element.clientHeight;
-  }
-  if (vditor.element.classList.contains("vditor--fullscreen")) {
-    height = window.innerHeight;
-  }
-  // 由于 Firefox padding-bottom bug，只能使用 :after
-  vditor[vditor.currentMode].element.style.setProperty("--editor-bottom",
-    ((height - vditor.toolbar.element.offsetHeight) / 2) + "px");
-};
-
 let resizeCb: () => void;
 
 export function UIUnbindListener() {
@@ -161,11 +125,9 @@ export function UIUnbindListener() {
 }
 
 const afterRender = (vditor: IVditor) => {
-  setTypewriterPosition(vditor);
   UIUnbindListener();
   window.addEventListener("resize", resizeCb = () => {
     setPadding(vditor);
-    setTypewriterPosition(vditor);
   });
 
   // set default value

@@ -47,10 +47,6 @@ function recordHistory(vditor: IVditor, options = { enableAddUndoStack: true, en
         }
     }
 
-    if (vditor.devtools) {
-        vditor.devtools.renderEchart(vditor);
-    }
-
     if (options.enableAddUndoStack) {
         vditor.undo.addToUndoStack(vditor);
     }

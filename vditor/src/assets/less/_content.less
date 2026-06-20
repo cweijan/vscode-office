@@ -96,18 +96,6 @@
     }
   }
 
-  &-devtools {
-    display: none;
-    background-color: var(--textarea-background-color);
-    overflow: auto;
-    flex: 1;
-    min-width: 1px;
-    box-shadow: inset 1px 0 var(--border-color);
-    box-sizing: border-box;
-    border-radius: 0 0 3px 0;
-    padding: 10px;
-  }
-
   &-counter {
     position: absolute;
     right: 1vw;
@@ -124,50 +112,6 @@
     &--error {
       color: @errorColor;
       background-color: rgba(@errorColor, 0.1);
-    }
-  }
-
-  &-resize {
-    padding: 3px 0;
-    cursor: row-resize;
-    user-select: none;
-    position: absolute;
-    width: 100%;
-
-    &--top {
-      top: -3px;
-    }
-
-    &--bottom {
-      bottom: -3px;
-    }
-
-    & > div {
-      height: 3px;
-      background-color: var(--resize-background-color);
-      transition: @transition;
-    }
-
-    &:hover,
-    &--selected {
-      & > div {
-        background-color: var(--resize-hover-background-color);
-      }
-
-      svg {
-        color: var(--resize-hover-icon-color);
-      }
-    }
-
-    svg {
-      fill: currentColor;
-      stroke-width: 0;
-      stroke: currentColor;
-      width: 13px;
-      height: 3px;
-      display: block;
-      margin: 0 auto;
-      color: var(--resize-icon-color);
     }
   }
 

@@ -13,17 +13,11 @@ export class Options {
         classes: {
             preview: "",
         },
-        comment: {
-            enable: false,
-        },
         counter: {
             enable: false,
             type: "markdown",
         },
         debugger: false,
-        fullscreen: {
-            index: 90,
-        },
         height: "auto",
         hint: {
             delay: 200,
@@ -59,10 +53,6 @@ export class Options {
             mode: "both",
             theme: Constants.THEME_OPTIONS,
         },
-        resize: {
-            enable: false,
-            position: "bottom",
-        },
         theme: "classic",
         toolbar: [
             "emoji",
@@ -86,13 +76,11 @@ export class Options {
             "insert-after",
             "|",
             "upload",
-            "record",
             "table",
             "|",
             "undo",
             "redo",
             "|",
-            "fullscreen",
             "edit-mode",
             {
                 name: "more",
@@ -100,10 +88,8 @@ export class Options {
                     "both",
                     "code-theme",
                     "content-theme",
-                    "export",
                     "outline",
                     "preview",
-                    "devtools",
                     "info",
                     "help",
                 ],
@@ -113,7 +99,6 @@ export class Options {
             hide: false,
             pin: false,
         },
-        typewriterMode: false,
         undoDelay: 800,
         upload: {
             extraData: {},
@@ -147,9 +132,6 @@ export class Options {
             if (this.options.hint?.emoji) {
                 this.defaultOptions.hint.emoji = this.options.hint.emoji;
             }
-            if (this.options.comment) {
-                this.defaultOptions.comment = this.options.comment;
-            }
             // 支持不够完善，我先注释了，后期再打开
             // if (this.options.rtl) {
             //     this.defaultOptions.rtl = this.options.rtl;
@@ -169,10 +151,6 @@ export class Options {
 
     private mergeToolbar(toolbar: Array<string | IMenuItem>) {
         const toolbarItem = [{
-            icon: '<svg><use xlink:href="#vditor-icon-export"></use></svg>',
-            name: "export",
-            tipPosition: "ne",
-        }, {
             hotkey: "⌘E",
             icon: '<svg><use xlink:href="#vditor-icon-emoji"></use></svg>',
             name: "emoji",
@@ -285,10 +263,6 @@ export class Options {
             name: "upload",
             tipPosition: "n",
         }, {
-            icon: '<svg><use xlink:href="#vditor-icon-record"></use></svg>',
-            name: "record",
-            tipPosition: "n",
-        }, {
             hotkey: "⌘M",
             icon: '<svg><use xlink:href="#vditor-icon-table"></use></svg>',
             name: "table",
@@ -314,11 +288,6 @@ export class Options {
             name: "more",
             tipPosition: "e",
         }, {
-            hotkey: "⌘'",
-            icon: '<svg><use xlink:href="#vditor-icon-fullscreen"></use></svg>',
-            name: "fullscreen",
-            tipPosition: "nw",
-        }, {
             icon: '<svg><use xlink:href="#vditor-icon-edit"></use></svg>',
             name: "edit-mode",
             tipPosition: "nw",
@@ -342,10 +311,6 @@ export class Options {
         }, {
             icon: '<svg><use xlink:href="#vditor-icon-code-theme"></use></svg>',
             name: "code-theme",
-            tipPosition: "nw",
-        }, {
-            icon: '<svg><use xlink:href="#vditor-icon-bug"></use></svg>',
-            name: "devtools",
             tipPosition: "nw",
         }, {
             icon: '<svg><use xlink:href="#vditor-icon-info"></use></svg>',

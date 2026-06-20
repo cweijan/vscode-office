@@ -6,7 +6,6 @@ import {
     dropEvent,
     focusEvent,
     hotkeyEvent,
-    scrollCenter,
     selectEvent,
 } from "../util/editorCommonEvent";
 import {paste} from "../util/fixBrowserBehavior";
@@ -161,7 +160,6 @@ class IR {
                     }
                     range.collapse(true);
                     setSelectionFocus(range);
-                    scrollCenter(vditor);
                 }
             }
 
@@ -216,7 +214,6 @@ class IR {
                 return;
             }
             if (event.key === "Enter") {
-                scrollCenter(vditor);
             }
             highlightToolbarIR(vditor);
             if ((event.key === "Backspace" || event.key === "Delete") &&

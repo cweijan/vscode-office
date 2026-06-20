@@ -204,10 +204,6 @@ export class Preview {
             vditor.tip.hide();
             vditor.preview.element.removeAttribute("data-type");
         }
-        const cmtFocusElement = vditor.preview.element.querySelector(".vditor-comment--focus");
-        if (cmtFocusElement) {
-            cmtFocusElement.classList.remove("vditor-comment--focus");
-        }
         const previewRoot = vditor.preview.element.lastElementChild as HTMLElement;
         codeRender(previewRoot);
         codeMirrorPreviewRender(vditor.options.preview.hljs, previewRoot);

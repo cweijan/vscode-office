@@ -5,12 +5,9 @@ import {CodeTheme} from "./CodeTheme";
 import {ContentTheme} from "./ContentTheme";
 import {Counter} from "./Counter";
 import {Custom} from "./Custom";
-import {Devtools} from "./Devtools";
 import {Divider} from "./Divider";
 import {EditMode} from "./EditMode";
 import {Emoji} from "./Emoji";
-import {Export} from "./Export";
-import {Fullscreen} from "./Fullscreen";
 import {Headings} from "./Headings";
 import {Help} from "./Help";
 import {Indent} from "./Indent";
@@ -21,7 +18,6 @@ import {MenuItem} from "./MenuItem";
 import {Outdent} from "./Outdent";
 import {Outline} from "./Outline";
 import {Preview} from "./Preview";
-import {Record} from "./Record";
 import {Redo} from "./Redo";
 import {toggleSubMenu} from "./setToolbar";
 import {Undo} from "./Undo";
@@ -114,23 +110,14 @@ export class Toolbar {
             case "preview":
                 menuItemObj = new Preview(vditor, menuItem);
                 break;
-            case "fullscreen":
-                menuItemObj = new Fullscreen(vditor, menuItem);
-                break;
             case "upload":
                 menuItemObj = new Upload(vditor, menuItem);
-                break;
-            case "record":
-                menuItemObj = new Record(vditor, menuItem);
                 break;
             case "info":
                 menuItemObj = new Info(vditor, menuItem);
                 break;
             case "edit-mode":
                 menuItemObj = new EditMode(vditor, menuItem);
-                break;
-            case "devtools":
-                menuItemObj = new Devtools(vditor, menuItem);
                 break;
             case "outdent":
                 menuItemObj = new Outdent(vditor, menuItem);
@@ -152,9 +139,6 @@ export class Toolbar {
                 break;
             case "content-theme":
                 menuItemObj = new ContentTheme(vditor, menuItem);
-                break;
-            case "export":
-                menuItemObj = new Export(vditor, menuItem);
                 break;
             default:
                 menuItemObj = new Custom(vditor, menuItem);

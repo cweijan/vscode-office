@@ -15,9 +15,9 @@ import { getEventName, isCtrl } from "./compatibility";
 import { shouldBlockMacOptionSymbol } from "./macOptionSymbol";
 import { execAfterRender, paste } from "./fixBrowserBehavior";
 import { getSelectText } from "./getSelectText";
-import { hasClosestByAttribute, hasClosestByMatchTag } from "./hasClosest";
+import { hasClosestByMatchTag } from "./hasClosest";
 import { matchHotKey } from "./hotKey";
-import { getCursorPosition, getEditorRange } from "./selection";
+import { getEditorRange } from "./selection";
 
 export const focusEvent = (vditor: IVditor, editorElement: HTMLElement) => {
     editorElement.addEventListener("focus", () => {
@@ -43,9 +43,6 @@ export const blurEvent = (vditor: IVditor, editorElement: HTMLElement) => {
             if (expandElement) {
                 expandElement.classList.remove("vditor-ir__node--expand");
             }
-        } else if (vditor.currentMode === "wysiwyg" &&
-            !vditor.wysiwyg.selectPopover.contains(event.relatedTarget as HTMLElement)) {
-            vditor.wysiwyg.hideComment();
         }
         vditor[vditor.currentMode].range = getEditorRange(vditor);
         if (vditor.options.blur) {
@@ -84,31 +81,9 @@ export const cutEvent =
     (vditor: IVditor, editorElement: HTMLElement, copy: (event: ClipboardEvent, vditor: IVditor) => void) => {
         editorElement.addEventListener("cut", (event: ClipboardEvent) => {
             copy(event, vditor);
-            // 获取 comment
-            if (vditor.options.comment.enable && vditor.currentMode === "wysiwyg") {
-                vditor.wysiwyg.getComments(vditor);
-            }
             document.execCommand("delete");
         });
     };
-
-export const scrollCenter = (vditor: IVditor) => {
-    if (vditor.currentMode === "wysiwyg" && vditor.options.comment.enable) {
-        vditor.options.comment.adjustTop(vditor.wysiwyg.getComments(vditor, true));
-    }
-    if (!vditor.options.typewriterMode) {
-        return;
-    }
-    const editorElement = vditor[vditor.currentMode].element;
-    const cursorTop = getCursorPosition(editorElement).top;
-    if (vditor.options.height === "auto" && !vditor.element.classList.contains("vditor--fullscreen")) {
-        window.scrollTo(window.scrollX,
-            cursorTop + vditor.element.offsetTop + vditor.toolbar.element.offsetHeight - window.innerHeight / 2 + 10);
-    }
-    if (vditor.options.height !== "auto" || vditor.element.classList.contains("vditor--fullscreen")) {
-        editorElement.scrollTop = cursorTop + editorElement.scrollTop - editorElement.clientHeight / 2 + 10;
-    }
-};
 
 export const macOptionSymbolEvent = (vditor: IVditor) => {
     vditor.element.addEventListener("keydown", (event: KeyboardEvent) => {
@@ -128,12 +103,6 @@ export const hotkeyEvent = (vditor: IVditor, editorElement: HTMLElement) => {
         if ((vditor.options.hint.extend.length > 1 || vditor.toolbar.elements.emoji) &&
             vditor.hint.select(event, vditor)) {
             return;
-        }
-
-        // 重置 comment
-        if (vditor.options.comment.enable && vditor.currentMode === "wysiwyg" &&
-            (event.key === "Backspace" || matchHotKey("⌘X", event))) {
-            vditor.wysiwyg.getComments(vditor);
         }
 
         if (vditor.currentMode === "sv") {
@@ -254,20 +223,8 @@ export const selectEvent = (vditor: IVditor, editorElement: HTMLElement) => {
             setTimeout(() => { // 鼠标放开后 range 没有即时更新
                 const selectText = getSelectText(vditor[vditor.currentMode].element);
                 if (selectText.trim()) {
-                    if (vditor.currentMode === "wysiwyg" && vditor.options.comment.enable) {
-                        if (!hasClosestByAttribute(event.target, "data-type", "footnotes-block") &&
-                            !hasClosestByAttribute(event.target, "data-type", "link-ref-defs-block")) {
-                            vditor.wysiwyg.showComment();
-                        } else {
-                            vditor.wysiwyg.hideComment();
-                        }
-                    }
                     if (vditor.options.select) {
                         vditor.options.select(selectText);
-                    }
-                } else {
-                    if (vditor.currentMode === "wysiwyg" && vditor.options.comment.enable) {
-                        vditor.wysiwyg.hideComment();
                     }
                 }
             });

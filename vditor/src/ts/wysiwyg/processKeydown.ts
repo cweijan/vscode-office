@@ -8,7 +8,6 @@ import {
     isInsideCodeMirror,
 } from "../codeBlock/codeMirrorManager";
 import {isCtrl, isFirefox} from "../util/compatibility";
-import {scrollCenter} from "../util/editorCommonEvent";
 import {
     fixBlockquote, fixCJKPosition,
     fixCodeBlock, fixCursorDownInlineMath, fixDelete, fixFirefoxArrowUpTable, fixGSKeyBackspace, fixHR,
@@ -196,7 +195,6 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
             range.collapse(true);
             setSelectionFocus(range);
             afterRenderEvent(vditor);
-            scrollCenter(vditor);
             event.preventDefault();
             return true;
         }
@@ -215,7 +213,6 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
             range.setStart(pTempElement, 0);
             setSelectionFocus(range);
             afterRenderEvent(vditor);
-            scrollCenter(vditor);
             event.preventDefault();
             return true;
         }
@@ -260,11 +257,12 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
         const aElement = hasClosestByMatchTag(startContainer, "A");
         const linRefElement = hasClosestByAttribute(startContainer, "data-type", "link-ref");
         const footnoteRefElement = hasClosestByAttribute(startContainer, "data-type", "footnotes-ref");
-        if (aElement || linRefElement || footnoteRefElement ||
-            (headingElement && headingElement.tagName.length === 2)) {
+        if (aElement || linRefElement || footnoteRefElement) {
             const inputElement = vditor.wysiwyg.popover.querySelector("input");
-            inputElement.focus();
-            inputElement.select();
+            if (inputElement) {
+                inputElement.focus();
+                inputElement.select();
+            }
         }
     }
 
@@ -301,7 +299,6 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
         range.collapse(false);
         setSelectionFocus(range);
         afterRenderEvent(vditor);
-        scrollCenter(vditor);
         event.preventDefault();
         return true;
     }

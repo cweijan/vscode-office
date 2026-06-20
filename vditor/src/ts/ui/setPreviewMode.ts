@@ -24,8 +24,4 @@ export const setPreviewMode = (mode: "both" | "editor", vditor: IVditor) => {
         default:
             break;
     }
-
-    if (vditor.devtools) {
-        vditor.devtools.renderEchart(vditor);
-    }
 };

@@ -40,7 +40,6 @@ if (window.innerWidth < 768) {
     {
       name: 'more',
       toolbar: [
-        'fullscreen',
         'both',
         'preview',
         'info',
@@ -64,7 +63,6 @@ window.vditor = new Vditor('vditor', {
     position: 'left',
   },
   debugger: true,
-  typewriterMode: true,
   placeholder: 'Hello, Vditor!',
   preview: {
     markdown: {

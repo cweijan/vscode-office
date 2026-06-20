@@ -1,4 +1,3 @@
-import {scrollCenter} from "../util/editorCommonEvent";
 import {hasClosestByAttribute} from "../util/hasClosest";
 import {getSelectPosition, setRangeByWbr} from "../util/selection";
 import {getSideByType, processAfterRender, processSpinVditorSVDOM} from "./process";
@@ -198,7 +197,6 @@ export const inputEvent = (vditor: IVditor, event?: InputEvent) => {
 
     setRangeByWbr(vditor.sv.element, range);
 
-    scrollCenter(vditor);
 
     processAfterRender(vditor, {
         enableAddUndoStack: true,
