@@ -32,6 +32,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: "dist",
+      minify: mode === "production",
       target: "es2015",
       lib: {
         entry: resolve(__dirname, "src/index.ts"),
@@ -56,7 +57,7 @@ export default defineConfig(({ mode }) => {
           { src: "../node_modules/@vscode/codicons/dist/codicon.ttf", dest: "codicon" },
         ],
       }),
-      ...(mode === "production" ? [copyBuildToResource()] : []),
+      copyBuildToResource(),
     ],
   };
 });

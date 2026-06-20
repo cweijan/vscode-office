@@ -7,6 +7,7 @@
   "scripts": {
     "lint": "eslint --fix --ext src/**/*.ts",
     "dev": "vite --mode development",
+    "build:dev": "vite build --mode development",
     "build": "vite build --mode production"
   }
 }
