@@ -412,7 +412,7 @@ export const autoSymbol = (handler, editor, config) => {
     }, isMac ? true : undefined)
 
     window.onresize = () => {
-        document.getElementById('vditor').style.height = `${document.documentElement.clientHeight}px`
+        document.getElementById('vditor').style.height = '100%'
     }
     let app;
     let needFocus = false;

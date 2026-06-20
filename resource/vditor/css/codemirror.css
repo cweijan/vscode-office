@@ -4,7 +4,6 @@
 }
 
 .vditor-cm-host .cm-editor {
-  height: 100% !important;
   font-size: var(--vscode-editor-font-size);
   font-family: var(--vscode-editor-font-family);
   color: var(--vscode-editor-foreground);

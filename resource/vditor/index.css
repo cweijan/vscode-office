@@ -2,6 +2,33 @@ body {
     padding: 0;
 }
 
+html,
+body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+#vditor.vditor {
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.vditor-content {
+    min-height: 0 !important;
+}
+
+.vditor-wysiwyg,
+.vditor-ir {
+    min-height: 0 !important;
+}
+
+.vditor-wysiwyg > pre.vditor-reset,
+.vditor-ir > pre.vditor-reset {
+    overflow: auto;
+}
+
 .vditor * {
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Helvetica Neue", "Helvetica", "Arial", "Microsoft YaHei", sans-serif;
 }
