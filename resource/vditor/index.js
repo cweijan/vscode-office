@@ -1,4 +1,4 @@
-import { openLink, hotKeys, imageParser, getToolbar, autoSymbol, onToolbarClick, createContextMenu, scrollEditor, initThemeToggle, updateThemeToggle } from "./util.js";
+import { openLink, hotKeys, imageParser, getToolbar, autoSymbol, onToolbarClick, createContextMenu, scrollEditor, setupEditorSession, initThemeToggle, updateThemeToggle } from "./util.js";
 
 let state;
 function loadConfigs() {
@@ -80,12 +80,13 @@ handler.on("open", async (md) => {
       })
       openLink()
       onToolbarClick(editor)
+      setupEditorSession()
+      scrollEditor(md.scrollTop)
     }
   })
   autoSymbol(handler, editor, config);
   createContextMenu(editor)
   imageParser(config.viewAbsoluteLocal)
-  scrollEditor(md.scrollTop)
   zoomElement('.vditor-content')
 }).emit("init")
 

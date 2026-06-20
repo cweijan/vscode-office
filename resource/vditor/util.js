@@ -242,10 +242,6 @@ export const openLink = () => {
     content.addEventListener('dblclick', clickCallback);
     content.addEventListener('click', clickCallback);
     content.addEventListener('auxclick', clickCallback);
-    document.querySelector(".vditor-reset").addEventListener("scroll", e => {
-        // 滚动有偏差
-        handler.emit("scroll", { scrollTop: e.target.scrollTop - 70 })
-    });
     document.querySelector(".vditor-ir").addEventListener('click', e => {
         let ele = e.target;
         if (ele.classList.contains('vditor-ir__link')) {
@@ -257,13 +253,131 @@ export const openLink = () => {
     });
 }
 
+const editorSession = {
+    scrollTop: 0,
+    scrollSaveTimer: 0,
+    anchorTarget: null,
+    anchorUntil: 0,
+    restoring: false,
+    resizeObserver: null,
+};
+
+function getEditorElement() {
+    return document.querySelector('.vditor-reset');
+}
+
+function persistScroll() {
+    const editorEl = getEditorElement();
+    if (!editorEl) {
+        return;
+    }
+    editorSession.scrollTop = editorEl.scrollTop;
+    window.clearTimeout(editorSession.scrollSaveTimer);
+    handler.emit('scroll', { scrollTop: editorEl.scrollTop });
+}
+
+function schedulePersistScroll() {
+    window.clearTimeout(editorSession.scrollSaveTimer);
+    editorSession.scrollSaveTimer = window.setTimeout(() => {
+        persistScroll();
+    }, 200);
+}
+
+function stopAnchoredScrollRestore() {
+    editorSession.anchorTarget = null;
+    editorSession.anchorUntil = 0;
+    editorSession.resizeObserver?.disconnect();
+    editorSession.resizeObserver = null;
+}
+
+function applyEditorScroll(top) {
+    const editorEl = getEditorElement();
+    if (!editorEl || top == null || Number.isNaN(top)) {
+        return false;
+    }
+    editorSession.restoring = true;
+    editorEl.scrollTop = top;
+    editorSession.scrollTop = top;
+    window.requestAnimationFrame(() => {
+        editorSession.restoring = false;
+    });
+    return true;
+}
+
+function syncAnchoredScrollRestore() {
+    const editorEl = getEditorElement();
+    const target = editorSession.anchorTarget;
+    if (!editorEl || target == null || Date.now() > editorSession.anchorUntil) {
+        stopAnchoredScrollRestore();
+        return;
+    }
+    if (Math.abs(editorEl.scrollTop - target) > 1) {
+        applyEditorScroll(target);
+    }
+}
+
+function startAnchoredScrollRestore(top) {
+    stopAnchoredScrollRestore();
+    editorSession.scrollTop = top;
+    editorSession.anchorTarget = top;
+    editorSession.anchorUntil = Date.now() + 4000;
+
+    syncAnchoredScrollRestore();
+    for (const ms of [16, 50, 100, 200, 400, 800, 1600, 2500, 3500]) {
+        window.setTimeout(syncAnchoredScrollRestore, ms);
+    }
+
+    const editorEl = getEditorElement();
+    if (!editorEl) {
+        return;
+    }
+    editorSession.resizeObserver = new ResizeObserver(() => {
+        syncAnchoredScrollRestore();
+    });
+    editorSession.resizeObserver.observe(editorEl);
+    if (editorEl.firstElementChild) {
+        editorSession.resizeObserver.observe(editorEl.firstElementChild);
+    }
+}
+
+export function setupEditorSession() {
+    const editorEl = getEditorElement();
+    if (!editorEl) {
+        return;
+    }
+
+    editorEl.addEventListener('scroll', () => {
+        if (editorSession.restoring) {
+            return;
+        }
+        editorSession.scrollTop = editorEl.scrollTop;
+        if (editorSession.anchorTarget != null &&
+            Math.abs(editorEl.scrollTop - editorSession.anchorTarget) > 8) {
+            stopAnchoredScrollRestore();
+        }
+        schedulePersistScroll();
+    }, { passive: true });
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            persistScroll();
+            return;
+        }
+        applyEditorScroll(editorSession.scrollTop);
+    });
+
+    window.addEventListener('blur', persistScroll);
+    window.addEventListener('focus', () => {
+        applyEditorScroll(editorSession.scrollTop);
+    });
+}
+
 export function scrollEditor(top) {
-    const scrollHack = setInterval(() => {
-        const editorContainer = document.querySelector(".vditor-reset");
-        if (!editorContainer) return;
-        editorContainer.scrollTo({ top })
-        clearInterval(scrollHack)
-    }, 10);
+    const target = Number(top);
+    if (Number.isNaN(target)) {
+        return;
+    }
+    startAnchoredScrollRestore(target);
 }
 
 
@@ -460,30 +574,5 @@ export const autoSymbol = (handler, editor, config) => {
 
     window.onresize = () => {
         document.getElementById('vditor').style.height = '100%'
-    }
-    let app;
-    let needFocus = false;
-    window.onblur = () => {
-        if (!app) { app = document.querySelector('.vditor-reset'); }
-        // 纯文本没有offsetTop, 所以需要拿父节点
-        const targetNode = document.getSelection()?.baseNode?.parentNode;
-        // 如果编辑器现在没有获得焦点, 则无需重获焦点
-        if (!app?.contains(targetNode)) {
-            needFocus = false;
-            return;
-        }
-        // 判断是否需要聚焦
-        const curPosition = targetNode?.offsetTop ?? 0;
-        const appPosition = app?.scrollTop ?? 0;
-        if (appPosition - curPosition < window.innerHeight) {
-            needFocus = true;
-        }
-    }
-    window.onfocus = () => {
-        if (!app) { app = document.querySelector('.vditor-reset'); }
-        if (needFocus) {
-            app.focus()
-            needFocus = false;
-        }
     }
 }
