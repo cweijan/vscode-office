@@ -1,20 +1,33 @@
 html[data-cm-theme="dracula"],
 #vditor[data-cm-theme="dracula"] {
-    --cm-bg-color: #282a36;
+    /* Surface */
+    --cm-bg-color: #2a2c38;
     --cm-lang-trigger-bg: #44475a;
+    --cm-fg-color: #f8f8f2;
+
+    /* Actions */
     --cm-copy-color: #8be9fd;
     --cm-copy-done-color: #66d9ef;
     --cm-delete-color: #ff5555;
-    --cm-fg-color: #f8f8f2;
+
+    /* Editor State */
     --cm-active-line-bg: rgba(255, 255, 255, 0.06);
     --cm-cursor-fg: #f8f8f2;
+
+    /* Gutter */
     --cm-line-number-fg: #6272a4;
     --cm-line-number-active-fg: #f8f8f2;
+
+    /* Selection */
     --cm-selection-bg-inactive: rgba(68, 71, 90, 0.6);
     --cm-selection-bg-focused: rgba(68, 71, 90, 0.85);
     --cm-selection-highlight-bg: rgba(68, 71, 90, 0.35);
+
+    /* Bracket Match */
     --cm-bracket-match-bg: rgba(255, 255, 255, 0.1);
     --cm-bracket-match-border: #bd93f9;
+
+    /* Syntax */
     --cm-syntax-comment: #6272a4;
     --cm-syntax-keyword: #ff79c6;
     --cm-syntax-string: #f1fa8c;

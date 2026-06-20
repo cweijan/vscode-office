@@ -84,7 +84,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                 title: basename(uri.fsPath),
                 config, scrollTop,
                 editorTheme: Global.getConfig("editorTheme", "Auto"),
-                codeMirrorTheme: Global.getConfig("codeMirrorTheme", "default"),
+                codeMirrorTheme: Global.getConfig("codeMirrorTheme", "Auto"),
                 language: vscode.env.language,
                 rootPath, content,
                 sponsorBaseUrl,
@@ -112,11 +112,11 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             this.state.update(`scrollTop_${document.uri.fsPath}`, scrollTop)
         }).on("codeMirrorTheme", (theme: string) => {
             const validThemes = [
-                "default", "github", "solarized-light", "material-light", "quiet-light", "one-light",
+                "Auto", "default", "github", "solarized-light", "material-light", "quiet-light", "one-light",
                 "dracula", "monokai", "one-dark", "solarized-dark", "material-dark",
             ];
             if (validThemes.includes(theme)) {
-                Global.updateConfig("codeMirrorTheme", theme);
+                Global.updateConfig("codeMirrorTheme", theme === "default" ? "Auto" : theme);
             }
         }).on("editorTheme", (theme: string) => {
             const validThemes = [

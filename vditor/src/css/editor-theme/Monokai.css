@@ -1,26 +1,59 @@
 html[data-editor-theme="Monokai"],
 #vditor[data-editor-theme="Monokai"] {
-    --hr-bg: #49483e;
-    --ext-border-color: #49483e;
+    /* Surface */
     --bg-color: #272822;
     --front-color: #f8f8f2;
     --second-bg-color: #1e1f1c;
-    --code-bg-color: #3e3d32;
-    --code-fg-color: var(--front-color);
+    --second-color: color-mix(in srgb, var(--front-color) 45%, transparent);
+
+    /* Border & Divider */
+    --hr-bg: #49483e;
+    --border-color: #49483e;
+
+    /* Link & State */
+    --link-color: var(--list-hover-color);
     --list-hover-color: #66d9ef;
     --dropdown-hover-background: #49483e;
     --error-color: #f92672;
-    --link-color: var(--list-hover-color);
+
+    /* Blockquote */
     --blockquote-color: var(--front-color);
-    --blockquote-border: var(--ext-border-color);
-    --table-border: var(--ext-border-color);
+    --blockquote-border: var(--border-color);
+    --blockquote-bg: transparent;
+
+    /* Table */
+    --table-border: var(--border-color);
+    --table-row-border: var(--border-color);
     --table-stripe-bg: color-mix(in srgb, var(--front-color) 8%, var(--bg-color));
+
+    /* Inline Code */
+    --code-bg-color: #3e3d32;
+    --code-fg-color: var(--front-color);
+
+    /* Toolbar & Panel */
+    --toolbar-background-color: #1e1f1c;
+    --toolbar-icon-color: var(--front-color);
+    --toolbar-icon-hover-color: var(--list-hover-color);
+    --panel-background-color: var(--bg-color);
+    --panel-shadow: 0 2px 8px color-mix(in srgb, var(--front-color) 12%, transparent);
+    --textarea-background-color: var(--bg-color);
+    --textarea-text-color: var(--front-color);
+    --count-background-color: color-mix(in srgb, var(--front-color) 8%, transparent);
+
+    /* Outline */
+    --outline-bg-color: #262722;
+    --outline-hover-bg: #2b2a25;
+    --outline-active-bg: #302f29;
+
+    /* CodeMirror */
     --cm-bg-color: var(--code-bg-color);
     --cm-fg-color: var(--front-color);
     --cm-lang-trigger-bg: var(--second-bg-color);
     --cm-active-line-bg: color-mix(in srgb, var(--front-color) 8%, var(--cm-bg-color));
+    --cm-active-line-gutter-fg: var(--cm-line-number-active-fg);
     --cm-fold-fg: var(--list-hover-color);
     --cm-fold-fg-hover: var(--front-color);
+    --cm-fold-bg: color-mix(in srgb, var(--cm-fold-fg) 12%, var(--cm-bg-color));
     --cm-cursor-fg: var(--list-hover-color);
     --cm-line-number-fg: color-mix(in srgb, var(--front-color) 55%, transparent);
     --cm-line-number-active-fg: var(--front-color);
@@ -29,13 +62,25 @@ html[data-editor-theme="Monokai"],
     --cm-selection-bg-inactive: color-mix(in srgb, var(--list-hover-color) 26%, transparent);
     --cm-selection-highlight-bg: color-mix(in srgb, var(--list-hover-color) 20%, transparent);
     --cm-lang-search-focus-color: var(--list-hover-color);
-    --outline-bg-color: #262722;
-    --outline-hover-bg: #2b2a25;
-    --outline-active-bg: #302f29;
-    --mermaid-bg: var(--bg-color);
+
+    /* Embed & Link Card */
+    --linkcard-bg: var(--second-bg-color);
+    --linkcard-title-color: var(--front-color);
+    --linkcard-abstract-color: var(--second-color);
+    --linkcard-site-color: var(--link-color);
+    --linkcard-icon-color: var(--toolbar-icon-color);
+    --linkcard-shadow: var(--panel-shadow);
+    --linkcard-shadow-hover: 0 0 3px color-mix(in srgb, var(--front-color) 13%, transparent), 0 3px 6px color-mix(in srgb, var(--front-color) 26%, transparent);
+    --linkcard-image-bg: var(--second-color);
+    --linenumber-fg: color-mix(in srgb, var(--front-color) 38%, transparent);
+
+    /* Scrollbar */
+    --scrollbar-thumb: color-mix(in srgb, var(--front-color) 30%, transparent);
+    --scrollbar-thumb-hover: color-mix(in srgb, var(--front-color) 44%, transparent);
 }
 
 #vditor[data-editor-theme="Monokai"] {
+    /* IR Syntax */
     --ir-heading-color: #ae81ff;
     --ir-title-color: #75715e;
     --ir-bi-color: #e6db74;

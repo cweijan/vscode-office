@@ -1,6 +1,7 @@
 export const CM_THEME_ATTR = "data-cm-theme";
+export const CM_THEME_AUTO = "Auto";
 
-/** null = follow editor / VS Code theme (default). */
+/** Follow VS Code / editor theme colors. */
 export interface ICodeMirrorThemeGroup {
     titleKey: string;
     themes: string[];
@@ -9,7 +10,7 @@ export interface ICodeMirrorThemeGroup {
 export const CM_THEME_GROUPS: ICodeMirrorThemeGroup[] = [
     {
         titleKey: "code-theme-section-system",
-        themes: ["default"],
+        themes: [CM_THEME_AUTO],
     },
     {
         titleKey: "code-theme-section-light",

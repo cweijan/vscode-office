@@ -1,60 +1,92 @@
 html[data-editor-theme="Auto"],
 #vditor[data-editor-theme="Auto"] {
-    --hr-bg: var(--vscode-textSeparator-foreground, rgba(128, 128, 128, 0.35));
-    --ext-border-color: var(--vscode-widget-border, var(--vscode-panel-border, rgba(128, 128, 128, 0.35)));
+    /* Surface */
     --bg-color: var(--vscode-editor-background);
     --front-color: var(--vscode-editor-foreground);
     --second-bg-color: var(--vscode-dropdown-background, var(--vscode-editorWidget-background));
-    --code-bg-color: var(--vscode-textCodeBlock-background, rgba(127, 127, 127, 0.15));
-    --code-fg-color: var(--vscode-textPreformat-foreground, var(--vscode-editor-foreground));
+    --second-color: var(--vscode-input-placeholderForeground, color-mix(in srgb, var(--vscode-editor-foreground) 45%, transparent));
+
+    /* Border & Divider */
+    --hr-bg: var(--vscode-textSeparator-foreground, rgba(128, 128, 128, 0.35));
+    --border-color: var(--vscode-widget-border, var(--vscode-panel-border, rgba(128, 128, 128, 0.35)));
+
+    /* Link & State */
+    --link-color: var(--vscode-textLink-foreground, #3794ff);
     --list-hover-color: var(--vscode-textLink-foreground, var(--vscode-list-focusHighlightForeground, #3794ff));
     --dropdown-hover-background: var(--vscode-list-hoverBackground, var(--vscode-menu-selectionBackground));
     --error-color: var(--vscode-errorForeground, var(--vscode-charts-red));
-    --link-color: var(--vscode-textLink-foreground, #3794ff);
+
+    /* Blockquote */
     --blockquote-color: var(--vscode-descriptionForeground, var(--vscode-editor-foreground));
-    --blockquote-border: var(--vscode-textBlockQuote-border, var(--ext-border-color));
+    --blockquote-border: var(--vscode-textBlockQuote-border, var(--border-color));
     --blockquote-bg: var(--vscode-textBlockQuote-background, transparent);
-    --table-border: var(--ext-border-color);
+
+    /* Table */
+    --table-border: var(--border-color);
+    --table-row-border: var(--border-color);
     --table-stripe-bg: var(--vscode-list-hoverBackground, rgba(128, 128, 128, 0.08));
+
+    /* Inline Code */
+    --code-bg-color: var(--vscode-textCodeBlock-background, rgba(127, 127, 127, 0.15));
+    --code-fg-color: var(--vscode-textPreformat-foreground, var(--vscode-editor-foreground));
+
+    /* Toolbar & Panel */
+    --toolbar-background-color: var(--vscode-editorGroupHeader-tabsBackground, var(--vscode-editor-background));
+    --toolbar-icon-color: var(--vscode-icon-foreground, var(--vscode-foreground));
+    --toolbar-icon-hover-color: var(--link-color);
+    --panel-background-color: var(--vscode-editor-background);
+    --panel-shadow: 0 2px 8px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.2));
+    --textarea-background-color: var(--vscode-editor-background);
+    --textarea-text-color: var(--vscode-editor-foreground);
+    --count-background-color: color-mix(in srgb, var(--vscode-badge-background, var(--vscode-editor-foreground)) 20%, transparent);
+
+    /* Outline */
+    --outline-bg-color: var(--vscode-sideBar-background, color-mix(in srgb, var(--second-bg-color) 15%, var(--bg-color)));
+    --outline-hover-bg: var(--dropdown-hover-background, color-mix(in srgb, var(--front-color) 4%, var(--outline-bg-color)));
+    --outline-active-bg: color-mix(in srgb, var(--front-color) 8%, var(--outline-hover-bg));
+
+    /* CodeMirror */
     --cm-bg-color: var(--vscode-editorWidget-background, var(--code-bg-color));
     --cm-fg-color: var(--vscode-editor-foreground);
+    --cm-lang-trigger-bg: var(--vscode-input-background, var(--second-bg-color, color-mix(in srgb, var(--vscode-editor-foreground) 14%, var(--vscode-editor-background))));
     --cm-active-line-bg: var(--vscode-editor-lineHighlightBackground, color-mix(in srgb, var(--vscode-editor-foreground) 6%, var(--cm-bg-color)));
     --cm-active-line-gutter-fg: var(--vscode-editorLineNumber-activeForeground, var(--vscode-editorLineNumber-foreground));
-    --cm-line-number-fg: var(--vscode-editorLineNumber-foreground);
-    --cm-line-number-active-fg: var(--vscode-editorLineNumber-activeForeground);
     --cm-fold-fg: var(--vscode-editorGutter-foldingControlForeground, var(--vscode-icon-foreground, var(--vscode-foreground)));
     --cm-fold-fg-hover: var(--vscode-textLink-foreground);
     --cm-fold-bg: var(--vscode-editor-foldBackground, color-mix(in srgb, var(--cm-fold-fg) 12%, var(--cm-bg-color)));
     --cm-cursor-fg: var(--vscode-editorCursor-foreground, var(--vscode-foreground));
+    --cm-line-number-fg: var(--vscode-editorLineNumber-foreground);
+    --cm-line-number-active-fg: var(--vscode-editorLineNumber-activeForeground);
     --cm-selection-bg: var(--vscode-editor-selectionBackground, rgba(51, 153, 255, 0.3));
     --cm-selection-bg-focused: var(--vscode-editor-selectionBackground, rgba(51, 153, 255, 0.35));
     --cm-selection-bg-inactive: var(--vscode-editor-inactiveSelectionBackground, var(--cm-selection-bg));
     --cm-selection-highlight-bg: var(--vscode-editor-selectionHighlightBackground, color-mix(in srgb, var(--link-color) 22%, transparent));
     --cm-lang-search-focus-color: var(--vscode-textLink-foreground, #4285f4);
-    --cm-lang-trigger-bg: var(--vscode-input-background, var(--second-bg-color, color-mix(in srgb, var(--vscode-editor-foreground) 14%, var(--vscode-editor-background))));
-    --outline-bg-color: color-mix(in srgb, var(--second-bg-color) 15%, var(--bg-color));
-    --outline-hover-bg: var(--dropdown-hover-background, color-mix(in srgb, var(--front-color) 4%, var(--outline-bg-color)));
-    --outline-active-bg: color-mix(in srgb, var(--front-color) 8%, var(--outline-hover-bg));
-    --mermaid-bg: var(--vscode-editor-background, #fff);
-    --border-color: var(--ext-border-color);
-    --second-color: var(--vscode-input-placeholderForeground, color-mix(in srgb, var(--vscode-editor-foreground) 45%, transparent));
-    --panel-background-color: var(--vscode-editor-background);
-    --panel-shadow: 0 2px 8px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.2));
-    --toolbar-background-color: var(--vscode-editorGroupHeader-tabsBackground, var(--vscode-editor-background));
-    --toolbar-icon-color: var(--vscode-icon-foreground, var(--vscode-foreground));
-    --toolbar-icon-hover-color: var(--link-color);
-    --textarea-background-color: var(--vscode-editor-background);
-    --textarea-text-color: var(--vscode-editor-foreground);
+
+    /* Embed & Link Card */
+    --linkcard-bg: var(--second-bg-color);
+    --linkcard-title-color: var(--front-color);
+    --linkcard-abstract-color: var(--second-color);
+    --linkcard-site-color: var(--link-color);
+    --linkcard-icon-color: var(--toolbar-icon-color);
+    --linkcard-shadow: var(--panel-shadow);
+    --linkcard-shadow-hover: 0 0 3px color-mix(in srgb, var(--front-color) 13%, transparent), 0 3px 6px color-mix(in srgb, var(--front-color) 26%, transparent);
+    --linkcard-image-bg: var(--second-color);
+    --linenumber-fg: color-mix(in srgb, var(--front-color) 38%, transparent);
+
+    /* Resize */
     --resize-icon-color: var(--vscode-icon-foreground, var(--second-color));
     --resize-background-color: var(--vscode-scrollbarSlider-background, var(--second-color));
     --resize-hover-icon-color: var(--vscode-editor-foreground);
     --resize-hover-background-color: var(--vscode-scrollbarSlider-hoverBackground, var(--vscode-focusBorder));
-    --count-background-color: color-mix(in srgb, var(--vscode-badge-background, var(--vscode-editor-foreground)) 20%, transparent);
-    --heading-border-color: var(--ext-border-color);
-    --table-row-border: var(--ext-border-color);
+
+    /* Scrollbar */
+    --scrollbar-thumb: var(--vscode-scrollbarSlider-background, color-mix(in srgb, var(--front-color) 30%, transparent));
+    --scrollbar-thumb-hover: var(--vscode-scrollbarSlider-hoverBackground, color-mix(in srgb, var(--front-color) 44%, transparent));
 }
 
 #vditor[data-editor-theme="Auto"].vditor--dark {
+    /* IR Syntax */
     --ir-heading-color: var(--vscode-symbolIcon-keywordForeground, #c586c0);
     --ir-title-color: var(--vscode-descriptionForeground);
     --ir-bi-color: var(--vscode-symbolIcon-enumeratorForeground, #d7ba7d);

@@ -577,7 +577,7 @@
 					"vscode-office.codeMirrorTheme": {
 						"type": "string",
 						"enum": [
-							"default",
+							"Auto",
 							"github",
 							"solarized-light",
 							"material-light",
@@ -589,7 +589,7 @@
 							"solarized-dark",
 							"material-dark"
 						],
-						"default": "default",
+						"default": "Auto",
 						"markdownDescription": "CodeMirror syntax theme for code blocks in the Markdown editor."
 					},
 					"vscode-office.previewCodeHighlight.style": {

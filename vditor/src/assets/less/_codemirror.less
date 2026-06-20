@@ -5,7 +5,7 @@
   background: transparent !important;
   border-radius: 6px;
   overflow: visible;
-  --cm-lang-search-focus-color: var(--vscode-textLink-foreground, #4285f4);
+  --cm-lang-search-focus-color: var(--cm-lang-search-focus-color, var(--link-color, @blurColor));
 
   > code {
     display: none !important;
@@ -225,6 +225,7 @@
   border-radius: inherit inherit 0 0;
   pointer-events: none;
   user-select: none;
+  border-radius: 6px;
 }
 
 .vditor-cm-chrome__actions {
@@ -263,7 +264,7 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  color: var(--cm-delete-color, var(--vscode-errorForeground, #f85149));
+  color: var(--cm-delete-color, var(--error-color));
 
   .codicon {
     font-size: 16px;
@@ -294,14 +295,14 @@
   }
 
   &--done {
-    background: color-mix(in srgb, var(--cm-copy-done-color, var(--link-color, #3794ff)) 12%, var(--cm-lang-trigger-bg, var(--second-bg-color, var(--dropdown-hover-background, var(--toolbar-background-color)))));
+    background: color-mix(in srgb, var(--cm-copy-done-color, var(--link-color)) 12%, var(--cm-lang-trigger-bg, var(--second-bg-color, var(--dropdown-hover-background, var(--toolbar-background-color)))));
 
     .vditor-cm-chrome__copy-label {
-      color: var(--cm-copy-done-color, var(--link-color, #3794ff));
+      color: var(--cm-copy-done-color, var(--link-color));
     }
 
     .vditor-cm-chrome__copy-icon .codicon {
-      color: var(--cm-copy-done-color, var(--link-color, #3794ff));
+      color: var(--cm-copy-done-color, var(--link-color));
     }
   }
 }
@@ -309,7 +310,7 @@
 .vditor-cm-chrome__copy-icon {
   display: inline-flex;
   flex-shrink: 0;
-  color: var(--cm-copy-color, var(--link-color, #3794ff));
+  color: var(--cm-copy-color, var(--link-color));
 
   .codicon {
     font-size: 16px;
@@ -334,7 +335,7 @@
   align-items: center;
   gap: 6px;
   height: 28px;
-  padding: 0 10px;
+  padding: 15px 12px;
   border: none;
   border-radius: 8px;
   background: var(--cm-lang-trigger-bg, var(--second-bg-color, color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 18%, var(--bg-color, var(--panel-background-color)))));
@@ -425,8 +426,8 @@
 
   &:focus,
   .vditor-cm-chrome__lang--focused & {
-    border-color: var(--cm-lang-search-focus-color, #4285f4);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--cm-lang-search-focus-color, #4285f4) 28%, transparent);
+    border-color: var(--cm-lang-search-focus-color, var(--link-color));
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--cm-lang-search-focus-color, var(--link-color)) 28%, transparent);
   }
 
   &::placeholder {
@@ -452,7 +453,10 @@
   text-align: left;
   cursor: pointer;
 
-  &:hover,
+  &:hover {
+    background: color-mix(in srgb, var(--list-hover-color, var(--toolbar-icon-hover-color)) 12%, transparent);
+  }
+
   &--active {
     font-weight: 600;
     background: color-mix(in srgb, var(--list-hover-color, var(--toolbar-icon-hover-color)) 12%, transparent);
@@ -550,6 +554,7 @@
   }
 }
 
+.vditor-cm-chrome__toolbar button,
 .vditor-cm-host .cm-editor,
 .vditor-cm-host .cm-editor .cm-scroller,
 .vditor-cm-host .cm-editor .cm-content,

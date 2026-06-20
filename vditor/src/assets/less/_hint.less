@@ -48,8 +48,8 @@
 
   &--current,
   button:not(.vditor-menu--disabled):hover {
-    background-color: var(--toolbar-background-color) !important;
-    color: var(--toolbar-icon-hover-color) !important;
+    background-color: var(--dropdown-hover-background, var(--second-bg-color, var(--toolbar-background-color)));
+    color: var(--list-hover-color, var(--toolbar-icon-hover-color));
   }
 
   &__emoji {
@@ -87,8 +87,8 @@
   }
 
   button.vditor-theme-option--current {
-    background-color: var(--toolbar-background-color) !important;
-    color: var(--list-hover-color, var(--toolbar-icon-hover-color)) !important;
+    background-color: var(--second-bg-color, var(--dropdown-hover-background, var(--toolbar-background-color)));
+    color: var(--list-hover-color, var(--toolbar-icon-hover-color));
     font-weight: 600;
     border-left: 2px solid var(--list-hover-color, var(--toolbar-icon-hover-color));
     padding-left: 8px;

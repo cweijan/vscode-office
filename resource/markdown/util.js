@@ -151,6 +151,8 @@ export async function getToolbar(resPath, sponsorBaseUrl, language) {
         "line",
         "code",
         "inline-code",
+        'insert-before',
+        'insert-after',
         "|",
         "undo",
         "redo",

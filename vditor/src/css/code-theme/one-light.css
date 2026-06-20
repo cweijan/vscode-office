@@ -1,20 +1,33 @@
 html[data-cm-theme="one-light"],
 #vditor[data-cm-theme="one-light"] {
+    /* Surface */
     --cm-bg-color: #fafafa;
     --cm-lang-trigger-bg: #ffffff;
+    --cm-fg-color: #383a42;
+
+    /* Actions */
     --cm-copy-color: #4078f2;
     --cm-copy-done-color: #526fff;
     --cm-delete-color: #e45649;
-    --cm-fg-color: #383a42;
+
+    /* Editor State */
     --cm-active-line-bg: rgba(0, 0, 0, 0.04);
     --cm-cursor-fg: #526fff;
+
+    /* Gutter */
     --cm-line-number-fg: #9d9d9f;
     --cm-line-number-active-fg: #383a42;
+
+    /* Selection */
     --cm-selection-bg-inactive: rgba(184, 184, 184, 0.35);
     --cm-selection-bg-focused: rgba(184, 184, 184, 0.5);
     --cm-selection-highlight-bg: rgba(184, 184, 184, 0.2);
+
+    /* Bracket Match */
     --cm-bracket-match-bg: rgba(184, 184, 184, 0.25);
     --cm-bracket-match-border: #526fff;
+
+    /* Syntax */
     --cm-syntax-comment: #a0a1a7;
     --cm-syntax-keyword: #a626a4;
     --cm-syntax-string: #50a14f;

@@ -15,12 +15,15 @@ function loadConfigs() {
 loadConfigs()
 
 const CODE_MIRROR_THEMES = new Set([
-  'default', 'github', 'solarized-light', 'material-light', 'quiet-light', 'one-light',
+  'Auto', 'default', 'github', 'solarized-light', 'material-light', 'quiet-light', 'one-light',
   'dracula', 'monokai', 'one-dark', 'solarized-dark', 'material-dark',
 ])
 
 function normalizeCodeMirrorTheme(theme) {
-  return CODE_MIRROR_THEMES.has(theme) ? theme : 'default'
+  if (theme === 'default') {
+    return 'Auto'
+  }
+  return CODE_MIRROR_THEMES.has(theme) ? theme : 'Auto'
 }
 
 handler.on("open", async (md) => {

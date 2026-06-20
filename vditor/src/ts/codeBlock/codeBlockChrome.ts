@@ -186,18 +186,6 @@ const closeLangPanel = () => {
     openLangChrome = null;
 };
 
-const scrollLangItemIntoView = (list: HTMLElement, item: HTMLElement) => {
-    const itemTop = item.offsetTop;
-    const itemBottom = itemTop + item.offsetHeight;
-    const viewTop = list.scrollTop;
-    const viewBottom = viewTop + list.clientHeight;
-    if (itemTop < viewTop) {
-        list.scrollTop = itemTop;
-    } else if (itemBottom > viewBottom) {
-        list.scrollTop = itemBottom - list.clientHeight;
-    }
-};
-
 const focusLangSearch = (chrome: ICodeBlockChrome) => {
     window.setTimeout(() => {
         chrome.langSearch.focus({ preventScroll: true });
@@ -220,7 +208,6 @@ const updateLangActiveItem = (chrome: ICodeBlockChrome, index: number) => {
     for (let i = 0; i < items.length; i++) {
         items[i].classList.toggle("vditor-cm-chrome__lang-item--active", i === next);
     }
-    scrollLangItemIntoView(chrome.langList, items[next]);
     if (keepSearchFocus) {
         chrome.langSearch.focus({ preventScroll: true });
     }
@@ -338,18 +325,6 @@ const bindLanguagePanel = (vditor: IVditor, blockElement: HTMLElement, chrome: I
                 selectLanguage(vditor, getBlock(), chrome, query);
             }
             event.preventDefault();
-        }
-    });
-
-    chrome.langList.addEventListener("mousemove", (event) => {
-        const item = (event.target as HTMLElement).closest(".vditor-cm-chrome__lang-item") as HTMLElement;
-        if (!item) {
-            return;
-        }
-        const items = getLangListItems(chrome);
-        const index = items.indexOf(item);
-        if (index > -1 && index !== chrome.langActiveIndex) {
-            updateLangActiveItem(chrome, index);
         }
     });
 

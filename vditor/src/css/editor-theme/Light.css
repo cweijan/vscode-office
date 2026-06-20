@@ -1,26 +1,59 @@
 html[data-editor-theme="Light"],
 #vditor[data-editor-theme="Light"] {
-    --hr-bg: rgba(128, 128, 128, 0.35);
-    --ext-border-color: rgba(128, 128, 128, 0.35);
-    --bg-color: #f5f5f5;
+    /* Surface */
+    --bg-color: #ffffff;
     --front-color: #333333;
-    --second-bg-color: #f3f3f3;
-    --code-bg-color: #e5e5e5;
-    --code-fg-color: var(--front-color);
-    --list-hover-color: #0451a5;
-    --dropdown-hover-background: #c4d9b1;
-    --error-color: #e51400;
+    --second-bg-color: #f8f9fa;
+    --second-color: color-mix(in srgb, var(--front-color) 45%, transparent);
+
+    /* Border & Divider */
+    --hr-bg: #dce0e4;
+    --border-color: #dce0e4;
+
+    /* Link & State */
     --link-color: var(--list-hover-color);
+    --list-hover-color: #0451a5;
+    --dropdown-hover-background: #e8eef3;
+    --error-color: #e51400;
+
+    /* Blockquote */
     --blockquote-color: var(--front-color);
-    --blockquote-border: var(--ext-border-color);
-    --table-border: var(--ext-border-color);
+    --blockquote-border: var(--border-color);
+    --blockquote-bg: transparent;
+
+    /* Table */
+    --table-border: var(--border-color);
+    --table-row-border: var(--border-color);
     --table-stripe-bg: color-mix(in srgb, var(--front-color) 6%, var(--bg-color));
+
+    /* Inline Code */
+    --code-bg-color: #f0f2f5;
+    --code-fg-color: var(--front-color);
+
+    /* Toolbar & Panel */
+    --toolbar-background-color: #f5f6f7;
+    --toolbar-icon-color: var(--front-color);
+    --toolbar-icon-hover-color: var(--list-hover-color);
+    --panel-background-color: var(--bg-color);
+    --panel-shadow: 0 2px 8px color-mix(in srgb, var(--front-color) 12%, transparent);
+    --textarea-background-color: var(--bg-color);
+    --textarea-text-color: var(--front-color);
+    --count-background-color: color-mix(in srgb, var(--front-color) 8%, transparent);
+
+    /* Outline */
+    --outline-bg-color: #fafbfc;
+    --outline-hover-bg: #f0f2f5;
+    --outline-active-bg: #e8ecf0;
+
+    /* CodeMirror */
     --cm-bg-color: var(--code-bg-color);
     --cm-fg-color: var(--front-color);
     --cm-lang-trigger-bg: var(--second-bg-color);
     --cm-active-line-bg: color-mix(in srgb, var(--front-color) 6%, var(--cm-bg-color));
+    --cm-active-line-gutter-fg: var(--cm-line-number-active-fg);
     --cm-fold-fg: var(--list-hover-color);
     --cm-fold-fg-hover: var(--front-color);
+    --cm-fold-bg: color-mix(in srgb, var(--cm-fold-fg) 12%, var(--cm-bg-color));
     --cm-cursor-fg: var(--front-color);
     --cm-line-number-fg: color-mix(in srgb, var(--front-color) 55%, transparent);
     --cm-line-number-active-fg: var(--front-color);
@@ -29,8 +62,29 @@ html[data-editor-theme="Light"],
     --cm-selection-bg-inactive: color-mix(in srgb, var(--list-hover-color) 24%, transparent);
     --cm-selection-highlight-bg: color-mix(in srgb, var(--list-hover-color) 18%, transparent);
     --cm-lang-search-focus-color: var(--list-hover-color);
-    --outline-bg-color: #f2f2f2;
-    --outline-hover-bg: #ededed;
-    --outline-active-bg: #e6e6e6;
-    --mermaid-bg: var(--bg-color);
+
+    /* Embed & Link Card */
+    --linkcard-bg: var(--second-bg-color);
+    --linkcard-title-color: var(--front-color);
+    --linkcard-abstract-color: var(--second-color);
+    --linkcard-site-color: var(--link-color);
+    --linkcard-icon-color: var(--toolbar-icon-color);
+    --linkcard-shadow: var(--panel-shadow);
+    --linkcard-shadow-hover: 0 0 3px color-mix(in srgb, var(--front-color) 13%, transparent), 0 3px 6px color-mix(in srgb, var(--front-color) 26%, transparent);
+    --linkcard-image-bg: var(--second-color);
+    --linenumber-fg: color-mix(in srgb, var(--front-color) 38%, transparent);
+
+    /* Scrollbar */
+    --scrollbar-thumb: color-mix(in srgb, var(--front-color) 30%, transparent);
+    --scrollbar-thumb-hover: color-mix(in srgb, var(--front-color) 44%, transparent);
+}
+
+#vditor[data-editor-theme="Light"] {
+    /* IR Syntax */
+    --ir-heading-color: #660e7a;
+    --ir-title-color: #808080;
+    --ir-bi-color: #0033b3;
+    --ir-link-color: #008000;
+    --ir-bracket-color: #0000ff;
+    --ir-paren-color: #008000;
 }

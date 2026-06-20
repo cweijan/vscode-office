@@ -1,41 +1,86 @@
 html[data-editor-theme="Dracula"],
 #vditor[data-editor-theme="Dracula"] {
-    --hr-bg: #bd93f9;
-    --ext-border-color: rgba(255, 255, 255, 0.1);
+    /* Surface */
     --bg-color: #282a36;
     --front-color: #f8f8f2;
     --second-bg-color: #21222c;
-    --code-bg-color: #222222;
-    --code-fg-color: var(--front-color);
+    --second-color: #6272a4;
+
+    /* Border & Divider */
+    --hr-bg: #44475a;
+    --border-color: #44475a;
+
+    /* Link & State */
+    --link-color: #8be9fd;
     --list-hover-color: #bd93f9;
-    --dropdown-hover-background: #44475a;
+    --dropdown-hover-background: #383a4a;
     --error-color: #ff5555;
-    --link-color: var(--list-hover-color);
-    --blockquote-color: var(--front-color);
-    --blockquote-border: var(--ext-border-color);
-    --table-border: var(--ext-border-color);
-    --table-stripe-bg: color-mix(in srgb, var(--front-color) 8%, var(--bg-color));
-    --cm-bg-color: var(--code-bg-color);
+
+    /* Blockquote */
+    --blockquote-color: #e2e2dc;
+    --blockquote-border: #bd93f9;
+    --blockquote-bg: color-mix(in srgb, #44475a 50%, var(--bg-color));
+
+    /* Table */
+    --table-border: var(--border-color);
+    --table-row-border: var(--border-color);
+    --table-stripe-bg: #313341;
+
+    /* Inline Code */
+    --code-bg-color: #44475a;
+    --code-fg-color: #f8f8f2;
+
+    /* Toolbar & Panel */
+    --toolbar-background-color: #21222c;
+    --toolbar-icon-color: var(--front-color);
+    --toolbar-icon-hover-color: #8be9fd;
+    --panel-background-color: var(--bg-color);
+    --panel-shadow: 0 2px 8px color-mix(in srgb, #000000 35%, transparent);
+    --textarea-background-color: var(--bg-color);
+    --textarea-text-color: var(--front-color);
+    --count-background-color: color-mix(in srgb, #6272a4 35%, transparent);
+
+    /* Outline */
+    --outline-bg-color: #21222c;
+    --outline-hover-bg: #2d2f3b;
+    --outline-active-bg: #383a4a;
+
+    /* CodeMirror */
+    --cm-bg-color: #282a36;
     --cm-fg-color: var(--front-color);
     --cm-lang-trigger-bg: #44475a;
-    --cm-active-line-bg: color-mix(in srgb, var(--front-color) 8%, var(--cm-bg-color));
-    --cm-fold-fg: var(--list-hover-color);
+    --cm-active-line-bg: rgba(255, 255, 255, 0.06);
+    --cm-active-line-gutter-fg: var(--cm-line-number-active-fg);
+    --cm-fold-fg: #8be9fd;
     --cm-fold-fg-hover: var(--front-color);
-    --cm-cursor-fg: var(--list-hover-color);
-    --cm-line-number-fg: color-mix(in srgb, var(--front-color) 55%, transparent);
+    --cm-fold-bg: color-mix(in srgb, #8be9fd 12%, var(--cm-bg-color));
+    --cm-cursor-fg: var(--front-color);
+    --cm-line-number-fg: #6272a4;
     --cm-line-number-active-fg: var(--front-color);
-    --cm-selection-bg: color-mix(in srgb, var(--list-hover-color) 35%, transparent);
-    --cm-selection-bg-focused: color-mix(in srgb, var(--list-hover-color) 48%, transparent);
-    --cm-selection-bg-inactive: color-mix(in srgb, var(--list-hover-color) 26%, transparent);
-    --cm-selection-highlight-bg: color-mix(in srgb, var(--list-hover-color) 20%, transparent);
-    --cm-lang-search-focus-color: var(--list-hover-color);
-    --outline-bg-color: #272833;
-    --outline-hover-bg: #2c2e3c;
-    --outline-active-bg: #323447;
-    --mermaid-bg: var(--bg-color);
+    --cm-selection-bg: rgba(68, 71, 90, 0.6);
+    --cm-selection-bg-focused: rgba(68, 71, 90, 0.85);
+    --cm-selection-bg-inactive: rgba(68, 71, 90, 0.45);
+    --cm-selection-highlight-bg: rgba(68, 71, 90, 0.35);
+    --cm-lang-search-focus-color: #8be9fd;
+
+    /* Embed & Link Card */
+    --linkcard-bg: #343746;
+    --linkcard-title-color: var(--front-color);
+    --linkcard-abstract-color: var(--second-color);
+    --linkcard-site-color: var(--link-color);
+    --linkcard-icon-color: var(--toolbar-icon-color);
+    --linkcard-shadow: var(--panel-shadow);
+    --linkcard-shadow-hover: 0 0 3px color-mix(in srgb, #8be9fd 20%, transparent), 0 3px 6px color-mix(in srgb, #000000 30%, transparent);
+    --linkcard-image-bg: #44475a;
+    --linenumber-fg: #6272a4;
+
+    /* Scrollbar */
+    --scrollbar-thumb: rgba(98, 114, 164, 0.45);
+    --scrollbar-thumb-hover: rgba(98, 114, 164, 0.62);
 }
 
 #vditor[data-editor-theme="Dracula"] {
+    /* IR Syntax */
     --ir-heading-color: #bd93f9;
     --ir-title-color: #6272a4;
     --ir-bi-color: #ffb86c;

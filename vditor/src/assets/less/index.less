@@ -10,8 +10,36 @@
 
 @max-width: 520px;
 
+.vditor-scrollbar(@track: var(--scrollbar-track)) {
+  scrollbar-width: auto;
+  scrollbar-color: var(--scrollbar-thumb) @track;
+
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: @track;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: 5px;
+    border: 2px solid @track;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover);
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: @track;
+  }
+}
+
 .vditor {
-  --border-color: var(--ext-border-color, #d1d5da);
+  --border-color: #d1d5da;
   --second-color: rgba(88, 96, 105, 0.36);
 
   --panel-background-color: var(--bg-color, #fff);
@@ -26,15 +54,36 @@
   --textarea-background-color: var(--bg-color, #fafbfc);
   --textarea-text-color: var(--front-color, #24292e);
 
+  --scrollbar-thumb: var(--vscode-scrollbarSlider-background, color-mix(in srgb, var(--front-color, #586069) 30%, transparent));
+  --scrollbar-thumb-hover: var(--vscode-scrollbarSlider-hoverBackground, color-mix(in srgb, var(--front-color, #586069) 44%, transparent));
+
   --count-background-color: rgba(27, 31, 35, 0.05);
-  --heading-border-color: var(--ext-border-color, #eaecef);
   --blockquote-color: var(--front-color, #6a737d);
-  --blockquote-border: var(--ext-border-color, var(--vscode-textBlockQuote-border, #eaecef));
-  --table-row-border: var(--ext-border-color, #c6cbd1);
-  --table-border: var(--ext-border-color, #dfe2e5);
+  --blockquote-border: var(--vscode-textBlockQuote-border, var(--border-color));
+  --table-row-border: var(--border-color);
+  --table-border: var(--border-color);
   --outline-bg-color: #f8f9fb;
   --outline-hover-bg: #f2f4f7;
   --outline-active-bg: #eceff3;
+
+  --linkcard-bg: var(--second-bg-color);
+  --linkcard-title-color: var(--front-color);
+  --linkcard-abstract-color: var(--second-color);
+  --linkcard-site-color: var(--list-hover-color, @blurColor);
+  --linkcard-icon-color: var(--toolbar-icon-color);
+  --linkcard-shadow: var(--panel-shadow);
+  --linkcard-shadow-hover: 0 0 3px color-mix(in srgb, var(--front-color) 13%, transparent), 0 3px 6px color-mix(in srgb, var(--front-color) 26%, transparent);
+  --linkcard-image-bg: var(--second-color);
+  --linenumber-fg: color-mix(in srgb, var(--front-color) 38%, transparent);
+
+  --vditor-chrome-border: 1px solid var(--border-color);
+  --vditor-toolbar-border-bottom: 1px solid var(--border-color);
+  --vditor-outline-border: none;
+  --vditor-outline-title-display: block;
+  --vditor-root-background: transparent;
+  --vditor-input-border: 1px solid transparent;
+  --pre-code-bg-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8AgMAAABHkjHhAAAACVBMVEWAgIBaWlo+Pj7rTFvWAAAAA3RSTlMHCAw+VhR4AAAA+klEQVQoz4WSMW7EQAhFPxKWNh2FCx+HkaZI6RRb5DYbyVfIJXLKDCFoMbaTKSw/8ZnPAPjaH2xgZcUNUDADD7D9LtDBCLZ45fbkvo/30K8yeI64pPwl6znd/3n/Oe93P3ho9qeh72btTFzqkz0rsJle8Zr81OLEwZ1dv/713uWqvu2pl+k0fy7MWtj9r/tN5q/02z89qa/L4Dc2LvM93kezPfXlME/O86EbY/V9GB9ePX8G1/6W+/9h1dq/HGfTfzT3j/xNo7522Bfnqe5jO/fvhVthlfk434v3iO9zG/UOphyPeinPl1J8Gtaa7xPTa/Dk+RIs4deMvwGvcGsmsCvJ0AAAAABJRU5ErkJggg==);
+  --mermaid-bg: #fff;
 
   --ir-heading-color: #660e7a;
   --ir-title-color: #808080;
@@ -44,7 +93,7 @@
   --ir-paren-color: #008000;
 
   &--dark {
-    --border-color: var(--ext-border-color, #141414);
+    --border-color: #141414;
     --second-color: rgba(185, 185, 185, 0.36);
 
     --panel-background-color: var(--bg-color, #24292e);
@@ -57,12 +106,14 @@
     --textarea-background-color: var(--bg-color, #2f363d);
     --textarea-text-color: var(--front-color, #d1d5da);
 
+    --scrollbar-thumb: var(--vscode-scrollbarSlider-background, color-mix(in srgb, var(--front-color, #b9b9b9) 30%, transparent));
+    --scrollbar-thumb-hover: var(--vscode-scrollbarSlider-hoverBackground, color-mix(in srgb, var(--front-color, #b9b9b9) 44%, transparent));
+
     --count-background-color: rgba(@blurColor, 0.36);
-    --heading-border-color: var(--ext-border-color, var(--textarea-text-color));
     --blockquote-color: var(--front-color, var(--toolbar-icon-color));
-    --blockquote-border: var(--ext-border-color, var(--vscode-textBlockQuote-border, #3d444d));
-    --table-row-border: var(--ext-border-color, #3d444d);
-    --table-border: var(--ext-border-color, #444c56);
+    --blockquote-border: var(--vscode-textBlockQuote-border, var(--border-color));
+    --table-row-border: var(--border-color);
+    --table-border: var(--border-color);
     --outline-bg-color: #2c333a;
     --outline-hover-bg: #323a42;
     --outline-active-bg: #38414a;

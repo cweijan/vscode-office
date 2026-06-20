@@ -1,5 +1,5 @@
 import {Constants} from "../constants";
-import {CM_THEME_ATTR} from "./codeMirrorColorThemes";
+import {CM_THEME_ATTR, CM_THEME_AUTO} from "./codeMirrorColorThemes";
 
 const resolveRoot = (root?: HTMLElement): HTMLElement | null => {
     if (root) {
@@ -8,18 +8,26 @@ const resolveRoot = (root?: HTMLElement): HTMLElement | null => {
     return document.getElementById("vditor") ?? document.querySelector(".vditor");
 };
 
+export const normalizeCodeMirrorThemeId = (theme?: string) => {
+    if (!theme || theme === "default") {
+        return CM_THEME_AUTO;
+    }
+    return Constants.CODE_THEME.includes(theme) ? theme : CM_THEME_AUTO;
+};
+
 /** Resolve CodeMirror theme from options (`codeMirrorTheme` takes precedence over `preview.hljs.style`). */
 export const resolveCodeMirrorTheme = (options: {
     codeMirrorTheme?: string;
     preview: {hljs: {style: string}};
 }) => {
     const theme = options.codeMirrorTheme ?? options.preview.hljs.style;
-    return Constants.CODE_THEME.includes(theme) ? theme : "default";
+    return normalizeCodeMirrorThemeId(theme);
 };
 
 /** Apply CodeMirror syntax / chrome colors on the editor root element. */
 export const setCodeTheme = (codeTheme: string, root?: HTMLElement) => {
-    if (!Constants.CODE_THEME.includes(codeTheme)) {
+    const theme = normalizeCodeMirrorThemeId(codeTheme);
+    if (!Constants.CODE_THEME.includes(theme)) {
         return;
     }
 
@@ -28,12 +36,6 @@ export const setCodeTheme = (codeTheme: string, root?: HTMLElement) => {
         return;
     }
 
-    if (codeTheme === "default") {
-        document.documentElement.removeAttribute(CM_THEME_ATTR);
-        element.removeAttribute(CM_THEME_ATTR);
-        return;
-    }
-
-    document.documentElement.setAttribute(CM_THEME_ATTR, codeTheme);
-    element.setAttribute(CM_THEME_ATTR, codeTheme);
+    document.documentElement.setAttribute(CM_THEME_ATTR, theme);
+    element.setAttribute(CM_THEME_ATTR, theme);
 };

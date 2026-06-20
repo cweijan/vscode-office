@@ -16,8 +16,9 @@
     font-family: @font-family-base;
     word-wrap: break-word;
     overflow: auto;
+    .vditor-scrollbar(var(--textarea-background-color, var(--bg-color, #fafbfc)));
     line-height: 1.5;
-    font-size: 16px;
+    font-size: var(--vscode-editor-font-size, 16px);
     word-break: break-word;
 
     ul ul ul {
@@ -80,10 +81,14 @@
 
     h1 {
       font-size: 1.75em;
+      padding-bottom: 0;
+      border-bottom: none;
     }
 
     h2 {
       font-size: 1.55em;
+      padding-bottom: 0;
+      border-bottom: none;
     }
 
     h3 {
@@ -115,9 +120,14 @@
       margin-bottom: 16px;
     }
 
+    a {
+      color: var(--link-color, @blurColor);
+    }
+
     blockquote {
       padding: 0 1em;
       color: var(--blockquote-color);
+      background-color: var(--blockquote-bg, transparent);
       border-left: 5px solid var(--blockquote-border);
       margin: 0 0 16px 0;
 
@@ -189,7 +199,7 @@
       margin: 0;
       font-size: 85%;
       border-radius: 3px;
-      font-family: @font-family-code;
+      font-family: var(--vscode-editor-font-family, @font-family-code);
       word-break: break-word;
       background-size: 20px 20px;
       white-space: pre-wrap;
@@ -208,9 +218,9 @@
         display: block;
         overflow: auto;
         white-space: pre;
-        font-family: @font-family-code;
+        font-family: var(--vscode-editor-font-family, @font-family-code);
         background-size: 20px 20px;
-        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8AgMAAABHkjHhAAAACVBMVEWAgIBaWlo+Pj7rTFvWAAAAA3RSTlMHCAw+VhR4AAAA+klEQVQoz4WSMW7EQAhFPxKWNh2FCx+HkaZI6RRb5DYbyVfIJXLKDCFoMbaTKSw/8ZnPAPjaH2xgZcUNUDADD7D9LtDBCLZ45fbkvo/30K8yeI64pPwl6znd/3n/Oe93P3ho9qeh72btTFzqkz0rsJle8Zr81OLEwZ1dv/713uWqvu2pl+k0fy7MWtj9r/tN5q/02z89qa/L4Dc2LvM93kezPfXlME/O86EbY/V9GB9ePX8G1/6W+/9h1dq/HGfTfzT3j/xNo7522Bfnqe5jO/fvhVthlfk434v3iO9zG/UOphyPeinPl1J8Gtaa7xPTa/Dk+RIs4deMvwGvcGsmsCvJ0AAAAABJRU5ErkJggg==);
+        background-image: var(--pre-code-bg-image, url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8AgMAAABHkjHhAAAACVBMVEWAgIBaWlo+Pj7rTFvWAAAAA3RSTlMHCAw+VhR4AAAA+klEQVQoz4WSMW7EQAhFPxKWNh2FCx+HkaZI6RRb5DYbyVfIJXLKDCFoMbaTKSw/8ZnPAPjaH2xgZcUNUDADD7D9LtDBCLZ45fbkvo/30K8yeI64pPwl6znd/3n/Oe93P3ho9qeh72btTFzqkz0rsJle8Zr81OLEwZ1dv/713uWqvu2pl+k0fy7MWtj9r/tN5q/02z89qa/L4Dc2LvM93kezPfXlME/O86EbY/V9GB9ePX8G1/6W+/9h1dq/HGfTfzT3j/xNo7522Bfnqe5jO/fvhVthlfk434v3iO9zG/UOphyPeinPl1J8Gtaa7xPTa/Dk+RIs4deMvwGvcGsmsCvJ0AAAAABJRU5ErkJggg==));
         word-break: initial;
         word-wrap: normal;
       }
@@ -233,6 +243,7 @@
 
     .language-mermaid {
       text-align: center;
+      background-color: var(--mermaid-bg, #fff);
     }
 
     kbd {
@@ -302,7 +313,7 @@
     }
 
     svg {
-      color: #586069;
+      color: var(--linkcard-icon-color, var(--toolbar-icon-color));
       height: 14px;
       width: 14px !important;
       display: block;
@@ -330,7 +341,7 @@
         &::before {
           counter-increment: linenumber;
           content: counter(linenumber);
-          color: rgba(158, 150, 150, 0.38);
+          color: var(--linenumber-fg, var(--second-color));
           display: block;
           padding-right: 1em;
           text-align: right;
@@ -372,21 +383,21 @@
 
     a {
       border-radius: 3px;
-      background-color: #f6f8fa;
+      background-color: var(--linkcard-bg, var(--second-bg-color));
       overflow: hidden;
       max-height: 250px;
       display: flex;
       text-decoration: none;
       flex-wrap: wrap-reverse;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      box-shadow: var(--linkcard-shadow, var(--panel-shadow));
 
       &:hover {
-        box-shadow: 0 0 3px rgba(0, 0, 0, 0.13), 0 3px 6px rgba(0, 0, 0, 0.26);
+        box-shadow: var(--linkcard-shadow-hover, var(--panel-shadow));
         text-decoration: none;
       }
 
       &:visited .vditor-linkcard__abstract {
-        color: rgba(88, 96, 105, 0.36);
+        color: var(--linkcard-abstract-color, var(--second-color));
       }
     }
 
@@ -400,7 +411,7 @@
     &__title {
       font-size: 14px;
       font-weight: 400;
-      color: #24292e;
+      color: var(--linkcard-title-color, var(--front-color));
       display: flex;
       align-items: center;
 
@@ -423,13 +434,13 @@
       -webkit-box-orient: vertical;
       display: -webkit-box;
       font-size: 13px;
-      color: #586069;
+      color: var(--linkcard-abstract-color, var(--second-color));
       margin: 5px 0;
     }
 
     &__site {
       font-size: 12px;
-      color: #4285f4;
+      color: var(--linkcard-site-color, var(--link-color, var(--list-hover-color)));
     }
 
     &__image {
@@ -439,7 +450,7 @@
       max-width: 250px;
       min-width: 126px;
       cursor: pointer;
-      background-color: rgba(88, 96, 105, 0.36);
+      background-color: var(--linkcard-image-bg, var(--second-color));
     }
   }
 
@@ -450,7 +461,7 @@
   &-toc {
     margin-bottom: 16px;
     user-select: text;
-    color: @blurColor;
+    color: var(--link-color, @blurColor);
 
     .vditor-outline__action {
       display: none;
@@ -480,6 +491,7 @@
     flex-shrink: 0;
     width: 240px;
     background-color: var(--outline-bg-color, var(--panel-background-color));
+    border: var(--vditor-outline-border, none);
     display: none;
     overflow: hidden;
     font-size: 14px;
@@ -526,27 +538,16 @@
     }
 
     &__content {
-      overflow: auto;
+      overflow-x: auto;
+      overflow-y: auto;
       height: 100%;
       padding: 10px 8px 14px;
-      scrollbar-width: thin;
-      scrollbar-color: var(--second-color) transparent;
+      .vditor-scrollbar(var(--outline-bg-color, var(--panel-background-color)));
 
       & > ul {
         padding-left: 0;
-      }
-
-      &::-webkit-scrollbar {
-        width: 6px;
-      }
-
-      &::-webkit-scrollbar-thumb {
-        background-color: var(--second-color);
-        border-radius: 3px;
-      }
-
-      &::-webkit-scrollbar-track {
-        background: transparent;
+        min-width: 100%;
+        width: max-content;
       }
     }
 
@@ -580,7 +581,6 @@
     li > span {
       display: flex;
       align-items: center;
-      min-width: 0;
       margin: 0 2px;
       padding: 5px 8px;
       border-radius: 4px;
@@ -623,16 +623,13 @@
       }
 
       & > span {
-        flex: 1;
-        min-width: 0;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
         line-height: 1.45;
       }
     }
 
     &__title {
+      display: var(--vditor-outline-title-display, block);
       border-bottom: 1px dashed var(--border-color);
       padding: 5px 10px;
       color: var(--toolbar-icon-color);

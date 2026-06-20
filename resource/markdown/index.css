@@ -23,7 +23,7 @@ html {
     min-width: 200px;
     max-width: min(320px, calc(100vw - 8px));
     padding: 4px 0;
-    border: 1px solid var(--ext-border-color);
+    border: 1px solid var(--border-color);
     border-radius: 5px;
     background-color: var(--second-bg-color);
     color: var(--front-color);

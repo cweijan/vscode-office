@@ -1,0 +1,29 @@
+html[data-cm-theme="Auto"],
+#vditor[data-cm-theme="Auto"] {
+    /* Surface */
+    --cm-bg-color: var(--vscode-editorWidget-background, var(--vscode-textCodeBlock-background, rgba(127, 127, 127, 0.15)));
+    --cm-lang-trigger-bg: var(--vscode-input-background, var(--vscode-dropdown-background, var(--vscode-editorWidget-background, rgba(127, 127, 127, 0.12))));
+    --cm-fg-color: var(--vscode-editor-foreground, #24292e);
+
+    /* Actions */
+    --cm-copy-color: var(--vscode-textLink-foreground, #3794ff);
+    --cm-copy-done-color: var(--vscode-charts-green, #89d185);
+    --cm-delete-color: var(--vscode-errorForeground, #f14c4c);
+
+    /* Editor State */
+    --cm-active-line-bg: var(--vscode-editor-lineHighlightBackground, rgba(127, 127, 127, 0.08));
+    --cm-cursor-fg: var(--vscode-editorCursor-foreground, var(--vscode-editor-foreground, #24292e));
+
+    /* Gutter */
+    --cm-line-number-fg: var(--vscode-editorLineNumber-foreground, rgba(127, 127, 127, 0.55));
+    --cm-line-number-active-fg: var(--vscode-editorLineNumber-activeForeground, var(--vscode-editor-foreground, #24292e));
+
+    /* Selection */
+    --cm-selection-bg-inactive: var(--vscode-editor-inactiveSelectionBackground, rgba(51, 153, 255, 0.25));
+    --cm-selection-bg-focused: var(--vscode-editor-selectionBackground, rgba(51, 153, 255, 0.35));
+    --cm-selection-highlight-bg: var(--vscode-editor-selectionHighlightBackground, rgba(51, 153, 255, 0.15));
+
+    /* Bracket Match */
+    --cm-bracket-match-bg: var(--vscode-editorBracketMatch-background, rgba(84, 174, 255, 0.2));
+    --cm-bracket-match-border: var(--vscode-editorBracketMatch-border, #54aeff);
+}

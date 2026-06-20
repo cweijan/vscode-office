@@ -12,10 +12,11 @@
 .vditor {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border-color);
+  border: var(--vditor-chrome-border, 1px solid var(--border-color));
   border-radius: 3px;
   box-sizing: border-box;
   font-family: @font-family-base;
+  background-color: var(--vditor-root-background, transparent);
 
   .vditor-copy {
     z-index: auto;

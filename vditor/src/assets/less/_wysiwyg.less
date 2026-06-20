@@ -6,7 +6,7 @@
   min-width: 1px;
 
   pre.vditor-reset {
-    background-color: var(--panel-background-color);
+    background-color: var(--textarea-background-color, var(--panel-background-color));
     margin: 0;
     white-space: pre-wrap;
     height: 100%;
@@ -56,7 +56,7 @@
 
       code {
         height: auto;
-        color: var(--textarea-text-color);
+        color: var(--code-fg-color, var(--textarea-text-color));
         height: auto;
         text-align: left;
       }
@@ -71,6 +71,11 @@
     cursor: pointer;
     white-space: initial;
     min-height: 27px;
+
+    > code {
+      color: var(--code-fg-color, var(--front-color));
+      background-color: var(--code-bg-color);
+    }
   }
 
   & > .vditor-reset > h1:before,
@@ -163,16 +168,16 @@
 
   span[data-type="link-ref"],
   sup[data-type="footnotes-ref"] {
-    color: @blurColor;
+    color: var(--link-color, @blurColor);
   }
 
   span[data-type="toc-h"] {
-    color: @blurColor;
+    color: var(--link-color, @blurColor);
     text-decoration: underline;
   }
 
   div[data-type="footnotes-block"] {
-    border-top: 2px solid var(--heading-border-color);
+    border-top: 2px solid var(--border-color);
     padding-top: 24px;
     margin-top: 24px;
   }

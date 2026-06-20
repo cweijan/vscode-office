@@ -46,7 +46,7 @@ export abstract class Constants {
   public static readonly HLJS_OPTIONS = {
     enable: true,
     lineNumber: false,
-    style: "default",
+    style: "Auto",
   };
   public static readonly MATH_OPTIONS: IMath = {
     inlineDigit: false,
