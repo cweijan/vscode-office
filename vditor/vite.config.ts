@@ -26,13 +26,6 @@ export default defineConfig(({ mode }) => {
     define: {
       VDITOR_VERSION: JSON.stringify(pkg.version),
     },
-    css: {
-      preprocessorOptions: {
-        less: {
-          javascriptEnabled: true,
-        },
-      },
-    },
     server: {
       port: 3135,
       host: "127.0.0.1",
