@@ -74,7 +74,6 @@ window.vditor = new Vditor('vditor', {
       autoSpace: true,
     },
     math: {
-      engine: 'KaTeX',
       inlineDigit: true,
     },
   },

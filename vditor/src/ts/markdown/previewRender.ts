@@ -1,6 +1,6 @@
 import {Constants} from "../constants";
 import {setContentTheme} from "../ui/setContentTheme";
-import {addScript, addScriptSync} from "../util/addScript";
+import {addScript} from "../util/addScript";
 import {hasClosestByClassName, hasClosestByMatchTag} from "../util/hasClosest";
 import {merge} from "../util/merge";
 import {anchorRender} from "./anchorRender";

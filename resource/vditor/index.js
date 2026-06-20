@@ -54,8 +54,7 @@ handler.on("open", async (md) => {
       },
       extPath: md.rootPath,
       math: {
-        engine: 'KaTeX',
-        "inlineDigit": true
+        inlineDigit: true
       }
     },
     toolbar: await getToolbar(md.rootPath),

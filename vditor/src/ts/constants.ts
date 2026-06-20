@@ -50,7 +50,6 @@ export abstract class Constants {
     style: "github",
   };
   public static readonly MATH_OPTIONS: IMath = {
-    engine: "KaTeX",
     inlineDigit: false,
     macros: {},
   };
