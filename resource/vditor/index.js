@@ -23,7 +23,6 @@ handler.on("open", async (md) => {
   })
   const editor = new Vditor('vditor', {
     value: md.content,
-    _lutePath: md.rootPath + '/dist/js/lute.min.js',
     cdn: md.rootPath,
     preventMacOptionKey: config.preventMacOptionKey !== false,
     height: '100%',
