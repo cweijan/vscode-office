@@ -1,5 +1,5 @@
-html[data-cm-theme="quiet-light"],
-#vditor[data-cm-theme="quiet-light"] {
+html[data-cm-theme="Quiet Light"],
+#vditor[data-cm-theme="Quiet Light"] {
     /* Surface */
     --cm-bg-color: #f5f5f5;
     --cm-lang-trigger-bg: #ffffff;

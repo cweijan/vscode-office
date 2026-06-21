@@ -11,15 +11,8 @@ let toolbar = [
   'strike',
   'link',
   '|',
-  {
-    name: 'editor-theme-label',
-    tipPosition: 'e',
-  },
-  {
-    name: 'editor-theme',
-    tipPosition: 'e',
-  },
-  "code-theme",
+  'editor-theme-label',
+  "editor-theme",
   '|',
   'list',
   'ordered-list',
@@ -37,6 +30,7 @@ let toolbar = [
   'redo',
   '|',
   'edit-mode',
+  "code-theme",
   'help',
 ]
 
@@ -44,7 +38,7 @@ window.vditor = new Vditor('vditor', {
   cdn: rootPath,
   extPath: rootPath,
   editorTheme: 'Light',
-  codeMirrorTheme: 'Auto',
+  codeMirrorTheme: 'Github',
   toolbar,
   mode: 'wysiwyg',
   height: document.querySelector('.demo-editor').clientHeight,

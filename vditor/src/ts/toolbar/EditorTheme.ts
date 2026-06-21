@@ -6,7 +6,7 @@ import {
 import {setEditorTheme} from "../ui/setEditorTheme";
 import {getEventName} from "../util/compatibility";
 import {MenuItem} from "./MenuItem";
-import {hidePanel, toggleSubMenu} from "./setToolbar";
+import {toggleSubMenu} from "./setToolbar";
 
 export class EditorTheme extends MenuItem {
     public element: HTMLElement;
@@ -26,9 +26,9 @@ export class EditorTheme extends MenuItem {
             if (!button) {
                 return;
             }
-            hidePanel(vditor, ["subToolbar"]);
             const theme = button.getAttribute("data-theme") || "";
             setEditorTheme(vditor, theme);
+            refreshEditorThemePanel(panelElement, theme);
             event.preventDefault();
             event.stopPropagation();
         });

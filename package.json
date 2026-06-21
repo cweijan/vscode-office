@@ -578,16 +578,16 @@
 						"type": "string",
 						"enum": [
 							"Auto",
-							"github",
-							"solarized-light",
-							"material-light",
-							"quiet-light",
-							"one-light",
-							"dracula",
-							"monokai",
-							"one-dark",
-							"solarized-dark",
-							"material-dark"
+							"Github",
+							"Solarized Light",
+							"Material Light",
+							"Quiet Light",
+							"One Light",
+							"Dracula",
+							"Monokai",
+							"One Dark",
+							"Solarized Dark",
+							"Material Dark"
 						],
 						"default": "Auto",
 						"markdownDescription": "CodeMirror syntax theme for code blocks in the Markdown editor."

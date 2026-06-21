@@ -1,5 +1,5 @@
-html[data-cm-theme="dracula"],
-#vditor[data-cm-theme="dracula"] {
+html[data-cm-theme="Dracula"],
+#vditor[data-cm-theme="Dracula"] {
     /* Surface */
     --cm-bg-color: #2a2c38;
     --cm-lang-trigger-bg: #44475a;

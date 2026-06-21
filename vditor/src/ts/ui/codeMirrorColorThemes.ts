@@ -14,11 +14,11 @@ export const CM_THEME_GROUPS: ICodeMirrorThemeGroup[] = [
     },
     {
         titleKey: "code-theme-section-light",
-        themes: ["github", "solarized-light", "material-light", "quiet-light", "one-light"],
+        themes: ["Github", "Solarized Light", "Material Light", "Quiet Light", "One Light"],
     },
     {
         titleKey: "code-theme-section-dark",
-        themes: ["dracula", "monokai", "one-dark", "solarized-dark", "material-dark"],
+        themes: ["Dracula", "Monokai", "One Dark", "Solarized Dark", "Material Dark"],
     },
 ];
 

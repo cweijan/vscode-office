@@ -15,8 +15,9 @@ function loadConfigs() {
 loadConfigs()
 
 const CODE_MIRROR_THEMES = new Set([
-  'Auto', 'default', 'github', 'solarized-light', 'material-light', 'quiet-light', 'one-light',
-  'dracula', 'monokai', 'one-dark', 'solarized-dark', 'material-dark',
+  'Auto', 'default',
+  'Github', 'Solarized Light', 'Material Light', 'Quiet Light', 'One Light',
+  'Dracula', 'Monokai', 'One Dark', 'Solarized Dark', 'Material Dark',
 ])
 
 function normalizeCodeMirrorTheme(theme) {

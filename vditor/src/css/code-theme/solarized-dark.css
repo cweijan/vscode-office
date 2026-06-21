@@ -1,5 +1,5 @@
-html[data-cm-theme="solarized-dark"],
-#vditor[data-cm-theme="solarized-dark"] {
+html[data-cm-theme="Solarized Dark"],
+#vditor[data-cm-theme="Solarized Dark"] {
     /* Surface */
     --cm-bg-color: #002b36;
     --cm-lang-trigger-bg: #073642;

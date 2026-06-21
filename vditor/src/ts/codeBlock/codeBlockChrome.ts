@@ -1,4 +1,7 @@
 import { updateHotkeyTip } from "../util/compatibility";
+import { CM_THEME_GROUPS } from "../ui/codeMirrorColorThemes";
+import { applyCodeMirrorTheme, resolveCodeMirrorTheme } from "../ui/setCodeTheme";
+import { buildThemePickerPanelHTML, refreshThemePickerPanel } from "../ui/themePickerPanel";
 import { filterCodeMirrorLanguageNames, toCodeBlockLanguageName } from "./codeBlockLanguageHints";
 import { applyCodeBlockLanguageChange } from "./codeBlockLanguageInput";
 import {
@@ -34,6 +37,9 @@ interface ICodeBlockChrome {
     langSearch: HTMLInputElement;
     langList: HTMLElement;
     langChevron: HTMLElement;
+    themeWrap?: HTMLElement;
+    themeTrigger?: HTMLButtonElement;
+    themePanel?: HTMLElement;
     editable: boolean;
     getCodeText: () => string;
     langActiveIndex: number;
@@ -41,6 +47,7 @@ interface ICodeBlockChrome {
 
 const chromeMap = new WeakMap<HTMLElement, ICodeBlockChrome>();
 let openLangChrome: ICodeBlockChrome | null = null;
+let openThemeChrome: ICodeBlockChrome | null = null;
 let documentCloseBound = false;
 
 const formatLanguageLabel = (languageName: string) => {
@@ -83,6 +90,7 @@ const bindDeleteButton = (
         event.preventDefault();
         event.stopPropagation();
         closeLangPanel();
+        closeThemePanel();
         const block = resolveCmCodeBlock(vditor, blockElement) || blockElement;
         removeCmCodeBlock(vditor, block);
     });
@@ -142,23 +150,40 @@ const bindChromeEventIsolation = (root: HTMLElement) => {
     }
 };
 
+const eventTargetElement = (event: Event): Element | null => {
+    const target = event.target;
+    if (target instanceof Element) {
+        return target;
+    }
+    if (target instanceof Text) {
+        return target.parentElement;
+    }
+    return null;
+};
+
 const ensureDocumentCloseListener = () => {
     if (documentCloseBound) {
         return;
     }
     documentCloseBound = true;
-    const handleOutsidePointer = (event: Event) => {
-        if (!openLangChrome) {
+    const handleOutsideClick = (event: Event) => {
+        if (!openLangChrome && !openThemeChrome) {
             return;
         }
-        const target = event.target as Element | null;
-        if (target?.closest(".vditor-cm-chrome__lang")) {
+        const element = eventTargetElement(event);
+        if (element?.closest(".vditor-cm-chrome__lang")) {
+            return;
+        }
+        if (element?.closest(".vditor-cm-chrome__theme")) {
+            return;
+        }
+        if (element?.closest(".vditor-cm-chrome__theme-panel")) {
             return;
         }
         closeLangPanel();
+        closeThemePanel();
     };
-    document.addEventListener("mousedown", handleOutsidePointer, true);
-    document.addEventListener("pointerdown", handleOutsidePointer, true);
+    document.addEventListener("click", handleOutsideClick);
 };
 
 const updateLangChevron = (chevron: HTMLElement, open: boolean) => {
@@ -176,6 +201,91 @@ const closeLangPanel = () => {
     openLangChrome.langWrap.classList.remove("vditor-cm-chrome__lang--focused");
     openLangChrome.langActiveIndex = -1;
     openLangChrome = null;
+};
+
+const refreshAllChromeThemePanels = (currentTheme: string) => {
+    for (const panel of document.querySelectorAll(".vditor-cm-chrome__theme-panel .vditor-cm-theme-panel")) {
+        refreshThemePickerPanel(panel as HTMLElement, currentTheme);
+    }
+};
+
+const closeThemePanel = () => {
+    if (!openThemeChrome?.themeWrap) {
+        return;
+    }
+    const chrome = openThemeChrome;
+    chrome.themeWrap.classList.remove("vditor-cm-chrome__theme--open");
+    restoreThemePanel(chrome);
+    openThemeChrome = null;
+};
+
+const positionThemePanel = (chrome: ICodeBlockChrome, vditor: IVditor) => {
+    if (!chrome.themeTrigger || !chrome.themePanel || !chrome.themeWrap) {
+        return;
+    }
+    const panel = chrome.themePanel;
+    const root = vditor.element;
+    const rect = chrome.themeTrigger.getBoundingClientRect();
+    if (panel.parentElement !== root) {
+        root.appendChild(panel);
+    }
+    panel.style.position = "fixed";
+    panel.style.top = `${rect.bottom + 6}px`;
+    panel.style.right = `${window.innerWidth - rect.right}px`;
+    panel.style.left = "auto";
+    panel.style.zIndex = "10002";
+    panel.style.display = "block";
+};
+
+const restoreThemePanel = (chrome: ICodeBlockChrome) => {
+    if (!chrome.themePanel || !chrome.themeWrap) {
+        return;
+    }
+    const panel = chrome.themePanel;
+    panel.style.position = "";
+    panel.style.top = "";
+    panel.style.right = "";
+    panel.style.left = "";
+    panel.style.zIndex = "";
+    panel.style.display = "";
+    if (panel.parentElement !== chrome.themeWrap) {
+        chrome.themeWrap.appendChild(panel);
+    }
+};
+
+const setThemePanelOpen = (vditor: IVditor, chrome: ICodeBlockChrome, open: boolean) => {
+    if (!chrome.themeWrap || !chrome.themePanel) {
+        return;
+    }
+    if (open) {
+        ensureDocumentCloseListener();
+        closeLangPanel();
+        if (openThemeChrome && openThemeChrome !== chrome) {
+            closeThemePanel();
+        }
+        const currentTheme = resolveCodeMirrorTheme(vditor.options);
+        chrome.themePanel.innerHTML = buildThemePickerPanelHTML(CM_THEME_GROUPS, currentTheme);
+        chrome.themeWrap.classList.add("vditor-cm-chrome__theme--open");
+        openThemeChrome = chrome;
+        positionThemePanel(chrome, vditor);
+    } else if (openThemeChrome === chrome) {
+        closeThemePanel();
+    }
+};
+
+const bindThemePanel = (vditor: IVditor, chrome: ICodeBlockChrome) => {
+    if (!chrome.themePanel) {
+        return;
+    }
+    chrome.themePanel.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const button = (event.target as HTMLElement).closest("button[data-theme]") as HTMLElement | null;
+        if (!button) {
+            return;
+        }
+        const theme = applyCodeMirrorTheme(vditor, button.getAttribute("data-theme") || "");
+        refreshAllChromeThemePanels(theme);
+    });
 };
 
 const focusLangSearch = (chrome: ICodeBlockChrome) => {
@@ -208,6 +318,7 @@ const updateLangActiveItem = (chrome: ICodeBlockChrome, index: number) => {
 const setLangPanelOpen = (chrome: ICodeBlockChrome, open: boolean) => {
     if (open) {
         ensureDocumentCloseListener();
+        closeThemePanel();
         if (openLangChrome && openLangChrome !== chrome) {
             closeLangPanel();
         }
@@ -371,6 +482,26 @@ const createChromeRoot = (editable: boolean) => {
     const actions = document.createElement("div");
     actions.className = "vditor-cm-chrome__actions";
 
+    let themeWrap: HTMLElement | undefined;
+    let themeTrigger: HTMLButtonElement | undefined;
+    let themePanel: HTMLElement | undefined;
+    if (editable) {
+        themeWrap = document.createElement("div");
+        themeWrap.className = "vditor-cm-chrome__theme";
+
+        themeTrigger = document.createElement("button");
+        themeTrigger.type = "button";
+        themeTrigger.className = "vditor-cm-chrome__theme-trigger";
+        themeTrigger.setAttribute("aria-label", window.VditorI18n["code-theme"] || "CodeMirror Theme");
+        themeTrigger.innerHTML = `<span class="vditor-cm-chrome__theme-icon">${codicon("color-mode")}</span>`;
+        themeWrap.appendChild(themeTrigger);
+
+        themePanel = document.createElement("div");
+        themePanel.className = "vditor-cm-chrome__theme-panel";
+        themeWrap.appendChild(themePanel);
+        actions.appendChild(themeWrap);
+    }
+
     let deleteBtn: HTMLButtonElement | undefined;
     if (editable) {
         deleteBtn = document.createElement("button");
@@ -409,6 +540,9 @@ const createChromeRoot = (editable: boolean) => {
         langSearch,
         langList,
         langChevron,
+        themeWrap,
+        themeTrigger,
+        themePanel,
     };
 };
 
@@ -494,6 +628,24 @@ export const ensureCodeBlockChrome = (
                 setLangPanelOpen(chrome!, !isOpen);
             });
             bindLanguagePanel(vditor, blockElement, chrome);
+            if (chrome.themeWrap && chrome.themeTrigger) {
+                chrome.themeWrap.addEventListener("mousedown", (event) => {
+                    event.stopPropagation();
+                });
+                chrome.themePanel?.addEventListener("mousedown", (event) => {
+                    event.stopPropagation();
+                });
+                chrome.themeTrigger.addEventListener("mousedown", (event) => {
+                    event.stopPropagation();
+                });
+                chrome.themeTrigger.addEventListener("click", (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const isOpen = chrome!.themeWrap!.classList.contains("vditor-cm-chrome__theme--open");
+                    setThemePanelOpen(vditor, chrome!, !isOpen);
+                });
+                bindThemePanel(vditor, chrome);
+            }
         }
     }
 
@@ -511,6 +663,9 @@ export const removeCodeBlockChrome = (target: HTMLElement) => {
     }
     if (openLangChrome === chrome) {
         closeLangPanel();
+    }
+    if (openThemeChrome === chrome) {
+        closeThemePanel();
     }
     chrome.root.remove();
     chromeMap.delete(target);

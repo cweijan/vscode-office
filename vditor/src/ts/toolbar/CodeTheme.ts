@@ -1,14 +1,11 @@
 import {CM_THEME_GROUPS} from "../ui/codeMirrorColorThemes";
-import {resolveCodeMirrorTheme, setCodeTheme} from "../ui/setCodeTheme";
+import {applyCodeMirrorTheme, resolveCodeMirrorTheme} from "../ui/setCodeTheme";
 import {buildThemePickerPanelHTML, refreshThemePickerPanel} from "../ui/themePickerPanel";
 import {getEventName} from "../util/compatibility";
 import {MenuItem} from "./MenuItem";
-import {hidePanel, toggleSubMenu} from "./setToolbar";
+import {toggleSubMenu} from "./setToolbar";
 
-const formatThemeLabel = (themeId: string) => themeId
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+const formatThemeLabel = (themeId: string) => themeId;
 
 const buildCodeThemePanelHTML = (currentTheme: string) => {
     return buildThemePickerPanelHTML(CM_THEME_GROUPS, currentTheme, formatThemeLabel);
@@ -38,15 +35,9 @@ export class CodeTheme extends MenuItem {
             if (!button) {
                 return;
             }
-            hidePanel(vditor, ["subToolbar"]);
             const theme = button.getAttribute("data-theme") || "";
-            vditor.options.codeMirrorTheme = theme;
-            vditor.options.preview.hljs.style = theme;
-            setCodeTheme(theme, vditor.element);
+            applyCodeMirrorTheme(vditor, theme);
             refreshCodeThemePanel(panelElement, theme);
-            if (vditor.options.changeCodeTheme) {
-                vditor.options.changeCodeTheme(theme);
-            }
             event.preventDefault();
             event.stopPropagation();
         });

@@ -1,5 +1,5 @@
-html[data-cm-theme="monokai"],
-#vditor[data-cm-theme="monokai"] {
+html[data-cm-theme="Monokai"],
+#vditor[data-cm-theme="Monokai"] {
     /* Surface */
     --cm-bg-color: #292924;
     --cm-lang-trigger-bg: #3e3d32;

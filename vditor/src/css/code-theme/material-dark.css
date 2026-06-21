@@ -1,5 +1,5 @@
-html[data-cm-theme="material-dark"],
-#vditor[data-cm-theme="material-dark"] {
+html[data-cm-theme="Material Dark"],
+#vditor[data-cm-theme="Material Dark"] {
     /* Surface */
     --cm-bg-color: #263238;
     --cm-lang-trigger-bg: #37474f;

@@ -1,5 +1,5 @@
-html[data-cm-theme="github"],
-#vditor[data-cm-theme="github"] {
+html[data-cm-theme="Github"],
+#vditor[data-cm-theme="Github"] {
     /* Surface */
     --cm-bg-color: #f6f8fa;
     --cm-lang-trigger-bg: #ffffff;

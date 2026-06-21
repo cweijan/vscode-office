@@ -39,3 +39,14 @@ export const setCodeTheme = (codeTheme: string, root?: HTMLElement) => {
     document.documentElement.setAttribute(CM_THEME_ATTR, theme);
     element.setAttribute(CM_THEME_ATTR, theme);
 };
+
+export const applyCodeMirrorTheme = (vditor: IVditor, theme: string) => {
+    const resolved = normalizeCodeMirrorThemeId(theme);
+    vditor.options.codeMirrorTheme = resolved;
+    vditor.options.preview.hljs.style = resolved;
+    setCodeTheme(resolved, vditor.element);
+    if (vditor.options.changeCodeTheme) {
+        vditor.options.changeCodeTheme(resolved);
+    }
+    return resolved;
+};
