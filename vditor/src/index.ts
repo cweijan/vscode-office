@@ -27,6 +27,8 @@ import {setTheme} from "./ts/ui/setTheme";
 import {Undo} from "./ts/undo/index";
 import {Upload} from "./ts/upload/index";
 import {addScript} from "./ts/util/addScript";
+import {clearCacheFocus} from "./ts/util/cacheFocus";
+import {accessLocalStorage} from "./ts/util/compatibility";
 import {getSelectText} from "./ts/util/getSelectText";
 import {Options} from "./ts/util/Options";
 import {processCodeRender} from "./ts/util/processCode";
@@ -193,7 +195,10 @@ class Vditor {
 
     /** 清除缓存 */
     public clearCache() {
-        localStorage.removeItem(this.vditor.options.cache.id);
+        if (accessLocalStorage()) {
+            localStorage.removeItem(this.vditor.options.cache.id);
+            clearCacheFocus(this.vditor.options.cache.id);
+        }
     }
 
     /** 禁用缓存 */

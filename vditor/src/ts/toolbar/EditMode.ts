@@ -3,6 +3,7 @@ import {processAfterRender} from "../ir/process";
 import {getMarkdown} from "../markdown/getMarkdown";
 import {mathRender} from "../markdown/mathRender";
 import {setPadding} from "../ui/initUI";
+import {restoreCacheFocus, wasCacheContentRestored} from "../util/cacheFocus";
 import {getEventName} from "../util/compatibility";
 import {highlightToolbar} from "../util/highlightToolbar";
 import {processCodeRender} from "../util/processCode";
@@ -97,6 +98,8 @@ export const setEditMode = (vditor: IVditor, type: string, event: Event | string
         // 初始化不 focus
         vditor[vditor.currentMode].element.focus();
         highlightToolbar(vditor);
+    } else if (wasCacheContentRestored(vditor)) {
+        restoreCacheFocus(vditor);
     }
     renderToc(vditor);
 

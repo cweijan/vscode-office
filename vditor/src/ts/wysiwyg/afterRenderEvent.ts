@@ -1,4 +1,5 @@
 import { getMarkdown } from "../markdown/getMarkdown";
+import { saveCacheFocus } from "../util/cacheFocus";
 import { accessLocalStorage } from "../util/compatibility";
 import { getHistoryRecordWait } from "../util/historySchedule";
 import { matchHotkeyNew } from "../util/hotKey";
@@ -55,6 +56,7 @@ function recordHistory(vditor: IVditor, options = { enableAddUndoStack: true, en
 
     if (vditor.options.cache.enable && accessLocalStorage()) {
         localStorage.setItem(vditor.options.cache.id, text);
+        saveCacheFocus(vditor);
         if (vditor.options.cache.after) {
             vditor.options.cache.after(text);
         }

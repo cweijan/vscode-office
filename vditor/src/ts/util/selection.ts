@@ -28,6 +28,27 @@ export const preserveEditorScroll = (vditor: IVditor, action: () => void) => {
     scrollEl.scrollTop = scrollTop;
 };
 
+/** 获取选区在编辑器内的字符偏移，与 setSelectionByPosition 对应 */
+export const getEditorTextOffset = (editor: HTMLElement, range?: Range) => {
+    if (!range) {
+        if (getSelection().rangeCount === 0) {
+            return { start: 0, end: 0 };
+        }
+        range = window.getSelection().getRangeAt(0);
+    }
+    try {
+        const preRange = editor.ownerDocument.createRange();
+        preRange.selectNodeContents(editor);
+        preRange.setEnd(range.startContainer, range.startOffset);
+        const start = preRange.toString().length;
+        preRange.setEnd(range.endContainer, range.endOffset);
+        const end = preRange.toString().length;
+        return { start, end };
+    } catch {
+        return { start: 0, end: 0 };
+    }
+};
+
 export const getCursorPosition = (editor: HTMLElement) => {
     const range = window.getSelection().getRangeAt(0);
     if (!editor.contains(range.startContainer) && !hasClosestByClassName(range.startContainer, "vditor-panel--none")) {

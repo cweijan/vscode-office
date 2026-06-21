@@ -746,6 +746,35 @@ export const renderCodeBlocks = (vditor: IVditor) => {
 /** @deprecated use renderCodeBlocks */
 export const renderWysiwygCodeBlocks = renderCodeBlocks;
 
+export const restoreCodeMirrorFocus = (
+    blockElement: HTMLElement,
+    anchor: number,
+    head: number,
+    vditor: IVditor,
+) => {
+    if (!blockElement) {
+        return;
+    }
+    if (!bindings.get(blockElement)) {
+        mountCodeMirror(blockElement, vditor);
+    }
+    const binding = bindings.get(blockElement);
+    if (!binding) {
+        return;
+    }
+    const apply = () => {
+        const docLength = binding.view.state.doc.length;
+        const safeAnchor = Math.max(0, Math.min(anchor, docLength));
+        const safeHead = Math.max(0, Math.min(head, docLength));
+        binding.view.dispatch({
+            selection: { anchor: safeAnchor, head: safeHead },
+            scrollIntoView: false,
+        });
+        focusCmViewWithoutScroll(binding.view);
+    };
+    preserveEditorScroll(vditor, apply);
+};
+
 export const focusCodeMirror = (
     blockElement: HTMLElement,
     collapseToStart = true,

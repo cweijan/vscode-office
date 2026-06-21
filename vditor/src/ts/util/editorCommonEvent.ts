@@ -18,6 +18,7 @@ import { getSelectText } from "./getSelectText";
 import { hasClosestByAttribute, hasClosestByMatchTag } from "./hasClosest";
 import { matchHotKey } from "./hotKey";
 import { getEditorRange } from "./selection";
+import { saveCacheFocus } from "./cacheFocus";
 import { clearActiveHeadingMarker } from "./updateActiveHeadingMarker";
 import { handleVscodeShortcut } from "./vscodeShortcut";
 
@@ -75,6 +76,7 @@ export const blurEvent = (vditor: IVditor, editorElement: HTMLElement) => {
         const relatedTarget = event.relatedTarget as Node | null;
         if (!relatedTarget || (!isInsideCodeMirror(relatedTarget) && !isInsideCodeBlockChrome(relatedTarget))) {
             vditor[vditor.currentMode].range = getEditorRange(vditor);
+            saveCacheFocus(vditor);
         }
         if (vditor.options.blur) {
             vditor.options.blur(getMarkdown(vditor));

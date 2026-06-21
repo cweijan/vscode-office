@@ -4,6 +4,7 @@ import {Constants} from "../constants";
 import {getMarkdown} from "../markdown/getMarkdown";
 import {removeCurrentToolbar} from "../toolbar/setToolbar";
 import {accessLocalStorage} from "../util/compatibility";
+import {saveCacheFocus} from "../util/cacheFocus";
 import {listToggle} from "../util/fixBrowserBehavior";
 import {hasClosestBlock, hasClosestByAttribute, hasClosestByClassName, hasClosestByMatchTag} from "../util/hasClosest";
 import {getEditorRange, getSelectPosition, setRangeByWbr, setSelectionFocus} from "../util/selection";
@@ -61,6 +62,7 @@ export const processAfterRender = (vditor: IVditor, options = {
 
         if (vditor.options.cache.enable && accessLocalStorage()) {
             localStorage.setItem(vditor.options.cache.id, text);
+            saveCacheFocus(vditor);
             if (vditor.options.cache.after) {
                 vditor.options.cache.after(text);
             }

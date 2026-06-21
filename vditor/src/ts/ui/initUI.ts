@@ -1,6 +1,7 @@
 import {Constants} from "../constants";
 import {setEditMode} from "../toolbar/EditMode";
 import {hidePanel} from "../toolbar/setToolbar";
+import {bindCacheFocusPersistence, markCacheContentRestored} from "../util/cacheFocus";
 import {accessLocalStorage} from "../util/compatibility";
 import {macOptionSymbolEvent} from "../util/editorCommonEvent";
 import {initEditorTheme} from "./setEditorTheme";
@@ -65,7 +66,10 @@ export const initUI = (vditor: IVditor) => {
 
   initEditorTheme(vditor);
 
-  setEditMode(vditor, vditor.options.mode, afterRender(vditor));
+  bindCacheFocusPersistence(vditor);
+
+  const initValue = afterRender(vditor);
+  setEditMode(vditor, vditor.options.mode, initValue);
 
   document.execCommand("DefaultParagraphSeparator", false, "p");
 
@@ -121,6 +125,9 @@ const afterRender = (vditor: IVditor) => {
 
   // set default value
   let initValue = accessLocalStorage() && localStorage.getItem(vditor.options.cache.id);
+  if (vditor.options.cache.enable && initValue) {
+    markCacheContentRestored(vditor);
+  }
   if (!vditor.options.cache.enable || !initValue) {
     if (vditor.options.value) {
       initValue = vditor.options.value;
