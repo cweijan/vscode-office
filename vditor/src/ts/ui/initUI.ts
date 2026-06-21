@@ -2,6 +2,7 @@ import {Constants} from "../constants";
 import {setEditMode} from "../toolbar/EditMode";
 import {hidePanel} from "../toolbar/setToolbar";
 import {bindCacheFocusPersistence, markCacheContentRestored} from "../util/cacheFocus";
+import {bindHistoryInputBufferClick} from "../util/historyInputBuffer";
 import {accessLocalStorage} from "../util/compatibility";
 import {macOptionSymbolEvent} from "../util/editorCommonEvent";
 import {initEditorTheme} from "./setEditorTheme";
@@ -67,6 +68,7 @@ export const initUI = (vditor: IVditor) => {
   initEditorTheme(vditor);
 
   bindCacheFocusPersistence(vditor);
+  bindHistoryInputBufferClick(vditor);
 
   const initValue = afterRender(vditor);
   setEditMode(vditor, vditor.options.mode, initValue);

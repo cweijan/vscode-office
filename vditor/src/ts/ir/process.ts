@@ -5,6 +5,7 @@ import {getMarkdown} from "../markdown/getMarkdown";
 import {removeCurrentToolbar} from "../toolbar/setToolbar";
 import {accessLocalStorage} from "../util/compatibility";
 import {saveCacheFocus} from "../util/cacheFocus";
+import {clearHistoryInputBuffer} from "../util/historyInputBufferState";
 import {listToggle} from "../util/fixBrowserBehavior";
 import {hasClosestBlock, hasClosestByAttribute, hasClosestByClassName, hasClosestByMatchTag} from "../util/hasClosest";
 import {getEditorRange, getSelectPosition, setRangeByWbr, setSelectionFocus} from "../util/selection";
@@ -36,6 +37,43 @@ export const processHint = (vditor: IVditor) => {
     }
 };
 
+export const recordHistory = (vditor: IVditor, options = {
+    enableAddUndoStack: true,
+    enableHint: false,
+    enableInput: true,
+}) => {
+    if (vditor.ir.composingLock) {
+        return;
+    }
+    const text = getMarkdown(vditor);
+    if (typeof vditor.options.input === "function" && options.enableInput) {
+        vditor.options.input(text);
+    }
+
+    if (vditor.options.counter.enable) {
+        vditor.counter.render(vditor, text);
+    }
+
+    if (vditor.options.cache.enable && accessLocalStorage()) {
+        localStorage.setItem(vditor.options.cache.id, text);
+        saveCacheFocus(vditor);
+        if (vditor.options.cache.after) {
+            vditor.options.cache.after(text);
+        }
+    }
+
+    if (options.enableAddUndoStack) {
+        vditor.undo.addToUndoStack(vditor);
+    }
+
+    if (vditor.options.outline.enable) {
+        renderToc(vditor);
+    }
+
+    vditor.ir.afterRenderLastAt = Date.now();
+    clearHistoryInputBuffer(vditor);
+};
+
 export const processAfterRender = (vditor: IVditor, options = {
     enableAddUndoStack: true,
     enableHint: false,
@@ -48,35 +86,7 @@ export const processAfterRender = (vditor: IVditor, options = {
     clearTimeout(vditor.ir.processTimeoutId);
     const wait = getHistoryRecordWait(vditor.ir.afterRenderLastAt, vditor.options.undoDelay);
     vditor.ir.processTimeoutId = window.setTimeout(() => {
-        if (vditor.ir.composingLock) {
-            return;
-        }
-        const text = getMarkdown(vditor);
-        if (typeof vditor.options.input === "function" && options.enableInput) {
-            vditor.options.input(text);
-        }
-
-        if (vditor.options.counter.enable) {
-            vditor.counter.render(vditor, text);
-        }
-
-        if (vditor.options.cache.enable && accessLocalStorage()) {
-            localStorage.setItem(vditor.options.cache.id, text);
-            saveCacheFocus(vditor);
-            if (vditor.options.cache.after) {
-                vditor.options.cache.after(text);
-            }
-        }
-
-        if (options.enableAddUndoStack) {
-            vditor.undo.addToUndoStack(vditor);
-        }
-
-        if (vditor.options.outline.enable) {
-            renderToc(vditor);
-        }
-
-        vditor.ir.afterRenderLastAt = Date.now();
+        recordHistory(vditor, options);
     }, wait);
 };
 

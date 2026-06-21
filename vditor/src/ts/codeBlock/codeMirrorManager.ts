@@ -1,11 +1,12 @@
-import { indentWithTab } from "@codemirror/commands";
+import { indentWithTab, redo, redoDepth, undo, undoDepth } from "@codemirror/commands";
 import { LanguageSupport } from "@codemirror/language";
 import { Compartment, EditorSelection, Prec } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 
 import { expandMarker } from "../ir/expandMarker";
-import { processAfterRender } from "../ir/process";
+import { processAfterRender, recordHistory as recordIrHistory } from "../ir/process";
 import { Constants } from "../constants";
+import { recordHistory as recordWysiwygHistory } from "../wysiwyg/afterRenderEvent";
 import { getEditorRange, preserveEditorScroll, setRangeByWbr, setSelectionFocus } from "../util/selection";
 import { afterRenderEvent } from "../wysiwyg/afterRenderEvent";
 import {
@@ -185,20 +186,90 @@ const loadLanguage = (languageName: string): Promise<LanguageSupport | undefined
     return language.load();
 };
 
+const syncRenderOptions = {
+    enableAddUndoStack: false,
+    enableHint: false,
+    enableInput: true,
+};
+
 const scheduleSync = (binding: CodeMirrorBinding, vditor: IVditor) => {
     window.clearTimeout(binding.syncTimer);
     binding.syncTimer = window.setTimeout(() => {
-        const options = {
-            enableAddUndoStack: true,
-            enableHint: false,
-            enableInput: true,
-        };
         if (vditor.currentMode === "wysiwyg") {
-            afterRenderEvent(vditor, options);
+            afterRenderEvent(vditor, syncRenderOptions);
         } else if (vditor.currentMode === "ir") {
-            processAfterRender(vditor, options);
+            processAfterRender(vditor, syncRenderOptions);
         }
     }, vditor.options.undoDelay);
+};
+
+/** 离开 CodeMirror 时将代码块变更合并入 Vditor 外部撤销栈 */
+export const flushCodeMirrorExternalUndo = (vditor: IVditor) => {
+    if (isInsideCodeMirror(document.activeElement)) {
+        return;
+    }
+    const editor = getModeEditor(vditor);
+    if (!editor) {
+        return;
+    }
+    for (const block of editor.querySelectorAll(`.${CM_BLOCK_CLASS}`)) {
+        const binding = bindings.get(block as HTMLElement);
+        if (!binding) {
+            continue;
+        }
+        window.clearTimeout(binding.syncTimer);
+        binding.syncCode.textContent = binding.view.state.doc.toString();
+    }
+    const recordOptions = {
+        enableAddUndoStack: true,
+        enableHint: false,
+        enableInput: true,
+    };
+    if (vditor.currentMode === "wysiwyg") {
+        clearTimeout(vditor.wysiwyg.afterRenderTimeoutId);
+        recordWysiwygHistory(vditor, recordOptions);
+    } else if (vditor.currentMode === "ir") {
+        clearTimeout(vditor.ir.processTimeoutId);
+        recordIrHistory(vditor, recordOptions);
+    }
+};
+
+export const getActiveCodeMirrorView = (): EditorView | undefined => {
+    const cmEditor = document.activeElement?.closest(".cm-editor");
+    if (!cmEditor) {
+        return undefined;
+    }
+    const blockElement = cmEditor.closest("[data-type='code-block']") as HTMLElement | null;
+    if (!blockElement) {
+        return undefined;
+    }
+    return bindings.get(blockElement)?.view;
+};
+
+export const canUndoActiveCodeMirror = () => {
+    const view = getActiveCodeMirrorView();
+    return !!view && undoDepth(view.state) > 0;
+};
+
+export const canRedoActiveCodeMirror = () => {
+    const view = getActiveCodeMirrorView();
+    return !!view && redoDepth(view.state) > 0;
+};
+
+export const undoActiveCodeMirror = () => {
+    const view = getActiveCodeMirrorView();
+    if (!view || undoDepth(view.state) === 0) {
+        return false;
+    }
+    return undo(view);
+};
+
+export const redoActiveCodeMirror = () => {
+    const view = getActiveCodeMirrorView();
+    if (!view || redoDepth(view.state) === 0) {
+        return false;
+    }
+    return redo(view);
 };
 
 const syncCodeFromView = (binding: CodeMirrorBinding, vditor: IVditor) => {
@@ -307,6 +378,8 @@ const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding:
                 return;
             }
             clearCmSelection(binding.view);
+            flushCodeMirrorExternalUndo(vditor);
+            vditor.undo.resetIcon(vditor);
         }, 0);
         return false;
     },
@@ -450,11 +523,6 @@ const exitCodeMirrorToAdjacentBlock = (
 ) => {
     view.contentDOM.blur();
     focusAdjacentEditorBlock(vditor, blockElement, direction);
-    if (vditor.currentMode === "wysiwyg") {
-        afterRenderEvent(vditor);
-    } else if (vditor.currentMode === "ir") {
-        processAfterRender(vditor);
-    }
 };
 
 const buildCodeMirrorNavigationKeymap = (vditor: IVditor, blockElement: HTMLElement) =>
@@ -720,6 +788,7 @@ const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor) => {
                     return;
                 }
                 syncCodeFromView(binding, vditor);
+                vditor.undo.resetIcon(vditor);
             }),
             EditorView.domEventHandlers(cmDomEventHandlers(vditor, blockElement, binding)),
         ],

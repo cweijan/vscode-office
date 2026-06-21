@@ -1,6 +1,7 @@
 import { getMarkdown } from "../markdown/getMarkdown";
 import { saveCacheFocus } from "../util/cacheFocus";
 import { accessLocalStorage } from "../util/compatibility";
+import { clearHistoryInputBuffer } from "../util/historyInputBufferState";
 import { getHistoryRecordWait } from "../util/historySchedule";
 import { matchHotkeyNew } from "../util/hotKey";
 import { formatMs, logPerf } from "../util/log";
@@ -8,7 +9,7 @@ import { formatMs, logPerf } from "../util/log";
 
 export function handlerHistoryEvent(event: KeyboardEvent, vditor: IVditor,): boolean {
 
-    if (matchHotkeyNew("^s", event) || matchHotkeyNew("^x", event) || matchHotkeyNew("^v", event)) {
+    if (matchHotkeyNew("^s", event) || matchHotkeyNew("^x", event)) {
         clearTimeout(vditor.wysiwyg.afterRenderTimeoutId);
         recordHistory(vditor)
     }
@@ -31,7 +32,7 @@ export const afterRenderEvent = (vditor: IVditor, options = {
     }, wait);
 };
 
-function recordHistory(vditor: IVditor, options = { enableAddUndoStack: true, enableInput: true, }) {
+export function recordHistory(vditor: IVditor, options = { enableAddUndoStack: true, enableInput: true, }) {
     if (vditor.wysiwyg.composingLock) {
         return;
     }
@@ -78,4 +79,5 @@ function recordHistory(vditor: IVditor, options = { enableAddUndoStack: true, en
     });
 
     vditor.wysiwyg.afterRenderLastAt = Date.now();
+    clearHistoryInputBuffer(vditor);
 }

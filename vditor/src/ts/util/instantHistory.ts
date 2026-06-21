@@ -1,7 +1,8 @@
 import { processAfterRender } from "../ir/process";
 import { afterRenderEvent } from "../wysiwyg/afterRenderEvent";
+import { clearHistoryInputBuffer } from "./historyInputBufferState";
 
-const clearHistoryTimeout = (vditor: IVditor) => {
+export const clearPendingHistoryTimeout = (vditor: IVditor) => {
     if (vditor.currentMode === "wysiwyg") {
         clearTimeout(vditor.wysiwyg.afterRenderTimeoutId);
     } else if (vditor.currentMode === "ir") {
@@ -9,13 +10,17 @@ const clearHistoryTimeout = (vditor: IVditor) => {
     }
 };
 
+const clearHistoryTimeout = clearPendingHistoryTimeout;
+
 export const recordHistoryPosition = (vditor: IVditor) => {
     clearHistoryTimeout(vditor);
+    clearHistoryInputBuffer(vditor);
     vditor.undo.addToUndoStack(vditor);
 };
 
 export const recordHistoryChange = (vditor: IVditor, enableHint = false) => {
     clearHistoryTimeout(vditor);
+    clearHistoryInputBuffer(vditor);
     vditor.undo.addToUndoStack(vditor);
     if (vditor.currentMode === "wysiwyg") {
         afterRenderEvent(vditor, {

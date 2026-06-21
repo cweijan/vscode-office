@@ -16,6 +16,7 @@ import {
 } from "../util/hasClosest";
 import { hasClosestByHeadings } from "../util/hasClosestByHeadings";
 import { isDeleteInput, recordHistoryChange } from "../util/instantHistory";
+import { flushBufferedHistory, trackHistoryInputFromEvent } from "../util/historyInputBuffer";
 import {
     preventImpreciseLineStartClick,
     getCursorPosition,
@@ -222,6 +223,9 @@ class WYSIWYG {
                 return;
             }
             const recordInstantDelete = isDeleteInput(event);
+            if (recordInstantDelete) {
+                trackHistoryInputFromEvent(vditor, event);
+            }
             if (this.preventInput) {
                 this.preventInput = false;
                 afterRenderEvent(vditor);
@@ -240,6 +244,11 @@ class WYSIWYG {
             }
             if (!blockElement) {
                 return;
+            }
+
+            let shouldFlushHistory = false;
+            if (!recordInstantDelete) {
+                shouldFlushHistory = trackHistoryInputFromEvent(vditor, event);
             }
 
             // 前后空格处理
@@ -285,6 +294,8 @@ class WYSIWYG {
                 }
                 if (recordInstantDelete) {
                     recordHistoryChange(vditor);
+                } else if (shouldFlushHistory) {
+                    flushBufferedHistory(vditor);
                 }
                 return;
             }
@@ -292,6 +303,8 @@ class WYSIWYG {
             input(vditor, range, event);
             if (recordInstantDelete) {
                 recordHistoryChange(vditor);
+            } else if (shouldFlushHistory) {
+                flushBufferedHistory(vditor);
             }
         });
 

@@ -11,6 +11,7 @@ import {
 import { paste } from "../util/fixBrowserBehavior";
 import { hasClosestByClassName } from "../util/hasClosest";
 import { isDeleteInput, recordHistoryChange } from "../util/instantHistory";
+import { flushBufferedHistory, trackHistoryInputFromEvent } from "../util/historyInputBuffer";
 import {
     getEditorRange, setRangeByWbr,
     setSelectionFocus,
@@ -128,6 +129,9 @@ class IR {
                 return;
             }
             const recordInstantDelete = isDeleteInput(event);
+            if (recordInstantDelete) {
+                trackHistoryInputFromEvent(vditor, event);
+            }
             if (this.preventInput) {
                 this.preventInput = false;
                 processAfterRender(vditor, {
@@ -140,9 +144,15 @@ class IR {
             if (this.composingLock || event.data === "‘" || event.data === "“" || event.data === "《") {
                 return;
             }
+            let shouldFlushHistory = false;
+            if (!recordInstantDelete) {
+                shouldFlushHistory = trackHistoryInputFromEvent(vditor, event);
+            }
             input(vditor, getSelection().getRangeAt(0).cloneRange(), false, event);
             if (recordInstantDelete) {
                 recordHistoryChange(vditor);
+            } else if (shouldFlushHistory) {
+                flushBufferedHistory(vditor);
             }
         });
 

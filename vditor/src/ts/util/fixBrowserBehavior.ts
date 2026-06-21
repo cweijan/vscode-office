@@ -16,7 +16,7 @@ import {
 } from "./hasClosest";
 import { getLastNode } from "./hasClosest";
 import { highlightToolbar } from "./highlightToolbar";
-import { recordHistoryChange, recordHistoryPosition } from "./instantHistory";
+import { clearPendingHistoryTimeout, recordHistoryChange, recordHistoryPosition } from "./instantHistory";
 import { matchHotKey } from "./hotKey";
 import { isPasteableUrl, linkifyPastePlainText } from "./linkifyPaste";
 import { processCodeRender, processPasteCode } from "./processCode";
@@ -1434,7 +1434,7 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
     }
     event.stopPropagation();
     event.preventDefault();
-    recordHistoryPosition(vditor);
+    clearPendingHistoryTimeout(vditor);
     let textHTML;
     let textPlain;
     let files;

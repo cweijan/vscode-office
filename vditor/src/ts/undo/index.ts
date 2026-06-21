@@ -1,8 +1,12 @@
 import {diff_match_patch, patch_obj} from "diff-match-patch";
 import {
+    canRedoActiveCodeMirror,
+    canUndoActiveCodeMirror,
     deactivateAllCodeMirrors,
     isInsideCodeMirror,
+    redoActiveCodeMirror,
     remountCodeMirrorsAfterDomReplace,
+    undoActiveCodeMirror,
 } from "../codeBlock/codeMirrorManager";
 import {disableToolbar, enableToolbar, hidePanel} from "../toolbar/setToolbar";
 import {isFirefox, isSafari} from "../util/compatibility";
@@ -41,13 +45,13 @@ class Undo {
             return;
         }
 
-        if (this[vditor.currentMode].undoStack.length > 1) {
+        if (this[vditor.currentMode].undoStack.length > 1 || canUndoActiveCodeMirror()) {
             enableToolbar(vditor.toolbar.elements, ["undo"]);
         } else {
             disableToolbar(vditor.toolbar.elements, ["undo"]);
         }
 
-        if (this[vditor.currentMode].redoStack.length !== 0) {
+        if (this[vditor.currentMode].redoStack.length !== 0 || canRedoActiveCodeMirror()) {
             enableToolbar(vditor.toolbar.elements, ["redo"]);
         } else {
             disableToolbar(vditor.toolbar.elements, ["redo"]);
@@ -56,6 +60,11 @@ class Undo {
 
     public undo(vditor: IVditor) {
         if (vditor[vditor.currentMode].element.getAttribute("contenteditable") === "false") {
+            return;
+        }
+        if (isInsideCodeMirror(document.activeElement)) {
+            undoActiveCodeMirror();
+            this.resetIcon(vditor);
             return;
         }
         if (this[vditor.currentMode].undoStack.length < 2) {
@@ -74,6 +83,11 @@ class Undo {
 
     public redo(vditor: IVditor) {
         if (vditor[vditor.currentMode].element.getAttribute("contenteditable") === "false") {
+            return;
+        }
+        if (isInsideCodeMirror(document.activeElement)) {
+            redoActiveCodeMirror();
+            this.resetIcon(vditor);
             return;
         }
         const state = this[vditor.currentMode].redoStack.pop();
@@ -215,17 +229,7 @@ class Undo {
                 processCodeRender(item, vditor);
             });
 
-        if (this[vditor.currentMode].undoStack.length > 1) {
-            enableToolbar(vditor.toolbar.elements, ["undo"]);
-        } else {
-            disableToolbar(vditor.toolbar.elements, ["undo"]);
-        }
-
-        if (this[vditor.currentMode].redoStack.length !== 0) {
-            enableToolbar(vditor.toolbar.elements, ["redo"]);
-        } else {
-            disableToolbar(vditor.toolbar.elements, ["redo"]);
-        }
+        this.resetIcon(vditor);
     }
 
     private resetStack() {
