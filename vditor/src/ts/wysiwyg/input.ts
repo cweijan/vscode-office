@@ -3,7 +3,7 @@ import {
     hasClosestBlock, hasClosestByAttribute, hasTopClosestByTag,
 } from "../util/hasClosest";
 import { hasClosestByTag } from "../util/hasClosestByHeadings";
-import { log } from "../util/log";
+import { log, formatMs, logPerf } from "../util/log";
 import { processCodeRender } from "../util/processCode";
 import {
     deactivateAllCodeMirrors,
@@ -16,6 +16,14 @@ import { afterRenderEvent } from "./afterRenderEvent";
 import { previoueIsEmptyA } from "./inlineTag";
 
 export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
+    const debug = vditor.options.debugger;
+    const totalStart = debug ? performance.now() : 0;
+    let stepStart = debug ? performance.now() : 0;
+    let prepareHtmlMs = 0;
+    let spinDomMs = 0;
+    let applyDomMs = 0;
+    let postProcessMs = 0;
+
     let blockElement = hasClosestBlock(range.startContainer);
 
     if (!blockElement) {
@@ -128,9 +136,9 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
             html = '<p data-block="0">```<wbr></p>'.replace("```", "```" + vditor.hint.recentLanguage);
         }
 
-        log("SpinVditorDOM", html, "argument", vditor.options.debugger);
-
         const oldHtml = html;
+        prepareHtmlMs = debug ? performance.now() - stepStart : 0;
+        stepStart = debug ? performance.now() : 0;
         // TODO
         //         <ol data-tight="true" data-marker="1." data-block="0">
         //     <li data-marker="1.">sdfsdf</li>
@@ -151,7 +159,8 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
         // console.log(oldHtml)
         deactivateAllCodeMirrors(vditor);
         html = vditor.lute.SpinVditorDOM(html);
-        log("SpinVditorDOM", html, "result", vditor.options.debugger);
+        spinDomMs = debug ? performance.now() - stepStart : 0;
+        stepStart = debug ? performance.now() : 0;
 
         if (isWYSIWYGElement) {
             blockElement.innerHTML = html;
@@ -176,6 +185,8 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
                 }
             }
         }
+        applyDomMs = debug ? performance.now() - stepStart : 0;
+        stepStart = debug ? performance.now() : 0;
 
         let firstLinkRefDefElement: Element;
         const allLinkRefDefsElement = vditor.wysiwyg.element.querySelectorAll("[data-type='link-ref-defs-block']");
@@ -217,11 +228,22 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
                 }
                 processCodeRender(item, vditor);
             });
+        postProcessMs = debug ? performance.now() - stepStart : 0;
     }
+    stepStart = debug ? performance.now() : 0;
     renderToc(vditor);
     afterRenderEvent(vditor, {
         enableAddUndoStack: true,
         enableHint: true,
         enableInput: true,
+    });
+    postProcessMs += debug ? performance.now() - stepStart : 0;
+
+    logPerf(debug, "[vditor input] input", {
+        prepareHtmlMs: formatMs(prepareHtmlMs),
+        spinDomMs: formatMs(spinDomMs),
+        applyDomMs: formatMs(applyDomMs),
+        postProcessMs: formatMs(postProcessMs),
+        totalMs: formatMs(debug ? performance.now() - totalStart : 0),
     });
 };

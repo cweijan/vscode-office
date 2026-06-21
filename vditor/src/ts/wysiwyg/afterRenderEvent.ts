@@ -1,6 +1,7 @@
 import { getMarkdown } from "../markdown/getMarkdown";
 import { accessLocalStorage } from "../util/compatibility";
 import { matchHotkeyNew } from "../util/hotKey";
+import { formatMs, logPerf } from "../util/log";
 
 
 export function handlerHistoryEvent(event: KeyboardEvent, vditor: IVditor,): boolean {
@@ -31,11 +32,21 @@ function recordHistory(vditor: IVditor, options = { enableAddUndoStack: true, en
     if (vditor.wysiwyg.composingLock) {
         return;
     }
+
+    const debug = vditor.options.debugger;
+    const totalStart = debug ? performance.now() : 0;
+
+    let stepStart = debug ? performance.now() : 0;
     const text = getMarkdown(vditor);
+    const getMarkdownMs = debug ? performance.now() - stepStart : 0;
+
+    stepStart = debug ? performance.now() : 0;
     if (typeof vditor.options.input === "function" && options.enableInput) {
         vditor.options.input(text);
     }
+    const inputCallbackMs = debug ? performance.now() - stepStart : 0;
 
+    stepStart = debug ? performance.now() : 0;
     if (vditor.options.counter.enable) {
         vditor.counter.render(vditor, text);
     }
@@ -46,8 +57,19 @@ function recordHistory(vditor: IVditor, options = { enableAddUndoStack: true, en
             vditor.options.cache.after(text);
         }
     }
+    const cacheAndCounterMs = debug ? performance.now() - stepStart : 0;
 
+    stepStart = debug ? performance.now() : 0;
     if (options.enableAddUndoStack) {
         vditor.undo.addToUndoStack(vditor);
     }
+    const undoStackMs = debug ? performance.now() - stepStart : 0;
+
+    logPerf(debug, "[vditor input] recordHistory", {
+        getMarkdownMs: formatMs(getMarkdownMs),
+        inputCallbackMs: formatMs(inputCallbackMs),
+        cacheAndCounterMs: formatMs(cacheAndCounterMs),
+        undoStackMs: formatMs(undoStackMs),
+        totalMs: formatMs(debug ? performance.now() - totalStart : 0),
+    });
 }

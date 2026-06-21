@@ -11,6 +11,7 @@ import {highlightToolbar} from "../util/highlightToolbar";
 import {processCodeRender} from "../util/processCode";
 import {setRangeByWbr, setSelectionFocus} from "../util/selection";
 import {renderToc} from "../util/toc";
+import {formatMs, logPerf} from "../util/log";
 
 interface IUndo {
     hasUndo: boolean;
@@ -112,12 +113,32 @@ class Undo {
 
     public addToUndoStack(vditor: IVditor) {
         // afterRenderEvent.ts 已经 debounce
+        const debug = vditor.options.debugger;
+        const totalStart = debug ? performance.now() : 0;
+
+        let stepStart = debug ? performance.now() : 0;
         const text = this.addCaret(vditor, true);
+        const addCaretMs = debug ? performance.now() - stepStart : 0;
+
+        stepStart = debug ? performance.now() : 0;
         const diff = this.dmp.diff_main(text, this[vditor.currentMode].lastText, true);
+        const diffMainMs = debug ? performance.now() - stepStart : 0;
+
+        stepStart = debug ? performance.now() : 0;
         const patchList = this.dmp.patch_make(text, this[vditor.currentMode].lastText, diff);
+        const patchMakeMs = debug ? performance.now() - stepStart : 0;
+
         if (patchList.length === 0 && this[vditor.currentMode].undoStack.length > 0) {
+            logPerf(debug, "[vditor undo] addToUndoStack skipped (no diff)", {
+                addCaretMs: formatMs(addCaretMs),
+                diffMainMs: formatMs(diffMainMs),
+                patchMakeMs: formatMs(patchMakeMs),
+                totalMs: formatMs(debug ? performance.now() - totalStart : 0),
+            });
             return;
         }
+
+        stepStart = debug ? performance.now() : 0;
         this[vditor.currentMode].lastText = text;
         this[vditor.currentMode].undoStack.push(patchList);
         if (this[vditor.currentMode].undoStack.length > this.stackSize) {
@@ -132,6 +153,15 @@ class Undo {
         if (this[vditor.currentMode].undoStack.length > 1) {
             enableToolbar(vditor.toolbar.elements, ["undo"]);
         }
+        const stackUpdateMs = debug ? performance.now() - stepStart : 0;
+
+        logPerf(debug, "[vditor undo] addToUndoStack", {
+            addCaretMs: formatMs(addCaretMs),
+            diffMainMs: formatMs(diffMainMs),
+            patchMakeMs: formatMs(patchMakeMs),
+            stackUpdateMs: formatMs(stackUpdateMs),
+            totalMs: formatMs(debug ? performance.now() - totalStart : 0),
+        });
     }
 
     private renderDiff(state: patch_obj[], vditor: IVditor, isRedo: boolean = false) {
