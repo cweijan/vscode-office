@@ -1,10 +1,10 @@
-import {CM_THEME_IDS} from "./ui/codeMirrorColorThemes";
+import { CM_THEME_IDS } from "./ui/codeMirrorColorThemes";
 
 declare const VDITOR_VERSION: string;
 
 const _VDITOR_VERSION = VDITOR_VERSION;
 
-export {_VDITOR_VERSION as VDITOR_VERSION};
+export { _VDITOR_VERSION as VDITOR_VERSION };
 
 export abstract class Constants {
   public static readonly ZWSP: string = "\u200b";
@@ -41,7 +41,7 @@ export abstract class Constants {
     mathBlockPreview: true,
     paragraphBeginningSpace: false,
     sanitize: true,
-    toc: false,
+    toc: true,
   };
   public static readonly HLJS_OPTIONS = {
     enable: true,

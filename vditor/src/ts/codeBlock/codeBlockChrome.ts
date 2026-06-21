@@ -27,7 +27,6 @@ interface ICodeBlockChrome {
     toolbar: HTMLElement;
     deleteBtn?: HTMLButtonElement;
     copyBtn: HTMLButtonElement;
-    copyLabel: HTMLElement;
     langWrap: HTMLElement;
     langTrigger: HTMLButtonElement;
     langLabel: HTMLElement;
@@ -98,15 +97,11 @@ const bindCopyButton = (copyBtn: HTMLButtonElement, getCodeText: () => string) =
     const defaultLabel = window.VditorI18n.copy || "Copy";
     const copiedLabel = window.VditorI18n.copied || "Copied";
 
-    const getCopyLabel = () => copyBtn.querySelector(".vditor-cm-chrome__copy-label") as HTMLElement | null;
     const getCopyIcon = () => copyBtn.querySelector(".vditor-cm-chrome__copy-icon .codicon") as HTMLElement | null;
 
     const resetCopyState = () => {
-        const label = getCopyLabel();
         const icon = getCopyIcon();
-        if (label) {
-            label.textContent = defaultLabel;
-        }
+        copyBtn.setAttribute("aria-label", defaultLabel);
         if (icon) {
             icon.classList.remove("codicon-check");
             icon.classList.add("codicon-copy");
@@ -125,11 +120,8 @@ const bindCopyButton = (copyBtn: HTMLButtonElement, getCodeText: () => string) =
         if (!copied) {
             return;
         }
-        const label = getCopyLabel();
         const icon = getCopyIcon();
-        if (label) {
-            label.textContent = copiedLabel;
-        }
+        copyBtn.setAttribute("aria-label", copiedLabel);
         if (icon) {
             icon.classList.remove("codicon-copy");
             icon.classList.add("codicon-check");
@@ -392,11 +384,8 @@ const createChromeRoot = (editable: boolean) => {
     const copyBtn = document.createElement("button");
     copyBtn.type = "button";
     copyBtn.className = "vditor-cm-chrome__copy";
-    const copyLabel = document.createElement("span");
-    copyLabel.className = "vditor-cm-chrome__copy-label";
-    copyLabel.textContent = window.VditorI18n.copy || "Copy";
+    copyBtn.setAttribute("aria-label", window.VditorI18n.copy || "Copy");
     copyBtn.innerHTML = `<span class="vditor-cm-chrome__copy-icon">${codicon("copy")}</span>`;
-    copyBtn.appendChild(copyLabel);
     actions.appendChild(copyBtn);
 
     toolbar.appendChild(langWrap);
@@ -413,7 +402,6 @@ const createChromeRoot = (editable: boolean) => {
         toolbar,
         deleteBtn,
         copyBtn,
-        copyLabel,
         langWrap,
         langTrigger,
         langLabel: langTrigger.querySelector(".vditor-cm-chrome__lang-label") as HTMLElement,

@@ -58,6 +58,8 @@ window.VditorI18n = {
   'language': '語言',
   'line': '分隔線',
   'link': '連結',
+  'linkCopied': '連結已複製',
+  'linkRefCopied': '文字已複製',
   'linkRef': '連結參考',
   'list': '無序列表',
   'more': '更多',

@@ -58,6 +58,8 @@ window.VditorI18n = {
   'language': 'Language',
   'line': 'Line',
   'link': 'Link',
+  'linkCopied': 'Link copied',
+  'linkRefCopied': 'Text copied',
   'linkRef': 'Link Ref',
   'list': 'List',
   'more': 'More',

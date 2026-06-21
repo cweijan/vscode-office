@@ -32,8 +32,6 @@ let toolbar = [
   'line',
   'code',
   'inline-code',
-  'insert-before',
-  'insert-after',
   '|',
   'undo',
   'redo',

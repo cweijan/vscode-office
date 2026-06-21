@@ -46,10 +46,9 @@
     &--link {
       display: inline-flex;
       align-items: center;
-      min-width: 240px;
+      min-width: 340px;
       max-width: min(720px, calc(100vw - 32px));
-      min-height: 32px;
-      padding: 4px 8px;
+      padding: 8px 12px;
       border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 22%, transparent);
       border-radius: 8px;
       background: color-mix(in srgb, var(--panel-background-color) 96%, var(--toolbar-background-color));
@@ -59,22 +58,34 @@
       opacity: 1;
       white-space: nowrap;
 
-      .vditor-link-popover,
-      .vditor-link-popover__edit {
+      .vditor-link-popover {
         display: inline-flex;
         align-items: center;
         gap: 10px;
         width: 100%;
       }
 
+      .vditor-link-popover__text,
       .vditor-link-popover__href {
-        overflow: hidden;
-        flex: 1;
-        min-width: 120px;
-        max-width: 560px;
+        padding: 6px 8px;
+        border-radius: 4px;
+        border: 0;
+        background: var(--toolbar-background-color);
         color: var(--textarea-text-color);
-        line-height: 24px;
-        text-overflow: ellipsis;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .vditor-link-popover__text {
+        flex: 0 1 100px;
+        min-width: 80px;
+        max-width: 128px;
+      }
+
+      .vditor-link-popover__href {
+        flex: 1;
+        min-width: 180px;
+        max-width: 420px;
       }
 
       .vditor-link-popover__button {
@@ -82,43 +93,59 @@
         align-items: center;
         justify-content: center;
         flex: 0 0 auto;
-        width: 24px;
-        height: 24px;
         padding: 0;
         border: 0;
         border-radius: 4px;
         background: transparent;
         color: var(--toolbar-icon-color);
         cursor: pointer;
+        transition: color 0.15s ease;
 
         &:hover,
         &:focus {
-          color: var(--toolbar-icon-hover-color);
-          background: color-mix(in srgb, var(--toolbar-icon-color) 12%, transparent);
           outline: none;
-        }
-
-        svg {
-          width: 18px !important;
-          height: 18px !important;
-          fill: currentColor;
-          pointer-events: none;
         }
       }
 
-      .vditor-link-popover__edit {
-        gap: 6px;
+      .vditor-link-popover__button-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        transition: color 0.15s ease;
 
-        .vditor-input {
-          height: 24px;
-          min-width: 90px;
-          padding: 2px 6px;
-          border-radius: 4px;
-          border: var(--vditor-input-border, 1px solid transparent);
-          border-color: var(--border-color);
-          background: var(--toolbar-background-color);
-          font-size: 13px;
+        .codicon {
+          font-size: 16px;
+          line-height: 1;
         }
+      }
+
+      .vditor-link-popover__button--copy .vditor-link-popover__button-icon {
+        color: var(--cm-copy-color, var(--link-color));
+      }
+
+      .vditor-link-popover__button--copy:hover .vditor-link-popover__button-icon,
+      .vditor-link-popover__button--copy:focus-visible .vditor-link-popover__button-icon {
+        color: color-mix(in srgb, var(--cm-copy-color, var(--link-color)) 72%, white);
+      }
+
+      .vditor-link-popover__button--remove .vditor-link-popover__button-icon {
+        color: var(--cm-delete-color, var(--error-color));
+      }
+
+      .vditor-link-popover__button--remove:hover .vditor-link-popover__button-icon,
+      .vditor-link-popover__button--remove:focus-visible .vditor-link-popover__button-icon {
+        color: color-mix(in srgb, var(--cm-delete-color, var(--error-color)) 72%, white);
+      }
+
+    }
+
+    &--link-ref {
+      min-width: auto;
+      max-width: none;
+
+      .vditor-link-popover {
+        width: auto;
       }
     }
 

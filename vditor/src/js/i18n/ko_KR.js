@@ -56,6 +56,8 @@ window.VditorI18n = {
   'language': '언어',
   'line': '문단나눔',
   'link': '링크',
+  'linkCopied': '링크가 복사되었습니다',
+  'linkRefCopied': '텍스트가 복사되었습니다',
   'linkRef': '링크 참조',
   'list': '순서없는 목록',
   'more': '더보기',

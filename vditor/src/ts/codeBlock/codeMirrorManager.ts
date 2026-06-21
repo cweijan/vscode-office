@@ -542,9 +542,21 @@ export const removeCmCodeBlock = (vditor: IVditor, blockElement: HTMLElement) =>
     }
 
     if (vditor.currentMode === "wysiwyg") {
-        afterRenderEvent(vditor);
+        clearTimeout(vditor.wysiwyg.afterRenderTimeoutId);
+        vditor.undo.addToUndoStack(vditor);
+        afterRenderEvent(vditor, {
+            enableAddUndoStack: false,
+            enableHint: false,
+            enableInput: true,
+        });
     } else if (vditor.currentMode === "ir") {
-        processAfterRender(vditor);
+        clearTimeout(vditor.ir.processTimeoutId);
+        vditor.undo.addToUndoStack(vditor);
+        processAfterRender(vditor, {
+            enableAddUndoStack: false,
+            enableHint: false,
+            enableInput: true,
+        });
     }
 };
 

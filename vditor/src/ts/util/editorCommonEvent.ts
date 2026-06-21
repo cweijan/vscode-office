@@ -13,7 +13,7 @@ import { getEventName, isCtrl } from "./compatibility";
 import { shouldBlockMacOptionSymbol } from "./macOptionSymbol";
 import { execAfterRender, paste } from "./fixBrowserBehavior";
 import { getSelectText } from "./getSelectText";
-import { hasClosestByMatchTag } from "./hasClosest";
+import { hasClosestByAttribute, hasClosestByMatchTag } from "./hasClosest";
 import { matchHotKey } from "./hotKey";
 import { getEditorRange } from "./selection";
 import { clearActiveHeadingMarker } from "./updateActiveHeadingMarker";
@@ -31,6 +31,28 @@ export const dblclickEvent = (vditor: IVditor, editorElement: HTMLElement) => {
     editorElement.addEventListener("dblclick", (event: MouseEvent & { target: HTMLElement }) => {
         if (event.target.tagName === "IMG") {
             previewImage(event.target as HTMLImageElement, vditor.options.lang, vditor.options.theme);
+            return;
+        }
+
+        if (vditor.currentMode === "wysiwyg") {
+            const aElement = event.target.closest("A") as HTMLAnchorElement;
+            const href = aElement?.getAttribute("href");
+            if (href) {
+                window.open(href);
+                event.preventDefault();
+            }
+            return;
+        }
+
+        if (vditor.currentMode === "ir") {
+            const aElement = hasClosestByAttribute(event.target, "data-type", "a");
+            if (aElement && !aElement.classList.contains("vditor-ir__node--expand")) {
+                const link = aElement.querySelector(":scope > .vditor-ir__marker--link")?.textContent;
+                if (link) {
+                    window.open(link);
+                    event.preventDefault();
+                }
+            }
         }
     });
 };

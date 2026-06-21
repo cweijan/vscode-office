@@ -56,6 +56,8 @@ window.VditorI18n = {
   'language': 'Синтаксис',
   'line': 'Линия',
   'link': 'Ссылка',
+  'linkCopied': 'Ссылка скопирована',
+  'linkRefCopied': 'Текст скопирован',
   'linkRef': 'Вставить ссылку',
   'list': 'Список',
   'more': 'Дополнительно',

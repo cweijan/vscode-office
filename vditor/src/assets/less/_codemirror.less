@@ -1,5 +1,7 @@
 .vditor-cm-host {
   position: relative;
+  display: flex;
+  flex-direction: column;
   margin: 0;
   padding: 0;
   background: transparent !important;
@@ -13,9 +15,10 @@
 
   .cm-editor {
     outline: none;
+    flex: 1 1 auto;
     min-height: 1.35em;
     max-height: 500px;
-    border-radius: 6px;
+    border-radius: 0 0 6px 6px;
     overflow: hidden;
     color: var(--cm-fg-color, var(--vscode-editor-foreground));
   }
@@ -28,6 +31,7 @@
   .cm-scroller {
     overflow: auto;
     max-height: 400px;
+    scrollbar-gutter: stable;
     font-family: inherit;
     line-height: calc(var(--vscode-editor-font-size, 13px) * 1.35);
   }
@@ -40,7 +44,7 @@
   }
 
   .cm-content {
-    padding-top: 44px;
+    padding-top: 8px;
     padding-bottom: 10px;
     caret-color: var(--cm-cursor-fg) !important;
   }
@@ -193,16 +197,34 @@
     color: var(--cm-syntax-error, var(--vscode-debugTokenExpression-error, var(--vscode-errorForeground)));
     background: var(--vscode-inputValidation-errorBackground, transparent);
   }
+
+  .vditor-cm-chrome__delete,
+  .vditor-cm-chrome__copy {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+  }
+
+  &:hover .vditor-cm-chrome__delete,
+  &:hover .vditor-cm-chrome__copy,
+  &:has(.cm-editor.cm-focused) .vditor-cm-chrome__delete,
+  &:has(.cm-editor.cm-focused) .vditor-cm-chrome__copy,
+  .vditor-cm-chrome__copy--done {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
 }
 
 .vditor-cm-chrome {
-  position: absolute;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
   z-index: 2;
+  flex-shrink: 0;
+  width: 100%;
   pointer-events: none;
-  border-radius: inherit;
+  border-radius: 6px 6px 0 0;
 
   &:has(.vditor-cm-chrome__lang--open) {
     z-index: 10;
@@ -219,13 +241,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  width: 100%;
   min-height: 32px;
   padding: 6px 16px;
+  box-sizing: border-box;
   background-color: var(--cm-bg-color);
-  border-radius: inherit inherit 0 0;
+  border-radius: 6px 6px 0 0;
   pointer-events: none;
   user-select: none;
-  border-radius: 6px;
 }
 
 .vditor-cm-chrome__actions {
@@ -275,7 +298,7 @@
 .vditor-cm-chrome__copy {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
   flex-shrink: 0;
   height: 28px;
   padding: 0 10px;
@@ -283,8 +306,6 @@
   border-radius: 8px;
   background: var(--cm-lang-trigger-bg, var(--second-bg-color, color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 18%, var(--bg-color, var(--panel-background-color)))));
   color: var(--cm-fg-color, var(--toolbar-icon-color));
-  font-size: 12px;
-  font-weight: 500;
   line-height: 1;
   cursor: pointer;
   pointer-events: auto;
@@ -297,10 +318,6 @@
   &--done {
     background: color-mix(in srgb, var(--cm-copy-done-color, var(--link-color)) 12%, var(--cm-lang-trigger-bg, var(--second-bg-color, var(--dropdown-hover-background, var(--toolbar-background-color)))));
 
-    .vditor-cm-chrome__copy-label {
-      color: var(--cm-copy-done-color, var(--link-color));
-    }
-
     .vditor-cm-chrome__copy-icon .codicon {
       color: var(--cm-copy-done-color, var(--link-color));
     }
@@ -310,17 +327,14 @@
 .vditor-cm-chrome__copy-icon {
   display: inline-flex;
   flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
   color: var(--cm-copy-color, var(--link-color));
 
   .codicon {
     font-size: 16px;
     line-height: 1;
   }
-}
-
-.vditor-cm-chrome__copy-label {
-  white-space: nowrap;
-  color: var(--cm-fg-color, var(--toolbar-icon-color));
 }
 
 .vditor-cm-chrome__lang {

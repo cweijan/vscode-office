@@ -56,6 +56,8 @@ window.VditorI18n = {
   'language': '言語',
   'line': '段落分割',
   'link': 'リンク',
+  'linkCopied': 'リンクをコピーしました',
+  'linkRefCopied': 'テキストをコピーしました',
   'linkRef': 'リンク参照',
   'list': 'リスト',
   'more': '詳しく見る',

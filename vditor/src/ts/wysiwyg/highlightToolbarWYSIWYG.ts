@@ -42,6 +42,8 @@ import {afterRenderEvent} from "./afterRenderEvent";
 import {removeBlockElement} from "./processKeydown";
 import {renderToc} from "../util/toc";
 import {updateActiveHeadingMarker} from "../util/updateActiveHeadingMarker";
+import {showToast} from "../ui/toast";
+import {codicon} from "../util/codicon";
 
 export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
     clearTimeout(vditor.wysiwyg.hlToolbarTimeoutId);
@@ -752,16 +754,20 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
     }, 200);
 };
 
-const setPopoverPosition = (vditor: IVditor, element: HTMLElement) => {
+const setPopoverPosition = (vditor: IVditor, element: HTMLElement, popoverType?: "link" | "link-ref") => {
     let targetElement = element;
     const tableElement = hasClosestByMatchTag(element, "TABLE");
     if (tableElement) {
         targetElement = tableElement;
     }
+    const isLinkPanel = popoverType === "link" || popoverType === "link-ref";
+    vditor.wysiwyg.popover.classList.toggle("vditor-panel--link", isLinkPanel);
+    vditor.wysiwyg.popover.classList.toggle("vditor-panel--link-ref", popoverType === "link-ref");
     vditor.wysiwyg.popover.style.left = "0";
     vditor.wysiwyg.popover.style.display = "block";
     vditor.wysiwyg.popover.style.top =
-        Math.max(-8, targetElement.offsetTop - 21 - vditor.wysiwyg.element.scrollTop) + "px";
+        Math.max(-8, targetElement.offsetTop - (isLinkPanel ? vditor.wysiwyg.popover.clientHeight + 8 : 21) -
+            vditor.wysiwyg.element.scrollTop) + "px";
     vditor.wysiwyg.popover.style.left =
         Math.min(targetElement.offsetLeft, vditor.wysiwyg.element.clientWidth - vditor.wysiwyg.popover.clientWidth) + "px";
     vditor.wysiwyg.popover.setAttribute("data-top", (targetElement.offsetTop - 21).toString());
@@ -770,62 +776,136 @@ const setPopoverPosition = (vditor: IVditor, element: HTMLElement) => {
 export const genLinkRefPopover = (vditor: IVditor, linkRefElement: HTMLElement) => {
     vditor.wysiwyg.popover.innerHTML = "";
 
-    const updateLinkRef = () => {
-        if (input.value.trim() !== "") {
-            if (linkRefElement.tagName === "IMG") {
-                linkRefElement.setAttribute("alt", input.value);
-            } else {
-                linkRefElement.textContent = input.value;
+    const getDisplayText = () => {
+        if (linkRefElement.tagName === "IMG") {
+            return linkRefElement.getAttribute("alt") || "";
+        }
+        return linkRefElement.textContent || "";
+    };
+
+    const setDisplayText = (value: string) => {
+        if (linkRefElement.tagName === "IMG") {
+            linkRefElement.setAttribute("alt", value);
+            return;
+        }
+        linkRefElement.textContent = value;
+    };
+
+    const updateText = () => {
+        if (textInput.value.trim() !== "") {
+            setDisplayText(textInput.value);
+        }
+        afterRenderEvent(vditor);
+    };
+
+    const updateRef = () => {
+        linkRefElement.setAttribute("data-link-label", refInput.value);
+        afterRenderEvent(vditor);
+    };
+
+    const copyRef = async (): Promise<boolean> => {
+        const text = textInput.value;
+        if (navigator.clipboard?.writeText) {
+            try {
+                await navigator.clipboard.writeText(text);
+                return true;
+            } catch {
+                return false;
             }
         }
-        // data-link-label
-        if (input1.value.trim() !== "") {
-            linkRefElement.setAttribute("data-link-label", input1.value);
-        }
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        const copied = document.execCommand("copy");
+        textarea.remove();
+        return copied;
     };
 
-    const inputWrap = document.createElement("span");
-    inputWrap.setAttribute("aria-label", window.VditorI18n.textIsNotEmpty);
-    inputWrap.className = "vditor-tooltipped vditor-tooltipped__n";
-    const input = document.createElement("input");
-    inputWrap.appendChild(input);
-    input.className = "vditor-input";
-    input.setAttribute("placeholder", window.VditorI18n.textIsNotEmpty);
-    input.style.width = "120px";
-    input.value =
-        linkRefElement.getAttribute("alt") || linkRefElement.textContent;
-    input.oninput = () => {
-        updateLinkRef();
+    const removeLinkRef = () => {
+        const range = getEditorRange(vditor);
+        const childNodes = Array.from(linkRefElement.childNodes);
+        let focusNode: Node = linkRefElement;
+        if (linkRefElement.tagName === "IMG") {
+            focusNode = document.createTextNode(linkRefElement.getAttribute("alt") || "");
+            linkRefElement.parentElement?.insertBefore(focusNode, linkRefElement);
+        } else if (childNodes.length > 0) {
+            for (const node of childNodes) {
+                focusNode = node;
+                linkRefElement.parentElement?.insertBefore(node, linkRefElement);
+            }
+        } else {
+            focusNode = document.createTextNode(linkRefElement.textContent || "");
+            linkRefElement.parentElement?.insertBefore(focusNode, linkRefElement);
+        }
+        linkRefElement.remove();
+        range.setStartAfter(focusNode);
+        range.collapse(true);
+        setSelectionFocus(range);
+        clearTimeout(vditor.wysiwyg.afterRenderTimeoutId);
+        vditor.undo.addToUndoStack(vditor);
+        afterRenderEvent(vditor, {
+            enableAddUndoStack: false,
+            enableHint: false,
+            enableInput: true,
+        });
+        highlightToolbarWYSIWYG(vditor);
     };
-    input.onkeydown = (event) => {
+
+    const view = document.createElement("span");
+    view.className = "vditor-link-popover";
+
+    const textInput = document.createElement("input");
+    textInput.className = "vditor-link-popover__text vditor-input";
+    textInput.setAttribute("placeholder", window.VditorI18n.textIsNotEmpty);
+    textInput.value = getDisplayText();
+    textInput.oninput = () => {
+        updateText();
+    };
+    textInput.onkeydown = (event) => {
         if (removeBlockElement(vditor, event)) {
             return;
         }
-        linkHotkey(vditor, linkRefElement, event, input1);
+        linkHotkey(vditor, linkRefElement, event, refInput);
     };
 
-    const input1Wrap = document.createElement("span");
-    input1Wrap.setAttribute("aria-label", window.VditorI18n.linkRef);
-    input1Wrap.className = "vditor-tooltipped vditor-tooltipped__n";
-    const input1 = document.createElement("input");
-    input1Wrap.appendChild(input1);
-    input1.className = "vditor-input";
-    input1.setAttribute("placeholder", window.VditorI18n.linkRef);
-    input1.value = linkRefElement.getAttribute("data-link-label");
-    input1.oninput = () => {
-        updateLinkRef();
+    const refInput = document.createElement("input");
+    refInput.className = "vditor-link-popover__text vditor-input";
+    refInput.setAttribute("placeholder", window.VditorI18n.linkRef);
+    refInput.value = linkRefElement.getAttribute("data-link-label") || "";
+    refInput.oninput = () => {
+        updateRef();
     };
-    input1.onkeydown = (event) => {
+    refInput.onkeydown = (event) => {
         if (removeBlockElement(vditor, event)) {
             return;
         }
-        linkHotkey(vditor, linkRefElement, event, input);
+        linkHotkey(vditor, linkRefElement, event, textInput);
     };
 
-    genClose(linkRefElement, vditor);
-    vditor.wysiwyg.popover.insertAdjacentElement("beforeend", inputWrap);
-    vditor.wysiwyg.popover.insertAdjacentElement("beforeend", input1Wrap);
-    setPopoverPosition(vditor, linkRefElement);
+    const copy = document.createElement("button");
+    copy.setAttribute("type", "button");
+    copy.setAttribute("aria-label", window.VditorI18n.copy);
+    copy.className = "vditor-link-popover__button vditor-link-popover__button--copy";
+    copy.innerHTML = `<span class="vditor-link-popover__button-icon">${codicon("copy")}</span>`;
+    copy.onclick = async () => {
+        if (await copyRef()) {
+            showToast(vditor, window.VditorI18n.linkRefCopied || window.VditorI18n.copied);
+        }
+    };
+
+    const remove = document.createElement("button");
+    remove.setAttribute("type", "button");
+    remove.setAttribute("aria-label", window.VditorI18n.remove);
+    remove.className = "vditor-link-popover__button vditor-link-popover__button--remove";
+    remove.innerHTML = `<span class="vditor-link-popover__button-icon">${codicon("trash")}</span>`;
+    remove.onclick = removeLinkRef;
+
+    view.append(textInput, refInput, copy, remove);
+    vditor.wysiwyg.popover.insertAdjacentElement("beforeend", view);
+    setPopoverPosition(vditor, linkRefElement, "link-ref");
 };
 
 const genUp = (range: Range, element: HTMLElement, vditor: IVditor) => {
@@ -930,79 +1010,122 @@ const linkHotkey = (
 export const genAPopover = (vditor: IVditor, aElement: HTMLElement) => {
     vditor.wysiwyg.popover.innerHTML = "";
 
-    const updateA = () => {
-        if (input.value.trim() !== "") {
-            aElement.innerHTML = input.value;
+    const updateText = () => {
+        if (textInput.value.trim() !== "") {
+            aElement.innerHTML = textInput.value;
         }
-        aElement.setAttribute("href", input1.value);
-        aElement.setAttribute("title", input2.value);
+        afterRenderEvent(vditor);
+    };
+
+    const updateHref = () => {
+        aElement.setAttribute("href", hrefInput.value);
         afterRenderEvent(vditor);
     };
 
     aElement.querySelectorAll("[data-marker]").forEach((item: HTMLElement) => {
         item.removeAttribute("data-marker");
     });
-    const inputWrap = document.createElement("span");
-    inputWrap.setAttribute("aria-label", window.VditorI18n.textIsNotEmpty);
-    inputWrap.className = "vditor-tooltipped vditor-tooltipped__n";
-    const input = document.createElement("input");
-    inputWrap.appendChild(input);
-    input.className = "vditor-input";
-    input.setAttribute("placeholder", window.VditorI18n.textIsNotEmpty);
-    input.style.width = "120px";
-    input.value = aElement.innerHTML || "";
-    input.oninput = () => {
-        updateA();
+
+    const copyLink = async (): Promise<boolean> => {
+        const link = aElement.getAttribute("href") || "";
+        if (navigator.clipboard?.writeText) {
+            try {
+                await navigator.clipboard.writeText(link);
+                return true;
+            } catch {
+                return false;
+            }
+        }
+        const textarea = document.createElement("textarea");
+        textarea.value = link;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        const copied = document.execCommand("copy");
+        textarea.remove();
+        return copied;
     };
-    input.onkeydown = (event) => {
+
+    const unlinkA = () => {
+        const range = getEditorRange(vditor);
+        const childNodes = Array.from(aElement.childNodes);
+        let focusNode: Node = aElement;
+        if (childNodes.length > 0) {
+            for (const node of childNodes) {
+                focusNode = node;
+                aElement.parentElement.insertBefore(node, aElement);
+            }
+        } else {
+            focusNode = document.createTextNode(aElement.getAttribute("href") || "");
+            aElement.parentElement.insertBefore(focusNode, aElement);
+        }
+        aElement.remove();
+        range.setStartAfter(focusNode);
+        range.collapse(true);
+        setSelectionFocus(range);
+        clearTimeout(vditor.wysiwyg.afterRenderTimeoutId);
+        vditor.undo.addToUndoStack(vditor);
+        afterRenderEvent(vditor, {
+            enableAddUndoStack: false,
+            enableHint: false,
+            enableInput: true,
+        });
+        highlightToolbarWYSIWYG(vditor);
+    };
+
+    const view = document.createElement("span");
+    view.className = "vditor-link-popover";
+
+    const textInput = document.createElement("input");
+    textInput.className = "vditor-link-popover__text vditor-input";
+    textInput.setAttribute("placeholder", window.VditorI18n.textIsNotEmpty);
+    textInput.value = aElement.innerHTML || "";
+    textInput.oninput = () => {
+        updateText();
+    };
+    textInput.onkeydown = (event) => {
         if (removeBlockElement(vditor, event)) {
             return;
         }
-        linkHotkey(vditor, aElement, event, input1);
+        linkHotkey(vditor, aElement, event, hrefInput);
     };
 
-    const input1Wrap = document.createElement("span");
-    input1Wrap.setAttribute("aria-label", window.VditorI18n.link);
-    input1Wrap.className = "vditor-tooltipped vditor-tooltipped__n";
-    const input1 = document.createElement("input");
-    input1Wrap.appendChild(input1);
-    input1.className = "vditor-input";
-    input1.setAttribute("placeholder", window.VditorI18n.link);
-    input1.value = aElement.getAttribute("href") || "";
-    input1.oninput = () => {
-        updateA();
+    const hrefInput = document.createElement("input");
+    hrefInput.className = "vditor-link-popover__href vditor-input";
+    hrefInput.setAttribute("placeholder", window.VditorI18n.link);
+    hrefInput.value = aElement.getAttribute("href") || "";
+    hrefInput.oninput = () => {
+        updateHref();
     };
-    input1.onkeydown = (event) => {
+    hrefInput.onkeydown = (event) => {
         if (removeBlockElement(vditor, event)) {
             return;
         }
-        linkHotkey(vditor, aElement, event, input2);
+        linkHotkey(vditor, aElement, event, textInput);
     };
 
-    const input2Wrap = document.createElement("span");
-    input2Wrap.setAttribute("aria-label", window.VditorI18n.tooltipText);
-    input2Wrap.className = "vditor-tooltipped vditor-tooltipped__n";
-    const input2 = document.createElement("input");
-    input2Wrap.appendChild(input2);
-    input2.className = "vditor-input";
-    input2.setAttribute("placeholder", window.VditorI18n.tooltipText);
-    input2.style.width = "60px";
-    input2.value = aElement.getAttribute("title") || "";
-    input2.oninput = () => {
-        updateA();
-    };
-    input2.onkeydown = (event) => {
-        if (removeBlockElement(vditor, event)) {
-            return;
+    const copy = document.createElement("button");
+    copy.setAttribute("type", "button");
+    copy.setAttribute("aria-label", window.VditorI18n.copy);
+    copy.className = "vditor-link-popover__button vditor-link-popover__button--copy";
+    copy.innerHTML = `<span class="vditor-link-popover__button-icon">${codicon("copy")}</span>`;
+    copy.onclick = async () => {
+        if (await copyLink()) {
+            showToast(vditor, window.VditorI18n.linkCopied || window.VditorI18n.copied);
         }
-        linkHotkey(vditor, aElement, event, input);
     };
 
-    genClose(aElement, vditor);
-    vditor.wysiwyg.popover.insertAdjacentElement("beforeend", inputWrap);
-    vditor.wysiwyg.popover.insertAdjacentElement("beforeend", input1Wrap);
-    vditor.wysiwyg.popover.insertAdjacentElement("beforeend", input2Wrap);
-    setPopoverPosition(vditor, aElement);
+    const remove = document.createElement("button");
+    remove.setAttribute("type", "button");
+    remove.setAttribute("aria-label", window.VditorI18n.remove);
+    remove.className = "vditor-link-popover__button vditor-link-popover__button--remove";
+    remove.innerHTML = `<span class="vditor-link-popover__button-icon">${codicon("trash")}</span>`;
+    remove.onclick = unlinkA;
+
+    view.append(textInput, hrefInput, copy, remove);
+    vditor.wysiwyg.popover.insertAdjacentElement("beforeend", view);
+    setPopoverPosition(vditor, aElement, "link");
 };
 
 export const genImagePopover = (event: Event, vditor: IVditor) => {
@@ -1105,4 +1228,3 @@ export function moveUp(range: Range, vditor: IVditor) {
     afterRenderEvent(vditor);
     highlightToolbarWYSIWYG(vditor);
 }
-
