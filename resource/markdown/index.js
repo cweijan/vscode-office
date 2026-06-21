@@ -52,7 +52,7 @@ handler.on("open", async (md) => {
     lang: language == 'zh-cn' ? 'zh_CN' : config.editorLanguage,
     tab: '\t',
     toolbar: await getToolbar(md.rootPath, sponsorBaseUrl, language),
-    debugger: false,
+    debugger: true,
     extPath: md.rootPath,
     changeEditorTheme(theme) {
       handler.emit('editorTheme', theme)

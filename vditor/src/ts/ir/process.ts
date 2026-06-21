@@ -7,6 +7,7 @@ import {accessLocalStorage} from "../util/compatibility";
 import {listToggle} from "../util/fixBrowserBehavior";
 import {hasClosestBlock, hasClosestByAttribute, hasClosestByClassName, hasClosestByMatchTag} from "../util/hasClosest";
 import {getEditorRange, getSelectPosition, setRangeByWbr, setSelectionFocus} from "../util/selection";
+import {getHistoryRecordWait} from "../util/historySchedule";
 import {renderToc} from "../util/toc";
 import {highlightToolbarIR} from "./highlightToolbarIR";
 import {input} from "./input";
@@ -44,6 +45,7 @@ export const processAfterRender = (vditor: IVditor, options = {
     }
 
     clearTimeout(vditor.ir.processTimeoutId);
+    const wait = getHistoryRecordWait(vditor.ir.afterRenderLastAt, vditor.options.undoDelay);
     vditor.ir.processTimeoutId = window.setTimeout(() => {
         if (vditor.ir.composingLock) {
             return;
@@ -71,7 +73,9 @@ export const processAfterRender = (vditor: IVditor, options = {
         if (vditor.options.outline.enable) {
             renderToc(vditor);
         }
-    }, vditor.options.undoDelay);
+
+        vditor.ir.afterRenderLastAt = Date.now();
+    }, wait);
 };
 
 export const processHeading = (vditor: IVditor, value: string) => {

@@ -77,7 +77,7 @@ export class Options {
             hide: false,
             pin: false,
         },
-        undoDelay: 800,
+        undoDelay: 600,
         upload: {
             extraData: {},
             fieldName: "file[]",

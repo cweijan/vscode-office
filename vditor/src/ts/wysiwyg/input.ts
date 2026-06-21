@@ -6,9 +6,9 @@ import { hasClosestByTag } from "../util/hasClosestByHeadings";
 import { log, formatMs, logPerf } from "../util/log";
 import { processCodeRender } from "../util/processCode";
 import {
-    deactivateAllCodeMirrors,
+    deactivateCodeMirrorsInScope,
     isCmCodeBlock,
-    renderCodeBlocks,
+    renderCodeBlocksInScope,
 } from "../codeBlock/codeMirrorManager";
 import { setRangeByWbr } from "../util/selection";
 import { renderToc } from "../util/toc";
@@ -157,7 +157,8 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
         //     </li>
         // </ol>
         // console.log(oldHtml)
-        deactivateAllCodeMirrors(vditor);
+        const spinScope = isWYSIWYGElement ? vditor.wysiwyg.element : blockElement;
+        deactivateCodeMirrorsInScope(vditor, spinScope);
         html = vditor.lute.SpinVditorDOM(html);
         spinDomMs = debug ? performance.now() - stepStart : 0;
         stepStart = debug ? performance.now() : 0;
@@ -187,6 +188,14 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
         }
         applyDomMs = debug ? performance.now() - stepStart : 0;
         stepStart = debug ? performance.now() : 0;
+
+        let remountScope = spinScope;
+        if (!isWYSIWYGElement) {
+            const wbrElement = vditor.wysiwyg.element.querySelector("wbr");
+            if (wbrElement) {
+                remountScope = hasClosestBlock(wbrElement) || vditor.wysiwyg.element;
+            }
+        }
 
         let firstLinkRefDefElement: Element;
         const allLinkRefDefsElement = vditor.wysiwyg.element.querySelectorAll("[data-type='link-ref-defs-block']");
@@ -219,9 +228,9 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
 
         // 设置光标
         setRangeByWbr(vditor.wysiwyg.element, range);
-        renderCodeBlocks(vditor);
+        renderCodeBlocksInScope(vditor, remountScope);
 
-        vditor.wysiwyg.element.querySelectorAll(".vditor-wysiwyg__preview[data-render='2']")
+        remountScope.querySelectorAll(".vditor-wysiwyg__preview[data-render='2']")
             .forEach((item: HTMLElement) => {
                 if (isCmCodeBlock(item.parentElement as HTMLElement)) {
                     return;

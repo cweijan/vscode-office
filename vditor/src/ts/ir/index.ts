@@ -33,6 +33,7 @@ class IR {
     public element: HTMLPreElement;
     public popover: HTMLDivElement;
     public processTimeoutId: number;
+    public afterRenderLastAt = 0;
     public hlToolbarTimeoutId: number;
     public composingLock: boolean = false;
     public preventInput: boolean;

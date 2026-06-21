@@ -24,6 +24,10 @@ const scrollToHeading = (vditor: IVditor, headingElement: HTMLElement) => {
 export const renderToc = (vditor: IVditor) => {
     markOutlineEditing(vditor);
     const editorElement = vditor[vditor.currentMode].element;
+    if (!editorElement.querySelector('[data-type="toc-block"]')
+        && vditor.outline.element.style.display === "none") {
+        return;
+    }
     let tocHTML = vditor.outline.render(vditor);
     if (tocHTML === "") {
         tocHTML = "[ToC]";

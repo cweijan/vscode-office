@@ -1,5 +1,6 @@
 import { getMarkdown } from "../markdown/getMarkdown";
 import { accessLocalStorage } from "../util/compatibility";
+import { getHistoryRecordWait } from "../util/historySchedule";
 import { matchHotkeyNew } from "../util/hotKey";
 import { formatMs, logPerf } from "../util/log";
 
@@ -23,9 +24,10 @@ export const afterRenderEvent = (vditor: IVditor, options = {
         vditor.hint.render(vditor);
     }
     clearTimeout(vditor.wysiwyg.afterRenderTimeoutId);
+    const wait = getHistoryRecordWait(vditor.wysiwyg.afterRenderLastAt, vditor.options.undoDelay);
     vditor.wysiwyg.afterRenderTimeoutId = window.setTimeout(() => {
-        recordHistory(vditor, options)
-    }, vditor.options.undoDelay);
+        recordHistory(vditor, options);
+    }, wait);
 };
 
 function recordHistory(vditor: IVditor, options = { enableAddUndoStack: true, enableInput: true, }) {
@@ -72,4 +74,6 @@ function recordHistory(vditor: IVditor, options = { enableAddUndoStack: true, en
         undoStackMs: formatMs(undoStackMs),
         totalMs: formatMs(debug ? performance.now() - totalStart : 0),
     });
+
+    vditor.wysiwyg.afterRenderLastAt = Date.now();
 }

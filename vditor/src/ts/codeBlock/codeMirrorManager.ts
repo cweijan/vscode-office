@@ -592,6 +592,43 @@ export const deactivateAllCodeMirrors = (vditor: IVditor) => {
 /** @deprecated use deactivateAllCodeMirrors */
 export const deactivateAllWysiwygCodeMirrors = deactivateAllCodeMirrors;
 
+const collectCodeBlocksInScope = (vditor: IVditor, scope: HTMLElement) => {
+    const editor = getModeEditor(vditor);
+    if (!editor) {
+        return [] as HTMLElement[];
+    }
+    if (scope === editor) {
+        return Array.from(editor.querySelectorAll(getCodeBlockSelector(vditor.currentMode))) as HTMLElement[];
+    }
+    const selector = getCodeBlockSelector(vditor.currentMode);
+    const blocks: HTMLElement[] = [];
+    if (scope.matches(selector)) {
+        blocks.push(scope);
+    }
+    scope.querySelectorAll(selector).forEach((block) => {
+        blocks.push(block as HTMLElement);
+    });
+    return blocks;
+};
+
+/** Spin 前仅卸载作用域内的 CodeMirror */
+export const deactivateCodeMirrorsInScope = (vditor: IVditor, scope: HTMLElement) => {
+    for (const blockElement of collectCodeBlocksInScope(vditor, scope)) {
+        if (bindings.has(blockElement)) {
+            destroyCodeMirror(blockElement);
+        } else {
+            prepareCmBlockDom(blockElement);
+        }
+    }
+};
+
+/** Spin 后仅重建作用域内的 CodeMirror */
+export const renderCodeBlocksInScope = (vditor: IVditor, scope: HTMLElement) => {
+    for (const blockElement of collectCodeBlocksInScope(vditor, scope)) {
+        mountCodeMirror(blockElement, vditor);
+    }
+};
+
 /** undo/redo 等整页 DOM 替换后，清理残留 CM 挂载并重新初始化 */
 export const remountCodeMirrorsAfterDomReplace = (vditor: IVditor) => {
     if (vditor.currentMode !== "wysiwyg" && vditor.currentMode !== "ir") {
