@@ -1,6 +1,5 @@
 import {Constants} from "../constants";
 import {outlineRender} from "../markdown/outlineRender";
-import {setPadding} from "../ui/initUI";
 import {isEditorThemeMobileLayout, isMobileOutlineDrawerOpen, setMobileOutlineDrawerOpen, syncMobileOutlinePanel} from "../ui/mobileOutlineMenu";
 import {setSelectionFocus} from "../util/selection";
 import {bindOutlineScrollSpy, restoreOutlineActive, updateOutlineActive} from "./updateOutlineActive";
@@ -149,6 +148,5 @@ export class Outline {
                 // vditor[vditor.currentMode].element.focus();
             }
         }
-        setPadding(vditor);
     }
 }

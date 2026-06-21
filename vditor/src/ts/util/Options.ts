@@ -29,7 +29,6 @@ export class Options {
             position: "left",
         },
         placeholder: "",
-        editorMaxWidth: 800,
         preview: {
             hljs: Constants.HLJS_OPTIONS,
             markdown: Constants.MARKDOWN_OPTIONS,

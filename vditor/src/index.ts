@@ -20,7 +20,7 @@ import {Tip} from "./ts/tip/index";
 import {Toolbar} from "./ts/toolbar/index";
 import {disableToolbar, hidePanel} from "./ts/toolbar/setToolbar";
 import {enableToolbar} from "./ts/toolbar/setToolbar";
-import {initUI, UIUnbindListener} from "./ts/ui/initUI";
+import {initUI} from "./ts/ui/initUI";
 import {setCodeTheme} from "./ts/ui/setCodeTheme";
 import {setEditorTheme as applyEditorTheme} from "./ts/ui/setEditorTheme";
 import {setTheme} from "./ts/ui/setTheme";
@@ -318,7 +318,6 @@ class Vditor {
         this.vditor.element.removeAttribute("style");
         this.clearCache();
 
-        UIUnbindListener();
         this.vditor.wysiwyg.unbindListener();
     }
 

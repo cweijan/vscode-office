@@ -1,4 +1,3 @@
-import {Constants} from "../constants";
 import {setEditMode} from "../toolbar/EditMode";
 import {hidePanel} from "../toolbar/setToolbar";
 import {bindCacheFocusPersistence, markCacheContentRestored} from "../util/cacheFocus";
@@ -98,33 +97,7 @@ export const initUI = (vditor: IVditor) => {
   }
 };
 
-export const setPadding = (vditor: IVditor) => {
-  const minPadding = window.innerWidth <= Constants.MOBILE_WIDTH ? 10 : 35;
-  if (vditor.wysiwyg.element.parentElement.style.display !== "none") {
-    const padding = (vditor.wysiwyg.element.parentElement.clientWidth
-      - vditor.options.editorMaxWidth) / 2;
-    vditor.wysiwyg.element.style.padding = `10px ${Math.max(minPadding, padding)}px`;
-  }
-
-  if (vditor.ir.element.parentElement.style.display !== "none") {
-    const padding = (vditor.ir.element.parentElement.clientWidth
-      - vditor.options.editorMaxWidth) / 2;
-    vditor.ir.element.style.padding = `10px ${Math.max(minPadding, padding)}px`;
-  }
-};
-
-let resizeCb: () => void;
-
-export function UIUnbindListener() {
-  window.removeEventListener("resize", resizeCb);
-}
-
 const afterRender = (vditor: IVditor) => {
-  UIUnbindListener();
-  window.addEventListener("resize", resizeCb = () => {
-    setPadding(vditor);
-  });
-
   // set default value
   let initValue = accessLocalStorage() && localStorage.getItem(vditor.options.cache.id);
   if (vditor.options.cache.enable && initValue) {

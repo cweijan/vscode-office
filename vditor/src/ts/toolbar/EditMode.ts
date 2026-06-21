@@ -2,7 +2,6 @@ import {Constants} from "../constants";
 import {processAfterRender} from "../ir/process";
 import {getMarkdown} from "../markdown/getMarkdown";
 import {mathRender} from "../markdown/mathRender";
-import {setPadding} from "../ui/initUI";
 import {restoreCacheFocus, wasCacheContentRestored} from "../util/cacheFocus";
 import {getEventName} from "../util/compatibility";
 import {highlightToolbar} from "../util/highlightToolbar";
@@ -55,8 +54,6 @@ export const setEditMode = (vditor: IVditor, type: string, event: Event | string
             enableInput: false,
         });
 
-        setPadding(vditor);
-
         vditor.ir.element.querySelectorAll(".vditor-ir__preview[data-render='2']").forEach((item: HTMLElement) => {
             processCodeRender(item, vditor);
         });
@@ -78,7 +75,6 @@ export const setEditMode = (vditor: IVditor, type: string, event: Event | string
 
         vditor.currentMode = "wysiwyg";
 
-        setPadding(vditor);
         renderDomByMd(vditor, markdownText, {
             enableAddUndoStack: true,
             enableHint: false,
