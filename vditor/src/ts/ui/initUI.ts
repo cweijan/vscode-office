@@ -63,9 +63,9 @@ export const initUI = (vditor: IVditor) => {
     hidePanel(vditor, ["subToolbar"]);
   });
 
-  setEditMode(vditor, vditor.options.mode, afterRender(vditor));
-
   initEditorTheme(vditor);
+
+  setEditMode(vditor, vditor.options.mode, afterRender(vditor));
 
   document.execCommand("DefaultParagraphSeparator", false, "p");
 

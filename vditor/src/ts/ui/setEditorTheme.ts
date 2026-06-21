@@ -4,6 +4,7 @@ import {
     resolveEditorTheme,
 } from "./editorThemeCatalog";
 import {initEditorThemeToggle, updateEditorThemeToggle} from "./editorThemeToggle";
+import {initMobileOutlineMenu, prepareEditorThemeMobileOutline} from "./mobileOutlineMenu";
 
 const LEGACY_THEME_LINK_ID = "vditor-editor-theme-css";
 
@@ -28,6 +29,7 @@ export const syncEditorDarkClass = (element: HTMLElement, theme: string) => {
 const applyEditorThemeAttribute = (vditor: IVditor, theme: string) => {
     document.documentElement.setAttribute("data-editor-theme", theme);
     vditor.element.setAttribute("data-editor-theme", theme);
+    prepareEditorThemeMobileOutline(vditor);
     document.getElementById(LEGACY_THEME_LINK_ID)?.remove();
 };
 
@@ -67,6 +69,7 @@ export const initEditorTheme = (vditor: IVditor) => {
     const theme = resolveEditorTheme(vditor.options.editorTheme);
     setEditorTheme(vditor, theme, false);
     initEditorThemeToggle(vditor);
+    initMobileOutlineMenu(vditor);
 };
 
 export {resolveEditorTheme};

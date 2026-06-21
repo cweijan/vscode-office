@@ -1,4 +1,5 @@
 import { pinOutlineActive } from "../outline/updateOutlineActive";
+import { closeMobileOutline, isEditorThemeMobileLayout } from "../ui/mobileOutlineMenu";
 import { codicon } from "../util/codicon";
 import { hasClosestByHeadings } from "../util/hasClosestByHeadings";
 import { mathRender } from "./mathRender";
@@ -133,6 +134,9 @@ export const outlineRender = (contentElement: HTMLElement, targetElement: Elemen
                             window.scrollTo(window.scrollX, vditor.element.offsetTop);
                         }
                         scrollOutlineTarget(contentElement, idElement);
+                    }
+                    if (isEditorThemeMobileLayout(vditor)) {
+                        closeMobileOutline(vditor);
                     }
                 } else {
                     window.scrollTo(window.scrollX, idElement.offsetTop - OUTLINE_SCROLL_OFFSET);

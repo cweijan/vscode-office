@@ -1,4 +1,5 @@
 import {markOutlineEditing, pinOutlineActive} from "../outline/updateOutlineActive";
+import {isOutlinePanelVisible} from "../ui/mobileOutlineMenu";
 import {mathRender} from "../markdown/mathRender";
 import {scrollOutlineTarget, OUTLINE_SCROLL_OFFSET} from "../markdown/outlineRender";
 import {execAfterRender, insertAfterBlock, insertBeforeBlock} from "./fixBrowserBehavior";
@@ -25,7 +26,7 @@ export const renderToc = (vditor: IVditor) => {
     markOutlineEditing(vditor);
     const editorElement = vditor[vditor.currentMode].element;
     if (!editorElement.querySelector('[data-type="toc-block"]')
-        && vditor.outline.element.style.display === "none") {
+        && !isOutlinePanelVisible(vditor)) {
         return;
     }
     let tocHTML = vditor.outline.render(vditor);

@@ -1,6 +1,7 @@
 import {Constants} from "../constants";
 import {outlineRender} from "../markdown/outlineRender";
 import {setPadding} from "../ui/initUI";
+import {isEditorThemeMobileLayout, isMobileOutlineDrawerOpen, setMobileOutlineDrawerOpen, syncMobileOutlinePanel} from "../ui/mobileOutlineMenu";
 import {setSelectionFocus} from "../util/selection";
 import {bindOutlineScrollSpy, restoreOutlineActive, updateOutlineActive} from "./updateOutlineActive";
 
@@ -60,7 +61,7 @@ export class Outline {
 
     public render(vditor: IVditor) {
         const tocHTML = outlineRender(vditor[vditor.currentMode].element, this.contentElement, vditor);
-        if (this.element.style.display !== "none") {
+        if (isEditorThemeMobileLayout(vditor) || this.element.style.display !== "none") {
             restoreOutlineActive(vditor);
         }
         return tocHTML;
@@ -78,18 +79,66 @@ export class Outline {
         this.unbindScrollSpy = undefined;
     }
 
+    public resetMobileDrawer(vditor: IVditor) {
+        if (!isEditorThemeMobileLayout(vditor)) {
+            return;
+        }
+        setMobileOutlineDrawerOpen(vditor, false);
+        this.element.style.display = "none";
+        this.element.classList.remove("vditor-outline--mobile-open");
+        syncMobileOutlinePanel(vditor, false);
+        this.unbindScrollSpyListener();
+    }
+
+    public restoreDesktopState(vditor: IVditor) {
+        if (isEditorThemeMobileLayout(vditor)) {
+            return;
+        }
+        this.element.classList.remove("vditor-outline--mobile-open");
+        this.toggle(vditor, vditor.options.outline.enable);
+    }
+
     public toggle(vditor: IVditor, show = true) {
         const btnElement = vditor.toolbar.elements.outline?.firstElementChild;
+        const mobileLayout = isEditorThemeMobileLayout(vditor);
+        const openDrawer = !mobileLayout || isMobileOutlineDrawerOpen(vditor);
+
         if (show) {
-            this.element.style.display = "block";
+            if (mobileLayout) {
+                this.element.style.display = openDrawer ? "" : "none";
+            } else {
+                this.element.classList.remove("vditor-outline--mobile-open");
+                this.element.style.display = "block";
+            }
             this.render(vditor);
-            updateOutlineActive(vditor, true);
-            this.bindScrollSpy(vditor);
-            btnElement?.classList.add("vditor-menu--current");
+            if (openDrawer) {
+                if (mobileLayout) {
+                    this.element.style.display = "";
+                }
+                syncMobileOutlinePanel(vditor, true);
+                updateOutlineActive(vditor, true);
+                this.bindScrollSpy(vditor);
+                if (!mobileLayout) {
+                    btnElement?.classList.add("vditor-menu--current");
+                }
+            } else if (mobileLayout) {
+                this.element.style.display = "none";
+                syncMobileOutlinePanel(vditor, false);
+                this.unbindScrollSpyListener();
+            }
         } else {
-            this.element.style.display = "none";
+            if (mobileLayout) {
+                setMobileOutlineDrawerOpen(vditor, false);
+                this.element.style.display = "none";
+                this.element.classList.remove("vditor-outline--mobile-open");
+                syncMobileOutlinePanel(vditor, false);
+            } else {
+                this.element.style.display = "none";
+            }
             this.unbindScrollSpyListener();
-            btnElement?.classList.remove("vditor-menu--current");
+            if (!mobileLayout) {
+                btnElement?.classList.remove("vditor-menu--current");
+            }
         }
         if (getSelection().rangeCount > 0) {
             const range = getSelection().getRangeAt(0);

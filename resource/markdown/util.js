@@ -129,17 +129,10 @@ export async function getToolbar(resPath, sponsorBaseUrl, language) {
                 handler.emit("export")
             }
         },
-        { name: 'upload', tipPosition: 'e' },
+        'upload',
         "|",
-        {
-            name: 'editor-theme-label',
-            tipPosition: 'e',
-        },
-        {
-            name: 'editor-theme',
-            tipPosition: 'e',
-        },
-        "code-theme",
+        'editor-theme-label',
+        "editor-theme",
         "|",
         // "|",
         "list",
@@ -156,6 +149,7 @@ export async function getToolbar(resPath, sponsorBaseUrl, language) {
         "redo",
         "|",
         "edit-mode",
+        "code-theme",
         {
             tip: helpTip,
             tipPosition: 'e',

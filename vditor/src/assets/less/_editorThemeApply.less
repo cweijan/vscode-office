@@ -13,14 +13,155 @@
 
 #vditor[data-editor-theme] {
   --vditor-chrome-border: none;
-  --vditor-toolbar-border-bottom: none;
+  --vditor-toolbar-border-bottom: 1px solid var(--border-color);
   --vditor-outline-border: none;
   --vditor-outline-title-display: none;
   --vditor-root-background: var(--textarea-background-color, var(--bg-color));
+  --mobile-outline-trigger-size: 38px;
+  --mobile-outline-trigger-top: max(8px, env(safe-area-inset-top, 0px));
+  --mobile-outline-trigger-left: max(10px, env(safe-area-inset-left, 0px));
+  --mobile-outline-gap: 6px;
+}
+
+#vditor[data-editor-theme] .vditor-mobile-outline-trigger,
+#vditor[data-editor-theme] .vditor-outline__backdrop {
+  display: none;
 }
 
 @media (max-width: 700px) {
-  #vditor[data-editor-theme] .vditor-outline {
-    display: none !important;
+  #vditor[data-editor-theme] {
+    .vditor-toolbar__item:has([data-type="outline"]) {
+      display: none !important;
+    }
+
+    .vditor-outline:not(.vditor-outline--mobile-open) {
+      display: none !important;
+    }
+
+    .vditor-mobile-outline-trigger {
+      display: inline-flex;
+      position: fixed;
+      top: var(--mobile-outline-trigger-top);
+      left: var(--mobile-outline-trigger-left);
+      z-index: 201;
+      align-items: center;
+      justify-content: center;
+      width: var(--mobile-outline-trigger-size);
+      height: var(--mobile-outline-trigger-size);
+      margin: 0;
+      padding: 0;
+      border: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent);
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--textarea-background-color, var(--bg-color)) 90%, transparent);
+      color: var(--front-color, var(--toolbar-icon-color));
+      box-shadow:
+        0 2px 8px color-mix(in srgb, #000 8%, transparent),
+        0 0 0 1px color-mix(in srgb, #fff 5%, transparent) inset;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      cursor: pointer;
+      transition:
+        background-color 0.16s ease,
+        border-color 0.16s ease,
+        box-shadow 0.16s ease,
+        transform 0.16s ease,
+        color 0.16s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+
+      .codicon {
+        font-size: 18px;
+        line-height: 1;
+      }
+
+      &:active {
+        transform: scale(0.96);
+      }
+
+      &--active {
+        color: var(--list-hover-color, var(--toolbar-icon-hover-color));
+        border-color: color-mix(in srgb, var(--list-hover-color, var(--toolbar-icon-hover-color)) 40%, var(--border-color));
+        background: color-mix(in srgb, var(--list-hover-color, var(--toolbar-icon-hover-color)) 10%, var(--textarea-background-color, var(--bg-color)));
+      }
+    }
+
+    .vditor-outline__backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 199;
+      background: color-mix(in srgb, #000 32%, transparent);
+      backdrop-filter: blur(1px);
+
+      &--visible {
+        display: block;
+      }
+    }
+
+    .vditor-outline {
+      position: fixed;
+      top: calc(var(--mobile-outline-trigger-top) + var(--mobile-outline-trigger-size) + var(--mobile-outline-gap));
+      left: var(--mobile-outline-trigger-left);
+      bottom: max(8px, env(safe-area-inset-bottom, 0px));
+      width: min(68vw, 228px) !important;
+      max-width: none;
+      z-index: 200;
+      display: block !important;
+      border-radius: 10px;
+      border: 1px solid color-mix(in srgb, var(--border-color) 80%, transparent);
+      box-shadow: 0 8px 28px color-mix(in srgb, #000 14%, transparent);
+      overflow: hidden;
+      transform: translateY(-6px) scale(0.98);
+      opacity: 0;
+      transition: transform 0.18s ease, opacity 0.18s ease;
+      pointer-events: none;
+
+      &--right {
+        left: var(--mobile-outline-trigger-left);
+        right: auto;
+      }
+
+      &--mobile-open {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      &__resize,
+      &__title {
+        display: none !important;
+      }
+
+      &__content {
+        height: 100%;
+        padding: 6px 6px 10px;
+
+        > ul > li > span > span {
+          font-size: 13.5px;
+        }
+      }
+
+      li + li {
+        margin-top: 0;
+      }
+
+      li > span {
+        margin: 0 1px;
+        padding: 5px 6px;
+        border-radius: 5px;
+      }
+
+      ul ul {
+        margin: 1px 0 2px;
+        padding-left: 0.75em;
+      }
+    }
+
+    &.vditor--mobile-outline-open {
+      .vditor-content,
+      .vditor-toolbar {
+        touch-action: none;
+      }
+    }
   }
 }

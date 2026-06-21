@@ -1,4 +1,5 @@
 import {getOutlineActiveReferenceY} from "../markdown/outlineRender";
+import {isOutlinePanelVisible} from "../ui/mobileOutlineMenu";
 import {hasClosestByHeadings} from "../util/hasClosestByHeadings";
 
 export const OUTLINE_ITEM_ACTIVE_CLASS = "vditor-outline__item--active";
@@ -93,7 +94,7 @@ export const setOutlineActiveById = (outlineContent: HTMLElement, targetId: stri
 };
 
 const applyOutlineActive = (vditor: IVditor, targetId: string | null) => {
-    if (vditor.outline.element.style.display === "none") {
+    if (!isOutlinePanelVisible(vditor)) {
         return;
     }
     const outlineContent = getOutlineContent(vditor);
@@ -133,7 +134,7 @@ export const updateOutlineActive = (vditor: IVditor, force = false) => {
 };
 
 export const restoreOutlineActive = (vditor: IVditor) => {
-    if (vditor.outline.element.style.display === "none") {
+    if (!isOutlinePanelVisible(vditor)) {
         return;
     }
     const state = getState(vditor);
