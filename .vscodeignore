@@ -18,5 +18,6 @@ vditor/
 build.js
 public/
 lib.js
+vite/
 backlog.md
 yarn.lock
