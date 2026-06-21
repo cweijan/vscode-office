@@ -244,7 +244,7 @@
 
     .language-mermaid {
       text-align: center;
-      background-color: var(--mermaid-bg, #fff);
+      background-color: var(--mermaid-bg, var(--toolbar-background-color, #fff));
     }
 
     kbd {
@@ -540,6 +540,7 @@
     &__content {
       overflow-x: auto;
       overflow-y: auto;
+      box-sizing: border-box;
       height: 100%;
       padding: 10px 8px 14px;
       .vditor-scrollbar(var(--outline-bg-color, var(--panel-background-color)));

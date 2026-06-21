@@ -4,7 +4,7 @@ html[data-editor-theme="Light"],
     --bg-color: #ffffff;
     --front-color: #333333;
     --second-bg-color: #f8f9fa;
-    --second-color: color-mix(in srgb, var(--front-color) 45%, transparent);
+    --second-color: #767676;
 
     /* Border & Divider */
     --hr-bg: #dce0e4;
@@ -37,10 +37,10 @@ html[data-editor-theme="Light"],
     --toolbar-icon-color: var(--front-color);
     --toolbar-icon-hover-color: var(--list-hover-color);
     --panel-background-color: var(--bg-color);
-    --panel-shadow: 0 2px 8px color-mix(in srgb, var(--front-color) 12%, transparent);
+    --panel-shadow: 0 2px 8px rgba(51, 51, 51, 0.12);
     --textarea-background-color: var(--bg-color);
     --textarea-text-color: var(--front-color);
-    --count-background-color: color-mix(in srgb, var(--front-color) 8%, transparent);
+    --count-background-color: rgba(51, 51, 51, 0.08);
 
     /* Outline */
     --outline-bg-color: #fafbfc;
@@ -51,18 +51,18 @@ html[data-editor-theme="Light"],
     --cm-bg-color: var(--code-bg-color);
     --cm-fg-color: var(--front-color);
     --cm-lang-trigger-bg: var(--second-bg-color);
-    --cm-active-line-bg: color-mix(in srgb, var(--front-color) 6%, var(--cm-bg-color));
+    --cm-active-line-bg: #e5e7e9;
     --cm-active-line-gutter-fg: var(--cm-line-number-active-fg);
     --cm-fold-fg: var(--list-hover-color);
     --cm-fold-fg-hover: var(--front-color);
-    --cm-fold-bg: color-mix(in srgb, var(--cm-fold-fg) 12%, var(--cm-bg-color));
+    --cm-fold-bg: #d4dfeb;
     --cm-cursor-fg: var(--front-color);
-    --cm-line-number-fg: color-mix(in srgb, var(--front-color) 55%, transparent);
+    --cm-line-number-fg: rgba(51, 51, 51, 0.55);
     --cm-line-number-active-fg: var(--front-color);
-    --cm-selection-bg: color-mix(in srgb, var(--list-hover-color) 32%, transparent);
-    --cm-selection-bg-focused: color-mix(in srgb, var(--list-hover-color) 42%, transparent);
-    --cm-selection-bg-inactive: color-mix(in srgb, var(--list-hover-color) 24%, transparent);
-    --cm-selection-highlight-bg: color-mix(in srgb, var(--list-hover-color) 18%, transparent);
+    --cm-selection-bg: rgba(4, 81, 165, 0.32);
+    --cm-selection-bg-focused: rgba(4, 81, 165, 0.42);
+    --cm-selection-bg-inactive: rgba(4, 81, 165, 0.24);
+    --cm-selection-highlight-bg: rgba(4, 81, 165, 0.18);
     --cm-lang-search-focus-color: var(--list-hover-color);
 
     /* Embed & Link Card */
@@ -72,13 +72,22 @@ html[data-editor-theme="Light"],
     --linkcard-site-color: var(--link-color);
     --linkcard-icon-color: var(--toolbar-icon-color);
     --linkcard-shadow: var(--panel-shadow);
-    --linkcard-shadow-hover: 0 0 3px color-mix(in srgb, var(--front-color) 13%, transparent), 0 3px 6px color-mix(in srgb, var(--front-color) 26%, transparent);
+    --linkcard-shadow-hover: 0 0 3px rgba(51, 51, 51, 0.13), 0 3px 6px rgba(51, 51, 51, 0.26);
     --linkcard-image-bg: var(--second-color);
-    --linenumber-fg: color-mix(in srgb, var(--front-color) 38%, transparent);
+    --linenumber-fg: rgba(51, 51, 51, 0.38);
+
+    /* Accent palette (charts7) */
+    --chart-red: #cf222e;
+    --chart-blue: #0969da;
+    --chart-yellow: #9a6700;
+    --chart-orange: #bc4c00;
+    --chart-green: #116329;
+    --chart-purple: #8250df;
+    --chart-foreground: #24292f;
 
     /* Scrollbar */
-    --scrollbar-thumb: color-mix(in srgb, var(--front-color) 30%, transparent);
-    --scrollbar-thumb-hover: color-mix(in srgb, var(--front-color) 44%, transparent);
+    --scrollbar-thumb: rgba(51, 51, 51, 0.30);
+    --scrollbar-thumb-hover: rgba(51, 51, 51, 0.44);
 }
 
 #vditor[data-editor-theme="Light"] {

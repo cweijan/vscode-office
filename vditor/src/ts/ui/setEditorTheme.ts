@@ -1,3 +1,4 @@
+import {refreshMermaidTheme} from "../markdown/mermaidRender";
 import {
     EDITOR_DARK_THEMES,
     EDITOR_THEME_IDS,
@@ -42,6 +43,7 @@ const observeVscodeTheme = (vditor: IVditor) => {
         const theme = vditor.element.getAttribute("data-editor-theme");
         if (theme === "Auto") {
             syncEditorDarkClass(vditor.element, "Auto");
+            refreshMermaidTheme(vditor.element, vditor.options.cdn);
         }
     });
     observer.observe(document.body, {attributes: true, attributeFilter: ["data-vscode-theme-kind"]});
@@ -59,6 +61,7 @@ export const setEditorTheme = (vditor: IVditor, theme: string, notify = true) =>
     syncEditorDarkClass(vditor.element, resolved);
     updateEditorThemeToggle(resolved);
     observeVscodeTheme(vditor);
+    refreshMermaidTheme(vditor.element, vditor.options.cdn);
 
     if (notify && vditor.options.changeEditorTheme) {
         vditor.options.changeEditorTheme(resolved);

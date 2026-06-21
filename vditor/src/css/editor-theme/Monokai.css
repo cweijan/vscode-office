@@ -4,7 +4,7 @@ html[data-editor-theme="Monokai"],
     --bg-color: #272822;
     --front-color: #f8f8f2;
     --second-bg-color: #1e1f1c;
-    --second-color: color-mix(in srgb, var(--front-color) 45%, transparent);
+    --second-color: #75715e;
 
     /* Border & Divider */
     --hr-bg: #49483e;
@@ -37,10 +37,10 @@ html[data-editor-theme="Monokai"],
     --toolbar-icon-color: var(--front-color);
     --toolbar-icon-hover-color: var(--list-hover-color);
     --panel-background-color: var(--bg-color);
-    --panel-shadow: 0 2px 8px color-mix(in srgb, var(--front-color) 12%, transparent);
+    --panel-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
     --textarea-background-color: var(--bg-color);
     --textarea-text-color: var(--front-color);
-    --count-background-color: color-mix(in srgb, var(--front-color) 8%, transparent);
+    --count-background-color: rgba(248, 248, 242, 0.08);
 
     /* Outline */
     --outline-bg-color: #262722;
@@ -51,18 +51,18 @@ html[data-editor-theme="Monokai"],
     --cm-bg-color: var(--code-bg-color);
     --cm-fg-color: var(--front-color);
     --cm-lang-trigger-bg: var(--second-bg-color);
-    --cm-active-line-bg: color-mix(in srgb, var(--front-color) 8%, var(--cm-bg-color));
+    --cm-active-line-bg: #4d4c41;
     --cm-active-line-gutter-fg: var(--cm-line-number-active-fg);
     --cm-fold-fg: var(--list-hover-color);
     --cm-fold-fg-hover: var(--front-color);
-    --cm-fold-bg: color-mix(in srgb, var(--cm-fold-fg) 12%, var(--cm-bg-color));
+    --cm-fold-bg: #435049;
     --cm-cursor-fg: var(--list-hover-color);
-    --cm-line-number-fg: color-mix(in srgb, var(--front-color) 55%, transparent);
+    --cm-line-number-fg: rgba(248, 248, 242, 0.55);
     --cm-line-number-active-fg: var(--front-color);
-    --cm-selection-bg: color-mix(in srgb, var(--list-hover-color) 35%, transparent);
-    --cm-selection-bg-focused: color-mix(in srgb, var(--list-hover-color) 48%, transparent);
-    --cm-selection-bg-inactive: color-mix(in srgb, var(--list-hover-color) 26%, transparent);
-    --cm-selection-highlight-bg: color-mix(in srgb, var(--list-hover-color) 20%, transparent);
+    --cm-selection-bg: rgba(102, 217, 239, 0.35);
+    --cm-selection-bg-focused: rgba(102, 217, 239, 0.48);
+    --cm-selection-bg-inactive: rgba(102, 217, 239, 0.26);
+    --cm-selection-highlight-bg: rgba(102, 217, 239, 0.20);
     --cm-lang-search-focus-color: var(--list-hover-color);
 
     /* Embed & Link Card */
@@ -72,13 +72,22 @@ html[data-editor-theme="Monokai"],
     --linkcard-site-color: var(--link-color);
     --linkcard-icon-color: var(--toolbar-icon-color);
     --linkcard-shadow: var(--panel-shadow);
-    --linkcard-shadow-hover: 0 0 3px color-mix(in srgb, var(--front-color) 13%, transparent), 0 3px 6px color-mix(in srgb, var(--front-color) 26%, transparent);
+    --linkcard-shadow-hover: 0 0 3px rgba(248, 248, 242, 0.13), 0 3px 6px rgba(0, 0, 0, 0.30);
     --linkcard-image-bg: var(--second-color);
-    --linenumber-fg: color-mix(in srgb, var(--front-color) 38%, transparent);
+    --linenumber-fg: rgba(248, 248, 242, 0.38);
+
+    /* Accent palette (charts7) */
+    --chart-red: #f92672;
+    --chart-blue: #66d9ef;
+    --chart-yellow: #e6db74;
+    --chart-orange: #fd971f;
+    --chart-green: #a6e22e;
+    --chart-purple: #ae81ff;
+    --chart-foreground: #f8f8f2;
 
     /* Scrollbar */
-    --scrollbar-thumb: color-mix(in srgb, var(--front-color) 30%, transparent);
-    --scrollbar-thumb-hover: color-mix(in srgb, var(--front-color) 44%, transparent);
+    --scrollbar-thumb: rgba(248, 248, 242, 0.30);
+    --scrollbar-thumb-hover: rgba(248, 248, 242, 0.44);
 }
 
 #vditor[data-editor-theme="Monokai"] {

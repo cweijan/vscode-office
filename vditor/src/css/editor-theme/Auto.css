@@ -76,6 +76,15 @@ html[data-editor-theme="Auto"],
     --linkcard-image-bg: var(--second-color);
     --linenumber-fg: color-mix(in srgb, var(--front-color) 38%, transparent);
 
+    /* Accent palette (charts7) */
+    --chart-red: var(--vscode-charts-red, #c24038);
+    --chart-blue: var(--vscode-charts-blue, #3794ff);
+    --chart-yellow: var(--vscode-charts-yellow, #cca700);
+    --chart-orange: var(--vscode-charts-orange, #d18616);
+    --chart-green: var(--vscode-charts-green, #89d185);
+    --chart-purple: var(--vscode-charts-purple, #b180d7);
+    --chart-foreground: var(--vscode-charts-foreground, var(--front-color));
+
     /* Resize */
     --resize-icon-color: var(--vscode-icon-foreground, var(--second-color));
     --resize-background-color: var(--vscode-scrollbarSlider-background, var(--second-color));

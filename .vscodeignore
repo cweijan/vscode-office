@@ -3,6 +3,7 @@
 out/test/**
 src/**
 vditor/**
+.idea/
 test/**
 packages/**
 template/**

@@ -19,7 +19,7 @@ html[data-editor-theme="Dracula"],
     /* Blockquote */
     --blockquote-color: #e2e2dc;
     --blockquote-border: #bd93f9;
-    --blockquote-bg: color-mix(in srgb, #44475a 50%, var(--bg-color));
+    --blockquote-bg: #363948;
 
     /* Table */
     --table-border: var(--border-color);
@@ -37,10 +37,10 @@ html[data-editor-theme="Dracula"],
     --toolbar-icon-color: var(--front-color);
     --toolbar-icon-hover-color: #8be9fd;
     --panel-background-color: var(--bg-color);
-    --panel-shadow: 0 2px 8px color-mix(in srgb, #000000 35%, transparent);
+    --panel-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
     --textarea-background-color: var(--bg-color);
     --textarea-text-color: var(--front-color);
-    --count-background-color: color-mix(in srgb, #6272a4 35%, transparent);
+    --count-background-color: rgba(98, 114, 164, 0.35);
 
     /* Outline */
     --outline-bg-color: #21222c;
@@ -55,7 +55,7 @@ html[data-editor-theme="Dracula"],
     --cm-active-line-gutter-fg: var(--cm-line-number-active-fg);
     --cm-fold-fg: #8be9fd;
     --cm-fold-fg-hover: var(--front-color);
-    --cm-fold-bg: color-mix(in srgb, #8be9fd 12%, var(--cm-bg-color));
+    --cm-fold-bg: #34414e;
     --cm-cursor-fg: var(--front-color);
     --cm-line-number-fg: #6272a4;
     --cm-line-number-active-fg: var(--front-color);
@@ -72,9 +72,18 @@ html[data-editor-theme="Dracula"],
     --linkcard-site-color: var(--link-color);
     --linkcard-icon-color: var(--toolbar-icon-color);
     --linkcard-shadow: var(--panel-shadow);
-    --linkcard-shadow-hover: 0 0 3px color-mix(in srgb, #8be9fd 20%, transparent), 0 3px 6px color-mix(in srgb, #000000 30%, transparent);
+    --linkcard-shadow-hover: 0 0 3px rgba(139, 233, 253, 0.20), 0 3px 6px rgba(0, 0, 0, 0.30);
     --linkcard-image-bg: #44475a;
     --linenumber-fg: #6272a4;
+
+    /* Accent palette (charts7) */
+    --chart-red: #ff5555;
+    --chart-blue: #8be9fd;
+    --chart-yellow: #f1fa8c;
+    --chart-orange: #ffb86c;
+    --chart-green: #50fa7b;
+    --chart-purple: #bd93f9;
+    --chart-foreground: #f8f8f2;
 
     /* Scrollbar */
     --scrollbar-thumb: rgba(98, 114, 164, 0.45);

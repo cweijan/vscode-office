@@ -13,6 +13,7 @@ import {
     hasClosestByAttribute,
     hasClosestByClassName,
     hasClosestByMatchTag,
+    hasTopClosestByTag,
 } from "./hasClosest";
 import { getLastNode } from "./hasClosest";
 import { highlightToolbar } from "./highlightToolbar";
@@ -1170,6 +1171,164 @@ export const fixCodeBlock = (vditor: IVditor, event: KeyboardEvent, codeRenderEl
     return false;
 };
 
+const getBlockquoteLineElements = (topBlockquote: HTMLElement): HTMLElement[] => {
+    const lines: HTMLElement[] = [];
+    for (const child of topBlockquote.children) {
+        const element = child as HTMLElement;
+        if (element.tagName === "P") {
+            lines.push(element);
+        } else if (element.tagName === "BLOCKQUOTE") {
+            for (const nestedLine of getBlockquoteLineElements(element)) {
+                lines.push(nestedLine);
+            }
+        }
+    }
+    return lines;
+};
+
+const getBlockquoteAdjacentSibling = (element: HTMLElement, direction: "next" | "prev"): HTMLElement | null => {
+    let current: HTMLElement | null = element;
+    while (current) {
+        const sibling = (direction === "next"
+            ? current.nextElementSibling
+            : current.previousElementSibling) as HTMLElement | null;
+        if (sibling) {
+            return sibling;
+        }
+        const parentElement = current.parentElement;
+        if (parentElement?.tagName === "BLOCKQUOTE") {
+            current = parentElement;
+            continue;
+        }
+        break;
+    }
+    return null;
+};
+
+const focusBlockquoteLine = (range: Range, lineElement: HTMLElement, column: number, toEnd = false) => {
+    const offset = Math.min(Math.max(column, 0), lineElement.textContent.length);
+    if (!toEnd && offset === 0) {
+        range.selectNodeContents(lineElement);
+        range.collapse(true);
+        setSelectionFocus(range);
+        return;
+    }
+    if (toEnd || offset >= lineElement.textContent.length) {
+        const lastNode = getLastNode(lineElement);
+        if (lastNode.nodeType === 3) {
+            range.setStart(lastNode, lastNode.textContent.length);
+            range.collapse(true);
+        } else {
+            range.selectNodeContents(lineElement);
+            range.collapse(false);
+        }
+        setSelectionFocus(range);
+        return;
+    }
+    setSelectionByPosition(offset, offset, lineElement);
+};
+
+const focusBlockquoteAdjacent = (range: Range, element: HTMLElement, toStart: boolean) => {
+    if (element.tagName === "BLOCKQUOTE") {
+        const lines = getBlockquoteLineElements(element);
+        if (lines.length > 0) {
+            if (toStart) {
+                focusBlockquoteLine(range, lines[0], 0);
+            } else {
+                focusBlockquoteLine(range, lines[lines.length - 1], 0, true);
+            }
+            return;
+        }
+    }
+    if (toStart) {
+        range.selectNodeContents(element);
+        range.collapse(true);
+    } else {
+        range.selectNodeContents(element);
+        range.collapse(false);
+    }
+    setSelectionFocus(range);
+};
+
+const exitBlockquoteForward = (range: Range, topBlockquote: HTMLElement, blockquoteElement: HTMLElement) => {
+    const blockElement = topBlockquote || blockquoteElement;
+    const nextElement = blockElement.nextElementSibling as HTMLElement;
+    if (nextElement && nextElement.tagName !== "TABLE" && !nextElement.getAttribute("data-type")) {
+        focusBlockquoteAdjacent(range, nextElement, true);
+        return;
+    }
+    range.setStartAfter(blockElement);
+    range.collapse(true);
+    setSelectionFocus(range);
+};
+
+const exitBlockquoteBackward = (range: Range, topBlockquote: HTMLElement, blockquoteElement: HTMLElement) => {
+    const blockElement = topBlockquote || blockquoteElement;
+    const previousElement = blockElement.previousElementSibling as HTMLElement;
+    if (previousElement && previousElement.tagName !== "TABLE" && !previousElement.getAttribute("data-type")) {
+        focusBlockquoteAdjacent(range, previousElement, false);
+        return;
+    }
+    range.setStartBefore(blockElement);
+    range.collapse(true);
+    setSelectionFocus(range);
+};
+
+const insertAfterBlockquoteLine = (vditor: IVditor, event: KeyboardEvent, range: Range, lineElement: HTMLElement,
+    blockquoteElement: HTMLElement) => {
+    const position = getSelectPosition(lineElement, vditor[vditor.currentMode].element, range);
+    if ((event.key === "ArrowDown" && lineElement.textContent.trimRight().substr(position.start).indexOf("\n") === -1) ||
+        (event.key === "ArrowRight" && position.start >= lineElement.textContent.trimRight().length)) {
+        const topBlockquote = hasTopClosestByTag(range.startContainer, "BLOCKQUOTE") as HTMLElement;
+        const lines = getBlockquoteLineElements(topBlockquote || blockquoteElement);
+        const lineIndex = lines.indexOf(lineElement);
+        const nextLine = lineIndex > -1 ? lines[lineIndex + 1] : undefined;
+        if (nextLine) {
+            focusBlockquoteLine(range, nextLine, position.start);
+        } else if (lineIndex === -1) {
+            const nextElement = getBlockquoteAdjacentSibling(lineElement, "next");
+            if (nextElement && nextElement.tagName !== "TABLE" && !nextElement.getAttribute("data-type")) {
+                focusBlockquoteAdjacent(range, nextElement, true);
+            } else {
+                exitBlockquoteForward(range, topBlockquote, blockquoteElement);
+            }
+        } else {
+            exitBlockquoteForward(range, topBlockquote, blockquoteElement);
+        }
+        event.preventDefault();
+        return true;
+    }
+    return false;
+};
+
+const insertBeforeBlockquoteLine = (vditor: IVditor, event: KeyboardEvent, range: Range, lineElement: HTMLElement,
+    blockquoteElement: HTMLElement) => {
+    const position = getSelectPosition(lineElement, vditor[vditor.currentMode].element, range);
+    if ((event.key === "ArrowUp" && lineElement.textContent.substr(0, position.start).indexOf("\n") === -1) ||
+        ((event.key === "ArrowLeft" || (event.key === "Backspace" && range.toString() === "")) &&
+            position.start === 0)) {
+        const topBlockquote = hasTopClosestByTag(range.startContainer, "BLOCKQUOTE") as HTMLElement;
+        const lines = getBlockquoteLineElements(topBlockquote || blockquoteElement);
+        const lineIndex = lines.indexOf(lineElement);
+        const previousLine = lineIndex > -1 ? lines[lineIndex - 1] : undefined;
+        if (previousLine) {
+            focusBlockquoteLine(range, previousLine, position.start, event.key !== "ArrowUp");
+        } else if (lineIndex === -1) {
+            const previousElement = getBlockquoteAdjacentSibling(lineElement, "prev");
+            if (previousElement && previousElement.tagName !== "TABLE" && !previousElement.getAttribute("data-type")) {
+                focusBlockquoteAdjacent(range, previousElement, false);
+            } else {
+                exitBlockquoteBackward(range, topBlockquote, blockquoteElement);
+            }
+        } else {
+            exitBlockquoteBackward(range, topBlockquote, blockquoteElement);
+        }
+        event.preventDefault();
+        return true;
+    }
+    return false;
+};
+
 export const fixBlockquote = (vditor: IVditor, range: Range, event: KeyboardEvent, pElement: HTMLElement | false) => {
     const startContainer = range.startContainer;
     const blockquoteElement = hasClosestByMatchTag(startContainer, "BLOCKQUOTE");
@@ -1189,9 +1348,9 @@ export const fixBlockquote = (vditor: IVditor, range: Range, event: KeyboardEven
             && pElement.parentElement.tagName === "BLOCKQUOTE") {
             // Enter: 空行回车应逐层跳出
             let isEmpty = false;
-            if (pElement.innerHTML.replace(Constants.ZWSP, "") === "\n" ||
-                pElement.innerHTML.replace(Constants.ZWSP, "") === "") {
-                // 空 P
+            const pText = pElement.textContent.replace(Constants.ZWSP, "");
+            if (pText === "" || pText === "\n") {
+                // 空 P（含仅 <wbr> 占位的情况）
                 isEmpty = true;
                 pElement.remove();
             } else if (pElement.innerHTML.endsWith("\n\n") &&
@@ -1209,6 +1368,14 @@ export const fixBlockquote = (vditor: IVditor, range: Range, event: KeyboardEven
                 event.preventDefault();
                 return true;
             }
+            // Enter: 引用块内有内容时在段内换行（光标置于 \n 与 ZWSP 之间，无可见空格）
+            const textNode = document.createTextNode("\n" + Constants.ZWSP);
+            range.insertNode(textNode);
+            range.setStart(textNode, 1);
+            range.collapse(true);
+            setSelectionFocus(range);
+            event.preventDefault();
+            return true;
         }
         const blockElement = hasClosestBlock(startContainer);
         if (vditor.currentMode === "wysiwyg" && blockElement && matchHotKey("⇧⌘;", event)) {
@@ -1221,11 +1388,20 @@ export const fixBlockquote = (vditor: IVditor, range: Range, event: KeyboardEven
             return true;
         }
 
-        if (insertAfterBlock(vditor, event, range, blockquoteElement, blockquoteElement)) {
-            return true;
-        }
-        if (insertBeforeBlock(vditor, event, range, blockquoteElement, blockquoteElement)) {
-            return true;
+        if (pElement) {
+            if (insertAfterBlockquoteLine(vditor, event, range, pElement, blockquoteElement)) {
+                return true;
+            }
+            if (insertBeforeBlockquoteLine(vditor, event, range, pElement, blockquoteElement)) {
+                return true;
+            }
+        } else {
+            if (insertAfterBlock(vditor, event, range, blockquoteElement, blockquoteElement)) {
+                return true;
+            }
+            if (insertBeforeBlock(vditor, event, range, blockquoteElement, blockquoteElement)) {
+                return true;
+            }
         }
     }
     return false;
