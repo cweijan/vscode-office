@@ -1,6 +1,7 @@
 import type { GitFileChange } from '../types';
 
 const UNCOMMITTED = '*';
+const EMPTY_TREE_HASH = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
 
 export function getFilePathForActions(change: GitFileChange): string {
     return change.type === 'D' ? change.oldFilePath : change.newFilePath;
@@ -36,7 +37,7 @@ export function buildViewDiffAction(
             type: change.type,
         };
     }
-    const parent = hasParents ? `${commitHash}^` : commitHash;
+    const parent = hasParents ? `${commitHash}^` : EMPTY_TREE_HASH;
     return {
         action: 'viewDiff',
         repo,

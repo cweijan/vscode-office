@@ -4,6 +4,8 @@ import type { GitFileStatus } from '../types/git';
 import { UNCOMMITTED } from '../types/git';
 import type { GitExecutor } from './gitExecutor';
 
+const EMPTY_TREE_HASH = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
+
 export type GitResetMode = 'soft' | 'mixed' | 'hard';
 
 export class GitRepoCommands {
@@ -226,7 +228,7 @@ export class GitRepoCommands {
         const leftRef = fromHash === UNCOMMITTED ? 'HEAD' : fromHash;
         const leftHash = isWorkingTree
             ? 'HEAD'
-            : (fromHash === toHash && type !== 'A') ? `${leftRef}^` : leftRef;
+            : (fromHash === toHash && fromHash !== EMPTY_TREE_HASH && type !== 'A') ? `${leftRef}^` : leftRef;
         const leftUri = toGitUri(repo, oldFilePath, leftHash);
         const rightUri = isWorkingTree
             ? toWorkingTreeUri(repo, newFilePath)

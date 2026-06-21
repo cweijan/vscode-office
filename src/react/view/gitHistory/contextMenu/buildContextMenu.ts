@@ -2,6 +2,7 @@ import type { ContextMenuItem } from '../components/ContextMenu';
 import type { GitCommit, GitCommitRemote, GitFileChange } from '../types';
 
 const UNCOMMITTED = '*';
+const EMPTY_TREE_HASH = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
 
 export interface GitActionEmitter {
     (action: Record<string, unknown> & { action: string }): void;
@@ -295,7 +296,7 @@ export function runContextMenuAction(
             break;
         case 'viewDiff':
             if (meta._change && meta._hash) {
-                const parent = meta._hasParents ? `${meta._hash}^` : meta._hash;
+                const parent = meta._hasParents ? `${meta._hash}^` : EMPTY_TREE_HASH;
                 emit({
                     action: 'viewDiff',
                     repo,

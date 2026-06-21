@@ -20,6 +20,7 @@ const GIT_LOG_SEPARATOR = '---GIT_LOG_SEPARATOR---';
 const EOL_REGEX = /\r\n|\r|\n/;
 const INVALID_BRANCH_REGEXP = /^\(.* .*\)$/;
 const REMOTE_HEAD_BRANCH_REGEXP = /\/HEAD$/;
+const EMPTY_TREE_HASH = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
 
 export class CommitService {
     private readonly gitFormatLog = `%H${GIT_LOG_SEPARATOR}%P${GIT_LOG_SEPARATOR}%aN${GIT_LOG_SEPARATOR}%aE${GIT_LOG_SEPARATOR}%at${GIT_LOG_SEPARATOR}%s`;
@@ -335,7 +336,7 @@ export class CommitService {
         if (commitHash === UNCOMMITTED) {
             return this.getUncommittedCommitDetails(repo);
         }
-        const fromCommit = commitHash + (hasParents ? '^' : '');
+        const fromCommit = hasParents ? `${commitHash}^` : EMPTY_TREE_HASH;
         return Promise.all([
             this.getCommitDetailsBase(repo, commitHash),
             this.getDiffNameStatus(repo, fromCommit, commitHash),
