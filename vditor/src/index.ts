@@ -289,7 +289,7 @@ class Vditor {
         renderToc(this.vditor);
 
         if (!markdown) {
-            hidePanel(this.vditor, ["emoji", "headings", "submenu", "hint"]);
+            hidePanel(this.vditor, ["headings", "submenu", "hint"]);
             if (this.vditor.wysiwyg.popover) {
                 this.vditor.wysiwyg.popover.style.display = "none";
             }
@@ -311,10 +311,6 @@ class Vditor {
         this.vditor.element.innerHTML = this.vditor.originalInnerHTML;
         this.vditor.element.classList.remove("vditor");
         this.vditor.element.removeAttribute("style");
-        const iconScript = document.getElementById("vditorIconScript")
-        if (iconScript) {
-            iconScript.remove();
-        }
         this.clearCache();
 
         UIUnbindListener();
@@ -351,8 +347,6 @@ class Vditor {
                 autoSpace: this.vditor.options.preview.markdown.autoSpace,
                 codeBlockPreview: this.vditor.options.preview.markdown
                     .codeBlockPreview,
-                emojiSite: this.vditor.options.hint.emojiPath,
-                emojis: this.vditor.options.hint.emoji,
                 fixTermTypo: this.vditor.options.preview.markdown.fixTermTypo,
                 footnotes: this.vditor.options.preview.markdown.footnotes,
                 headingAnchor: false,
@@ -373,10 +367,6 @@ class Vditor {
 
             if (mergedOptions.after) {
                 mergedOptions.after();
-            }
-            if (mergedOptions.icon) {
-                // 防止初始化 2 个编辑器时加载 2 次
-                addScript(`${mergedOptions.extPath??mergedOptions.cdn}/dist/js/icons/${mergedOptions.icon}.js`, "vditorIconScript");
             }
         });
     }

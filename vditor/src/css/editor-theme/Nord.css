@@ -24,7 +24,9 @@ html[data-editor-theme="Nord"],
     /* Table */
     --table-border: var(--border-color);
     --table-row-border: var(--border-color);
-    --table-stripe-bg: color-mix(in srgb, var(--front-color) 8%, var(--bg-color));
+    --table-header-bg: #3b4252;
+    --table-body-bg: #2e3440;
+    --table-axis-color: #616e88;
 
     /* Inline Code */
     --code-bg-color: #434c5e;

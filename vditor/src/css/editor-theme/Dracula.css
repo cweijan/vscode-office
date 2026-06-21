@@ -24,7 +24,9 @@ html[data-editor-theme="Dracula"],
     /* Table */
     --table-border: var(--border-color);
     --table-row-border: var(--border-color);
-    --table-stripe-bg: #313341;
+    --table-header-bg: #343746;
+    --table-body-bg: #282a36;
+    --table-axis-color: #6c7086;
 
     /* Inline Code */
     --code-bg-color: #44475a;

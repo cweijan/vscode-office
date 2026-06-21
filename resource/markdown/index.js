@@ -74,7 +74,6 @@ handler.on("open", async (md) => {
       }
     },
     hint: {
-      emoji: {},
       extend: hotKeys
     }, after() {
       handler.on("update", content => {

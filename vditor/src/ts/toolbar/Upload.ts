@@ -1,6 +1,7 @@
 import {Constants} from "../constants";
 import {uploadFiles} from "../upload";
 import {getEventName} from "../util/compatibility";
+import {getToolbarCodicon} from "../util/codicon";
 import {MenuItem} from "./MenuItem";
 
 export class Upload extends MenuItem {
@@ -13,7 +14,7 @@ export class Upload extends MenuItem {
         if (vditor.options.upload.accept) {
             inputHTML += ` accept="${vditor.options.upload.accept}"`;
         }
-        this.element.children[0].innerHTML = `${(menuItem.icon || '<svg><use xlink:href="#vditor-icon-upload"></use></svg>')}${inputHTML}>`;
+        this.element.children[0].innerHTML = `${(menuItem.icon || getToolbarCodicon("upload"))}${inputHTML}>`;
         this._bindEvent(vditor);
     }
 

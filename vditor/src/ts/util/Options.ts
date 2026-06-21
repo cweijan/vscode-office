@@ -2,8 +2,6 @@ import { Constants } from "../constants";
 import { getToolbarCodicon } from "./codicon";
 import { merge } from "./merge";
 
-const toolbarIcon = (name: string, fallback: string) => getToolbarCodicon(name) || fallback;
-
 export class Options {
     public options: IOptions;
     private defaultOptions: IOptions = {
@@ -21,21 +19,9 @@ export class Options {
         height: "auto",
         hint: {
             delay: 200,
-            emoji: {
-                "+1": "👍",
-                "-1": "👎",
-                "confused": "😕",
-                "eyes": "👀️",
-                "heart": "❤️",
-                "rocket": "🚀️",
-                "smile": "😄",
-                "tada": "🎉️",
-            },
-            emojiPath: `${Constants.CDN}/dist/images/emoji`,
             extend: [],
             parse: true,
         },
-        icon: "ant",
         lang: "zh_CN",
         mode: "ir",
         outline: {
@@ -51,7 +37,6 @@ export class Options {
         },
         theme: "classic",
         toolbar: [
-            "emoji",
             "headings",
             "bold",
             "italic",
@@ -120,9 +105,6 @@ export class Options {
             } else {
                 this.options.toolbar = this.mergeToolbar(this.defaultOptions.toolbar);
             }
-            if (this.options.hint?.emoji) {
-                this.defaultOptions.hint.emoji = this.options.hint.emoji;
-            }
             // 支持不够完善，我先注释了，后期再打开
             // if (this.options.rtl) {
             //     this.defaultOptions.rtl = this.options.rtl;
@@ -146,39 +128,34 @@ export class Options {
 
     private mergeToolbar(toolbar: Array<string | IMenuItem>) {
         const toolbarItem = [{
-            hotkey: "⌘E",
-            icon: toolbarIcon("emoji", '<svg><use xlink:href="#vditor-icon-emoji"></use></svg>'),
-            name: "emoji",
-            tipPosition: "e",
-        }, {
             hotkey: "⌘H",
-            icon: toolbarIcon("headings", '<svg><use xlink:href="#vditor-icon-headings"></use></svg>'),
+            icon: getToolbarCodicon("headings"),
             name: "headings",
             tipPosition: "e",
         }, {
             hotkey: "⌘K",
-            icon: toolbarIcon("bold", '<svg><use xlink:href="#vditor-icon-bold"></use></svg>'),
+            icon: getToolbarCodicon("bold"),
             name: "bold",
             prefix: "**",
             suffix: "**",
             tipPosition: "e",
         }, {
             hotkey: "⌘I",
-            icon: toolbarIcon("italic", '<svg><use xlink:href="#vditor-icon-italic"></use></svg>'),
+            icon: getToolbarCodicon("italic"),
             name: "italic",
             prefix: "*",
             suffix: "*",
             tipPosition: "e",
         }, {
             hotkey: "⌘D",
-            icon: toolbarIcon("strike", '<svg><use xlink:href="#vditor-icon-strike"></use></svg>'),
+            icon: getToolbarCodicon("strike"),
             name: "strike",
             prefix: "~~",
             suffix: "~~",
             tipPosition: "e",
         }, {
             hotkey: "⌘U",
-            icon: toolbarIcon("link", '<svg><use xlink:href="#vditor-icon-link"></use></svg>'),
+            icon: getToolbarCodicon("link"),
             name: "link",
             prefix: "[",
             suffix: "](https://)",
@@ -187,79 +164,79 @@ export class Options {
             name: "|",
         }, {
             hotkey: "⌘L",
-            icon: toolbarIcon("list", '<svg><use xlink:href="#vditor-icon-list"></use></svg>'),
+            icon: getToolbarCodicon("list"),
             name: "list",
             prefix: "* ",
             tipPosition: "e",
         }, {
             hotkey: "⌘O",
-            icon: toolbarIcon("ordered-list", '<svg><use xlink:href="#vditor-icon-ordered-list"></use></svg>'),
+            icon: getToolbarCodicon("ordered-list"),
             name: "ordered-list",
             prefix: "1. ",
             tipPosition: "e",
         }, {
             hotkey: "⌘J",
-            icon: toolbarIcon("check", '<svg><use xlink:href="#vditor-icon-check"></use></svg>'),
+            icon: getToolbarCodicon("check"),
             name: "check",
             prefix: "* [ ] ",
             tipPosition: "e",
         }, {
             hotkey: "⇧⌘I",
-            icon: '<svg><use xlink:href="#vditor-icon-outdent"></use></svg>',
+            icon: getToolbarCodicon("outdent"),
             name: "outdent",
             tipPosition: "e",
         }, {
             hotkey: "⇧⌘O",
-            icon: toolbarIcon("indent", '<svg><use xlink:href="#vditor-icon-indent"></use></svg>'),
+            icon: getToolbarCodicon("indent"),
             name: "indent",
             tipPosition: "e",
         }, {
             name: "|",
         }, {
             hotkey: "⌘;",
-            icon: toolbarIcon("quote", '<svg><use xlink:href="#vditor-icon-quote"></use></svg>'),
+            icon: getToolbarCodicon("quote"),
             name: "quote",
             prefix: "> ",
             tipPosition: "e",
         }, {
             hotkey: "⇧⌘H",
-            icon: toolbarIcon("line", '<svg><use xlink:href="#vditor-icon-line"></use></svg>'),
+            icon: getToolbarCodicon("line"),
             name: "line",
             prefix: "---",
             tipPosition: "e",
         }, {
             hotkey: "⇧⌘U",
-            icon: toolbarIcon("code", '<svg><use xlink:href="#vditor-icon-code"></use></svg>'),
+            icon: getToolbarCodicon("code"),
             name: "code",
             prefix: "```",
             suffix: "\n```",
             tipPosition: "e",
         }, {
             hotkey: "⌘G",
-            icon: toolbarIcon("inline-code", '<svg><use xlink:href="#vditor-icon-inline-code"></use></svg>'),
+            icon: getToolbarCodicon("inline-code"),
             name: "inline-code",
             prefix: "`",
             suffix: "`",
             tipPosition: "e",
         }, {
             hotkey: "⇧⌘B",
-            icon: '<svg><use xlink:href="#vditor-icon-before"></use></svg>',
+            icon: getToolbarCodicon("insert-before"),
             name: "insert-before",
             tipPosition: "e",
         }, {
             hotkey: "⇧⌘E",
-            icon: '<svg><use xlink:href="#vditor-icon-after"></use></svg>',
+            icon: getToolbarCodicon("insert-after"),
             name: "insert-after",
             tipPosition: "e",
         }, {
             name: "|",
         }, {
-            icon: toolbarIcon("upload", '<svg><use xlink:href="#vditor-icon-upload"></use></svg>'),
+            icon: getToolbarCodicon("upload"),
             name: "upload",
             tipPosition: "e",
         }, {
             hotkey: "⌘M",
-            icon: toolbarIcon("table", '<svg><use xlink:href="#vditor-icon-table"></use></svg>'),
+            icon: getToolbarCodicon("table"),
             name: "table",
             prefix: "| col1",
             suffix: " | col2 | col3 |\n| --- | --- | --- |\n|  |  |  |\n|  |  |  |",
@@ -268,26 +245,26 @@ export class Options {
             name: "|",
         }, {
             hotkey: "⌘Z",
-            icon: toolbarIcon("undo", '<svg><use xlink:href="#vditor-icon-undo"></use></svg>'),
+            icon: getToolbarCodicon("undo"),
             name: "undo",
             tipPosition: "e",
         }, {
             hotkey: "⌘Y",
-            icon: toolbarIcon("redo", '<svg><use xlink:href="#vditor-icon-redo"></use></svg>'),
+            icon: getToolbarCodicon("redo"),
             name: "redo",
             tipPosition: "e",
         }, {
             name: "|",
         }, {
-            icon: toolbarIcon("more", '<svg><use xlink:href="#vditor-icon-more"></use></svg>'),
+            icon: getToolbarCodicon("more"),
             name: "more",
             tipPosition: "e",
         }, {
-            icon: toolbarIcon("edit-mode", '<svg><use xlink:href="#vditor-icon-edit"></use></svg>'),
+            icon: getToolbarCodicon("edit-mode"),
             name: "edit-mode",
             tipPosition: "e",
         }, {
-            icon: toolbarIcon("outline", '<svg><use xlink:href="#vditor-icon-align-center"></use></svg>'),
+            icon: getToolbarCodicon("outline"),
             name: "outline",
             tipPosition: "e",
         }, {
@@ -295,19 +272,19 @@ export class Options {
             tipPosition: "e",
             icon: "Theme:",
         }, {
-            icon: toolbarIcon("editor-theme", '<svg><use xlink:href="#vditor-icon-theme"></use></svg>'),
+            icon: getToolbarCodicon("editor-theme"),
             name: "editor-theme",
             tipPosition: "e",
         }, {
-            icon: toolbarIcon("code-theme", '<svg><use xlink:href="#vditor-icon-code-theme"></use></svg>'),
+            icon: getToolbarCodicon("code-theme"),
             name: "code-theme",
             tipPosition: "e",
         }, {
-            icon: toolbarIcon("info", '<svg><use xlink:href="#vditor-icon-info"></use></svg>'),
+            icon: getToolbarCodicon("info"),
             name: "info",
             tipPosition: "e",
         }, {
-            icon: toolbarIcon("help", '<svg><use xlink:href="#vditor-icon-help"></use></svg>'),
+            icon: getToolbarCodicon("help"),
             name: "help",
             tipPosition: "e",
         }, {

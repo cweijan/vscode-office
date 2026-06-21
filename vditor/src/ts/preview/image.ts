@@ -1,10 +1,12 @@
+import {codicon} from "../util/codicon";
+
 export const previewImage = (oldImgElement: HTMLImageElement, lang: keyof II18n = "zh_CN", theme = "classic") => {
     const oldImgRect = oldImgElement.getBoundingClientRect();
     const height = 36;
     document.body.insertAdjacentHTML("beforeend", `<div class="vditor vditor-img${theme === "dark" ? " vditor--dark" : ""}">
     <div class="vditor-img__bar">
       <span class="vditor-img__btn" data-deg="0">
-        <svg><use xlink:href="#vditor-icon-redo"></use></svg>
+        ${codicon("redo")}
         ${window.VditorI18n.spin}
       </span>
       <span class="vditor-img__btn"  onclick="this.parentElement.parentElement.outerHTML = '';document.body.style.overflow = ''">

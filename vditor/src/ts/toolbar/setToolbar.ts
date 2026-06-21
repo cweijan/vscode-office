@@ -80,9 +80,6 @@ export const hidePanel = (vditor: IVditor, panels: string[], exceptElement?: HTM
             }
             item.style.display = "none";
         });
-        if (vditor.toolbar.elements.emoji) {
-            (vditor.toolbar.elements.emoji.lastElementChild as HTMLElement).style.display = "none";
-        }
     }
     if (panels.includes("hint")) {
         vditor.hint.element.style.display = "none";

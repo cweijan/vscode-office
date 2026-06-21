@@ -24,7 +24,9 @@ html[data-editor-theme="Github Dark"],
     /* Table */
     --table-border: var(--border-color);
     --table-row-border: var(--border-color);
-    --table-stripe-bg: color-mix(in srgb, var(--front-color) 8%, var(--bg-color));
+    --table-header-bg: #21262d;
+    --table-body-bg: #0d1117;
+    --table-axis-color: #768390;
 
     /* Inline Code */
     --code-bg-color: #1c2128;

@@ -5,14 +5,6 @@ import {removeCurrentToolbar} from "../toolbar/setToolbar";
 import {setCurrentToolbar} from "../toolbar/setToolbar";
 import {isCtrl, updateHotkeyTip} from "../util/compatibility";
 import {
-    deleteColumn,
-    deleteRow,
-    insertColumn,
-    insertRow,
-    insertRowAbove,
-    setTableAlign,
-} from "../util/fixBrowserBehavior";
-import {
     hasClosestByAttribute,
     hasClosestByClassName,
     hasClosestByMatchTag,
@@ -45,10 +37,17 @@ import {updateActiveHeadingMarker} from "../util/updateActiveHeadingMarker";
 import {showToast} from "../ui/toast";
 import {codicon} from "../util/codicon";
 import {updateBlockHandle} from "./blockHandle";
+import {updateTableHandle} from "./tableHandle";
+
+export const hideLinkPopover = (vditor: IVditor) => {
+    clearTimeout(vditor.wysiwyg.hlToolbarTimeoutId);
+    vditor.wysiwyg.popover.style.display = "none";
+};
 
 export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
     clearTimeout(vditor.wysiwyg.hlToolbarTimeoutId);
     vditor.wysiwyg.hlToolbarTimeoutId = window.setTimeout(() => {
+        let range: Range | undefined;
         try {
         if (
             vditor.wysiwyg.element.getAttribute("contenteditable") === "false"
@@ -65,7 +64,7 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
         removeCurrentToolbar(vditor.toolbar.elements, Constants.EDIT_TOOLBARS);
         enableToolbar(vditor.toolbar.elements, Constants.EDIT_TOOLBARS);
 
-        const range = getSelection().getRangeAt(0);
+        range = getSelection().getRangeAt(0);
         let typeElement = range.startContainer as HTMLElement;
         if (range.startContainer.nodeType === 3) {
             typeElement = range.startContainer.parentElement;
@@ -170,332 +169,13 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
             setCurrentToolbar(vditor.toolbar.elements, ["headings"]);
         } else if (tableElement) {
             disableToolbar(vditor.toolbar.elements, ["table"]);
+            vditor.wysiwyg.popover.style.display = "none";
         }
 
         // quote popover
         const blockquoteElement = hasClosestByTag(typeElement, "BLOCKQUOTE") as HTMLTableElement;
 
-        // table popover
-        if (tableElement) {
-            const lang: keyof II18n | "" = vditor.options.lang;
-            const options: IOptions = vditor.options;
-            vditor.wysiwyg.popover.innerHTML = "";
-            const updateTable = () => {
-                const oldRow = tableElement.rows.length;
-                const oldColumn = tableElement.rows[0].cells.length;
-                const row = parseInt(input.value, 10) || oldRow;
-                const column = parseInt(input2.value, 10) || oldColumn;
-
-                if (row === oldRow && oldColumn === column) {
-                    return;
-                }
-
-                if (oldColumn !== column) {
-                    const columnDiff = column - oldColumn;
-                    for (let i = 0; i < tableElement.rows.length; i++) {
-                        if (columnDiff > 0) {
-                            for (let j = 0; j < columnDiff; j++) {
-                                if (i === 0) {
-                                    tableElement.rows[i].lastElementChild.insertAdjacentHTML("afterend", "<th> </th>");
-                                } else {
-                                    tableElement.rows[i].lastElementChild.insertAdjacentHTML("afterend", "<td> </td>");
-                                }
-                            }
-                        } else {
-                            for (let k = oldColumn - 1; k >= column; k--) {
-                                tableElement.rows[i].cells[k].remove();
-                            }
-                        }
-                    }
-                }
-
-                if (oldRow !== row) {
-                    const rowDiff = row - oldRow;
-                    if (rowDiff > 0) {
-                        let rowHTML = "<tr>";
-                        for (let m = 0; m < column; m++) {
-                            rowHTML += "<td> </td>";
-                        }
-                        for (let l = 0; l < rowDiff; l++) {
-                            if (tableElement.querySelector("tbody")) {
-                                tableElement
-                                    .querySelector("tbody")
-                                    .insertAdjacentHTML("beforeend", rowHTML);
-                            } else {
-                                tableElement
-                                    .querySelector("thead")
-                                    .insertAdjacentHTML("afterend", rowHTML + "</tr>");
-                            }
-                        }
-                    } else {
-                        for (let m = oldRow - 1; m >= row; m--) {
-                            tableElement.rows[m].remove();
-                            if (tableElement.rows.length === 1) {
-                                tableElement.querySelector("tbody").remove();
-                            }
-                        }
-                    }
-                }
-            };
-
-            const setAlign = (type: string) => {
-                setTableAlign(tableElement, type);
-                if (type === "right") {
-                    left.classList.remove("vditor-icon--current");
-                    center.classList.remove("vditor-icon--current");
-                    right.classList.add("vditor-icon--current");
-                } else if (type === "center") {
-                    left.classList.remove("vditor-icon--current");
-                    right.classList.remove("vditor-icon--current");
-                    center.classList.add("vditor-icon--current");
-                } else {
-                    center.classList.remove("vditor-icon--current");
-                    right.classList.remove("vditor-icon--current");
-                    left.classList.add("vditor-icon--current");
-                }
-                setSelectionFocus(range);
-                afterRenderEvent(vditor);
-            };
-
-            const td = hasClosestByMatchTag(typeElement, "TD");
-            const th = hasClosestByMatchTag(typeElement, "TH");
-            let alignType = "left";
-            if (td) {
-                alignType = td.getAttribute("align") || "left";
-            } else if (th) {
-                alignType = th.getAttribute("align") || "center";
-            }
-
-            const left = document.createElement("button");
-            left.setAttribute("type", "button");
-            left.setAttribute("aria-label", window.VditorI18n.alignLeft + "<" + updateHotkeyTip("⇧⌘L") + ">");
-            left.setAttribute("data-type", "left");
-            left.innerHTML =
-                '<svg><use xlink:href="#vditor-icon-align-left"></use></svg>';
-            left.className =
-                "vditor-icon vditor-tooltipped vditor-tooltipped__n" +
-                (alignType === "left" ? " vditor-icon--current" : "");
-            left.onclick = () => {
-                setAlign("left");
-            };
-
-            const center = document.createElement("button");
-            center.setAttribute("type", "button");
-            center.setAttribute("aria-label", window.VditorI18n.alignCenter + "<" + updateHotkeyTip("⇧⌘C") + ">");
-            center.setAttribute("data-type", "center");
-            center.innerHTML =
-                '<svg><use xlink:href="#vditor-icon-align-center"></use></svg>';
-            center.className =
-                "vditor-icon vditor-tooltipped vditor-tooltipped__n" +
-                (alignType === "center" ? " vditor-icon--current" : "");
-            center.onclick = () => {
-                setAlign("center");
-            };
-
-            const right = document.createElement("button");
-            right.setAttribute("type", "button");
-            right.setAttribute("aria-label", window.VditorI18n.alignRight + "<" + updateHotkeyTip("⇧⌘R") + ">");
-            right.setAttribute("data-type", "right");
-            right.innerHTML =
-                '<svg><use xlink:href="#vditor-icon-align-right"></use></svg>';
-            right.className =
-                "vditor-icon vditor-tooltipped vditor-tooltipped__n" +
-                (alignType === "right" ? " vditor-icon--current" : "");
-            right.onclick = () => {
-                setAlign("right");
-            };
-
-            const insertRowElement = document.createElement("button");
-            insertRowElement.setAttribute("type", "button");
-            insertRowElement.setAttribute("aria-label", window.VditorI18n.insertRowBelow + "<" + updateHotkeyTip("⌘=") + ">");
-            insertRowElement.setAttribute("data-type", "insertRow");
-            insertRowElement.innerHTML =
-                '<svg><use xlink:href="#vditor-icon-insert-row"></use></svg>';
-            insertRowElement.className =
-                "vditor-icon vditor-tooltipped vditor-tooltipped__n";
-            insertRowElement.onclick = () => {
-                const startContainer = getSelection().getRangeAt(0)
-                    .startContainer;
-                const cellElement =
-                    hasClosestByMatchTag(startContainer, "TD") ||
-                    hasClosestByMatchTag(startContainer, "TH");
-                if (cellElement) {
-                    insertRow(vditor, range, cellElement);
-                }
-            };
-
-            const insertRowBElement = document.createElement("button");
-            insertRowBElement.setAttribute("type", "button");
-            insertRowBElement.setAttribute("aria-label",
-                window.VditorI18n.insertRowAbove + "<" + updateHotkeyTip("⇧⌘F") + ">");
-            insertRowBElement.setAttribute("data-type", "insertRow");
-            insertRowBElement.innerHTML =
-                '<svg><use xlink:href="#vditor-icon-insert-rowb"></use></svg>';
-            insertRowBElement.className =
-                "vditor-icon vditor-tooltipped vditor-tooltipped__n";
-            insertRowBElement.onclick = () => {
-                const startContainer = getSelection().getRangeAt(0)
-                    .startContainer;
-                const cellElement =
-                    hasClosestByMatchTag(startContainer, "TD") ||
-                    hasClosestByMatchTag(startContainer, "TH");
-                if (cellElement) {
-                    insertRowAbove(vditor, range, cellElement);
-                }
-            };
-
-            const insertColumnElement = document.createElement("button");
-            insertColumnElement.setAttribute("type", "button");
-            insertColumnElement.setAttribute("aria-label", window.VditorI18n.insertColumnRight + "<" + updateHotkeyTip("⇧⌘=") + ">");
-            insertColumnElement.setAttribute("data-type", "insertColumn");
-            insertColumnElement.innerHTML =
-                '<svg><use xlink:href="#vditor-icon-insert-column"></use></svg>';
-            insertColumnElement.className =
-                "vditor-icon vditor-tooltipped vditor-tooltipped__n";
-            insertColumnElement.onclick = () => {
-                const startContainer = getSelection().getRangeAt(0)
-                    .startContainer;
-                const cellElement =
-                    hasClosestByMatchTag(startContainer, "TD") ||
-                    hasClosestByMatchTag(startContainer, "TH");
-                if (cellElement) {
-                    insertColumn(vditor, tableElement, cellElement);
-                }
-            };
-
-            const insertColumnBElement = document.createElement("button");
-            insertColumnBElement.setAttribute("type", "button");
-            insertColumnBElement.setAttribute("aria-label", window.VditorI18n.insertColumnLeft + "<" + updateHotkeyTip("⇧⌘G") + ">");
-            insertColumnBElement.setAttribute("data-type", "insertColumn");
-            insertColumnBElement.innerHTML =
-                '<svg><use xlink:href="#vditor-icon-insert-columnb"></use></svg>';
-            insertColumnBElement.className =
-                "vditor-icon vditor-tooltipped vditor-tooltipped__n";
-            insertColumnBElement.onclick = () => {
-                const startContainer = getSelection().getRangeAt(0)
-                    .startContainer;
-                const cellElement =
-                    hasClosestByMatchTag(startContainer, "TD") ||
-                    hasClosestByMatchTag(startContainer, "TH");
-                if (cellElement) {
-                    insertColumn(vditor, tableElement, cellElement, "beforebegin");
-                }
-            };
-
-            const deleteRowElement = document.createElement("button");
-            deleteRowElement.setAttribute("type", "button");
-            deleteRowElement.setAttribute("aria-label", window.VditorI18n["delete-row"] + "<" + updateHotkeyTip("⌘-") + ">");
-            deleteRowElement.setAttribute("data-type", "deleteRow");
-            deleteRowElement.innerHTML =
-                '<svg><use xlink:href="#vditor-icon-delete-row"></use></svg>';
-            deleteRowElement.className =
-                "vditor-icon vditor-tooltipped vditor-tooltipped__n";
-            deleteRowElement.onclick = () => {
-                const startContainer = getSelection().getRangeAt(0)
-                    .startContainer;
-                const cellElement =
-                    hasClosestByMatchTag(startContainer, "TD") ||
-                    hasClosestByMatchTag(startContainer, "TH");
-                if (cellElement) {
-                    deleteRow(vditor, range, cellElement);
-                }
-            };
-
-            const deleteColumnElement = document.createElement("button");
-            deleteColumnElement.setAttribute("type", "button");
-            deleteColumnElement.setAttribute("aria-label", window.VditorI18n["delete-column"] + "<" + updateHotkeyTip("⇧⌘-") + ">");
-            deleteColumnElement.setAttribute("data-type", "deleteColumn");
-            deleteColumnElement.innerHTML =
-                '<svg><use xlink:href="#vditor-icon-delete-column"></use></svg>';
-            deleteColumnElement.className =
-                "vditor-icon vditor-tooltipped vditor-tooltipped__n";
-            deleteColumnElement.onclick = () => {
-                const startContainer = getSelection().getRangeAt(0)
-                    .startContainer;
-                const cellElement =
-                    hasClosestByMatchTag(startContainer, "TD") ||
-                    hasClosestByMatchTag(startContainer, "TH");
-                if (cellElement) {
-                    deleteColumn(vditor, range, tableElement, cellElement);
-                }
-            };
-
-            const inputWrap = document.createElement("span");
-            inputWrap.setAttribute("aria-label", window.VditorI18n.row);
-            inputWrap.className = "vditor-tooltipped vditor-tooltipped__n";
-            const input = document.createElement("input");
-            inputWrap.appendChild(input);
-            input.type = "number";
-            input.min = "1";
-            input.className = "vditor-input";
-            input.style.width = "42px";
-            input.style.textAlign = "center";
-            input.setAttribute("placeholder", window.VditorI18n.row);
-            input.value = tableElement.rows.length.toString();
-            input.oninput = () => {
-                updateTable();
-            };
-            input.onkeydown = (event) => {
-                if (event.isComposing) {
-                    return;
-                }
-                if (event.key === "Tab") {
-                    input2.focus();
-                    input2.select();
-                    event.preventDefault();
-                    return;
-                }
-                removeBlockElement(vditor, event);
-            };
-
-            const input2Wrap = document.createElement("span");
-            input2Wrap.setAttribute("aria-label", window.VditorI18n.column);
-            input2Wrap.className = "vditor-tooltipped vditor-tooltipped__n";
-            const input2 = document.createElement("input");
-            input2Wrap.appendChild(input2);
-            input2.type = "number";
-            input2.min = "1";
-            input2.className = "vditor-input";
-            input2.style.width = "42px";
-            input2.style.textAlign = "center";
-            input2.setAttribute("placeholder", window.VditorI18n.column);
-            input2.value = tableElement.rows[0].cells.length.toString();
-            input2.oninput = () => {
-                updateTable();
-            };
-            input2.onkeydown = (event) => {
-                if (event.isComposing) {
-                    return;
-                }
-                if (event.key === "Tab") {
-                    input.focus();
-                    input.select();
-                    event.preventDefault();
-                    return;
-                }
-                removeBlockElement(vditor, event);
-            };
-
-            vditor.wysiwyg.popover.insertAdjacentElement("beforeend", left);
-            vditor.wysiwyg.popover.insertAdjacentElement("beforeend", center);
-            vditor.wysiwyg.popover.insertAdjacentElement("beforeend", right);
-            vditor.wysiwyg.popover.insertAdjacentElement("beforeend", insertRowBElement);
-            vditor.wysiwyg.popover.insertAdjacentElement("beforeend", insertRowElement);
-            vditor.wysiwyg.popover.insertAdjacentElement("beforeend", insertColumnBElement);
-            vditor.wysiwyg.popover.insertAdjacentElement("beforeend", insertColumnElement);
-            vditor.wysiwyg.popover.insertAdjacentElement("beforeend", deleteRowElement);
-            vditor.wysiwyg.popover.insertAdjacentElement("beforeend", deleteColumnElement);
-            vditor.wysiwyg.popover.insertAdjacentElement("beforeend", inputWrap);
-            vditor.wysiwyg.popover.insertAdjacentHTML("beforeend", " x ");
-            vditor.wysiwyg.popover.insertAdjacentElement("beforeend", input2Wrap);
-            setPopoverPosition(vditor, tableElement);
-        }
-
-        // link ref popover
         const linkRefElement = hasClosestByAttribute(typeElement, "data-type", "link-ref");
-        if (linkRefElement) {
-            genLinkRefPopover(vditor, linkRefElement);
-        }
 
         // footnote popover
         const footnotesRefElement = hasClosestByAttribute(typeElement, "data-type", "footnotes-ref");
@@ -659,11 +339,6 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
             vditor.wysiwyg.popover.style.display = "none";
         }
 
-        // a popover
-        if (aElement) {
-            genAPopover(vditor, aElement);
-        }
-
         const tocElement = hasClosestByClassName(typeElement, "vditor-toc") as HTMLElement;
 
         if (
@@ -700,17 +375,13 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
         }
         } finally {
             updateActiveHeadingMarker(vditor);
-            updateBlockHandle(vditor, range.startContainer);
+            updateBlockHandle(vditor, range?.startContainer);
+            updateTableHandle(vditor);
         }
     }, 200);
 };
 
 const setPopoverPosition = (vditor: IVditor, element: HTMLElement, popoverType?: "link" | "link-ref" | "image") => {
-    let targetElement = element;
-    const tableElement = hasClosestByMatchTag(element, "TABLE");
-    if (tableElement) {
-        targetElement = tableElement;
-    }
     const isLinkPanel = popoverType === "link" || popoverType === "link-ref" || popoverType === "image";
     vditor.wysiwyg.popover.classList.toggle("vditor-panel--link", isLinkPanel);
     vditor.wysiwyg.popover.classList.toggle("vditor-panel--link-ref", popoverType === "link-ref");
@@ -718,11 +389,11 @@ const setPopoverPosition = (vditor: IVditor, element: HTMLElement, popoverType?:
     vditor.wysiwyg.popover.style.left = "0";
     vditor.wysiwyg.popover.style.display = "block";
     vditor.wysiwyg.popover.style.top =
-        Math.max(-8, targetElement.offsetTop - (isLinkPanel ? vditor.wysiwyg.popover.clientHeight + 8 : 21) -
+        Math.max(-8, element.offsetTop - (isLinkPanel ? vditor.wysiwyg.popover.clientHeight + 8 : 21) -
             vditor.wysiwyg.element.scrollTop) + "px";
     vditor.wysiwyg.popover.style.left =
-        Math.min(targetElement.offsetLeft, vditor.wysiwyg.element.clientWidth - vditor.wysiwyg.popover.clientWidth) + "px";
-    vditor.wysiwyg.popover.setAttribute("data-top", (targetElement.offsetTop - 21).toString());
+        Math.min(element.offsetLeft, vditor.wysiwyg.element.clientWidth - vditor.wysiwyg.popover.clientWidth) + "px";
+    vditor.wysiwyg.popover.setAttribute("data-top", (element.offsetTop - 21).toString());
 };
 
 export const genLinkRefPopover = (vditor: IVditor, linkRefElement: HTMLElement) => {
@@ -867,6 +538,13 @@ const linkHotkey = (
     nextInputElement: HTMLInputElement,
 ) => {
     if (event.isComposing) {
+        return;
+    }
+    if (event.key === "Escape") {
+        hideLinkPopover(vditor);
+        vditor.wysiwyg.element.focus();
+        event.preventDefault();
+        event.stopPropagation();
         return;
     }
     if (event.key === "Tab") {

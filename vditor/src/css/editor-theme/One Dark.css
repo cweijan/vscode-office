@@ -24,7 +24,9 @@ html[data-editor-theme="One Dark"],
     /* Table */
     --table-border: var(--border-color);
     --table-row-border: var(--border-color);
-    --table-stripe-bg: color-mix(in srgb, var(--front-color) 8%, var(--bg-color));
+    --table-header-bg: #2c313a;
+    --table-body-bg: #282c34;
+    --table-axis-color: #5c6370;
 
     /* Inline Code */
     --code-bg-color: #31363f;

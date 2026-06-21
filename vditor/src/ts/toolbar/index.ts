@@ -7,7 +7,6 @@ import {Divider} from "./Divider";
 import {EditMode} from "./EditMode";
 import {EditorTheme} from "./EditorTheme";
 import {EditorThemeLabel} from "./EditorThemeLabel";
-import {Emoji} from "./Emoji";
 import {Headings} from "./Headings";
 import {Help} from "./Help";
 import {Indent} from "./Indent";
@@ -81,9 +80,6 @@ export class Toolbar {
             case "link":
             case "table":
                 menuItemObj = new MenuItem(vditor, menuItem);
-                break;
-            case "emoji":
-                menuItemObj = new Emoji(vditor, menuItem);
                 break;
             case "headings":
                 menuItemObj = new Headings(vditor, menuItem);

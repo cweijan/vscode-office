@@ -24,7 +24,9 @@ html[data-editor-theme="Solarized"],
     /* Table */
     --table-border: var(--border-color);
     --table-row-border: var(--border-color);
-    --table-stripe-bg: color-mix(in srgb, var(--front-color) 6%, var(--bg-color));
+    --table-header-bg: #eee8d5;
+    --table-body-bg: #fdf6e3;
+    --table-axis-color: #93a1a1;
 
     /* Inline Code */
     --code-bg-color: #f2f2f2;

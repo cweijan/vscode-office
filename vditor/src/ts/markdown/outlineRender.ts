@@ -1,4 +1,5 @@
 import { pinOutlineActive } from "../outline/updateOutlineActive";
+import { codicon } from "../util/codicon";
 import { hasClosestByHeadings } from "../util/hasClosestByHeadings";
 import { mathRender } from "./mathRender";
 
@@ -77,13 +78,10 @@ export const outlineRender = (contentElement: HTMLElement, targetElement: Elemen
     const headingsElement = tocRoot.querySelectorAll("li > span[data-target-id]");
     headingsElement.forEach((item, index) => {
         if (item.nextElementSibling && item.nextElementSibling.tagName === "UL") {
-            let iconHTML = "<svg class='vditor-outline__action'><use xlink:href='#vditor-icon-down'></use></svg>";
-            if (!document.getElementById("vditorIconScript")) {
-                iconHTML = '<svg class="vditor-outline__action" viewBox="0 0 32 32"><path d="M3.76 6.12l12.24 12.213 12.24-12.213 3.76 3.76-16 16-16-16 3.76-3.76z"></path></svg>';
-            }
+            const iconHTML = codicon("chevron-down", "vditor-outline__action");
             item.innerHTML = `${iconHTML}<span>${item.innerHTML}</span>`;
         } else {
-            item.innerHTML = `<svg></svg><span>${item.innerHTML}</span>`;
+            item.innerHTML = `<span class="vditor-outline__placeholder" aria-hidden="true"></span><span>${item.innerHTML}</span>`;
         }
         item.setAttribute("data-target-id", ids[index]);
     });

@@ -21,7 +21,6 @@ export class Hint {
         this.element = document.createElement("div");
         this.element.className = "vditor-hint";
         this.recentLanguage = "";
-        hintExtends.push({key: ":"});
     }
 
     public render(vditor: IVditor) {
@@ -38,36 +37,14 @@ export class Hint {
             this.element.style.display = "none";
             clearTimeout(this.timeId);
         } else {
-            if (false) {
-            // if (this.splitChar === ":") {
-                const emojiHint = key === "" ? vditor.options.hint.emoji : vditor.lute.GetEmojis();
-                const matchEmojiData: IHintData[] = [];
-                Object.keys(emojiHint).forEach((keyName) => {
-                    if (keyName.indexOf(key.toLowerCase()) === 0) {
-                        if (emojiHint[keyName].indexOf(".") > -1) {
-                            matchEmojiData.push({
-                                html: `<img src="${emojiHint[keyName]}" title=":${keyName}:"/> :${keyName}:`,
-                                value: `:${keyName}:`,
-                            });
-                        } else {
-                            matchEmojiData.push({
-                                html: `<span class="vditor-hint__emoji">${emojiHint[keyName]}</span>${keyName}`,
-                                value: emojiHint[keyName],
-                            });
-                        }
-                    }
-                });
-                this.genHTML(matchEmojiData, key, vditor);
-            } else {
-                vditor.options.hint.extend.forEach((item) => {
-                    if (item.key === this.splitChar) {
-                        clearTimeout(this.timeId);
-                        this.timeId = window.setTimeout(async () => {
-                            this.genHTML(await item.hint(key), key, vditor);
-                        }, vditor.options.hint.delay);
-                    }
-                });
-            }
+            vditor.options.hint.extend.forEach((item) => {
+                if (item.key === this.splitChar) {
+                    clearTimeout(this.timeId);
+                    this.timeId = window.setTimeout(async () => {
+                        this.genHTML(await item.hint(key), key, vditor);
+                    }, vditor.options.hint.delay);
+                }
+            });
         }
     }
 
@@ -115,7 +92,7 @@ ${i === 0 ? "class='vditor-hint--current'" : ""}> ${html}</button>`;
 
         this.element.querySelectorAll("button").forEach((element) => {
             element.addEventListener("click", (event) => {
-                this.fillEmoji(element, vditor);
+                this.fillHint(element, vditor);
                 event.preventDefault();
             });
         });
@@ -129,7 +106,7 @@ ${i === 0 ? "class='vditor-hint--current'" : ""}> ${html}</button>`;
         }
     }
 
-    public fillEmoji = (element: HTMLElement, vditor: IVditor) => {
+    public fillHint = (element: HTMLElement, vditor: IVditor) => {
         this.element.style.display = "none";
 
         const value = decodeURIComponent(element.getAttribute("data-value"));
@@ -202,9 +179,6 @@ ${i === 0 ? "class='vditor-hint--current'" : ""}> ${html}</button>`;
         } else {
             insertHTML(value, vditor);
         }
-        if (this.splitChar === ":" && value.indexOf(":") > -1) {
-            range.insertNode(document.createTextNode(" "));
-        }
         range.collapse(false);
         setSelectionFocus(range);
 
@@ -267,7 +241,7 @@ ${i === 0 ? "class='vditor-hint--current'" : ""}> ${html}</button>`;
         } else if (!isCtrl(event) && !event.shiftKey && !event.altKey && event.key === "Enter" && !event.isComposing) {
             event.preventDefault();
             event.stopPropagation();
-            this.fillEmoji(currentHintElement, vditor);
+            this.fillHint(currentHintElement, vditor);
             return true;
         }
         return false;

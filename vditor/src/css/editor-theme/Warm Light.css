@@ -24,7 +24,9 @@ html[data-editor-theme="Warm Light"],
     /* Table */
     --table-border: var(--border-color);
     --table-row-border: var(--border-color);
-    --table-stripe-bg: color-mix(in srgb, var(--front-color) 6%, var(--bg-color));
+    --table-header-bg: #f0ebe6;
+    --table-body-bg: #fffcfa;
+    --table-axis-color: #a8a29e;
 
     /* Inline Code */
     --code-bg-color: #efecea;

@@ -18,12 +18,12 @@
 
 .vditor {
   &-panel {
+    z-index: 5;
     background-color: var(--panel-background-color);
     position: absolute;
     box-shadow: var(--panel-shadow);
     border-radius: 3px;
     padding: 5px;
-    z-index: 3;
     font-size: 14px;
     display: none;
     user-select: none;
@@ -219,6 +219,12 @@
       width: 13px !important;
       float: left;
       fill: currentColor;
+      pointer-events: none;
+    }
+
+    .codicon {
+      font-size: 13px;
+      float: left;
       pointer-events: none;
     }
   }

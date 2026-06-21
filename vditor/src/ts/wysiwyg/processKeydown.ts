@@ -32,7 +32,7 @@ import {matchHotKey} from "../util/hotKey";
 import {getEditorRange, getSelectPosition, setSelectionFocus} from "../util/selection";
 import {keydownToc, renderToc} from "../util/toc";
 import {afterRenderEvent} from "./afterRenderEvent";
-import { moveDown, moveUp } from "./highlightToolbarWYSIWYG";
+import { moveDown, moveUp, genAPopover, genLinkRefPopover } from "./highlightToolbarWYSIWYG";
 import {nextIsCode} from "./inlineTag";
 import {removeHeading, setHeading} from "./setHeading";
 import {focusWysiwygCodeBlock, showCode} from "./showCode";
@@ -265,6 +265,11 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
         const linRefElement = hasClosestByAttribute(startContainer, "data-type", "link-ref");
         const footnoteRefElement = hasClosestByAttribute(startContainer, "data-type", "footnotes-ref");
         if (aElement || linRefElement || footnoteRefElement) {
+            if (aElement && vditor.wysiwyg.popover.style.display !== "block") {
+                genAPopover(vditor, aElement as HTMLElement);
+            } else if (linRefElement && vditor.wysiwyg.popover.style.display !== "block") {
+                genLinkRefPopover(vditor, linRefElement as HTMLElement);
+            }
             const inputElement = vditor.wysiwyg.popover.querySelector("input");
             if (inputElement) {
                 inputElement.focus();

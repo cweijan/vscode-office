@@ -1,7 +1,5 @@
 export const setLute = (options: ILuteOptions) => {
     const lute: Lute = Lute.New();
-    lute.PutEmojis(options.emojis);
-    lute.SetEmojiSite(options.emojiSite);
     lute.SetHeadingAnchor(options.headingAnchor);
     lute.SetInlineMathAllowDigitAfterOpenMarker(options.inlineMathDigit);
     lute.SetAutoSpace(options.autoSpace);

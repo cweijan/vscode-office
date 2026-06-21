@@ -24,7 +24,9 @@ html[data-editor-theme="Light"],
     /* Table */
     --table-border: var(--border-color);
     --table-row-border: var(--border-color);
-    --table-stripe-bg: color-mix(in srgb, var(--front-color) 6%, var(--bg-color));
+    --table-header-bg: #e8ecf0;
+    --table-body-bg: #ffffff;
+    --table-axis-color: #aeb6bf;
 
     /* Inline Code */
     --code-bg-color: #f0f2f5;

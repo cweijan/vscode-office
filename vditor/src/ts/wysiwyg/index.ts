@@ -24,7 +24,7 @@ import {
 } from "../util/selection";
 import {clickToc, renderToc} from "../util/toc";
 import {afterRenderEvent} from "./afterRenderEvent";
-import {genImagePopover, genLinkRefPopover, highlightToolbarWYSIWYG} from "./highlightToolbarWYSIWYG";
+import {genAPopover, genImagePopover, genLinkRefPopover, highlightToolbarWYSIWYG} from "./highlightToolbarWYSIWYG";
 import {getRenderElementNextNode, modifyPre} from "./inlineTag";
 import {input} from "./input";
 import {focusCodeBlock, isCmCodeBlock, isInsideCodeBlockChrome, isInsideCodeMirror,
@@ -34,6 +34,7 @@ import {focusCodeBlock, isCmCodeBlock, isInsideCodeBlockChrome, isInsideCodeMirr
 import {focusWysiwygCodeBlock, showCode} from "./showCode";
 import {getMarkdown} from "../markdown/getMarkdown";
 import {initBlockHandle} from "./blockHandle";
+import {initTableHandle} from "./tableHandle";
 
 class WYSIWYG {
     public range: Range;
@@ -60,6 +61,7 @@ class WYSIWYG {
         this.bindEvent(vditor);
 
         initBlockHandle(vditor, divElement, this.element);
+        initTableHandle(vditor, divElement, this.element);
 
         focusEvent(vditor, this.element);
         dblclickEvent(vditor, this.element);
@@ -345,6 +347,16 @@ class WYSIWYG {
                 }
                 clickToc(event, vditor);
                 return;
+            }
+
+            const linkRefElement = hasClosestByAttribute(event.target, "data-type", "link-ref");
+            if (linkRefElement) {
+                genLinkRefPopover(vditor, linkRefElement as HTMLElement);
+            } else {
+                const aElement = hasClosestByMatchTag(event.target, "A");
+                if (aElement) {
+                    genAPopover(vditor, aElement as HTMLElement);
+                }
             }
 
             highlightToolbarWYSIWYG(vditor);

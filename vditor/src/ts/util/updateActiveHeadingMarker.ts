@@ -1,4 +1,5 @@
 import {isInsideCodeBlockChrome, isInsideCodeMirror} from "../codeBlock/codeMirrorManager";
+import {clearBlockMarkerTop, syncBlockMarkerTop} from "./blockMarker";
 import {hasClosestByClassName, hasTopClosestByAttribute} from "./hasClosest";
 import {hasClosestByHeadings} from "./hasClosestByHeadings";
 import {getEditorRange, selectIsEditor} from "./selection";
@@ -28,10 +29,12 @@ export const clearActiveHeadingMarker = (vditor: IVditor) => {
     }
     const editorElement = vditor[vditor.currentMode].element;
     for (const item of editorElement.querySelectorAll(`.${ACTIVE_CLASS}`)) {
+        clearBlockMarkerTop(item as HTMLElement);
         item.classList.remove(ACTIVE_CLASS);
     }
     if (vditor.currentMode === "wysiwyg") {
         for (const item of editorElement.querySelectorAll(`.${MATH_BLOCK_ACTIVE_CLASS}`)) {
+            clearBlockMarkerTop(item as HTMLElement);
             item.classList.remove(MATH_BLOCK_ACTIVE_CLASS);
         }
     }
@@ -56,6 +59,7 @@ export const updateActiveHeadingMarker = (vditor: IVditor) => {
     const headingElement = hasClosestByHeadings(typeElement) as HTMLElement | false;
     if (headingElement && editorElement.contains(headingElement) && headingElement.parentElement === editorElement) {
         headingElement.classList.add(ACTIVE_CLASS);
+        syncBlockMarkerTop(headingElement);
     }
 
     if (vditor.currentMode === "wysiwyg" && !hasClosestByClassName(typeElement, "vditor-wysiwyg__preview")) {
@@ -65,6 +69,7 @@ export const updateActiveHeadingMarker = (vditor: IVditor) => {
             && mathBlockElement.classList.contains("vditor-wysiwyg__block")
             && editorElement.contains(mathBlockElement)) {
             mathBlockElement.classList.add(MATH_BLOCK_ACTIVE_CLASS);
+            syncBlockMarkerTop(mathBlockElement);
         }
     }
 };

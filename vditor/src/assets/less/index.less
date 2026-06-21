@@ -10,6 +10,33 @@
 
 @max-width: 520px;
 
+@block-handle-size: 20px;
+@block-marker-offset: -29px;
+
+.vditor-block-marker-aligned-host() {
+  position: relative;
+}
+
+.vditor-block-marker-aligned-before() {
+  float: none;
+  position: absolute;
+  left: @block-marker-offset;
+  top: var(--vditor-block-marker-top, 0px);
+  height: @block-handle-size;
+  min-width: 25px;
+  padding: 0 4px 0 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  font-size: 0.85rem;
+  font-weight: normal;
+  color: var(--second-color);
+  background-color: var(--textarea-background-color, var(--bg-color, #fff));
+  z-index: 5;
+}
+
 .vditor-scrollbar(@track: var(--scrollbar-track)) {
   scrollbar-width: auto;
   scrollbar-color: var(--scrollbar-thumb) @track;
@@ -62,6 +89,9 @@
   --blockquote-border: var(--vscode-textBlockQuote-border, var(--border-color));
   --table-row-border: var(--border-color);
   --table-border: var(--border-color);
+  --table-header-bg: #eef1f4;
+  --table-body-bg: #fafbfc;
+  --table-axis-color: #aeb6bf;
   --outline-bg-color: #f8f9fb;
   --outline-hover-bg: #f2f4f7;
   --outline-active-bg: #eceff3;
@@ -82,6 +112,7 @@
   --vditor-outline-title-display: block;
   --vditor-root-background: transparent;
   --vditor-input-border: 1px solid transparent;
+  --vditor-image-max-height: 70vh;
   --pre-code-bg-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8AgMAAABHkjHhAAAACVBMVEWAgIBaWlo+Pj7rTFvWAAAAA3RSTlMHCAw+VhR4AAAA+klEQVQoz4WSMW7EQAhFPxKWNh2FCx+HkaZI6RRb5DYbyVfIJXLKDCFoMbaTKSw/8ZnPAPjaH2xgZcUNUDADD7D9LtDBCLZ45fbkvo/30K8yeI64pPwl6znd/3n/Oe93P3ho9qeh72btTFzqkz0rsJle8Zr81OLEwZ1dv/713uWqvu2pl+k0fy7MWtj9r/tN5q/02z89qa/L4Dc2LvM93kezPfXlME/O86EbY/V9GB9ePX8G1/6W+/9h1dq/HGfTfzT3j/xNo7522Bfnqe5jO/fvhVthlfk434v3iO9zG/UOphyPeinPl1J8Gtaa7xPTa/Dk+RIs4deMvwGvcGsmsCvJ0AAAAABJRU5ErkJggg==);
   --mermaid-bg: #fff;
 
@@ -114,6 +145,9 @@
     --blockquote-border: var(--vscode-textBlockQuote-border, var(--border-color));
     --table-row-border: var(--border-color);
     --table-border: var(--border-color);
+    --table-header-bg: #2a3038;
+    --table-body-bg: #2f363d;
+    --table-axis-color: #8b949e;
     --outline-bg-color: #2c333a;
     --outline-hover-bg: #323a42;
     --outline-active-bg: #38414a;
@@ -139,7 +173,9 @@
 @import "_editorThemeApply";
 @import "_codeMirrorThemes";
 @import "_reset";
+@import "_list";
 @import "_wysiwyg";
 @import "_blockHandle";
+@import "_tableHandle";
 @import "_codemirror";
 @import "_ir";

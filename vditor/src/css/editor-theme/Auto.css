@@ -24,7 +24,9 @@ html[data-editor-theme="Auto"],
     /* Table */
     --table-border: var(--border-color);
     --table-row-border: var(--border-color);
-    --table-stripe-bg: var(--vscode-list-hoverBackground, rgba(128, 128, 128, 0.08));
+    --table-header-bg: var(--vscode-keybindingTable-headerBackground, var(--vscode-sideBarSectionHeader-background, rgba(128, 128, 128, 0.15)));
+    --table-body-bg: var(--vscode-editor-background);
+    --table-axis-color: var(--vscode-tab-inactiveForeground, #858585);
 
     /* Inline Code */
     --code-bg-color: var(--vscode-textCodeBlock-background, rgba(127, 127, 127, 0.15));

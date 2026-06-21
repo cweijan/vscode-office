@@ -24,7 +24,9 @@ html[data-editor-theme="Dim Light"],
     /* Table */
     --table-border: var(--border-color);
     --table-row-border: var(--border-color);
-    --table-stripe-bg: color-mix(in srgb, var(--front-color) 6%, var(--bg-color));
+    --table-header-bg: #dde4ed;
+    --table-body-bg: #f1f5f9;
+    --table-axis-color: #94a3b8;
 
     /* Inline Code */
     --code-bg-color: #d8e0ea;

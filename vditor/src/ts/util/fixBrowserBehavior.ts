@@ -777,6 +777,52 @@ export const deleteColumn =
         execAfterRender(vditor);
     };
 
+export const moveTableRow = (vditor: IVditor, table: HTMLTableElement, fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) {
+        return;
+    }
+    const sourceRow = table.rows[fromIndex];
+    if (!sourceRow) {
+        return;
+    }
+    sourceRow.remove();
+    const targetIndex = fromIndex < toIndex ? toIndex - 1 : toIndex;
+    const rows = table.rows;
+    if (targetIndex >= rows.length) {
+        rows[rows.length - 1]?.after(sourceRow);
+    } else {
+        rows[targetIndex].before(sourceRow);
+    }
+    execAfterRender(vditor);
+};
+
+export const moveTableColumn = (vditor: IVditor, table: HTMLTableElement, fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) {
+        return;
+    }
+    const extracted: HTMLTableCellElement[] = [];
+    for (let i = 0; i < table.rows.length; i++) {
+        const cell = table.rows[i].cells[fromIndex];
+        if (!cell) {
+            return;
+        }
+        extracted.push(cell);
+    }
+    for (let i = 0; i < extracted.length; i++) {
+        extracted[i].remove();
+    }
+    const targetIndex = fromIndex < toIndex ? toIndex - 1 : toIndex;
+    for (let i = 0; i < table.rows.length; i++) {
+        const cells = table.rows[i].cells;
+        if (targetIndex >= cells.length) {
+            cells[cells.length - 1]?.after(extracted[i]);
+        } else {
+            cells[targetIndex].before(extracted[i]);
+        }
+    }
+    execAfterRender(vditor);
+};
+
 export const fixTable = (vditor: IVditor, event: KeyboardEvent, range: Range) => {
     const startContainer = range.startContainer;
     const cellElement = hasClosestByMatchTag(startContainer, "TD") ||

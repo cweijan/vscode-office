@@ -24,7 +24,9 @@ html[data-editor-theme="Monokai"],
     /* Table */
     --table-border: var(--border-color);
     --table-row-border: var(--border-color);
-    --table-stripe-bg: color-mix(in srgb, var(--front-color) 8%, var(--bg-color));
+    --table-header-bg: #3e3d32;
+    --table-body-bg: #272822;
+    --table-axis-color: #75715e;
 
     /* Inline Code */
     --code-bg-color: #3e3d32;

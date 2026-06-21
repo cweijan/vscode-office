@@ -1,0 +1,148 @@
+.vditor-table-handle {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: visible;
+
+  &__axis {
+    position: absolute;
+    display: none;
+    padding: 8px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    cursor: pointer;
+    pointer-events: auto;
+    transform: translate(-50%, -50%);
+
+    &:hover,
+    &:focus-visible {
+      outline: none;
+    }
+
+    &-mark {
+      display: block;
+      border-radius: 1px;
+      background: var(--table-axis-color);
+    }
+
+    &--row &-mark {
+      width: 3px;
+      height: 24px;
+    }
+
+    &--col &-mark {
+      width: 24px;
+      height: 3px;
+    }
+
+    &-grip {
+      display: none;
+      width: 8px;
+      height: 14px;
+      background: radial-gradient(circle at center, var(--table-axis-color) 1.25px, transparent 1.25px);
+      background-size: 4px 4px;
+
+      &--col {
+        width: 14px;
+        height: 8px;
+      }
+    }
+
+    &:hover &-mark,
+    &--drag &-mark,
+    &--menu &-mark {
+      display: none;
+    }
+
+    &:hover &-grip,
+    &--drag &-grip,
+    &--menu &-grip {
+      display: block;
+    }
+
+    &--drag {
+      cursor: grabbing;
+    }
+
+    &--menu {
+      cursor: pointer;
+    }
+  }
+
+  &__menu {
+    position: absolute;
+    z-index: 7;
+    min-width: 132px;
+    pointer-events: auto;
+
+    &--portal {
+      position: fixed;
+      z-index: 10000;
+    }
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--toolbar-icon-color);
+
+      .codicon {
+        font-size: 12px;
+        line-height: 1;
+        flex-shrink: 0;
+      }
+
+      &:not(:disabled):hover,
+      &:not(:disabled):focus-visible {
+        background-color: var(--dropdown-hover-background, var(--second-bg-color, var(--toolbar-background-color)));
+        color: var(--toolbar-icon-hover-color, var(--toolbar-icon-color));
+      }
+    }
+
+    button[data-action^="delete"] {
+      .codicon {
+        color: var(--error-color, @errorColor);
+      }
+
+      &:not(:disabled):hover,
+      &:not(:disabled):focus-visible {
+        color: var(--toolbar-icon-hover-color, var(--toolbar-icon-color));
+
+        .codicon {
+          color: var(--error-color, @errorColor);
+        }
+      }
+    }
+
+    &-divider {
+      margin: 4px 0;
+      border-top: 1px solid var(--border-color);
+    }
+
+    button.vditor-table-handle__menu-item--current {
+      color: var(--list-hover-color, @blurColor);
+
+      .codicon {
+        color: var(--list-hover-color, @blurColor);
+      }
+    }
+  }
+
+  &__drop-line {
+    position: absolute;
+    z-index: 6;
+    display: none;
+    border-radius: 1px;
+    background: var(--list-hover-color, @blurColor);
+    pointer-events: none;
+  }
+
+  &--dragging {
+    .vditor-panel,
+    .vditor-table-handle__menu {
+      display: none !important;
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import {code160to32} from "../util/code160to32";
+import {codicon} from "../util/codicon";
 
 export const codeRender = (element: HTMLElement) => {
     element.querySelectorAll("pre > code").forEach((e: HTMLElement) => {
@@ -26,10 +27,7 @@ export const codeRender = (element: HTMLElement) => {
             codeText = codeElement.innerText;
         }
 
-        let iconHTML = '<svg><use xlink:href="#vditor-icon-copy"></use></svg>';
-        if (!document.getElementById("vditorIconScript")) {
-            iconHTML = '<svg viewBox="0 0 32 32"><path d="M22.545-0h-17.455c-1.6 0-2.909 1.309-2.909 2.909v20.364h2.909v-20.364h17.455v-2.909zM26.909 5.818h-16c-1.6 0-2.909 1.309-2.909 2.909v20.364c0 1.6 1.309 2.909 2.909 2.909h16c1.6 0 2.909-1.309 2.909-2.909v-20.364c0-1.6-1.309-2.909-2.909-2.909zM26.909 29.091h-16v-20.364h16v20.364z"></path></svg>';
-        }
+        const iconHTML = codicon("copy");
 
         const divElement = document.createElement("div");
         divElement.className = "vditor-copy";

@@ -22,7 +22,7 @@
 
 ## Markdown
 
-集成 [Vditor](https://github.com/Vanessa219/vditor) 实现 Markdown 所见即所得编辑。
+集成 Markdown 所见即所得编辑器。
 
 如需使用 VS Code 原生 Markdown 编辑器，请在 `settings.json` 中添加以下配置：
 
@@ -39,16 +39,11 @@
 
 ![导出 Markdown](image/README-CN/1685418034035.png)
 
-快捷键：基于 [Vditor 快捷键](shortcut.md)，以及：
+快捷键：基于 [shortcut.md](shortcut.md)，以及：
 
 - 将列表上移一行: `Ctrl Alt I` / `⌘ ^ I`
 - 将列表下移一行: `Ctrl Alt J` / `⌘ ^ J`
 - 在 VS Code 中编辑: `Ctrl Alt E` / `⌘ ^ E`
-
-提示：
-
-- 可通过 Ctrl/Cmd + 鼠标滚轮调整编辑器大小。
-- 按住 Ctrl/Meta + 单击或双击可打开超链接。
 
 ## 其他功能
 

@@ -1,4 +1,5 @@
 import { isInsideCodeBlockChrome } from "../codeBlock/codeMirrorManager";
+import { syncBlockMarkerTop } from "../util/blockMarker";
 import { getEditorRange } from "../util/selection";
 import { afterRenderEvent } from "./afterRenderEvent";
 import { renderToc } from "../util/toc";
@@ -43,6 +44,26 @@ const handleMap = new WeakMap<IVditor, IBlockHandleState>();
 
 const isListElement = (element: Element | null) => {
     return !!element && (element.tagName === "UL" || element.tagName === "OL");
+};
+
+const isTocElement = (element: Element) => {
+    return element.classList.contains("vditor-toc") || element.getAttribute("data-type") === "toc-block";
+};
+
+const isInsideToc = (element: Element | null) => {
+    return !!element?.closest(".vditor-toc, [data-type=\"toc-block\"]");
+};
+
+const getTocBlock = (node: Node | null, editor: HTMLElement): HTMLElement | null => {
+    if (!node) {
+        return null;
+    }
+    const element = (node instanceof Element ? node : node.parentElement)
+        ?.closest(".vditor-toc, [data-type=\"toc-block\"]") as HTMLElement | null;
+    if (!element || !editor.contains(element) || element.parentElement !== editor || !isTocElement(element)) {
+        return null;
+    }
+    return element;
 };
 
 const isBlockHandleElement = (element: Element | null) => {
@@ -96,6 +117,9 @@ const getListItemAtPoint = (y: number, editor: HTMLElement) => {
     let bestHeight = Infinity;
     for (const item of editor.querySelectorAll("li")) {
         const li = item as HTMLElement;
+        if (isInsideToc(li)) {
+            continue;
+        }
         const rect = li.getBoundingClientRect();
         if (y < rect.top || y > rect.bottom) {
             continue;
@@ -114,6 +138,10 @@ const getListItemAtPoint = (y: number, editor: HTMLElement) => {
 const getDraggableBlock = (node: Node | null, editor: HTMLElement): HTMLElement | null => {
     if (!node) {
         return null;
+    }
+    const tocBlock = getTocBlock(node, editor);
+    if (tocBlock) {
+        return tocBlock;
     }
     const innermostListItem = getInnermostListItem(node, editor);
     if (innermostListItem) {
@@ -136,11 +164,16 @@ const getDraggableBlock = (node: Node | null, editor: HTMLElement): HTMLElement 
 };
 
 const getDraggableBlockFromPoint = (x: number, y: number, editor: HTMLElement) => {
+    const hitElement = getHitElementAtPoint(x, y);
+    const tocBlock = getTocBlock(hitElement, editor);
+    if (tocBlock) {
+        return tocBlock;
+    }
     const listItem = getListItemAtPoint(y, editor);
     if (listItem) {
         return listItem;
     }
-    return getDraggableBlock(getHitElementAtPoint(x, y), editor);
+    return getDraggableBlock(hitElement, editor);
 };
 
 const cloneDropTarget = (target: DropTarget): DropTarget => ({
@@ -172,6 +205,9 @@ const wouldMoveBlock = (block: HTMLElement, target: DropTarget) => {
 };
 
 const addListDropTargets = (list: HTMLElement, targets: DropTargetLine[], exclude: HTMLElement) => {
+    if (isInsideToc(list)) {
+        return;
+    }
     for (const child of list.children) {
         if (child.tagName !== "LI" || child === exclude) {
             continue;
@@ -344,6 +380,7 @@ const positionHandle = (state: IBlockHandleState, block: HTMLElement) => {
     const handleSize = 20;
     const top = blockRect.top - wrapperRect.top + Math.max(0, Math.min(lineHeight / 2 - handleSize / 2, 6));
     const left = blockRect.left - wrapperRect.left - (block.tagName === "LI" ? 40 : 28);
+    syncBlockMarkerTop(block);
     state.root.style.top = `${top}px`;
     state.root.style.left = `${left}px`;
     state.root.classList.add(`${ROOT_CLASS}--visible`);
@@ -637,9 +674,14 @@ export const updateBlockHandle = (vditor: IVditor, target?: Node) => {
         const range = getEditorRange(vditor);
         const rects = range.getClientRects();
         const caretRect = rects.length > 0 ? rects[0] : range.getBoundingClientRect();
-        const rowListItem = getListItemAtPoint(caretRect.top + Math.min(caretRect.height / 2, 12), state.editorElement);
-        if (rowListItem) {
-            block = rowListItem;
+        const tocBlock = getTocBlock(node, state.editorElement);
+        if (tocBlock) {
+            block = tocBlock;
+        } else {
+            const rowListItem = getListItemAtPoint(caretRect.top + Math.min(caretRect.height / 2, 12), state.editorElement);
+            if (rowListItem) {
+                block = rowListItem;
+            }
         }
     }
     if (block) {

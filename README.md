@@ -22,7 +22,7 @@ This extension lets you preview and edit common office and design files directly
 
 ## Markdown
 
-This extension replaces the default Markdown editor with [Vditor](https://github.com/Vanessa219/vditor) for WYSIWYG editing.
+This extension replaces the default Markdown editor with a WYSIWYG editor.
 
 To use the built-in VS Code Markdown editor instead, add this to your `settings.json`:
 
@@ -39,16 +39,11 @@ Right-click in the editor to export Markdown to PDF, DOCX, or HTML. PDF export r
 
 ![Export Markdown](image/README-CN/1685418034035.png)
 
-Shortcuts: Based on [Vditor shortcuts](shortcut.md), plus:
+Shortcuts: Based on [shortcut.md](shortcut.md), plus:
 
 - Move list up: `Ctrl Alt I` / `⌘ ^ I`
 - Move list down: `Ctrl Alt J` / `⌘ ^ J`
 - Edit in VS Code: `Ctrl Alt E` / `⌘ ^ E`
-
-Tips:
-
-- Resize the editor with Ctrl/Cmd + mouse scroll.
-- Open hyperlinks with Ctrl/Meta + click or double-click.
 
 ## Other features
 

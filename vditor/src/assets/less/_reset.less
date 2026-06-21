@@ -41,7 +41,7 @@
     }
 
     li + li {
-      margin-top: 0.25em;
+      margin-top: 0;
     }
 
     audio {
@@ -59,12 +59,9 @@
 
     img {
       max-width: 100%;
-    }
-
-    img.emoji {
-      cursor: auto;
-      max-width: 20px;
-      vertical-align: sub;
+      max-height: var(--vditor-image-max-height, 70vh);
+      height: auto;
+      object-fit: contain;
     }
 
     h1,
@@ -166,8 +163,16 @@
       width: 100%;
 
       tr {
-        background-color: var(--table-row-bg, var(--code-bg-color, #fafbfc));
         border-top: 1px solid var(--table-row-border);
+      }
+
+      thead tr,
+      th {
+        background-color: var(--table-header-bg, var(--code-bg-color, #eef1f4));
+      }
+
+      tbody tr {
+        background-color: var(--table-body-bg, var(--code-bg-color, #fafbfc));
       }
 
       td,
@@ -187,10 +192,6 @@
 
       th {
         font-weight: 600;
-      }
-
-      tbody tr:nth-child(2n) {
-        background-color: var(--table-stripe-bg, var(--bg-color, #fff));
       }
     }
 
@@ -285,13 +286,6 @@
 
   &-task {
     list-style: none !important;
-    word-break: break-all;
-
-    input {
-      margin: 0 0.2em 0.25em -1.6em;
-      font-size: 12px;
-      vertical-align: middle;
-    }
   }
 
   &-copy {
@@ -318,6 +312,12 @@
       width: 14px !important;
       display: block;
       fill: currentColor;
+    }
+
+    .codicon {
+      color: var(--linkcard-icon-color, var(--toolbar-icon-color));
+      font-size: 14px;
+      display: block;
     }
   }
 
@@ -588,14 +588,22 @@
       color: var(--front-color, var(--textarea-text-color));
       transition: background-color 0.15s ease, color 0.15s ease;
 
-      & > svg {
+      & > svg,
+      & > .codicon {
         flex-shrink: 0;
         height: 12px;
         width: 12px;
         margin-right: 6px;
       }
 
-      & > svg:not(.vditor-outline__action) {
+      & > .vditor-outline__placeholder {
+        flex-shrink: 0;
+        width: 12px;
+        margin-right: 6px;
+      }
+
+      & > svg:not(.vditor-outline__action),
+      & > .vditor-outline__placeholder {
         visibility: hidden;
       }
 
@@ -638,9 +646,10 @@
 
     &__action {
       transition: transform 0.15s ease, opacity 0.15s ease;
-      fill: currentColor;
       flex-shrink: 0;
       opacity: 0.55;
+      font-size: 12px;
+      color: currentColor;
 
       &--close {
         transform: rotate(-90deg);

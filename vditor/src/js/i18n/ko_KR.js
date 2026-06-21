@@ -30,7 +30,6 @@ window.VditorI18n = {
   'downloadTip': '브라우저가 다운로드 기능을 지원하지 않습니다',
   'edit': '수정',
   'edit-mode': '편집모드',
-  'emoji': '이모지',
   'fileTypeError': '지원하지않습니다.',
   'footnoteRef': '각주참조',
   'generate': '생성',
