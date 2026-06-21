@@ -1,6 +1,6 @@
-import {Constants} from "../constants";
-import {focusCodeBlockLanguageInput} from "../codeBlock/codeBlockLanguagePopover";
-import {tryFocusAdjacentCodeMirror} from "../codeBlock/codeMirrorNavigation";
+import { Constants } from "../constants";
+import { focusCodeBlockLanguageInput } from "../codeBlock/codeBlockLanguagePopover";
+import { tryFocusAdjacentCodeMirror } from "../codeBlock/codeMirrorNavigation";
 import {
     focusCodeMirror,
     getCodeMirrorView,
@@ -9,7 +9,7 @@ import {
     isInsideCodeBlockChrome,
     isInsideCodeMirror,
 } from "../codeBlock/codeMirrorManager";
-import {isCtrl, isFirefox} from "../util/compatibility";
+import { isCtrl, isFirefox } from "../util/compatibility";
 import {
     fixBlockquote, fixCJKPosition,
     fixCodeBlock, fixCursorDownInlineMath, fixDelete, fixFirefoxArrowUpTable, fixGSKeyBackspace, fixHR,
@@ -27,15 +27,16 @@ import {
     hasClosestByMatchTag,
     hasTopClosestByTag,
 } from "../util/hasClosest";
-import {hasClosestByHeadings} from "../util/hasClosestByHeadings";
-import {matchHotKey} from "../util/hotKey";
-import {getEditorRange, getSelectPosition, setSelectionFocus} from "../util/selection";
-import {keydownToc, renderToc} from "../util/toc";
-import {afterRenderEvent} from "./afterRenderEvent";
+import { hasClosestByHeadings } from "../util/hasClosestByHeadings";
+import { matchHotKey } from "../util/hotKey";
+import { recordHistoryChange, recordHistoryPosition } from "../util/instantHistory";
+import { getEditorRange, getSelectPosition, setSelectionFocus } from "../util/selection";
+import { keydownToc, renderToc } from "../util/toc";
+import { afterRenderEvent } from "./afterRenderEvent";
 import { moveDown, moveUp, genAPopover, genLinkRefPopover } from "./highlightToolbarWYSIWYG";
-import {nextIsCode} from "./inlineTag";
-import {removeHeading, setHeading} from "./setHeading";
-import {focusWysiwygCodeBlock, showCode} from "./showCode";
+import { nextIsCode } from "./inlineTag";
+import { removeHeading, setHeading } from "./setHeading";
+import { focusWysiwygCodeBlock, showCode } from "./showCode";
 
 export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
     // Chrome firefox 触发 compositionend 机制不一致 https://github.com/Vanessa219/vditor/issues/188
@@ -88,21 +89,24 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
     fixHR(range);
 
     // 对有子工具栏的块上移
-    if (matchHotKey("^⌘i", event)) {
-        moveUp(range,vditor)
-        event.stopPropagation()
+    if (matchHotKey("^⌘i", event) || matchHotKey("^!i", event)) {
+        moveUp(range, vditor);
+        event.stopPropagation();
     }
 
     // 对有子工具栏的块下移
-    if (matchHotKey("^⌘j", event)) {
-        moveDown(range,vditor)
-        event.stopPropagation()
+    if (matchHotKey("^⌘j", event) || matchHotKey("^!j", event)) {
+        moveDown(range, vditor);
+        event.stopPropagation();
     }
 
     // 仅处理以下快捷键操作
     if (event.key !== "Enter" && event.key !== "Tab" && event.key !== "Backspace" && event.key.indexOf("Arrow") === -1
         && !isCtrl(event) && event.key !== "Escape" && event.key !== "Delete") {
         return false;
+    }
+    if ((event.key === "Backspace" || event.key === "Delete") && !isCtrl(event) && !event.shiftKey && !event.altKey) {
+        recordHistoryPosition(vditor);
     }
 
     const blockElement = hasClosestBlock(startContainer);
@@ -283,18 +287,6 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
         return true;
     }
 
-    // 对有子工具栏的块上移
-    if (matchHotKey("^!i", event)) {
-        moveUp(range,vditor)
-        event.stopPropagation()
-    }
-
-    // 对有子工具栏的块下移
-    if (matchHotKey("^!j", event)) {
-        moveDown(range,vditor)
-        event.stopPropagation()
-    }
-
     if (fixTab(vditor, range, event)) {
         return true;
     }
@@ -340,7 +332,7 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
                     if (blockElement.innerHTML.trim().replace(Constants.ZWSP, "") === "") {
                         // 当前块为空且不是最后一个时，需要删除
                         blockElement.remove();
-                        afterRenderEvent(vditor);
+                        recordHistoryChange(vditor);
                     }
                     event.preventDefault();
                     return true;
@@ -357,7 +349,7 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
                     Constants.ZWSP;
                 range.setStart(startContainer, rangeStartOffset);
                 range.collapse(true);
-                afterRenderEvent(vditor);
+                recordHistoryChange(vditor);
                 event.preventDefault();
                 return true;
             }

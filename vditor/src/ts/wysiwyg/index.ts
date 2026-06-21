@@ -1,6 +1,6 @@
-import {Constants} from "../constants";
-import {hidePanel} from "../toolbar/setToolbar";
-import {isCtrl, isFirefox} from "../util/compatibility";
+import { Constants } from "../constants";
+import { hidePanel } from "../toolbar/setToolbar";
+import { isCtrl, isFirefox } from "../util/compatibility";
 import {
     blurEvent,
     copyEvent, cutEvent, dblclickEvent,
@@ -9,12 +9,13 @@ import {
     hotkeyEvent,
     selectEvent,
 } from "../util/editorCommonEvent";
-import {isHeadingMD, isHrMD, paste, splitHeadingOnNewline} from "../util/fixBrowserBehavior";
+import { isHeadingMD, isHrMD, paste, splitHeadingOnNewline } from "../util/fixBrowserBehavior";
 import {
     hasClosestBlock, hasClosestByAttribute,
     hasClosestByClassName, hasClosestByMatchTag,
 } from "../util/hasClosest";
-import {hasClosestByHeadings} from "../util/hasClosestByHeadings";
+import { hasClosestByHeadings } from "../util/hasClosestByHeadings";
+import { isDeleteInput, recordHistoryChange } from "../util/instantHistory";
 import {
     preventImpreciseLineStartClick,
     getCursorPosition,
@@ -22,19 +23,20 @@ import {
     getSelectPosition,
     setRangeByWbr,
 } from "../util/selection";
-import {clickToc, renderToc} from "../util/toc";
-import {afterRenderEvent} from "./afterRenderEvent";
-import {genAPopover, genImagePopover, genLinkRefPopover, highlightToolbarWYSIWYG} from "./highlightToolbarWYSIWYG";
-import {getRenderElementNextNode, modifyPre} from "./inlineTag";
-import {input} from "./input";
-import {focusCodeBlock, isCmCodeBlock, isInsideCodeBlockChrome, isInsideCodeMirror,
+import { clickToc, renderToc } from "../util/toc";
+import { afterRenderEvent } from "./afterRenderEvent";
+import { genAPopover, genImagePopover, genLinkRefPopover, highlightToolbarWYSIWYG } from "./highlightToolbarWYSIWYG";
+import { getRenderElementNextNode, modifyPre } from "./inlineTag";
+import { input } from "./input";
+import {
+    focusCodeBlock, isCmCodeBlock, isInsideCodeBlockChrome, isInsideCodeMirror,
     getCodeMirrorSelectionTextForCopy,
     sanitizeCodeBlocksInCopyFragment,
 } from "../codeBlock/codeMirrorManager";
-import {focusWysiwygCodeBlock, showCode} from "./showCode";
-import {getMarkdown} from "../markdown/getMarkdown";
-import {initBlockHandle} from "./blockHandle";
-import {initTableHandle} from "./tableHandle";
+import { focusWysiwygCodeBlock, showCode } from "./showCode";
+import { getMarkdown } from "../markdown/getMarkdown";
+import { initBlockHandle } from "./blockHandle";
+import { initTableHandle } from "./tableHandle";
 
 class WYSIWYG {
     public range: Range;
@@ -219,6 +221,7 @@ class WYSIWYG {
                 // https://github.com/Vanessa219/vditor/issues/801 编辑器内容拖拽问题
                 return;
             }
+            const recordInstantDelete = isDeleteInput(event);
             if (this.preventInput) {
                 this.preventInput = false;
                 afterRenderEvent(vditor);
@@ -280,10 +283,16 @@ class WYSIWYG {
                 if (typeof vditor.options.input === "function") {
                     vditor.options.input(getMarkdown(vditor));
                 }
+                if (recordInstantDelete) {
+                    recordHistoryChange(vditor);
+                }
                 return;
             }
 
             input(vditor, range, event);
+            if (recordInstantDelete) {
+                recordHistoryChange(vditor);
+            }
         });
 
         this.element.addEventListener("mousedown", (event: MouseEvent & { target: HTMLElement }) => {
@@ -481,4 +490,4 @@ class WYSIWYG {
     }
 }
 
-export {WYSIWYG};
+export { WYSIWYG };

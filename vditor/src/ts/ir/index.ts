@@ -1,5 +1,5 @@
-import {Constants} from "../constants";
-import {isCtrl, isFirefox} from "../util/compatibility";
+import { Constants } from "../constants";
+import { isCtrl, isFirefox } from "../util/compatibility";
 import {
     blurEvent,
     copyEvent, cutEvent, dblclickEvent,
@@ -8,13 +8,14 @@ import {
     hotkeyEvent,
     selectEvent,
 } from "../util/editorCommonEvent";
-import {paste} from "../util/fixBrowserBehavior";
-import {hasClosestByClassName} from "../util/hasClosest";
+import { paste } from "../util/fixBrowserBehavior";
+import { hasClosestByClassName } from "../util/hasClosest";
+import { isDeleteInput, recordHistoryChange } from "../util/instantHistory";
 import {
     getEditorRange, setRangeByWbr,
     setSelectionFocus,
 } from "../util/selection";
-import {clickToc} from "../util/toc";
+import { clickToc } from "../util/toc";
 import {
     focusCodeBlock,
     isCmCodeBlock,
@@ -23,10 +24,10 @@ import {
     getCodeMirrorSelectionTextForCopy,
     sanitizeCodeBlocksInCopyFragment,
 } from "../codeBlock/codeMirrorManager";
-import {expandMarker} from "./expandMarker";
-import {highlightToolbarIR} from "./highlightToolbarIR";
-import {input} from "./input";
-import {processAfterRender, processHint} from "./process";
+import { expandMarker } from "./expandMarker";
+import { highlightToolbarIR } from "./highlightToolbarIR";
+import { input } from "./input";
+import { processAfterRender, processHint } from "./process";
 
 class IR {
     public range: Range;
@@ -126,12 +127,13 @@ class IR {
                 // https://github.com/Vanessa219/vditor/issues/801 编辑器内容拖拽问题
                 return;
             }
+            const recordInstantDelete = isDeleteInput(event);
             if (this.preventInput) {
                 this.preventInput = false;
                 processAfterRender(vditor, {
-                  enableAddUndoStack: true,
-                  enableHint: true,
-                  enableInput: true,
+                    enableAddUndoStack: true,
+                    enableHint: true,
+                    enableInput: true,
                 });
                 return;
             }
@@ -139,6 +141,9 @@ class IR {
                 return;
             }
             input(vditor, getSelection().getRangeAt(0).cloneRange(), false, event);
+            if (recordInstantDelete) {
+                recordHistoryChange(vditor);
+            }
         });
 
         this.element.addEventListener("click", (event: MouseEvent & { target: HTMLInputElement }) => {
@@ -306,4 +311,4 @@ class IR {
     }
 }
 
-export {IR};
+export { IR };

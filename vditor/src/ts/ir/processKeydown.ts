@@ -31,6 +31,7 @@ import {
 } from "../util/hasClosest";
 import {hasClosestByHeadings} from "../util/hasClosestByHeadings";
 import {matchHotKey} from "../util/hotKey";
+import {recordHistoryChange, recordHistoryPosition} from "../util/instantHistory";
 import {getEditorRange, getSelectPosition, setSelectionFocus} from "../util/selection";
 import {keydownToc} from "../util/toc";
 import {expandMarker} from "./expandMarker";
@@ -88,6 +89,9 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
     if (event.key !== "Enter" && event.key !== "Tab" && event.key !== "Backspace" && event.key.indexOf("Arrow") === -1
         && !isCtrl(event) && event.key !== "Escape" && event.key !== "Delete") {
         return false;
+    }
+    if ((event.key === "Backspace" || event.key === "Delete") && !isCtrl(event) && !event.shiftKey && !event.altKey) {
+        recordHistoryPosition(vditor);
     }
 
     // 斜体、粗体、内联代码块中换行
@@ -252,7 +256,7 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
                 if (blockElement.textContent.trim().replace(Constants.ZWSP, "") === "") {
                     // 当前块为空且不是最后一个时，需要删除
                     blockElement.remove();
-                    processAfterRender(vditor);
+                    recordHistoryChange(vditor);
                 }
                 event.preventDefault();
                 return true;

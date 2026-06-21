@@ -1,12 +1,12 @@
-import {markOutlineEditing} from "../outline/updateOutlineActive";
-import {isCmCodeBlock, isInsideCodeMirror} from "../codeBlock/codeMirrorManager";
-import {input as IRInput} from "../ir/input";
-import {processAfterRender} from "../ir/process";
-import {uploadFiles} from "../upload/index";
-import {setHeaders} from "../upload/setHeaders";
-import {afterRenderEvent} from "../wysiwyg/afterRenderEvent";
-import {input} from "../wysiwyg/input";
-import {isCtrl, isFirefox} from "./compatibility";
+import { markOutlineEditing } from "../outline/updateOutlineActive";
+import { isCmCodeBlock, isInsideCodeMirror } from "../codeBlock/codeMirrorManager";
+import { input as IRInput } from "../ir/input";
+import { processAfterRender } from "../ir/process";
+import { uploadFiles } from "../upload/index";
+import { setHeaders } from "../upload/setHeaders";
+import { afterRenderEvent } from "../wysiwyg/afterRenderEvent";
+import { input } from "../wysiwyg/input";
+import { isCtrl, isFirefox } from "./compatibility";
 import {
     getTopList,
     hasClosestBlock,
@@ -14,11 +14,12 @@ import {
     hasClosestByClassName,
     hasClosestByMatchTag,
 } from "./hasClosest";
-import {getLastNode} from "./hasClosest";
-import {highlightToolbar} from "./highlightToolbar";
-import {matchHotKey} from "./hotKey";
-import {isPasteableUrl, linkifyPastePlainText} from "./linkifyPaste";
-import {processCodeRender, processPasteCode} from "./processCode";
+import { getLastNode } from "./hasClosest";
+import { highlightToolbar } from "./highlightToolbar";
+import { recordHistoryChange, recordHistoryPosition } from "./instantHistory";
+import { matchHotKey } from "./hotKey";
+import { isPasteableUrl, linkifyPastePlainText } from "./linkifyPaste";
+import { processCodeRender, processPasteCode } from "./processCode";
 import {
     getEditorRange,
     getSelectPosition,
@@ -26,6 +27,7 @@ import {
     setRangeByWbr,
     setSelectionByPosition, setSelectionFocus,
 } from "./selection";
+import { Constants } from "../constants";
 
 // https://github.com/Vanessa219/vditor/issues/508 软键盘无法删除空块
 export const fixGSKeyBackspace = (event: KeyboardEvent, vditor: IVditor, startContainer: Node) => {
@@ -72,8 +74,62 @@ export const fixCursorDownInlineMath = (range: Range, key: string) => {
     }
 };
 
+const buildEmptyListItemHTML = (liElement: HTMLElement) => {
+    const marker = liElement.getAttribute("data-marker");
+    const markerAttr = marker ? ` data-marker="${marker}"` : "";
+    if (liElement.classList.contains("vditor-task")) {
+        return `<li class="vditor-task"${markerAttr}><input type="checkbox"> ${Constants.ZWSP}<wbr></li>`;
+    }
+    return `<li${markerAttr}>${Constants.ZWSP}<wbr></li>`;
+};
+
+const replaceListItemWithEmptyBlock = (liElement: HTMLElement) => {
+    const listElement = liElement.parentElement;
+    const beforeListElement = listElement.cloneNode(false) as HTMLElement;
+    const afterListElement = listElement.cloneNode(false) as HTMLElement;
+    const emptyBlockElement = document.createElement("p");
+    let isAfterCurrent = false;
+    let hasBefore = false;
+    let hasAfter = false;
+
+    emptyBlockElement.setAttribute("data-block", "0");
+    emptyBlockElement.innerHTML = "<wbr>\n";
+    Array.from(listElement.children).forEach((item) => {
+        if (item.isSameNode(liElement)) {
+            isAfterCurrent = true;
+            return;
+        }
+        if (isAfterCurrent) {
+            afterListElement.appendChild(item.cloneNode(true));
+            hasAfter = true;
+        } else {
+            beforeListElement.appendChild(item.cloneNode(true));
+            hasBefore = true;
+        }
+    });
+
+    const fragment = document.createDocumentFragment();
+    if (hasBefore) {
+        fragment.appendChild(beforeListElement);
+    }
+    fragment.appendChild(emptyBlockElement);
+    if (hasAfter) {
+        fragment.appendChild(afterListElement);
+    }
+    listElement.replaceWith(fragment);
+};
+
 export const insertEmptyBlock = (vditor: IVditor, position: InsertPosition) => {
     const range = getEditorRange(vditor);
+    const liElement = hasClosestByMatchTag(range.startContainer, "LI");
+    if (liElement) {
+        liElement.insertAdjacentHTML(position, buildEmptyListItemHTML(liElement));
+        setRangeByWbr(vditor[vditor.currentMode].element, range);
+        highlightToolbar(vditor);
+        execAfterRender(vditor);
+        return;
+    }
+
     const blockElement = hasClosestBlock(range.startContainer);
     if (blockElement) {
         blockElement.insertAdjacentHTML(position, `<p data-block="0">${Constants.ZWSP}<wbr>\n</p>`);
@@ -124,7 +180,7 @@ const goPreviousCell = (cellElement: HTMLElement, range: Range, isSelected = tru
 };
 
 export const insertAfterBlock = (vditor: IVditor, event: KeyboardEvent, range: Range, element: HTMLElement,
-                                 blockElement: HTMLElement) => {
+    blockElement: HTMLElement) => {
     const position = getSelectPosition(element, vditor[vditor.currentMode].element, range);
     if ((event.key === "ArrowDown" && element.textContent.trimRight().substr(position.start).indexOf("\n") === -1) ||
         (event.key === "ArrowRight" && position.start >= element.textContent.trimRight().length)) {
@@ -146,7 +202,7 @@ export const insertAfterBlock = (vditor: IVditor, event: KeyboardEvent, range: R
 };
 
 export const insertBeforeBlock = (vditor: IVditor, event: KeyboardEvent, range: Range, element: HTMLElement,
-                                  blockElement: HTMLElement) => {
+    blockElement: HTMLElement) => {
     const position = getSelectPosition(element, vditor[vditor.currentMode].element, range);
     if ((event.key === "ArrowUp" && element.textContent.substr(0, position.start).indexOf("\n") === -1) ||
         ((event.key === "ArrowLeft" || (event.key === "Backspace" && range.toString() === "")) &&
@@ -537,21 +593,20 @@ export const fixList = (range: Range, vditor: IVditor, pElement: HTMLElement | f
                 liElement.parentElement.outerHTML = `<p data-block="0"><wbr>${liElement.innerHTML}</p>`;
             }
             setRangeByWbr(vditor[vditor.currentMode].element, range);
-            execAfterRender(vditor);
+            recordHistoryChange(vditor);
             event.preventDefault();
             return true;
         }
 
         // 空列表删除后与上一级段落对齐
-        if (!isCtrl(event) && !event.shiftKey && !event.altKey && event.key === "Backspace" &&
+        if (event.key === "Backspace" &&
+            !event.shiftKey && !event.altKey &&
             liElement.textContent.trim().replace(Constants.ZWSP, "") === "" &&
             range.toString() === "" && liElement.previousElementSibling?.tagName === "LI") {
-            liElement.previousElementSibling.insertAdjacentText("beforeend", "\n\n");
-            range.selectNodeContents(liElement.previousElementSibling);
-            range.collapse(false);
-            liElement.remove();
+            recordHistoryPosition(vditor);
+            replaceListItemWithEmptyBlock(liElement);
             setRangeByWbr(vditor[vditor.currentMode].element, range);
-            execAfterRender(vditor);
+            recordHistoryChange(vditor);
             event.preventDefault();
             return true;
         }
@@ -1082,7 +1137,7 @@ export const fixCodeBlock = (vditor: IVditor, event: KeyboardEvent, codeRenderEl
     if (event.key === "Backspace" && !isCtrl(event) && !event.shiftKey && !event.altKey) {
         const codePosition = getSelectPosition(codeRenderElement, vditor[vditor.currentMode].element, range);
         if ((codePosition.start === 0 ||
-                (codePosition.start === 1 && codeRenderElement.innerText === "\n")) // 空代码块，光标在 \n 后
+            (codePosition.start === 1 && codeRenderElement.innerText === "\n")) // 空代码块，光标在 \n 后
             && range.toString() === "") {
             codeRenderElement.parentElement.outerHTML =
                 `<p data-block="0"><wbr>${codeRenderElement.firstElementChild.innerHTML}</p>`;
@@ -1197,7 +1252,7 @@ export const fixTask = (vditor: IVditor, range: Range, event: KeyboardEvent) => 
         if (event.key === "Backspace" && !isCtrl(event) && !event.shiftKey && !event.altKey && range.toString() === ""
             && range.startOffset === 1
             && ((startContainer.nodeType === 3 && startContainer.previousSibling &&
-                    (startContainer.previousSibling as HTMLElement).tagName === "INPUT")
+                (startContainer.previousSibling as HTMLElement).tagName === "INPUT")
                 || startContainer.nodeType !== 3)) {
             const previousElement = taskItemElement.previousElementSibling;
             taskItemElement.querySelector("input").remove();
@@ -1379,6 +1434,7 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
     }
     event.stopPropagation();
     event.preventDefault();
+    recordHistoryPosition(vditor);
     let textHTML;
     let textPlain;
     let files;
@@ -1447,7 +1503,7 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
                     }
                 }
             };
-            xhr.send(JSON.stringify({url: src}));
+            xhr.send(JSON.stringify({ url: src }));
         }
         if (vditor.currentMode === "ir") {
             return [`<span class="vditor-ir__marker vditor-ir__marker--link">${Lute.EscapeHTMLStr(src)}</span>`, Lute.WalkContinue];
@@ -1510,12 +1566,12 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
                 e.remove();
             });
             if (vditor.currentMode === "ir") {
-                renderers.HTML2VditorIRDOM = {renderLinkDest};
-                vditor.lute.SetJSRenderers({renderers});
+                renderers.HTML2VditorIRDOM = { renderLinkDest };
+                vditor.lute.SetJSRenderers({ renderers });
                 insertHTML(vditor.lute.HTML2VditorIRDOM(tempElement.innerHTML), vditor);
             } else if (vditor.currentMode === "wysiwyg") {
-                renderers.HTML2VditorDOM = {renderLinkDest};
-                vditor.lute.SetJSRenderers({renderers});
+                renderers.HTML2VditorDOM = { renderLinkDest };
+                vditor.lute.SetJSRenderers({ renderers });
                 insertHTML(vditor.lute.HTML2VditorDOM(tempElement.innerHTML), vditor);
             }
             markOutlineEditing(vditor);
@@ -1548,12 +1604,12 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
             }
         } else if (textPlain.trim() !== "" && files.length === 0) {
             if (vditor.currentMode === "ir") {
-                renderers.Md2VditorIRDOM = {renderLinkDest};
-                vditor.lute.SetJSRenderers({renderers});
+                renderers.Md2VditorIRDOM = { renderLinkDest };
+                vditor.lute.SetJSRenderers({ renderers });
                 insertHTML(vditor.lute.Md2VditorIRDOM(textPlain), vditor);
             } else if (vditor.currentMode === "wysiwyg") {
-                renderers.Md2VditorDOM = {renderLinkDest};
-                vditor.lute.SetJSRenderers({renderers});
+                renderers.Md2VditorDOM = { renderLinkDest };
+                vditor.lute.SetJSRenderers({ renderers });
                 insertHTML(vditor.lute.Md2VditorDOM(textPlain), vditor);
             }
             markOutlineEditing(vditor);
@@ -1579,5 +1635,5 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
         .forEach((item: HTMLElement) => {
             processCodeRender(item, vditor);
         });
-    execAfterRender(vditor);
+    recordHistoryChange(vditor);
 };

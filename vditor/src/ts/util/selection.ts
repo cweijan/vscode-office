@@ -1,6 +1,6 @@
-import {Constants} from "../constants";
-import {isChrome} from "./compatibility";
-import {hasClosestBlock, hasClosestByClassName} from "./hasClosest";
+import { Constants } from "../constants";
+import { isChrome } from "./compatibility";
+import { hasClosestBlock, hasClosestByClassName, hasClosestByMatchTag } from "./hasClosest";
 
 export const getEditorRange = (vditor: IVditor) => {
     let range: Range;
@@ -14,7 +14,7 @@ export const getEditorRange = (vditor: IVditor) => {
     if (vditor[vditor.currentMode].range) {
         return vditor[vditor.currentMode].range;
     }
-    element.focus({preventScroll: true});
+    element.focus({ preventScroll: true });
     range = element.ownerDocument.createRange();
     range.setStart(element, 0);
     range.collapse(true);
@@ -69,7 +69,7 @@ export const getCursorPosition = (editor: HTMLElement) => {
             if (!cursorRect) {
                 let parentElement = range.startContainer.childNodes[range.startOffset] as HTMLElement;
                 while (!parentElement.getClientRects ||
-                (parentElement.getClientRects && parentElement.getClientRects().length === 0)) {
+                    (parentElement.getClientRects && parentElement.getClientRects().length === 0)) {
                     parentElement = parentElement.parentElement;
                 }
                 cursorRect = parentElement.getClientRects()[0];
@@ -387,6 +387,72 @@ const isClickOnCaretGlyph = (event: MouseEvent, caretRange: Range, tolerance = 3
     return false;
 };
 
+const collectListItemDirectContentTextNodes = (liElement: HTMLElement): Text[] => {
+    const textNodes: Text[] = [];
+    for (let i = 0; i < liElement.childNodes.length; i++) {
+        const child = liElement.childNodes[i];
+        if (child.nodeType === Node.ELEMENT_NODE) {
+            const tagName = (child as HTMLElement).tagName;
+            if (tagName === "INPUT" || tagName === "OL" || tagName === "UL") {
+                continue;
+            }
+        }
+        if (child.nodeType === Node.TEXT_NODE) {
+            textNodes.push(child as Text);
+            continue;
+        }
+        const walker = liElement.ownerDocument.createTreeWalker(child, NodeFilter.SHOW_TEXT);
+        let currentTextNode = walker.nextNode() as Text | null;
+        while (currentTextNode) {
+            textNodes.push(currentTextNode);
+            currentTextNode = walker.nextNode() as Text | null;
+        }
+    }
+    return textNodes;
+};
+
+const getListItemLineStartRange = (liElement: HTMLElement): Range | null => {
+    const textNodes = collectListItemDirectContentTextNodes(liElement);
+    if (textNodes.length === 0) {
+        return null;
+    }
+    const range = liElement.ownerDocument.createRange();
+    range.setStart(textNodes[0], 0);
+    range.collapse(true);
+    return range;
+};
+
+const getListItemLineEndRange = (liElement: HTMLElement): Range | null => {
+    const textNodes = collectListItemDirectContentTextNodes(liElement);
+    let textNode: Text | null = null;
+    for (let i = textNodes.length - 1; i >= 0; i--) {
+        if (textNodes[i].textContent.replace(/[\s\u00a0]+$/, "").length > 0) {
+            textNode = textNodes[i];
+            break;
+        }
+    }
+    if (!textNode && textNodes.length > 0) {
+        textNode = textNodes[textNodes.length - 1];
+    }
+    if (!textNode) {
+        return null;
+    }
+    const range = liElement.ownerDocument.createRange();
+    range.setStart(textNode, textNode.textContent.replace(/[\s\u00a0]+$/, "").length);
+    range.collapse(true);
+    return range;
+};
+
+const isClickAfterCaretPosition = (event: MouseEvent, caretRange: Range, tolerance = 3): boolean => {
+    const probe = expandRangeForClientRect(caretRange);
+    const rects = probe.getClientRects();
+    if (rects.length === 0) {
+        return false;
+    }
+    const rect = rects[rects.length - 1];
+    return event.clientX > rect.right + tolerance;
+};
+
 const shouldSkipImpreciseClickTarget = (target: HTMLElement): boolean => {
     if (target.tagName === "INPUT" || target.tagName === "IMG" || target.tagName === "A") {
         return true;
@@ -416,6 +482,24 @@ const getLineEndForImpreciseLineStartClick = (event: MouseEvent, editor: HTMLEle
         return null;
     }
 
+    const liElement = hasClosestByMatchTag(clickRange.startContainer, "LI");
+    const isTaskListItem = !!(liElement && liElement.classList.contains("vditor-task"));
+
+    if (liElement && !isTaskListItem) {
+        const lineStartRange = getListItemLineStartRange(liElement);
+        if (!lineStartRange || !isSameCaretPosition(clickRange, lineStartRange)) {
+            return null;
+        }
+        if (isClickOnCaretGlyph(event, lineStartRange) || !isClickAfterCaretPosition(event, lineStartRange)) {
+            return null;
+        }
+        const lineEndRange = getListItemLineEndRange(liElement);
+        if (!lineEndRange || isSameCaretPosition(lineStartRange, lineEndRange)) {
+            return null;
+        }
+        return lineEndRange;
+    }
+
     const caretY = getRangeClientY(clickRange) ?? event.clientY;
 
     const editorRect = editor.getBoundingClientRect();
@@ -426,17 +510,24 @@ const getLineEndForImpreciseLineStartClick = (event: MouseEvent, editor: HTMLEle
     const contentRight = editorRect.right - paddingRight;
 
     const lineStartRange = getCaretRangeFromPoint(doc, contentLeft + 1, caretY);
-    const lineEndRange = getCaretRangeFromPoint(doc, contentRight - 1, caretY);
-    if (!lineStartRange || !lineEndRange) {
-        return null;
-    }
-    if (isSameCaretPosition(lineStartRange, lineEndRange)) {
+    if (!lineStartRange) {
         return null;
     }
     if (!isSameCaretPosition(clickRange, lineStartRange)) {
         return null;
     }
     if (isClickOnCaretGlyph(event, lineStartRange)) {
+        return null;
+    }
+    if (isTaskListItem) {
+        const lineEndRange = getListItemLineEndRange(liElement);
+        if (!lineEndRange || isSameCaretPosition(lineStartRange, lineEndRange)) {
+            return null;
+        }
+        return lineEndRange;
+    }
+    const lineEndRange = getCaretRangeFromPoint(doc, contentRight - 1, caretY);
+    if (!lineEndRange || isSameCaretPosition(lineStartRange, lineEndRange)) {
         return null;
     }
     return lineEndRange;
@@ -453,7 +544,7 @@ export const preventImpreciseLineStartClick = (event: MouseEvent, editor: HTMLEl
         return false;
     }
     event.preventDefault();
-    editor.focus({preventScroll: true});
+    editor.focus({ preventScroll: true });
     setSelectionFocus(lineEndRange);
     return true;
 };

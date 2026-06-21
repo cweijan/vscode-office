@@ -266,6 +266,18 @@ const getCmSelectionText = (view: EditorView) => {
     return parts.join("\n");
 };
 
+/** 无选区时按整行剪切（含行尾换行，末行除外） */
+const getCmCutRange = (view: EditorView) => {
+    const { from, to } = view.state.selection.main;
+    if (from !== to) {
+        return { from, to, text: getCmSelectionText(view) };
+    }
+    const line = view.state.doc.lineAt(from);
+    const cutFrom = line.from;
+    const cutTo = line.number < view.state.doc.lines ? line.to + 1 : line.to;
+    return { from: cutFrom, to: cutTo, text: view.state.sliceDoc(cutFrom, cutTo) };
+};
+
 const clearCmSelection = (view: EditorView) => {
     const { from, to, head } = view.state.selection.main;
     if (from === to) {
@@ -322,17 +334,17 @@ const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding:
         if (!view?.state || !clipboardEvent.clipboardData) {
             return false;
         }
-        const text = getCmSelectionText(view);
-        if (!text) {
+        const { from, to, text } = getCmCutRange(view);
+        if (from === to) {
             return false;
         }
         event.stopPropagation();
         clipboardEvent.preventDefault();
         clipboardEvent.clipboardData.setData("text/plain", text);
-        view.dispatch(view.state.changeByRange((range) => ({
-            changes: { from: range.from, to: range.to, insert: "" },
-            range: EditorSelection.cursor(range.from),
-        })));
+        view.dispatch({
+            changes: { from, to, insert: "" },
+            selection: EditorSelection.cursor(from),
+        });
         syncCodeFromView(binding, vditor);
         return true;
     },

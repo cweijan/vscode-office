@@ -12,12 +12,14 @@ import { processKeydown } from "../wysiwyg/processKeydown";
 import { removeHeading, setHeading } from "../wysiwyg/setHeading";
 import { getEventName, isCtrl } from "./compatibility";
 import { shouldBlockMacOptionSymbol } from "./macOptionSymbol";
+import { copyTextCutBlock, removeTextCutBlock, resolveTextCutBlock } from "./cutEmptySelection";
 import { execAfterRender, paste } from "./fixBrowserBehavior";
 import { getSelectText } from "./getSelectText";
 import { hasClosestByAttribute, hasClosestByMatchTag } from "./hasClosest";
 import { matchHotKey } from "./hotKey";
 import { getEditorRange } from "./selection";
 import { clearActiveHeadingMarker } from "./updateActiveHeadingMarker";
+import { handleVscodeShortcut } from "./vscodeShortcut";
 
 export const focusEvent = (vditor: IVditor, editorElement: HTMLElement) => {
     editorElement.addEventListener("focus", () => {
@@ -109,6 +111,11 @@ export const copyEvent =
 export const cutEvent =
     (vditor: IVditor, editorElement: HTMLElement, copy: (event: ClipboardEvent, vditor: IVditor) => void) => {
         editorElement.addEventListener("cut", (event: ClipboardEvent) => {
+            const cutBlock = resolveTextCutBlock(event);
+            if (cutBlock && copyTextCutBlock(event, vditor, cutBlock)) {
+                removeTextCutBlock(vditor, cutBlock);
+                return;
+            }
             copy(event, vditor);
             document.execCommand("delete");
         });
@@ -134,6 +141,10 @@ export const hotkeyEvent = (vditor: IVditor, editorElement: HTMLElement) => {
         // hint: 上下选择
         if (vditor.options.hint.extend.length > 0 &&
             vditor.hint.select(event, vditor)) {
+            return;
+        }
+
+        if (handleVscodeShortcut(vditor, event)) {
             return;
         }
 

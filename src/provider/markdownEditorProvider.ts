@@ -88,6 +88,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                 language: vscode.env.language,
                 rootPath, content,
                 sponsorBaseUrl,
+                isDev: this.context.extensionMode === vscode.ExtensionMode.Development,
             })
             this.updateCount(content)
             this.countStatus.show()

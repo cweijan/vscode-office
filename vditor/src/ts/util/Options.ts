@@ -163,7 +163,6 @@ export class Options {
         }, {
             name: "|",
         }, {
-            hotkey: "⌘L",
             icon: getToolbarCodicon("list"),
             name: "list",
             prefix: "* ",
