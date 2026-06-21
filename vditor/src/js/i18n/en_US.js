@@ -28,6 +28,7 @@ window.VditorI18n = {
   'delete-row': 'Delete Row',
   'devtools': 'DevTools',
   'down': 'Down',
+  'dragBlock': 'Drag to move block',
   'downloadTip': 'The browser does not support the download function',
   'edit': 'Edit',
   'edit-mode': 'Toggle Edit Mode',

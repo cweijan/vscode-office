@@ -26,6 +26,7 @@ window.VditorI18n = {
   'delete-row': '行 消去',
   'devtools': '開発ツール',
   'down': 'ダウンロード',
+  'dragBlock': 'ブロックをドラッグ',
   'downloadTip': 'ブラウザがダウンロード機能をサポートしていません。',
   'edit': '修正',
   'edit-mode': '編集モード',

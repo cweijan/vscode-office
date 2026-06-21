@@ -33,6 +33,7 @@ import {focusCodeBlock, isCmCodeBlock, isInsideCodeBlockChrome, isInsideCodeMirr
 } from "../codeBlock/codeMirrorManager";
 import {focusWysiwygCodeBlock, showCode} from "./showCode";
 import {getMarkdown} from "../markdown/getMarkdown";
+import {initBlockHandle} from "./blockHandle";
 
 class WYSIWYG {
     public range: Range;
@@ -57,6 +58,8 @@ class WYSIWYG {
         this.popover = divElement.lastElementChild as HTMLDivElement;
 
         this.bindEvent(vditor);
+
+        initBlockHandle(vditor, divElement, this.element);
 
         focusEvent(vditor, this.element);
         dblclickEvent(vditor, this.element);

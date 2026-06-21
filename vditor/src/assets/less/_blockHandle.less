@@ -1,0 +1,74 @@
+.vditor-block-handle {
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  align-items: flex-start;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease-in-out;
+
+  &--visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  &__drag {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--toolbar-icon-color);
+    cursor: grab;
+    transition: @transition;
+
+    &:hover {
+      background: color-mix(in srgb, var(--toolbar-icon-color) 12%, transparent);
+      color: var(--toolbar-icon-hover-color);
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  &__grip {
+    width: 8px;
+    height: 14px;
+    background: radial-gradient(circle at center, currentColor 1.25px, transparent 1.25px);
+    background-size: 4px 4px;
+    opacity: 0.72;
+  }
+
+  &__drop-line {
+    position: absolute;
+    z-index: 3;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--list-hover-color, @blurColor);
+    pointer-events: none;
+  }
+
+  &__source--dragging {
+    visibility: hidden;
+  }
+}
+
+.vditor-block-handle__ghost {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+  opacity: 0.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.vditor-block-handle--dragging {
+  .vditor-panel {
+    display: none !important;
+  }
+}

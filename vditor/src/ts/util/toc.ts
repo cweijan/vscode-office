@@ -1,4 +1,4 @@
-import {pinOutlineActive} from "../outline/updateOutlineActive";
+import {markOutlineEditing, pinOutlineActive} from "../outline/updateOutlineActive";
 import {mathRender} from "../markdown/mathRender";
 import {scrollOutlineTarget, OUTLINE_SCROLL_OFFSET} from "../markdown/outlineRender";
 import {execAfterRender, insertAfterBlock, insertBeforeBlock} from "./fixBrowserBehavior";
@@ -22,6 +22,7 @@ const scrollToHeading = (vditor: IVditor, headingElement: HTMLElement) => {
 };
 
 export const renderToc = (vditor: IVditor) => {
+    markOutlineEditing(vditor);
     const editorElement = vditor[vditor.currentMode].element;
     let tocHTML = vditor.outline.render(vditor);
     if (tocHTML === "") {

@@ -2,7 +2,7 @@ import {Constants} from "../constants";
 import {outlineRender} from "../markdown/outlineRender";
 import {setPadding} from "../ui/initUI";
 import {setSelectionFocus} from "../util/selection";
-import {bindOutlineScrollSpy, refreshOutlineActive, updateOutlineActive} from "./updateOutlineActive";
+import {bindOutlineScrollSpy, restoreOutlineActive, updateOutlineActive} from "./updateOutlineActive";
 
 const OUTLINE_MIN_WIDTH = 120;
 const OUTLINE_MAX_WIDTH = 480;
@@ -61,15 +61,15 @@ export class Outline {
     public render(vditor: IVditor) {
         const tocHTML = outlineRender(vditor[vditor.currentMode].element, this.contentElement, vditor);
         if (this.element.style.display !== "none") {
-            refreshOutlineActive(vditor);
+            restoreOutlineActive(vditor);
         }
         return tocHTML;
     }
 
     private bindScrollSpy(vditor: IVditor) {
         this.unbindScrollSpy?.();
-        this.unbindScrollSpy = bindOutlineScrollSpy(vditor, () => {
-            updateOutlineActive(vditor);
+        this.unbindScrollSpy = bindOutlineScrollSpy(vditor, (force) => {
+            updateOutlineActive(vditor, force);
         });
     }
 
@@ -83,6 +83,7 @@ export class Outline {
         if (show) {
             this.element.style.display = "block";
             this.render(vditor);
+            updateOutlineActive(vditor, true);
             this.bindScrollSpy(vditor);
             btnElement?.classList.add("vditor-menu--current");
         } else {

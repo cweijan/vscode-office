@@ -1,4 +1,4 @@
-import {Constants} from "../constants";
+import {markOutlineEditing} from "../outline/updateOutlineActive";
 import {isCmCodeBlock, isInsideCodeMirror} from "../codeBlock/codeMirrorManager";
 import {input as IRInput} from "../ir/input";
 import {processAfterRender} from "../ir/process";
@@ -1472,6 +1472,7 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
                 vditor.lute.SetJSRenderers({renderers});
                 insertHTML(vditor.lute.HTML2VditorDOM(tempElement.innerHTML), vditor);
             }
+            markOutlineEditing(vditor);
             vditor.outline.render(vditor);
         } else if (files.length > 0) {
             if (vditor.options.upload.url || vditor.options.upload.handler) {
@@ -1509,6 +1510,7 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
                 vditor.lute.SetJSRenderers({renderers});
                 insertHTML(vditor.lute.Md2VditorDOM(textPlain), vditor);
             }
+            markOutlineEditing(vditor);
             vditor.outline.render(vditor);
         }
     }

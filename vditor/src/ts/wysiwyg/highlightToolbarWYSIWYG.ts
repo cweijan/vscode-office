@@ -44,6 +44,7 @@ import {renderToc} from "../util/toc";
 import {updateActiveHeadingMarker} from "../util/updateActiveHeadingMarker";
 import {showToast} from "../ui/toast";
 import {codicon} from "../util/codicon";
+import {updateBlockHandle} from "./blockHandle";
 
 export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
     clearTimeout(vditor.wysiwyg.hlToolbarTimeoutId);
@@ -78,9 +79,6 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
 
         const footnotesElement = hasClosestByAttribute(typeElement, "data-type", "footnotes-block");
         if (footnotesElement) {
-            vditor.wysiwyg.popover.innerHTML = "";
-            genClose(footnotesElement, vditor);
-            setPopoverPosition(vditor, footnotesElement);
             return;
         }
 
@@ -174,35 +172,8 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
             disableToolbar(vditor.toolbar.elements, ["table"]);
         }
 
-        // toc popover
-        const tocElement = hasClosestByClassName(typeElement, "vditor-toc") as HTMLElement;
-        if (tocElement) {
-            vditor.wysiwyg.popover.innerHTML = "";
-            genClose(tocElement, vditor);
-            setPopoverPosition(vditor, tocElement);
-            return;
-        }
-
         // quote popover
         const blockquoteElement = hasClosestByTag(typeElement, "BLOCKQUOTE") as HTMLTableElement;
-        if (blockquoteElement) {
-            vditor.wysiwyg.popover.innerHTML = "";
-            genUp(range, blockquoteElement, vditor);
-            genDown(range, blockquoteElement, vditor);
-            genClose(blockquoteElement, vditor);
-            setPopoverPosition(vditor, blockquoteElement);
-        }
-
-        // list item popover
-        if (liElement) {
-            vditor.wysiwyg.popover.innerHTML = "";
-
-            genUp(range, liElement, vditor);
-            genDown(range, liElement, vditor);
-            genClose(liElement, vditor);
-
-            setPopoverPosition(vditor, liElement);
-        }
 
         // table popover
         if (tableElement) {
@@ -505,9 +476,6 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
                 removeBlockElement(vditor, event);
             };
 
-            genUp(range, tableElement, vditor);
-            genDown(range, tableElement, vditor);
-            genClose(tableElement, vditor);
             vditor.wysiwyg.popover.insertAdjacentElement("beforeend", left);
             vditor.wysiwyg.popover.insertAdjacentElement("beforeend", center);
             vditor.wysiwyg.popover.insertAdjacentElement("beforeend", right);
@@ -569,7 +537,6 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
                 removeBlockElement(vditor, event);
             };
 
-            genClose(footnotesRefElement, vditor);
             vditor.wysiwyg.popover.insertAdjacentElement("beforeend", inputWrap);
             setPopoverPosition(vditor, footnotesRefElement);
         }
@@ -598,14 +565,9 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
                 shouldShowLanguagePopover(blockRenderElement) &&
                 !isCmCodeBlock(blockRenderElement)) {
                 showCodeBlockLanguagePopover(vditor, blockRenderElement);
-            } else {
+            } else if (blockRenderElement.getAttribute("data-type") === "code-block" &&
+                !isCmCodeBlock(blockRenderElement)) {
                 vditor.wysiwyg.popover.innerHTML = "";
-                genUp(range, blockRenderElement, vditor);
-                genDown(range, blockRenderElement, vditor);
-                genClose(blockRenderElement, vditor);
-
-                if (blockRenderElement.getAttribute("data-type") === "code-block" &&
-                    !isCmCodeBlock(blockRenderElement)) {
                     const languageWrap = document.createElement("span");
                 languageWrap.setAttribute("aria-label", window.VditorI18n.language + "<" + updateHotkeyTip("⌥Enter") + ">");
                 languageWrap.className = "vditor-tooltipped vditor-tooltipped__n";
@@ -688,7 +650,6 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
                     event.preventDefault();
                 };
                 vditor.wysiwyg.popover.insertAdjacentElement("beforeend", languageWrap);
-                }
                 setPopoverPosition(vditor, blockRenderElement);
             }
         } else {
@@ -703,6 +664,8 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
             genAPopover(vditor, aElement);
         }
 
+        const tocElement = hasClosestByClassName(typeElement, "vditor-toc") as HTMLElement;
+
         if (
             !blockquoteElement &&
             !liElement &&
@@ -714,22 +677,9 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
             !headingElement &&
             !tocElement
         ) {
-            const blockElement = hasClosestByAttribute(typeElement, "data-block", "0");
-            if (
-                blockElement &&
-                blockElement.parentElement.isEqualNode(vditor.wysiwyg.element)
-            ) {
-                vditor.wysiwyg.popover.innerHTML = "";
-                genUp(range, blockElement, vditor);
-                genDown(range, blockElement, vditor);
-                genClose(blockElement, vditor);
-
-                setPopoverPosition(vditor, blockElement);
-            } else {
-                const cmBlock = hasClosestByAttribute(typeElement, "data-type", "code-block") as HTMLElement;
-                if (!(cmBlock && shouldShowLanguagePopover(cmBlock))) {
-                    vditor.wysiwyg.popover.style.display = "none";
-                }
+            const cmBlock = hasClosestByAttribute(typeElement, "data-type", "code-block") as HTMLElement;
+            if (!(cmBlock && shouldShowLanguagePopover(cmBlock))) {
+                vditor.wysiwyg.popover.style.display = "none";
             }
         }
 
@@ -750,19 +700,21 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
         }
         } finally {
             updateActiveHeadingMarker(vditor);
+            updateBlockHandle(vditor, range.startContainer);
         }
     }, 200);
 };
 
-const setPopoverPosition = (vditor: IVditor, element: HTMLElement, popoverType?: "link" | "link-ref") => {
+const setPopoverPosition = (vditor: IVditor, element: HTMLElement, popoverType?: "link" | "link-ref" | "image") => {
     let targetElement = element;
     const tableElement = hasClosestByMatchTag(element, "TABLE");
     if (tableElement) {
         targetElement = tableElement;
     }
-    const isLinkPanel = popoverType === "link" || popoverType === "link-ref";
+    const isLinkPanel = popoverType === "link" || popoverType === "link-ref" || popoverType === "image";
     vditor.wysiwyg.popover.classList.toggle("vditor-panel--link", isLinkPanel);
     vditor.wysiwyg.popover.classList.toggle("vditor-panel--link-ref", popoverType === "link-ref");
+    vditor.wysiwyg.popover.classList.toggle("vditor-panel--image", popoverType === "image");
     vditor.wysiwyg.popover.style.left = "0";
     vditor.wysiwyg.popover.style.display = "block";
     vditor.wysiwyg.popover.style.top =
@@ -906,74 +858,6 @@ export const genLinkRefPopover = (vditor: IVditor, linkRefElement: HTMLElement) 
     view.append(textInput, refInput, copy, remove);
     vditor.wysiwyg.popover.insertAdjacentElement("beforeend", view);
     setPopoverPosition(vditor, linkRefElement, "link-ref");
-};
-
-const genUp = (range: Range, element: HTMLElement, vditor: IVditor) => {
-    return;
-    const previousElement = element.previousElementSibling;
-    if (
-        !previousElement ||
-        (!element.parentElement.isEqualNode(vditor.wysiwyg.element) &&
-            element.tagName !== "LI")
-    ) {
-        return;
-    }
-    const upElement = document.createElement("button");
-    upElement.setAttribute("type", "button");
-    upElement.setAttribute("data-type", "up");
-    upElement.setAttribute("aria-label", window.VditorI18n.up + "<" + updateHotkeyTip("⇧⌘U") + ">");
-    upElement.innerHTML = '<svg><use xlink:href="#vditor-icon-up"></use></svg>';
-    upElement.className = "vditor-icon vditor-tooltipped vditor-tooltipped__n";
-    upElement.onclick = () => {
-        // moveUp(range, element, vditor);
-    };
-    vditor.wysiwyg.popover.insertAdjacentElement("beforeend", upElement);
-};
-
-const genDown = (range: Range, element: HTMLElement, vditor: IVditor) => {
-    const nextElement = element.nextElementSibling;
-    if (
-        !nextElement ||
-        (!element.parentElement.isEqualNode(vditor.wysiwyg.element) &&
-            element.tagName !== "LI")
-    ) {
-        return;
-    }
-    const downElement = document.createElement("button");
-    downElement.setAttribute("type", "button");
-    downElement.setAttribute("data-type", "down");
-    downElement.setAttribute("aria-label", window.VditorI18n.down + "<" + updateHotkeyTip("⇧⌘D") + ">");
-    downElement.innerHTML =
-        '<svg><use xlink:href="#vditor-icon-down"></use></svg>';
-    downElement.className =
-        "vditor-icon vditor-tooltipped vditor-tooltipped__n";
-    downElement.onclick = () => {
-        // moveDown(range, element, vditor);
-    };
-    vditor.wysiwyg.popover.insertAdjacentElement("beforeend", downElement);
-};
-
-const genClose = (element: HTMLElement, vditor: IVditor) => {
-    return;
-    const close = document.createElement("button");
-    close.setAttribute("type", "button");
-    close.setAttribute("data-type", "remove");
-    close.setAttribute("aria-label", window.VditorI18n.remove + "<" + updateHotkeyTip("⇧⌘X") + ">");
-    close.innerHTML =
-        '<svg><use xlink:href="#vditor-icon-trashcan"></use></svg>';
-    close.className = "vditor-icon vditor-tooltipped vditor-tooltipped__n";
-    close.onclick = () => {
-        const range = getEditorRange(vditor);
-        range.setStartAfter(element);
-        setSelectionFocus(range);
-        element.remove();
-        afterRenderEvent(vditor);
-        highlightToolbarWYSIWYG(vditor);
-        if (["H1", "H2", "H3", "H4", "H5" ,"H6"].includes(element.tagName)) {
-            renderToc(vditor);
-        }
-    };
-    vditor.wysiwyg.popover.insertAdjacentElement("beforeend", close);
 };
 
 const linkHotkey = (
@@ -1131,63 +1015,106 @@ export const genAPopover = (vditor: IVditor, aElement: HTMLElement) => {
 export const genImagePopover = (event: Event, vditor: IVditor) => {
     const imgElement = event.target as HTMLImageElement;
     vditor.wysiwyg.popover.innerHTML = "";
-    const updateImg = () => {
-        imgElement.setAttribute("src", inputElement.value);
-        imgElement.setAttribute("alt", alt.value);
-        imgElement.setAttribute("title", title.value);
+
+    const updateAlt = () => {
+        imgElement.setAttribute("alt", altInput.value);
+        afterRenderEvent(vditor);
     };
 
-    const inputWrap = document.createElement("span");
-    inputWrap.setAttribute("aria-label", window.VditorI18n.imageURL);
-    inputWrap.className = "vditor-tooltipped vditor-tooltipped__n";
-    const inputElement = document.createElement("input");
-    inputWrap.appendChild(inputElement);
-    inputElement.className = "vditor-input";
-    inputElement.setAttribute("placeholder", window.VditorI18n.imageURL);
-    inputElement.value = imgElement.getAttribute("src") || "";
-    inputElement.oninput = () => {
-        updateImg();
-    };
-    inputElement.onkeydown = (elementEvent) => {
-        removeBlockElement(vditor, elementEvent);
+    const updateSrc = () => {
+        imgElement.setAttribute("src", srcInput.value);
+        afterRenderEvent(vditor);
     };
 
-    const altWrap = document.createElement("span");
-    altWrap.setAttribute("aria-label", window.VditorI18n.alternateText);
-    altWrap.className = "vditor-tooltipped vditor-tooltipped__n";
-    const alt = document.createElement("input");
-    altWrap.appendChild(alt);
-    alt.className = "vditor-input";
-    alt.setAttribute("placeholder", window.VditorI18n.alternateText);
-    alt.style.width = "52px";
-    alt.value = imgElement.getAttribute("alt") || "";
-    alt.oninput = () => {
-        updateImg();
-    };
-    alt.onkeydown = (elementEvent) => {
-        removeBlockElement(vditor, elementEvent);
+    const copySrc = async (): Promise<boolean> => {
+        const src = srcInput.value;
+        if (navigator.clipboard?.writeText) {
+            try {
+                await navigator.clipboard.writeText(src);
+                return true;
+            } catch {
+                return false;
+            }
+        }
+        const textarea = document.createElement("textarea");
+        textarea.value = src;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        const copied = document.execCommand("copy");
+        textarea.remove();
+        return copied;
     };
 
-    const titleWrap = document.createElement("span");
-    titleWrap.setAttribute("aria-label", window.VditorI18n.title);
-    titleWrap.className = "vditor-tooltipped vditor-tooltipped__n";
-    const title = document.createElement("input");
-    titleWrap.appendChild(title);
-    title.className = "vditor-input";
-    title.setAttribute("placeholder", window.VditorI18n.title);
-    title.value = imgElement.getAttribute("title") || "";
-    title.oninput = () => {
-        updateImg();
+    const removeImage = () => {
+        const range = getEditorRange(vditor);
+        range.setStartBefore(imgElement);
+        range.collapse(true);
+        imgElement.remove();
+        setSelectionFocus(range);
+        clearTimeout(vditor.wysiwyg.afterRenderTimeoutId);
+        vditor.undo.addToUndoStack(vditor);
+        afterRenderEvent(vditor, {
+            enableAddUndoStack: false,
+            enableHint: false,
+            enableInput: true,
+        });
+        highlightToolbarWYSIWYG(vditor);
     };
-    title.onkeydown = (elementEvent) => {
-        removeBlockElement(vditor, elementEvent);
-    };
-    genClose(imgElement, vditor);
-    vditor.wysiwyg.popover.insertAdjacentElement("beforeend", inputWrap);
-    vditor.wysiwyg.popover.insertAdjacentElement("beforeend", altWrap);
-    vditor.wysiwyg.popover.insertAdjacentElement("beforeend", titleWrap);
 
-    setPopoverPosition(vditor, imgElement);
+    const view = document.createElement("span");
+    view.className = "vditor-link-popover";
+
+    const altInput = document.createElement("input");
+    altInput.className = "vditor-link-popover__text vditor-input";
+    altInput.setAttribute("placeholder", window.VditorI18n.alternateText);
+    altInput.value = imgElement.getAttribute("alt") || "";
+    altInput.oninput = () => {
+        updateAlt();
+    };
+    altInput.onkeydown = (elementEvent) => {
+        if (removeBlockElement(vditor, elementEvent)) {
+            return;
+        }
+        linkHotkey(vditor, imgElement, elementEvent, srcInput);
+    };
+
+    const srcInput = document.createElement("input");
+    srcInput.className = "vditor-link-popover__href vditor-input";
+    srcInput.setAttribute("placeholder", window.VditorI18n.imageURL);
+    srcInput.value = imgElement.getAttribute("src") || "";
+    srcInput.oninput = () => {
+        updateSrc();
+    };
+    srcInput.onkeydown = (elementEvent) => {
+        if (removeBlockElement(vditor, elementEvent)) {
+            return;
+        }
+        linkHotkey(vditor, imgElement, elementEvent, altInput);
+    };
+
+    const copy = document.createElement("button");
+    copy.setAttribute("type", "button");
+    copy.setAttribute("aria-label", window.VditorI18n.copy);
+    copy.className = "vditor-link-popover__button vditor-link-popover__button--copy";
+    copy.innerHTML = `<span class="vditor-link-popover__button-icon">${codicon("copy")}</span>`;
+    copy.onclick = async () => {
+        if (await copySrc()) {
+            showToast(vditor, window.VditorI18n.linkCopied || window.VditorI18n.copied);
+        }
+    };
+
+    const remove = document.createElement("button");
+    remove.setAttribute("type", "button");
+    remove.setAttribute("aria-label", window.VditorI18n.remove);
+    remove.className = "vditor-link-popover__button vditor-link-popover__button--remove";
+    remove.innerHTML = `<span class="vditor-link-popover__button-icon">${codicon("trash")}</span>`;
+    remove.onclick = removeImage;
+
+    view.append(altInput, srcInput, copy, remove);
+    vditor.wysiwyg.popover.insertAdjacentElement("beforeend", view);
+    setPopoverPosition(vditor, imgElement, "image");
 };
 
 

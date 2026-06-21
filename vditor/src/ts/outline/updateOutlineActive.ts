@@ -9,7 +9,9 @@ const SCROLL_INTENT_KEYS = new Set([
 
 type OutlineActiveState = {
     pinnedId: string | null;
+    lastActiveId: string | null;
     userScrollIntent: boolean;
+    editingUntil: number;
 };
 
 const outlineActiveState = new WeakMap<IVditor, OutlineActiveState>();
@@ -17,7 +19,7 @@ const outlineActiveState = new WeakMap<IVditor, OutlineActiveState>();
 const getState = (vditor: IVditor) => {
     let state = outlineActiveState.get(vditor);
     if (!state) {
-        state = {pinnedId: null, userScrollIntent: false};
+        state = {pinnedId: null, lastActiveId: null, userScrollIntent: false, editingUntil: 0};
         outlineActiveState.set(vditor, state);
     }
     return state;
@@ -101,35 +103,55 @@ const applyOutlineActive = (vditor: IVditor, targetId: string | null) => {
     setOutlineActiveById(outlineContent, targetId);
 };
 
+export const markOutlineEditing = (vditor: IVditor) => {
+    getState(vditor).editingUntil = Date.now() + vditor.options.undoDelay + 50;
+};
+
+const isOutlineEditing = (vditor: IVditor) => {
+    return Date.now() < getState(vditor).editingUntil;
+};
+
 export const pinOutlineActive = (vditor: IVditor, targetId: string) => {
     const state = getState(vditor);
     state.pinnedId = targetId;
+    state.lastActiveId = targetId;
     state.userScrollIntent = false;
     applyOutlineActive(vditor, targetId);
 };
 
-export const updateOutlineActive = (vditor: IVditor) => {
+export const updateOutlineActive = (vditor: IVditor, force = false) => {
     const state = getState(vditor);
     if (state.pinnedId) {
         return;
     }
-    applyOutlineActive(vditor, getActiveTargetId(vditor));
+    if (!force && isOutlineEditing(vditor)) {
+        return;
+    }
+    const targetId = getActiveTargetId(vditor);
+    state.lastActiveId = targetId;
+    applyOutlineActive(vditor, targetId);
 };
 
-export const refreshOutlineActive = (vditor: IVditor) => {
-    const state = getState(vditor);
-    if (state.pinnedId) {
-        applyOutlineActive(vditor, state.pinnedId);
+export const restoreOutlineActive = (vditor: IVditor) => {
+    if (vditor.outline.element.style.display === "none") {
         return;
     }
-    updateOutlineActive(vditor);
+    const state = getState(vditor);
+    const outlineContent = getOutlineContent(vditor);
+    if (!outlineContent?.firstElementChild) {
+        return;
+    }
+    const activeId = state.pinnedId ?? state.lastActiveId;
+    if (activeId && document.getElementById(activeId)) {
+        setOutlineActiveById(outlineContent, activeId, false);
+    }
 };
 
 const markUserScrollIntent = (vditor: IVditor) => {
     getState(vditor).userScrollIntent = true;
 };
 
-export const bindOutlineScrollSpy = (vditor: IVditor, onScroll: () => void) => {
+export const bindOutlineScrollSpy = (vditor: IVditor, onScroll: (force: boolean) => void) => {
     const editorElement = vditor[vditor.currentMode].element;
     let rafId = 0;
 
@@ -155,9 +177,13 @@ export const bindOutlineScrollSpy = (vditor: IVditor, onScroll: () => void) => {
                     return;
                 }
                 state.pinnedId = null;
-                state.userScrollIntent = false;
             }
-            onScroll();
+            if (!state.userScrollIntent && isOutlineEditing(vditor)) {
+                return;
+            }
+            const force = state.userScrollIntent;
+            state.userScrollIntent = false;
+            onScroll(force);
         });
     };
 
@@ -166,7 +192,6 @@ export const bindOutlineScrollSpy = (vditor: IVditor, onScroll: () => void) => {
     editorElement.addEventListener("wheel", onUserScrollIntent, {passive: true});
     window.addEventListener("wheel", onUserScrollIntent, {passive: true});
     editorElement.addEventListener("touchmove", onUserScrollIntent, {passive: true});
-    editorElement.addEventListener("pointerdown", onUserScrollIntent);
     editorElement.addEventListener("keydown", onKeyDown);
 
     return () => {
@@ -179,7 +204,6 @@ export const bindOutlineScrollSpy = (vditor: IVditor, onScroll: () => void) => {
         editorElement.removeEventListener("wheel", onUserScrollIntent);
         window.removeEventListener("wheel", onUserScrollIntent);
         editorElement.removeEventListener("touchmove", onUserScrollIntent);
-        editorElement.removeEventListener("pointerdown", onUserScrollIntent);
         editorElement.removeEventListener("keydown", onKeyDown);
     };
 };

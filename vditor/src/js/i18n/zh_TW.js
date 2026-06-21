@@ -28,6 +28,7 @@ window.VditorI18n = {
   'delete-row': '刪除列',
   'devtools': '開發者工具',
   'down': '下',
+  'dragBlock': '拖拽移動',
   'downloadTip': '該瀏覽器不支持下載功能',
   'edit': '編輯',
   'edit-mode': '切換編輯模式',

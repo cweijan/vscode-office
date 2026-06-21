@@ -26,6 +26,7 @@ window.VditorI18n = {
   'delete-row': '행 삭제',
   'devtools': '개발툴',
   'down': '다운',
+  'dragBlock': '블록 드래그',
   'downloadTip': '브라우저가 다운로드 기능을 지원하지 않습니다',
   'edit': '수정',
   'edit-mode': '편집모드',
