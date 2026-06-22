@@ -16,7 +16,11 @@ export class HtmlService {
             uri = activeEditor.document.uri;
         }
         const folderPath = dirname(uri.fsPath);
-        const webviewPanel = vscode.window.createWebviewPanel("office-viewer.viewHtml", basename(uri.fsPath), { viewColumn: vscode.ViewColumn.Two, preserveFocus: true }, { enableScripts: true })
+        const webviewPanel = vscode.window.createWebviewPanel(
+            "office-viewer.viewHtml", basename(uri.fsPath),
+            { viewColumn: vscode.ViewColumn.Two, preserveFocus: true },
+            { retainContextWhenHidden: true, enableScripts: true }
+        )
 
         function readContent() {
             const useActiveEditor = activeEditor?.document.uri.toString() === uri.toString();

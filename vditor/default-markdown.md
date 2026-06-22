@@ -9,7 +9,7 @@ Vditor 是一款**所见即所得**编辑器，支持 *Markdown*。
 
 这是一篇讲解如何正确使用 **Markdown** 的排版示例，学会这个很有必要，能让你的文章有更佳清晰的排版。
 
-> 引用文本：Markdown is a text formatt111ing syntax inspired
+> 引用文本：Markdown is a text formatting syntax inspired
 
 ## 语法指导
 

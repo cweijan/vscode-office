@@ -17,15 +17,14 @@ async function convertMarkdown(inputMarkdownFile, config) {
   const uri = URI.file(inputMarkdownFile)
   const text = fs.readFileSync(inputMarkdownFile).toString()
   const content = convertMarkdownToHtml(inputMarkdownFile, type, text, config)
-  const html = mergeHtml(content, uri)
+  const html = mergeHtml(content, uri, type)
 
   // insert mermaid script
   const $ = require("cheerio").load(html);
   const containsMermaid = $('.mermaid').length > 0;
   if (containsMermaid) {
-    const mermaidPath = url.pathToFileURL(path.resolve(__dirname, '..', "resource", 'markdown', 'dist', 'js', 'mermaid', 'mermaid.min.js')).href;
-      const mermaidScript = `
-    <script src="${mermaidPath}"></script>
+    const mermaidScript = `
+    <script src="${getMermaidScriptSrc(type)}"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     `;
 
@@ -33,6 +32,13 @@ async function convertMarkdown(inputMarkdownFile, config) {
   }
 
   await exportByType(inputMarkdownFile, $.html(), type, config)
+}
+
+function getMermaidScriptSrc(type) {
+  if (type === "html") {
+    return `https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js`;
+  }
+  return url.pathToFileURL(path.resolve(__dirname, '..', "resource", 'markdown', 'dist', 'js', 'mermaid', 'mermaid.min.js')).href;
 }
 
 
@@ -127,11 +133,11 @@ function convertMarkdownToHtml(filename, type, text, config) {
 /*
  * make html
  */
-function mergeHtml(content, uri) {
+function mergeHtml(content, uri, type) {
   try {
     const mustache = require("mustache")
     const title = path.basename(uri.fsPath)
-    const style = readStyles()
+    const style = readStyles(type)
     const templatePath = path.join(__dirname, "template", "template.html")
     return mustache.render(readFile(templatePath), { title, style, content })
   } catch (error) {
@@ -197,12 +203,12 @@ function convertImgPath(src, filename) {
   }
 }
 
-function makeCss(filename, resolveRelativeUrls = false) {
+function makeCss(filename, resolveRelativeUrls = false, type) {
   try {
     let css = readFile(filename)
     if (css) {
       if (resolveRelativeUrls) {
-        css = resolveCssUrls(css, path.dirname(filename))
+        css = resolveCssUrls(css, path.dirname(filename), type)
       }
       return "\n<style>\n" + css + "\n</style>\n"
     } else {
@@ -213,23 +219,26 @@ function makeCss(filename, resolveRelativeUrls = false) {
   }
 }
 
-function resolveCssUrls(css, basePath) {
+function resolveCssUrls(css, basePath, type) {
   return css.replace(/url\((['"]?)([^'")]+)\1\)/g, (match, quote, assetPath) => {
     const href = assetPath.trim()
     if (/^(data:|https?:|file:|about:|#)/i.test(href)) {
       return match
     }
+    if (type === "html" && basePath.includes("katex")) {
+      return `url("https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/${href.replace(/^\.\//, "")}")`
+    }
     return `url("${url.pathToFileURL(path.resolve(basePath, href)).href}")`
   })
 }
 
-function readStyles() {
+function readStyles(type) {
   try {
     const basePath = path.join(__dirname, "styles");
     const katexPath = path.resolve(__dirname, '..', "resource", 'markdown', 'dist', 'js', 'katex', 'katex.min.css');
     const files = ['arduino-light.css', 'markdown.css', 'markdown-pdf.css']
     return files.map(file => makeCss(path.join(basePath, file))).join("")
-      + makeCss(katexPath, true)
+      + makeCss(katexPath, true, type)
   } catch (error) {
     showErrorMessage("readStyles()", error)
   }
