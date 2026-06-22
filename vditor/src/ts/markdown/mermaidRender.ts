@@ -1,7 +1,10 @@
 import {Constants} from "../constants";
 import {addScript} from "../util/addScript";
+import {MERMAID_THEME_ATTR} from "../ui/mermaidThemeCatalog";
+import {resolveMermaidTheme} from "../ui/setMermaidTheme";
 import {mermaidRenderAdapter} from "./adapterRender";
-import {buildMermaidThemeConfig, findVditorRoot} from "./mermaidTheme";
+import {ensureMermaidChrome} from "./mermaidChrome";
+import {buildMermaidInitConfig, findVditorRoot} from "./mermaidTheme";
 
 declare const mermaid: {
     initialize(options: unknown): void,
@@ -78,8 +81,20 @@ const renderSingleMermaid = async (item: HTMLElement, code: string, index: numbe
     }
 };
 
-const renderMermaidElements = async (mermaidElements: NodeListOf<Element>, themeRoot: HTMLElement) => {
-    const themeConfig = buildMermaidThemeConfig(themeRoot);
+const getThemeId = (themeRoot: HTMLElement, vditor?: IVditor) => {
+    if (vditor) {
+        return resolveMermaidTheme(vditor.options);
+    }
+    return themeRoot.getAttribute(MERMAID_THEME_ATTR) || "Auto";
+};
+
+const renderMermaidElements = async (
+    mermaidElements: NodeListOf<Element>,
+    themeRoot: HTMLElement,
+    vditor?: IVditor,
+) => {
+    const themeId = getThemeId(themeRoot, vditor);
+    const themeConfig = buildMermaidInitConfig(themeId, themeRoot);
     mermaid.initialize({...MERMAID_BASE_CONFIG, ...themeConfig});
     for (let i = 0; i < mermaidElements.length; i++) {
         const item = mermaidElements[i] as HTMLElement;
@@ -92,10 +107,13 @@ const renderMermaidElements = async (mermaidElements: NodeListOf<Element>, theme
         }
         storeMermaidSource(item, code);
         await renderSingleMermaid(item, code, i);
+        if (vditor) {
+            ensureMermaidChrome(vditor, item);
+        }
     }
 };
 
-const doRefreshMermaidTheme = (root: HTMLElement, cdn: string) => {
+const doRefreshMermaidTheme = (root: HTMLElement, cdn: string, vditor?: IVditor) => {
     const mermaidElements = root.querySelectorAll(`.language-mermaid[${MERMAID_PROCESSED_ATTR}='true']`);
     if (mermaidElements.length === 0) {
         return;
@@ -104,31 +122,38 @@ const doRefreshMermaidTheme = (root: HTMLElement, cdn: string) => {
         clearMermaidElement(mermaidElements[i] as HTMLElement);
     }
     addScript(`${cdn}/dist/js/mermaid/mermaid.min.js`, "vditorMermaidScript").then(() => {
-        renderMermaidElements(mermaidElements, root);
+        renderMermaidElements(mermaidElements, root, vditor);
     });
 };
 
 export const mermaidRender = (
     element: HTMLElement,
     cdn = Constants.CDN,
-    themeRoot?: HTMLElement,
+    vditorOrThemeRoot?: IVditor | HTMLElement,
 ) => {
     const mermaidElements = mermaidRenderAdapter.getElements(element);
     if (mermaidElements.length === 0) {
         return;
     }
-    const root = themeRoot ?? findVditorRoot(element);
+    let themeRoot: HTMLElement;
+    let vditor: IVditor | undefined;
+    if (vditorOrThemeRoot && "options" in vditorOrThemeRoot) {
+        vditor = vditorOrThemeRoot;
+        themeRoot = vditor.element;
+    } else {
+        themeRoot = (vditorOrThemeRoot as HTMLElement | undefined) ?? findVditorRoot(element);
+    }
     addScript(`${cdn}/dist/js/mermaid/mermaid.min.js`, "vditorMermaidScript").then(() => {
-        renderMermaidElements(mermaidElements, root);
+        renderMermaidElements(mermaidElements, themeRoot, vditor);
     });
 };
 
-export const refreshMermaidTheme = (root: HTMLElement, cdn = Constants.CDN) => {
+export const refreshMermaidTheme = (root: HTMLElement, cdn = Constants.CDN, vditor?: IVditor) => {
     if (refreshTimer) {
         clearTimeout(refreshTimer);
     }
     refreshTimer = setTimeout(() => {
         refreshTimer = undefined;
-        doRefreshMermaidTheme(root, cdn);
+        doRefreshMermaidTheme(root, cdn, vditor);
     }, 50);
 };

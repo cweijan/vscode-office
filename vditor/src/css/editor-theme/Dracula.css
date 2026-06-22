@@ -63,7 +63,6 @@ html[data-editor-theme="Dracula"],
     --cm-selection-bg-focused: rgba(68, 71, 90, 0.85);
     --cm-selection-bg-inactive: rgba(68, 71, 90, 0.45);
     --cm-selection-highlight-bg: rgba(68, 71, 90, 0.35);
-    --cm-lang-search-focus-color: #8be9fd;
 
     /* Embed & Link Card */
     --linkcard-bg: #343746;

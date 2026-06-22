@@ -1,4 +1,4 @@
-import { indentWithTab, redo, redoDepth, undo, undoDepth } from "@codemirror/commands";
+import { indentLess, redo, redoDepth, undo, undoDepth } from "@codemirror/commands";
 import { LanguageSupport } from "@codemirror/language";
 import { Compartment, EditorSelection, Prec } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
@@ -15,7 +15,7 @@ import {
     updateCodeBlockChromeLanguage,
 } from "./codeBlockChrome";
 import { buildCodeMirrorLanguageMap } from "./codeBlockLanguageHints";
-import { vditorCodeMirrorSetup } from "./codeMirrorSetup";
+import { stopHandledCodeMirrorKeymap, vditorCodeMirrorSetup } from "./codeMirrorSetup";
 
 export { focusCodeBlockChromeLanguage, isInsideCodeBlockChrome } from "./codeBlockChrome";
 export {
@@ -290,6 +290,14 @@ const syncViewFromCode = (binding: CodeMirrorBinding) => {
     binding.updating = false;
 };
 
+const insertLiteralTab = (view: EditorView) => {
+    view.dispatch(view.state.update(view.state.replaceSelection("\t"), {
+        scrollIntoView: true,
+        userEvent: "input",
+    }));
+    return true;
+};
+
 const applyLanguage = (blockElement: HTMLElement, binding: CodeMirrorBinding, languageName: string) => {
     if (binding.languageName === languageName) {
         return;
@@ -310,23 +318,6 @@ const applyLanguage = (blockElement: HTMLElement, binding: CodeMirrorBinding, la
         });
         binding.languageName = languageName;
     });
-};
-
-const isCopyPasteShortcut = (event: KeyboardEvent) => {
-    if (!event.ctrlKey && !event.metaKey) {
-        return false;
-    }
-    const key = event.key.toLowerCase();
-    return key === "c" || key === "x" || key === "v";
-};
-
-/** 全选 / 撤销 / 重做：阻止冒泡，避免触发外层编辑器 */
-const shouldStopKeydownBubble = (event: KeyboardEvent) => {
-    if (!event.ctrlKey && !event.metaKey) {
-        return false;
-    }
-    const key = event.key.toLowerCase();
-    return key === "a" || key === "z" || key === "y";
 };
 
 const getCmSelectionText = (view: EditorView) => {
@@ -437,18 +428,9 @@ const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding:
         return true;
     },
     keydown: (event: Event) => {
-        const keyboardEvent = event as KeyboardEvent;
-        if (shouldStopKeydownBubble(keyboardEvent)) {
+        if ((event as KeyboardEvent).defaultPrevented) {
             event.stopPropagation();
-            return false;
         }
-        if (isCopyPasteShortcut(keyboardEvent)) {
-            return false;
-        }
-        event.stopPropagation();
-    },
-    keyup: (event: Event) => {
-        event.stopPropagation();
     },
     input: (event: Event) => {
         event.stopPropagation();
@@ -780,7 +762,7 @@ const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor) => {
         parent: editPre,
         extensions: [
             vditorCodeMirrorSetup,
-            keymap.of([indentWithTab]),
+            keymap.of(stopHandledCodeMirrorKeymap([{ key: "Tab", run: insertLiteralTab, shift: indentLess }])),
             buildCodeMirrorNavigationKeymap(vditor, blockElement),
             languageCompartment.of([]),
             EditorView.updateListener.of((update) => {

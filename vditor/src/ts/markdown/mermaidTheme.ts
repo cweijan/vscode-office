@@ -66,6 +66,16 @@ export const readEditorAccentColors = (root: HTMLElement): IEditorAccentColors =
     foreground: readCssVar(root, "--chart-foreground", readCssVar(root, "--front-color", "#333333")),
 });
 
+export const buildMermaidInitConfig = (themeId: string, root: HTMLElement) => {
+    if (themeId === "Light") {
+        return {theme: "default"};
+    }
+    if (themeId === "Dark") {
+        return {theme: "dark"};
+    }
+    return buildMermaidThemeConfig(root);
+};
+
 export const buildMermaidThemeConfig = (root: HTMLElement) => {
     const editorBg = readCssVar(root, "--bg-color");
     const dark = root.classList.contains("vditor--dark") || isDarkBackground(editorBg);

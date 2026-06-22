@@ -1,8 +1,21 @@
 import { updateHotkeyTip } from "../util/compatibility";
 import { CM_THEME_GROUPS } from "../ui/codeMirrorColorThemes";
+import {
+    buildCmChromeThemePickerPanelHTML,
+    CM_CHROME_THEME_PANEL_CLASS,
+    refreshCmChromeThemePickerPanel,
+} from "../ui/cmChromeThemePickerPanel";
 import { applyCodeMirrorTheme, resolveCodeMirrorTheme } from "../ui/setCodeTheme";
-import { buildThemePickerPanelHTML, refreshThemePickerPanel } from "../ui/themePickerPanel";
-import { filterCodeMirrorLanguageNames, toCodeBlockLanguageName } from "./codeBlockLanguageHints";
+import {
+    isInsideCmLangPopover,
+    isInsideCmThemePopover,
+    registerPopoverOutsideDismiss,
+} from "../ui/chromePopoverDismiss";
+import {
+    filterCodeMirrorLanguageNames,
+    isSameCodeMirrorLanguage,
+    toCodeBlockLanguageName,
+} from "./codeBlockLanguageHints";
 import { applyCodeBlockLanguageChange } from "./codeBlockLanguageInput";
 import {
     focusCodeMirror,
@@ -19,7 +32,7 @@ export const isInsideCodeBlockChrome = (target: EventTarget | Node | null) => {
         return false;
     }
     const node = target instanceof Element ? target : (target as Node).parentElement;
-    return !!node?.closest(`.${CHROME_CLASS}`);
+    return !!node?.closest(`.${CHROME_CLASS}`) || !!node?.closest(".vditor-mermaid-chrome");
 };
 
 const codicon = (name: string, className = "") =>
@@ -48,7 +61,17 @@ interface ICodeBlockChrome {
 const chromeMap = new WeakMap<HTMLElement, ICodeBlockChrome>();
 let openLangChrome: ICodeBlockChrome | null = null;
 let openThemeChrome: ICodeBlockChrome | null = null;
-let documentCloseBound = false;
+
+registerPopoverOutsideDismiss({
+    isActive: () => !!openLangChrome,
+    shouldIgnoreTarget: isInsideCmLangPopover,
+    dismiss: () => closeLangPanel(),
+});
+registerPopoverOutsideDismiss({
+    isActive: () => !!openThemeChrome,
+    shouldIgnoreTarget: isInsideCmThemePopover,
+    dismiss: () => closeThemePanel(),
+});
 
 const formatLanguageLabel = (languageName: string) => {
     if (!languageName) {
@@ -150,42 +173,6 @@ const bindChromeEventIsolation = (root: HTMLElement) => {
     }
 };
 
-const eventTargetElement = (event: Event): Element | null => {
-    const target = event.target;
-    if (target instanceof Element) {
-        return target;
-    }
-    if (target instanceof Text) {
-        return target.parentElement;
-    }
-    return null;
-};
-
-const ensureDocumentCloseListener = () => {
-    if (documentCloseBound) {
-        return;
-    }
-    documentCloseBound = true;
-    const handleOutsideClick = (event: Event) => {
-        if (!openLangChrome && !openThemeChrome) {
-            return;
-        }
-        const element = eventTargetElement(event);
-        if (element?.closest(".vditor-cm-chrome__lang")) {
-            return;
-        }
-        if (element?.closest(".vditor-cm-chrome__theme")) {
-            return;
-        }
-        if (element?.closest(".vditor-cm-chrome__theme-panel")) {
-            return;
-        }
-        closeLangPanel();
-        closeThemePanel();
-    };
-    document.addEventListener("click", handleOutsideClick);
-};
-
 const updateLangChevron = (chevron: HTMLElement, open: boolean) => {
     chevron.classList.remove("codicon-chevron-up", "codicon-chevron-down");
     chevron.classList.add(open ? "codicon-chevron-down" : "codicon-chevron-up");
@@ -204,8 +191,10 @@ const closeLangPanel = () => {
 };
 
 const refreshAllChromeThemePanels = (currentTheme: string) => {
-    for (const panel of document.querySelectorAll(".vditor-cm-chrome__theme-panel .vditor-cm-theme-panel")) {
-        refreshThemePickerPanel(panel as HTMLElement, currentTheme);
+    for (const panel of document.querySelectorAll(
+        `.vditor-cm-chrome__theme-panel .${CM_CHROME_THEME_PANEL_CLASS}`,
+    )) {
+        refreshCmChromeThemePickerPanel(panel as HTMLElement, currentTheme);
     }
 };
 
@@ -215,42 +204,7 @@ const closeThemePanel = () => {
     }
     const chrome = openThemeChrome;
     chrome.themeWrap.classList.remove("vditor-cm-chrome__theme--open");
-    restoreThemePanel(chrome);
     openThemeChrome = null;
-};
-
-const positionThemePanel = (chrome: ICodeBlockChrome, vditor: IVditor) => {
-    if (!chrome.themeTrigger || !chrome.themePanel || !chrome.themeWrap) {
-        return;
-    }
-    const panel = chrome.themePanel;
-    const root = vditor.element;
-    const rect = chrome.themeTrigger.getBoundingClientRect();
-    if (panel.parentElement !== root) {
-        root.appendChild(panel);
-    }
-    panel.style.position = "fixed";
-    panel.style.top = `${rect.bottom + 6}px`;
-    panel.style.right = `${window.innerWidth - rect.right}px`;
-    panel.style.left = "auto";
-    panel.style.zIndex = "10002";
-    panel.style.display = "block";
-};
-
-const restoreThemePanel = (chrome: ICodeBlockChrome) => {
-    if (!chrome.themePanel || !chrome.themeWrap) {
-        return;
-    }
-    const panel = chrome.themePanel;
-    panel.style.position = "";
-    panel.style.top = "";
-    panel.style.right = "";
-    panel.style.left = "";
-    panel.style.zIndex = "";
-    panel.style.display = "";
-    if (panel.parentElement !== chrome.themeWrap) {
-        chrome.themeWrap.appendChild(panel);
-    }
 };
 
 const setThemePanelOpen = (vditor: IVditor, chrome: ICodeBlockChrome, open: boolean) => {
@@ -258,16 +212,14 @@ const setThemePanelOpen = (vditor: IVditor, chrome: ICodeBlockChrome, open: bool
         return;
     }
     if (open) {
-        ensureDocumentCloseListener();
         closeLangPanel();
         if (openThemeChrome && openThemeChrome !== chrome) {
             closeThemePanel();
         }
         const currentTheme = resolveCodeMirrorTheme(vditor.options);
-        chrome.themePanel.innerHTML = buildThemePickerPanelHTML(CM_THEME_GROUPS, currentTheme);
+        chrome.themePanel.innerHTML = buildCmChromeThemePickerPanelHTML(CM_THEME_GROUPS, currentTheme);
         chrome.themeWrap.classList.add("vditor-cm-chrome__theme--open");
         openThemeChrome = chrome;
-        positionThemePanel(chrome, vditor);
     } else if (openThemeChrome === chrome) {
         closeThemePanel();
     }
@@ -310,6 +262,7 @@ const updateLangActiveItem = (chrome: ICodeBlockChrome, index: number) => {
     for (let i = 0; i < items.length; i++) {
         items[i].classList.toggle("vditor-cm-chrome__lang-item--active", i === next);
     }
+    items[next].scrollIntoView({block: "nearest"});
     if (keepSearchFocus) {
         chrome.langSearch.focus({ preventScroll: true });
     }
@@ -317,7 +270,6 @@ const updateLangActiveItem = (chrome: ICodeBlockChrome, index: number) => {
 
 const setLangPanelOpen = (chrome: ICodeBlockChrome, open: boolean) => {
     if (open) {
-        ensureDocumentCloseListener();
         closeThemePanel();
         if (openLangChrome && openLangChrome !== chrome) {
             closeLangPanel();
@@ -336,9 +288,16 @@ const setLangPanelOpen = (chrome: ICodeBlockChrome, open: boolean) => {
 
 const filterLanguages = (query: string) => filterCodeMirrorLanguageNames(query);
 
+const getChromeCurrentLanguage = (chrome: ICodeBlockChrome) => {
+    const blockElement = chrome.root.closest("[data-type='code-block']") as HTMLElement | null;
+    const codeElement = blockElement?.querySelector("pre code") as HTMLElement | null;
+    return codeElement ? getCodeLanguageName(codeElement) : "";
+};
+
 const renderLangList = (chrome: ICodeBlockChrome, query: string) => {
     chrome.langList.innerHTML = "";
     const languages = filterLanguages(query);
+    const currentLanguage = getChromeCurrentLanguage(chrome);
     if (languages.length === 0) {
         const empty = document.createElement("div");
         empty.className = "vditor-cm-chrome__lang-empty";
@@ -350,8 +309,21 @@ const renderLangList = (chrome: ICodeBlockChrome, query: string) => {
         const item = document.createElement("button");
         item.type = "button";
         item.className = "vditor-cm-chrome__lang-item";
+        if (isSameCodeMirrorLanguage(currentLanguage, name)) {
+            item.classList.add("vditor-cm-chrome__lang-item--current");
+            item.setAttribute("aria-current", "true");
+        }
         item.tabIndex = -1;
-        item.textContent = name;
+        const label = document.createElement("span");
+        label.className = "vditor-cm-chrome__lang-item-label";
+        label.textContent = name;
+        item.appendChild(label);
+        if (item.classList.contains("vditor-cm-chrome__lang-item--current")) {
+            const desc = document.createElement("span");
+            desc.className = "vditor-cm-chrome__lang-item-desc";
+            desc.textContent = "current";
+            item.appendChild(desc);
+        }
         item.setAttribute("data-lang", toCodeBlockLanguageName(name));
         chrome.langList.appendChild(item);
     }
@@ -606,7 +578,6 @@ export const ensureCodeBlockChrome = (
             bindDeleteButton(vditor, blockElement, chrome.deleteBtn);
         }
         bindChromeEventIsolation(chrome.root);
-        ensureDocumentCloseListener();
 
         if (editable) {
             chrome.langWrap.addEventListener("mousedown", (event) => {

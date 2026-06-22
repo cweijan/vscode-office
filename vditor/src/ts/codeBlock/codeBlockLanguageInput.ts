@@ -13,6 +13,12 @@ const afterCodeBlockLanguageChange = (vditor: IVditor) => {
     }
 };
 
+const getCodeBlockLanguageName = (blockElement: HTMLElement) => {
+    const codeElement = blockElement.querySelector("pre code") as HTMLElement | null;
+    const match = codeElement?.className.match(/language-([^\s]+)/);
+    return match ? match[1] : "";
+};
+
 export const applyCodeBlockLanguageChange = (
     vditor: IVditor,
     blockElement: HTMLElement,
@@ -85,7 +91,7 @@ export const bindCodeBlockLanguageInput = (
             return;
         }
         const key = language.value.substring(0, language.selectionStart || 0);
-        vditor.hint.genHTML(matchCodeMirrorLanguages(key), key, vditor);
+        vditor.hint.genHTML(matchCodeMirrorLanguages(key, getCodeBlockLanguageName(getBlock())), key, vditor);
         event.preventDefault();
     };
 };

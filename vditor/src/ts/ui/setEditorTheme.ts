@@ -4,6 +4,7 @@ import {
     EDITOR_THEME_IDS,
     resolveEditorTheme,
 } from "./editorThemeCatalog";
+import {resolveMermaidTheme} from "./setMermaidTheme";
 import {initEditorThemeToggle, updateEditorThemeToggle} from "./editorThemeToggle";
 import {initMobileOutlineMenu, prepareEditorThemeMobileOutline} from "./mobileOutlineMenu";
 
@@ -43,7 +44,9 @@ const observeVscodeTheme = (vditor: IVditor) => {
         const theme = vditor.element.getAttribute("data-editor-theme");
         if (theme === "Auto") {
             syncEditorDarkClass(vditor.element, "Auto");
-            refreshMermaidTheme(vditor.element, vditor.options.cdn);
+            if (resolveMermaidTheme(vditor.options) === "Auto") {
+                refreshMermaidTheme(vditor.element, vditor.options.cdn, vditor);
+            }
         }
     });
     observer.observe(document.body, {attributes: true, attributeFilter: ["data-vscode-theme-kind"]});
@@ -61,7 +64,9 @@ export const setEditorTheme = (vditor: IVditor, theme: string, notify = true) =>
     syncEditorDarkClass(vditor.element, resolved);
     updateEditorThemeToggle(resolved);
     observeVscodeTheme(vditor);
-    refreshMermaidTheme(vditor.element, vditor.options.cdn);
+    if (resolveMermaidTheme(vditor.options) === "Auto") {
+        refreshMermaidTheme(vditor.element, vditor.options.cdn, vditor);
+    }
 
     if (notify && vditor.options.changeEditorTheme) {
         vditor.options.changeEditorTheme(resolved);

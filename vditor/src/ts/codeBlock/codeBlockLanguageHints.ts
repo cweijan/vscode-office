@@ -8,14 +8,85 @@ interface CodeMirrorLanguageEntry {
     terms: string[];
 }
 
+type LanguageHintData = IHintData & {
+    current?: boolean;
+};
+
 /** 在 @codemirror/language-data 之外补充的语言别名 */
 const EXTRA_LANGUAGE_ALIASES: Record<string, string[]> = {
     Shell: ["bash", "sh", "zsh", "shell", "shellscript", "console", "terminal"],
 };
 
+const COMMON_CODE_MIRROR_LANGUAGES = new Set([
+    "Angular Template",
+    "C",
+    "C++",
+    "C#",
+    "Clojure",
+    "CMake",
+    "CoffeeScript",
+    "CSS",
+    "Dart",
+    "diff",
+    "Dockerfile",
+    "Erlang",
+    "F#",
+    "Go",
+    "Groovy",
+    "Haskell",
+    "HTML",
+    "HTTP",
+    "Java",
+    "JavaScript",
+    "Jinja",
+    "JSON",
+    "JSON-LD",
+    "JSX",
+    "Kotlin",
+    "LaTeX",
+    "LESS",
+    "Lua",
+    "Markdown",
+    "MariaDB SQL",
+    "MS SQL",
+    "MySQL",
+    "Nginx",
+    "Objective-C",
+    "Objective-C++",
+    "Perl",
+    "PHP",
+    "PLSQL",
+    "PostgreSQL",
+    "PowerShell",
+    "Properties files",
+    "ProtoBuf",
+    "Python",
+    "R",
+    "Ruby",
+    "Rust",
+    "Sass",
+    "Scala",
+    "SCSS",
+    "Shell",
+    "SQL",
+    "SQLite",
+    "Swift",
+    "TOML",
+    "TSX",
+    "TypeScript",
+    "VB.NET",
+    "Verilog",
+    "Vue",
+    "WebAssembly",
+    "XML",
+    "YAML",
+]);
+
+const codeMirrorLanguages = languages.filter((language) => COMMON_CODE_MIRROR_LANGUAGES.has(language.name));
+
 const buildLanguageEntries = (): CodeMirrorLanguageEntry[] => {
     const entries: CodeMirrorLanguageEntry[] = [];
-    for (const language of languages) {
+    for (const language of codeMirrorLanguages) {
         const terms = new Set<string>([language.name, ...language.alias]);
         const extra = EXTRA_LANGUAGE_ALIASES[language.name];
         if (extra) {
@@ -45,6 +116,29 @@ export const toCodeBlockLanguageName = (displayName: string): string => {
     return displayName;
 };
 
+export const resolveCodeMirrorLanguageName = (languageName: string): string => {
+    const normalized = toCodeBlockLanguageName(languageName.trim());
+    if (!normalized) {
+        return "";
+    }
+    const lower = normalized.toLowerCase();
+    for (const entry of CODE_MIRROR_LANGUAGE_ENTRIES) {
+        if (entry.canonical.toLowerCase() === lower) {
+            return entry.canonical;
+        }
+        for (const term of entry.terms) {
+            if (term.toLowerCase() === lower) {
+                return entry.canonical;
+            }
+        }
+    }
+    return normalized;
+};
+
+export const isSameCodeMirrorLanguage = (languageName: string, candidateName: string): boolean =>
+    resolveCodeMirrorLanguageName(languageName).toLowerCase() ===
+    resolveCodeMirrorLanguageName(candidateName).toLowerCase();
+
 const plainTextMatchesQuery = (query: string): boolean => {
     const lower = query.trim().toLowerCase();
     if (!lower) {
@@ -64,7 +158,7 @@ const plainTextMatchesQuery = (query: string): boolean => {
 
 export const buildCodeMirrorLanguageMap = (): Record<string, LanguageDescription> => {
     const map: Record<string, LanguageDescription> = {};
-    for (const language of languages) {
+    for (const language of codeMirrorLanguages) {
         map[language.name.toLowerCase()] = language;
         for (const alias of language.alias) {
             map[alias.toLowerCase()] = language;
@@ -169,11 +263,18 @@ export const filterCodeMirrorLanguageNames = (query: string): string[] => {
     return sortLanguageNamesWithPinnedFirst([...matched]);
 };
 
-export const matchCodeMirrorLanguages = (key: string): IHintData[] => {
-    const matchLangData: IHintData[] = [];
+export const matchCodeMirrorLanguages = (key: string, currentLanguage = ""): IHintData[] => {
+    const matchLangData: LanguageHintData[] = [];
     const lower = key.toLowerCase();
+    const addLanguage = (html: string, value: string) => {
+        matchLangData.push({
+            html,
+            value,
+            current: isSameCodeMirrorLanguage(currentLanguage, value),
+        });
+    };
     if (plainTextMatchesQuery(lower)) {
-        matchLangData.push({ html: getPlainTextLanguageLabel(), value: getPlainTextLanguageLabel() });
+        addLanguage(getPlainTextLanguageLabel(), getPlainTextLanguageLabel());
     }
     for (const entry of CODE_MIRROR_LANGUAGE_ENTRIES) {
         let matched = false;
@@ -184,7 +285,7 @@ export const matchCodeMirrorLanguages = (key: string): IHintData[] => {
             }
         }
         if (matched) {
-            matchLangData.push({ html: entry.canonical, value: entry.canonical });
+            addLanguage(entry.canonical, entry.canonical);
         }
     }
     return sortHintDataWithPinnedFirst(matchLangData);

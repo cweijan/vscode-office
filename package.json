@@ -592,6 +592,16 @@
 						"default": "Auto",
 						"markdownDescription": "CodeMirror syntax theme for code blocks in the Markdown editor."
 					},
+					"vscode-office.mermaidTheme": {
+						"type": "string",
+						"enum": [
+							"Auto",
+							"Light",
+							"Dark"
+						],
+						"default": "Auto",
+						"markdownDescription": "Mermaid diagram theme in the Markdown editor. Auto follows the editor theme."
+					},
 					"vscode-office.previewCodeHighlight.style": {
 						"type": "string",
 						"enum": [

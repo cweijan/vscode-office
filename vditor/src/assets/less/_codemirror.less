@@ -1,3 +1,31 @@
+.vditor-cm-scrollbar(@track: var(--cm-bg-color)) {
+  scrollbar-width: auto;
+  scrollbar-color: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 30%, transparent) @track;
+
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: @track;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 30%, transparent);
+    border-radius: 5px;
+    border: 2px solid @track;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 44%, transparent);
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: @track;
+  }
+}
+
 .vditor-cm-host {
   position: relative;
   display: flex;
@@ -34,7 +62,7 @@
     scrollbar-gutter: stable;
     font-family: inherit;
     line-height: calc(var(--vscode-editor-font-size, 13px) * 1.35);
-    .vditor-scrollbar(var(--cm-bg-color));
+    .vditor-cm-scrollbar(var(--cm-bg-color));
   }
 
   &.cm-lineWrapping .cm-line,
@@ -376,7 +404,7 @@
 
   &:hover {
     background: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 10%, var(--cm-lang-trigger-bg, var(--second-bg-color, var(--dropdown-hover-background, var(--toolbar-background-color)))));
-    color: var(--list-hover-color, var(--toolbar-icon-hover-color));
+    color: var(--cm-copy-color, var(--link-color));
   }
 }
 
@@ -400,72 +428,95 @@
   right: 0;
   z-index: 10002;
   min-width: 140px;
-  max-width: min(280px, calc(100vw - 32px));
-  max-height: min(50vh, 360px);
-  overflow: auto;
-  padding: 5px 0;
-  border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 18%, transparent);
+  max-width: min(240px, calc(100vw - 32px));
+  max-height: min(50vh, 320px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px;
+  border: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 14%, transparent);
   border-radius: 8px;
-  background: var(--panel-background-color);
-  color: var(--toolbar-icon-color);
-  box-shadow: var(--panel-shadow, 0 4px 16px color-mix(in srgb, #000 12%, transparent));
+  background: var(--cm-bg-color, var(--panel-background-color));
+  color: var(--cm-fg-color, var(--toolbar-icon-color));
+  box-shadow:
+    0 6px 18px color-mix(in srgb, #000 16%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 5%, transparent);
   pointer-events: auto;
+  .vditor-cm-scrollbar(var(--cm-bg-color, var(--panel-background-color)));
 }
 
 .vditor-cm-chrome__theme--open .vditor-cm-chrome__theme-panel {
   display: block;
 }
 
-.vditor-cm-chrome__theme-panel .vditor-cm-theme-panel {
+.vditor-cm-chrome__theme-panel .vditor-cm-chrome-theme-panel {
   min-width: 0;
   max-height: none;
+  overflow: visible;
 
-  &__section + &__section {
-    border-top-color: color-mix(in srgb, var(--toolbar-icon-color) 18%, transparent);
+  &__section {
+    border: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 12%, transparent);
+    border-radius: 4px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--cm-lang-trigger-bg, var(--cm-bg-color)) 42%, var(--cm-bg-color, var(--panel-background-color)));
+
+    & + & {
+      margin-top: 4px;
+    }
   }
 
   &__title {
-    color: var(--toolbar-icon-color);
-    opacity: 0.72;
+    padding: 3px 8px 2px;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    line-height: 14px;
+    color: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 70%, transparent);
+    background: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 5%, var(--cm-bg-color, var(--panel-background-color)));
+    border-bottom: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 10%, transparent);
+    opacity: 1;
+    cursor: default;
+    user-select: none;
   }
 
   button {
-    color: var(--toolbar-icon-color);
+    color: var(--cm-fg-color, var(--toolbar-icon-color));
     display: block;
-    padding: 3px 10px;
+    padding: 3px 8px;
+    margin: 1px 3px;
     border: 0;
-    border-radius: 0;
-    line-height: 20px;
-    width: 100%;
+    border-radius: 3px;
+    line-height: 18px;
+    width: calc(100% - 6px);
     box-sizing: border-box;
     text-align: left;
-    margin: 0;
     background-color: transparent;
     cursor: pointer;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    font-size: 12px;
+    font-size: var(--ui-font-size);
+    transition: background-color 0.12s ease, color 0.12s ease;
 
     &:hover {
-      background-color: var(--dropdown-hover-background, var(--second-bg-color, var(--toolbar-background-color)));
-      color: var(--list-hover-color, var(--toolbar-icon-hover-color));
+      background-color: var(--cm-active-line-bg, color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 8%, transparent));
+      color: var(--cm-fg-color, var(--toolbar-icon-color));
     }
   }
 
   button.vditor-theme-option--current {
-    background-color: var(--second-bg-color, var(--dropdown-hover-background, var(--toolbar-background-color)));
-    color: var(--list-hover-color, var(--toolbar-icon-hover-color));
+    background-color: color-mix(in srgb, var(--cm-copy-color, var(--link-color)) 14%, var(--cm-bg-color, var(--panel-background-color)));
+    color: var(--cm-copy-color, var(--link-color));
     font-weight: 600;
-    border-left: 2px solid var(--list-hover-color, var(--toolbar-icon-hover-color));
+    border-left: none;
     padding-left: 8px;
 
     &::before {
       content: "✓";
       display: inline-block;
-      width: 14px;
-      margin-right: 4px;
-      font-size: 11px;
+      width: 12px;
+      margin-right: 3px;
+      font-size: 10px;
       opacity: 0.9;
     }
   }
@@ -496,7 +547,7 @@
 
   &:hover:not(:disabled) {
     background: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 10%, var(--cm-lang-trigger-bg, var(--second-bg-color, var(--dropdown-hover-background, var(--toolbar-background-color)))));
-    color: var(--list-hover-color, var(--toolbar-icon-hover-color));
+    color: var(--cm-copy-color, var(--link-color));
   }
 
   &:disabled {
@@ -529,7 +580,7 @@
 
 .vditor-cm-chrome__lang-trigger:hover:not(:disabled) .vditor-cm-chrome__lang-chevron {
   opacity: 1;
-  color: var(--list-hover-color, var(--toolbar-icon-hover-color));
+  color: var(--cm-copy-color, var(--link-color));
 }
 
 .vditor-cm-chrome__lang-panel {
@@ -574,8 +625,8 @@
 
   &:focus,
   .vditor-cm-chrome__lang--focused & {
-    border-color: var(--cm-lang-search-focus-color, var(--link-color));
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--cm-lang-search-focus-color, var(--link-color)) 28%, transparent);
+    border-color: var(--cm-lang-search-focus-color, var(--cm-copy-color, var(--link-color)));
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--cm-lang-search-focus-color, var(--cm-copy-color, var(--link-color))) 28%, transparent);
   }
 
   &::placeholder {
@@ -586,10 +637,14 @@
 .vditor-cm-chrome__lang-list {
   max-height: 200px;
   overflow-y: auto;
+  .vditor-cm-scrollbar(var(--cm-bg-color, var(--panel-background-color)));
 }
 
 .vditor-cm-chrome__lang-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   width: 100%;
   padding: 6px 8px;
   border: none;
@@ -602,13 +657,31 @@
   cursor: pointer;
 
   &:hover {
-    background: color-mix(in srgb, var(--list-hover-color, var(--toolbar-icon-hover-color)) 12%, transparent);
+    background: color-mix(in srgb, var(--cm-copy-color, var(--link-color)) 12%, transparent);
   }
 
   &--active {
     font-weight: 600;
-    background: color-mix(in srgb, var(--list-hover-color, var(--toolbar-icon-hover-color)) 12%, transparent);
+    background: color-mix(in srgb, var(--cm-copy-color, var(--link-color)) 12%, transparent);
   }
+
+  &--current {
+    color: var(--cm-fg-color, var(--toolbar-icon-color));
+    background: color-mix(in srgb, var(--cm-copy-color, var(--link-color)) 8%, transparent);
+  }
+}
+
+.vditor-cm-chrome__lang-item-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vditor-cm-chrome__lang-item-desc {
+  flex: 0 0 auto;
+  color: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 55%, transparent);
+  font-size: 11px;
+  font-weight: 400;
 }
 
 .vditor-cm-chrome__lang-empty {
@@ -650,8 +723,8 @@
     box-shadow: 0 1px 4px color-mix(in srgb, var(--cm-fg-color, #000) 8%, transparent);
 
     &:focus {
-      border-color: color-mix(in srgb, var(--list-hover-color, var(--toolbar-icon-hover-color)) 45%, transparent);
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--list-hover-color, var(--toolbar-icon-hover-color)) 18%, transparent);
+      border-color: color-mix(in srgb, var(--cm-copy-color, var(--link-color)) 55%, transparent);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--cm-copy-color, var(--link-color)) 22%, transparent);
     }
 
     &::placeholder {

@@ -39,11 +39,13 @@ handler.on("open", async (md) => {
   const sponsorBaseUrl = md.sponsorBaseUrl || state?.sponsorBaseUrl;
   const codeMirrorTheme = normalizeCodeMirrorTheme(md.codeMirrorTheme ?? config.codeMirrorTheme)
   const editorTheme = md.editorTheme ?? config.editorTheme ?? 'Auto'
+  const mermaidTheme = md.mermaidTheme ?? config.mermaidTheme ?? 'Auto'
   const editor = new Vditor('vditor', {
     value: md.content,
     cdn: md.rootPath,
     editorTheme,
     codeMirrorTheme,
+    mermaidTheme,
     preventMacOptionKey: config.preventMacOptionKey !== false,
     height: '100%',
     outline: {
@@ -69,6 +71,9 @@ handler.on("open", async (md) => {
     },
     changeCodeTheme(theme) {
       handler.emit('codeMirrorTheme', theme)
+    },
+    changeMermaidTheme(theme) {
+      handler.emit('mermaidTheme', theme)
     },
     input(content) {
       handler.emit("save", content)

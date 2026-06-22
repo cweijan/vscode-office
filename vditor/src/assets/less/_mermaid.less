@@ -1,0 +1,285 @@
+.vditor-mermaid-scrollbar(@track: var(--mm-chrome-panel-bg)) {
+  scrollbar-width: auto;
+  scrollbar-color: color-mix(in srgb, var(--mm-chrome-fg) 30%, transparent) @track;
+
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: @track;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--mm-chrome-fg) 30%, transparent);
+    border-radius: 5px;
+    border: 2px solid @track;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in srgb, var(--mm-chrome-fg) 44%, transparent);
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: @track;
+  }
+}
+
+.vditor-mermaid-chrome-vars() {
+  --mm-chrome-bg: var(--toolbar-background-color, var(--bg-color, #f6f8fa));
+  --mm-chrome-panel-bg: var(--panel-background-color, var(--second-bg-color, var(--bg-color, #fff)));
+  --mm-chrome-fg: var(--front-color, #24292e);
+  --mm-chrome-accent: var(--list-hover-color, var(--link-color, #0969da));
+  --mm-chrome-trigger-bg: var(--second-bg-color, color-mix(in srgb, var(--front-color, #24292e) 12%, var(--bg-color, #fff)));
+  --mm-chrome-hover-bg: color-mix(in srgb, var(--mm-chrome-accent) 12%, var(--mm-chrome-panel-bg));
+  --mm-chrome-icon-color: var(--link-color, var(--mm-chrome-accent));
+}
+
+.vditor-mermaid-host {
+  position: relative;
+  max-width: 100%;
+  margin-bottom: 16px;
+  .vditor-mermaid-chrome-vars();
+
+  &[data-mermaid-theme="Light"] {
+    --mermaid-bg: #ffffff;
+    --mm-chrome-bg: #f6f8fa;
+    --mm-chrome-panel-bg: #ffffff;
+    --mm-chrome-fg: #1f2328;
+    --mm-chrome-accent: #0969da;
+    --mm-chrome-trigger-bg: #ffffff;
+    --mm-chrome-hover-bg: #eef2f7;
+    --mm-chrome-icon-color: #0969da;
+  }
+
+  &[data-mermaid-theme="Dark"] {
+    --mermaid-bg: #1e1e1e;
+    --mm-chrome-bg: #1e1e1e;
+    --mm-chrome-panel-bg: #2d333b;
+    --mm-chrome-fg: #e6edf3;
+    --mm-chrome-accent: #539bf5;
+    --mm-chrome-trigger-bg: #373e47;
+    --mm-chrome-hover-bg: #3d444d;
+    --mm-chrome-icon-color: #539bf5;
+  }
+
+  .language-mermaid {
+    max-width: 100%;
+    margin-bottom: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background-color: var(--mermaid-bg, var(--toolbar-background-color, var(--bg-color, #fff)));
+
+    svg {
+      max-width: none;
+    }
+  }
+}
+
+.vditor-mermaid-chrome {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  width: auto;
+  pointer-events: none;
+}
+
+.vditor-mermaid-chrome__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 0;
+  padding: 6px 8px 0;
+  background: transparent;
+  border: none;
+  pointer-events: none;
+}
+
+.vditor-mermaid-chrome__spacer {
+  flex: 1 1 auto;
+}
+
+.vditor-mermaid-chrome__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.vditor-mermaid-chrome__theme {
+  position: relative;
+  flex-shrink: 0;
+  pointer-events: auto;
+}
+
+.vditor-mermaid-chrome__theme-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  height: 28px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 8px;
+  background: var(--mm-chrome-trigger-bg);
+  color: var(--mm-chrome-fg);
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, visibility 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--mm-chrome-fg) 10%, var(--mm-chrome-trigger-bg));
+    color: var(--mm-chrome-accent);
+  }
+}
+
+.vditor-mermaid-host:hover .vditor-mermaid-chrome__theme-trigger,
+.vditor-mermaid-chrome__theme--open .vditor-mermaid-chrome__theme-trigger {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.vditor-mermaid-chrome__theme-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  color: var(--mm-chrome-icon-color);
+
+  .codicon {
+    font-size: 16px;
+    line-height: 1;
+  }
+}
+
+.vditor-mermaid-chrome__theme-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 10002;
+  min-width: 128px;
+  max-width: min(240px, calc(100vw - 32px));
+  max-height: min(50vh, 320px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px;
+  border: 1px solid color-mix(in srgb, var(--mm-chrome-fg) 16%, transparent);
+  border-radius: 8px;
+  background: var(--mm-chrome-panel-bg);
+  color: var(--mm-chrome-fg);
+  box-shadow:
+    0 6px 18px color-mix(in srgb, #000 16%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--mm-chrome-fg) 5%, transparent);
+  pointer-events: auto;
+  .vditor-mermaid-chrome-vars();
+  .vditor-mermaid-scrollbar(var(--mm-chrome-panel-bg));
+
+  &[data-mermaid-theme="Light"] {
+    --mm-chrome-panel-bg: #ffffff;
+    --mm-chrome-fg: #1f2328;
+    --mm-chrome-accent: #0969da;
+    --mm-chrome-hover-bg: #eef2f7;
+    --mm-chrome-icon-color: #0969da;
+  }
+
+  &[data-mermaid-theme="Dark"] {
+    --mm-chrome-panel-bg: #2d333b;
+    --mm-chrome-fg: #e6edf3;
+    --mm-chrome-accent: #539bf5;
+    --mm-chrome-hover-bg: #3d444d;
+    --mm-chrome-icon-color: #539bf5;
+  }
+
+  .vditor-mermaid-theme-panel {
+    min-width: 0;
+    max-height: none;
+    overflow: visible;
+
+    &__section {
+      border: 1px solid color-mix(in srgb, var(--mm-chrome-fg) 14%, transparent);
+      border-radius: 4px;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--mm-chrome-fg) 3%, var(--mm-chrome-panel-bg));
+
+      & + & {
+        margin-top: 4px;
+      }
+    }
+
+    &__title {
+      padding: 3px 8px 2px;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      line-height: 14px;
+      color: color-mix(in srgb, var(--mm-chrome-fg) 70%, transparent);
+      background: color-mix(in srgb, var(--mm-chrome-fg) 5%, var(--mm-chrome-panel-bg));
+      border-bottom: 1px solid color-mix(in srgb, var(--mm-chrome-fg) 12%, transparent);
+      opacity: 1;
+      cursor: default;
+      user-select: none;
+    }
+
+    button {
+      color: var(--mm-chrome-fg);
+      display: block;
+      padding: 3px 8px;
+      margin: 1px 3px;
+      border: 0;
+      border-radius: 3px;
+      line-height: 18px;
+      width: calc(100% - 6px);
+      box-sizing: border-box;
+      text-align: left;
+      background-color: transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      font-size: var(--ui-font-size);
+      transition: background-color 0.12s ease, color 0.12s ease;
+
+      &:hover {
+        background-color: var(--mm-chrome-hover-bg);
+        color: var(--mm-chrome-fg);
+      }
+    }
+
+    button.vditor-theme-option--current {
+      background-color: color-mix(in srgb, var(--mm-chrome-accent) 14%, var(--mm-chrome-panel-bg));
+      color: var(--mm-chrome-accent);
+      font-weight: 600;
+      border-left: none;
+      padding-left: 8px;
+
+      &::before {
+        content: "✓";
+        display: inline-block;
+        width: 12px;
+        margin-right: 3px;
+        font-size: 10px;
+        opacity: 0.9;
+      }
+    }
+  }
+}
+
+.vditor-mermaid-chrome__theme--open .vditor-mermaid-chrome__theme-panel {
+  display: block;
+}
+
+:is(.vditor-wysiwyg__block, .vditor-ir__node):has(.vditor-mermaid-chrome__theme--open) {
+  position: relative;
+  z-index: 200;
+}

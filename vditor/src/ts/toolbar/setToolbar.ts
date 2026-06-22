@@ -1,5 +1,39 @@
 import {Constants} from "../constants";
+import {isInsideToolbar, registerPopoverOutsideDismiss} from "../ui/chromePopoverDismiss";
 import {getEventName} from "../util/compatibility";
+
+const hasOpenToolbarSubPanel = (vditor: IVditor) => {
+    for (const panel of vditor.toolbar.element.querySelectorAll(".vditor-hint")) {
+        if ((panel as HTMLElement).style.display === "block") {
+            return true;
+        }
+    }
+    return false;
+};
+
+export const bindToolbarOutsideDismiss = (vditor: IVditor) => {
+    registerPopoverOutsideDismiss({
+        isActive: () => hasOpenToolbarSubPanel(vditor),
+        shouldIgnoreTarget: isInsideToolbar,
+        dismiss: () => hidePanel(vditor, ["subToolbar"]),
+    });
+};
+
+export const bindToolbarTooltipDismiss = (toolbarElement: HTMLElement) => {
+    toolbarElement.addEventListener("mouseout", (event: MouseEvent) => {
+        const target = event.target as HTMLElement | null;
+        const tooltipElement = target?.closest(".vditor-tooltipped") as HTMLElement | null;
+        if (!tooltipElement || !toolbarElement.contains(tooltipElement)) {
+            return;
+        }
+        const relatedTarget = event.relatedTarget as Node | null;
+        if (relatedTarget && tooltipElement.contains(relatedTarget)) {
+            return;
+        }
+        tooltipElement.classList.remove("vditor-tooltipped--hover");
+        tooltipElement.blur();
+    });
+};
 
 export const removeCurrentToolbar = (toolbar: { [key: string]: HTMLElement }, names: string[]) => {
     names.forEach((name) => {

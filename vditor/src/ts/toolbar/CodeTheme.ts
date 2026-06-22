@@ -1,6 +1,10 @@
 import {CM_THEME_GROUPS} from "../ui/codeMirrorColorThemes";
+import {
+    buildEditorThemePickerPanelHTML,
+    queryEditorThemePickerPanel,
+    refreshEditorThemePickerPanel,
+} from "../ui/editorThemePickerPanel";
 import {applyCodeMirrorTheme, resolveCodeMirrorTheme} from "../ui/setCodeTheme";
-import {buildThemePickerPanelHTML, refreshThemePickerPanel} from "../ui/themePickerPanel";
 import {getEventName} from "../util/compatibility";
 import {MenuItem} from "./MenuItem";
 import {toggleSubMenu} from "./setToolbar";
@@ -8,13 +12,13 @@ import {toggleSubMenu} from "./setToolbar";
 const formatThemeLabel = (themeId: string) => themeId;
 
 const buildCodeThemePanelHTML = (currentTheme: string) => {
-    return buildThemePickerPanelHTML(CM_THEME_GROUPS, currentTheme, formatThemeLabel);
+    return buildEditorThemePickerPanelHTML(CM_THEME_GROUPS, currentTheme, formatThemeLabel);
 };
 
 const refreshCodeThemePanel = (panelElement: HTMLElement, currentTheme: string) => {
-    const panelRoot = panelElement.querySelector(".vditor-cm-theme-panel") as HTMLElement | null;
+    const panelRoot = queryEditorThemePickerPanel(panelElement);
     if (panelRoot) {
-        refreshThemePickerPanel(panelRoot, currentTheme);
+        refreshEditorThemePickerPanel(panelRoot, currentTheme);
     }
 };
 

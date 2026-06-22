@@ -63,7 +63,6 @@ html[data-editor-theme="Monokai"],
     --cm-selection-bg-focused: rgba(102, 217, 239, 0.48);
     --cm-selection-bg-inactive: rgba(102, 217, 239, 0.26);
     --cm-selection-highlight-bg: rgba(102, 217, 239, 0.20);
-    --cm-lang-search-focus-color: var(--list-hover-color);
 
     /* Embed & Link Card */
     --linkcard-bg: var(--second-bg-color);

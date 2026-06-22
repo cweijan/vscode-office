@@ -92,6 +92,7 @@ export class Options {
         width: "auto",
         preventMacOptionKey: true,
         editorTheme: "Auto",
+        mermaidTheme: "Auto",
     };
 
     constructor(options: IOptions) {

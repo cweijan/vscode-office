@@ -17,7 +17,7 @@ import {MenuItem} from "./MenuItem";
 import {Outdent} from "./Outdent";
 import {Outline} from "./Outline";
 import {Redo} from "./Redo";
-import {toggleSubMenu} from "./setToolbar";
+import {bindToolbarTooltipDismiss, toggleSubMenu} from "./setToolbar";
 import {Undo} from "./Undo";
 import {Upload} from "./Upload";
 
@@ -61,6 +61,7 @@ export class Toolbar {
             vditor.counter = new Counter(vditor);
             this.element.appendChild(vditor.counter.element);
         }
+        bindToolbarTooltipDismiss(this.element);
     }
 
     private genItem(vditor: IVditor, menuItem: IMenuItem, index: number) {

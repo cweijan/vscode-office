@@ -63,7 +63,6 @@ html[data-editor-theme="Light"],
     --cm-selection-bg-focused: rgba(4, 81, 165, 0.42);
     --cm-selection-bg-inactive: rgba(4, 81, 165, 0.24);
     --cm-selection-highlight-bg: rgba(4, 81, 165, 0.18);
-    --cm-lang-search-focus-color: var(--list-hover-color);
 
     /* Embed & Link Card */
     --linkcard-bg: var(--second-bg-color);

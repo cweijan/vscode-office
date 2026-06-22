@@ -1,10 +1,11 @@
 import {setEditMode} from "../toolbar/EditMode";
-import {hidePanel} from "../toolbar/setToolbar";
+import {bindToolbarOutsideDismiss} from "../toolbar/setToolbar";
 import {bindCacheFocusPersistence, markCacheContentRestored} from "../util/cacheFocus";
 import {bindHistoryInputBufferClick} from "../util/historyInputBuffer";
 import {accessLocalStorage} from "../util/compatibility";
 import {macOptionSymbolEvent} from "../util/editorCommonEvent";
 import {initEditorTheme} from "./setEditorTheme";
+import {initMermaidTheme} from "./setMermaidTheme";
 import {resolveCodeMirrorTheme, setCodeTheme} from "./setCodeTheme";
 import {setTheme} from "./setTheme";
 
@@ -60,11 +61,10 @@ export const initUI = (vditor: IVditor) => {
 
   vditor.element.appendChild(contentElement);
 
-  contentElement.addEventListener("click", () => {
-    hidePanel(vditor, ["subToolbar"]);
-  });
+  bindToolbarOutsideDismiss(vditor);
 
   initEditorTheme(vditor);
+  initMermaidTheme(vditor);
 
   bindCacheFocusPersistence(vditor);
   bindHistoryInputBufferClick(vditor);

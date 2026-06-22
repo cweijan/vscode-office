@@ -1,6 +1,10 @@
 import {hidePanel} from "../toolbar/setToolbar";
 import {EDITOR_THEME_GROUPS} from "./editorThemeCatalog";
-import {buildThemePickerPanelHTML, refreshThemePickerPanel} from "./themePickerPanel";
+import {
+    buildEditorThemePickerPanelHTML,
+    queryEditorThemePickerPanel,
+    refreshEditorThemePickerPanel,
+} from "./editorThemePickerPanel";
 
 const PANEL_HOST_KEY = "__editorThemePanelHost";
 
@@ -13,13 +17,13 @@ export const bindEditorThemePanelHost = (vditor: IVditor, panelElement: HTMLElem
 };
 
 export const buildEditorThemePanelHTML = (currentTheme: string) => {
-    return buildThemePickerPanelHTML(EDITOR_THEME_GROUPS, currentTheme);
+    return buildEditorThemePickerPanelHTML(EDITOR_THEME_GROUPS, currentTheme);
 };
 
 export const refreshEditorThemePanel = (panelElement: HTMLElement, currentTheme: string) => {
-    const panelRoot = panelElement.querySelector(".vditor-cm-theme-panel") as HTMLElement | null;
+    const panelRoot = queryEditorThemePickerPanel(panelElement);
     if (panelRoot) {
-        refreshThemePickerPanel(panelRoot, currentTheme);
+        refreshEditorThemePickerPanel(panelRoot, currentTheme);
     }
 };
 

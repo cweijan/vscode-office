@@ -78,8 +78,14 @@ export class Hint {
                     html = html.substr(0, lastIndex) + replaceHtml;
                 }
             }
-            hintsHTML += `<button data-value="${encodeURIComponent(hintData.value)} "
-${i === 0 ? "class='vditor-hint--current'" : ""}> ${html}</button>`;
+            const className = i === 0 ? " class='vditor-hint--current'" : "";
+            const currentAttr = (hintData as IHintData & { current?: boolean }).current
+                ? " data-current='true'"
+                : "";
+            const currentDesc = (hintData as IHintData & { current?: boolean }).current
+                ? `<span class="vditor-hint__current-desc">current</span>`
+                : "";
+            hintsHTML += `<button data-value="${encodeURIComponent(hintData.value)} "${className}${currentAttr}><span class="vditor-hint__label">${html}</span>${currentDesc}</button>`;
         });
 
         this.element.innerHTML = hintsHTML;
@@ -215,6 +221,10 @@ ${i === 0 ? "class='vditor-hint--current'" : ""}> ${html}</button>`;
             return false;
         }
 
+        const scrollCurrentIntoView = () => {
+            (this.element.querySelector(".vditor-hint--current") as HTMLElement | null)
+                ?.scrollIntoView({block: "nearest"});
+        };
         const currentHintElement: HTMLElement = this.element.querySelector(".vditor-hint--current");
 
         if (event.key === "ArrowDown") {
@@ -226,6 +236,7 @@ ${i === 0 ? "class='vditor-hint--current'" : ""}> ${html}</button>`;
             } else {
                 currentHintElement.nextElementSibling.className = "vditor-hint--current";
             }
+            scrollCurrentIntoView();
             return true;
         } else if (event.key === "ArrowUp") {
             event.preventDefault();
@@ -237,6 +248,7 @@ ${i === 0 ? "class='vditor-hint--current'" : ""}> ${html}</button>`;
             } else {
                 currentHintElement.previousElementSibling.className = "vditor-hint--current";
             }
+            scrollCurrentIntoView();
             return true;
         } else if (!isCtrl(event) && !event.shiftKey && !event.altKey && event.key === "Enter" && !event.isComposing) {
             event.preventDefault();

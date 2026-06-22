@@ -63,7 +63,6 @@ html[data-editor-theme="Solarized"],
     --cm-selection-bg-focused: rgba(38, 139, 210, 0.42);
     --cm-selection-bg-inactive: rgba(38, 139, 210, 0.24);
     --cm-selection-highlight-bg: rgba(38, 139, 210, 0.18);
-    --cm-lang-search-focus-color: var(--list-hover-color);
 
     /* Embed & Link Card */
     --linkcard-bg: var(--second-bg-color);

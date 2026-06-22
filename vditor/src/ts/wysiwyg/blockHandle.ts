@@ -583,7 +583,7 @@ export const initBlockHandle = (vditor: IVditor, wrapper: HTMLElement, editorEle
     dragBtn.type = "button";
     dragBtn.className = DRAG_CLASS;
     dragBtn.setAttribute("aria-label", window.VditorI18n.dragBlock || "Drag to move block");
-    dragBtn.innerHTML = `<span class="${GRIP_CLASS}" aria-hidden="true"></span>`;
+    dragBtn.innerHTML = `<svg class="${GRIP_CLASS}" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 14" width="8" height="14"><circle cx="2" cy="2" r="1.2" fill="currentColor"/><circle cx="6" cy="2" r="1.2" fill="currentColor"/><circle cx="2" cy="7" r="1.2" fill="currentColor"/><circle cx="6" cy="7" r="1.2" fill="currentColor"/><circle cx="2" cy="12" r="1.2" fill="currentColor"/><circle cx="6" cy="12" r="1.2" fill="currentColor"/></svg>`;
     root.appendChild(dragBtn);
 
     const dropLine = document.createElement("div");

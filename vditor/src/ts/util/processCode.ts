@@ -36,7 +36,7 @@ export const processCodeRender = (previewPanel: HTMLElement, vditor: IVditor) =>
         return;
     }
     if (language === "mermaid") {
-        mermaidRender(previewPanel, vditor.options.cdn, vditor.element);
+        mermaidRender(previewPanel, vditor.options.cdn, vditor);
     } else if (language === "plantuml") {
         plantumlRender(previewPanel, vditor.options.cdn);
     } else if (language === "math") {

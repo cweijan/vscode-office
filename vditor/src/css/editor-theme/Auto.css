@@ -63,7 +63,6 @@ html[data-editor-theme="Auto"],
     --cm-selection-bg-focused: var(--vscode-editor-selectionBackground, rgba(51, 153, 255, 0.35));
     --cm-selection-bg-inactive: var(--vscode-editor-inactiveSelectionBackground, var(--cm-selection-bg));
     --cm-selection-highlight-bg: var(--vscode-editor-selectionHighlightBackground, color-mix(in srgb, var(--link-color) 22%, transparent));
-    --cm-lang-search-focus-color: var(--vscode-textLink-foreground, #4285f4);
 
     /* Embed & Link Card */
     --linkcard-bg: var(--second-bg-color);

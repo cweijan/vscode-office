@@ -52,10 +52,6 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
 
     if (isInsideCodeMirror(event.target)) {
         const codeRenderElement = (event.target as HTMLElement).closest("[data-type='code-block']") as HTMLElement;
-        if (matchHotKey("⌘A", event)) {
-            event.stopPropagation();
-            return true;
-        }
         if (event.key === "Escape" && codeRenderElement) {
             vditor.wysiwyg.popover.style.display = "none";
             getCodeMirrorView(codeRenderElement)?.contentDOM.blur();

@@ -11,17 +11,17 @@ html[data-cm-theme="Solarized Dark"],
     --cm-delete-color: #dc322f;
 
     /* Editor State */
-    --cm-active-line-bg: rgba(255, 255, 255, 0.05);
+    --cm-active-line-bg: rgba(255, 255, 255, 0.08);
     --cm-cursor-fg: #839496;
 
     /* Gutter */
     --cm-line-number-fg: #586e75;
-    --cm-line-number-active-fg: #839496;
+    --cm-line-number-active-fg: #93a1a1;
 
-    /* Selection */
-    --cm-selection-bg-inactive: rgba(7, 54, 66, 0.8);
-    --cm-selection-bg-focused: rgba(7, 54, 66, 0.95);
-    --cm-selection-highlight-bg: rgba(7, 54, 66, 0.5);
+    /* Selection — use blue accent so selection is visually distinct from active-line */
+    --cm-selection-bg-inactive: rgba(38, 139, 210, 0.24);
+    --cm-selection-bg-focused: rgba(38, 139, 210, 0.42);
+    --cm-selection-highlight-bg: rgba(38, 139, 210, 0.15);
 
     /* Bracket Match */
     --cm-bracket-match-bg: rgba(181, 137, 0, 0.25);

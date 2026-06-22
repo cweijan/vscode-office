@@ -86,6 +86,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                 config: this.getMarkdownWebviewConfig(config), scrollTop,
                 editorTheme: Global.getConfig("editorTheme", "Auto"),
                 codeMirrorTheme: Global.getConfig("codeMirrorTheme", "Auto"),
+                mermaidTheme: Global.getConfig("mermaidTheme", "Auto"),
                 language: vscode.env.language,
                 rootPath, content,
                 sponsorBaseUrl,
@@ -128,6 +129,11 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             ];
             if (validThemes.includes(theme)) {
                 Global.updateConfig("editorTheme", theme);
+            }
+        }).on("mermaidTheme", (theme: string) => {
+            const validThemes = ["Auto", "Light", "Dark"];
+            if (validThemes.includes(theme)) {
+                Global.updateConfig("mermaidTheme", theme);
             }
         }).on("img", async (img) => {
             const { relPath, fullPath } = adjustImgPath(uri)

@@ -10,7 +10,7 @@ const MAC_OPTION_IGNORE_CODES = new Set([
 
 /** macOS 仅 Option(Alt) + 符号键时返回 true；仅 preventDefault，不 stopPropagation，以便 VS Code 快捷键仍生效 */
 export const shouldBlockMacOptionSymbol = (event: KeyboardEvent) => {
-    if (!isMacPlatform() || !event.altKey || event.metaKey || event.ctrlKey || event.shiftKey) {
+    if (!isMacPlatform() || !event.altKey || event.metaKey || event.ctrlKey) {
         return false;
     }
     if (event.isComposing || event.key === "Alt" || event.key === "Process") {

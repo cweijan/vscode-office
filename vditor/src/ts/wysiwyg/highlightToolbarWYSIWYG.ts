@@ -542,7 +542,6 @@ const linkHotkey = (
     }
     if (event.key === "Escape") {
         hideLinkPopover(vditor);
-        vditor.wysiwyg.element.focus();
         event.preventDefault();
         event.stopPropagation();
         return;
