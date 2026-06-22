@@ -16,7 +16,7 @@ import {
     hasClosestByClassName, hasClosestByMatchTag,
 } from "../util/hasClosest";
 import { hasClosestByHeadings } from "../util/hasClosestByHeadings";
-import { isDeleteInput, recordHistoryChange } from "../util/instantHistory";
+import { isDeleteInput } from "../util/instantHistory";
 import { flushBufferedHistory, trackHistoryInputFromEvent } from "../util/historyInputBuffer";
 import {
     preventImpreciseLineStartClick,
@@ -294,18 +294,16 @@ class WYSIWYG {
                 if (typeof vditor.options.input === "function") {
                     vditor.options.input(getMarkdown(vditor));
                 }
-                if (recordInstantDelete) {
-                    recordHistoryChange(vditor);
-                } else if (shouldFlushHistory) {
+                if (shouldFlushHistory) {
                     flushBufferedHistory(vditor);
+                } else {
+                    afterRenderEvent(vditor);
                 }
                 return;
             }
 
             input(vditor, range, event);
-            if (recordInstantDelete) {
-                recordHistoryChange(vditor);
-            } else if (shouldFlushHistory) {
+            if (shouldFlushHistory) {
                 flushBufferedHistory(vditor);
             }
         });

@@ -31,7 +31,7 @@ import {
 } from "../util/hasClosest";
 import {hasClosestByHeadings} from "../util/hasClosestByHeadings";
 import {matchHotKey} from "../util/hotKey";
-import {recordHistoryChange, recordHistoryPosition} from "../util/instantHistory";
+import {recordHistoryChange} from "../util/instantHistory";
 import {getEditorRange, getSelectPosition, setSelectionFocus} from "../util/selection";
 import {keydownToc} from "../util/toc";
 import {expandMarker} from "./expandMarker";
@@ -86,10 +86,6 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
         && !isCtrl(event) && event.key !== "Escape" && event.key !== "Delete") {
         return false;
     }
-    if ((event.key === "Backspace" || event.key === "Delete") && !isCtrl(event) && !event.shiftKey && !event.altKey) {
-        recordHistoryPosition(vditor);
-    }
-
     // 斜体、粗体、内联代码块中换行
     const newlineElement = hasClosestByAttribute(startContainer, "data-newline", "1");
     if (!isCtrl(event) && !event.altKey && !event.shiftKey && event.key === "Enter" && newlineElement

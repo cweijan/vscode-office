@@ -124,6 +124,9 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
                 });
             }
         } else {
+            // 整页重渲染时需先 deactivate CM，确保 pre 内只有干净的 code 元素，
+            // 否则 Chrome toolbar / cm-editor DOM 会混入 html，Lute 无法正确解析代码内容
+            deactivateCodeMirrorsInScope(vditor, vditor.wysiwyg.element);
             html = blockElement.innerHTML;
         }
 
@@ -158,7 +161,9 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
         // </ol>
         // console.log(oldHtml)
         const spinScope = isWYSIWYGElement ? vditor.wysiwyg.element : blockElement;
-        deactivateCodeMirrorsInScope(vditor, spinScope);
+        if (!isWYSIWYGElement) {
+            deactivateCodeMirrorsInScope(vditor, spinScope);
+        }
         html = vditor.lute.SpinVditorDOM(html);
         spinDomMs = debug ? performance.now() - stepStart : 0;
         stepStart = debug ? performance.now() : 0;
