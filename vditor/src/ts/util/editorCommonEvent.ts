@@ -22,6 +22,37 @@ import { saveCacheFocus } from "./cacheFocus";
 import { clearActiveHeadingMarker } from "./updateActiveHeadingMarker";
 import { handleVscodeShortcut } from "./vscodeShortcut";
 
+const markImageLoading = (img: HTMLImageElement) => {
+    if (img.complete && img.naturalWidth > 0) {
+        return;
+    }
+    img.setAttribute("data-loading", "");
+    const clear = () => img.removeAttribute("data-loading");
+    img.addEventListener("load", clear, { once: true });
+    img.addEventListener("error", clear, { once: true });
+};
+
+export const bindImageLoadingState = (editorElement: HTMLElement) => {
+    editorElement.querySelectorAll<HTMLImageElement>("img").forEach(markImageLoading);
+
+    const observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            mutation.addedNodes.forEach((node) => {
+                if (node.nodeType !== Node.ELEMENT_NODE) {
+                    return;
+                }
+                const el = node as HTMLElement;
+                if (el.tagName === "IMG") {
+                    markImageLoading(el as HTMLImageElement);
+                } else {
+                    el.querySelectorAll<HTMLImageElement>("img").forEach(markImageLoading);
+                }
+            });
+        }
+    });
+    observer.observe(editorElement, { childList: true, subtree: true });
+};
+
 export const focusEvent = (vditor: IVditor, editorElement: HTMLElement) => {
     editorElement.addEventListener("focus", () => {
         if (vditor.options.focus) {

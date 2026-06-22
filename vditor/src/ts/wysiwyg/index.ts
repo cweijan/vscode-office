@@ -2,6 +2,7 @@ import { Constants } from "../constants";
 import { hidePanel } from "../toolbar/setToolbar";
 import { isCtrl, isFirefox } from "../util/compatibility";
 import {
+    bindImageLoadingState,
     blurEvent,
     copyEvent, cutEvent, dblclickEvent,
     dropEvent,
@@ -75,6 +76,7 @@ class WYSIWYG {
         dropEvent(vditor, this.element);
         copyEvent(vditor, this.element, this.copy);
         cutEvent(vditor, this.element, this.copy);
+        bindImageLoadingState(this.element);
     }
 
     public unbindListener() {

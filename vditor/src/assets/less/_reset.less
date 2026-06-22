@@ -1,3 +1,8 @@
+@keyframes vditor-img-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 .vditor {
   &-reset {
     padding: 0 5%;
@@ -63,6 +68,18 @@
       max-height: var(--vditor-image-max-height, 70vh);
       height: auto;
       object-fit: contain;
+
+      &[data-loading] {
+        min-width: 60px;
+        min-height: 60px;
+        background: linear-gradient(90deg,
+          var(--second-bg-color, #f0f0f0) 25%,
+          var(--border-color, #e0e0e0) 50%,
+          var(--second-bg-color, #f0f0f0) 75%);
+        background-size: 200% 100%;
+        animation: vditor-img-shimmer 1.4s ease infinite;
+        border-radius: 4px;
+      }
     }
 
     h1,
