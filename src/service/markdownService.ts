@@ -10,6 +10,7 @@ import * as vscode from 'vscode';
 import { Holder } from './markdown/holder';
 import { convertMd } from "./markdown/markdown-pdf";
 import { Global } from "@/common/global";
+import { TelemetryService } from "./telemetryService";
 
 export type ExportType = 'pdf' | 'html' | 'docx';
 
@@ -29,6 +30,7 @@ export class MarkdownService {
      */
     public async exportMarkdown(uri: vscode.Uri, option: ExportOption = {}) {
         const { type = 'pdf' } = option;
+        TelemetryService.get()?.trackMarkdownExport(type);
         try {
             if (type != 'html') { // html导出速度快, 无需等待
                 vscode.window.showInformationMessage(`Starting export markdown to ${type}.`)

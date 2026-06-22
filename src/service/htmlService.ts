@@ -1,24 +1,26 @@
-
 import { readFileSync } from "fs";
 import { basename, dirname } from "path";
-import * as vscode from "vscode";
+import { Uri, ViewColumn, window, type ExtensionContext } from "vscode";
 import { Util } from "../common/util";
+import { fileTypeFromPath } from "@/service/officeViewType";
+import { TelemetryService } from "@/service/telemetryService";
 
 export class HtmlService {
 
-    public static previewHtml(uri: vscode.Uri, context: vscode.ExtensionContext) {
-        const activeEditor = vscode.window.activeTextEditor;
+    public static previewHtml(uri: Uri, context: ExtensionContext) {
+        const activeEditor = window.activeTextEditor;
         if (!uri) {
             if (!activeEditor) {
-                void vscode.window.showWarningMessage('No HTML file to preview.');
+                void window.showWarningMessage('No HTML file to preview.');
                 return;
             }
             uri = activeEditor.document.uri;
         }
+        TelemetryService.get()?.trackViewOpen('previewHtml', fileTypeFromPath(uri.fsPath));
         const folderPath = dirname(uri.fsPath);
-        const webviewPanel = vscode.window.createWebviewPanel(
+        const webviewPanel = window.createWebviewPanel(
             "office-viewer.viewHtml", basename(uri.fsPath),
-            { viewColumn: vscode.ViewColumn.Two, preserveFocus: true },
+            { viewColumn: ViewColumn.Two, preserveFocus: true },
             { retainContextWhenHidden: true, enableScripts: true }
         )
 
@@ -30,7 +32,7 @@ export class HtmlService {
             return Util.buildPath(content, webviewPanel.webview, folderPath);
         }
 
-        webviewPanel.iconPath = vscode.Uri.file(`${context.extensionPath}/icons/html.svg`)
+        webviewPanel.iconPath = Uri.file(`${context.extensionPath}/icons/html.svg`)
         webviewPanel.webview.html = readContent()
 
         Util.listen(webviewPanel, uri, () => {

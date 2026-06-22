@@ -62,4 +62,11 @@ export class TelemetryService {
         }
         this.reporter!.sendTelemetryEvent('gitHistory.view', { mode });
     }
+
+    trackMarkdownExport(type: 'pdf' | 'html' | 'docx'): void {
+        if (!this.enabled()) {
+            return;
+        }
+        this.reporter!.sendTelemetryEvent('markdown.export', { type });
+    }
 }

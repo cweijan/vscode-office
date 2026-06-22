@@ -92,6 +92,8 @@ export class Options {
         width: "auto",
         editorTheme: "Auto",
         mermaidTheme: "Auto",
+        onSponsorLogoClick: undefined,
+        onSponsorSiteClick: undefined,
     };
 
     constructor(options: IOptions) {

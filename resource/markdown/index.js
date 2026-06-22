@@ -43,7 +43,6 @@ function normalizeEditMode(mode) {
 
 handler.on("open", async (md) => {
   const { config, language } = md;
-  const sponsorBaseUrl = md.sponsorBaseUrl || state?.sponsorBaseUrl;
   const codeMirrorTheme = normalizeCodeMirrorTheme(md.codeMirrorTheme ?? config.codeMirrorTheme)
   const editorTheme = md.editorTheme ?? config.editorTheme ?? 'Auto'
   const mermaidTheme = md.mermaidTheme ?? config.mermaidTheme ?? 'Auto'
@@ -70,7 +69,9 @@ handler.on("open", async (md) => {
     mode: editMode,
     lang: language == 'zh-cn' ? 'zh_CN' : config.editorLanguage,
     tab: '\t',
-    toolbar: await getToolbar(md.rootPath, sponsorBaseUrl, language),
+    toolbar: await getToolbar(md.rootPath, language),
+    onSponsorLogoClick: () => handler.emit('openSponsor'),
+    onSponsorSiteClick: () => handler.emit('openExternal', 'https://database-client.com/'),
     debugger: md.isDev,
     extPath: md.rootPath,
     changeEditorTheme(theme) {

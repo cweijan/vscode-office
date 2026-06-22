@@ -71,6 +71,7 @@ Office Viewer collects **anonymous usage data** to understand which preview feat
 |-------|------|------------|
 | `view.open` | A custom preview/editor is opened | `viewType` (e.g. `excel`, `markdown`, `pdf`), `fileType` (extension only, e.g. `xlsx`, `md`) |
 | `gitHistory.view` | Git History is opened | `mode`: `repo` or `file` |
+| `markdown.export` | Markdown is exported from the editor context menu | `type`: `pdf`, `html`, or `docx` |
 
 We **do not** collect file paths, file names, URLs, repository names, request contents, or other personally identifiable information.
 

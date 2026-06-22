@@ -70,7 +70,7 @@ Microsoft documents the connection string as **not sensitive**; it is commonly c
    ```kusto
    customEvents
    | where timestamp > ago(30m)
-   | where name in ("view.open", "gitHistory.view")
+   | where name in ("view.open", "gitHistory.view", "markdown.export")
    | project timestamp, name, customDimensions
    | order by timestamp desc
    ```
@@ -100,13 +100,23 @@ customEvents
 | order by timestamp desc
 ```
 
+### Markdown exports
+
+```kusto
+customEvents
+| where name == "markdown.export"
+| extend type = tostring(customDimensions.type)
+| summarize count() by type, bin(timestamp, 1d)
+| order by timestamp desc
+```
+
 ### Daily active users (DAU)
 
 Uses Application Insights anonymous `user_Id` (not PII).
 
 ```kusto
 customEvents
-| where name in ("view.open", "gitHistory.view")
+| where name in ("view.open", "gitHistory.view", "markdown.export")
 | summarize DAU = dcount(user_Id) by bin(timestamp, 1d)
 | order by timestamp desc
 ```

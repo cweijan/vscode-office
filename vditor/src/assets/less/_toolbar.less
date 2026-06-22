@@ -141,3 +141,120 @@
 .vditor-toolbar__item .vditor-tooltipped[data-type="outline"].vditor-menu--current {
   color: var(--list-hover-color, var(--toolbar-icon-hover-color)) !important;
 }
+
+.vditor-sponsor-toolbar-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  vertical-align: middle;
+  border-radius: 3px;
+}
+
+.vditor-sponsor-popup {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 100;
+  width: 380px;
+  background: var(--panel-background-color);
+  border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 18%, transparent);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.08);
+  animation: vditor-popup-in 0.15s ease;
+
+  &__inner {
+    position: relative;
+    padding: 18px 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  &__close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--toolbar-icon-color);
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.15s, background 0.15s;
+
+    &:hover {
+      opacity: 1;
+      background: color-mix(in srgb, var(--toolbar-icon-color) 10%, transparent);
+    }
+  }
+
+  &__desc {
+    margin: 0;
+    padding-right: 20px;
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--toolbar-icon-color);
+
+    strong {
+      font-weight: 600;
+      color: var(--textarea-text-color);
+    }
+  }
+
+  &__bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 7px;
+    background: var(--toolbar-background-color);
+    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 10%, transparent);
+  }
+
+  &__logo {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 7px;
+    transition: transform 0.15s, opacity 0.15s;
+
+    &:hover { opacity: 0.85; transform: scale(1.05); }
+
+    img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      border-radius: 7px;
+      display: block;
+    }
+  }
+
+  &__bar-text {
+    font-size: 12px;
+    color: var(--toolbar-icon-color);
+    line-height: 1.4;
+
+    a {
+      font-weight: 600;
+      color: #4285f4;
+      text-decoration: underline;
+      &:hover { color: #1a5fd4; }
+    }
+  }
+}
+
+@keyframes vditor-popup-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);    }
+}

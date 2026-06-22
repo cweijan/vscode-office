@@ -18,6 +18,13 @@
 				"purpose": "FeatureInsight",
 				"endPoint": "Azure"
 			}
+		},
+		"markdown.export": {
+			"type": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			}
 		}
 	}
 }
