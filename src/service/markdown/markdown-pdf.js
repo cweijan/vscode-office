@@ -23,8 +23,9 @@ async function convertMarkdown(inputMarkdownFile, config) {
   const $ = require("cheerio").load(html);
   const containsMermaid = $('.mermaid').length > 0;
   if (containsMermaid) {
+    const mermaidPath = url.pathToFileURL(path.resolve(__dirname, '..', "resource", 'markdown', 'dist', 'js', 'mermaid', 'mermaid.min.js')).href;
       const mermaidScript = `
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="${mermaidPath}"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     `;
 
