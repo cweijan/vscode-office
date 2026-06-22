@@ -125,6 +125,12 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
         if (aElement) {
             setCurrentToolbar(vditor.toolbar.elements, ["link"]);
         }
+        const linkRefElement = hasClosestByAttribute(typeElement, "data-type", "link-ref");
+        const isLinkPopoverVisible = vditor.wysiwyg.popover.style.display === "block" &&
+            vditor.wysiwyg.popover.classList.contains("vditor-panel--link");
+        if (isLinkPopoverVisible && !aElement && !linkRefElement) {
+            hideLinkPopover(vditor);
+        }
         const tableElement = hasClosestByMatchTag(typeElement, "TABLE") as HTMLTableElement;
         const headingElement = hasClosestByHeadings(typeElement) as HTMLElement;
         if (hasClosestByMatchTag(typeElement, "CODE")) {
@@ -169,13 +175,13 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
             setCurrentToolbar(vditor.toolbar.elements, ["headings"]);
         } else if (tableElement) {
             disableToolbar(vditor.toolbar.elements, ["table"]);
-            vditor.wysiwyg.popover.style.display = "none";
+            if (!aElement && !linkRefElement) {
+                vditor.wysiwyg.popover.style.display = "none";
+            }
         }
 
         // quote popover
         const blockquoteElement = hasClosestByTag(typeElement, "BLOCKQUOTE") as HTMLTableElement;
-
-        const linkRefElement = hasClosestByAttribute(typeElement, "data-type", "link-ref");
 
         // footnote popover
         const footnotesRefElement = hasClosestByAttribute(typeElement, "data-type", "footnotes-ref");
@@ -388,12 +394,19 @@ const setPopoverPosition = (vditor: IVditor, element: HTMLElement, popoverType?:
     vditor.wysiwyg.popover.classList.toggle("vditor-panel--image", popoverType === "image");
     vditor.wysiwyg.popover.style.left = "0";
     vditor.wysiwyg.popover.style.display = "block";
+
+    const elementRect = element.getClientRects()[0] || element.getBoundingClientRect();
+    const editorRect = vditor.wysiwyg.element.getBoundingClientRect();
+    const anchorTop = elementRect.top - editorRect.top + vditor.wysiwyg.element.scrollTop;
+    const anchorLeft = elementRect.left - editorRect.left + vditor.wysiwyg.element.scrollLeft;
+    const popoverTop = anchorTop - (isLinkPanel ? vditor.wysiwyg.popover.clientHeight + 8 : 21);
+    const maxLeft = vditor.wysiwyg.element.clientWidth - vditor.wysiwyg.popover.clientWidth;
+
     vditor.wysiwyg.popover.style.top =
-        Math.max(-8, element.offsetTop - (isLinkPanel ? vditor.wysiwyg.popover.clientHeight + 8 : 21) -
-            vditor.wysiwyg.element.scrollTop) + "px";
+        Math.max(-8, popoverTop - vditor.wysiwyg.element.scrollTop) + "px";
     vditor.wysiwyg.popover.style.left =
-        Math.min(element.offsetLeft, vditor.wysiwyg.element.clientWidth - vditor.wysiwyg.popover.clientWidth) + "px";
-    vditor.wysiwyg.popover.setAttribute("data-top", (element.offsetTop - 21).toString());
+        Math.max(0, Math.min(anchorLeft - vditor.wysiwyg.element.scrollLeft, maxLeft)) + "px";
+    vditor.wysiwyg.popover.setAttribute("data-top", popoverTop.toString());
 };
 
 export const genLinkRefPopover = (vditor: IVditor, linkRefElement: HTMLElement) => {
