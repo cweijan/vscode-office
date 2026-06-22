@@ -1,4 +1,4 @@
-import { getCodeMirrorView, isInsideCodeMirror, restoreCodeMirrorFocus } from "../codeBlock/codeMirrorManager";
+import { getCodeMirrorView, isInsideCodeBlockChrome, isInsideCodeMirror, restoreCodeMirrorFocus } from "../codeBlock/codeMirrorManager";
 import { accessLocalStorage } from "./compatibility";
 import { getEditorRange, getEditorTextOffset, setSelectionByPosition } from "./selection";
 
@@ -7,11 +7,18 @@ type CacheFocusState = {
     type: "editor" | "cm";
     start: number;
     end: number;
-    scrollTop: number;
+    scrollTop?: number;
     blockIndex?: number;
 };
 
+type RestoreFocusOptions = {
+    /** 页面/文档首次加载时恢复（读取持久化焦点，不依赖本次会话是否失焦过） */
+    onLoad?: boolean;
+};
+
 const cacheRestoredMap = new WeakMap<IVditor, boolean>();
+const sessionFocusMap = new WeakMap<IVditor, CacheFocusState>();
+const focusSavedMap = new WeakMap<IVditor, boolean>();
 
 export const getCacheFocusKey = (cacheId: string) => `${cacheId}-focus`;
 
@@ -30,6 +37,10 @@ export const clearCacheFocus = (cacheId: string) => {
     localStorage.removeItem(getCacheFocusKey(cacheId));
 };
 
+const isVscodeFocusHost = (vditor: IVditor) => {
+    return vditor.options.cache?.focusHost === "vscode";
+};
+
 const getCodeBlockIndex = (editor: HTMLElement, block: HTMLElement) => {
     const blocks = editor.querySelectorAll("[data-type='code-block']");
     let blockIndex = -1;
@@ -44,11 +55,75 @@ const getCodeBlockIndex = (editor: HTMLElement, block: HTMLElement) => {
     return blockIndex;
 };
 
-export const saveCacheFocus = (vditor: IVditor) => {
-    if (!vditor.options.cache.enable || !accessLocalStorage()) {
+const persistFocusState = (vditor: IVditor, state: CacheFocusState) => {
+    sessionFocusMap.set(vditor, state);
+    focusSavedMap.set(vditor, true);
+    if (accessLocalStorage() && vditor.options.cache?.id) {
+        localStorage.setItem(getCacheFocusKey(vditor.options.cache.id), JSON.stringify(state));
+    }
+};
+
+const readFocusState = (vditor: IVditor): CacheFocusState | null => {
+    const cached = sessionFocusMap.get(vditor);
+    if (cached) {
+        return cached;
+    }
+    if (!accessLocalStorage() || !vditor.options.cache?.id) {
+        return null;
+    }
+    const raw = localStorage.getItem(getCacheFocusKey(vditor.options.cache.id));
+    if (!raw) {
+        return null;
+    }
+    try {
+        return JSON.parse(raw) as CacheFocusState;
+    } catch {
+        return null;
+    }
+};
+
+const isEditorFocused = (vditor: IVditor) => {
+    const editor = vditor[vditor.currentMode].element;
+    const activeElement = document.activeElement;
+    if (!activeElement) {
+        return false;
+    }
+    return editor.contains(activeElement)
+        || isInsideCodeMirror(activeElement)
+        || isInsideCodeBlockChrome(activeElement);
+};
+
+const canRestoreFocus = (vditor: IVditor, onLoad: boolean) => {
+    if (onLoad) {
+        return true;
+    }
+    return focusSavedMap.get(vditor) === true || wasCacheContentRestored(vditor);
+};
+
+const applyFocusState = (vditor: IVditor, state: CacheFocusState, options?: RestoreFocusOptions) => {
+    const editor = vditor[vditor.currentMode].element;
+    const onLoad = options?.onLoad === true;
+    if (onLoad && !isVscodeFocusHost(vditor) &&
+        state.scrollTop != null && !Number.isNaN(state.scrollTop)) {
+        editor.scrollTop = state.scrollTop;
+    }
+
+    if (state.type === "cm" && state.blockIndex != null && state.blockIndex >= 0) {
+        const blocks = editor.querySelectorAll("[data-type='code-block']");
+        const block = blocks[state.blockIndex] as HTMLElement | undefined;
+        if (block) {
+            restoreCodeMirrorFocus(block, state.start, state.end, vditor);
+        }
         return;
     }
 
+    const start = Math.max(0, state.start);
+    const end = Math.max(start, state.end);
+    editor.focus({ preventScroll: true });
+    setSelectionByPosition(start, end, editor);
+};
+
+export const saveCacheFocus = (vditor: IVditor) => {
     const editor = vditor[vditor.currentMode].element;
     const scrollTop = editor.scrollTop;
     const activeElement = document.activeElement;
@@ -60,15 +135,14 @@ export const saveCacheFocus = (vditor: IVditor) => {
             const view = getCodeMirrorView(block);
             if (view && blockIndex >= 0) {
                 const selection = view.state.selection.main;
-                const state: CacheFocusState = {
+                persistFocusState(vditor, {
                     mode: vditor.currentMode,
                     type: "cm",
                     start: selection.anchor,
                     end: selection.head,
                     scrollTop,
                     blockIndex,
-                };
-                localStorage.setItem(getCacheFocusKey(vditor.options.cache.id), JSON.stringify(state));
+                });
                 return;
             }
         }
@@ -76,57 +150,35 @@ export const saveCacheFocus = (vditor: IVditor) => {
 
     const range = getEditorRange(vditor);
     const { start, end } = getEditorTextOffset(editor, range);
-    const state: CacheFocusState = {
+    persistFocusState(vditor, {
         mode: vditor.currentMode,
         type: "editor",
         start,
         end,
         scrollTop,
-    };
-    localStorage.setItem(getCacheFocusKey(vditor.options.cache.id), JSON.stringify(state));
+    });
 };
 
-export const restoreCacheFocus = (vditor: IVditor) => {
-    if (!vditor.options.cache.enable || !wasCacheContentRestored(vditor) || !accessLocalStorage()) {
+export const restoreCacheFocus = (vditor: IVditor, options?: RestoreFocusOptions) => {
+    const onLoad = options?.onLoad === true;
+    if (!canRestoreFocus(vditor, onLoad)) {
         return;
     }
-    cacheRestoredMap.delete(vditor);
-
-    const raw = localStorage.getItem(getCacheFocusKey(vditor.options.cache.id));
-    if (!raw) {
-        return;
+    if (wasCacheContentRestored(vditor)) {
+        cacheRestoredMap.delete(vditor);
     }
 
-    let state: CacheFocusState;
-    try {
-        state = JSON.parse(raw);
-    } catch {
+    const state = readFocusState(vditor);
+    if (!state || state.mode !== vditor.currentMode) {
         return;
     }
 
-    if (state.mode !== vditor.currentMode) {
-        return;
+    if (onLoad || focusSavedMap.get(vditor) === true) {
+        focusSavedMap.set(vditor, true);
     }
 
-    const editor = vditor[vditor.currentMode].element;
     const apply = () => {
-        if (state.scrollTop != null && !Number.isNaN(state.scrollTop)) {
-            editor.scrollTop = state.scrollTop;
-        }
-
-        if (state.type === "cm" && state.blockIndex != null && state.blockIndex >= 0) {
-            const blocks = editor.querySelectorAll("[data-type='code-block']");
-            const block = blocks[state.blockIndex] as HTMLElement | undefined;
-            if (block) {
-                restoreCodeMirrorFocus(block, state.start, state.end, vditor);
-            }
-            return;
-        }
-
-        const start = Math.max(0, state.start);
-        const end = Math.max(start, state.end);
-        editor.focus({ preventScroll: true });
-        setSelectionByPosition(start, end, editor);
+        applyFocusState(vditor, state, options);
     };
 
     window.requestAnimationFrame(() => {
@@ -135,10 +187,28 @@ export const restoreCacheFocus = (vditor: IVditor) => {
 };
 
 export const bindCacheFocusPersistence = (vditor: IVditor) => {
-    if (!vditor.options.cache.enable || !accessLocalStorage()) {
-        return;
-    }
     const persistFocus = () => saveCacheFocus(vditor);
+    const tryRestoreFocus = () => {
+        if (isEditorFocused(vditor)) {
+            return;
+        }
+        restoreCacheFocus(vditor);
+    };
+
     window.addEventListener("pagehide", persistFocus);
     window.addEventListener("beforeunload", persistFocus);
+
+    if (!isVscodeFocusHost(vditor)) {
+        return;
+    }
+
+    window.addEventListener("blur", persistFocus);
+    window.addEventListener("focus", tryRestoreFocus);
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+            persistFocus();
+            return;
+        }
+        tryRestoreFocus();
+    });
 };

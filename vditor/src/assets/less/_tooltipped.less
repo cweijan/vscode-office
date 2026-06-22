@@ -17,28 +17,39 @@
 .vditor-tooltipped {
   position: relative;
   cursor: pointer;
+  --vditor-tooltip-bg: color-mix(in srgb, var(--panel-background-color, #fff) 96%, var(--front-color, #24292e));
+  --vditor-tooltip-color: var(--front-color, #24292e);
+  --vditor-tooltip-border: color-mix(in srgb, var(--front-color, #24292e) 16%, transparent);
+  --vditor-tooltip-shadow: 0 12px 30px color-mix(in srgb, var(--front-color, #24292e) 18%, transparent),
+    0 2px 8px color-mix(in srgb, var(--front-color, #24292e) 10%, transparent);
 
   &::after {
     position: absolute;
     z-index: 1000000;
     display: none;
-    padding: 5px 8px;
-    font-size: 11px;
-    font-weight: normal;
-    -webkit-font-smoothing: subpixel-antialiased;
-    color: #fff;
+    min-width: max-content;
+    max-width: min(280px, calc(100vw - 24px));
+    padding: 7px 10px;
+    box-sizing: border-box;
+    font-size: 12px;
+    font-weight: 500;
+    -webkit-font-smoothing: antialiased;
+    color: var(--vditor-tooltip-color);
     text-align: center;
     text-decoration: none;
     text-shadow: none;
     text-transform: none;
     letter-spacing: normal;
-    word-wrap: break-word;
-    white-space: pre;
+    word-break: normal;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
     pointer-events: none;
     content: attr(aria-label);
-    background: #3b3e43;
-    border-radius: 3px;
-    line-height: 16px;
+    background: var(--vditor-tooltip-bg);
+    border: 1px solid var(--vditor-tooltip-border);
+    border-radius: 6px;
+    box-shadow: var(--vditor-tooltip-shadow);
+    line-height: 1.35;
     opacity: 0;
   }
 
@@ -48,7 +59,7 @@
     display: none;
     width: 0;
     height: 0;
-    color: #3b3e43;
+    color: var(--vditor-tooltip-bg);
     pointer-events: none;
     content: "";
     border: 5px solid transparent;
@@ -71,20 +82,12 @@
     animation-timing-function: ease-in;
   }
 
-  &--hover::before,
-  &:hover::before,
-  &:active::before,
-  &:focus::before
-  {
-    display: none !important;
-  }
-
   &__s::after,
   &__se::after,
   &__sw::after {
     top: 100%;
     right: 50%;
-    margin-top: 5px;
+    margin-top: 9px;
   }
 
   &__s::before,
@@ -92,9 +95,9 @@
   &__sw::before {
     top: auto;
     right: 50%;
-    bottom: -5px;
+    bottom: -9px;
     margin-right: -5px;
-    border-bottom-color: #3b3e43;
+    border-bottom-color: var(--vditor-tooltip-bg);
   }
 
   &__se::after {
@@ -112,18 +115,17 @@
   &__nw::after {
     right: 50%;
     bottom: 100%;
-    margin-bottom: -65px
-    // margin-bottom: 5px;
+    margin-bottom: 9px;
   }
 
   &__n::before,
   &__ne::before,
   &__nw::before {
-    top: -5px;
+    top: -9px;
     right: 50%;
     bottom: auto;
     margin-right: -5px;
-    border-top-color: #3b3e43;
+    border-top-color: var(--vditor-tooltip-bg);
   }
 
   &__ne::after {
@@ -144,32 +146,39 @@
   &__w::after {
     right: 100%;
     bottom: 50%;
-    margin-right: 5px;
+    margin-right: 9px;
     transform: translateY(50%);
   }
 
   &__w::before {
     top: 50%;
     bottom: 50%;
-    left: -5px;
+    left: -9px;
     margin-top: -5px;
-    border-left-color: #3b3e43;
+    border-left-color: var(--vditor-tooltip-bg);
   }
 
   &__e::after {
     bottom: 50%;
     left: 100%;
-    margin-left: 5px;
+    margin-left: 9px;
     transform: translateY(50%);
   }
 
   &__e::before {
     top: 50%;
-    right: -5px;
+    right: -9px;
     bottom: 50%;
     margin-top: -5px;
-    border-right-color: #3b3e43;
+    border-right-color: var(--vditor-tooltip-bg);
   }
+}
+
+.vditor--dark .vditor-tooltipped {
+  --vditor-tooltip-bg: color-mix(in srgb, var(--panel-background-color, #24292e) 86%, #000);
+  --vditor-tooltip-color: var(--front-color, #d1d5da);
+  --vditor-tooltip-border: color-mix(in srgb, var(--front-color, #d1d5da) 16%, transparent);
+  --vditor-tooltip-shadow: 0 14px 32px rgba(0, 0, 0, 0.36), 0 2px 8px rgba(0, 0, 0, 0.28);
 }
 
 @media screen and (max-width: @max-width) {

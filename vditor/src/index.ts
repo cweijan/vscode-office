@@ -27,7 +27,7 @@ import {setTheme} from "./ts/ui/setTheme";
 import {Undo} from "./ts/undo/index";
 import {Upload} from "./ts/upload/index";
 import {addScript} from "./ts/util/addScript";
-import {clearCacheFocus} from "./ts/util/cacheFocus";
+import {clearCacheFocus, restoreCacheFocus} from "./ts/util/cacheFocus";
 import {accessLocalStorage} from "./ts/util/compatibility";
 import {getSelectText} from "./ts/util/getSelectText";
 import {Options} from "./ts/util/Options";
@@ -186,6 +186,11 @@ class Vditor {
     /** 获取焦点位置 */
     public getCursorPosition() {
         return getCursorPosition(this.vditor[this.vditor.currentMode].element);
+    }
+
+    /** 恢复上次焦点位置；onLoad 用于页面首次加载 */
+    public restoreFocus(onLoad = false) {
+        restoreCacheFocus(this.vditor, { onLoad });
     }
 
     /** 上传是否还在进行中 */

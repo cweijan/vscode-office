@@ -309,15 +309,10 @@ export function setupEditorSession() {
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             persistScroll();
-            return;
         }
-        applyEditorScroll(editorSession.scrollTop);
     });
 
     window.addEventListener('blur', persistScroll);
-    window.addEventListener('focus', () => {
-        applyEditorScroll(editorSession.scrollTop);
-    });
 }
 
 export function scrollEditor(top) {

@@ -1,5 +1,12 @@
 import { openLink, hotKeys, imageParser, getToolbar, autoSymbol, onToolbarClick, createContextMenu, scrollEditor, setupEditorSession } from "./util.js";
 
+function buildFocusCacheId(documentPath) {
+  if (!documentPath) {
+    return undefined;
+  }
+  return `md-${documentPath}`;
+}
+
 let state;
 function loadConfigs() {
   const elem = document.getElementById('configs')
@@ -48,6 +55,8 @@ handler.on("open", async (md) => {
     },
     cache: {
       enable: false,
+      id: buildFocusCacheId(md.documentPath),
+      focusHost: 'vscode',
     },
     mode: 'wysiwyg',
     lang: language == 'zh-cn' ? 'zh_CN' : config.editorLanguage,
@@ -92,6 +101,7 @@ handler.on("open", async (md) => {
       onToolbarClick(editor)
       setupEditorSession()
       scrollEditor(md.scrollTop)
+      editor.restoreFocus(true)
     }
   })
   autoSymbol(handler, editor, config);

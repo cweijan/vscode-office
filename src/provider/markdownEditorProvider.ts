@@ -82,6 +82,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             const scrollTop = this.state.get(`scrollTop_${document.uri.fsPath}`, 0);
             handler.emit("open", {
                 title: basename(uri.fsPath),
+                documentPath: uri.fsPath,
                 config: this.getMarkdownWebviewConfig(config), scrollTop,
                 editorTheme: Global.getConfig("editorTheme", "Auto"),
                 codeMirrorTheme: Global.getConfig("codeMirrorTheme", "Auto"),

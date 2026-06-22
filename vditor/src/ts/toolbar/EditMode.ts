@@ -95,7 +95,7 @@ export const setEditMode = (vditor: IVditor, type: string, event: Event | string
         vditor[vditor.currentMode].element.focus();
         highlightToolbar(vditor);
     } else if (wasCacheContentRestored(vditor)) {
-        restoreCacheFocus(vditor);
+        restoreCacheFocus(vditor, { onLoad: true });
     }
     renderToc(vditor);
 

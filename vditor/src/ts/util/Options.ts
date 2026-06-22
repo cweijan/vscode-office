@@ -9,6 +9,7 @@ export class Options {
         after: undefined,
         cache: {
             enable: false,
+            focusHost: "browser",
         },
         cdn: Constants.CDN,
         counter: {
