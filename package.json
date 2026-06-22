@@ -152,11 +152,7 @@
 					".kusto",
 					".kql"
 				],
-				"configuration": "./syntaxes/kusto-language-configuration.json",
-				"icon": {
-					"light": "./image/kusto_logo.png",
-					"dark": "./image/kusto_logo_dark.png"
-				}
+				"configuration": "./syntaxes/kusto-language-configuration.json"
 			}
 		],
 		"grammars": [

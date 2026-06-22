@@ -1,12 +1,22 @@
 import { getCodeMirrorView, isInsideCodeBlockChrome, isInsideCodeMirror, restoreCodeMirrorFocus } from "../codeBlock/codeMirrorManager";
 import { accessLocalStorage } from "./compatibility";
-import { getEditorRange, getEditorTextOffset, setSelectionByPosition } from "./selection";
+import {
+    getEditorRange,
+    getEditorTextOffset,
+    getNodePath,
+    setSelectionByPath,
+    setSelectionByPosition,
+} from "./selection";
 
 type CacheFocusState = {
     mode: string;
     type: "editor" | "cm";
     start: number;
     end: number;
+    startOffset?: number;
+    endOffset?: number;
+    startPath?: number[];
+    endPath?: number[];
     scrollTop?: number;
     blockIndex?: number;
 };
@@ -120,6 +130,16 @@ const applyFocusState = (vditor: IVditor, state: CacheFocusState, options?: Rest
     const start = Math.max(0, state.start);
     const end = Math.max(start, state.end);
     editor.focus({ preventScroll: true });
+    const restoredByPath = setSelectionByPath(
+        editor,
+        state.startPath,
+        state.startOffset,
+        state.endPath,
+        state.endOffset,
+    );
+    if (restoredByPath) {
+        return;
+    }
     setSelectionByPosition(start, end, editor);
 };
 
@@ -150,11 +170,17 @@ export const saveCacheFocus = (vditor: IVditor) => {
 
     const range = getEditorRange(vditor);
     const { start, end } = getEditorTextOffset(editor, range);
+    const startPath = getNodePath(editor, range.startContainer);
+    const endPath = getNodePath(editor, range.endContainer);
     persistFocusState(vditor, {
         mode: vditor.currentMode,
         type: "editor",
         start,
         end,
+        startOffset: range.startOffset,
+        endOffset: range.endOffset,
+        startPath,
+        endPath,
         scrollTop,
     });
 };

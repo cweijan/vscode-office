@@ -108,6 +108,7 @@ export async function getToolbar(resPath, language) {
         "undo",
         "redo",
         "|",
+        "find",
         "edit-mode",
         "code-theme",
         "help",

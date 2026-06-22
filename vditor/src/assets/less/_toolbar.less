@@ -146,6 +146,87 @@
   width: 180px;
 }
 
+.vditor-find-bar {
+  display: none;
+  position: fixed;
+  top: calc(var(--toolbar-height) + 8px);
+  right: 12px;
+  z-index: 1000;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 6px;
+  background: var(--panel-background-color);
+  border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 18%, transparent);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px color-mix(in srgb, #000 18%, transparent),
+              0 1px 4px color-mix(in srgb, #000 10%, transparent);
+  animation: vditor-popup-in 0.15s ease;
+
+  &__input {
+    width: 220px;
+    height: 24px;
+    padding: 0 8px;
+    font-size: 12px;
+    color: var(--textarea-text-color);
+    background: var(--textarea-background-color, var(--bg-color));
+    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 16%, transparent);
+    border-radius: 5px;
+    outline: none;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: var(--link-color, var(--list-hover-color));
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--link-color, var(--list-hover-color)) 20%, transparent);
+    }
+  }
+
+  &__count {
+    font-size: 12px;
+    color: color-mix(in srgb, var(--toolbar-icon-color) 55%, transparent);
+    white-space: nowrap;
+    min-width: 68px;
+    text-align: center;
+
+    &--none {
+      color: var(--vscode-errorForeground, #e51400);
+    }
+
+  }
+
+  &__nav,
+  &__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--toolbar-icon-color);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.1s;
+
+    &:hover {
+      background: color-mix(in srgb, var(--toolbar-icon-color) 10%, transparent);
+    }
+  }
+}
+
+.vditor-find-highlight {
+  background: var(--vscode-editor-findMatchHighlightBackground, #ffd700);
+  color: var(--vscode-editor-findMatchHighlightForeground, inherit);
+  border-radius: 3px;
+  padding: 1px 2px;
+
+  &--current {
+    outline: 2px solid var(--link-color, #4285f4);
+    outline-offset: 1px;
+  }
+}
+
 .vditor-sponsor-toolbar-icon {
   width: 18px;
   height: 18px;

@@ -20,13 +20,27 @@ const getOutlineHeadingHTML = (item: HTMLElement, vditor?: IVditor) => {
 };
 
 export const OUTLINE_SCROLL_OFFSET = 15;
+const OUTLINE_ACTIVE_MAX_OFFSET = 120;
+const OUTLINE_ACTIVE_VIEWPORT_RATIO = 0.25;
 
 export const getOutlineActiveReferenceY = (vditor: IVditor, contentElement: HTMLElement) => {
-    let referenceY = contentElement.getBoundingClientRect().top + OUTLINE_SCROLL_OFFSET;
-    if (vditor.options.height === "auto" && !vditor.options.toolbarConfig.pin) {
-        referenceY += vditor.toolbar.element.getBoundingClientRect().height;
+    const contentRect = contentElement.getBoundingClientRect();
+    let visibleTop = contentRect.top;
+    let visibleBottom = contentRect.bottom;
+
+    if (vditor.options.height === "auto") {
+        visibleBottom = window.innerHeight;
+        if (vditor.options.toolbarConfig.pin) {
+            visibleTop = Math.max(visibleTop, vditor.toolbar.element.getBoundingClientRect().bottom);
+        }
     }
-    return referenceY;
+
+    const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+    const activeOffset = Math.max(
+        OUTLINE_SCROLL_OFFSET,
+        Math.min(OUTLINE_ACTIVE_MAX_OFFSET, visibleHeight * OUTLINE_ACTIVE_VIEWPORT_RATIO),
+    );
+    return visibleTop + activeOffset;
 };
 
 export const scrollOutlineTarget = (scrollElement: HTMLElement, idElement: HTMLElement) => {

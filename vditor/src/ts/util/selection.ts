@@ -49,6 +49,70 @@ export const getEditorTextOffset = (editor: HTMLElement, range?: Range) => {
     }
 };
 
+export const getNodePath = (root: Node, node: Node): number[] | undefined => {
+    if (root.isSameNode(node)) {
+        return [];
+    }
+    if (!root.contains(node)) {
+        return undefined;
+    }
+    const path: number[] = [];
+    let current: Node | null = node;
+    while (current && !root.isSameNode(current)) {
+        const parent = current.parentNode;
+        if (!parent) {
+            return undefined;
+        }
+        path.unshift(Array.prototype.indexOf.call(parent.childNodes, current));
+        current = parent;
+    }
+    return path;
+};
+
+export const getNodeByPath = (root: Node, path?: number[]) => {
+    if (!path) {
+        return undefined;
+    }
+    let current: Node | undefined = root;
+    for (const index of path) {
+        current = current?.childNodes[index];
+        if (!current) {
+            return undefined;
+        }
+    }
+    return current;
+};
+
+const clampNodeOffset = (node: Node, offset: number) => {
+    if (node.nodeType === 3) {
+        return Math.min(Math.max(0, offset), node.textContent?.length || 0);
+    }
+    return Math.min(Math.max(0, offset), node.childNodes.length);
+};
+
+export const setSelectionByPath = (
+    editor: HTMLElement,
+    startPath?: number[],
+    startOffset = 0,
+    endPath?: number[],
+    endOffset = startOffset,
+) => {
+    const startNode = getNodeByPath(editor, startPath);
+    const endNode = getNodeByPath(editor, endPath);
+    if (!startNode || !endNode) {
+        return undefined;
+    }
+    try {
+        const range = editor.ownerDocument.createRange();
+        range.setStart(startNode, clampNodeOffset(startNode, startOffset));
+        range.setEnd(endNode, clampNodeOffset(endNode, endOffset));
+        setSelectionFocus(range);
+        return range;
+    } catch {
+        return undefined;
+    }
+};
+
 export const getCursorPosition = (editor: HTMLElement) => {
     const range = window.getSelection().getRangeAt(0);
     if (!editor.contains(range.startContainer) && !hasClosestByClassName(range.startContainer, "vditor-panel--none")) {

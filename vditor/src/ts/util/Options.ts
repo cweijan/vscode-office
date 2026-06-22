@@ -240,6 +240,9 @@ export class Options {
             icon: getToolbarCodicon("more"),
             name: "more",
         }, {
+            icon: getToolbarCodicon("find"),
+            name: "find",
+        }, {
             icon: getToolbarCodicon("edit-mode"),
             name: "edit-mode",
         }, {

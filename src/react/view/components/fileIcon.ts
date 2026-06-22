@@ -10,7 +10,7 @@ const ICON_FILES = new Set([
     'sass.svg', 'scala.svg', 'scss.svg', 'settings.svg', 'sql.svg', 'svg.svg',
     'typescript.svg', 'video.svg', 'vue.svg', 'word.svg', 'xml.svg', 'yaml.svg',
     'yarn.svg', 'zip.svg',
-    'folder-config.svg', 'folder-container.svg', 'folder-core.svg', 'folder-temp.svg', 'folder.svg',
+    'folder-config.svg', 'folder-container.svg', 'folder-core.svg', 'folder-open.svg', 'folder-temp.svg', 'folder.svg',
 ]);
 
 const EXT_ICON_MAP: Record<string, string> = {
@@ -156,8 +156,12 @@ export function getFileIconUrl(fileName: string): string | null {
     return `${baseUrl}/${getIconFileName(fileName)}`;
 }
 
-export function getFolderIconUrl(folderName: string): string | null {
+export function getFolderIconUrl(folderName: string, expanded = false): string | null {
     const baseUrl = getConfigs()?.iconBaseUrl;
     if (!baseUrl || !folderName) return null;
-    return `${baseUrl}/${getFolderIconFileName(folderName)}`;
+    let fileName = getFolderIconFileName(folderName);
+    if (expanded && fileName === 'folder.svg') {
+        fileName = 'folder-open.svg';
+    }
+    return `${baseUrl}/${fileName}`;
 }

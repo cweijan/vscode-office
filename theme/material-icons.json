@@ -243,6 +243,9 @@
     "database": {
       "iconPath": "./../icons/database.svg"
     },
+    "kusto": {
+      "iconPath": "./../icons/kusto.svg"
+    },
     "sqlite": {
       "iconPath": "./../icons/sqlite.svg"
     },
@@ -2462,6 +2465,9 @@
     "vcxproj.filters": "visualstudio",
     "pdb": "database",
     "sql": "database",
+    "csl": "kusto",
+    "kusto": "kusto",
+    "kql": "kusto",
     "pks": "database",
     "pkb": "database",
     "accdb": "database",
@@ -3262,6 +3268,8 @@
     "rsweave": "r",
     "rust": "rust",
     "sql": "database",
+    "kusto": "kusto",
+    "kql": "kusto",
     "ssh_config": "lock",
     "svg": "svg",
     "swift": "swift",

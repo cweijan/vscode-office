@@ -124,11 +124,12 @@ function FolderNodes({
         const key = item.entryName;
         const subfolders = item.children?.filter(c => c.isDirectory) ?? [];
         const hasChildren = subfolders.length > 0;
+        const expanded = expandedKeys.has(key);
         nodes.push(
             <TreeNode
                 key={key}
                 selected={currentDir === key}
-                expanded={expandedKeys.has(key)}
+                expanded={expanded}
                 hasChildren={hasChildren}
                 depth={depth}
                 onToggle={(e) => {
@@ -139,7 +140,7 @@ function FolderNodes({
                     if (hasChildren) onExpand(key);
                     onSelectFolder(key);
                 }}
-                label={<><FileTypeIcon name={item.name} isDirectory /><span>{item.name}</span></>}
+                label={<><FileTypeIcon name={item.name} isDirectory expanded={expanded && hasChildren} /><span>{item.name}</span></>}
             >
                 <FolderNodes
                     data={subfolders}

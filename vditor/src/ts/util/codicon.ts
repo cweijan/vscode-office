@@ -37,6 +37,7 @@ const TOOLBAR_CODICONS: Record<string, string> = {
     "code-theme": "file-code",
     info: "info",
     help: "question",
+    find: "search",
 };
 
 export const TABLE_CODICONS = {
