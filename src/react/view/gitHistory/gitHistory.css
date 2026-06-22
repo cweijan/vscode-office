@@ -555,11 +555,25 @@
 
 .git-graph-graph-col {
     flex-shrink: 0;
-    padding: 28px 4px 0;
     position: sticky;
     left: 0;
     background: var(--git-graph-bg);
     z-index: 1;
+}
+
+.git-graph-graph-header {
+    display: flex;
+    align-items: center;
+    height: 28px;
+    padding: 0 4px;
+    border-bottom: 1px solid var(--git-graph-border);
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--git-graph-muted);
+    position: sticky;
+    top: 0;
+    background: var(--git-graph-bg);
+    z-index: 2;
 }
 
 .git-graph-commits-col {
@@ -1211,6 +1225,8 @@
 
 .git-graph-svg {
     display: block;
+    margin-left: 4px;
+    margin-right: 4px;
 }
 
 /* Ant Design overrides inside git-graph (details panel only) */

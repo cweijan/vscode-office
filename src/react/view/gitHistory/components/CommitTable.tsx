@@ -212,6 +212,7 @@ export default function CommitTable({
     return (
         <div className="git-graph-table-wrapper">
             <div className="git-graph-graph-col">
+                <div className="git-graph-graph-header">Graph</div>
                 <GraphSvg
                     commits={commits}
                     commitHead={commitHead}
@@ -224,7 +225,6 @@ export default function CommitTable({
             </div>
             <div className="git-graph-commits-col">
                 <div className="git-graph-table-header">
-                    <span className="col-graph" />
                     <span className="col-desc">Message</span>
                     <span className="col-date">Date</span>
                     <span className="col-author">Author</span>
