@@ -40,6 +40,13 @@ function receive({ data }) {
     }
 }
 window.addEventListener('message', receive)
+const isMac = navigator.userAgent.includes('Mac OS');
+window.addEventListener('keydown', e => {
+    if (isMac && isCompose(e) && (e.altKey || e.code == 'KeyW')) {
+        e.preventDefault()
+    }
+}, isMac ? true : undefined)
+
 const getVscodeEvent = () => {
     return {
         on(event: string, data) {
