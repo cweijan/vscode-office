@@ -531,6 +531,28 @@ const buildCodeMirrorNavigationKeymap = (vditor: IVditor, blockElement: HTMLElem
                 return true;
             },
         },
+        {
+            key: "Ctrl-Enter",
+            mac: "Cmd-Enter",
+            run: (view) => {
+                const line = view.state.doc.lineAt(view.state.selection.main.head);
+                if (line.number < view.state.doc.lines) {
+                    return false;
+                }
+                const editor = getModeEditor(vditor);
+                if (!editor) {
+                    return false;
+                }
+                view.contentDOM.blur();
+                const html = `<p data-block="0">${Constants.ZWSP}<wbr></p>`;
+                blockElement.insertAdjacentHTML("afterend", html);
+                focusEditorWithoutScroll(editor);
+                const range = getEditorRange(vditor);
+                setRangeByWbr(editor, range);
+                setSelectionFocus(range);
+                return true;
+            },
+        },
     ]));
 
 const destroyCodeMirror = (blockElement: HTMLElement) => {
