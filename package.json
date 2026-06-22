@@ -138,6 +138,25 @@
 					".toml"
 				],
 				"configuration": "./syntaxes/toml-language-configuration.json"
+			},
+			{
+				"id": "kusto",
+				"aliases": [
+					"Kusto",
+					"kusto",
+					"KQL",
+					"kql"
+				],
+				"extensions": [
+					".csl",
+					".kusto",
+					".kql"
+				],
+				"configuration": "./syntaxes/kusto-language-configuration.json",
+				"icon": {
+					"light": "./image/kusto_logo.png",
+					"dark": "./image/kusto_logo_dark.png"
+				}
 			}
 		],
 		"grammars": [
@@ -168,6 +187,11 @@
 				"language": "toml",
 				"scopeName": "source.toml",
 				"path": "./syntaxes/toml.tmLanguage.json"
+			},
+			{
+				"language": "kusto",
+				"scopeName": "source.kusto",
+				"path": "./syntaxes/kusto.tmLanguage.json"
 			}
 		],
 		"snippets": [
