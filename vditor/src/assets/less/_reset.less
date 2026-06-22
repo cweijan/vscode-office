@@ -161,7 +161,8 @@
       border-spacing: 0;
       display: block;
       word-break: keep-all;
-      width: 100%;
+      width: max-content;
+      max-width: 100%;
 
       tr {
         border-top: 1px solid var(--table-row-border);
@@ -180,8 +181,11 @@
       th {
         padding: 6px 13px;
         border: 1px solid var(--table-border);
-        word-break: normal;
-        white-space: nowrap;
+        min-width: 80px;
+        max-width: 300px;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        white-space: normal;
 
         &:first-child::after {
           content: "";

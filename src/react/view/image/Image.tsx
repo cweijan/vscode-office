@@ -70,7 +70,7 @@ export default function Image() {
             return;
         }
 
-        const hasConvertible = info.images.some((image: { src: string }) => needsConversion(image.src));
+        const hasConvertible = info.images.some((image: { src: string; ext?: string }) => needsConversion(image.src, image.ext));
         if (hasConvertible) {
             setLoading(true);
         }
@@ -80,7 +80,7 @@ export default function Image() {
             for (const image of info.images) {
                 if (cancelled) return;
                 try {
-                    const src = await resolveImageSrc(image.src);
+                    const src = await resolveImageSrc(image.src, image.ext);
                     if (src.startsWith('blob:')) {
                         objectUrlsRef.current.push(src);
                     }

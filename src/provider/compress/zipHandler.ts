@@ -21,9 +21,12 @@ export async function handleZip(uri: Uri, handler: Handler) {
 
     handler.on('init', async () => {
         const data = (await workspace.fs.readFile(uri)) as Buffer;
-        let { archive, files, folderMap, fileMap, encrypted } = await ZipArchive.open(data, { encoding: filenameEncoding });
+        const opened = await ZipArchive.open(data);
+        let { archive, files, folderMap, fileMap, encrypted, encoding } = opened;
+        filenameEncoding = encoding;
 
         handler.emit('encrypted', encrypted);
+        handler.emit('encoding', encoding);
         handler.emit('size', prettyBytes(data.length));
         handler.emit('data', {
             files, folderMap,
@@ -32,6 +35,7 @@ export async function handleZip(uri: Uri, handler: Handler) {
 
         handler.on('changeEncoding', async (encoding) => {
             filenameEncoding = encoding;
+            handler.emit('encoding', encoding);
             const parsed = await archive.parse(encoding);
             files = parsed.files;
             folderMap = parsed.folderMap;
@@ -103,10 +107,12 @@ export async function handleZip(uri: Uri, handler: Handler) {
             const prefix = currentDir ? `${currentDir}/` : '';
             await archive.addFile(`${prefix}${basename(fileUri.fsPath)}`, buf, filenameEncoding);
             await workspace.fs.writeFile(uri, archive.toBuffer());
+            handler.emit('saveDone');
             handler.emit('zipChange');
         }).on('removeFile', async entryName => {
             await archive.removeFile(entryName, filenameEncoding);
             await workspace.fs.writeFile(uri, archive.toBuffer());
+            handler.emit('saveDone');
             handler.emit('zipChange');
         });
     });

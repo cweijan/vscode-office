@@ -13,6 +13,7 @@ import format from 'date-format';
 import { mkdirSync, writeFileSync } from 'fs';
 import { basename, resolve } from 'path';
 import prettyBytes from './pretty-bytes';
+import { detectZipFilenameEncoding } from './zipEncoding';
 import { unwrapCrx } from '@/service/compress/archiveUtils';
 
 export interface ZipDisplayEntry {
@@ -44,6 +45,14 @@ function getReaderOptions(encoding?: string) {
     return {
         filenameEncoding: encoding,
         decodeText: (value: Uint8Array) => iconv.decode(Buffer.from(value), encoding),
+    };
+}
+
+function getWriterOptions(encoding?: string) {
+    if (!encoding || encoding === 'utf8') return {};
+    return {
+        useUnicodeFileNames: false,
+        encodeText: (value: string) => new Uint8Array(iconv.encode(value, encoding)),
     };
 }
 
@@ -128,7 +137,7 @@ function sum(array: ZipDisplayEntry[], prop: 'fileSizeOrigin' | 'compressedSizeO
     return total;
 }
 
-async function copyEntry(writer: ZipWriter<Blob>, entry: Entry) {
+async function copyEntry(writer: ZipWriter<Blob>, entry: Entry, writerOptions: Record<string, unknown>) {
     const options = {
         directory: entry.directory,
         lastModDate: entry.lastModDate,
@@ -138,6 +147,7 @@ async function copyEntry(writer: ZipWriter<Blob>, entry: Entry) {
         externalFileAttributes: entry.externalFileAttributes,
         internalFileAttributes: entry.internalFileAttributes,
         versionMadeBy: entry.versionMadeBy,
+        ...writerOptions,
     };
 
     if (entry.directory) {
@@ -165,21 +175,22 @@ async function rebuildZip(
         add?: { entryName: string; content: Buffer }[];
     },
 ): Promise<Buffer> {
+    const writerOptions = getWriterOptions(options.encoding);
     const reader = new ZipReader(new BlobReader(new Blob([data])), getReaderOptions(options.encoding));
     const entries = await reader.getEntries();
     const exclude = new Set((options.exclude ?? []).map(normalizePath));
     const blobWriter = new BlobWriter('application/zip');
-    const writer = new ZipWriter(blobWriter);
+    const writer = new ZipWriter(blobWriter, writerOptions);
 
     for (const entry of entries) {
         const name = normalizePath(entry.filename);
         if (exclude.has(name)) continue;
-        await copyEntry(writer, entry);
+        await copyEntry(writer, entry, writerOptions);
     }
 
     for (const item of options.add ?? []) {
         const entryName = item.entryName.replace(/\\/g, '/');
-        await writer.add(entryName, new Uint8ArrayReader(new Uint8Array(item.content)));
+        await writer.add(entryName, new Uint8ArrayReader(new Uint8Array(item.content)), writerOptions);
     }
 
     await writer.close();
@@ -189,13 +200,18 @@ async function rebuildZip(
 }
 
 export class ZipArchive {
-    private constructor(private data: Buffer, private crxPrefix?: Buffer) { }
+    private constructor(
+        private data: Buffer,
+        private crxPrefix?: Buffer,
+        private encoding: string = 'utf8',
+    ) { }
 
-    static async open(data: Buffer, options?: { encoding?: string }): Promise<ZipParseResult & { archive: ZipArchive }> {
+    static async open(data: Buffer, options?: { encoding?: string }): Promise<ZipParseResult & { archive: ZipArchive; encoding: string }> {
         const { payload, prefix } = unwrapCrx(data);
-        const archive = new ZipArchive(payload, prefix);
-        const parsed = await archive.parse(options?.encoding);
-        return { archive, ...parsed };
+        const encoding = options?.encoding ?? detectZipFilenameEncoding(payload);
+        const archive = new ZipArchive(payload, prefix, encoding);
+        const parsed = await archive.parse(encoding);
+        return { archive, encoding, ...parsed };
     }
 
     async parse(encoding?: string): Promise<ZipParseResult> {
@@ -229,15 +245,17 @@ export class ZipArchive {
     }
 
     async addFile(entryName: string, content: Buffer, encoding?: string) {
+        const filenameEncoding = encoding ?? this.encoding;
         this.data = await rebuildZip(this.data, {
-            encoding,
+            encoding: filenameEncoding,
             add: [{ entryName: entryName.replace(/\\/g, '/'), content }],
         });
     }
 
     async removeFile(entryName: string, encoding?: string) {
+        const filenameEncoding = encoding ?? this.encoding;
         this.data = await rebuildZip(this.data, {
-            encoding,
+            encoding: filenameEncoding,
             exclude: [normalizePath(entryName)],
         });
     }

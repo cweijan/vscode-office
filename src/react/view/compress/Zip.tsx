@@ -1,17 +1,31 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { App } from 'antd';
 import { handler, loadDarkMode, applyDarkMode } from '../../util/vscode';
+import { getConfigs } from '../../util/vscodeConfig';
+import { useWindowSize } from '../../util/reactUtils';
 import FileItems from './components/FileItems';
 import PasswordModal from './components/PasswordModal';
 import Sponsor from '../components/Sponsor';
 import Sidebar from './components/Sidebar';
 import Toolbar from './components/Toolbar';
-import { IconMoon, IconSun } from './icons';
 import './Zip.less';
 import { CompressInfo, FileInfo } from './zipTypes';
 
 type PasswordAction = { label: string; run: (password?: string) => void };
 
+const NARROW_WIDTH_BREAKPOINT = 640;
+
 export default function Zip() {
+    return (
+        <App>
+            <ZipViewer />
+        </App>
+    );
+}
+
+function ZipViewer() {
+    const { message } = App.useApp();
+    const saveSuccessText = getConfigs()?.language?.startsWith('zh') ? '保存成功' : 'Saved';
     const [currentDir, setCurrentDir] = useState('')
     const [size, setSize] = useState('')
     const [extension, setExtension] = useState('')
@@ -23,6 +37,18 @@ export default function Zip() {
     const [tableItems, setTableItems] = useState([] as FileInfo[])
     const [info, setInfo] = useState({ files: [] } as CompressInfo)
     const [dark, setDark] = useState(loadDarkMode)
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+    const [width] = useWindowSize()
+    const effectiveWidth = width || window.innerWidth
+    const isNarrowWidth = effectiveWidth <= NARROW_WIDTH_BREAKPOINT
+    const showSidebar = !isNarrowWidth && !sidebarCollapsed
+
+    const toggleSidebar = useCallback(() => {
+        if (isNarrowWidth) {
+            return;
+        }
+        setSidebarCollapsed((collapsed) => !collapsed);
+    }, [isNarrowWidth]);
 
     archivePasswordRef.current = archivePassword
 
@@ -104,8 +130,14 @@ export default function Zip() {
     useEffect(() => {
         handler
             .on('zipChange', () => handler.emit('init'))
+            .on('saveDone', () => {
+                message.success({
+                    duration: 2,
+                    content: saveSuccessText,
+                });
+            })
             .emit('init')
-    }, [])
+    }, [message, saveSuccessText])
 
     return (
         <div className="zip-viewer">
@@ -113,9 +145,14 @@ export default function Zip() {
                 currentDir={currentDir}
                 size={size}
                 extension={extension}
+                dark={dark}
+                onToggleDark={toggleDark}
                 onExtract={handleExtract}
+                showSidebar={showSidebar}
+                sidebarToggleDisabled={isNarrowWidth}
+                onToggleSidebar={toggleSidebar}
             />
-            <div className="zip-body">
+            <div className={`zip-body${showSidebar ? '' : ' zip-body--sidebar-hidden'}`}>
                 <aside className="zip-sider">
                     <div className="zip-sider-tree">
                         <Sidebar
@@ -151,14 +188,6 @@ export default function Zip() {
                 }}
             />
 
-            <button
-                type="button"
-                className="zip-theme-toggle"
-                title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-                onClick={toggleDark}
-            >
-                {dark ? <IconSun size={16} /> : <IconMoon size={16} />}
-            </button>
         </div>
     )
 }

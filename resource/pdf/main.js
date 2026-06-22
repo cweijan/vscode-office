@@ -371,6 +371,58 @@
     });
   }
 
+  function toUint8Array(buffer) {
+    if (!buffer) {
+      return null;
+    }
+    if (buffer instanceof Uint8Array) {
+      return buffer;
+    }
+    if (ArrayBuffer.isView(buffer)) {
+      return new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+    }
+    if (buffer instanceof ArrayBuffer) {
+      return new Uint8Array(buffer);
+    }
+    if (Array.isArray(buffer) && buffer.length) {
+      const data = new Uint8Array(buffer.length);
+      for (let i = 0; i < buffer.length; i++) {
+        data[i] = buffer[i];
+      }
+      return data;
+    }
+    return null;
+  }
+
+  function decodeBase64Pdf(base64) {
+    const binary = atob(base64);
+    const data = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      data[i] = binary.charCodeAt(i);
+    }
+    return data;
+  }
+
+  function openPdfDocument(payload) {
+    if (!payload) {
+      return;
+    }
+    if (payload.error) {
+      console.error(payload.error);
+      return;
+    }
+    const data = payload.bufferBase64
+      ? decodeBase64Pdf(payload.bufferBase64)
+      : toUint8Array(payload.buffer);
+    if (data?.length) {
+      PDFViewerApplication.open(data);
+      return;
+    }
+    if (payload.path) {
+      PDFViewerApplication.open(payload.path);
+    }
+  }
+
   window.addEventListener('load', function () {
     setupThemeAdapt();
     setupDarkMode();
@@ -388,9 +440,7 @@
       }
       PDFViewerApplication.eventBus.on('documentloaded', optsOnLoad)
     })
-    vscodeEvent.on("open", ({ path }) => {
-      PDFViewerApplication.open(path)
-    })
+    vscodeEvent.on("open", openPdfDocument)
     vscodeEvent.emit("init")
   }, { once: true });
 }());

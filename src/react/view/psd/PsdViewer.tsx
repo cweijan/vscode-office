@@ -1,6 +1,7 @@
 import { Alert, Layout, Spin } from 'antd';
 import { useCallback, useEffect, useState } from 'react';
 import { handler } from '../../util/vscode';
+import { loadOfficeBuffer } from '../../util/loadOfficeContent';
 import { useVscodeSponsorDark } from '../../util/vscodeTheme';
 import Sponsor from '../components/Sponsor';
 import {
@@ -57,18 +58,14 @@ export default function PsdViewer() {
     const [error, setError] = useState<string | null>(null);
     const sponsorDark = useVscodeSponsorDark();
 
-    const loadPsd = useCallback(async (path: string) => {
+    const loadPsd = useCallback(async (payload: { path?: string; buffer?: number[]; error?: string }) => {
         setLoading(true);
         setError(null);
         setDocument(null);
         setSelectedId(null);
 
         try {
-            const response = await fetch(path);
-            if (!response.ok) {
-                throw new Error(`Failed to load PSD file (${response.status})`);
-            }
-            const buffer = await response.arrayBuffer();
+            const buffer = await loadOfficeBuffer(payload);
             const parsed = parsePsd(buffer);
             setDocument(parsed);
             setSelectedId(getDefaultSelection(parsed));
@@ -80,8 +77,8 @@ export default function PsdViewer() {
     }, []);
 
     useEffect(() => {
-        handler.on('open', ({ path }) => {
-            loadPsd(path);
+        handler.on('open', (payload) => {
+            loadPsd(payload);
         }).emit('init');
     }, [loadPsd]);
 

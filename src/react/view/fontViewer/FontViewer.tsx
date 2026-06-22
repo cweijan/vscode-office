@@ -21,7 +21,7 @@ export default function FontViewer() {
 
     useEffect(() => {
         handler.on("open", async (content) => {
-            const fontInfo = await loadFont(content.path)
+            const fontInfo = await loadFont(content)
             setFont(fontInfo.font)
             fontInfoRef.current = fontInfo
             setGlyph(null)

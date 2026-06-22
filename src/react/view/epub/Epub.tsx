@@ -9,6 +9,7 @@ import { Spin } from 'antd';
 import { Book, NavItem, Rendition } from 'epubjs';
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { handler } from '../../util/vscode';
+import { loadOfficeBuffer } from '../../util/loadOfficeContent';
 import Sponsor from '../components/Sponsor';
 import {
     applyEpubTheme,
@@ -273,7 +274,7 @@ export default function Epub() {
         });
     }, [bindWheel, onRelocated, openSidebar]);
 
-    const loadDocument = useCallback(async (path: string) => {
+    const loadDocument = useCallback(async (payload: { path?: string; buffer?: number[]; error?: string }) => {
         const host = readerRef.current;
         if (!host) {
             return;
@@ -284,11 +285,7 @@ export default function Epub() {
         destroyBook();
 
         try {
-            const response = await fetch(path);
-            if (!response.ok) {
-                throw new Error(`Failed to fetch document (${response.status})`);
-            }
-            const buffer = await response.arrayBuffer();
+            const buffer = await loadOfficeBuffer(payload);
             const book = await loadEpubBook(buffer);
             bookRef.current = book;
 
@@ -407,8 +404,8 @@ export default function Epub() {
     }, []);
 
     useEffect(() => {
-        handler.on('open', ({ path }) => {
-            loadDocument(path);
+        handler.on('open', (payload) => {
+            loadDocument(payload);
         }).emit('init');
         return () => destroyBook();
     }, [destroyBook, loadDocument]);

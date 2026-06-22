@@ -1,18 +1,24 @@
 import { type ReactNode } from 'react';
 import { handler } from '../../../util/vscode';
-import { IconExtract, IconFileAdd, IconFolderOpen, IconReload } from '../icons';
+import { IconExtract, IconFileAdd, IconFolderOpen, IconMoon, IconReload, IconSidebar, IconSun } from '../icons';
 
 interface ToolbarProps {
     size: string;
     currentDir: string;
     extension: string;
+    dark: boolean;
+    onToggleDark: () => void;
     onExtract: () => void;
+    showSidebar: boolean;
+    sidebarToggleDisabled: boolean;
+    onToggleSidebar: () => void;
 }
 
-function ToolbarButton({ title, onClick, primary, children }: {
+function ToolbarButton({ title, onClick, primary, disabled, children }: {
     title: string;
     onClick: () => void;
     primary?: boolean;
+    disabled?: boolean;
     children: ReactNode;
 }) {
     return (
@@ -21,19 +27,41 @@ function ToolbarButton({ title, onClick, primary, children }: {
             className={`zip-btn${primary ? ' zip-btn-primary' : ''}`}
             title={title}
             onClick={onClick}
+            disabled={disabled}
         >
             {children}
         </button>
     );
 }
 
-export default function Toolbar({ size, currentDir, extension, onExtract }: ToolbarProps) {
+export default function Toolbar({
+    size,
+    currentDir,
+    extension,
+    dark,
+    onToggleDark,
+    onExtract,
+    showSidebar,
+    sidebarToggleDisabled,
+    onToggleSidebar,
+}: ToolbarProps) {
     const editable = !extension || extension === 'zip';
-    const encodingEnabled = editable || extension === '7z';
+    const sidebarTitle = sidebarToggleDisabled
+        ? 'Sidebar hidden on narrow view'
+        : (showSidebar ? 'Hide folder tree' : 'Show folder tree');
 
     return (
         <header className="zip-toolbar">
             <div className="zip-toolbar-left">
+                <ToolbarButton
+                    title={sidebarTitle}
+                    onClick={onToggleSidebar}
+                    disabled={sidebarToggleDisabled}
+                >
+                    <span className={`zip-sidebar-toggle${showSidebar ? ' is-active' : ''}${sidebarToggleDisabled ? ' is-disabled' : ''}`}>
+                        <IconSidebar size={15} />
+                    </span>
+                </ToolbarButton>
                 <ToolbarButton title="Show In Explorer" onClick={() => handler.emit('showInExplorer')}>
                     <IconFolderOpen size={15} />
                 </ToolbarButton>
@@ -63,19 +91,12 @@ export default function Toolbar({ size, currentDir, extension, onExtract }: Tool
                     <span className="zip-size-label">Size</span>
                     <span className="zip-size-value">{size}</span>
                 </span>
-                {encodingEnabled && (
-                    <div className="zip-encoding-group">
-                        <span className="zip-encoding-label">Encoding</span>
-                        <select
-                            className="zip-select"
-                            defaultValue="utf8"
-                            onChange={(e) => handler.emit('changeEncoding', e.target.value)}
-                        >
-                            <option value="gbk">GBK</option>
-                            <option value="utf8">UTF-8</option>
-                        </select>
-                    </div>
-                )}
+                <ToolbarButton
+                    title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+                    onClick={onToggleDark}
+                >
+                    {dark ? <IconSun size={15} /> : <IconMoon size={15} />}
+                </ToolbarButton>
             </div>
         </header>
     );

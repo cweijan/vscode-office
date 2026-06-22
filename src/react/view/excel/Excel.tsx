@@ -3,6 +3,7 @@ import { App, Spin } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { handler, loadDarkMode, applyDarkMode } from "../../util/vscode.ts";
 import { getConfigs } from "../../util/vscodeConfig.ts";
+import { loadOfficeBuffer } from "../../util/loadOfficeContent.ts";
 import VSCodeLogo from "../vscode.tsx";
 import SponsorBar from '../components/SponsorBar';
 import './Excel.less';
@@ -53,16 +54,16 @@ function ExcelViewer() {
     useEffect(() => {
         const container = document.getElementById('container');
 
-        handler.on("open", ({ path, ext }) => {
-            extRef.current = ext ?? '';
+        handler.on("open", (payload) => {
+            extRef.current = payload.ext ?? '';
             const startTime = Date.now();
             console.log('Loading Excel file...');
-            fetch(path).then(response => response.arrayBuffer()).then(async (res) => {
-                if (ext?.match(/csv/i)) {
+            loadOfficeBuffer(payload).then(async (res) => {
+                if (payload.ext?.match(/csv/i)) {
                     csvEncodingRef.current = detectCsvEncoding(res);
                 }
-                const { sheets, maxLength, maxCols } = await loadSheets(res, ext);
-                isCSV.current = ext?.match(/csv/i) !== null;
+                const { sheets, maxLength, maxCols } = await loadSheets(res, payload.ext);
+                isCSV.current = payload.ext?.match(/csv/i) !== null;
                 container.innerHTML = ''
                 const spreadSheet = new Spreadsheet(container, {
                     showToolbar: false,

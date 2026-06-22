@@ -1,12 +1,8 @@
 import { Handler } from '@/common/handler';
 import { shouldSkipFileChange } from '@/provider/compress/commonHandler';
+import { readUriText } from '@/provider/handlers/officeContent';
 import { extname } from 'path';
-import { workspace, type Uri } from 'vscode';
-
-async function readSvgContent(uri: Uri): Promise<string> {
-    const data = await workspace.fs.readFile(uri);
-    return new TextDecoder('utf-8').decode(data);
-}
+import { type Uri } from 'vscode';
 
 export function handleSvg(handler: Handler, uri: Uri) {
     const send = async () => {
@@ -15,7 +11,7 @@ export function handleSvg(handler: Handler, uri: Uri) {
         }
         const now = Date.now();
         try {
-            const content = await readSvgContent(uri);
+            const content = await readUriText(uri);
             handler.emit('open', {
                 ext: extname(uri.fsPath),
                 path: uri.fsPath,

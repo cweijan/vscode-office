@@ -11,6 +11,15 @@ function IconBase({ size = 16, children, ...props }: IconProps & { children: Rea
     );
 }
 
+export function IconSidebar(props: IconProps) {
+    return (
+        <IconBase {...props}>
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <path d="M9 3v18" />
+        </IconBase>
+    );
+}
+
 export function IconFolderOpen(props: IconProps) {
     return (
         <IconBase {...props}>

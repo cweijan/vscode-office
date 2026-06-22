@@ -1,4 +1,5 @@
 import opentype from 'opentype.js';
+import { arrayBufferFromPayload, type OfficeOpenPayload } from '../../util/loadOfficeContent';
 
 export interface FontInfo {
     font: any;
@@ -7,9 +8,17 @@ export interface FontInfo {
     fontBaseline: number;
 }
 
-async function loadFontAsBuffer(uri: string): Promise<ArrayBuffer> {
-    const fontBuffer = fetch(uri).then(f => f.arrayBuffer())
-    if (uri.includes('woff2')) {
+async function loadFontAsBuffer(source: string | OfficeOpenPayload): Promise<ArrayBuffer> {
+    const path = typeof source === 'string' ? source : source.path ?? '';
+    let fontBuffer: Promise<ArrayBuffer>;
+    if (typeof source !== 'string' && source.buffer) {
+        fontBuffer = Promise.resolve(arrayBufferFromPayload(source));
+    } else if (typeof source === 'string') {
+        fontBuffer = fetch(source).then(f => f.arrayBuffer());
+    } else {
+        fontBuffer = fetch(path).then(f => f.arrayBuffer());
+    }
+    if (path.includes('woff2')) {
         const loadScript = (src) => new Promise((onload) => document.documentElement.append(
             Object.assign(document.createElement('script'), { src, onload })
         ));
@@ -23,8 +32,8 @@ async function loadFontAsBuffer(uri: string): Promise<ArrayBuffer> {
 
 const cellWidth = 100, cellHeight = 84;
 
-export async function loadFont(uri: string): Promise<FontInfo> {
-    const font = opentype.parse(await loadFontAsBuffer(uri))
+export async function loadFont(source: string | OfficeOpenPayload): Promise<FontInfo> {
+    const font = opentype.parse(await loadFontAsBuffer(source))
 
     const cellMarginTop = 20, cellMarginBottom = 20, cellMarginLeftRight = 1;
     const w = cellWidth - cellMarginLeftRight * 2,

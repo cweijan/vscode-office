@@ -32,7 +32,13 @@
     flex: 1;
     min-height: 0;
     display: flex;
+    gap: 0;
     background: var(--zip-bg);
+    overflow: hidden;
+}
+
+.zip-body--sidebar-hidden .zip-sider {
+    display: none;
 }
 
 .zip-sider {
@@ -44,6 +50,7 @@
     background: var(--zip-sider-bg);
     min-height: 0;
     scrollbar-color: var(--zip-scrollbar-thumb) var(--zip-scrollbar-track);
+    transition: width 0.2s ease, opacity 0.2s ease;
 }
 
 .zip-sider-tree {
@@ -135,6 +142,15 @@
     &:active {
         transform: translateY(0.5px);
     }
+
+    &:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+
+        &:active {
+            transform: none;
+        }
+    }
 }
 
 .zip-btn-primary {
@@ -145,6 +161,24 @@
     &:hover {
         filter: brightness(1.05);
         background: var(--zip-accent);
+    }
+}
+
+.zip-sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    color: var(--zip-muted);
+    transition: color 0.15s ease, background 0.15s ease;
+
+    &.is-active {
+        color: var(--zip-accent);
+        background: color-mix(in srgb, var(--zip-accent) 12%, transparent);
+    }
+
+    &.is-disabled {
+        opacity: 0.45;
     }
 }
 
@@ -176,35 +210,6 @@
 .zip-size-value {
     font-weight: 600;
     color: var(--zip-success);
-}
-
-.zip-encoding-group {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.zip-encoding-label {
-    font-weight: 600;
-    color: var(--zip-muted);
-    white-space: nowrap;
-}
-
-.zip-select {
-    height: 28px;
-    padding: 0 8px;
-    border: 1px solid var(--zip-input-border);
-    border-radius: 6px;
-    background: var(--zip-input-bg);
-    color: var(--zip-fg);
-    font-size: inherit;
-    font-family: inherit;
-    cursor: pointer;
-    outline: none;
-
-    &:focus {
-        border-color: var(--zip-accent);
-    }
 }
 
 /* Sidebar tree */
@@ -302,10 +307,11 @@
     font-weight: 600;
 }
 
-/* File table */
+/* File table — name col min 120px + fixed cols 388px */
 .zip-file-list {
     position: relative;
     min-height: 120px;
+    overflow-x: auto;
 }
 
 .zip-loading {
@@ -335,7 +341,10 @@
 }
 
 .zip-table {
+    --zip-name-col-min: 180px;
+    --zip-fixed-cols-width: 388px;
     width: 100%;
+    min-width: calc(var(--zip-name-col-min) + var(--zip-fixed-cols-width));
     border-collapse: collapse;
     table-layout: fixed;
 
@@ -451,44 +460,6 @@
     }
 }
 
-.zip-delete-confirm {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 11px;
-    white-space: nowrap;
-
-    span {
-        color: var(--zip-muted);
-    }
-}
-
-.zip-delete-yes,
-.zip-delete-no {
-    padding: 2px 6px;
-    border: 1px solid var(--zip-border);
-    border-radius: 4px;
-    background: var(--zip-input-bg);
-    color: var(--zip-fg);
-    font-size: 11px;
-    cursor: pointer;
-
-    &:hover {
-        background: var(--zip-hover);
-    }
-}
-
-.zip-delete-yes {
-    border-color: color-mix(in srgb, var(--zip-danger) 50%, var(--zip-border));
-    background: color-mix(in srgb, var(--zip-danger) 12%, var(--zip-input-bg));
-    color: var(--zip-danger);
-    font-weight: 600;
-
-    &:hover {
-        background: color-mix(in srgb, var(--zip-danger) 22%, var(--zip-input-bg));
-    }
-}
-
 .zip-empty {
     padding: 48px 16px;
     text-align: center;
@@ -500,29 +471,6 @@
     --sponsor-muted: var(--zip-muted);
     --sponsor-accent: var(--zip-accent);
     --sponsor-bg: color-mix(in srgb, var(--zip-sider-bg) 96%, transparent);
-}
-
-/* Theme toggle */
-.zip-theme-toggle {
-    position: fixed;
-    bottom: 8px;
-    right: 12px;
-    z-index: 1000;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--zip-border);
-    border-radius: 6px;
-    background: color-mix(in srgb, var(--zip-bg) 90%, transparent);
-    color: var(--zip-fg);
-    cursor: pointer;
-    backdrop-filter: blur(4px);
-
-    &:hover {
-        background: var(--zip-hover);
-    }
 }
 
 /* Dark mode — VSCode theme adaptive */

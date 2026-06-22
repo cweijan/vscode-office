@@ -6,6 +6,7 @@ import { Util } from '../common/util';
 import { handleClass } from './handlers/classHandler';
 import { handleImage, isImage } from './handlers/imageHanlder';
 import { handleSvg } from './handlers/svgHandler';
+import { isVirtualUri, readUriText } from './handlers/officeContent';
 import { getFileSuffix } from '@/service/compress/archiveUtils';
 import { handleZip } from './compress/zipHandler';
 import { handleRar } from './compress/rarHandler';
@@ -122,10 +123,14 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 break;
             case ".htm":
             case ".html":
-                webview.html = Util.buildPath(readFileSync(uri.fsPath, 'utf8'), webview, folderPath.fsPath);
-                Util.listen(webviewPanel, uri, () => {
-                    webviewPanel.webview.html = Util.buildPath(readFileSync(uri.fsPath, 'utf8'), webviewPanel.webview, folderPath.fsPath);
-                })
+                if (isVirtualUri(uri)) {
+                    void this.loadVirtualHtml(webviewPanel, uri, folderPath);
+                } else {
+                    webview.html = Util.buildPath(readFileSync(uri.fsPath, 'utf8'), webview, folderPath.fsPath);
+                    Util.listen(webviewPanel, uri, () => {
+                        webviewPanel.webview.html = Util.buildPath(readFileSync(uri.fsPath, 'utf8'), webviewPanel.webview, folderPath.fsPath);
+                    });
+                }
                 break;
             default:
                 if (route) break;
@@ -133,6 +138,16 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
         }
         TelemetryService.get()?.trackOfficeViewOpen(uri.fsPath, route);
         if (route) return ReactApp.view(webview, { route })
+    }
+
+    private async loadVirtualHtml(webviewPanel: vscode.WebviewPanel, uri: vscode.Uri, folderPath: vscode.Uri) {
+        try {
+            const content = await readUriText(uri);
+            webviewPanel.webview.html = Util.buildPath(content, webviewPanel.webview, folderPath.fsPath);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Failed to read HTML';
+            webviewPanel.webview.html = `<pre>${message}</pre>`;
+        }
     }
 
     private getBaseUrl(webview: vscode.Webview, path: string) {

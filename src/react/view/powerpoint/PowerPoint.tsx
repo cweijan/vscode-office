@@ -3,6 +3,7 @@ import { Alert, Layout, Spin } from "antd";
 import { PPTXViewer } from "pptxviewjs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { handler, loadDarkMode, applyDarkMode } from "../../util/vscode";
+import { loadOfficeBuffer } from "../../util/loadOfficeContent";
 import Sponsor from '../components/Sponsor';
 import './PowerPoint.css';
 
@@ -186,7 +187,7 @@ export default function PowerPoint() {
         resetView();
     }, [syncCanvasSize, resetView]);
 
-    const loadPresentation = useCallback(async (path: string) => {
+    const loadPresentation = useCallback(async (payload: { path?: string; buffer?: number[]; error?: string }) => {
         setLoading(true);
         setThumbsLoading(false);
         setError(null);
@@ -198,11 +199,7 @@ export default function PowerPoint() {
         viewerRef.current = null;
 
         try {
-            const response = await fetch(path);
-            if (!response.ok) {
-                throw new Error(`Failed to fetch presentation (${response.status})`);
-            }
-            const buffer = await response.arrayBuffer();
+            const buffer = await loadOfficeBuffer(payload);
             const canvas = canvasRef.current;
             const wrap = canvasWrapRef.current;
             if (!canvas || !wrap) {
@@ -243,8 +240,8 @@ export default function PowerPoint() {
     }, []);
 
     useEffect(() => {
-        handler.on('open', ({ path }) => {
-            loadPresentation(path);
+        handler.on('open', (payload) => {
+            loadPresentation(payload);
         }).emit('init');
 
         return () => {

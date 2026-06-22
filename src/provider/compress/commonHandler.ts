@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { Handler } from "@/common/handler";
 import { Uri, workspace } from 'vscode';
-import { extname } from 'path';
+import { emitFileOfficeOpen, emitVirtualOfficeOpen, isVirtualUri } from '@/provider/handlers/officeContent';
 
 const fileSaveTimes: Record<string, number> = {};
 
@@ -15,11 +15,11 @@ export function handleCommonEvent(uri: Uri, handler: Handler, options?: { skipOp
         if (shouldSkipFileChange(uri)) {
             return;
         }
-        const now = Date.now();
-        handler.emit("open", {
-            ext: extname(uri.fsPath),
-            path: handler.panel.webview.asWebviewUri(uri).with({ query: `nonce=${now.toString()}` }).toString(),
-        })
+        if (isVirtualUri(uri)) {
+            void emitVirtualOfficeOpen(handler, uri);
+            return;
+        }
+        emitFileOfficeOpen(handler, uri, handler.panel.webview);
     }
     const events = handler
         .on("editInVSCode", (full: boolean) => {

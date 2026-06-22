@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
+import { Popconfirm } from 'antd';
 import { handler } from '../../../util/vscode';
 import { IconDelete, IconSort } from '../icons';
 import { FileTypeIcon } from './FileTypeIcon';
@@ -18,10 +19,11 @@ interface Column {
     width?: string;
     sortable?: boolean;
     align?: 'left' | 'center' | 'right';
+    className?: string;
 }
 
 const columns: Column[] = [
-    { key: 'name', title: 'Name', sortable: true },
+    { key: 'name', title: 'Name', sortable: true, className: 'zip-col-name' },
     { key: 'modifyDateTime', title: 'Modified', width: '160px', sortable: true },
     { key: 'compressedSize', title: 'Size', width: '88px', sortable: true, align: 'right' },
     { key: 'fileSize', title: 'Origin', width: '96px', sortable: true, align: 'right' },
@@ -43,38 +45,26 @@ function compareItems(a: FileInfo, b: FileInfo, field: SortField, direction: Sor
 }
 
 function DeleteButton({ entryName }: { entryName: string }) {
-    const [confirming, setConfirming] = useState(false);
-
-    if (!confirming) {
-        return (
+    return (
+        <Popconfirm
+            title="Delete?"
+            okText="Yes"
+            cancelText="No"
+            onConfirm={(e) => {
+                e?.stopPropagation();
+                handler.emit('removeFile', entryName);
+            }}
+            onCancel={(e) => e?.stopPropagation()}
+        >
             <button
                 type="button"
                 className="zip-delete-btn"
                 title="Delete file"
-                onClick={(e) => {
-                    e.stopPropagation();
-                    setConfirming(true);
-                }}
+                onClick={(e) => e.stopPropagation()}
             >
                 <IconDelete size={14} />
             </button>
-        );
-    }
-
-    return (
-        <div className="zip-delete-confirm" onClick={(e) => e.stopPropagation()}>
-            <span>Delete?</span>
-            <button
-                type="button"
-                className="zip-delete-yes"
-                onClick={() => handler.emit('removeFile', entryName)}
-            >
-                Yes
-            </button>
-            <button type="button" className="zip-delete-no" onClick={() => setConfirming(false)}>
-                No
-            </button>
-        </div>
+        </Popconfirm>
     );
 }
 
@@ -124,13 +114,19 @@ export default function FileItems({ items, onOpenPath }: FileItemsProps) {
             ) : null}
 
             <table className="zip-table">
+                <colgroup>
+                    <col className="zip-col-name" />
+                    {columns.slice(1).map(col => (
+                        <col key={col.key} style={col.width ? { width: col.width } : undefined} />
+                    ))}
+                </colgroup>
                 <thead>
                     <tr>
                         {columns.map(col => (
                             <th
                                 key={col.key}
                                 style={{ width: col.width }}
-                                className={col.align ? `align-${col.align}` : undefined}
+                                className={[col.className, col.align ? `align-${col.align}` : ''].filter(Boolean).join(' ') || undefined}
                             >
                                 {col.sortable ? (
                                     <button
@@ -156,7 +152,7 @@ export default function FileItems({ items, onOpenPath }: FileItemsProps) {
                             className="zip-table-row"
                             onClick={() => onOpenPath(entry)}
                         >
-                            <td>
+                            <td className="zip-col-name">
                                 <span className="zip-file-name">
                                     <FileTypeIcon name={entry.name} isDirectory={entry.isDirectory} />
                                     <span>{entry.name}</span>

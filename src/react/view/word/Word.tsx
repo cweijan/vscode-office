@@ -3,6 +3,7 @@ import { Alert, Spin } from "antd";
 import * as docx from 'docx-preview';
 import { useCallback, useEffect, useRef, useState } from "react";
 import { handler, loadDarkMode, applyDarkMode } from "../../util/vscode";
+import { loadOfficeBuffer } from "../../util/loadOfficeContent";
 import SponsorBar from '../components/SponsorBar';
 import './Word.css';
 
@@ -47,7 +48,7 @@ export default function Word() {
         setPageInfo({ current, total, pageSize });
     }, []);
 
-    const loadDocument = useCallback(async (path: string) => {
+    const loadDocument = useCallback(async (payload: { path?: string; buffer?: number[]; error?: string }) => {
         const content = contentRef.current;
         const container = containerRef.current;
         if (!content || !container) {
@@ -60,11 +61,7 @@ export default function Word() {
         container.scrollTo(0, 0);
 
         try {
-            const response = await fetch(path);
-            if (!response.ok) {
-                throw new Error(`Failed to fetch document (${response.status})`);
-            }
-            const buffer = await response.arrayBuffer();
+            const buffer = await loadOfficeBuffer(payload);
             await docx.renderAsync(buffer, content, null, DOCX_RENDER_OPTIONS);
             updatePageInfo();
         } catch (e) {
@@ -75,8 +72,8 @@ export default function Word() {
     }, [updatePageInfo]);
 
     useEffect(() => {
-        handler.on('open', ({ path }) => {
-            loadDocument(path);
+        handler.on('open', (payload) => {
+            loadDocument(payload);
         }).emit('init');
     }, [loadDocument]);
 

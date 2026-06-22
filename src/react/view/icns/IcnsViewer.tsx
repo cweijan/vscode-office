@@ -1,6 +1,7 @@
 import { Alert, Layout, Spin } from 'antd';
 import { useCallback, useEffect, useState } from 'react';
 import { handler } from '../../util/vscode';
+import { loadOfficeBuffer } from '../../util/loadOfficeContent';
 import { useVscodeSponsorDark } from '../../util/vscodeTheme';
 import Sponsor from '../components/Sponsor';
 import { IcnsIconItem, parseIcnsIcons } from './icnsParser';
@@ -16,18 +17,14 @@ export default function IcnsViewer() {
     const [error, setError] = useState<string | null>(null);
     const sponsorDark = useVscodeSponsorDark();
 
-    const loadIcns = useCallback(async (path: string) => {
+    const loadIcns = useCallback(async (payload: { path?: string; buffer?: number[]; error?: string }) => {
         setLoading(true);
         setError(null);
         setIcons([]);
         setSelectedId(null);
 
         try {
-            const response = await fetch(path);
-            if (!response.ok) {
-                throw new Error(`Failed to load ICNS file (${response.status})`);
-            }
-            const buffer = await response.arrayBuffer();
+            const buffer = await loadOfficeBuffer(payload);
             const items = await parseIcnsIcons(buffer);
             setIcons(items);
             setSelectedId(items[items.length - 1]?.id ?? null);
@@ -39,8 +36,8 @@ export default function IcnsViewer() {
     }, []);
 
     useEffect(() => {
-        handler.on('open', ({ path }) => {
-            loadIcns(path);
+        handler.on('open', (payload) => {
+            loadIcns(payload);
         }).emit('init');
     }, [loadIcns]);
 

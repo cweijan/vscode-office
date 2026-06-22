@@ -3,6 +3,7 @@ import { Alert, Button, Layout, Spin } from 'antd';
 import MindElixir, { type MindElixirData, type MindElixirInstance } from 'mind-elixir';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { handler } from '../../util/vscode';
+import { loadOfficeBuffer } from '../../util/loadOfficeContent';
 import { observeVscodeThemeChange } from '../../util/vscodeTheme';
 import SponsorBar from '../components/SponsorBar';
 import { buildMindElixirTheme } from './mindElixirTheme';
@@ -96,7 +97,7 @@ export default function XmindViewer() {
         setDark(prev => !prev);
     }, []);
 
-    const loadXmind = useCallback(async (path: string) => {
+    const loadXmind = useCallback(async (payload: { path?: string; buffer?: number[]; error?: string }) => {
         setLoading(true);
         setError(null);
         setSheets([]);
@@ -107,12 +108,8 @@ export default function XmindViewer() {
         destroyMind();
 
         try {
-            const response = await fetch(path);
-            if (!response.ok) {
-                throw new Error(`Failed to load XMind file (${response.status})`);
-            }
-            const buffer = await response.arrayBuffer();
-            const fileName = path.split('/').pop() ?? 'document.xmind';
+            const buffer = await loadOfficeBuffer(payload);
+            const fileName = payload.path?.split('/').pop() ?? 'document.xmind';
             const parsed = await parseXmind(buffer, fileName);
             if (!parsed.sheets.length) {
                 throw new Error('No sheets found in XMind file');
@@ -128,8 +125,8 @@ export default function XmindViewer() {
     }, [destroyMind]);
 
     useEffect(() => {
-        handler.on('open', ({ path }) => {
-            loadXmind(path);
+        handler.on('open', (payload) => {
+            loadXmind(payload);
         }).emit('init');
 
         return () => {

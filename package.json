@@ -387,7 +387,7 @@
 						"filenamePattern": "*.crx"
 					},
 					{
-						"filenamePattern": "*.svg"
+						"filenamePattern": "file:/**/*.svg"
 					}
 				]
 			},

@@ -196,10 +196,13 @@ function convertImgPath(src, filename) {
   }
 }
 
-function makeCss(filename) {
+function makeCss(filename, resolveRelativeUrls = false) {
   try {
     let css = readFile(filename)
     if (css) {
+      if (resolveRelativeUrls) {
+        css = resolveCssUrls(css, path.dirname(filename))
+      }
       return "\n<style>\n" + css + "\n</style>\n"
     } else {
       return ""
@@ -209,13 +212,23 @@ function makeCss(filename) {
   }
 }
 
+function resolveCssUrls(css, basePath) {
+  return css.replace(/url\((['"]?)([^'")]+)\1\)/g, (match, quote, assetPath) => {
+    const href = assetPath.trim()
+    if (/^(data:|https?:|file:|about:|#)/i.test(href)) {
+      return match
+    }
+    return `url("${url.pathToFileURL(path.resolve(basePath, href)).href}")`
+  })
+}
+
 function readStyles() {
   try {
     const basePath = path.join(__dirname, "styles");
     const katexPath = path.resolve(__dirname, '..', "resource", 'markdown', 'dist', 'js', 'katex', 'katex.min.css');
     const files = ['arduino-light.css', 'markdown.css', 'markdown-pdf.css']
     return files.map(file => makeCss(path.join(basePath, file))).join("")
-      + makeCss(katexPath)
+      + makeCss(katexPath, true)
   } catch (error) {
     showErrorMessage("readStyles()", error)
   }
