@@ -555,7 +555,7 @@
 
 .git-graph-graph-col {
     flex-shrink: 0;
-    padding: 0 4px;
+    padding: 28px 4px 0;
     position: sticky;
     left: 0;
     background: var(--git-graph-bg);
