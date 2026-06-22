@@ -82,7 +82,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             const scrollTop = this.state.get(`scrollTop_${document.uri.fsPath}`, 0);
             handler.emit("open", {
                 title: basename(uri.fsPath),
-                config, scrollTop,
+                config: this.getMarkdownWebviewConfig(config), scrollTop,
                 editorTheme: Global.getConfig("editorTheme", "Auto"),
                 codeMirrorTheme: Global.getConfig("codeMirrorTheme", "Auto"),
                 language: vscode.env.language,
@@ -181,6 +181,18 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                     sponsorBaseUrl,
                 })),
             webview, contextPath);
+    }
+
+    private getMarkdownWebviewConfig(configuration: vscode.WorkspaceConfiguration) {
+        const markdownConfiguration = vscode.workspace.getConfiguration("markdown");
+        return {
+            ...configuration,
+            markdown: {
+                math: {
+                    macros: markdownConfiguration.get<Record<string, string>>("math.macros", {}),
+                },
+            },
+        };
     }
 
     private updateCount(content: string) {

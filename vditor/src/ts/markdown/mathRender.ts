@@ -19,6 +19,7 @@ declare const katex: {
         maxExpand?: number | undefined;
         strict?: boolean | string | undefined;
         globalGroup?: boolean | undefined;
+        trust?: boolean | ((context: { command: string }) => boolean) | undefined;
     }): string;
 };
 
@@ -63,6 +64,8 @@ export const mathRender = (element: HTMLElement, options?: { cdn?: string, extPa
                         strict: false,
                         throwOnError: false,
                         output: "html",
+                        macros: options.math.macros,
+                        trust: true,
                     });
                 } catch (e) {
                     mathElement.innerHTML = e.message;

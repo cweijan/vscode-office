@@ -77,7 +77,14 @@ handler.on("open", async (md) => {
     },
     hint: {
       extend: hotKeys
-    }, after() {
+    },
+    preview: {
+      math: {
+        inlineDigit: true,
+        macros: config.markdown?.math?.macros ?? {},
+      },
+    },
+    after() {
       handler.on("update", content => {
         editor.setValue(content);
       })
