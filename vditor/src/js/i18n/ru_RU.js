@@ -34,6 +34,8 @@ window.VditorI18n = {
   'downloadTip': 'Браузер не поддерживает функции загрузки',
   'edit': 'Редактирование',
   'edit-mode': 'Переключить режим редактирования',
+  'edit-mode-wysiwyg-desc': 'Редактировать форматированный текст напрямую',
+  'edit-mode-ir-desc': 'Markdown с живым предпросмотром',
   'fileTypeError': 'Ошибка типа файла',
   'footnoteRef': 'Сноска',
   'generate': 'Генерация',

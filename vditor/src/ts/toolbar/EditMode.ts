@@ -2,6 +2,11 @@ import {Constants} from "../constants";
 import {processAfterRender} from "../ir/process";
 import {getMarkdown} from "../markdown/getMarkdown";
 import {mathRender} from "../markdown/mathRender";
+import {
+    buildEditModePickerPanelHTML,
+    queryEditModePickerPanel,
+    refreshEditModePickerPanel,
+} from "../ui/editModePickerPanel";
 import {restoreCacheFocus, wasCacheContentRestored} from "../util/cacheFocus";
 import {getEventName} from "../util/compatibility";
 import {highlightToolbar} from "../util/highlightToolbar";
@@ -17,6 +22,17 @@ import {
     removeCurrentToolbar,
     showToolbar, toggleSubMenu,
 } from "./setToolbar";
+
+const refreshEditModePanel = (vditor: IVditor) => {
+    const editModeItem = vditor.toolbar.elements["edit-mode"];
+    if (!editModeItem) {
+        return;
+    }
+    const panelRoot = queryEditModePickerPanel(editModeItem);
+    if (panelRoot) {
+        refreshEditModePickerPanel(panelRoot, vditor.currentMode);
+    }
+};
 
 export const setEditMode = (vditor: IVditor, type: string, event: Event | string) => {
     if (type === "sv") {
@@ -109,6 +125,12 @@ export const setEditMode = (vditor: IVditor, type: string, event: Event | string
     }
 
     vditor.outline.toggle(vditor, vditor.options.outline.enable);
+
+    if (typeof event !== "string" && vditor.options.changeEditMode) {
+        vditor.options.changeEditMode(vditor.currentMode);
+    }
+
+    refreshEditModePanel(vditor);
 };
 
 export class EditMode extends MenuItem {
@@ -119,8 +141,7 @@ export class EditMode extends MenuItem {
 
         const panelElement = document.createElement("div");
         panelElement.className = `vditor-hint${menuItem.level === 2 ? "" : " vditor-panel--arrow"}`;
-        panelElement.innerHTML = `<button data-mode="wysiwyg">${window.VditorI18n.wysiwyg}</button>
-<button data-mode="ir">${window.VditorI18n.instantRendering}</button>`;
+        panelElement.innerHTML = buildEditModePickerPanelHTML(vditor.currentMode);
 
         this.element.appendChild(panelElement);
 
@@ -131,16 +152,20 @@ export class EditMode extends MenuItem {
         const actionBtn = this.element.children[0] as HTMLElement;
         toggleSubMenu(vditor, panelElement, actionBtn, menuItem.level);
 
-        panelElement.children.item(0).addEventListener(getEventName(), (event: Event) => {
-            // wysiwyg
-            setEditMode(vditor, "wysiwyg", event);
-            event.preventDefault();
-            event.stopPropagation();
-        });
+        actionBtn.addEventListener(getEventName(), () => {
+            const panelRoot = queryEditModePickerPanel(panelElement);
+            if (panelRoot) {
+                refreshEditModePickerPanel(panelRoot, vditor.currentMode);
+            }
+        }, true);
 
-        panelElement.children.item(1).addEventListener(getEventName(), (event: Event) => {
-            // ir
-            setEditMode(vditor, "ir", event);
+        panelElement.addEventListener(getEventName(), (event: MouseEvent & { target: HTMLElement }) => {
+            const button = event.target.closest("button[data-mode]") as HTMLElement | null;
+            if (!button) {
+                return;
+            }
+            const mode = button.getAttribute("data-mode") || "";
+            setEditMode(vditor, mode, event);
             event.preventDefault();
             event.stopPropagation();
         });

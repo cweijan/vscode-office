@@ -34,6 +34,8 @@ window.VditorI18n = {
   'downloadTip': 'ブラウザがダウンロード機能をサポートしていません。',
   'edit': '修正',
   'edit-mode': '編集モード',
+  'edit-mode-wysiwyg-desc': '整形済みコンテンツを直接編集',
+  'edit-mode-ir-desc': 'Markdown をリアルタイムプレビュー',
   'fileTypeError': 'サポートしていません。',
   'footnoteRef': '脚注参照',
   'generate': '作成する',

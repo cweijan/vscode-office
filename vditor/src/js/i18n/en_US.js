@@ -36,6 +36,8 @@ window.VditorI18n = {
   'downloadTip': 'The browser does not support the download function',
   'edit': 'Edit',
   'edit-mode': 'Toggle Edit Mode',
+  'edit-mode-wysiwyg-desc': 'Edit formatted content directly',
+  'edit-mode-ir-desc': 'Markdown with live preview',
   'fileTypeError': 'file type is error',
   'footnoteRef': 'Footnote Ref',
   'generate': 'Generating',

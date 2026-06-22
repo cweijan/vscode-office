@@ -208,14 +208,28 @@ const editorSession = {
     anchorUntil: 0,
     restoring: false,
     resizeObserver: null,
+    vditor: null,
+    scrollBound: false,
 };
 
-function getEditorElement() {
+function getEditorElement(vditor) {
+    const mode = vditor?.vditor?.currentMode;
+    if (mode === 'ir' || mode === 'wysiwyg') {
+        return vditor.vditor[mode].element;
+    }
+    const irParent = document.querySelector('.vditor-ir');
+    if (irParent && getComputedStyle(irParent).display !== 'none') {
+        return irParent.querySelector('.vditor-reset');
+    }
+    const wysiwygParent = document.querySelector('.vditor-wysiwyg');
+    if (wysiwygParent && getComputedStyle(wysiwygParent).display !== 'none') {
+        return wysiwygParent.querySelector('.vditor-reset');
+    }
     return document.querySelector('.vditor-reset');
 }
 
 function persistScroll() {
-    const editorEl = getEditorElement();
+    const editorEl = getEditorElement(editorSession.vditor);
     if (!editorEl) {
         return;
     }
@@ -239,7 +253,7 @@ function stopAnchoredScrollRestore() {
 }
 
 function applyEditorScroll(top) {
-    const editorEl = getEditorElement();
+    const editorEl = getEditorElement(editorSession.vditor);
     if (!editorEl || top == null || Number.isNaN(top)) {
         return false;
     }
@@ -253,7 +267,7 @@ function applyEditorScroll(top) {
 }
 
 function syncAnchoredScrollRestore() {
-    const editorEl = getEditorElement();
+    const editorEl = getEditorElement(editorSession.vditor);
     const target = editorSession.anchorTarget;
     if (!editorEl || target == null || Date.now() > editorSession.anchorUntil) {
         stopAnchoredScrollRestore();
@@ -275,7 +289,7 @@ function startAnchoredScrollRestore(top) {
         window.setTimeout(syncAnchoredScrollRestore, ms);
     }
 
-    const editorEl = getEditorElement();
+    const editorEl = getEditorElement(editorSession.vditor);
     if (!editorEl) {
         return;
     }
@@ -288,23 +302,44 @@ function startAnchoredScrollRestore(top) {
     }
 }
 
-export function setupEditorSession() {
-    const editorEl = getEditorElement();
+function onEditorScroll(event) {
+    if (editorSession.restoring) {
+        return;
+    }
+    const editorEl = event.currentTarget;
+    const activeEl = getEditorElement(editorSession.vditor);
+    if (editorEl !== activeEl) {
+        return;
+    }
+    editorSession.scrollTop = editorEl.scrollTop;
+    if (editorSession.anchorTarget != null &&
+        Math.abs(editorEl.scrollTop - editorSession.anchorTarget) > 8) {
+        stopAnchoredScrollRestore();
+    }
+    schedulePersistScroll();
+}
+
+function bindEditorScrollListeners() {
+    if (editorSession.scrollBound) {
+        return;
+    }
+    const selectors = ['.vditor-wysiwyg .vditor-reset', '.vditor-ir .vditor-reset'];
+    for (const selector of selectors) {
+        const editorEl = document.querySelector(selector);
+        if (editorEl) {
+            editorEl.addEventListener('scroll', onEditorScroll, { passive: true });
+        }
+    }
+    editorSession.scrollBound = true;
+}
+
+export function setupEditorSession(editor) {
+    editorSession.vditor = editor;
+    bindEditorScrollListeners();
+    const editorEl = getEditorElement(editor);
     if (!editorEl) {
         return;
     }
-
-    editorEl.addEventListener('scroll', () => {
-        if (editorSession.restoring) {
-            return;
-        }
-        editorSession.scrollTop = editorEl.scrollTop;
-        if (editorSession.anchorTarget != null &&
-            Math.abs(editorEl.scrollTop - editorSession.anchorTarget) > 8) {
-            stopAnchoredScrollRestore();
-        }
-        schedulePersistScroll();
-    }, { passive: true });
 
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
@@ -315,7 +350,10 @@ export function setupEditorSession() {
     window.addEventListener('blur', persistScroll);
 }
 
-export function scrollEditor(top) {
+export function scrollEditor(top, editor) {
+    if (editor) {
+        editorSession.vditor = editor;
+    }
     const target = Number(top);
     if (Number.isNaN(target)) {
         return;

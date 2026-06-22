@@ -125,9 +125,6 @@ export const cutEvent =
 
 export const macOptionSymbolEvent = (vditor: IVditor) => {
     vditor.element.addEventListener("keydown", (event: KeyboardEvent) => {
-        if (vditor.options.preventMacOptionKey === false) {
-            return;
-        }
         if (!shouldBlockMacOptionSymbol(event)) {
             return;
         }
@@ -161,7 +158,7 @@ export const hotkeyEvent = (vditor: IVditor, editorElement: HTMLElement) => {
             }
         }
 
-        if (handlerHistoryEvent(event,vditor))
+        if (handlerHistoryEvent(event, vditor))
             return;
 
         if (vditor.options.ctrlEnter && matchHotKey("⌘Enter", event)) {

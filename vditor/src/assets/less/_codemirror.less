@@ -847,3 +847,73 @@
     }
   }
 }
+
+// Math block CodeMirror editor
+.vditor-math-cm-host {
+  border-radius: 6px;
+  overflow: hidden;
+
+  .cm-editor {
+    outline: none;
+    min-height: 2em;
+    max-height: 400px;
+    border-radius: 6px;
+    color: var(--cm-fg-color, var(--vscode-editor-foreground));
+  }
+
+  .cm-editor,
+  .cm-scroller {
+    background: var(--cm-bg-color, var(--code-bg-color, var(--second-bg-color))) !important;
+  }
+
+  .cm-scroller {
+    overflow: auto;
+    font-family: var(--vscode-editor-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace) !important;
+    font-size: var(--vscode-editor-font-size, 13px);
+    line-height: calc(var(--vscode-editor-font-size, 13px) * 1.5);
+    .vditor-cm-scrollbar(var(--cm-bg-color, var(--code-bg-color, var(--second-bg-color))));
+  }
+
+  .cm-content {
+    padding: 8px 0 10px;
+    caret-color: var(--cm-cursor-fg) !important;
+  }
+
+  .cm-line {
+    padding: 0 16px;
+  }
+
+  .cm-gutters {
+    background: var(--cm-bg-color, var(--code-bg-color, var(--second-bg-color))) !important;
+    border-right: 0;
+    user-select: none;
+  }
+
+  .cm-gutterElement {
+    color: var(--cm-line-number-fg, var(--vscode-editorLineNumber-foreground));
+  }
+
+  .cm-cursor,
+  .cm-dropCursor {
+    border-left-color: var(--cm-cursor-fg) !important;
+    border-left-width: 2px;
+  }
+
+  .cm-activeLine,
+  .cm-activeLineGutter {
+    background: transparent !important;
+  }
+
+  .cm-editor.cm-focused .cm-activeLine,
+  .cm-editor.cm-focused .cm-activeLineGutter {
+    background: var(--cm-active-line-bg) !important;
+  }
+
+  .cm-selectionBackground {
+    background: var(--cm-selection-bg-inactive) !important;
+  }
+
+  .cm-focused .cm-selectionBackground {
+    background: var(--cm-selection-bg-focused) !important;
+  }
+}

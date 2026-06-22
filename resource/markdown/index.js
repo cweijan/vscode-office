@@ -34,19 +34,26 @@ function normalizeCodeMirrorTheme(theme) {
   return CODE_MIRROR_THEMES.has(theme) ? theme : 'Auto'
 }
 
+function normalizeEditMode(mode) {
+  if (mode === 'sv') {
+    return 'ir'
+  }
+  return mode === 'ir' ? 'ir' : 'wysiwyg'
+}
+
 handler.on("open", async (md) => {
   const { config, language } = md;
   const sponsorBaseUrl = md.sponsorBaseUrl || state?.sponsorBaseUrl;
   const codeMirrorTheme = normalizeCodeMirrorTheme(md.codeMirrorTheme ?? config.codeMirrorTheme)
   const editorTheme = md.editorTheme ?? config.editorTheme ?? 'Auto'
   const mermaidTheme = md.mermaidTheme ?? config.mermaidTheme ?? 'Auto'
+  const editMode = normalizeEditMode(md.editMode ?? config.editMode)
   const editor = new Vditor('vditor', {
     value: md.content,
     cdn: md.rootPath,
     editorTheme,
     codeMirrorTheme,
     mermaidTheme,
-    preventMacOptionKey: config.preventMacOptionKey !== false,
     height: '100%',
     outline: {
       enable: config.openOutline,
@@ -60,7 +67,7 @@ handler.on("open", async (md) => {
       id: buildFocusCacheId(md.documentPath),
       focusHost: 'vscode',
     },
-    mode: 'wysiwyg',
+    mode: editMode,
     lang: language == 'zh-cn' ? 'zh_CN' : config.editorLanguage,
     tab: '\t',
     toolbar: await getToolbar(md.rootPath, sponsorBaseUrl, language),
@@ -74,6 +81,9 @@ handler.on("open", async (md) => {
     },
     changeMermaidTheme(theme) {
       handler.emit('mermaidTheme', theme)
+    },
+    changeEditMode(mode) {
+      handler.emit('editMode', mode)
     },
     input(content) {
       handler.emit("save", content)
@@ -104,8 +114,8 @@ handler.on("open", async (md) => {
       })
       openLink()
       onToolbarClick(editor)
-      setupEditorSession()
-      scrollEditor(md.scrollTop)
+      setupEditorSession(editor)
+      scrollEditor(md.scrollTop, editor)
       editor.restoreFocus(true)
     }
   })

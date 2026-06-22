@@ -90,7 +90,6 @@ export class Options {
         },
         value: "",
         width: "auto",
-        preventMacOptionKey: true,
         editorTheme: "Auto",
         mermaidTheme: "Auto",
     };

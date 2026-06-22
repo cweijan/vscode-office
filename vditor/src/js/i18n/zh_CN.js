@@ -36,6 +36,8 @@ window.VditorI18n = {
   'downloadTip': '该浏览器不支持下载功能',
   'edit': '编辑',
   'edit-mode': '切换编辑模式',
+  'edit-mode-wysiwyg-desc': '直接编辑排版内容',
+  'edit-mode-ir-desc': 'Markdown 源码即时预览',
   'fileTypeError': '文件类型不允许上传，请压缩后再试',
   'footnoteRef': '脚注标识',
   'generate': '生成中',

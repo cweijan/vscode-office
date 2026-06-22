@@ -68,10 +68,10 @@ export const readEditorAccentColors = (root: HTMLElement): IEditorAccentColors =
 
 export const buildMermaidInitConfig = (themeId: string, root: HTMLElement) => {
     if (themeId === "Light") {
-        return {theme: "default"};
+        return { theme: "default" };
     }
     if (themeId === "Dark") {
-        return {theme: "dark"};
+        return { theme: "dark" };
     }
     return buildMermaidThemeConfig(root);
 };
@@ -91,6 +91,7 @@ export const buildMermaidThemeConfig = (root: HTMLElement) => {
     const chart = readEditorAccentColors(root);
     const noteBg = chart.yellow;
     const noteFg = isDarkBackground(noteBg) ? fg : "#1f2020";
+    const contrastColor = (bg: string): string => isDarkBackground(bg) ? "#ffffff" : "#1f2020";
 
     return {
         theme: "base",
@@ -111,6 +112,7 @@ export const buildMermaidThemeConfig = (root: HTMLElement) => {
             border2: border,
             classText: fg,
             clusterBkg: chart.purple,
+            clusterTextColor: contrastColor(chart.purple),
             clusterBorder: accent,
             critBkgColor: error,
             critBorderColor: error,
@@ -120,7 +122,7 @@ export const buildMermaidThemeConfig = (root: HTMLElement) => {
             doneTaskBorderColor: border,
             edgeLabelBackground: bg,
             errorBkgColor: error,
-            errorTextColor: fg,
+            errorTextColor: contrastColor(error),
             fillType0: panelBg,
             fillType1: chart.blue,
             fillType2: chart.purple,
@@ -152,22 +154,22 @@ export const buildMermaidThemeConfig = (root: HTMLElement) => {
             secondBkg: chart.green,
             secondaryBorderColor: chart.blue,
             secondaryColor: chart.blue,
-            secondaryTextColor: fg,
+            secondaryTextColor: contrastColor(chart.blue),
             sectionBkgColor: chart.yellow,
             sectionBkgColor2: chart.orange,
-            sequenceNumberColor: dark ? fg : chart.foreground,
+            sequenceNumberColor: contrastColor(chart.blue),
             signalColor: chart.blue,
             signalTextColor: fg,
             taskBkgColor: chart.green,
             taskBorderColor: accent,
             taskTextClickableColor: accent,
-            taskTextColor: fg,
+            taskTextColor: contrastColor(chart.green),
             taskTextDarkColor: "#1f2020",
             taskTextLightColor: "#ffffff",
             taskTextOutsideColor: fg,
             tertiaryBorderColor: chart.purple,
             tertiaryColor: chart.purple,
-            tertiaryTextColor: fg,
+            tertiaryTextColor: contrastColor(chart.purple),
             textColor: fg,
             titleColor: chart.blue,
             todayLineColor: error,

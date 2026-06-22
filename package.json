@@ -552,11 +552,6 @@
 						"default": true,
 						"description": "Preview code in markdown."
 					},
-					"vscode-office.preventMacOptionKey": {
-						"type": "boolean",
-						"default": true,
-						"description": "Prevent MacOS option key in the markdown editor."
-					},
 					"vscode-office.editorTheme": {
 						"type": "string",
 						"enum": [
@@ -601,6 +596,15 @@
 						],
 						"default": "Auto",
 						"markdownDescription": "Mermaid diagram theme in the Markdown editor. Auto follows the editor theme."
+					},
+					"vscode-office.editMode": {
+						"type": "string",
+						"enum": [
+							"wysiwyg",
+							"ir"
+						],
+						"default": "wysiwyg",
+						"markdownDescription": "Default edit mode for the Markdown editor."
 					},
 					"vscode-office.previewCodeHighlight.style": {
 						"type": "string",
