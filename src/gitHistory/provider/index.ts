@@ -95,6 +95,13 @@ export async function activateGitHistory(context: vscode.ExtensionContext): Prom
         return;
     }
 
+    const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
+    statusBarItem.command = 'office.gitHistory.view';
+    statusBarItem.text = '$(git-commit) Git';
+    statusBarItem.tooltip = 'Open Git History';
+    statusBarItem.show();
+    context.subscriptions.push(statusBarItem);
+
     context.subscriptions.push(
         vscode.commands.registerCommand('office.gitHistory.view', async (arg?: unknown) => {
             const panelContext = buildPanelContextFromCommandArg(arg);
