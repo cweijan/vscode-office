@@ -454,27 +454,21 @@
   overflow: visible;
 
   &__section {
-    border: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 12%, transparent);
-    border-radius: 4px;
-    overflow: hidden;
-    background: color-mix(in srgb, var(--cm-lang-trigger-bg, var(--cm-bg-color)) 42%, var(--cm-bg-color, var(--panel-background-color)));
-
     & + & {
-      margin-top: 4px;
+      margin-top: 2px;
+      padding-top: 2px;
+      border-top: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 8%, transparent);
     }
   }
 
   &__title {
-    padding: 3px 8px 2px;
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
+    padding: 6px 10px 2px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
     line-height: 14px;
-    color: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 70%, transparent);
-    background: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 5%, var(--cm-bg-color, var(--panel-background-color)));
-    border-bottom: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 10%, transparent);
-    opacity: 1;
+    color: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 45%, transparent);
     cursor: default;
     user-select: none;
   }
@@ -482,12 +476,12 @@
   button {
     color: var(--cm-fg-color, var(--toolbar-icon-color));
     display: block;
-    padding: 3px 8px;
-    margin: 1px 3px;
+    padding: 4px 10px;
+    margin: 1px 4px;
     border: 0;
-    border-radius: 3px;
+    border-radius: 5px;
     line-height: 18px;
-    width: calc(100% - 6px);
+    width: calc(100% - 8px);
     box-sizing: border-box;
     text-align: left;
     background-color: transparent;
@@ -496,29 +490,16 @@
     text-overflow: ellipsis;
     overflow: hidden;
     font-size: var(--ui-font-size);
-    transition: background-color 0.12s ease, color 0.12s ease;
+    transition: background-color 0.1s ease;
 
     &:hover {
-      background-color: var(--cm-active-line-bg, color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 8%, transparent));
-      color: var(--cm-fg-color, var(--toolbar-icon-color));
+      background-color: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 8%, transparent);
     }
   }
 
   button.vditor-theme-option--current {
-    background-color: color-mix(in srgb, var(--cm-copy-color, var(--link-color)) 14%, var(--cm-bg-color, var(--panel-background-color)));
+    background-color: color-mix(in srgb, var(--cm-copy-color, var(--link-color)) 16%, transparent);
     color: var(--cm-copy-color, var(--link-color));
-    font-weight: 600;
-    border-left: none;
-    padding-left: 8px;
-
-    &::before {
-      content: "✓";
-      display: inline-block;
-      width: 12px;
-      margin-right: 3px;
-      font-size: 10px;
-      opacity: 0.9;
-    }
   }
 }
 

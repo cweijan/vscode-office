@@ -4,14 +4,34 @@
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @version 0.1.0.0, Jan 25, 2019
  */
-@keyframes tooltip-appear {
-  from {
-    opacity: 0;
-  }
+.vditor-tooltipped--clicked::before,
+.vditor-tooltipped--clicked::after {
+  display: none !important;
+}
 
-  to {
-    opacity: 1;
-  }
+@keyframes tooltip-appear {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes tooltip-appear-s {
+  from { opacity: 0; transform: translateX(50%) translateY(-5px) scale(0.95); }
+  to   { opacity: 1; transform: translateX(50%) translateY(0)    scale(1);    }
+}
+
+@keyframes tooltip-appear-n {
+  from { opacity: 0; transform: translateX(50%) translateY(5px) scale(0.95); }
+  to   { opacity: 1; transform: translateX(50%) translateY(0)   scale(1);    }
+}
+
+@keyframes tooltip-appear-e {
+  from { opacity: 0; transform: translateY(50%) translateX(-5px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(50%) translateX(0)    scale(1);    }
+}
+
+@keyframes tooltip-appear-w {
+  from { opacity: 0; transform: translateY(50%) translateX(5px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(50%) translateX(0)   scale(1);    }
 }
 
 .vditor-tooltipped {
@@ -77,9 +97,33 @@
     display: inline-block;
     text-decoration: none;
     animation-name: tooltip-appear;
-    animation-duration: 0.15s;
+    animation-duration: 0.18s;
     animation-fill-mode: forwards;
-    animation-timing-function: ease-in;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  &__s, &__se, &__sw {
+    &:hover::after, &--hover::after, &:active::after, &:focus::after {
+      animation-name: tooltip-appear-s;
+    }
+  }
+
+  &__n, &__ne, &__nw {
+    &:hover::after, &--hover::after, &:active::after, &:focus::after {
+      animation-name: tooltip-appear-n;
+    }
+  }
+
+  &__e {
+    &:hover::after, &--hover::after, &:active::after, &:focus::after {
+      animation-name: tooltip-appear-e;
+    }
+  }
+
+  &__w {
+    &:hover::after, &--hover::after, &:active::after, &:focus::after {
+      animation-name: tooltip-appear-w;
+    }
   }
 
   &__s::after,
@@ -87,7 +131,7 @@
   &__sw::after {
     top: 100%;
     right: 50%;
-    margin-top: 9px;
+    margin-top: 7px;
   }
 
   &__s::before,
@@ -95,9 +139,9 @@
   &__sw::before {
     top: auto;
     right: 50%;
-    bottom: -9px;
+    bottom: -7px;
     margin-right: -5px;
-    border-bottom-color: var(--vditor-tooltip-bg);
+    border-bottom-color: var(--vditor-tooltip-border);
   }
 
   &__se::after {
@@ -138,16 +182,10 @@
     margin-right: -15px;
   }
 
-  &__s::after,
-  &__n::after {
-    transform: translateX(50%);
-  }
-
   &__w::after {
     right: 100%;
     bottom: 50%;
     margin-right: 9px;
-    transform: translateY(50%);
   }
 
   &__w::before {
@@ -162,7 +200,6 @@
     bottom: 50%;
     left: 100%;
     margin-left: 9px;
-    transform: translateY(50%);
   }
 
   &__e::before {

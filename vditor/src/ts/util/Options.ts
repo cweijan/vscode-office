@@ -133,64 +133,54 @@ export class Options {
             hotkey: "⌘H",
             icon: getToolbarCodicon("headings"),
             name: "headings",
-            tipPosition: "e",
         }, {
             hotkey: "⌘K",
             icon: getToolbarCodicon("bold"),
             name: "bold",
             prefix: "**",
             suffix: "**",
-            tipPosition: "e",
         }, {
             hotkey: "⌘I",
             icon: getToolbarCodicon("italic"),
             name: "italic",
             prefix: "*",
             suffix: "*",
-            tipPosition: "e",
         }, {
             hotkey: "⌘D",
             icon: getToolbarCodicon("strike"),
             name: "strike",
             prefix: "~~",
             suffix: "~~",
-            tipPosition: "e",
         }, {
             hotkey: "⌘U",
             icon: getToolbarCodicon("link"),
             name: "link",
             prefix: "[",
             suffix: "](https://)",
-            tipPosition: "e",
         }, {
             name: "|",
         }, {
             icon: getToolbarCodicon("list"),
             name: "list",
             prefix: "* ",
-            tipPosition: "e",
         }, {
             hotkey: "⌘O",
             icon: getToolbarCodicon("ordered-list"),
             name: "ordered-list",
             prefix: "1. ",
-            tipPosition: "e",
         }, {
             hotkey: "⌘J",
             icon: getToolbarCodicon("check"),
             name: "check",
             prefix: "* [ ] ",
-            tipPosition: "e",
         }, {
             hotkey: "⇧⌘I",
             icon: getToolbarCodicon("outdent"),
             name: "outdent",
-            tipPosition: "e",
         }, {
             hotkey: "⇧⌘O",
             icon: getToolbarCodicon("indent"),
             name: "indent",
-            tipPosition: "e",
         }, {
             name: "|",
         }, {
@@ -198,96 +188,81 @@ export class Options {
             icon: getToolbarCodicon("quote"),
             name: "quote",
             prefix: "> ",
-            tipPosition: "e",
         }, {
             hotkey: "⇧⌘H",
             icon: getToolbarCodicon("line"),
             name: "line",
             prefix: "---",
-            tipPosition: "e",
         }, {
             hotkey: "⇧⌘U",
             icon: getToolbarCodicon("code"),
             name: "code",
             prefix: "```",
             suffix: "\n```",
-            tipPosition: "e",
         }, {
             hotkey: "⌘G",
             icon: getToolbarCodicon("inline-code"),
             name: "inline-code",
             prefix: "`",
             suffix: "`",
-            tipPosition: "e",
         }, {
             hotkey: "⇧⌘B",
             icon: getToolbarCodicon("insert-before"),
             name: "insert-before",
-            tipPosition: "e",
         }, {
             hotkey: "⇧⌘E",
             icon: getToolbarCodicon("insert-after"),
             name: "insert-after",
-            tipPosition: "e",
         }, {
             name: "|",
         }, {
             icon: getToolbarCodicon("upload"),
             name: "upload",
-            tipPosition: "e",
         }, {
             hotkey: "⌘M",
             icon: getToolbarCodicon("table"),
             name: "table",
             prefix: "| col1",
             suffix: " | col2 | col3 |\n| --- | --- | --- |\n|  |  |  |\n|  |  |  |",
-            tipPosition: "e",
         }, {
             name: "|",
         }, {
             hotkey: "⌘Z",
             icon: getToolbarCodicon("undo"),
             name: "undo",
-            tipPosition: "e",
         }, {
             hotkey: "⌘Y",
             icon: getToolbarCodicon("redo"),
             name: "redo",
-            tipPosition: "e",
         }, {
             name: "|",
         }, {
             icon: getToolbarCodicon("more"),
             name: "more",
-            tipPosition: "e",
         }, {
             icon: getToolbarCodicon("edit-mode"),
             name: "edit-mode",
-            tipPosition: "e",
         }, {
             icon: getToolbarCodicon("outline"),
             name: "outline",
-            tipPosition: "e",
         }, {
             name: "editor-theme-label",
-            tipPosition: "e",
             icon: "Theme:",
         }, {
             icon: getToolbarCodicon("editor-theme"),
             name: "editor-theme",
-            tipPosition: "e",
+        }, {
+            icon: "",
+            name: "editor-theme-toggle",
         }, {
             icon: getToolbarCodicon("code-theme"),
             name: "code-theme",
-            tipPosition: "e",
         }, {
             icon: getToolbarCodicon("info"),
             name: "info",
-            tipPosition: "e",
         }, {
             icon: getToolbarCodicon("help"),
             name: "help",
-            tipPosition: "e",
         }, {
             name: "br",
         }];

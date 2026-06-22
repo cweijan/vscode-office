@@ -1,4 +1,4 @@
-import { openLink, hotKeys, imageParser, getToolbar, autoSymbol, onToolbarClick, createContextMenu, scrollEditor, setupEditorSession } from "./util.js";
+import { openLink, hotKeys, imageParser, getToolbar, autoSymbol, createContextMenu, scrollEditor, setupEditorSession } from "./util.js";
 
 function buildFocusCacheId(documentPath) {
   if (!documentPath) {
@@ -57,6 +57,7 @@ handler.on("open", async (md) => {
     outline: {
       enable: config.openOutline,
       position: 'left',
+      change: (enable) => handler.emit("saveOutline", enable),
     },
     toolbarConfig: {
       hide: config.hideToolbar
@@ -70,6 +71,7 @@ handler.on("open", async (md) => {
     lang: language == 'zh-cn' ? 'zh_CN' : config.editorLanguage,
     tab: '\t',
     toolbar: await getToolbar(md.rootPath, language),
+    onAboutOpen: () => handler.emit('openAbout'),
     onSponsorLogoClick: () => handler.emit('openSponsor'),
     onSponsorSiteClick: () => handler.emit('openExternal', 'https://database-client.com/'),
     debugger: md.isDev,
@@ -114,7 +116,6 @@ handler.on("open", async (md) => {
         editor.setValue(content);
       })
       openLink()
-      onToolbarClick(editor)
       setupEditorSession(editor)
       scrollEditor(md.scrollTop, editor)
       editor.restoreFocus(true)
@@ -123,5 +124,5 @@ handler.on("open", async (md) => {
   autoSymbol(handler, editor, config);
   createContextMenu(editor)
   imageParser(config.viewAbsoluteLocal)
-  zoomElement('.vditor-content')
+  zoomElement('.vditor-reset')
 }).emit("init")

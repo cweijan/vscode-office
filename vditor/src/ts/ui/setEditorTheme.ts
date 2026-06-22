@@ -5,7 +5,7 @@ import {
     resolveEditorTheme,
 } from "./editorThemeCatalog";
 import {resolveMermaidTheme} from "./setMermaidTheme";
-import {initEditorThemeToggle, updateEditorThemeToggle} from "./editorThemeToggle";
+import {updateEditorThemeToggle} from "./editorThemeToggle";
 import {initMobileOutlineMenu, prepareEditorThemeMobileOutline} from "./mobileOutlineMenu";
 
 const LEGACY_THEME_LINK_ID = "vditor-editor-theme-css";
@@ -76,7 +76,6 @@ export const setEditorTheme = (vditor: IVditor, theme: string, notify = true) =>
 export const initEditorTheme = (vditor: IVditor) => {
     const theme = resolveEditorTheme(vditor.options.editorTheme);
     setEditorTheme(vditor, theme, false);
-    initEditorThemeToggle(vditor);
     initMobileOutlineMenu(vditor);
 };
 

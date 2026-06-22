@@ -170,13 +170,19 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             config.update("openOutline", enable, true)
         }).on('developerTool', () => {
             vscode.commands.executeCommand('workbench.action.toggleDevTools')
+        }).on('openAbout', () => {
+            TelemetryService.get()?.trackAboutOpen();
         }).on('openSponsor', () => {
+            TelemetryService.get()?.trackAboutClick('logo');
             vscode.commands.executeCommand(
                 'workbench.extensions.action.showExtensionsWithIds',
                 ['cweijan.vscode-database-client2'],
             );
         }).on('openExternal', (url: string) => {
             if (url) {
+                if (url.includes('database-client.com')) {
+                    TelemetryService.get()?.trackAboutClick('site');
+                }
                 vscode.env.openExternal(vscode.Uri.parse(url));
             }
         })

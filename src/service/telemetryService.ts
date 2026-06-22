@@ -69,4 +69,18 @@ export class TelemetryService {
         }
         this.reporter!.sendTelemetryEvent('markdown.export', { type });
     }
+
+    trackAboutOpen(): void {
+        if (!this.enabled()) {
+            return;
+        }
+        this.reporter!.sendTelemetryEvent('markdown.about.open');
+    }
+
+    trackAboutClick(action: 'logo' | 'site'): void {
+        if (!this.enabled()) {
+            return;
+        }
+        this.reporter!.sendTelemetryEvent('markdown.about.click', { action });
+    }
 }

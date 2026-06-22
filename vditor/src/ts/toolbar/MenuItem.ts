@@ -25,9 +25,15 @@ export class MenuItem {
             this.element.classList.add("vditor-toolbar__item");
             const iconElement = document.createElement(tagName);
             iconElement.setAttribute("data-type", menuItem.name);
-            iconElement.className = `vditor-tooltipped vditor-tooltipped__${menuItem.tipPosition}`;
+            iconElement.className = `vditor-tooltipped vditor-tooltipped__s`;
             iconElement.setAttribute("aria-label", tip);
             iconElement.innerHTML = menuItem.icon;
+            iconElement.addEventListener("click", () => {
+                iconElement.classList.add("vditor-tooltipped--clicked");
+                iconElement.addEventListener("mouseleave", () => {
+                    iconElement.classList.remove("vditor-tooltipped--clicked");
+                }, {once: true});
+            });
             this.element.appendChild(iconElement);
         }
 

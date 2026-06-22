@@ -73,7 +73,6 @@ export async function getToolbar(resPath, language) {
         "|",
         {
             name: 'edit-in-vscode',
-            tipPosition: 'e',
             tip: `Edit In VSCode (${shortcutTip})`,
             className: 'right',
             icon: await loadRes(`${resPath}/vscode.svg`),
@@ -82,7 +81,6 @@ export async function getToolbar(resPath, language) {
             }
         },
         {
-            tipPosition: 'e',
             tip: 'Export To Pdf',
             className: 'right',
             icon: codicon('file-pdf'),
@@ -94,6 +92,7 @@ export async function getToolbar(resPath, language) {
         "|",
         'editor-theme-label',
         "editor-theme",
+        "editor-theme-toggle",
         "|",
         // "|",
         "list",
@@ -143,7 +142,6 @@ export const openLink = () => {
     const content = document.querySelector(".vditor-wysiwyg");
     content.addEventListener('dblclick', clickCallback);
     content.addEventListener('click', clickCallback);
-    content.addEventListener('auxclick', clickCallback);
     document.querySelector(".vditor-ir").addEventListener('click', e => {
         let ele = e.target;
         if (ele.classList.contains('vditor-ir__link')) {
@@ -316,19 +314,6 @@ export function scrollEditor(top, editor) {
 }
 
 
-//监听选项改变事件
-export function onToolbarClick(editor) {
-    document.querySelector('.vditor-toolbar').addEventListener("click", (e) => {
-        let target = e.target, type;
-        for (let i = 0; i < 3; i++) {
-            if (type = target.dataset.type) break;
-            target = target.parentElement;
-        }
-        if (type == 'outline') {
-            handler.emit("saveOutline", editor.vditor.options.outline.enable)
-        }
-    })
-}
 
 const hideContextMenu = (menu) => {
     menu.hidden = true

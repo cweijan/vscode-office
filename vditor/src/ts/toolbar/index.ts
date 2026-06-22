@@ -7,6 +7,7 @@ import {Divider} from "./Divider";
 import {EditMode} from "./EditMode";
 import {EditorTheme} from "./EditorTheme";
 import {EditorThemeLabel} from "./EditorThemeLabel";
+import {EditorThemeToggle} from "./EditorThemeToggle";
 import {Headings} from "./Headings";
 import {Help} from "./Help";
 import {Indent} from "./Indent";
@@ -132,6 +133,9 @@ export class Toolbar {
                 break;
             case "editor-theme":
                 menuItemObj = new EditorTheme(vditor, menuItem);
+                break;
+            case "editor-theme-toggle":
+                menuItemObj = new EditorThemeToggle(vditor, menuItem);
                 break;
             default:
                 menuItemObj = new Custom(vditor, menuItem);

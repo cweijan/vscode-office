@@ -742,6 +742,7 @@ interface IOptions {
     outline?: {
         enable: boolean,
         position: "left" | "right",
+        change?(enable: boolean): void,
     };
 
     /** 编辑器异步渲染完成后的回调方法 */
@@ -776,6 +777,9 @@ interface IOptions {
 
     /** 编辑器中选中文字后触发 */
     select?(value: string): void;
+
+    /** 打开 About 面板时触发 */
+    onAboutOpen?(): void;
 
     /** 点击赞助 Logo 后触发 */
     onSponsorLogoClick?(): void;

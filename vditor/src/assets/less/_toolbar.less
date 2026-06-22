@@ -142,6 +142,10 @@
   color: var(--list-hover-color, var(--toolbar-icon-hover-color)) !important;
 }
 
+.vditor-toolbar__item:has([data-type="code-theme"]) .vditor-hint {
+  width: 180px;
+}
+
 .vditor-sponsor-toolbar-icon {
   width: 18px;
   height: 18px;
@@ -155,7 +159,7 @@
   top: calc(100% + 6px);
   right: 0;
   z-index: 100;
-  width: 380px;
+  width: 350px;
   background: var(--panel-background-color);
   border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 18%, transparent);
   border-radius: 10px;
@@ -197,7 +201,7 @@
   &__desc {
     margin: 0;
     padding-right: 20px;
-    font-size: 12.5px;
+    font-size: var(--ui-font-size);
     line-height: 1.65;
     color: var(--toolbar-icon-color);
 

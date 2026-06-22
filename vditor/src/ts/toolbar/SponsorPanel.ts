@@ -28,11 +28,6 @@ export class SponsorPanel {
         const desc = SPONSOR_DESC[lang] || DEFAULT_SPONSOR_DESC;
         this.element.innerHTML = `
 <div class="vditor-sponsor-popup__inner">
-    <button type="button" class="vditor-sponsor-popup__close" aria-label="Close">
-        <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
-            <path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"/>
-        </svg>
-    </button>
     <p class="vditor-sponsor-popup__desc">${desc}</p>
     <div class="vditor-sponsor-popup__bar">
         <button type="button" class="vditor-sponsor-popup__logo js-logo" title="Open Database Client">
@@ -49,8 +44,6 @@ export class SponsorPanel {
     }
 
     private bindEvents() {
-        this.element.querySelector(".vditor-sponsor-popup__close").addEventListener("click", () => this.hide());
-
         this.element.querySelector(".js-logo").addEventListener("click", (e) => {
             e.preventDefault();
             e.stopPropagation();

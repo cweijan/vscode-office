@@ -35,6 +35,7 @@ window.VditorI18n = {
   'dragBlock': 'Drag to move block',
   'downloadTip': 'The browser does not support the download function',
   'edit': 'Edit',
+  'edit-mode-label': 'Edit Mode',
   'edit-mode': 'Toggle Edit Mode',
   'edit-mode-wysiwyg-desc': 'Edit formatted content directly',
   'edit-mode-ir-desc': 'Markdown with live preview',

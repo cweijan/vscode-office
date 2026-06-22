@@ -35,6 +35,7 @@ window.VditorI18n = {
   'dragBlock': '拖拽移動',
   'downloadTip': '該瀏覽器不支持下載功能',
   'edit': '編輯',
+  'edit-mode-label': '編輯模式',
   'edit-mode': '切換編輯模式',
   'edit-mode-wysiwyg-desc': '直接編輯排版內容',
   'edit-mode-ir-desc': 'Markdown 原始碼即時預覽',

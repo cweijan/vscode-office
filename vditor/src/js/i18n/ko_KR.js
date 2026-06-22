@@ -33,6 +33,7 @@ window.VditorI18n = {
   'dragBlock': '블록 드래그',
   'downloadTip': '브라우저가 다운로드 기능을 지원하지 않습니다',
   'edit': '수정',
+  'edit-mode-label': '편집 모드',
   'edit-mode': '편집모드',
   'edit-mode-wysiwyg-desc': '서식 있는 내용을 직접 편집',
   'edit-mode-ir-desc': 'Markdown 실시간 미리보기',

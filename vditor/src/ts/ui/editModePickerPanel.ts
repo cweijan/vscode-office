@@ -8,6 +8,7 @@ const EDIT_MODES = [
 export const buildEditModePickerPanelHTML = (currentMode: string) => {
     const resolvedMode = currentMode === "sv" ? "ir" : currentMode;
     let innerHTML = `<div class="${EDIT_MODE_PANEL_CLASS}">`;
+    innerHTML += `<div class="${EDIT_MODE_PANEL_CLASS}__header">${window.VditorI18n["edit-mode-label"] || "Edit Mode"}</div>`;
     innerHTML += `<div class="${EDIT_MODE_PANEL_CLASS}__section">`;
     for (const mode of EDIT_MODES) {
         const label = window.VditorI18n[mode.labelKey] || mode.labelKey;

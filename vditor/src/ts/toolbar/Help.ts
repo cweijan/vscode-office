@@ -9,7 +9,8 @@ export class Help extends MenuItem {
         super(vditor, menuItem);
 
         const btn = this.element.children[0] as HTMLElement;
-        btn.innerHTML = `<img src="${sponsorIconUrl}" alt="Sponsor" class="vditor-sponsor-toolbar-icon" draggable="false"/>`;
+        btn.setAttribute("aria-label", "About");
+        btn.innerHTML = `<img src="${sponsorIconUrl}" alt="About" class="vditor-sponsor-toolbar-icon" draggable="false"/>`;
 
         const opts = vditor.options;
         const lang = opts.lang || "en_US";
@@ -24,13 +25,17 @@ export class Help extends MenuItem {
                     opts.onSponsorLogoClick,
                     opts.onSponsorSiteClick,
                 );
-                document.addEventListener("click", (e) => {
+                document.addEventListener("mousedown", (e) => {
                     if (panel.isVisible() && !panel.element.contains(e.target as Node) && !btn.contains(e.target as Node)) {
                         panel.hide();
                     }
                 });
             }
+            const willShow = !panel.isVisible();
             panel.toggle(btn);
+            if (willShow && opts.onAboutOpen) {
+                opts.onAboutOpen();
+            }
         });
     }
 }
