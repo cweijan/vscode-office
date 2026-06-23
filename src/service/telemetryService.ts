@@ -48,12 +48,12 @@ export class TelemetryService {
         });
     }
 
-    trackOfficeViewOpen(fsPath: string, route?: string): void {
+    trackOfficeViewOpen(fsPath: string, route?: string, fileType?: string): void {
         const viewType = resolveOfficeViewType(fsPath, route);
         if (!viewType) {
             return;
         }
-        this.trackViewOpen(viewType, fileTypeFromPath(fsPath));
+        this.trackViewOpen(viewType, fileType || fileTypeFromPath(fsPath));
     }
 
     trackGitHistoryView(mode: 'repo' | 'file'): void {

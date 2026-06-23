@@ -5,6 +5,8 @@
 - Update Material Icons
 - Add Kusto (KQL) syntax highlighting
 - Refactor Markdown editor: beautified UI with modernized toolbar, in-page search (Ctrl/Cmd+F), and real-time code block editing
+- Beautify Git history view: refreshed styling and a commit details panel
+- Support batch Git operations: push branches, add tags, and delete tags across multiple remotes in one action
 
 # 4.0.4 2026-6-19
 
