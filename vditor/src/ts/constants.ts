@@ -49,7 +49,7 @@ export abstract class Constants {
     style: "Auto",
   };
   public static readonly MATH_OPTIONS: IMath = {
-    inlineDigit: false,
+    inlineDigit: true,
     macros: {},
   };
 }

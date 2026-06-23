@@ -35,9 +35,6 @@ const refreshEditModePanel = (vditor: IVditor) => {
 };
 
 export const setEditMode = (vditor: IVditor, type: string, event: Event | string) => {
-    if (type === "sv") {
-        type = "ir";
-    }
     let markdownText;
     if (typeof event !== "string") {
         hidePanel(vditor, ["subToolbar", "hint"]);

@@ -12,7 +12,6 @@ interface IObject {
 
 type ITheme = "classic" | "dark";
 type IEditMode = "wysiwyg" | "ir";
-type IInitialEditMode = IEditMode | "sv";
 type IEditorTheme =
     "Auto" |
     "Light" |
@@ -171,9 +170,6 @@ declare class Lute {
             Md2HTML?: ILuteRender,
             Md2VditorDOM?: ILuteRender,
             Md2VditorIRDOM?: ILuteRender,
-            Md2VditorSVDOM?: ILuteRender,
-            Md2BlockDOM?: ILuteRender,
-            HTML2BlockDOM?: ILuteRender,
         },
     }): void;
 
@@ -186,8 +182,6 @@ declare class Lute {
     public SetLinkBase(url: string): void;
 
     public SetVditorIR(enable: boolean): void;
-
-    public SetVditorSV(enable: boolean): void;
 
     public SetVditorWYSIWYG(enable: boolean): void;
 
@@ -221,24 +215,11 @@ declare class Lute {
 
     public GetEmojis(): IObject;
 
-    // debugger md
-    public RenderEChartsJSON(text: string): string;
-
     // md 转换为 html
     public Md2HTML(markdown: string): string;
 
-    public Md2BlockDOM(markdown: string): string;
-
-    public BlockDOM2HTML(html: string): string;
-
-    public BlockDOM2Md(html: string): string;
-
-    public SpinBlockDOM(html: string): string;
-
     // 粘贴时将 html 转换为 md
     public HTML2Md(html: string): string;
-
-    public HTML2BlockDOM(html: string): string;
 
     // wysiwyg 转换为 html
     public VditorDOM2HTML(vhtml: string): string;
@@ -267,22 +248,8 @@ declare class Lute {
     // 获取 HTML
     public VditorIRDOM2HTML(html: string): string;
 
-    // 粘贴时将 html 转换为 sv
+    // 粘贴时将 html 转换为 ir
     public HTML2VditorIRDOM(html: string): string;
-
-    // sv 输入渲染
-    public SpinVditorSVDOM(text: string): string;
-
-    public HTML2VditorSVDOM(html: string): string;
-
-    // 粘贴是 md 转换为 sv
-    public Md2VditorSVDOM(text: string): string;
-
-    public VditorSVDOM2Md(html: string): string;
-
-    public VditorSVDOM2HTML(html: string): string;
-
-    public RenderKityMinderJSON(markdown: string): string;
 
     // 将markdown转化为JSON结构输出 https://github.com/88250/lute/issues/120
     public RenderJSON(markdown: string): string;
@@ -294,113 +261,7 @@ declare const webkitAudioContext: {
 };
 
 interface ITips {
-    [index: string]: string;
-
-    alignCenter: string;
-    alignLeft: string;
-    alignRight: string;
-    alternateText: string;
-    bold: string;
-    both: string;
-    check: string;
-    close: string;
-    code: string;
-    "code-theme": string;
-    "code-theme-section-dark": string;
-    "code-theme-section-light": string;
-    "code-theme-section-system": string;
-    column: string;
-    comment: string;
-    confirm: string;
-    "content-theme": string;
-    copied: string;
-    copy: string;
-    "delete-column": string;
-    "delete-row": string;
-    devtools: string;
-    down: string;
-    downloadTip: string;
-    dragBlock: string;
-    edit: string;
-    "edit-mode": string;
-    "edit-mode-ir": string;
-    "edit-mode-ir-desc": string;
-    "edit-mode-wysiwyg": string;
-    "edit-mode-wysiwyg-desc": string;
-    empty: string;
-    "editor-theme": string;
-    "editor-theme-label": string;
-    "editor-theme-section-dark": string;
-    "editor-theme-section-light": string;
-    "editor-theme-section-system": string;
-    "editor-theme-tip": string;
-    emoji: string;
-    export: string;
-    fileTypeError: string;
-    footnoteRef: string;
-    fullscreen: string;
-    generate: string;
-    headings: string;
-    heading1: string;
-    heading2: string;
-    heading3: string;
-    heading4: string;
-    heading5: string;
-    heading6: string;
-    help: string;
-    imageURL: string;
-    indent: string;
-    info: string;
-    "inline-code": string;
-    "insert-after": string;
-    "insert-before": string;
-    insertColumnLeft: string;
-    insertColumnRight: string;
-    insertRowAbove: string;
-    insertRowBelow: string;
-    instantRendering: string;
-    italic: string;
-    language: string;
-    line: string;
-    link: string;
-    linkCopied: string;
-    linkRef: string;
-    linkRefCopied: string;
-    list: string;
-    "mermaid-theme": string;
-    "mermaid-theme-section-dark": string;
-    "mermaid-theme-section-light": string;
-    "mermaid-theme-section-system": string;
-    more: string;
-    nameEmpty: string;
-    "ordered-list": string;
-    outdent: string;
-    outline: string;
-    over: string;
-    performanceTip: string;
-    plaintext: string;
-    preview: string;
-    quote: string;
-    record: string;
-    "record-tip": string;
-    recording: string;
-    redo: string;
-    remove: string;
-    row: string;
-    spin: string;
-    splitView: string;
-    strike: string;
-    table: string;
-    textIsNotEmpty: string;
-    title: string;
-    tooltipText: string;
-    undo: string;
-    up: string;
-    update: string;
-    upload: string;
-    uploadError: string;
-    uploading: string;
-    wysiwyg: string;
+    [key: string]: string;
 }
 
 interface II18n {
@@ -410,16 +271,6 @@ interface II18n {
     ru_RU: ITips;
     zh_CN: ITips;
     zh_TW: ITips;
-}
-
-interface IClasses {
-    preview?: string;
-}
-
-interface IPreviewTheme {
-    current: string;
-    list?: IObject;
-    path?: string;
 }
 
 /** @link https://ld246.com/article/1549638745630#options-upload */
@@ -515,12 +366,10 @@ interface IHljs {
 
 /** @link https://ld246.com/article/1549638745630#options-preview-math */
 interface IMath {
-    /** 内联数学公式起始 $ 后是否允许数字。默认值: false */
+    /** 内联数学公式起始 $ 后是否允许数字。默认值: true */
     inlineDigit?: boolean;
-    /** 使用 MathJax 渲染时传入的宏定义。默认值: {} */
+    /** KaTeX 宏定义。默认值: {} */
     macros?: object;
-    /** 数学公式渲染引擎。默认值: 'KaTeX' */
-    engine?: "KaTeX" | "MathJax";
 }
 
 /** @link https://ld246.com/article/1549638745630#options-preview-markdown */
@@ -553,70 +402,9 @@ interface IMarkdownConfig {
 
 /** @link https://ld246.com/article/1549638745630#options-preview */
 interface IPreview {
-    /** 预览 debounce 毫秒间隔。默认值: 1000 */
-    delay?: number;
-    /** 预览区域最大宽度。默认值: 768 */
-    maxWidth?: number;
-    /** 显示模式。默认值: 'both' */
-    mode?: "both" | "editor";
-    /** md 解析请求 */
-    url?: string;
-    /** @link https://ld246.com/article/1549638745630#options-preview-hljs */
     hljs?: IHljs;
-    /** @link https://ld246.com/article/1549638745630#options-preview-math */
     math?: IMath;
-    /** @link https://ld246.com/article/1549638745630#options-preview-markdown */
     markdown?: IMarkdownConfig;
-    /** @link https://ld246.com/article/1549638745630#options-preview-theme */
-    theme?: IPreviewTheme;
-    /** @link https://ld246.com/article/1549638745630#options-preview-actions  */
-    actions?: Array<IPreviewAction | IPreviewActionCustom>;
-
-    /** 预览回调 */
-    parse?(element: HTMLElement): void;
-
-    /** 渲染之前回调 */
-    transform?(html: string): string;
-}
-
-type IPreviewAction = "desktop" | "tablet" | "mobile" | "mp-wechat" | "zhihu";
-
-interface IPreviewActionCustom {
-    /** 键名 */
-    key: string;
-    /** 按钮文本 */
-    text: string;
-    /** 按钮 className 值 */
-    className?: string;
-    /** 按钮提示信息 */
-    tooltip?: string;
-    /** 点击回调 */
-    click: (key: string) => void;
-}
-
-interface IPreviewOptions {
-    mode: "dark" | "light";
-    customEmoji?: IObject;
-    lang?: (keyof II18n);
-    i18n?: ITips;
-    lazyLoadImage?: string;
-    emojiPath?: string;
-    hljs?: IHljs;
-    speech?: {
-        enable?: boolean,
-    };
-    anchor?: number; // 0: no render, 1: render left, 2: render right
-    math?: IMath;
-    cdn?: string;
-    extPath?: string;
-    markdown?: IMarkdownConfig;
-    renderers?: ILuteRender;
-    theme?: IPreviewTheme;
-    icon?: "ant" | "material" | undefined;
-
-    transform?(html: string): string;
-
-    after?(): void;
 }
 
 interface IHintData {
@@ -646,13 +434,6 @@ interface IHint {
     extend?: IHintExtend[];
 }
 
-interface IResize {
-    position?: string;
-    enable?: boolean;
-
-    after?(height: number): void;
-}
-
 /** @link https://ld246.com/article/1549638745630#options */
 interface IOptions {
     /** RTL */
@@ -665,8 +446,6 @@ interface IOptions {
     value?: string;
     /** 是否显示日志。默认值: false */
     debugger?: boolean;
-    /** 是否启用打字机模式。默认值: false */
-    typewriterMode?: boolean;
     /** 编辑器总高度。默认值: 'auto' */
     height?: number | string;
     /** 编辑器最小高度 */
@@ -679,14 +458,8 @@ interface IOptions {
     lang?: (keyof II18n);
     /** 国际化, 自定义语言。优先级低于lang */
     i18n?: ITips;
-    /** @link https://ld246.com/article/1549638745630#options-fullscreen */
-    fullscreen?: {
-        index: number;
-    };
     /** @link https://ld246.com/article/1549638745630#options-toolbar */
     toolbar?: Array<string | IMenuItem>;
-    /** @link https://ld246.com/article/1549638745630#options-resize */
-    resize?: IResize;
     /** @link https://ld246.com/article/1549638745630#options-counter */
     counter?: {
         enable: boolean;
@@ -709,8 +482,8 @@ interface IOptions {
         focusHost?: "browser" | "vscode";
         after?(markdown: string): void;
     };
-    /** 编辑模式。默认值: 'ir'。兼容传入 sv，内部会切换为 ir。 */
-    mode?: IInitialEditMode;
+    /** 编辑模式。默认值: 'ir' */
+    mode?: IEditMode;
     /** @link https://ld246.com/article/1549638745630#options-preview */
     preview?: IPreview;
     /** @link https://ld246.com/article/1549638745630#options-hint */
@@ -719,14 +492,6 @@ interface IOptions {
     toolbarConfig?: {
         hide?: boolean,
         pin?: boolean,
-    };
-    /** 评论 */
-    comment?: {
-        enable: boolean
-        add?(id: string, text: string, commentsData: ICommentsData[]): void
-        remove?(ids: string[]): void;
-        scroll?(top: number): void;
-        adjustTop?(commentsData: ICommentsData[]): void;
     };
     /** 主题。默认值: 'classic' */
     theme?: ITheme;
@@ -740,8 +505,6 @@ interface IOptions {
     icon?: "ant" | "material";
     /** @link https://ld246.com/article/1549638745630#options-upload */
     upload?: IUpload;
-    /** @link https://ld246.com/article/1549638745630#options-classes */
-    classes?: IClasses;
     /** 配置自建 CDN 地址。默认值: 'https://unpkg.com/vditor@${VDITOR_VERSION}' */
     cdn?: string;
     extPath?: string;
@@ -811,11 +574,7 @@ interface IVditor {
     options: IOptions;
     originalInnerHTML: string;
     lute: Lute | undefined;
-    currentMode: IInitialEditMode;
-    devtools?: {
-        element: HTMLDivElement,
-        renderEchart(vditor: IVditor): void,
-    };
+    currentMode: IEditMode;
     outline: {
         element: HTMLElement,
         init(vditor: IVditor): void,
@@ -828,16 +587,9 @@ interface IVditor {
         elements?: { [key: string]: HTMLElement },
         element?: HTMLElement,
     };
-    preview?: {
-        element: HTMLElement
-        render(vditor: IVditor, value?: string): void,
-    };
     counter?: {
         element: HTMLElement
         render(vditor: IVditor, mdText?: string): void,
-    };
-    resize?: {
-        element: HTMLElement,
     };
     hint: {
         timeId: number
@@ -877,11 +629,6 @@ interface IVditor {
         hlToolbarTimeoutId: number,
         preventInput: boolean,
         composingLock: boolean,
-        commentIds?: string[]
-        getComments?(vditor: IVditor, getData?: boolean): ICommentsData[],
-        triggerRemoveComment?(vditor: IVditor): void,
-        showComment?(): void,
-        hideComment?(): void,
         unbindListener(): void,
     };
     ir?: {
@@ -894,19 +641,4 @@ interface IVditor {
         afterRenderLastAt: number,
         hlToolbarTimeoutId: number,
     };
-    sv?: {
-        range: Range,
-        element: HTMLPreElement,
-        popover?: HTMLDivElement,
-        processTimeoutId: number,
-        afterRenderLastAt?: number,
-        hlToolbarTimeoutId: number,
-        composingLock: boolean,
-        preventInput: boolean,
-    };
-}
-
-interface ICommentsData {
-    id: string;
-    top: number;
 }

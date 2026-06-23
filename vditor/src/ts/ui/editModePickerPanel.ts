@@ -6,14 +6,13 @@ const EDIT_MODES = [
 ] as const;
 
 export const buildEditModePickerPanelHTML = (currentMode: string) => {
-    const resolvedMode = currentMode === "sv" ? "ir" : currentMode;
     let innerHTML = `<div class="${EDIT_MODE_PANEL_CLASS}">`;
     innerHTML += `<div class="${EDIT_MODE_PANEL_CLASS}__header">${window.VditorI18n["edit-mode-label"] || "Edit Mode"}</div>`;
     innerHTML += `<div class="${EDIT_MODE_PANEL_CLASS}__section">`;
     for (const mode of EDIT_MODES) {
         const label = window.VditorI18n[mode.labelKey] || mode.labelKey;
         const desc = window.VditorI18n[mode.descKey] || "";
-        const currentClass = mode.id === resolvedMode ? " vditor-edit-mode-option--current" : "";
+        const currentClass = mode.id === currentMode ? " vditor-edit-mode-option--current" : "";
         innerHTML += `<button type="button" class="vditor-edit-mode-panel__option${currentClass}" data-mode="${mode.id}">`;
         innerHTML += `<span class="vditor-edit-mode-panel__label">${label}</span>`;
         if (desc) {
@@ -30,9 +29,8 @@ export const queryEditModePickerPanel = (host: ParentNode) => {
 };
 
 export const refreshEditModePickerPanel = (panelRoot: HTMLElement, currentMode: string) => {
-    const resolvedMode = currentMode === "sv" ? "ir" : currentMode;
     for (const button of panelRoot.querySelectorAll("button[data-mode]")) {
         const mode = button.getAttribute("data-mode") || "";
-        button.classList.toggle("vditor-edit-mode-option--current", mode === resolvedMode);
+        button.classList.toggle("vditor-edit-mode-option--current", mode === currentMode);
     }
 };

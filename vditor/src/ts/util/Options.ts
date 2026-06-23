@@ -115,7 +115,8 @@ export class Options {
 
         const mergedOptions = merge(this.defaultOptions, this.options);
 
-        if (mergedOptions.mode === "sv") {
+        // 兼容旧配置传入的 sv（分割视图），映射为 ir
+        if ((mergedOptions.mode as string) === "sv") {
             mergedOptions.mode = "ir";
         }
 

@@ -29,9 +29,6 @@ function normalizeCodeMirrorTheme(theme) {
 }
 
 function normalizeEditMode(mode) {
-  if (mode === 'sv') {
-    return 'ir'
-  }
   return mode === 'ir' ? 'ir' : 'wysiwyg'
 }
 
@@ -98,7 +95,6 @@ handler.on("open", async (md) => {
     },
     preview: {
       math: {
-        inlineDigit: true,
         macros: config.markdown?.math?.macros ?? {},
       },
     },

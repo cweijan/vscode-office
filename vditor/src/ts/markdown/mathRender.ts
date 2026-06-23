@@ -32,10 +32,7 @@ export const mathRender = (element: HTMLElement, options?: { cdn?: string, extPa
 
     const defaultOptions = {
         cdn: Constants.CDN,
-        math: {
-            inlineDigit: false,
-            macros: {},
-        },
+        math: Constants.MATH_OPTIONS,
     };
 
     if (options && options.math) {
