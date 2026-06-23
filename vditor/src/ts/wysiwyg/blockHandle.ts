@@ -31,6 +31,8 @@ interface IBlockHandleState {
     editorElement: HTMLElement;
     activeBlock: HTMLElement | null;
     dragging: boolean;
+    visible: boolean;
+    hideTimer: number | null;
     dragBlock: HTMLElement | null;
     dropTarget: DropTarget | null;
     originalDropTarget: DropTarget | null;
@@ -384,6 +386,7 @@ const positionHandle = (state: IBlockHandleState, block: HTMLElement) => {
     state.root.style.top = `${top}px`;
     state.root.style.left = `${left}px`;
     state.root.classList.add(`${ROOT_CLASS}--visible`);
+    state.visible = true;
 };
 
 const getDropLineMetrics = (target: DropTarget) => {
@@ -425,8 +428,15 @@ const hideHandle = (state: IBlockHandleState) => {
     if (state.dragging) {
         return;
     }
-    state.activeBlock = null;
-    state.root.classList.remove(`${ROOT_CLASS}--visible`);
+    if (state.hideTimer !== null) {
+        clearTimeout(state.hideTimer);
+    }
+    state.hideTimer = window.setTimeout(() => {
+        state.hideTimer = null;
+        state.activeBlock = null;
+        state.visible = false;
+        state.root.classList.remove(`${ROOT_CLASS}--visible`);
+    }, 500);
 };
 
 const removeDragGhost = (state: IBlockHandleState) => {
@@ -567,6 +577,10 @@ const showForBlock = (vditor: IVditor, block: HTMLElement | null) => {
     if (!state || !block || state.dragging) {
         return;
     }
+    if (state.hideTimer !== null) {
+        clearTimeout(state.hideTimer);
+        state.hideTimer = null;
+    }
     state.activeBlock = block;
     positionHandle(state, block);
 };
@@ -600,6 +614,8 @@ export const initBlockHandle = (vditor: IVditor, wrapper: HTMLElement, editorEle
         editorElement,
         activeBlock: null,
         dragging: false,
+        visible: false,
+        hideTimer: null,
         dragBlock: null,
         dropTarget: null,
         originalDropTarget: null,
@@ -623,6 +639,8 @@ export const initBlockHandle = (vditor: IVditor, wrapper: HTMLElement, editorEle
         const block = getDraggableBlockFromPoint(event.clientX, event.clientY, editorElement);
         if (block) {
             showForBlock(vditor, block);
+        } else {
+            hideHandle(state);
         }
     };
 
@@ -643,14 +661,29 @@ export const initBlockHandle = (vditor: IVditor, wrapper: HTMLElement, editorEle
         }
     };
 
+    const onKeyDown = () => {
+        if (!state.visible) {
+            return;
+        }
+        state.activeBlock = null;
+        state.visible = false;
+        const root = state.root;
+        window.setTimeout(() => {
+            if (state.visible) return;
+            root.classList.remove(`${ROOT_CLASS}--visible`);
+        }, 500);
+    };
+
     wrapper.addEventListener("mousemove", onMouseMove);
     wrapper.addEventListener("mouseleave", onMouseLeave);
+    editorElement.addEventListener("keydown", onKeyDown, { capture: true });
     editorElement.addEventListener("scroll", onScroll);
     window.addEventListener("scroll", onScroll, { passive: true });
 
     state.unbind = () => {
         wrapper.removeEventListener("mousemove", onMouseMove);
         wrapper.removeEventListener("mouseleave", onMouseLeave);
+        editorElement.removeEventListener("keydown", onKeyDown, { capture: true });
         editorElement.removeEventListener("scroll", onScroll);
         window.removeEventListener("scroll", onScroll);
         root.remove();
@@ -659,34 +692,8 @@ export const initBlockHandle = (vditor: IVditor, wrapper: HTMLElement, editorEle
     };
 };
 
-export const updateBlockHandle = (vditor: IVditor, target?: Node) => {
-    const state = handleMap.get(vditor);
-    if (!state || state.dragging) {
-        return;
-    }
-    if (!shouldShowHandle(vditor, state.editorElement, target ?? document.activeElement)) {
-        hideHandle(state);
-        return;
-    }
-    const node = target ?? getEditorRange(vditor).startContainer;
-    let block = getDraggableBlock(node, state.editorElement);
-    if (state.editorElement.contains(node)) {
-        const range = getEditorRange(vditor);
-        const rects = range.getClientRects();
-        const caretRect = rects.length > 0 ? rects[0] : range.getBoundingClientRect();
-        const tocBlock = getTocBlock(node, state.editorElement);
-        if (tocBlock) {
-            block = tocBlock;
-        } else {
-            const rowListItem = getListItemAtPoint(caretRect.top + Math.min(caretRect.height / 2, 12), state.editorElement);
-            if (rowListItem) {
-                block = rowListItem;
-            }
-        }
-    }
-    if (block) {
-        showForBlock(vditor, block);
-    }
+export const updateBlockHandle = (_vditor: IVditor, _target?: Node) => {
+    // Block handle is shown only on mouse hover (mousemove), not on cursor/focus changes.
 };
 
 export const hideBlockHandle = (vditor: IVditor) => {

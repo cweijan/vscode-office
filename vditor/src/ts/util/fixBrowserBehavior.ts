@@ -473,6 +473,9 @@ export const isHrMD = (text: string) => {
 };
 
 export const fixHeadingEnter = (vditor: IVditor, range: Range, headingElement: HTMLElement) => {
+    const editor = vditor.wysiwyg.element;
+    const atHeadingStart = getSelectPosition(headingElement, editor, range).start === 0;
+
     const afterRange = range.cloneRange();
     afterRange.selectNodeContents(headingElement);
     afterRange.setStart(range.startContainer, range.startOffset);
@@ -484,21 +487,23 @@ export const fixHeadingEnter = (vditor: IVditor, range: Range, headingElement: H
 
     if (headingEmpty && afterEmpty) {
         headingElement.outerHTML = `<p data-block="0"><wbr>\n</p>`;
-        setRangeByWbr(vditor.wysiwyg.element, range);
+        setRangeByWbr(editor, range);
         return;
     }
 
-    if (headingEmpty) {
+    // 标题行首 Enter：在上方插入空段落，光标留在标题行首
+    if (atHeadingStart && headingEmpty) {
         const pElement = document.createElement("p");
         pElement.setAttribute("data-block", "0");
-        pElement.innerHTML = `<wbr>\n`;
+        pElement.textContent = Constants.ZWSP;
         const newHeading = document.createElement(headingElement.tagName);
         newHeading.setAttribute("data-block", "0");
         newHeading.appendChild(afterFragment);
         headingElement.parentElement.insertBefore(pElement, headingElement);
         headingElement.parentElement.insertBefore(newHeading, headingElement);
         headingElement.remove();
-        setRangeByWbr(vditor.wysiwyg.element, range);
+        newHeading.insertAdjacentElement("afterbegin", document.createElement("wbr"));
+        setRangeByWbr(newHeading, range);
         return;
     }
 
@@ -511,7 +516,7 @@ export const fixHeadingEnter = (vditor: IVditor, range: Range, headingElement: H
         pElement.insertAdjacentElement("afterbegin", document.createElement("wbr"));
     }
     headingElement.insertAdjacentElement("afterend", pElement);
-    setRangeByWbr(vditor.wysiwyg.element, range);
+    setRangeByWbr(pElement, range);
 };
 
 export const splitHeadingOnNewline = (vditor: IVditor, headingElement: HTMLElement) => {
