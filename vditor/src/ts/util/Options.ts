@@ -62,11 +62,10 @@ export class Options {
             "undo",
             "redo",
             "|",
-            "edit-mode",
+            "settings",
             {
                 name: "more",
                 toolbar: [
-                    "code-theme",
                     "outline",
                     "info",
                     "help",
@@ -246,6 +245,10 @@ export class Options {
         }, {
             icon: getToolbarCodicon("edit-mode"),
             name: "edit-mode",
+        }, {
+            icon: getToolbarCodicon("settings"),
+            name: "settings",
+            tip: "Settings",
         }, {
             icon: getToolbarCodicon("outline"),
             name: "outline",

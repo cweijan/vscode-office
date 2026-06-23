@@ -113,6 +113,44 @@ export const outlineRender = (contentElement: HTMLElement, targetElement: Elemen
             math: vditor.options.preview.math,
         });
     }
+    const cacheId = vditor?.options?.cache?.id;
+    const storageKey = cacheId ? `vditor-outline-state:${cacheId}` : null;
+
+    const loadCollapsedState = (): Set<string> => {
+        if (!storageKey) return new Set();
+        try {
+            const raw = localStorage.getItem(storageKey);
+            return raw ? new Set(JSON.parse(raw)) : new Set();
+        } catch {
+            return new Set();
+        }
+    };
+
+    const saveCollapsedState = () => {
+        if (!storageKey) return;
+        const collapsed: string[] = [];
+        targetElement.querySelectorAll(".vditor-outline__action--close").forEach((el) => {
+            const id = (el.parentElement?.getAttribute("data-target-id"));
+            if (id) collapsed.push(id);
+        });
+        localStorage.setItem(storageKey, JSON.stringify(collapsed));
+    };
+
+    // restore collapse state
+    const collapsedIds = loadCollapsedState();
+    if (collapsedIds.size > 0) {
+        targetElement.querySelectorAll("li > span[data-target-id]").forEach((span) => {
+            const id = span.getAttribute("data-target-id");
+            if (!id || !collapsedIds.has(id)) return;
+            const action = span.querySelector(".vditor-outline__action");
+            const sibling = span.parentElement?.querySelector("ul");
+            if (action && sibling) {
+                action.classList.add("vditor-outline__action--close");
+                (sibling as HTMLElement).style.display = "none";
+            }
+        });
+    }
+
     targetElement.firstElementChild?.addEventListener("click", (event: Event) => {
         let target = event.target as HTMLElement;
         while (target && !target.isEqualNode(targetElement)) {
@@ -124,6 +162,7 @@ export const outlineRender = (contentElement: HTMLElement, targetElement: Elemen
                     target.classList.add("vditor-outline__action--close");
                     target.parentElement.nextElementSibling.setAttribute("style", "display:none");
                 }
+                saveCollapsedState();
                 event.preventDefault();
                 event.stopPropagation();
                 break;

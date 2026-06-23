@@ -150,7 +150,7 @@ declare class Lute {
 
     public static New(): Lute;
 
-    public static EscapeHTMLStr(html:string): string;
+    public static EscapeHTMLStr(html: string): string;
 
     public static GetHeadingID(node: ILuteNode): string;
 
@@ -516,8 +516,6 @@ interface IOptions {
         position: "left" | "right",
         /** 初始宽度，localStorage 中无记录时生效 */
         width?: number,
-        /** localStorage 存储键，默认 vditor-outline-width */
-        widthStorageKey?: string,
     };
 
     /** 编辑器异步渲染完成后的回调方法 */

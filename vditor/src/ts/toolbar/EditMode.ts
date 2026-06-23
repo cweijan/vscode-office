@@ -15,6 +15,7 @@ import {renderToc} from "../util/toc";
 import {renderDomByMd} from "../wysiwyg/renderDomByMd";
 import {renderCodeBlocks} from "../codeBlock/codeMirrorManager";
 import {MenuItem} from "./MenuItem";
+import {refreshSettingsToolbarPanel} from "../ui/settingsPanel";
 import {
     disableToolbar,
     enableToolbar,
@@ -22,6 +23,10 @@ import {
     removeCurrentToolbar,
     showToolbar, toggleSubMenu,
 } from "./setToolbar";
+
+type SetEditModeOptions = {
+    keepToolbarPanel?: boolean;
+};
 
 const refreshEditModePanel = (vditor: IVditor) => {
     const editModeItem = vditor.toolbar.elements["edit-mode"];
@@ -34,10 +39,17 @@ const refreshEditModePanel = (vditor: IVditor) => {
     }
 };
 
-export const setEditMode = (vditor: IVditor, type: string, event: Event | string) => {
+export const setEditMode = (
+    vditor: IVditor,
+    type: string,
+    event: Event | string,
+    options?: SetEditModeOptions,
+) => {
     let markdownText;
     if (typeof event !== "string") {
-        hidePanel(vditor, ["subToolbar", "hint"]);
+        if (!options?.keepToolbarPanel) {
+            hidePanel(vditor, ["subToolbar", "hint"]);
+        }
         event.preventDefault();
         markdownText = getMarkdown(vditor);
     } else {
@@ -128,6 +140,7 @@ export const setEditMode = (vditor: IVditor, type: string, event: Event | string
     }
 
     refreshEditModePanel(vditor);
+    refreshSettingsToolbarPanel(vditor);
 };
 
 export class EditMode extends MenuItem {

@@ -29,8 +29,7 @@ let toolbar = [
   'undo',
   'redo',
   '|',
-  'edit-mode',
-  "code-theme",
+  'settings',
   'help',
 ]
 
