@@ -29,6 +29,7 @@ import {Upload} from "./ts/upload/index";
 import {addScript} from "./ts/util/addScript";
 import {clearCacheFocus, restoreCacheFocus} from "./ts/util/cacheFocus";
 import {accessLocalStorage} from "./ts/util/compatibility";
+import {clearDocumentScroll, restoreDocumentScroll} from "./ts/util/documentState";
 import {getSelectText} from "./ts/util/getSelectText";
 import {Options} from "./ts/util/Options";
 import {processCodeRender} from "./ts/util/processCode";
@@ -193,6 +194,17 @@ class Vditor {
         restoreCacheFocus(this.vditor, { onLoad });
     }
 
+    /** 恢复文档滚动位置 */
+    public restoreScroll(scrollTop?: number) {
+        restoreDocumentScroll(this.vditor, scrollTop);
+    }
+
+    /** 恢复滚动与焦点；onLoad 用于页面首次加载 */
+    public restoreDocumentSession(onLoad = false) {
+        restoreDocumentScroll(this.vditor);
+        restoreCacheFocus(this.vditor, { onLoad });
+    }
+
     /** 上传是否还在进行中 */
     public isUploading() {
         return this.vditor.upload.isUploading;
@@ -201,8 +213,12 @@ class Vditor {
     /** 清除缓存 */
     public clearCache() {
         if (accessLocalStorage()) {
-            localStorage.removeItem(this.vditor.options.cache.id);
-            clearCacheFocus(this.vditor.options.cache.id);
+            const cacheId = this.vditor.options.cache.id;
+            if (cacheId) {
+                localStorage.removeItem(cacheId);
+                clearCacheFocus(cacheId);
+                clearDocumentScroll(cacheId);
+            }
         }
     }
 

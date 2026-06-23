@@ -1,5 +1,6 @@
 import { getCodeMirrorView, isInsideCodeBlockChrome, isInsideCodeMirror, restoreCodeMirrorFocus } from "../codeBlock/codeMirrorManager";
 import { accessLocalStorage } from "./compatibility";
+import { getFocusStateKey } from "./documentState";
 import {
     getEditorRange,
     getEditorTextOffset,
@@ -30,7 +31,7 @@ const cacheRestoredMap = new WeakMap<IVditor, boolean>();
 const sessionFocusMap = new WeakMap<IVditor, CacheFocusState>();
 const focusSavedMap = new WeakMap<IVditor, boolean>();
 
-export const getCacheFocusKey = (cacheId: string) => `${cacheId}-focus`;
+export const getCacheFocusKey = (cacheId: string) => getFocusStateKey(cacheId);
 
 export const markCacheContentRestored = (vditor: IVditor) => {
     cacheRestoredMap.set(vditor, true);

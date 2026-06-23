@@ -16,14 +16,28 @@ import { platform } from 'os';
  */
 export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
+    private static legacyGlobalStatePurged = false;
+
     private extensionPath: string;
     private countStatus: vscode.StatusBarItem;
-    private state: vscode.Memento;
 
     constructor(private context: vscode.ExtensionContext) {
         this.extensionPath = context.extensionPath;
         this.countStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-        this.state = context.globalState
+        this.purgeLegacyGlobalState();
+    }
+
+    private purgeLegacyGlobalState() {
+        if (MarkdownEditorProvider.legacyGlobalStatePurged) {
+            return;
+        }
+        MarkdownEditorProvider.legacyGlobalStatePurged = true;
+        const state = this.context.globalState;
+        for (const key of state.keys()) {
+            if (key.startsWith('scrollTop_')) {
+                void state.update(key, undefined);
+            }
+        }
     }
 
     private getFolders(): vscode.Uri[] {
@@ -79,11 +93,10 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             vscode.Uri.file(`${this.extensionPath}/resource/sponsor`)
         ).toString();
         handler.on("init", () => {
-            const scrollTop = this.state.get(`scrollTop_${document.uri.fsPath}`, 0);
             handler.emit("open", {
                 title: basename(uri.fsPath),
-                documentPath: uri.fsPath,
-                config: this.getMarkdownWebviewConfig(config), scrollTop,
+                documentCacheId: `${uri.scheme}:${uri.toString()}`,
+                config: this.getMarkdownWebviewConfig(config),
                 editorTheme: Global.getConfig("editorTheme", "Auto"),
                 codeMirrorTheme: Global.getConfig("codeMirrorTheme", "Auto"),
                 mermaidTheme: Global.getConfig("mermaidTheme", "Auto"),
@@ -112,8 +125,6 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             } else {
                 vscode.env.openExternal(vscode.Uri.parse(uri));
             }
-        }).on("scroll", ({ scrollTop }) => {
-            this.state.update(`scrollTop_${document.uri.fsPath}`, scrollTop)
         }).on("codeMirrorTheme", (theme: string) => {
             const validThemes = [
                 "Auto", "default",
@@ -132,7 +143,10 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                 Global.updateConfig("editorTheme", theme);
             }
         }).on("mermaidTheme", (theme: string) => {
-            const validThemes = ["Auto", "Light", "Dark"];
+            const validThemes = [
+                "Auto", "Light", "Forest", "Ocean", "Sunset",
+                "Dark", "Dracula", "Monokai", "Nord",
+            ];
             if (validThemes.includes(theme)) {
                 Global.updateConfig("mermaidTheme", theme);
             }
@@ -140,19 +154,42 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             if (mode === "wysiwyg" || mode === "ir") {
                 Global.updateConfig("editMode", mode);
             }
-        }).on("img", async (img) => {
-            const { relPath, fullPath } = adjustImgPath(uri)
+        }).on("img", async (payload) => {
+            const imgData: string = typeof payload === 'string' ? payload : payload.data;
+            const ext: string = typeof payload === 'string' ? 'png' : (payload.ext || 'png');
+            const { relPath, fullPath } = adjustImgPath(uri, ext);
             const imagePath = isAbsolute(fullPath) ? fullPath : `${resolve(uri.fsPath, "..")}/${relPath}`.replace(/\\/g, "/");
             const imageDir = dirname(imagePath);
             if (!existsSync(imageDir)) mkdirSync(imageDir, { recursive: true });
-            writeFileSync(imagePath, Buffer.from(img, 'binary'))
+            writeFileSync(imagePath, Buffer.from(imgData, 'binary'));
             const fileName = parse(relPath).name;
             const adjustRelPath = await MarkdownService.imgExtGuide(imagePath, relPath);
-            vscode.env.clipboard.writeText(`![${fileName}](${adjustRelPath})`)
-            vscode.commands.executeCommand("editor.action.clipboardPasteAction")
+            vscode.env.clipboard.writeText(`![${fileName}](${adjustRelPath})`);
+            vscode.commands.executeCommand("editor.action.clipboardPasteAction");
+        }).on("insertImage", async () => {
+            const files = await vscode.window.showOpenDialog({
+                canSelectMany: false,
+                filters: { Images: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'] },
+                title: 'Select Image',
+            });
+            if (!files || files.length === 0) return;
+            const filePath = files[0].fsPath;
+            const ext = parse(filePath).ext.replace('.', '').toLowerCase() || 'png';
+            const { relPath, fullPath } = adjustImgPath(uri, ext);
+            const imagePath = isAbsolute(fullPath) ? fullPath : `${resolve(uri.fsPath, "..")}/${relPath}`.replace(/\\/g, "/");
+            const imageDir = dirname(imagePath);
+            if (!existsSync(imageDir)) mkdirSync(imageDir, { recursive: true });
+            const { copyFileSync } = require('fs');
+            copyFileSync(filePath, imagePath);
+            const fileName = parse(relPath).name;
+            const adjustRelPath = await MarkdownService.imgExtGuide(imagePath, relPath);
+            vscode.env.clipboard.writeText(`![${fileName}](${adjustRelPath})`);
+            vscode.commands.executeCommand("editor.action.clipboardPasteAction");
         }).on("editInVSCode", (full: boolean) => {
             const side = full ? vscode.ViewColumn.Active : vscode.ViewColumn.Beside;
             vscode.commands.executeCommand('vscode.openWith', uri, "default", side);
+        }).on("showInFolder", () => {
+            vscode.commands.executeCommand('revealFileInOS', uri);
         }).on("save", (newContent) => {
             if (lastManualSaveTime && Date.now() - lastManualSaveTime < 800) return;
             content = newContent
@@ -166,8 +203,6 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         }).on("export", (option) => {
             vscode.commands.executeCommand('workbench.action.files.save');
             new MarkdownService(this.context).exportMarkdown(uri, option)
-        }).on("saveOutline", (enable) => {
-            config.update("openOutline", enable, true)
         }).on('developerTool', () => {
             vscode.commands.executeCommand('workbench.action.toggleDevTools')
         }).on('openAbout', () => {

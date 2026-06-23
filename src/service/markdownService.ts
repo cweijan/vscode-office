@@ -134,7 +134,7 @@ export class MarkdownService {
         }
 
         const uri = document.uri;
-        const info = adjustImgPath(uri), { fullPath } = info;
+        const info = adjustImgPath(uri, 'png'), { fullPath } = info;
         let { relPath } = info;
         const imagePath = isAbsolute(fullPath) ? fullPath : `${dirname(uri.fsPath)}/${relPath}`.replace(/\\/g, "/");
         this.createImgDir(imagePath);

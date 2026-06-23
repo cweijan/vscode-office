@@ -1,17 +1,88 @@
 import {Constants} from "../constants";
 import {outlineRender} from "../markdown/outlineRender";
 import {isEditorThemeMobileLayout, isMobileOutlineDrawerOpen, setMobileOutlineDrawerOpen, syncMobileOutlinePanel} from "../ui/mobileOutlineMenu";
+import {accessLocalStorage} from "../util/compatibility";
 import {setSelectionFocus} from "../util/selection";
 import {bindOutlineScrollSpy, restoreOutlineActive, updateOutlineActive} from "./updateOutlineActive";
 
 const OUTLINE_MIN_WIDTH = 120;
 const OUTLINE_MAX_WIDTH = 480;
+const OUTLINE_WIDTH_STORAGE_KEY = "vditor-outline-width";
+const OUTLINE_ENABLE_STORAGE_KEY = "vditor-outline-enable";
+
+const normalizeOutlineWidth = (width: number | string | undefined | null): number => {
+    const parsedWidth = Number(width);
+    if (Number.isNaN(parsedWidth) || parsedWidth <= 0) {
+        return 0;
+    }
+    return Math.min(OUTLINE_MAX_WIDTH, Math.max(OUTLINE_MIN_WIDTH, parsedWidth));
+};
+
+const getOutlineWidthStorageKey = (vditor: IVditor): string => {
+    return vditor.options.outline?.widthStorageKey || OUTLINE_WIDTH_STORAGE_KEY;
+};
+
+const getStoredOutlineWidth = (vditor: IVditor): number => {
+    if (!accessLocalStorage()) {
+        return 0;
+    }
+    try {
+        return normalizeOutlineWidth(localStorage.getItem(getOutlineWidthStorageKey(vditor)));
+    } catch {
+        return 0;
+    }
+};
+
+const saveOutlineWidth = (vditor: IVditor, width: number) => {
+    const normalizedWidth = normalizeOutlineWidth(width);
+    if (!normalizedWidth || !accessLocalStorage()) {
+        return;
+    }
+    try {
+        localStorage.setItem(getOutlineWidthStorageKey(vditor), String(normalizedWidth));
+    } catch {
+        // ignore
+    }
+};
+
+const parseStoredOutlineEnable = (value: string | null): boolean | null => {
+    if (value === "true") {
+        return true;
+    }
+    if (value === "false") {
+        return false;
+    }
+    return null;
+};
+
+const getStoredOutlineEnable = (vditor: IVditor): boolean | null => {
+    if (!accessLocalStorage()) {
+        return null;
+    }
+    try {
+        return parseStoredOutlineEnable(localStorage.getItem(OUTLINE_ENABLE_STORAGE_KEY));
+    } catch {
+        return null;
+    }
+};
+
+const saveOutlineEnable = (vditor: IVditor, enable: boolean) => {
+    if (!accessLocalStorage()) {
+        return;
+    }
+    try {
+        localStorage.setItem(OUTLINE_ENABLE_STORAGE_KEY, String(enable));
+    } catch {
+        // ignore
+    }
+};
 
 export class Outline {
     public element: HTMLElement;
     private contentElement: HTMLElement;
     private resizeElement: HTMLElement;
     private unbindScrollSpy?: () => void;
+    private vditor?: IVditor;
 
     constructor(outlineLabel: string) {
         this.element = document.createElement("div");
@@ -24,6 +95,27 @@ export class Outline {
         this.resizeElement.setAttribute("aria-hidden", "true");
         this.element.appendChild(this.resizeElement);
         this.bindResize();
+    }
+
+    public init(vditor: IVditor) {
+        this.vditor = vditor;
+        this.restoreStoredWidth();
+        const storedEnable = getStoredOutlineEnable(vditor);
+        if (storedEnable !== null) {
+            vditor.options.outline.enable = storedEnable;
+        }
+    }
+
+    private restoreStoredWidth() {
+        if (!this.vditor) {
+            return;
+        }
+        const fromOptions = normalizeOutlineWidth(this.vditor.options.outline?.width);
+        const restoredWidth = getStoredOutlineWidth(this.vditor) || fromOptions;
+        if (!restoredWidth) {
+            return;
+        }
+        this.element.style.width = `${restoredWidth}px`;
     }
 
     private bindResize() {
@@ -51,6 +143,13 @@ export class Outline {
                 this.element.classList.remove("vditor-outline--resizing");
                 document.body.style.cursor = "";
                 document.body.style.userSelect = "";
+                const width = this.element.offsetWidth;
+                this.element.dispatchEvent(new CustomEvent("vditor-outline-resize", {
+                    detail: {width},
+                }));
+                if (this.vditor) {
+                    saveOutlineWidth(this.vditor, width);
+                }
             };
 
             document.addEventListener("mousemove", onMouseMove);
@@ -138,6 +237,10 @@ export class Outline {
             if (!mobileLayout) {
                 btnElement?.classList.remove("vditor-menu--current");
             }
+        }
+        if (!mobileLayout) {
+            vditor.options.outline.enable = show;
+            saveOutlineEnable(vditor, show);
         }
         if (getSelection().rangeCount > 0) {
             const range = getSelection().getRangeAt(0);

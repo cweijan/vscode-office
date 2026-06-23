@@ -26,7 +26,7 @@ export class Options {
         lang: "zh_CN",
         mode: "ir",
         outline: {
-            enable: false,
+            enable: true,
             position: "left",
         },
         placeholder: "",

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset='utf-8'>
-    <title>Page Title</title>
+    <title>Markdown Editor</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel="stylesheet" href="dist/index.css" />
     <link rel="stylesheet" href="index.css" />
@@ -21,11 +21,23 @@
                 </span>
                 <span class="vditor-context-menu__label">Copy</span>
             </button>
+            <button class="vditor-context-menu__item" type="button" data-action="copyAsHtml" role="menuitem">
+                <span class="vditor-context-menu__icon" aria-hidden="true">
+                    <span class="codicon codicon-code"></span>
+                </span>
+                <span class="vditor-context-menu__label">Copy as HTML</span>
+            </button>
             <button class="vditor-context-menu__item" type="button" data-action="paste" role="menuitem">
                 <span class="vditor-context-menu__icon" aria-hidden="true">
                     <span class="codicon codicon-clippy"></span>
                 </span>
                 <span class="vditor-context-menu__label">Paste</span>
+            </button>
+            <button class="vditor-context-menu__item" type="button" data-action="insertImage" role="menuitem">
+                <span class="vditor-context-menu__icon" aria-hidden="true">
+                    <span class="codicon codicon-file-media"></span>
+                </span>
+                <span class="vditor-context-menu__label">Insert Image</span>
             </button>
         </div>
         <div class="vditor-context-menu__separator" role="separator"></div>
@@ -54,6 +66,15 @@
                     <span class="codicon codicon-code"></span>
                 </span>
                 <span class="vditor-context-menu__label">Export HTML</span>
+            </button>
+        </div>
+        <div class="vditor-context-menu__separator" role="separator"></div>
+        <div class="vditor-context-menu__group" role="group">
+            <button class="vditor-context-menu__item" type="button" data-action="showInFolder" role="menuitem">
+                <span class="vditor-context-menu__icon" aria-hidden="true">
+                    <span class="codicon codicon-folder-opened"></span>
+                </span>
+                <span class="vditor-context-menu__label">Show in Folder</span>
             </button>
         </div>
     </div>

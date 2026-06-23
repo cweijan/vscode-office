@@ -410,6 +410,7 @@ const setPopoverPosition = (vditor: IVditor, element: HTMLElement, popoverType?:
 };
 
 export const genLinkRefPopover = (vditor: IVditor, linkRefElement: HTMLElement) => {
+    (vditor.wysiwyg.popover as any)._sourceElement = linkRefElement;
     vditor.wysiwyg.popover.innerHTML = "";
 
     const getDisplayText = () => {
@@ -697,13 +698,18 @@ export const genAPopover = (vditor: IVditor, aElement: HTMLElement) => {
     remove.innerHTML = `<span class="vditor-link-popover__button-icon">${codicon("trash")}</span>`;
     remove.onclick = unlinkA;
 
-    view.append(textInput, hrefInput, copy, remove);
+    const hint = document.createElement("span");
+    hint.className = "vditor-link-popover__hint";
+    hint.textContent = updateHotkeyTip("⌥Enter");
+
+    view.append(textInput, hrefInput, copy, remove, hint);
     vditor.wysiwyg.popover.insertAdjacentElement("beforeend", view);
     setPopoverPosition(vditor, aElement, "link");
 };
 
 export const genImagePopover = (event: Event, vditor: IVditor) => {
     const imgElement = event.target as HTMLImageElement;
+    (vditor.wysiwyg.popover as any)._sourceElement = imgElement;
     vditor.wysiwyg.popover.innerHTML = "";
 
     const updateAlt = () => {

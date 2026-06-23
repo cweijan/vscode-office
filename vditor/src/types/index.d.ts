@@ -751,7 +751,10 @@ interface IOptions {
     outline?: {
         enable: boolean,
         position: "left" | "right",
-        change?(enable: boolean): void,
+        /** 初始宽度，localStorage 中无记录时生效 */
+        width?: number,
+        /** localStorage 存储键，默认 vditor-outline-width */
+        widthStorageKey?: string,
     };
 
     /** 编辑器异步渲染完成后的回调方法 */
@@ -815,6 +818,7 @@ interface IVditor {
     };
     outline: {
         element: HTMLElement,
+        init(vditor: IVditor): void,
         render(vditor: IVditor): string,
         resetMobileDrawer(vditor: IVditor): void,
         restoreDesktopState(vditor: IVditor): void,

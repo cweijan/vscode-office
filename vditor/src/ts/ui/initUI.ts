@@ -1,6 +1,7 @@
 import {setEditMode} from "../toolbar/EditMode";
 import {bindToolbarOutsideDismiss} from "../toolbar/setToolbar";
 import {bindCacheFocusPersistence, markCacheContentRestored} from "../util/cacheFocus";
+import {bindDocumentScrollPersistence, purgeLegacyDocumentStateKeys} from "../util/documentState";
 import {bindHistoryInputBufferClick} from "../util/historyInputBuffer";
 import {accessLocalStorage} from "../util/compatibility";
 import {macOptionSymbolEvent} from "../util/editorCommonEvent";
@@ -10,6 +11,7 @@ import {resolveCodeMirrorTheme, setCodeTheme} from "./setCodeTheme";
 import {setTheme} from "./setTheme";
 
 export const initUI = (vditor: IVditor) => {
+  purgeLegacyDocumentStateKeys();
   vditor.element.innerHTML = "";
   vditor.element.classList.add("vditor");
   // 支持 RTL
@@ -40,6 +42,7 @@ export const initUI = (vditor: IVditor) => {
 
   if (vditor.options.outline.position === "left") {
     contentElement.appendChild(vditor.outline.element);
+    vditor.outline.init(vditor);
   }
 
   contentElement.appendChild(vditor.wysiwyg.element.parentElement);
@@ -49,6 +52,7 @@ export const initUI = (vditor: IVditor) => {
   if (vditor.options.outline.position === "right") {
     vditor.outline.element.classList.add("vditor-outline--right");
     contentElement.appendChild(vditor.outline.element);
+    vditor.outline.init(vditor);
   }
 
   if (vditor.upload) {
@@ -67,6 +71,7 @@ export const initUI = (vditor: IVditor) => {
   initMermaidTheme(vditor);
 
   bindCacheFocusPersistence(vditor);
+  bindDocumentScrollPersistence(vditor);
   bindHistoryInputBufferClick(vditor);
 
   const initValue = afterRender(vditor);

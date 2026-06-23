@@ -1,11 +1,5 @@
-import { openLink, hotKeys, imageParser, getToolbar, autoSymbol, createContextMenu, scrollEditor, setupEditorSession } from "./util.js";
-
-function buildFocusCacheId(documentPath) {
-  if (!documentPath) {
-    return undefined;
-  }
-  return `md-${documentPath}`;
-}
+import { openLink, hotKeys, imageParser, getToolbar, autoSymbol, createContextMenu } from "./util.js";
+import { mapVscodeLanguageToVditorLang } from "./lang.js";
 
 let state;
 function loadConfigs() {
@@ -55,22 +49,17 @@ handler.on("open", async (md) => {
     mermaidTheme,
     height: '100%',
     outline: {
-      enable: config.openOutline,
       position: 'left',
-      change: (enable) => handler.emit("saveOutline", enable),
-    },
-    toolbarConfig: {
-      hide: config.hideToolbar
     },
     cache: {
       enable: false,
-      id: buildFocusCacheId(md.documentPath),
+      id: md.documentCacheId,
       focusHost: 'vscode',
     },
     mode: editMode,
-    lang: language == 'zh-cn' ? 'zh_CN' : config.editorLanguage,
+    lang: mapVscodeLanguageToVditorLang(language),
     tab: '\t',
-    toolbar: await getToolbar(md.rootPath, language),
+    toolbar: await getToolbar(md.rootPath),
     onAboutOpen: () => handler.emit('openAbout'),
     onSponsorLogoClick: () => handler.emit('openSponsor'),
     onSponsorSiteClick: () => handler.emit('openExternal', 'https://database-client.com/'),
@@ -95,10 +84,12 @@ handler.on("open", async (md) => {
       url: '/image',
       accept: 'image/*',
       handler(files) {
+        const file = files[0];
+        const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
         let reader = new FileReader();
-        reader.readAsBinaryString(files[0]);
+        reader.readAsBinaryString(file);
         reader.onloadend = () => {
-          handler.emit("img", reader.result)
+          handler.emit("img", { data: reader.result, ext })
         };
       }
     },
@@ -116,9 +107,7 @@ handler.on("open", async (md) => {
         editor.setValue(content);
       })
       openLink()
-      setupEditorSession(editor)
-      scrollEditor(md.scrollTop, editor)
-      editor.restoreFocus(true)
+      editor.restoreDocumentSession(true)
     }
   })
   autoSymbol(handler, editor, config);

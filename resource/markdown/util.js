@@ -61,7 +61,7 @@ function loadRes(url) {
 const isMac = navigator.userAgent.includes('Mac OS');
 const shortcutTip = isMac ? '⌘ ^ E' : 'Ctrl Alt E';
 
-export async function getToolbar(resPath, language) {
+export async function getToolbar(resPath) {
     const codicon = (name) => `<span class="codicon codicon-${name}" aria-hidden="true"></span>`;
     return [
         'outline',
@@ -154,168 +154,6 @@ export const openLink = () => {
     });
 }
 
-const editorSession = {
-    scrollTop: 0,
-    scrollSaveTimer: 0,
-    anchorTarget: null,
-    anchorUntil: 0,
-    restoring: false,
-    resizeObserver: null,
-    vditor: null,
-    scrollBound: false,
-};
-
-function getEditorElement(vditor) {
-    const mode = vditor?.vditor?.currentMode;
-    if (mode === 'ir' || mode === 'wysiwyg') {
-        return vditor.vditor[mode].element;
-    }
-    const irParent = document.querySelector('.vditor-ir');
-    if (irParent && getComputedStyle(irParent).display !== 'none') {
-        return irParent.querySelector('.vditor-reset');
-    }
-    const wysiwygParent = document.querySelector('.vditor-wysiwyg');
-    if (wysiwygParent && getComputedStyle(wysiwygParent).display !== 'none') {
-        return wysiwygParent.querySelector('.vditor-reset');
-    }
-    return document.querySelector('.vditor-reset');
-}
-
-function persistScroll() {
-    const editorEl = getEditorElement(editorSession.vditor);
-    if (!editorEl) {
-        return;
-    }
-    editorSession.scrollTop = editorEl.scrollTop;
-    window.clearTimeout(editorSession.scrollSaveTimer);
-    handler.emit('scroll', { scrollTop: editorEl.scrollTop });
-}
-
-function schedulePersistScroll() {
-    window.clearTimeout(editorSession.scrollSaveTimer);
-    editorSession.scrollSaveTimer = window.setTimeout(() => {
-        persistScroll();
-    }, 200);
-}
-
-function stopAnchoredScrollRestore() {
-    editorSession.anchorTarget = null;
-    editorSession.anchorUntil = 0;
-    editorSession.resizeObserver?.disconnect();
-    editorSession.resizeObserver = null;
-}
-
-function applyEditorScroll(top) {
-    const editorEl = getEditorElement(editorSession.vditor);
-    if (!editorEl || top == null || Number.isNaN(top)) {
-        return false;
-    }
-    editorSession.restoring = true;
-    editorEl.scrollTop = top;
-    editorSession.scrollTop = top;
-    window.requestAnimationFrame(() => {
-        editorSession.restoring = false;
-    });
-    return true;
-}
-
-function syncAnchoredScrollRestore() {
-    const editorEl = getEditorElement(editorSession.vditor);
-    const target = editorSession.anchorTarget;
-    if (!editorEl || target == null || Date.now() > editorSession.anchorUntil) {
-        stopAnchoredScrollRestore();
-        return;
-    }
-    if (Math.abs(editorEl.scrollTop - target) > 1) {
-        applyEditorScroll(target);
-    }
-}
-
-function startAnchoredScrollRestore(top) {
-    stopAnchoredScrollRestore();
-    editorSession.scrollTop = top;
-    editorSession.anchorTarget = top;
-    editorSession.anchorUntil = Date.now() + 4000;
-
-    syncAnchoredScrollRestore();
-    for (const ms of [16, 50, 100, 200, 400, 800, 1600, 2500, 3500]) {
-        window.setTimeout(syncAnchoredScrollRestore, ms);
-    }
-
-    const editorEl = getEditorElement(editorSession.vditor);
-    if (!editorEl) {
-        return;
-    }
-    editorSession.resizeObserver = new ResizeObserver(() => {
-        syncAnchoredScrollRestore();
-    });
-    editorSession.resizeObserver.observe(editorEl);
-    if (editorEl.firstElementChild) {
-        editorSession.resizeObserver.observe(editorEl.firstElementChild);
-    }
-}
-
-function onEditorScroll(event) {
-    if (editorSession.restoring) {
-        return;
-    }
-    const editorEl = event.currentTarget;
-    const activeEl = getEditorElement(editorSession.vditor);
-    if (editorEl !== activeEl) {
-        return;
-    }
-    editorSession.scrollTop = editorEl.scrollTop;
-    if (editorSession.anchorTarget != null &&
-        Math.abs(editorEl.scrollTop - editorSession.anchorTarget) > 8) {
-        stopAnchoredScrollRestore();
-    }
-    schedulePersistScroll();
-}
-
-function bindEditorScrollListeners() {
-    if (editorSession.scrollBound) {
-        return;
-    }
-    const selectors = ['.vditor-wysiwyg .vditor-reset', '.vditor-ir .vditor-reset'];
-    for (const selector of selectors) {
-        const editorEl = document.querySelector(selector);
-        if (editorEl) {
-            editorEl.addEventListener('scroll', onEditorScroll, { passive: true });
-        }
-    }
-    editorSession.scrollBound = true;
-}
-
-export function setupEditorSession(editor) {
-    editorSession.vditor = editor;
-    bindEditorScrollListeners();
-    const editorEl = getEditorElement(editor);
-    if (!editorEl) {
-        return;
-    }
-
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-            persistScroll();
-        }
-    });
-
-    window.addEventListener('blur', persistScroll);
-}
-
-export function scrollEditor(top, editor) {
-    if (editor) {
-        editorSession.vditor = editor;
-    }
-    const target = Number(top);
-    if (Number.isNaN(target)) {
-        return;
-    }
-    startAnchoredScrollRestore(target);
-}
-
-
-
 const hideContextMenu = (menu) => {
     menu.hidden = true
 }
@@ -338,6 +176,32 @@ const showContextMenu = (menu, clientX, clientY) => {
     if (top < padding) top = padding
     menu.style.left = `${left}px`
     menu.style.top = `${top}px`
+}
+
+const getSelectedHtml = () => {
+    const selection = document.getSelection()
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return ''
+    const editorRoot = document.getElementById('vditor')
+    if (!editorRoot?.contains(selection.anchorNode) || !editorRoot.contains(selection.focusNode)) return ''
+    const container = document.createElement('div')
+    for (let i = 0; i < selection.rangeCount; i++) {
+        container.appendChild(selection.getRangeAt(i).cloneContents())
+    }
+    return container.innerHTML
+}
+
+const copyHtml = async (html) => {
+    if (!html) return
+    if (navigator.clipboard?.write && window.ClipboardItem) {
+        await navigator.clipboard.write([
+            new ClipboardItem({
+                'text/html': new Blob([html], { type: 'text/html' }),
+                'text/plain': new Blob([html], { type: 'text/plain' }),
+            }),
+        ])
+        return
+    }
+    await navigator.clipboard.writeText(html)
 }
 
 export const createContextMenu = (editor) => {
@@ -369,6 +233,9 @@ export const createContextMenu = (editor) => {
             case 'copy':
                 document.execCommand('copy')
                 break
+            case 'copyAsHtml':
+                copyHtml(getSelectedHtml() || editor.getHTML())
+                break
             case 'paste':
                 if (document.getSelection()?.toString()) { document.execCommand('delete') }
                 vscodeEvent.emit('command', 'office.markdown.paste')
@@ -384,6 +251,12 @@ export const createContextMenu = (editor) => {
                 break
             case 'exportHtml':
                 vscodeEvent.emit('export', { type: 'html' })
+                break
+            case 'showInFolder':
+                vscodeEvent.emit('showInFolder')
+                break
+            case 'insertImage':
+                vscodeEvent.emit('insertImage')
                 break
         }
     })

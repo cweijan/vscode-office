@@ -11,14 +11,19 @@ export function writeFile(path: string, buffer: Buffer) {
     vscode.workspace.fs.writeFile(vscode.Uri.file(path), buffer);
 }
 
-export function adjustImgPath(uri: vscode.Uri, withworkspace: boolean = false) {
+export function adjustImgPath(uri: vscode.Uri, ext: string = 'png') {
+    const now = new Date();
+    const date = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+    const uuid = crypto.randomUUID().replace(/-/g, '');
     const imgPath = Global.getConfig<string>("pasterImgPath")
         .replace("${fileName}", parse(uri.fsPath).name.replace(/\s/g, ''))
-        .replace("${now}", new Date().getTime() + "")
+        .replace("${now}", now.getTime() + "")
+        .replace("${date}", date)
+        .replace("${uuid}", uuid)
+        .replace("${ext}", ext)
     return {
         relPath: imgPath.replace(/\$\{workspaceDir\}\/?/, ''),
         fullPath: imgPath.replace("${workspaceDir}", getWorkspacePath(uri))
-
     };
 }
 
