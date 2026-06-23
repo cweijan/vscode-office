@@ -21,6 +21,49 @@ export const getEditorRange = (vditor: IVditor) => {
     return range;
 };
 
+export const getSelectionRangeInEditor = (editor: HTMLElement): Range | null => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) {
+        return null;
+    }
+    const range = selection.getRangeAt(0);
+    if (editor.isEqualNode(range.startContainer) || editor.contains(range.startContainer)) {
+        return range;
+    }
+    return null;
+};
+
+export const getRangeCaretRect = (range: Range): DOMRect | null => {
+    const rects = range.getClientRects();
+    if (rects.length > 0) {
+        return rects[0];
+    }
+    if (range.startContainer.nodeType === 3) {
+        const parent = range.startContainer.parentElement;
+        if (parent && parent.getClientRects().length > 0) {
+            return parent.getClientRects()[0];
+        }
+        return null;
+    }
+    const children = (range.startContainer as Element).children;
+    if (children[range.startOffset] && children[range.startOffset].getClientRects().length > 0) {
+        return children[range.startOffset].getClientRects()[0];
+    }
+    if (range.startContainer.childNodes.length > 0) {
+        const probe = document.createRange();
+        probe.selectNode(range.startContainer.childNodes[Math.max(0, range.startOffset - 1)]);
+        const probeRects = probe.getClientRects();
+        if (probeRects.length > 0) {
+            return probeRects[0];
+        }
+    }
+    const element = range.startContainer as HTMLElement;
+    if (element.getClientRects && element.getClientRects().length > 0) {
+        return element.getClientRects()[0];
+    }
+    return null;
+};
+
 export const preserveEditorScroll = (vditor: IVditor, action: () => void) => {
     const scrollEl = vditor[vditor.currentMode].element;
     const scrollTop = scrollEl.scrollTop;

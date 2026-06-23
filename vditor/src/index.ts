@@ -201,7 +201,6 @@ class Vditor {
 
     /** 恢复滚动与焦点；onLoad 用于页面首次加载 */
     public restoreDocumentSession(onLoad = false) {
-        restoreDocumentScroll(this.vditor);
         restoreCacheFocus(this.vditor, { onLoad });
     }
 

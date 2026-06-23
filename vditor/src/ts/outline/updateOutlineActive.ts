@@ -148,6 +148,14 @@ export const restoreOutlineActive = (vditor: IVditor) => {
     }
 };
 
+/** 文档首次加载恢复滚动后，同步大纲高亮并将当前项滚入可视区 */
+export const syncOutlineOnDocumentLoad = (vditor: IVditor) => {
+    const state = getState(vditor);
+    state.pinnedId = null;
+    state.userScrollIntent = false;
+    updateOutlineActive(vditor, true);
+};
+
 const markUserScrollIntent = (vditor: IVditor) => {
     getState(vditor).userScrollIntent = true;
 };

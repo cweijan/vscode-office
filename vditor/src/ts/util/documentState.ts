@@ -4,6 +4,7 @@ const LEGACY_FOCUS_KEY_PATTERN = /^md-.+-focus$/;
 const LEGACY_SCROLL_KEY_PATTERN = /^scrollTop_/;
 
 let legacyDocumentStatePurged = false;
+let scrollFocusAnchorHandler: ((vditor: IVditor) => void) | undefined;
 
 type ScrollSession = {
     scrollTop: number;
@@ -38,6 +39,10 @@ export const getFocusStateKey = (cacheId: string): string => `${cacheId}-focus`;
 
 export const getScrollStateKey = (cacheId: string): string => `${cacheId}-scroll`;
 
+export const setScrollFocusAnchorHandler = (handler: (vditor: IVditor) => void) => {
+    scrollFocusAnchorHandler = handler;
+};
+
 export const purgeLegacyDocumentStateKeys = () => {
     if (legacyDocumentStatePurged || !accessLocalStorage()) {
         return;
@@ -64,36 +69,6 @@ const getEditorElement = (vditor: IVditor): HTMLElement | null => {
         return vditor[mode].element;
     }
     return null;
-};
-
-const getImageTopInEditor = (editorEl: HTMLElement, img: HTMLImageElement): number => {
-    const editorRect = editorEl.getBoundingClientRect();
-    const imgRect = img.getBoundingClientRect();
-    return imgRect.top - editorRect.top + editorEl.scrollTop;
-};
-
-const getImagesHeightAbove = (editorEl: HTMLElement, scrollTop: number): number => {
-    let height = 0;
-    const images = editorEl.querySelectorAll("img");
-    for (let i = 0; i < images.length; i++) {
-        const img = images[i] as HTMLImageElement;
-        const imgHeight = img.getBoundingClientRect().height;
-        if (imgHeight <= 0) {
-            continue;
-        }
-        if (getImageTopInEditor(editorEl, img) < scrollTop) {
-            height += imgHeight;
-        }
-    }
-    return height;
-};
-
-const normalizeScrollTop = (editorEl: HTMLElement, scrollTop: number): number => {
-    return Math.max(0, scrollTop - getImagesHeightAbove(editorEl, scrollTop));
-};
-
-const denormalizeScrollTop = (editorEl: HTMLElement, normalizedScrollTop: number): number => {
-    return normalizedScrollTop + getImagesHeightAbove(editorEl, normalizedScrollTop);
 };
 
 export const saveDocumentScroll = (vditor: IVditor, scrollTop: number) => {
@@ -135,10 +110,11 @@ const persistScroll = (vditor: IVditor) => {
         return;
     }
     const session = getScrollSession(vditor);
-    const normalizedScrollTop = normalizeScrollTop(editorEl, editorEl.scrollTop);
-    session.scrollTop = normalizedScrollTop;
+    const top = editorEl.scrollTop;
+    session.scrollTop = top;
     window.clearTimeout(session.scrollSaveTimer);
-    saveDocumentScroll(vditor, normalizedScrollTop);
+    saveDocumentScroll(vditor, top);
+    scrollFocusAnchorHandler?.(vditor);
 };
 
 const schedulePersistScroll = (vditor: IVditor) => {
@@ -162,6 +138,14 @@ const applyEditorScroll = (vditor: IVditor, top: number): boolean => {
         session.restoring = false;
     });
     return true;
+};
+
+export const adjustEditorScrollBy = (vditor: IVditor, delta: number) => {
+    const editorEl = getEditorElement(vditor);
+    if (!editorEl || Number.isNaN(delta)) {
+        return;
+    }
+    applyEditorScroll(vditor, editorEl.scrollTop + delta);
 };
 
 const onEditorScroll = (vditor: IVditor, event: Event) => {
@@ -214,9 +198,9 @@ export const restoreDocumentScroll = (vditor: IVditor, scrollTop?: number) => {
     if (!editorEl) {
         return;
     }
-    const normalized = scrollTop != null ? Number(scrollTop) : readStoredDocumentScroll(vditor);
-    if (Number.isNaN(normalized)) {
+    const top = scrollTop != null ? Number(scrollTop) : readStoredDocumentScroll(vditor);
+    if (Number.isNaN(top)) {
         return;
     }
-    applyEditorScroll(vditor, denormalizeScrollTop(editorEl, normalized));
+    applyEditorScroll(vditor, top);
 };

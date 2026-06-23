@@ -1,7 +1,7 @@
 import {setEditMode} from "../toolbar/EditMode";
 import {bindToolbarOutsideDismiss} from "../toolbar/setToolbar";
-import {bindCacheFocusPersistence, markCacheContentRestored} from "../util/cacheFocus";
-import {bindDocumentScrollPersistence, purgeLegacyDocumentStateKeys} from "../util/documentState";
+import {bindCacheFocusPersistence, markCacheContentRestored, persistScrollFocusAnchor} from "../util/cacheFocus";
+import {bindDocumentScrollPersistence, purgeLegacyDocumentStateKeys, setScrollFocusAnchorHandler} from "../util/documentState";
 import {bindHistoryInputBufferClick} from "../util/historyInputBuffer";
 import {accessLocalStorage} from "../util/compatibility";
 import {macOptionSymbolEvent} from "../util/editorCommonEvent";
@@ -70,6 +70,7 @@ export const initUI = (vditor: IVditor) => {
   initEditorTheme(vditor);
   initMermaidTheme(vditor);
 
+  setScrollFocusAnchorHandler(persistScrollFocusAnchor);
   bindCacheFocusPersistence(vditor);
   bindDocumentScrollPersistence(vditor);
   bindHistoryInputBufferClick(vditor);
