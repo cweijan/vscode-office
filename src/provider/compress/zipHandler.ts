@@ -99,7 +99,7 @@ export async function handleZip(uri: Uri, handler: Handler) {
                 }
             }
         }).on('addFile', async (currentDir = '') => {
-            const defaultUri = FileUtil.getLastPath('connectChoose');
+            const defaultUri = await FileUtil.getLastPath('connectChoose');
             const uris = await window.showOpenDialog({ defaultUri });
             if (!uris) return;
             const fileUri = uris[0];

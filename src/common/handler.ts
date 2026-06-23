@@ -1,17 +1,17 @@
-import { EventEmitter } from "events";
 import * as vscode from 'vscode';
+import { SimpleEventEmitter } from "./simpleEventEmitter";
 import { WebviewPanel } from "vscode";
 import { Output } from "./Output";
 
 export class Handler {
 
-    constructor(public panel: WebviewPanel, private eventEmitter: EventEmitter) { }
+    constructor(public panel: WebviewPanel, private eventEmitter: SimpleEventEmitter) { }
 
     on(event: string, callback: (content: any) => any | Promise<any>): this {
         if (event != 'init') {
             const listens = this.eventEmitter.listeners(event)
             if (listens.length >= 1) {
-                this.eventEmitter.removeListener(event, listens[0] as any)
+                this.eventEmitter.removeListener(event, listens[0])
             }
         }
         this.eventEmitter.on(event, async (content: any) => {
@@ -31,10 +31,10 @@ export class Handler {
     }
 
     public static bind(panel: WebviewPanel, uri: vscode.Uri): Handler {
-        const eventEmitter = new EventEmitter();
+        const eventEmitter = new SimpleEventEmitter();
 
-        const fileWatcher = vscode.workspace.createFileSystemWatcher(uri.fsPath)
-        fileWatcher.onDidChange(e => {
+        const fileWatcher = Handler.createFileWatcher(uri);
+        fileWatcher?.onDidChange(e => {
             eventEmitter.emit("fileChange", e)
         })
 
@@ -44,7 +44,7 @@ export class Handler {
             }
         });
         panel.onDidDispose(() => {
-            fileWatcher.dispose()
+            fileWatcher?.dispose()
             changeDocumentSubscription.dispose()
             eventEmitter.emit("dispose")
         });
@@ -54,6 +54,20 @@ export class Handler {
             eventEmitter.emit(message.type, message.content)
         })
         return new Handler(panel, eventEmitter);
+    }
+
+    private static createFileWatcher(uri: vscode.Uri): vscode.FileSystemWatcher | undefined {
+        const folder = vscode.workspace.getWorkspaceFolder(uri);
+        if (folder) {
+            const relativePath = vscode.workspace.asRelativePath(uri, false);
+            return vscode.workspace.createFileSystemWatcher(
+                new vscode.RelativePattern(folder, relativePath)
+            );
+        }
+        if (uri.scheme === 'file') {
+            return vscode.workspace.createFileSystemWatcher(uri.fsPath);
+        }
+        return undefined;
     }
 
 }

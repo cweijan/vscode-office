@@ -1,6 +1,7 @@
 import * as nodePath from 'path';
 import * as vscode from 'vscode';
 import { ReactApp } from '../../common/reactApp';
+import { getExtensionResourceRoots } from '../../common/extensionResource';
 import type { CommitService } from '../service/commitService';
 import type { GitActions } from '../service/gitActions';
 import type { RepoDiscovery } from '../service/repoDiscovery';
@@ -135,7 +136,7 @@ export class GitHistoryPanel {
             {
                 enableScripts: true,
                 retainContextWhenHidden: true,
-                localResourceRoots: GitHistoryPanel.getLocalResourceRoots(context.extensionPath),
+                localResourceRoots: GitHistoryPanel.getLocalResourceRoots(context),
             }
         );
 
@@ -144,8 +145,8 @@ export class GitHistoryPanel {
         await GitHistoryPanel.attach(context, panel, commitService, repoDiscovery, gitActions, gitActionHandler, panelContext);
     }
 
-    private static getLocalResourceRoots(extensionPath: string): vscode.Uri[] {
-        return [vscode.Uri.file(extensionPath)];
+    private static getLocalResourceRoots(context: vscode.ExtensionContext): vscode.Uri[] {
+        return getExtensionResourceRoots(context);
     }
 
     static async restore(
@@ -166,10 +167,10 @@ export class GitHistoryPanel {
         await GitHistoryPanel.attach(context, panel, commitService, repoDiscovery, gitActions, gitActionHandler, panelContext);
     }
 
-    private static applyPanelIcon(panel: vscode.WebviewPanel, extensionPath: string): void {
+    private static applyPanelIcon(panel: vscode.WebviewPanel, context: vscode.ExtensionContext): void {
         panel.iconPath = {
-            light: vscode.Uri.file(`${extensionPath}/image/git-history-light.svg`),
-            dark: vscode.Uri.file(`${extensionPath}/image/git-history-dark.svg`),
+            light: vscode.Uri.joinPath(context.extensionUri, 'image', 'git-history-light.svg'),
+            dark: vscode.Uri.joinPath(context.extensionUri, 'image', 'git-history-dark.svg'),
         };
     }
 
@@ -182,13 +183,13 @@ export class GitHistoryPanel {
         gitActionHandler: GitActionHandler,
         panelContext: GitHistoryPanelContext
     ): Promise<void> {
-        GitHistoryPanel.applyPanelIcon(panel, context.extensionPath);
+        GitHistoryPanel.applyPanelIcon(panel, context);
 
         panel.webview.options = {
             ...panel.webview.options,
             enableScripts: true,
             retainContextWhenHidden: true,
-            localResourceRoots: GitHistoryPanel.getLocalResourceRoots(context.extensionPath),
+            localResourceRoots: GitHistoryPanel.getLocalResourceRoots(context),
         };
 
         const handler = PanelHandler.bind(panel);

@@ -1,7 +1,8 @@
-import { adjustImgPath, getWorkspacePath, writeFile } from '@/common/fileUtil';
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
-import { basename, isAbsolute, parse, resolve, dirname } from 'path';
+import { adjustImgPath, getWorkspacePath } from '@/common/fileUtil';
+import { basename, isAbsolute, parse, resolve } from 'path';
 import * as vscode from 'vscode';
+import { extensionResource, getExtensionResourceRoots, readExtensionText } from '@/common/extensionResource';
+import { ensureParentDirectory } from '@/common/workspaceFs';
 import { Handler } from '../common/handler';
 import { Util } from '../common/util';
 import { Holder } from '../service/markdown/holder';
@@ -9,7 +10,13 @@ import { MarkdownService } from '../service/markdownService';
 import { Global } from '@/common/global';
 import { TelemetryService } from '@/service/telemetryService';
 import { fileTypeFromPath } from '@/service/officeViewType';
-import { platform } from 'os';
+
+function getRuntimePlatform(): string {
+    if (typeof process !== 'undefined' && process.platform) {
+        return process.platform;
+    }
+    return 'web';
+}
 
 /**
  * support view and edit office files.
@@ -18,11 +25,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
     private static legacyGlobalStatePurged = false;
 
-    private extensionPath: string;
     private countStatus: vscode.StatusBarItem;
 
     constructor(private context: vscode.ExtensionContext) {
-        this.extensionPath = context.extensionPath;
         this.countStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
         this.purgeLegacyGlobalState();
     }
@@ -41,6 +46,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     }
 
     private getFolders(): vscode.Uri[] {
+        if (vscode.env.uiKind === vscode.UIKind.Web) {
+            return [];
+        }
         const data = [];
         for (let i = 65; i <= 90; i++) {
             data.push(vscode.Uri.file(`${String.fromCharCode(i)}:/`))
@@ -56,25 +64,25 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         webview.options = {
             enableScripts: true,
             localResourceRoots: [
-                vscode.Uri.file(this.extensionPath),
+                ...getExtensionResourceRoots(this.context),
                 vscode.Uri.file("/"),
                 ...this.getFolders(),
             ],
         }
         const handler = Handler.bind(webviewPanel, uri);
         TelemetryService.get()?.trackViewOpen('markdown', fileTypeFromPath(uri.fsPath));
-        this.handleMarkdown(document, handler, folderPath)
+        void this.handleMarkdown(document, handler, folderPath);
         handler.on('developerTool', () => vscode.commands.executeCommand('workbench.action.toggleDevTools'))
     }
 
-    private handleMarkdown(document: vscode.TextDocument, handler: Handler, folderPath: vscode.Uri) {
+    private async handleMarkdown(document: vscode.TextDocument, handler: Handler, folderPath: vscode.Uri) {
 
         const uri = document.uri;
         const webview = handler.panel.webview;
 
         let content = document.getText();
-        const contextPath = `${this.extensionPath}/resource/markdown`;
-        const rootPath = webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)).toString();
+        const contextUri = extensionResource(this.context, 'resource', 'markdown');
+        const rootPath = webview.asWebviewUri(contextUri).toString();
 
         Holder.activeDocument = document;
         handler.panel.onDidChangeViewState(e => {
@@ -90,7 +98,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         let lastManualSaveTime: number;
         const config = vscode.workspace.getConfiguration("vscode-office");
         const sponsorBaseUrl = webview.asWebviewUri(
-            vscode.Uri.file(`${this.extensionPath}/resource/sponsor`)
+            extensionResource(this.context, 'resource', 'sponsor')
         ).toString();
         handler.on("init", () => {
             handler.emit("open", {
@@ -159,9 +167,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             const ext: string = typeof payload === 'string' ? 'png' : (payload.ext || 'png');
             const { relPath, fullPath } = adjustImgPath(uri, ext);
             const imagePath = isAbsolute(fullPath) ? fullPath : `${resolve(uri.fsPath, "..")}/${relPath}`.replace(/\\/g, "/");
-            const imageDir = dirname(imagePath);
-            if (!existsSync(imageDir)) mkdirSync(imageDir, { recursive: true });
-            writeFileSync(imagePath, Buffer.from(imgData, 'binary'));
+            const imageUri = vscode.Uri.file(imagePath);
+            await ensureParentDirectory(imageUri);
+            await vscode.workspace.fs.writeFile(imageUri, Uint8Array.from(Buffer.from(imgData, 'binary')));
             const fileName = parse(relPath).name;
             const adjustRelPath = await MarkdownService.imgExtGuide(imagePath, relPath);
             vscode.env.clipboard.writeText(`![${fileName}](${adjustRelPath})`);
@@ -173,14 +181,14 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                 title: 'Select Image',
             });
             if (!files || files.length === 0) return;
-            const filePath = files[0].fsPath;
-            const ext = parse(filePath).ext.replace('.', '').toLowerCase() || 'png';
+            const sourceUri = files[0];
+            const ext = parse(sourceUri.fsPath).ext.replace('.', '').toLowerCase() || 'png';
             const { relPath, fullPath } = adjustImgPath(uri, ext);
             const imagePath = isAbsolute(fullPath) ? fullPath : `${resolve(uri.fsPath, "..")}/${relPath}`.replace(/\\/g, "/");
-            const imageDir = dirname(imagePath);
-            if (!existsSync(imageDir)) mkdirSync(imageDir, { recursive: true });
-            const { copyFileSync } = require('fs');
-            copyFileSync(filePath, imagePath);
+            const imageUri = vscode.Uri.file(imagePath);
+            await ensureParentDirectory(imageUri);
+            const fileBytes = await vscode.workspace.fs.readFile(sourceUri);
+            await vscode.workspace.fs.writeFile(imageUri, fileBytes);
             const fileName = parse(relPath).name;
             const adjustRelPath = await MarkdownService.imgExtGuide(imagePath, relPath);
             vscode.env.clipboard.writeText(`![${fileName}](${adjustRelPath})`);
@@ -189,7 +197,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             const side = full ? vscode.ViewColumn.Active : vscode.ViewColumn.Beside;
             vscode.commands.executeCommand('vscode.openWith', uri, "default", side);
         }).on("showInFolder", () => {
-            vscode.commands.executeCommand('revealFileInOS', uri);
+            if (vscode.env.uiKind !== vscode.UIKind.Web) {
+                vscode.commands.executeCommand('revealFileInOS', uri);
+            }
         }).on("save", (newContent) => {
             if (lastManualSaveTime && Date.now() - lastManualSaveTime < 800) return;
             content = newContent
@@ -225,15 +235,16 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         const basePath = Global.getConfig('workspacePathAsImageBasePath') ?
             vscode.Uri.file(getWorkspacePath(folderPath)) : folderPath;
         const baseUrl = webview.asWebviewUri(basePath).toString().replace(/\?.+$/, '').replace('https://git', 'https://file');
+        const indexHtml = await readExtensionText(this.context, 'resource', 'markdown', 'index.html');
         webview.html = Util.buildPath(
-            readFileSync(`${this.extensionPath}/resource/markdown/index.html`, 'utf8')
+            indexHtml
                 .replace("{{rootPath}}", rootPath)
                 .replace("{{baseUrl}}", baseUrl)
                 .replace(`{{configs}}`, JSON.stringify({
-                    platform: platform(),
+                    platform: getRuntimePlatform(),
                     sponsorBaseUrl,
                 })),
-            webview, contextPath);
+            webview, contextUri);
     }
 
     private getMarkdownWebviewConfig(configuration: vscode.WorkspaceConfiguration) {

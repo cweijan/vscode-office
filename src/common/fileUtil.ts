@@ -1,14 +1,12 @@
-import { existsSync, mkdirSync } from 'fs';
 import { dirname, parse } from 'path';
 import * as vscode from 'vscode';
+import { ensureParentDirectory } from './workspaceFs';
 import { Global } from './global';
 
-export function writeFile(path: string, buffer: Buffer) {
-    const dir = dirname(path)
-    if (!existsSync(dir)) {
-        mkdirSync(dir, { recursive: true })
-    }
-    vscode.workspace.fs.writeFile(vscode.Uri.file(path), buffer);
+export async function writeFile(path: string, buffer: Uint8Array) {
+    const uri = vscode.Uri.file(path);
+    await ensureParentDirectory(uri);
+    await vscode.workspace.fs.writeFile(uri, buffer);
 }
 
 export function adjustImgPath(uri: vscode.Uri, ext: string = 'png') {
@@ -51,7 +49,7 @@ export class FileUtil {
     public static init(context: vscode.ExtensionContext) {
         this.context = context;
     }
-    public static getLastPath(key: string | string[], path = '') {
+    public static async getLastPath(key: string | string[], path = '') {
         // 获取已经保存的路径
         let basePath: string;
         if (!Array.isArray(key)) { key = [key] }
@@ -59,11 +57,16 @@ export class FileUtil {
             basePath = this.context.globalState.get(itemKey + 'SelectorPath');
             if (basePath) break;
         }
-        if (basePath && !existsSync(basePath)) {
-            basePath = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? ''
+        if (basePath) {
+            const baseUri = vscode.Uri.file(basePath);
+            try {
+                await vscode.workspace.fs.stat(baseUri);
+            } catch {
+                basePath = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '';
+            }
         } else {
             basePath = '';
         }
-        return vscode.Uri.file(basePath + path)
+        return vscode.Uri.file(basePath + path);
     }
 }

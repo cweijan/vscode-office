@@ -1,5 +1,5 @@
-import { existsSync } from 'fs';
 import { basename, extname } from 'path';
+import * as vscode from 'vscode';
 
 const ICON_DIR = 'resource/icon';
 
@@ -81,7 +81,7 @@ const EXT_ICON_MAP: Record<string, string> = {
     exe: 'exe.svg',
 };
 
-export function getIconFileName(fileName: string, iconDir?: string): string {
+export function getIconFileName(fileName: string, iconDir?: vscode.Uri): string {
     const lower = fileName.toLowerCase();
     const base = basename(lower);
 
@@ -94,21 +94,14 @@ export function getIconFileName(fileName: string, iconDir?: string): string {
 
     const ext = extname(base).replace('.', '');
     if (ext && iconDir) {
-        const directSvg = `${ext}.svg`;
-        if (existsSync(`${iconDir}/${directSvg}`)) {
-            return directSvg;
-        }
-        const directPng = `${ext}.png`;
-        if (existsSync(`${iconDir}/${directPng}`)) {
-            return directPng;
-        }
+        return EXT_ICON_MAP[ext] ?? `${ext}.svg`;
     }
 
     return EXT_ICON_MAP[ext] ?? 'file.svg';
 }
 
-export function getIcon(extensionPath: string, fileName: string): string {
-    const iconDir = `${extensionPath}/${ICON_DIR}`;
+export function getIconUri(extensionUri: vscode.Uri, fileName: string): vscode.Uri {
+    const iconDir = vscode.Uri.joinPath(extensionUri, ICON_DIR);
     const iconFile = getIconFileName(fileName, iconDir);
-    return `${iconDir}/${iconFile}`;
+    return vscode.Uri.joinPath(iconDir, iconFile);
 }

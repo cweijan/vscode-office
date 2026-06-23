@@ -1,10 +1,10 @@
-import { EventEmitter } from 'events';
+import { SimpleEventEmitter } from '../../common/simpleEventEmitter';
 import { WebviewPanel } from 'vscode';
 
 export class PanelHandler {
     constructor(
         public readonly panel: WebviewPanel,
-        private readonly eventEmitter: EventEmitter
+        private readonly eventEmitter: SimpleEventEmitter
     ) { }
 
     on(event: string, callback: (content: unknown) => void | Promise<void>): this {
@@ -26,7 +26,7 @@ export class PanelHandler {
     }
 
     static bind(panel: WebviewPanel): PanelHandler {
-        const eventEmitter = new EventEmitter();
+        const eventEmitter = new SimpleEventEmitter();
         panel.onDidDispose(() => eventEmitter.emit('dispose'));
         panel.webview.onDidReceiveMessage((message: { type: string; content?: unknown }) => {
             eventEmitter.emit(message.type, message.content);

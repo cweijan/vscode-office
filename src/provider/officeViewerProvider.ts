@@ -1,5 +1,4 @@
 import { ReactApp } from '@/common/reactApp';
-import { readFileSync } from 'fs';
 import * as vscode from 'vscode';
 import { Handler } from '../common/handler';
 import { Util } from '../common/util';
@@ -14,17 +13,14 @@ import { handleTarGz } from './compress/tarHandler';
 import { handleSevenZip } from './compress/sevenZipHandler';
 import { handleCommonEvent } from './compress/commonHandler';
 import { TelemetryService } from '@/service/telemetryService';
+import { extensionResource, getExtensionResourceRoots, readExtensionText } from '@/common/extensionResource';
 
 /**
  * support view office files
  */
 export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider {
 
-    private extensionPath: string;
-
-    constructor(private context: vscode.ExtensionContext) {
-        this.extensionPath = context.extensionPath;
-    }
+    constructor(private context: vscode.ExtensionContext) { }
 
     bindCustomEditors(viewOption: { webviewOptions: vscode.WebviewPanelOptions }) {
         const viewers = ['cweijan.officeViewer', 'cweijan.imageViewer', 'cweijan.heicTiffViewer', 'cweijan.icnsViewer', 'cweijan.psdViewer', 'cweijan.xmindViewer', 'cweijan.htmlViewer', 'cweijan.classViewer']
@@ -40,7 +36,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
         const folderPath = vscode.Uri.joinPath(uri, '..')
         webview.options = {
             enableScripts: true,
-            localResourceRoots: [vscode.Uri.file(this.extensionPath), folderPath]
+            localResourceRoots: [...getExtensionResourceRoots(this.context), folderPath]
         }
 
         const handler = Handler.bind(webviewPanel, uri)
@@ -103,8 +99,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 route = 'font';
                 break;
             case ".pdf":
-                webview.html = readFileSync(this.extensionPath + "/resource/pdf/viewer.html", 'utf8')
-                    .replace("{{baseUrl}}", this.getBaseUrl(webview, 'pdf'))
+                void this.loadPdfViewer(webview);
                 break;
             case ".epub":
                 route = 'epub';
@@ -126,10 +121,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
                 if (isVirtualUri(uri)) {
                     void this.loadVirtualHtml(webviewPanel, uri, folderPath);
                 } else {
-                    webview.html = Util.buildPath(readFileSync(uri.fsPath, 'utf8'), webview, folderPath.fsPath);
-                    Util.listen(webviewPanel, uri, () => {
-                        webviewPanel.webview.html = Util.buildPath(readFileSync(uri.fsPath, 'utf8'), webviewPanel.webview, folderPath.fsPath);
-                    });
+                    void this.loadWorkspaceHtml(webviewPanel, uri, folderPath);
                 }
                 break;
             default:
@@ -141,10 +133,27 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
         if (route) return ReactApp.view(webview, { route })
     }
 
+    private async loadPdfViewer(webview: vscode.Webview) {
+        const html = await readExtensionText(this.context, 'resource', 'pdf', 'viewer.html');
+        webview.html = html.replace("{{baseUrl}}", this.getBaseUrl(webview, 'pdf'));
+    }
+
+    private async loadWorkspaceHtml(webviewPanel: vscode.WebviewPanel, uri: vscode.Uri, folderPath: vscode.Uri) {
+        const webview = webviewPanel.webview;
+        const render = async () => {
+            const content = await readUriText(uri);
+            webview.html = Util.buildPath(content, webview, folderPath);
+        };
+        await render();
+        Util.listen(webviewPanel, uri, () => {
+            void render();
+        });
+    }
+
     private async loadVirtualHtml(webviewPanel: vscode.WebviewPanel, uri: vscode.Uri, folderPath: vscode.Uri) {
         try {
             const content = await readUriText(uri);
-            webviewPanel.webview.html = Util.buildPath(content, webviewPanel.webview, folderPath.fsPath);
+            webviewPanel.webview.html = Util.buildPath(content, webviewPanel.webview, folderPath);
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Failed to read HTML';
             webviewPanel.webview.html = `<pre>${message}</pre>`;
@@ -152,7 +161,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
     }
 
     private getBaseUrl(webview: vscode.Webview, path: string) {
-        const baseUrl = webview.asWebviewUri(vscode.Uri.file(`${this.extensionPath}/resource/${path}`))
+        const baseUrl = webview.asWebviewUri(extensionResource(this.context, 'resource', path))
             .toString().replace(/\?.+$/, '').replace('https://git', 'https://file')
         return baseUrl;
     }
