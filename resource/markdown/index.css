@@ -35,6 +35,7 @@ html {
     overflow: hidden;
     --ctx-icon-copy: var(--vscode-textLink-foreground, #3794ff);
     --ctx-icon-copy-html: var(--vscode-symbolIcon-stringForeground, #ce9178);
+    --ctx-icon-copy-plain: var(--vscode-charts-green, #89d185);
     --ctx-icon-paste: var(--vscode-charts-green, #89d185);
     --ctx-icon-pdf: var(--vscode-charts-red, #e51400);
     --ctx-icon-pdf-plain: var(--vscode-charts-red, #e51400);
@@ -112,6 +113,10 @@ html {
 
 .vditor-context-menu__item[data-action="copyAsHtml"] .codicon {
     color: var(--ctx-icon-copy-html);
+}
+
+.vditor-context-menu__item[data-action="copyAsPlainText"] .codicon {
+    color: var(--ctx-icon-copy-plain);
 }
 
 .vditor-context-menu__item[data-action="paste"] .codicon {

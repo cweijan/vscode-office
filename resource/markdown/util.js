@@ -109,8 +109,7 @@ export async function getToolbar(resPath) {
         "redo",
         "|",
         "find",
-        "edit-mode",
-        "code-theme",
+        "settings",
         "help",
     ]
 }
@@ -190,6 +189,39 @@ const getSelectedHtml = () => {
     return container.innerHTML
 }
 
+const normalizePlainText = text => {
+    return (text || '')
+        .replace(/\u00a0/g, ' ')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim()
+}
+
+const htmlToPlainText = html => {
+    if (!html) return ''
+    const container = document.createElement('div')
+    container.innerHTML = html
+    container.querySelectorAll(
+        '.vditor-ir__marker, .vditor-ir__preview, .vditor-toolbar, .vditor-hint, script, style',
+    ).forEach(item => item.remove())
+    container.querySelectorAll('br').forEach(item => item.replaceWith('\n'))
+    container.querySelectorAll('p, div, h1, h2, h3, h4, h5, h6, li, tr, pre, blockquote').forEach(item => {
+        item.appendChild(document.createTextNode('\n'))
+    })
+    return normalizePlainText(container.textContent || '')
+}
+
+const getSelectedPlainText = () => {
+    const selection = document.getSelection()
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return ''
+    const editorRoot = document.getElementById('vditor')
+    if (!editorRoot?.contains(selection.anchorNode) || !editorRoot.contains(selection.focusNode)) return ''
+    const container = document.createElement('div')
+    for (let i = 0; i < selection.rangeCount; i++) {
+        container.appendChild(selection.getRangeAt(i).cloneContents())
+    }
+    return htmlToPlainText(container.innerHTML) || normalizePlainText(selection.toString())
+}
+
 const copyHtml = async (html) => {
     if (!html) return
     if (navigator.clipboard?.write && window.ClipboardItem) {
@@ -202,6 +234,23 @@ const copyHtml = async (html) => {
         return
     }
     await navigator.clipboard.writeText(html)
+}
+
+const copyPlainText = async (text) => {
+    if (!text) return
+    if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text)
+        return
+    }
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    textarea.style.position = 'fixed'
+    textarea.style.left = '-9999px'
+    textarea.style.top = '0'
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    textarea.remove()
 }
 
 export const createContextMenu = (editor) => {
@@ -235,6 +284,9 @@ export const createContextMenu = (editor) => {
                 break
             case 'copyAsHtml':
                 copyHtml(getSelectedHtml() || editor.getHTML())
+                break
+            case 'copyAsPlainText':
+                copyPlainText(getSelectedPlainText() || htmlToPlainText(editor.getHTML()))
                 break
             case 'paste':
                 if (document.getSelection()?.toString()) { document.execCommand('delete') }

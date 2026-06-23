@@ -109,5 +109,4 @@ handler.on("open", async (md) => {
   autoSymbol(handler, editor, config);
   createContextMenu(editor)
   imageParser(config.viewAbsoluteLocal)
-  zoomElement('.vditor-reset')
 }).emit("init")
