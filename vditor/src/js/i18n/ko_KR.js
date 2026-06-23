@@ -24,6 +24,7 @@ window.VditorI18n = {
   'column': '행',
   'comment': '코멘트',
   'confirm': '확인',
+  'copyFailed': '이 다이어그램은 복사할 수 없습니다',
   'copied': '복사완료',
   'copy': '복사',
   'delete-column': '열 삭제',

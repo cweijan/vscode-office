@@ -26,6 +26,7 @@ window.VditorI18n = {
   'column': '欄',
   'comment': '評論',
   'confirm': '確定',
+  'copyFailed': '該圖表無法複製',
   'copied': '已複製',
   'copy': '複製',
   'delete-column': '刪除欄',

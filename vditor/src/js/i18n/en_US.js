@@ -26,6 +26,7 @@ window.VditorI18n = {
   'column': 'Column',
   'comment': 'Comment',
   'confirm': 'Confirm',
+  'copyFailed': 'This diagram cannot be copied',
   'copied': 'Copied',
   'copy': 'Copy',
   'delete-column': 'Delete Column',

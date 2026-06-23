@@ -24,6 +24,7 @@ window.VditorI18n = {
   'column': '行列',
   'comment': 'コメント',
   'confirm': '確認',
+  'copyFailed': 'この図はコピーできません',
   'copied': 'コピー完了',
   'copy': 'コピー',
   'delete-column': '列 消去',
