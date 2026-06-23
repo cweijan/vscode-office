@@ -72,16 +72,18 @@ export class GitActions {
                 }
             }
 
-            const pullArgs = ['pull'];
-            if (options?.noFastForward) {
-                pullArgs.push('--no-ff');
+            if (remote) {
+                const pullArgs = ['pull'];
+                if (options?.noFastForward) {
+                    pullArgs.push('--no-ff');
+                }
+                if (options?.squash) {
+                    pullArgs.push('--squash');
+                }
+                pullArgs.push(remote, branch);
+                await this.executor.spawn(pullArgs, repo, () => null);
+                await this.executor.spawn(['push', remote, branch], repo, () => null);
             }
-            if (options?.squash) {
-                pullArgs.push('--squash');
-            }
-            pullArgs.push(remote, branch);
-            await this.executor.spawn(pullArgs, repo, () => null);
-            await this.executor.spawn(['push', remote, branch], repo, () => null);
             return null;
         } catch (e) {
             return e instanceof Error ? e.message : String(e);

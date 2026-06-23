@@ -99,13 +99,12 @@ export default function FindWidget({
         ? matches.indices.indexOf(currentIndex)
         : position;
 
+    const noResults = !regexError && text.trim() !== '' && matches.indices.length === 0;
     const positionLabel = regexError
         ? 'Invalid regex'
         : matches.indices.length > 0 && activePosition >= 0
             ? `${activePosition + 1} of ${matches.indices.length}`
-            : text.trim()
-                ? 'No Results'
-                : '';
+            : 'No Results';
 
     return (
         <div className={`git-graph-find-widget${regexError ? ' error' : ''}`} role="search">
@@ -146,7 +145,7 @@ export default function FindWidget({
                     </button>
                 </div>
             </div>
-            <span className="git-graph-find-position" title={regexError ?? undefined}>{positionLabel}</span>
+            <span className={`git-graph-find-position${noResults ? ' no-results' : ''}`} title={regexError ?? undefined}>{positionLabel}</span>
             <button
                 type="button"
                 className="git-graph-icon-btn"

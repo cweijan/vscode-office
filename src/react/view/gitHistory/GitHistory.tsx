@@ -825,29 +825,31 @@ function GitHistoryView({
         if (!repo || !branchHead) {
             return;
         }
-        if (remotes.length === 0) {
-            setError('No remotes configured.');
-            return;
-        }
         if (branchHead.startsWith('(HEAD detached')) {
             setError('Cannot quick sync in detached HEAD state.');
             return;
         }
+        const hasUncommitted = commits[0]?.hash === UNCOMMITTED;
+        const hasRemote = remotes.length > 0;
         setToolbarPromptKind('quickSyncConfirm');
         setToolbarPrompt({
             kind: 'form',
             id: 'quickSync',
             title: 'Quick Sync',
-            message: 'Uncommitted changes will be committed, then the branch will be pulled and pushed.',
+            message: hasUncommitted
+                ? hasRemote
+                    ? 'Uncommitted changes will be committed, then the branch will be pulled and pushed.'
+                    : 'Uncommitted changes will be committed locally.'
+                : `Pull and push "${branchHead}" to remote.`,
             submitLabel: 'Sync',
-            fields: [
-                {
+            fields: hasUncommitted
+                ? [{
                     type: 'text',
                     id: 'commitMessage',
                     label: 'Commit message',
                     defaultValue: QUICK_SYNC_DEFAULT_MESSAGE,
-                },
-            ],
+                }]
+                : [],
         });
     };
 
@@ -994,6 +996,34 @@ function GitHistoryView({
         }
     }, []);
 
+    const navigateCommitDetails = useCallback((direction: -1 | 1) => {
+        if (!repo || selectedIndex === null || !detailAnchor) {
+            return false;
+        }
+        const nextIndex = selectedIndex + direction;
+        if (nextIndex < 0 || nextIndex >= commits.length) {
+            return false;
+        }
+        const nextCommit = commits[nextIndex];
+        if (!nextCommit) {
+            return false;
+        }
+
+        setSelectedIndex(nextIndex);
+        scrollToCommitIndex(nextIndex);
+        updateDetailAnchorFromRow(nextIndex);
+        requestCommitDetails(repo, nextCommit);
+        return true;
+    }, [
+        repo,
+        selectedIndex,
+        detailAnchor,
+        commits,
+        scrollToCommitIndex,
+        updateDetailAnchorFromRow,
+        requestCommitDetails,
+    ]);
+
     const handleFindNavigate = useCallback((index: number | null) => {
         setFindMatchIndex(index);
     }, []);
@@ -1016,6 +1046,22 @@ function GitHistoryView({
             if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
                 e.preventDefault();
                 handleToggleFindRef.current();
+                return;
+            }
+            if (
+                selectedIndex !== null
+                && detailAnchor
+                && !menu
+                && !toolbarPrompt
+                && !remoteForm
+                && !remoteDeleteName
+                && !findOpen
+                && !settingsOpen
+                && (e.key === 'ArrowUp' || e.key === 'ArrowDown')
+            ) {
+                if (navigateCommitDetails(e.key === 'ArrowUp' ? -1 : 1)) {
+                    e.preventDefault();
+                }
                 return;
             }
             if (e.key !== 'Escape') {
@@ -1056,6 +1102,7 @@ function GitHistoryView({
         settingsOpen,
         selectedIndex,
         detailAnchor,
+        navigateCommitDetails,
         closeMenu,
         closeCommitDetails,
     ]);
@@ -1330,7 +1377,7 @@ function GitHistoryView({
                     onAddRemote={() => handleRemoteAction('add')}
                     onEditRemote={(name) => handleRemoteAction('edit', name)}
                     onDeleteRemote={(name) => handleRemoteAction('delete', name)}
-                    canQuickSync={Boolean(repo && branchHead && !branchHead.startsWith('(HEAD detached') && remotes.length > 0)}
+                    canQuickSync={Boolean(repo && branchHead && !branchHead.startsWith('(HEAD detached'))}
                     syncing={syncing}
                     fetching={fetching}
                     pushing={pushing}
@@ -1382,6 +1429,7 @@ function GitHistoryView({
                     anchor={detailAnchor}
                     containerRef={viewRef}
                     repo={repo}
+                    commit={commits[selectedIndex]}
                     commitHash={commits[selectedIndex].hash}
                     hasParents={commits[selectedIndex].parents.length > 0}
                     details={commitDetails}

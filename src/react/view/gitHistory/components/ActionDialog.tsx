@@ -561,7 +561,7 @@ export default function ActionDialog({
             }
             onSubmit(value);
         };
-        const pickDoubleSubmit = step.variant === 'pushRemote' || step.variant === 'openRemote'
+        const pickDoubleSubmit = step.variant === 'pushRemote' || step.variant === 'openRemote' || step.variant === 'resetMode'
             ? submitPick
             : undefined;
         const pickExtras = step.fields

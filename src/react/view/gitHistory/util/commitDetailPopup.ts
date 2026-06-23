@@ -48,7 +48,7 @@ export function computeAnchoredDialogPosition(
     const maxTop = Math.max(POPUP_MARGIN, viewport.height - height - POPUP_MARGIN);
     const top = Math.min(Math.max(rawTop, POPUP_MARGIN), maxTop);
     const maxLeft = Math.max(POPUP_MARGIN, viewport.width - width - POPUP_MARGIN);
-    const preferredLeft = anchor.centerHorizontally ? anchor.x - width / 2 : anchor.x - 50;
+    const preferredLeft = anchor.x - width / 2;
     const left = Math.min(Math.max(preferredLeft, POPUP_MARGIN), maxLeft);
     return { left, top };
 }

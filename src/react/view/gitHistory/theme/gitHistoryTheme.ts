@@ -179,6 +179,7 @@ function buildAdaptiveGitHistoryTheme(): GitHistoryTheme {
         '--git-graph-toolbar-btn-sync': getVscodeThemeColor('--vscode-terminal-ansiCyan', '#0598bc'),
         '--git-graph-reset-option-accent': getVscodeThemeColor('--vscode-terminal-ansiYellow', '#d7ba7d'),
     };
+    cssVars['--git-graph-detail-text'] = cssVars['--git-graph-fg'];
 
     applyBranchColourVars(cssVars, branchColours);
 
@@ -196,6 +197,7 @@ function buildLightGitHistoryTheme(): GitHistoryTheme {
         '--git-graph-bg': '#ffffff',
         '--git-graph-fg': '#333333',
         '--git-graph-muted': '#666666',
+        '--git-graph-detail-text': '#4a4a4a',
         '--git-graph-border': '#d9d9d9',
         '--git-graph-toolbar-bg': '#e8e8e8',
         '--git-graph-settings-bg': '#f0f0f0',
