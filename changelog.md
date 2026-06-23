@@ -1,43 +1,52 @@
 # Change log
 
-# 4.0.5
+# 4.0.5 2026-6-23
+
+Important: **Refactor Markdown editor**: beautified UI with modernized toolbar, in-page search (Ctrl/Cmd+F), and real-time code block editing
+
+
+Other:
 
 - Update Material Icons
 - Add Kusto (KQL) syntax highlighting
-- Refactor Markdown editor: beautified UI with modernized toolbar, in-page search (Ctrl/Cmd+F), and real-time code block editing
 - Beautify Git history view: refreshed styling and a commit details panel
 - Support batch Git operations: push branches, add tags, and delete tags across multiple remotes in one action
 
 # 4.0.4 2026-6-19
 
 New:
-  - Add Kotlin syntax highlighting
-  - Add Nginx conf syntax highlighting
-  - Add anonymous usage telemetry (respects VS Code global telemetry settings)
+
+- Add Kotlin syntax highlighting
+- Add Nginx conf syntax highlighting
+- Add anonymous usage telemetry (respects VS Code global telemetry settings)
 
 Update:
-  - Beautify the SVG and PDF view
-  - Hide sponsor banner in Excel view while loading
-  - Refresh Git history after deleting filtered branches
+
+- Beautify the SVG and PDF view
+- Hide sponsor banner in Excel view while loading
+- Refresh Git history after deleting filtered branches
 
 # 4.0.3 2026-6-18
 
 Important:
+
 - Redesign the One Dark Modern theme
 - Add Git history management feature
 
 New:
-  - Add SVG editor
-  - Add support for ODS format
-  - Add syntax highlighting for TOML
-  - Add YAML outline and anchor navigation support
+
+- Add SVG editor
+- Add support for ODS format
+- Add syntax highlighting for TOML
+- Add YAML outline and anchor navigation support
 
 Update:
-  - Add dark mode toggle to PDF viewer
-  - Update markdown editor default theme
-  - Add icons for Parquet, SQLite, and DuckDB
-  - Change the default PPTX view to light mode
-  - Support quick switch color in markdown editor
+
+- Add dark mode toggle to PDF viewer
+- Update markdown editor default theme
+- Add icons for Parquet, SQLite, and DuckDB
+- Change the default PPTX view to light mode
+- Support quick switch color in markdown editor
 
 # 4.0.2 2026-6-15
 
