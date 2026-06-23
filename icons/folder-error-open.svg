@@ -1,7 +1,1 @@
-<svg style="enable-background:new 0 0 24 24" version="1.1" viewBox="0 0 24 24" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
-<style type="text/css">
-	.st0{fill:#FF5252;}
-	.st1{fill:#FFCDD2;}
-</style>
-<path class="st0" d="m19 20h-15c-1.1 0-2-.9-2-2v-12c0-1.1.9-2 2-2h6l2 2h7c1.1 0 2 .9 2 2h-17v10l2.1-8h17.1l-2.3 8.5c-.2.9-1 1.5-1.9 1.5z" style="fill:#ef5350"/>
-<path d="m17.79 15.89h-1.18v-3.54h1.18m0 5.9h-1.18v-1.18h1.18m-.59-7.67a5.9 5.9 0 0 0-5.9 5.9 5.9 5.9 0 0 0 5.9 5.9 5.9 5.9 0 0 0 5.9-5.9 5.9 5.9 0 0 0-5.9-5.9z" style="fill:#ffcdd2;stroke-width:.59"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path id="folder" fill="#ef5350" d="M14.483 6H4.721a1 1 0 0 0-.949.684L2 12V5h12a1 1 0 0 0-1-1H7.562a1 1 0 0 1-.64-.232l-.644-.536A1 1 0 0 0 5.638 3H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h11l2.403-5.606A1 1 0 0 0 14.483 6" /><path id="motive" fill="#ffcdd2" d="M12.5 7a3.5 3.5 0 1 0 3.5 3.5A3.5 3.5 0 0 0 12.5 7m.5 1v3h-1V8Zm-1 5v-1h1v1z"/></svg>

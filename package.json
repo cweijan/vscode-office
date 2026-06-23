@@ -64,7 +64,7 @@
 		"iconThemes": [
 			{
 				"id": "office-material-icon-theme",
-				"label": "Office Material Icon Theme",
+				"label": "Material Icon Theme (Office Viewer)",
 				"path": "./theme/material-icons.json",
 				"_watch": true
 			}
