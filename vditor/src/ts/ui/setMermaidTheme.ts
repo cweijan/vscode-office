@@ -16,11 +16,9 @@ export const normalizeMermaidThemeId = (theme?: string) => {
     if (!theme || theme === "default") {
         return MERMAID_THEME_AUTO;
     }
-    if (theme === "light") {
-        return "Light";
-    }
-    if (theme === "dark") {
-        return "Dark";
+    const normalized = MERMAID_THEME_IDS.find((themeId) => themeId.toLowerCase() === theme.toLowerCase());
+    if (normalized) {
+        return normalized;
     }
     return MERMAID_THEME_IDS.includes(theme) ? theme : MERMAID_THEME_AUTO;
 };

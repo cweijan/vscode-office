@@ -612,7 +612,13 @@
 						"enum": [
 							"Auto",
 							"Light",
-							"Dark"
+							"Forest",
+							"Ocean",
+							"Sunset",
+							"Dark",
+							"Dracula",
+							"Monokai",
+							"Nord"
 						],
 						"default": "Auto",
 						"markdownDescription": "Mermaid diagram theme in the Markdown editor. Auto follows the editor theme."

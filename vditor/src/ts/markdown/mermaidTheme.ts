@@ -8,6 +8,92 @@ export interface IEditorAccentColors {
     foreground: string;
 }
 
+interface IMermaidThemePalette {
+    background: string;
+    panel: string;
+    foreground: string;
+    muted: string;
+    border: string;
+    accent: string;
+    secondary: string;
+    tertiary: string;
+    note: string;
+    warning: string;
+    error: string;
+    darkMode?: boolean;
+}
+
+const CUSTOM_MERMAID_THEMES: Record<string, IMermaidThemePalette> = {
+    Ocean: {
+        background: "#f3fbff",
+        panel: "#ffffff",
+        foreground: "#183042",
+        muted: "#5c7485",
+        border: "#9bc9dc",
+        accent: "#147fb5",
+        secondary: "#53c2c5",
+        tertiary: "#8ea7ff",
+        note: "#d9f3ff",
+        warning: "#f2b84b",
+        error: "#d25b6a",
+    },
+    Sunset: {
+        background: "#fff8f0",
+        panel: "#ffffff",
+        foreground: "#3d261f",
+        muted: "#8a6556",
+        border: "#e3b69b",
+        accent: "#d96c2c",
+        secondary: "#f0a03f",
+        tertiary: "#c46fa1",
+        note: "#ffe4bd",
+        warning: "#d99b25",
+        error: "#c24645",
+    },
+    Dracula: {
+        background: "#282a36",
+        panel: "#343746",
+        foreground: "#f8f8f2",
+        muted: "#bdc1d6",
+        border: "#6272a4",
+        accent: "#bd93f9",
+        secondary: "#8be9fd",
+        tertiary: "#ff79c6",
+        note: "#44475a",
+        warning: "#f1fa8c",
+        error: "#ff5555",
+        darkMode: true,
+    },
+    Monokai: {
+        background: "#272822",
+        panel: "#35362f",
+        foreground: "#f8f8f2",
+        muted: "#cfcfc2",
+        border: "#75715e",
+        accent: "#a6e22e",
+        secondary: "#66d9ef",
+        tertiary: "#ae81ff",
+        note: "#49483e",
+        warning: "#e6db74",
+        error: "#f92672",
+        darkMode: true,
+    },
+    Nord: {
+        background: "#2e3440",
+        panel: "#3b4252",
+        foreground: "#eceff4",
+        muted: "#d8dee9",
+        border: "#4c566a",
+        accent: "#88c0d0",
+        secondary: "#8fbcbb",
+        tertiary: "#b48ead",
+        note: "#434c5e",
+        warning: "#ebcb8b",
+        error: "#bf616a",
+        darkMode: true,
+    },
+};
+
 const readCssVar = (root: HTMLElement, name: string, fallback = ""): string => {
     const value = getComputedStyle(root).getPropertyValue(name).trim();
     return value || fallback;
@@ -73,7 +159,103 @@ export const buildMermaidInitConfig = (themeId: string, root: HTMLElement) => {
     if (themeId === "Dark") {
         return { theme: "dark" };
     }
+    if (themeId === "Forest") {
+        return { theme: "forest" };
+    }
+    const customTheme = CUSTOM_MERMAID_THEMES[themeId];
+    if (customTheme) {
+        return buildCustomMermaidThemeConfig(customTheme);
+    }
     return buildMermaidThemeConfig(root);
+};
+
+const buildCustomMermaidThemeConfig = (palette: IMermaidThemePalette) => {
+    const contrastColor = (bg: string): string => isDarkBackground(bg) ? "#ffffff" : "#1f2020";
+    const dark = palette.darkMode ?? isDarkBackground(palette.background);
+    const noteText = contrastColor(palette.note);
+
+    return {
+        theme: "base",
+        themeVariables: {
+            activationBkgColor: palette.accent,
+            activationBorderColor: palette.accent,
+            activeTaskBkgColor: palette.accent,
+            activeTaskBorderColor: palette.accent,
+            actorBkg: palette.panel,
+            actorBorder: palette.accent,
+            actorLineColor: palette.muted,
+            actorTextColor: palette.foreground,
+            altBackground: palette.note,
+            altSectionBkgColor: palette.warning,
+            arrowheadColor: palette.muted,
+            background: palette.background,
+            border1: palette.accent,
+            border2: palette.border,
+            classText: palette.foreground,
+            clusterBkg: palette.tertiary,
+            clusterTextColor: contrastColor(palette.tertiary),
+            clusterBorder: palette.accent,
+            critBkgColor: palette.error,
+            critBorderColor: palette.error,
+            darkMode: dark,
+            defaultLinkColor: palette.accent,
+            doneTaskBkgColor: palette.muted,
+            doneTaskBorderColor: palette.border,
+            edgeLabelBackground: palette.background,
+            errorBkgColor: palette.error,
+            errorTextColor: contrastColor(palette.error),
+            fillType0: palette.panel,
+            fillType1: palette.accent,
+            fillType2: palette.tertiary,
+            fillType3: palette.secondary,
+            fillType4: palette.note,
+            fillType5: palette.warning,
+            fillType6: palette.error,
+            fillType7: palette.tertiary,
+            fontFamily: "sans-serif",
+            fontSize: "16px",
+            gridColor: palette.border,
+            labelBackground: palette.background,
+            labelBoxBkgColor: palette.panel,
+            labelBoxBorderColor: palette.accent,
+            labelColor: palette.foreground,
+            labelTextColor: palette.foreground,
+            lineColor: palette.muted,
+            loopTextColor: palette.warning,
+            mainBkg: palette.panel,
+            mainContrastColor: palette.foreground,
+            nodeBkg: palette.panel,
+            nodeBorder: palette.accent,
+            noteBkgColor: palette.note,
+            noteBorderColor: palette.warning,
+            noteTextColor: noteText,
+            primaryBorderColor: palette.accent,
+            primaryColor: palette.panel,
+            primaryTextColor: palette.foreground,
+            secondBkg: palette.secondary,
+            secondaryBorderColor: palette.accent,
+            secondaryColor: palette.accent,
+            secondaryTextColor: contrastColor(palette.accent),
+            sectionBkgColor: palette.note,
+            sectionBkgColor2: palette.warning,
+            sequenceNumberColor: contrastColor(palette.accent),
+            signalColor: palette.accent,
+            signalTextColor: palette.foreground,
+            taskBkgColor: palette.secondary,
+            taskBorderColor: palette.accent,
+            taskTextClickableColor: palette.accent,
+            taskTextColor: contrastColor(palette.secondary),
+            taskTextDarkColor: "#1f2020",
+            taskTextLightColor: "#ffffff",
+            taskTextOutsideColor: palette.foreground,
+            tertiaryBorderColor: palette.tertiary,
+            tertiaryColor: palette.tertiary,
+            tertiaryTextColor: contrastColor(palette.tertiary),
+            textColor: palette.foreground,
+            titleColor: palette.accent,
+            todayLineColor: palette.error,
+        },
+    };
 };
 
 export const buildMermaidThemeConfig = (root: HTMLElement) => {

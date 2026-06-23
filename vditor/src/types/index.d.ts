@@ -36,7 +36,16 @@ type ICodeMirrorTheme =
     "One Dark" |
     "Solarized Dark" |
     "Material Dark";
-type IMermaidTheme = "Auto" | "Light" | "Dark";
+type IMermaidTheme =
+    "Auto" |
+    "Light" |
+    "Forest" |
+    "Ocean" |
+    "Sunset" |
+    "Dark" |
+    "Dracula" |
+    "Monokai" |
+    "Nord";
 
 interface ILuteNode {
     TokensStr: () => string;

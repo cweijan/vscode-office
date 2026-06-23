@@ -13,11 +13,11 @@ export const MERMAID_THEME_GROUPS: IMermaidThemeGroup[] = [
     },
     {
         titleKey: "mermaid-theme-section-light",
-        themes: ["Light"],
+        themes: ["Light", "Forest", "Ocean", "Sunset"],
     },
     {
         titleKey: "mermaid-theme-section-dark",
-        themes: ["Dark"],
+        themes: ["Dark", "Dracula", "Monokai", "Nord"],
     },
 ];
 
