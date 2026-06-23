@@ -135,6 +135,7 @@ function GitHistoryView({
     const [hasRemoteUrl, setHasRemoteUrl] = useState(false);
     const [remoteWebUrls, setRemoteWebUrls] = useState<{ name: string; url: string }[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [isExecutingAction, setIsExecutingAction] = useState(false);
     const [moreAvailable, setMoreAvailable] = useState(false);
     const [maxCommits, setMaxCommits] = useState(INITIAL_MAX_COMMITS);
     const [filePath, setFilePath] = useState<string | null>(null);
@@ -168,6 +169,7 @@ function GitHistoryView({
 
     const executeGitAction = useCallback((action: GitActionRequest) => {
         pendingGitActionRef.current = action;
+        setIsExecutingAction(true);
         handler.emit('gitAction', action);
     }, []);
 
@@ -177,6 +179,7 @@ function GitHistoryView({
         requestAction,
         submitStep: submitActionPrompt,
         cancelPrompt: cancelActionPrompt,
+        completeExecution,
     } = useGitActionPrompt(executeGitAction);
 
     const promptAnchorRef = useRef<PopupAnchor | null>(null);
@@ -658,6 +661,8 @@ function GitHistoryView({
                 setError(message);
             })
             .on('gitActionResult', (result: { error: string | null; refresh: boolean }) => {
+                completeExecution();
+                setIsExecutingAction(false);
                 const pendingAction = pendingGitActionRef.current;
                 pendingGitActionRef.current = null;
                 if (result.error) {
@@ -777,31 +782,27 @@ function GitHistoryView({
             setError('No remotes configured.');
             return;
         }
-        const forceField = { type: 'checkbox' as const, id: 'force', label: 'Force Push', defaultValue: false };
+        const remoteFields = remotes.map((remote, index) => ({
+            type: 'checkbox' as const,
+            id: `remote_${remote}`,
+            label: remote,
+            defaultValue: index === 0,
+        }));
         setToolbarPromptAnchor(anchorFromMouseEvent(event, true, true));
         setToolbarPromptKind('push');
-        if (remotes.length > 1) {
-            setToolbarPrompt({
-                kind: 'pick',
-                id: 'remote',
-                title: 'Push Branch',
-                message: `Push "${branchHead}" to remote`,
-                variant: 'pushRemote',
-                submitLabel: 'Push',
-                options: remotes.map((remote) => ({ value: remote, label: remote })),
-                fields: [forceField],
-            });
-            return;
-        }
         setToolbarPrompt({
-            kind: 'pick',
-            id: 'remote',
+            kind: 'form',
+            id: 'pushBranch',
             title: 'Push Branch',
-            message: `Push "${branchHead}" to ${remotes[0]}`,
-            variant: 'pushRemote',
+            variant: 'pushBranch' as any,
+            message: remotes.length > 1
+                ? `Push "${branchHead}" to remote`
+                : `Push "${branchHead}" to ${remotes[0]}`,
             submitLabel: 'Push',
-            options: [],
-            fields: [forceField],
+            fields: [
+                ...remoteFields,
+                { type: 'checkbox', id: 'force', label: 'Force Push', defaultValue: false },
+            ],
         });
     };
 
@@ -961,8 +962,8 @@ function GitHistoryView({
             return;
         }
         if (kind === 'push' && repo && branchHead && typeof value !== 'string') {
-            const remote = value.remote || remotes[0];
-            if (!remote) {
+            const selectedRemotes = remotes.filter((remote) => value[`remote_${remote}`] === 'yes');
+            if (selectedRemotes.length === 0) {
                 return;
             }
             setPushing(true);
@@ -970,7 +971,8 @@ function GitHistoryView({
             handler.emit('push', {
                 repo,
                 branch: branchHead,
-                remote,
+                remotes: selectedRemotes,
+                remote: selectedRemotes[0],
                 force: value.force === 'yes',
             });
         } else if (kind === 'openRemote' && typeof value === 'string') {
@@ -1391,6 +1393,7 @@ function GitHistoryView({
                     anchor={actionPromptAnchor}
                     onCancel={cancelActionPrompt}
                     onSubmit={submitActionPrompt}
+                    isExecuting={isExecutingAction}
                 />
             )}
             {toolbarPrompt && (

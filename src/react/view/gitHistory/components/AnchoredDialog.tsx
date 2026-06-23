@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Spin } from 'antd';
 import type { PopupAnchor } from '../util/commitDetailPopup';
 import { useAnchoredDialogPosition } from '../hooks/useAnchoredDialogPosition';
 
@@ -41,6 +42,8 @@ interface AnchoredDialogActionsProps {
     primaryLabel: string;
     onPrimary: () => void;
     primaryDisabled?: boolean;
+    primaryDanger?: boolean;
+    isLoading?: boolean;
     onCancel: () => void;
     cancelLabel?: string;
 }
@@ -49,6 +52,8 @@ export function AnchoredDialogActions({
     primaryLabel,
     onPrimary,
     primaryDisabled = false,
+    primaryDanger = false,
+    isLoading = false,
     onCancel,
     cancelLabel = 'Cancel',
 }: AnchoredDialogActionsProps) {
@@ -56,16 +61,19 @@ export function AnchoredDialogActions({
         <div className="git-graph-anchored-dialog-actions">
             <button
                 type="button"
-                className="git-graph-anchored-dialog-btn primary"
-                disabled={primaryDisabled}
+                className={`git-graph-anchored-dialog-btn primary${primaryDanger ? ' danger' : ''}`}
+                disabled={primaryDisabled || isLoading}
                 onClick={onPrimary}
+                style={isLoading ? { display: 'inline-flex', alignItems: 'center', gap: 6 } : undefined}
             >
+                {isLoading && <Spin size="small" />}
                 {primaryLabel}
             </button>
             <button
                 type="button"
                 className="git-graph-anchored-dialog-btn"
                 onClick={onCancel}
+                disabled={isLoading}
             >
                 {cancelLabel}
             </button>

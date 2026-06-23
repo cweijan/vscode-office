@@ -107,8 +107,8 @@ export function buildRemoteBranchContextMenu(
 
 export function buildTagContextMenu(tagName: string, ctx: MenuContext): ContextMenuItem[] {
     return [
-        { id: 'deleteTag', label: 'Delete Tag' },
         { id: 'pushTag', label: 'Push Tag', disabled: ctx.remotes.length === 0 },
+        { id: 'deleteTag', label: 'Delete Tag' },
         ...sep([{ id: 'copyTag', label: 'Copy Tag Name' }]),
     ].map((item) => ({ ...item, _tag: tagName })) as ContextMenuItem[];
 }
@@ -224,7 +224,7 @@ export function runContextMenuAction(
             break;
         case 'pushBranch':
             if (ctx.remotes[0]) {
-                emit({ action: 'pushBranch', repo, branch: meta._branch!, remote: ctx.remotes[0] });
+                emit({ action: 'pushBranch', repo, branch: meta._branch!, remote: ctx.remotes[0], remotes: ctx.remotes });
             }
             break;
         case 'copyBranch':
@@ -257,12 +257,10 @@ export function runContextMenuAction(
             emit({ action: 'merge', repo, ref: meta._ref!, mergeOn: 'branch' });
             break;
         case 'deleteTag':
-            emit({ action: 'deleteTag', repo, tag: meta._tag! });
+            emit({ action: 'deleteTag', repo, tag: meta._tag!, remotes: ctx.remotes });
             break;
         case 'pushTag':
-            if (ctx.remotes[0]) {
-                emit({ action: 'pushTag', repo, tag: meta._tag!, remote: ctx.remotes[0] });
-            }
+            emit({ action: 'pushTag', repo, tag: meta._tag!, remote: ctx.remotes[0] ?? '', remotes: ctx.remotes });
             break;
         case 'copyTag':
             emit({ action: 'copyToClipboard', text: meta._tag ?? '' });

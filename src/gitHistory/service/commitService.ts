@@ -15,6 +15,13 @@ import type {
 } from '../types/git';
 import { UNCOMMITTED } from '../types/git';
 import type { GitExecutor } from './gitExecutor';
+import {
+    findConfiguredRemote,
+    matchesRemoteBranchListPrefix,
+    matchesRemoteRefPrefix,
+    normalizeGitBranchListName,
+    normalizeRemoteRefBranchName,
+} from '../util/remoteRefNames';
 
 const GIT_LOG_SEPARATOR = '---GIT_LOG_SEPARATOR---';
 const EOL_REGEX = /\r\n|\r|\n/;
@@ -65,8 +72,8 @@ export class CommitService {
             this.getRemotes(repo),
             showStashes ? this.getStashes(repo) : Promise.resolve([] as GitStash[]),
         ]).then(([branchData, remotes, stashes]) => ({
-            branches: branchData.branches,
-            head: branchData.head,
+            branches: branchData.branches.map((branch) => normalizeGitBranchListName(branch, remotes)),
+            head: branchData.head ? normalizeGitBranchListName(branchData.head, remotes) : branchData.head,
             remotes,
             stashes,
             authors: [],
@@ -154,8 +161,8 @@ export class CommitService {
                     showTags,
                 }).then((commitData) => ({
                     repoInfo: {
-                        branches: branchData.branches,
-                        head: branchData.head,
+                        branches: branchData.branches.map((branch) => normalizeGitBranchListName(branch, remotes)),
+                        head: branchData.head ? normalizeGitBranchListName(branchData.head, remotes) : branchData.head,
                         remotes,
                         stashes,
                         authors: [],
@@ -293,8 +300,11 @@ export class CommitService {
         for (let i = 0; i < refData.remotes.length; i++) {
             const idx = commitLookup[refData.remotes[i].hash];
             if (typeof idx === 'number') {
-                const name = refData.remotes[i].name;
-                const remote = remotes.find((r) => name.startsWith(r + '/')) ?? null;
+                const name = normalizeRemoteRefBranchName(refData.remotes[i].name, remotes);
+                const slashIdx = name.indexOf('/');
+                const remote = slashIdx >= 0
+                    ? findConfiguredRemote(name.substring(0, slashIdx), remotes)
+                    : null;
                 (commitNodes[idx] as { remotes: GitCommit['remotes'] }).remotes.push({
                     name,
                     remote,
@@ -454,8 +464,6 @@ export class CommitService {
         if (!showRemoteBranches) args.push('--heads', '--tags');
         args.push('-d', '--head');
 
-        const hideRemotePatterns = hideRemotes.map((r) => 'refs/remotes/' + r + '/');
-
         return this.executor.spawn(args, repo, (stdout) => {
             const refData: GitRefData = { head: null, heads: [], tags: [], remotes: [] };
             const lines = stdout.split(EOL_REGEX);
@@ -475,7 +483,7 @@ export class CommitService {
                         annotated,
                     });
                 } else if (ref.startsWith('refs/remotes/')) {
-                    if (!hideRemotePatterns.some((p) => ref.startsWith(p)) && !ref.endsWith('/HEAD')) {
+                    if (!hideRemotes.some((remote) => matchesRemoteRefPrefix(ref, remote)) && !ref.endsWith('/HEAD')) {
                         refData.remotes.push({ hash, name: ref.substring(13) });
                     }
                 } else if (ref === 'HEAD') {
@@ -495,8 +503,6 @@ export class CommitService {
         if (showRemoteBranches) args.push('-a');
         args.push('--no-color');
 
-        const hideRemotePatterns = hideRemotes.map((r) => 'remotes/' + r + '/');
-
         return this.executor.spawn(args, repo, (stdout) => {
             const branches: string[] = [];
             let head: string | null = null;
@@ -504,7 +510,7 @@ export class CommitService {
             for (let i = 0; i < lines.length - 1; i++) {
                 const name = lines[i].substring(2).split(' -> ')[0];
                 if (INVALID_BRANCH_REGEXP.test(name)) continue;
-                if (hideRemotePatterns.some((p) => name.startsWith(p))) continue;
+                if (hideRemotes.some((remote) => matchesRemoteBranchListPrefix(name, remote))) continue;
                 if (REMOTE_HEAD_BRANCH_REGEXP.test(name)) continue;
                 if (lines[i][0] === '*') {
                     head = name;

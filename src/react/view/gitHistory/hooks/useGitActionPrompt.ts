@@ -14,6 +14,7 @@ interface PromptState {
     stepIndex: number;
     answers: Record<string, string>;
     anchor?: PopupAnchor;
+    executing?: boolean;
 }
 
 interface PromptContext {
@@ -55,6 +56,17 @@ export function useGitActionPrompt(
                 const resolved = resolveGitActionPayload(current.base, answers);
                 if (resolved) {
                     onExecute(resolved);
+                    return { ...current, executing: true };
+                }
+                return null;
+            }
+
+            if (step.kind === 'confirm' && step.fields?.length && typeof value !== 'string') {
+                const answers = { ...current.answers, ...value };
+                const resolved = resolveGitActionPayload(current.base, answers);
+                if (resolved) {
+                    onExecute(resolved);
+                    return { ...current, executing: true };
                 }
                 return null;
             }
@@ -64,6 +76,7 @@ export function useGitActionPrompt(
                 const resolved = resolveGitActionPayload(current.base, answers);
                 if (resolved) {
                     onExecute(resolved);
+                    return { ...current, executing: true };
                 }
                 return null;
             }
@@ -85,10 +98,15 @@ export function useGitActionPrompt(
             const resolved = resolveGitActionPayload(current.base, answers);
             if (resolved) {
                 onExecute(resolved);
+                return { ...current, executing: true };
             }
             return null;
         });
     }, [onExecute]);
+
+    const completeExecution = useCallback(() => {
+        setPrompt(null);
+    }, []);
 
     const currentStep = prompt ? prompt.steps[prompt.stepIndex] ?? null : null;
     const promptAnchor = prompt?.anchor ?? null;
@@ -99,5 +117,6 @@ export function useGitActionPrompt(
         requestAction,
         submitStep,
         cancelPrompt,
+        completeExecution,
     };
 }

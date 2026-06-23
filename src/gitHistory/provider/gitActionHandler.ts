@@ -64,14 +64,14 @@ export class GitActionHandler {
                         squash: payload.squash,
                     },
                 );
-            case 'pushBranch':
-                return this.commands.pushBranch(
-                    payload.repo,
-                    payload.remote,
-                    payload.branch,
-                    true,
-                    payload.force,
-                );
+            case 'pushBranch': {
+                const targets = payload.remotes?.length ? payload.remotes : (payload.remote ? [payload.remote] : []);
+                for (const remote of targets) {
+                    const err = await this.commands.pushBranch(payload.repo, remote, payload.branch, true, payload.force);
+                    if (err) return err;
+                }
+                return null;
+            }
             case 'merge':
                 return this.commands.merge(
                     payload.repo,
@@ -110,10 +110,23 @@ export class GitActionHandler {
                 }
                 return null;
             }
-            case 'deleteTag':
-                return this.commands.deleteTag(payload.repo, payload.tag);
-            case 'pushTag':
-                return this.commands.pushTag(payload.repo, payload.tag, payload.remote);
+            case 'deleteTag': {
+                const deleteErr = await this.commands.deleteTag(payload.repo, payload.tag);
+                if (deleteErr) return deleteErr;
+                for (const remote of (payload.deleteFromRemotes ?? [])) {
+                    const err = await this.commands.pushTag(payload.repo, `:refs/tags/${payload.tag}`, remote);
+                    if (err) return err;
+                }
+                return null;
+            }
+            case 'pushTag': {
+                const targets = payload.remotes?.length ? payload.remotes : (payload.remote ? [payload.remote] : []);
+                for (const remote of targets) {
+                    const err = await this.commands.pushTag(payload.repo, payload.tag, remote);
+                    if (err) return err;
+                }
+                return null;
+            }
             case 'applyStash':
                 return this.commands.applyStash(payload.repo, payload.selector);
             case 'popStash':

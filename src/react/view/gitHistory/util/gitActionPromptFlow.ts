@@ -13,6 +13,7 @@ export type PromptStep =
         danger?: boolean;
         variant?: 'revertCommit';
         commitHash?: string;
+        fields?: FormField[];
     }
     | {
         kind: 'input';
@@ -105,29 +106,25 @@ export function getPromptSteps(
                 danger: true,
             }];
         case 'pushBranch': {
+            const remoteFields: FormField[] = ctx.remotes.map((remote, index) => ({
+                type: 'checkbox' as const,
+                id: `remote_${remote}`,
+                label: remote,
+                defaultValue: index === 0,
+            }));
             const fields: FormField[] = [
+                ...remoteFields,
                 { type: 'checkbox', id: 'force', label: 'Force Push', defaultValue: false },
             ];
-            if (ctx.remotes.length > 1) {
-                return [{
-                    kind: 'pick',
-                    id: 'remote',
-                    title: 'Push Branch',
-                    message: `Push "${payload.branch}" to remote`,
-                    variant: 'pushRemote',
-                    submitLabel: 'Push',
-                    options: ctx.remotes.map((remote) => ({ value: remote, label: remote })),
-                    fields,
-                }];
-            }
             return [{
-                kind: 'pick',
-                id: 'remote',
+                kind: 'form',
+                id: 'pushBranch',
                 title: 'Push Branch',
-                message: `Push "${payload.branch}" to ${ctx.remotes[0]}`,
-                variant: 'pushRemote',
+                variant: 'pushBranch' as any,
+                message: ctx.remotes.length > 1
+                    ? `Push "${payload.branch as string}" to remote`
+                    : `Push "${payload.branch as string}" to ${ctx.remotes[0] ?? ''}`,
                 submitLabel: 'Push',
-                options: [],
                 fields,
             }];
         }
@@ -282,15 +279,42 @@ export function getPromptSteps(
                 fields,
             }];
         }
-        case 'deleteTag':
+        case 'pushTag': {
+            const remoteFields: FormField[] = ctx.remotes.map((remote, index) => ({
+                type: 'checkbox' as const,
+                id: `remote_${remote}`,
+                label: remote,
+                defaultValue: index === 0,
+            }));
+            return [{
+                kind: 'form',
+                id: 'pushTag',
+                title: `Push Tag "${payload.tag as string}"`,
+                variant: 'pushTag' as any,
+                message: ctx.remotes.length > 1
+                    ? `Push "${payload.tag as string}" to remote`
+                    : `Push "${payload.tag as string}" to ${ctx.remotes[0] ?? ''}`,
+                submitLabel: 'Push',
+                fields: remoteFields,
+            }];
+        }
+        case 'deleteTag': {
+            const remoteFields: FormField[] = ctx.remotes.map((r) => ({
+                type: 'checkbox' as const,
+                id: `remote_${r}`,
+                label: r,
+                defaultValue: false,
+            }));
             return [{
                 kind: 'confirm',
-                id: 'confirm',
+                id: 'deleteTag',
                 title: 'Delete Tag',
-                message: `Delete tag "${payload.tag}"?`,
+                message: `Delete tag "${payload.tag as string}"?`,
                 confirmLabel: 'Delete',
                 danger: true,
+                fields: remoteFields.length > 0 ? remoteFields : undefined,
             }];
+        }
         case 'dropStash':
             return [{
                 kind: 'confirm',
@@ -380,11 +404,11 @@ export function resolveGitActionPayload(
             return { ...base, newName };
         }
         case 'pushBranch': {
-            const remote = answers.remote || (base.remote as string | undefined);
-            if (!remote) {
-                return null;
-            }
-            return { ...base, remote, force: answers.force === 'yes' };
+            const allRemotes = Array.isArray(base.remotes) ? base.remotes as string[]
+                : (base.remote ? [base.remote as string] : []);
+            const selectedRemotes = allRemotes.filter((r) => answers[`remote_${r}`] === 'yes');
+            if (selectedRemotes.length === 0) return null;
+            return { ...base, remotes: selectedRemotes, remote: selectedRemotes[0], force: answers.force === 'yes' };
         }
         case 'cherryPick': {
             const parents = Array.isArray(base.parents) ? base.parents as string[] : [];
@@ -426,6 +450,18 @@ export function resolveGitActionPayload(
                 message: answers.message?.trim() ?? '',
                 pushToRemote,
             };
+        }
+        case 'pushTag': {
+            const allRemotes = Array.isArray(base.remotes) ? base.remotes as string[]
+                : (base.remote ? [base.remote as string] : []);
+            const selectedRemotes = allRemotes.filter((r) => answers[`remote_${r}`] === 'yes');
+            if (selectedRemotes.length === 0) return null;
+            return { ...base, remotes: selectedRemotes, remote: selectedRemotes[0] };
+        }
+        case 'deleteTag': {
+            const remotes = Array.isArray(base.remotes) ? base.remotes as string[] : [];
+            const deleteFromRemotes = remotes.filter((r) => answers[`remote_${r}`] === 'yes');
+            return { ...base, deleteFromRemotes };
         }
         case 'branchFromStash': {
             const branchName = answers.branchName?.trim();

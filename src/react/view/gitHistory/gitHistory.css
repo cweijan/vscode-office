@@ -1387,6 +1387,17 @@
     background: color-mix(in srgb, var(--git-graph-bg) 88%, transparent);
 }
 
+.git-graph-action-executing {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: var(--git-graph-secondary-fg, var(--vscode-foreground));
+    opacity: 0.75;
+    border-bottom: 1px solid var(--git-graph-border, transparent);
+}
+
 .git-graph-svg {
     display: block;
     margin-left: 4px;
@@ -2005,6 +2016,11 @@ body.git-graph-dialog-open {
     cursor: default;
 }
 
+.git-graph-dialog-btn.primary.danger,
+.git-graph-anchored-dialog-btn.primary.danger {
+    --git-graph-btn-accent: var(--vscode-errorForeground, #f14c4c);
+}
+
 .git-graph-create-branch-dialog,
 .git-graph-anchored-dialog {
     position: fixed;
@@ -2288,6 +2304,21 @@ body.git-graph-dialog-open {
 
 .git-graph-anchored-dialog-option:last-child {
     border-bottom: none;
+}
+
+.git-graph-anchored-dialog-option--checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+}
+
+.git-graph-anchored-dialog-option-check {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    accent-color: var(--git-graph-pick-option-accent, var(--git-graph-accent));
+    pointer-events: none;
 }
 
 .git-graph-anchored-dialog-option:hover {

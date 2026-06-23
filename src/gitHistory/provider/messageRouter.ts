@@ -67,7 +67,7 @@ export class MessageRouter {
             .on('fetch', this.wrapHandler((content) =>
                 this.onFetch((content as { repo: string }).repo)))
             .on('push', this.wrapHandler((content) =>
-                this.onPush(content as { repo: string; branch: string; remote: string; force?: boolean })))
+                this.onPush(content as { repo: string; branch: string; remote: string; remotes?: string[]; force?: boolean })))
             .on('quickSync', this.wrapHandler((content) =>
                 this.onQuickSync(content as {
                     repo: string;
@@ -326,16 +326,19 @@ export class MessageRouter {
         this.handler.emit('fetch', { error });
     }
 
-    private async onPush(payload: { repo: string; branch: string; remote: string; force?: boolean }): Promise<void> {
-        const error = await this.gitActions.pushCurrentBranch(
-            payload.repo,
-            payload.branch,
-            payload.remote,
-            payload.force,
-        );
-        if (error) {
-            this.handler.emit('push', { error, cancelled: false });
-            return;
+    private async onPush(payload: { repo: string; branch: string; remote: string; remotes?: string[]; force?: boolean }): Promise<void> {
+        const targets = payload.remotes?.length ? payload.remotes : (payload.remote ? [payload.remote] : []);
+        for (const remote of targets) {
+            const error = await this.gitActions.pushCurrentBranch(
+                payload.repo,
+                payload.branch,
+                remote,
+                payload.force,
+            );
+            if (error) {
+                this.handler.emit('push', { error, cancelled: false });
+                return;
+            }
         }
         this.invalidateRepoCache(payload.repo);
         this.handler.emit('push', { error: null, cancelled: false });

@@ -1,3 +1,4 @@
+import { Spin } from 'antd';
 import { useEffect, useState, type ReactNode } from 'react';
 import type { FormField, PromptStep, PromptSubmitValue } from '../util/gitActionPromptFlow';
 import type { PopupAnchor } from '../util/commitDetailPopup';
@@ -10,10 +11,18 @@ interface ActionDialogProps {
     anchor?: PopupAnchor | null;
     onCancel: () => void;
     onSubmit: (value: PromptSubmitValue) => void;
+    isExecuting?: boolean;
 }
 
 function abbrevHash(hash: string): string {
     return hash === '*' ? '*' : hash.substring(0, 8);
+}
+
+function isDangerStep(step: PromptStep): boolean {
+    if (step.kind === 'confirm' && step.danger) {
+        return true;
+    }
+    return step.kind === 'form' && step.variant === 'deleteBranch';
 }
 
 function buildInitialFormValues(fields: FormField[]): Record<string, string> {
@@ -215,7 +224,7 @@ function renderAnchoredOptionList(
 }
 
 export default function ActionDialog({
-    step, anchored = false, anchor, onCancel, onSubmit,
+    step, anchored = false, anchor, onCancel, onSubmit, isExecuting = false,
 }: ActionDialogProps) {
     const [inputValue, setInputValue] = useState('');
     const [pickValue, setPickValue] = useState('');
@@ -233,6 +242,10 @@ export default function ActionDialog({
             }
         } else if (step.kind === 'form') {
             setFormValues(buildInitialFormValues(step.fields));
+        } else if (step.kind === 'confirm' && step.fields) {
+            setFormValues(buildInitialFormValues(step.fields));
+        } else {
+            setFormValues({});
         }
     }, [step]);
 
@@ -265,7 +278,41 @@ export default function ActionDialog({
         } else {
             message = step.message;
         }
-        if (!anchored) {
+        if (step.fields && step.fields.length > 0) {
+            const confirmFields = (
+                <div className="git-graph-anchored-dialog-option-list accent-mode accent-push">
+                    {step.fields.map((field) => {
+                        if (field.type === 'checkbox') {
+                            return (
+                                <label
+                                    key={field.id}
+                                    className={`git-graph-anchored-dialog-option git-graph-anchored-dialog-option--checkbox${formValues[field.id] === 'yes' ? ' selected' : ''}`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        className="git-graph-anchored-dialog-option-check"
+                                        checked={formValues[field.id] === 'yes'}
+                                        onChange={(e) => setFormValues((prev) => ({ ...prev, [field.id]: e.target.checked ? 'yes' : 'no' }))}
+                                    />
+                                    <span className="git-graph-anchored-dialog-option-label">{field.label}</span>
+                                </label>
+                            );
+                        }
+                        return null;
+                    })}
+                </div>
+            );
+            if (!anchored) {
+                body = (
+                    <>
+                        <p className="git-graph-dialog-message">{step.message}</p>
+                        {confirmFields}
+                    </>
+                );
+            } else {
+                body = confirmFields;
+            }
+        } else if (!anchored) {
             body = <p className="git-graph-dialog-message">{step.message}</p>;
         }
         repositionDeps = [step.message, step.variant, step.commitHash];
@@ -327,6 +374,8 @@ export default function ActionDialog({
             primaryDisabled = !formValues.tagName?.trim();
         } else if (step.variant === 'deleteBranch' || step.variant === 'merge') {
             primaryDisabled = false;
+        } else if ((step.variant as string) === 'pushBranch' || (step.variant as string) === 'pushTag') {
+            primaryDisabled = !step.fields.some((f) => f.id.startsWith('remote_') && formValues[f.id] === 'yes');
         } else {
             primaryDisabled = step.fields.some((field) => {
                 if (field.type !== 'text') {
@@ -431,6 +480,35 @@ export default function ActionDialog({
                             </table>
                         )}
                         {renderAnchoredCheckboxList(step.fields, formValues, setFormValues)}
+                    </>
+                );
+            } else if ((step.variant as string) === 'pushBranch' || (step.variant as string) === 'pushTag') {
+                message = step.message ?? step.title;
+                const remoteFields = step.fields.filter((f) => f.id.startsWith('remote_'));
+                const otherFields = step.fields.filter((f) => !f.id.startsWith('remote_'));
+                body = (
+                    <>
+                        <div className="git-graph-anchored-dialog-option-list accent-mode accent-push">
+                            {remoteFields.map((field) => (
+                                <label
+                                    key={field.id}
+                                    className={`git-graph-anchored-dialog-option git-graph-anchored-dialog-option--checkbox${formValues[field.id] === 'yes' ? ' selected' : ''}`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        className="git-graph-anchored-dialog-option-check"
+                                        checked={formValues[field.id] === 'yes'}
+                                        onChange={(e) => setFormValues((prev) => ({ ...prev, [field.id]: e.target.checked ? 'yes' : 'no' }))}
+                                    />
+                                    <span className="git-graph-anchored-dialog-option-label">{field.label}</span>
+                                </label>
+                            ))}
+                        </div>
+                        {otherFields.length > 0 && (
+                            <div style={{ borderTop: '1px solid var(--git-graph-border, rgba(128,128,128,0.2))', marginTop: 6, paddingTop: 6 }}>
+                                {renderAnchoredCheckboxList(otherFields, formValues, setFormValues)}
+                            </div>
+                        )}
                     </>
                 );
             } else {
@@ -626,7 +704,7 @@ export default function ActionDialog({
 
     const handlePrimary = () => {
         if (step.kind === 'confirm') {
-            onSubmit('confirm');
+            onSubmit(step.fields?.length ? formValues : 'confirm');
         } else if (step.kind === 'input') {
             onSubmit(inputValue);
         } else if (step.kind === 'form') {
@@ -642,7 +720,7 @@ export default function ActionDialog({
         const compact = step.kind === 'pick'
             && (step.variant === 'pushRemote' || step.variant === 'openRemote');
         return (
-            <DialogOverlay onCancel={onCancel} anchored>
+            <DialogOverlay onCancel={isExecuting ? () => undefined : onCancel} anchored>
                 <AnchoredDialog
                     anchor={anchor}
                     ariaLabel={step.title}
@@ -655,7 +733,9 @@ export default function ActionDialog({
                     {body}
                     <AnchoredDialogActions
                         primaryLabel={primaryLabel}
-                        primaryDisabled={primaryDisabled}
+                        primaryDisabled={primaryDisabled || isExecuting}
+                        primaryDanger={isDangerStep(step)}
+                        isLoading={isExecuting}
                         onPrimary={handlePrimary}
                         onCancel={onCancel}
                     />
@@ -665,7 +745,7 @@ export default function ActionDialog({
     }
 
     return (
-        <DialogOverlay onCancel={onCancel}>
+        <DialogOverlay onCancel={isExecuting ? () => undefined : onCancel}>
             <div
                 className="git-graph-dialog"
                 role="dialog"
@@ -675,21 +755,23 @@ export default function ActionDialog({
             >
                 <div className="git-graph-dialog-header">
                     <h2>{step.title}</h2>
-                    <button type="button" className="git-graph-icon-btn" title="Cancel" onClick={onCancel}>
+                    <button type="button" className="git-graph-icon-btn" title="Cancel" onClick={onCancel} disabled={isExecuting}>
                         <span className="codicon codicon-close" aria-hidden />
                     </button>
                 </div>
                 <div className="git-graph-dialog-body">{body}</div>
                 <div className="git-graph-dialog-footer">
-                    <button type="button" className="git-graph-dialog-btn" onClick={onCancel}>
+                    <button type="button" className="git-graph-dialog-btn" onClick={onCancel} disabled={isExecuting}>
                         Cancel
                     </button>
                     <button
                         type="button"
-                        className="git-graph-dialog-btn primary"
-                        disabled={primaryDisabled}
+                        className={`git-graph-dialog-btn primary${isDangerStep(step) ? ' danger' : ''}`}
+                        disabled={primaryDisabled || isExecuting}
                         onClick={handlePrimary}
+                        style={isExecuting ? { display: 'inline-flex', alignItems: 'center', gap: 6 } : undefined}
                     >
+                        {isExecuting && <Spin size="small" />}
                         {primaryLabel}
                     </button>
                 </div>
