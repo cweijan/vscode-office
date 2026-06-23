@@ -5,6 +5,8 @@
   const SIDEBAR_MIN_WIDTH = 200;
   const SIDEBAR_DEFAULT_WIDTH = 270;
   const SIDEBAR_STORAGE_KEY = 'vscode-office.pdf.sidebarWidth';
+  const SIDEBAR_OPEN_STORAGE_KEY = 'vscode-office.pdf.sidebarOpen';
+  let sidebarOpenStateReady = false;
 
   function loadSidebarWidth() {
     try {
@@ -25,6 +27,52 @@
     } catch {
       // ignore storage errors
     }
+  }
+
+  function loadSidebarOpenState() {
+    try {
+      const saved = localStorage.getItem(SIDEBAR_OPEN_STORAGE_KEY);
+      if (saved !== '1' && saved !== '0') {
+        return null;
+      }
+      return saved === '1';
+    } catch {
+      return null;
+    }
+  }
+
+  function saveSidebarOpenState(open) {
+    try {
+      localStorage.setItem(SIDEBAR_OPEN_STORAGE_KEY, open ? '1' : '0');
+    } catch {
+      // ignore storage errors
+    }
+  }
+
+  function restoreSidebarOpenState() {
+    const saved = loadSidebarOpenState();
+    if (saved === true) {
+      PDFViewerApplication.pdfSidebar.open();
+      return;
+    }
+    if (saved === false) {
+      PDFViewerApplication.pdfSidebar.close();
+      return;
+    }
+    if (window.innerWidth > 900) {
+      PDFViewerApplication.pdfSidebar.open();
+    }
+  }
+
+  function setupSidebarOpenStatePersistence() {
+    if (!window.PDFViewerApplication?.eventBus) {
+      return;
+    }
+    PDFViewerApplication.eventBus.on('sidebarviewchanged', (event) => {
+      if (sidebarOpenStateReady) {
+        saveSidebarOpenState(event.view !== 0);
+      }
+    });
   }
 
   function cursorTools(name) {
@@ -429,13 +477,13 @@
     setupCustomScaleSelect();
     PDFViewerApplication.initializedPromise.then(() => {
       initSidebarResize();
+      setupSidebarOpenStatePersistence();
       const optsOnLoad = () => {
         PDFViewerApplication.pdfCursorTools.switchTool(cursorTools('select'))
         PDFViewerApplication.pdfViewer.scrollMode = scrollMode('vertical')
         PDFViewerApplication.pdfViewer.spreadMode = spreadMode('none')
-        if (window.innerWidth > 900) {
-          PDFViewerApplication.pdfSidebar.open()
-        }
+        restoreSidebarOpenState()
+        sidebarOpenStateReady = true
         PDFViewerApplication.eventBus.off('documentloaded', optsOnLoad)
       }
       PDFViewerApplication.eventBus.on('documentloaded', optsOnLoad)

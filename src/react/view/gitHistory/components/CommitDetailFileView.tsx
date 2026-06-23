@@ -102,7 +102,6 @@ function FileChangeRow({
         <div
             className={`git-graph-cdv-file-row${statusClass ? ` ${statusClass}` : ''}${isCurrent ? ' current' : ''}${diffPossible ? ' diff-possible' : ''}`}
             style={{ paddingLeft: fileRowPaddingLeft(depth) }}
-            title={title}
             onClick={handleRowClick}
             onContextMenu={(event) => {
                 event.preventDefault();
@@ -114,13 +113,14 @@ function FileChangeRow({
                 name={iconPath.split(/[/\\]/).pop() ?? iconPath}
                 className="git-graph-cdv-file-icon"
             />
-            <span className="git-graph-cdv-file-name">{label}</span>
+            <span className="git-graph-cdv-file-name" title={title}>{label}</span>
             <span className="git-graph-cdv-file-actions">
                 {showRevision && (
                     <button
                         type="button"
                         className="git-graph-cdv-file-action-btn"
                         title="View file at this revision"
+                        aria-label="View file at this revision"
                         onClick={(event) => {
                             event.stopPropagation();
                             onFileAction(buildViewFileAtRevisionAction(repo, commitHash, change));
@@ -134,6 +134,7 @@ function FileChangeRow({
                         type="button"
                         className="git-graph-cdv-file-action-btn"
                         title="Open current file"
+                        aria-label="Open current file"
                         onClick={(event) => {
                             event.stopPropagation();
                             onFileAction(buildOpenFileAction(repo, change));

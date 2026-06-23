@@ -192,7 +192,7 @@
   padding: 0 10px;
   border: none;
   border-radius: 8px;
-  background: var(--mm-chrome-trigger-bg);
+  background: var(--cm-lang-trigger-bg, var(--second-bg-color, color-mix(in srgb, var(--mm-chrome-fg) 18%, var(--bg-color, var(--mm-chrome-bg)))));
   color: var(--mm-chrome-fg);
   line-height: 1;
   cursor: pointer;
@@ -202,8 +202,7 @@
   transition: opacity 0.15s ease, visibility 0.15s ease, background-color 0.15s ease, color 0.15s ease;
 
   &:hover {
-    background: color-mix(in srgb, var(--mm-chrome-fg) 10%, var(--mm-chrome-trigger-bg));
-    color: var(--mm-chrome-accent);
+    background: color-mix(in srgb, var(--mm-chrome-fg) 10%, var(--cm-lang-trigger-bg, var(--second-bg-color, var(--mm-chrome-bg))));
   }
 }
 
@@ -213,6 +212,7 @@
   visibility: visible;
   pointer-events: auto;
 }
+
 
 .vditor-mermaid-chrome__theme-icon {
   display: inline-flex;

@@ -1,5 +1,6 @@
 import { Constants } from "../constants";
 import { isChrome } from "./compatibility";
+import { adjustEditorScrollBy } from "./documentState";
 import { hasClosestBlock, hasClosestByClassName, hasClosestByMatchTag } from "./hasClosest";
 
 export const getEditorRange = (vditor: IVditor) => {
@@ -62,6 +63,36 @@ export const getRangeCaretRect = (range: Range): DOMRect | null => {
         return element.getClientRects()[0];
     }
     return null;
+};
+
+const scrollRectIntoEditorView = (vditor: IVditor, rect: DOMRect, padding = 24) => {
+    const mode = vditor.currentMode;
+    if (mode !== "wysiwyg" && mode !== "ir") {
+        return;
+    }
+    const scrollEl = vditor[mode].element;
+    const editorRect = scrollEl.getBoundingClientRect();
+    if (rect.top < editorRect.top + padding) {
+        adjustEditorScrollBy(vditor, rect.top - editorRect.top - padding);
+    } else if (rect.bottom > editorRect.bottom - padding) {
+        adjustEditorScrollBy(vditor, rect.bottom - editorRect.bottom + padding);
+    }
+};
+
+export const scrollElementIntoEditorView = (vditor: IVditor, element: HTMLElement, padding = 24) => {
+    const rect = element.getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0) {
+        return;
+    }
+    scrollRectIntoEditorView(vditor, rect, padding);
+};
+
+export const scrollCaretIntoEditorView = (vditor: IVditor, range: Range, padding = 24) => {
+    const rect = getRangeCaretRect(range);
+    if (!rect) {
+        return;
+    }
+    scrollRectIntoEditorView(vditor, rect, padding);
 };
 
 export const preserveEditorScroll = (vditor: IVditor, action: () => void) => {

@@ -99,21 +99,6 @@ export default function FontViewer() {
                         )}
                     </Card>
 
-                    <Card className="sidebar-card" title="Font">
-                        <div className="info-card">
-                            {!font ? (
-                                <div><dt>Status</dt><dd>Waiting for font file…</dd></div>
-                            ) : (
-                                <>
-                                    <div><dt>Family</dt><dd>{font.names.fontFamily.en}</dd></div>
-                                    <div><dt>Style</dt><dd>{font.names.fontSubfamily.en}</dd></div>
-                                    <div><dt>Format</dt><dd>{font.outlinesFormat}</dd></div>
-                                    <div><dt>Version</dt><dd>{font.names.version.en}</dd></div>
-                                </>
-                            )}
-                        </div>
-                    </Card>
-
                     <Card className="sidebar-card" title="Character">
                         <div className="glyph-preview">
                             {glyph ? (
@@ -129,6 +114,21 @@ export default function FontViewer() {
                                 <dt>Class</dt>
                                 <dd>{glyph && font ? `${font.names.fontFamily.en}-${glyph.name}` : '-'}</dd>
                             </div>
+                        </div>
+                    </Card>
+
+                    <Card className="sidebar-card" title="Font">
+                        <div className="info-card">
+                            {!font ? (
+                                <div><dt>Status</dt><dd>Waiting for font file…</dd></div>
+                            ) : (
+                                <>
+                                    <div><dt>Family</dt><dd>{font.names.fontFamily.en}</dd></div>
+                                    <div><dt>Style</dt><dd>{font.names.fontSubfamily.en}</dd></div>
+                                    <div><dt>Format</dt><dd>{font.outlinesFormat}</dd></div>
+                                    <div><dt>Version</dt><dd>{font.names.version.en}</dd></div>
+                                </>
+                            )}
                         </div>
                     </Card>
                 </div>

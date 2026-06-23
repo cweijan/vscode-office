@@ -195,8 +195,7 @@ export class GitRepoCommands {
     async openFile(repo: string, filePath: string): Promise<string | null> {
         const abs = path.join(repo, filePath);
         try {
-            const doc = await vscode.workspace.openTextDocument(abs);
-            await vscode.window.showTextDocument(doc, { preview: true });
+            await vscode.commands.executeCommand('vscode.open', vscode.Uri.file(abs), { preview: true });
             return null;
         } catch (e) {
             return e instanceof Error ? e.message : String(e);

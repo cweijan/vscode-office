@@ -390,6 +390,24 @@ body.office-adaptive-theme #outlineView .treeItem > a {
     border-radius: 4px;
 }
 
+#thumbnailView {
+    width: calc(100% - 32px) !important;
+    padding-right: 16px !important;
+    padding-left: 16px !important;
+    overflow-y: auto !important;
+}
+
+#thumbnailView > a {
+    display: block;
+}
+
+#thumbnailView .thumbnail {
+    float: none !important;
+    width: fit-content;
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+
 body.office-adaptive-theme #outlineView .treeItem > a:hover,
 body.office-adaptive-theme #outlineView .treeItemToggler:hover + a {
     background-color: var(--vscode-list-hoverBackground) !important;

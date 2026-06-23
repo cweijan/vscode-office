@@ -1040,9 +1040,9 @@
     opacity: 0.95;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
-    font-family: var(--vscode-editor-font-family, var(--vscode-font-family, monospace));
-    font-size: 12px;
-    line-height: 20px;
+    font-family: var(--vscode-font-family, inherit);
+    font-size: var(--vscode-font-size, inherit);
+    line-height: 18px;
 }
 
 .git-graph-cdv-detail-grid {
@@ -1496,6 +1496,25 @@
 .git-graph-context-menu-item:disabled {
     opacity: 0.45;
     cursor: default;
+}
+
+.git-graph-context-menu-item--danger .git-graph-context-menu-icon .codicon {
+    color: var(--vscode-errorForeground, #f14c4c);
+}
+.git-graph-context-menu-item--push .git-graph-context-menu-icon .codicon {
+    color: var(--vscode-terminal-ansiBlue, #3794ff);
+}
+.git-graph-context-menu-item--pull .git-graph-context-menu-icon .codicon {
+    color: var(--vscode-terminal-ansiCyan, #29b8db);
+}
+.git-graph-context-menu-item--create .git-graph-context-menu-icon .codicon {
+    color: var(--vscode-gitDecoration-addedResourceForeground, #73c991);
+}
+.git-graph-context-menu-item--merge .git-graph-context-menu-icon .codicon {
+    color: var(--vscode-terminal-ansiBlue, #3794ff);
+}
+.git-graph-context-menu-item--warning .git-graph-context-menu-icon .codicon {
+    color: var(--vscode-terminal-ansiYellow, #d7ba7d);
 }
 
 .git-graph-context-menu-divider {

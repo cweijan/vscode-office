@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { MenuPayloadMeta } from '../contextMenu/buildContextMenu';
-import { getContextMenuIcon } from '../contextMenu/contextMenuIcons';
+import { getContextMenuIcon, getContextMenuIconColor } from '../contextMenu/contextMenuIcons';
 
 export interface ContextMenuItem {
     id: string;
@@ -62,13 +62,14 @@ export function ContextMenu({ menu, onClose, onSelect }: ContextMenuProps) {
         >
             {menu.items.map((item) => {
                 const icon = getContextMenuIcon(item.id);
+                const color = getContextMenuIconColor(item.id);
                 return (
                 <li key={item.id} role="none">
                     {item.separatorBefore && <div className="git-graph-context-menu-divider" role="separator" />}
                     <button
                         type="button"
                         role="menuitem"
-                        className="git-graph-context-menu-item"
+                        className={`git-graph-context-menu-item${color ? ` git-graph-context-menu-item--${color}` : ''}`}
                         disabled={item.disabled}
                         onClick={(e) => {
                             e.stopPropagation();
