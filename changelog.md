@@ -1,5 +1,11 @@
 # Change log
 
+# 4.0.5
+
+- Update Material Icons
+- Add Kusto (KQL) syntax highlighting
+- Refactor Markdown editor: beautified UI with modernized toolbar, in-page search (Ctrl/Cmd+F), and real-time code block editing
+
 # 4.0.4 2026-6-19
 
 New:

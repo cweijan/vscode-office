@@ -361,10 +361,10 @@
       "iconPath": "./../icons/database.svg"
     },
     "kusto": {
-      "iconPath": "./../icons/kusto_logo_dark.png"
+      "iconPath": "./../icons/kusto.svg"
     },
     "kusto_light": {
-      "iconPath": "./../icons/kusto_logo.png"
+      "iconPath": "./../icons/kusto_light.svg"
     },
     "lock": {
       "iconPath": "./../icons/lock.svg"
