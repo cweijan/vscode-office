@@ -1,5 +1,6 @@
 import {
     buildSettingsPanelHTML,
+    buildAIPromptsHTML,
     refreshSettingsPanel,
     SETTINGS_PANEL_CLASS,
 } from "../ui/settingsPanel";
@@ -26,6 +27,8 @@ import {
     setGlobalLocalStorageSetting,
     resetGlobalSettings,
     applyEditorSettings,
+    getAIPrompts,
+    setAIPrompts,
 } from "../util/globalLocalStorageSettings";
 
 const DROPDOWN_OPTIONS_MAP: Record<string, readonly { label: string; value: string }[]> = {
@@ -170,6 +173,65 @@ export class Settings extends MenuItem {
                     closeFloatingMenu();
                     openFloatingMenu(dropdownTrigger, key);
                 }
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            // AI Prompts: new prompt button
+            if (event.target.closest("[data-ai-new-prompt]")) {
+                const addRow = panelElement.querySelector("[data-ai-add-row]") as HTMLElement | null;
+                const addBtn = panelElement.querySelector("[data-ai-new-prompt]") as HTMLElement | null;
+                if (addRow) addRow.style.display = "";
+                if (addBtn) addBtn.style.display = "none";
+                const nameInput = panelElement.querySelector<HTMLInputElement>("[data-ai-add-name]");
+                nameInput?.focus();
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            // AI Prompts: cancel add
+            if (event.target.closest("[data-ai-cancel-prompt]")) {
+                const addRow = panelElement.querySelector("[data-ai-add-row]") as HTMLElement | null;
+                const addBtn = panelElement.querySelector("[data-ai-new-prompt]") as HTMLElement | null;
+                if (addRow) { addRow.style.display = "none"; }
+                if (addBtn) { addBtn.style.display = ""; }
+                const nameInput = panelElement.querySelector<HTMLInputElement>("[data-ai-add-name]");
+                const contentInput = panelElement.querySelector<HTMLTextAreaElement>("[data-ai-add-content]");
+                if (nameInput) nameInput.value = "";
+                if (contentInput) contentInput.value = "";
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            // AI Prompts: save prompt
+            if (event.target.closest("[data-ai-save-prompt]")) {
+                const nameInput = panelElement.querySelector<HTMLInputElement>("[data-ai-add-name]");
+                const contentInput = panelElement.querySelector<HTMLTextAreaElement>("[data-ai-add-content]");
+                const name = nameInput?.value.trim();
+                const content = contentInput?.value.trim();
+                if (name && content) {
+                    const prompts = getAIPrompts();
+                    prompts.push({ id: Date.now().toString(), name, content });
+                    setAIPrompts(prompts);
+                    const container = panelElement.querySelector("[data-ai-prompts]");
+                    if (container) container.outerHTML = buildAIPromptsHTML();
+                }
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            // AI Prompts: delete prompt
+            const delBtn = event.target.closest("[data-del-prompt]") as HTMLElement | null;
+            if (delBtn) {
+                const id = delBtn.getAttribute("data-del-prompt") || "";
+                const prompts = getAIPrompts().filter(p => p.id !== id);
+                setAIPrompts(prompts);
+                const container = panelElement.querySelector("[data-ai-prompts]");
+                if (container) container.outerHTML = buildAIPromptsHTML();
                 event.preventDefault();
                 event.stopPropagation();
                 return;

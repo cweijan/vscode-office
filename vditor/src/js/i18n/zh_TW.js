@@ -96,4 +96,11 @@ window.VditorI18n = {
   'uploadError': '上傳錯誤',
   'uploading': '上傳中...',
   'wysiwyg': '所見即所得',
+  'aiPrompts': 'AI 提示詞',
+  'aiNoPrompts': '尚無提示詞',
+  'aiAddPrompt': '新增提示詞',
+  'aiPromptName': '名稱',
+  'aiPromptContent': '提示詞內容',
+  'aiSave': '儲存',
+  'aiCancel': '取消',
 }

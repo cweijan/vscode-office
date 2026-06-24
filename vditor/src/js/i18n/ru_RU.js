@@ -94,4 +94,11 @@ window.VditorI18n = {
   'uploadError': 'Ошибка загрузки',
   'uploading': 'Загрузка...',
   'wysiwyg': 'Редактор WYSIWYG',
+  'aiPrompts': 'Промпты ИИ',
+  'aiNoPrompts': 'Промптов пока нет',
+  'aiAddPrompt': 'Добавить промпт',
+  'aiPromptName': 'Название',
+  'aiPromptContent': 'Содержание промпта',
+  'aiSave': 'Сохранить',
+  'aiCancel': 'Отмена',
 }

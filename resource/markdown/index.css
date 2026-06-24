@@ -156,6 +156,10 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     color: var(--ctx-icon-folder);
 }
 
+.vditor-context-menu__item[data-action="aiPolish"] .codicon {
+    color: var(--vscode-textLink-foreground, #4a90d9);
+}
+
 .vditor-context-menu__label {
     flex: 1;
     overflow: hidden;
@@ -229,3 +233,250 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
 .vditor-help-sponsor-text a:hover {
     text-decoration: underline;
 }
+
+/* ── AI Polish Dialog ──────────────────────────────────────────── */
+.ai-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 20000;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.ai-dialog-overlay[hidden] {
+    display: none !important;
+}
+
+.ai-dialog {
+    width: 100%;
+    max-width: 440px;
+    background: var(--vscode-editor-background, #1e1e1e);
+    border: 1px solid var(--vscode-panel-border, rgba(128,128,128,0.35));
+    border-radius: 10px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size: var(--vscode-font-size, 13px);
+    color: var(--vscode-editor-foreground, #ccc);
+}
+
+.ai-dialog__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px 10px;
+    border-bottom: 1px solid var(--vscode-panel-border, rgba(128,128,128,0.2));
+}
+
+.ai-dialog__icon {
+    font-size: 16px;
+    color: var(--vscode-textLink-foreground, #4a90d9);
+    flex-shrink: 0;
+}
+
+.ai-dialog__title {
+    flex: 1;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.ai-dialog__close {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--vscode-icon-foreground, #999);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.1s, color 0.1s;
+}
+
+.ai-dialog__close:hover {
+    background: var(--vscode-toolbar-hoverBackground, rgba(255,255,255,0.1));
+    color: var(--vscode-editor-foreground, #ccc);
+}
+
+.ai-dialog__body {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+    max-height: calc(100vh - 180px);
+}
+
+.ai-dialog__field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.ai-dialog__label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--vscode-descriptionForeground, rgba(204,204,204,0.6));
+    user-select: none;
+}
+
+.ai-dialog__textarea,
+.ai-dialog__input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px 9px;
+    background: var(--vscode-input-background, rgba(255,255,255,0.07));
+    border: 1px solid var(--vscode-input-border, rgba(255,255,255,0.12));
+    border-radius: 5px;
+    color: var(--vscode-input-foreground, #ccc);
+    font-size: inherit;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+    resize: none;
+}
+
+.ai-dialog__textarea:focus,
+.ai-dialog__input:focus {
+    border-color: var(--vscode-focusBorder, #4a90d9);
+}
+
+.ai-dialog__textarea::placeholder,
+.ai-dialog__input::placeholder {
+    color: var(--vscode-input-placeholderForeground, rgba(204,204,204,0.4));
+}
+
+.ai-dialog__select-wrap {
+    position: relative;
+}
+
+.ai-dialog__select-wrap::after {
+    content: "\eab4";
+    font-family: "codicon";
+    position: absolute;
+    right: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    pointer-events: none;
+    color: var(--vscode-icon-foreground, #999);
+}
+
+.ai-dialog__select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px 28px 6px 9px;
+    background: var(--vscode-dropdown-background, rgba(255,255,255,0.07));
+    border: 1px solid var(--vscode-dropdown-border, rgba(255,255,255,0.12));
+    border-radius: 5px;
+    color: var(--vscode-dropdown-foreground, #ccc);
+    font-size: inherit;
+    font-family: inherit;
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+}
+
+.ai-dialog__select:focus {
+    border-color: var(--vscode-focusBorder, #4a90d9);
+}
+
+.ai-dialog__engine-tabs {
+    display: flex;
+    gap: 6px;
+}
+
+.ai-dialog__engine-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 6px 10px;
+    border: 1px solid var(--vscode-panel-border, rgba(128,128,128,0.3));
+    border-radius: 6px;
+    background: transparent;
+    color: var(--vscode-descriptionForeground, rgba(204,204,204,0.6));
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.ai-dialog__engine-tab:hover {
+    border-color: var(--vscode-textLink-foreground, #4a90d9);
+    color: var(--vscode-editor-foreground, #ccc);
+}
+
+.ai-dialog__engine-tab--active {
+    border-color: var(--vscode-textLink-foreground, #4a90d9);
+    background: color-mix(in srgb, var(--vscode-textLink-foreground, #4a90d9) 12%, transparent);
+    color: var(--vscode-textLink-foreground, #4a90d9);
+    font-weight: 600;
+}
+
+.ai-dialog__custom-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 8px;
+}
+
+.ai-dialog__custom-fields[hidden] {
+    display: none !important;
+}
+
+.ai-dialog__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 10px 14px 14px;
+    border-top: 1px solid var(--vscode-panel-border, rgba(128,128,128,0.2));
+}
+
+.ai-dialog__btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 16px;
+    border-radius: 5px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: opacity 0.1s, background 0.1s;
+}
+
+.ai-dialog__btn--cancel {
+    background: transparent;
+    border-color: var(--vscode-panel-border, rgba(128,128,128,0.3));
+    color: var(--vscode-editor-foreground, #ccc);
+}
+
+.ai-dialog__btn--cancel:hover {
+    background: var(--vscode-toolbar-hoverBackground, rgba(255,255,255,0.07));
+}
+
+.ai-dialog__btn--submit {
+    background: var(--vscode-button-background, #0e639c);
+    color: var(--vscode-button-foreground, #fff);
+    border-color: var(--vscode-button-background, #0e639c);
+}
+
+.ai-dialog__btn--submit:hover {
+    opacity: 0.88;
+}
+

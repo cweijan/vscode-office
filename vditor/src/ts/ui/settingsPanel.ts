@@ -10,6 +10,9 @@ import {
     FONT_FAMILY_OPTIONS,
     BOLD_COLOR_KEY,
     BOLD_COLOR_OPTIONS,
+    getAIPrompts,
+    setAIPrompts,
+    AIPrompt,
 } from "../util/globalLocalStorageSettings";
 
 export const SETTINGS_PANEL_CLASS = "vditor-settings-panel";
@@ -61,6 +64,34 @@ const buildDropdownHTML = (key: string, label: string, options: readonly { label
 };
 
 
+export const buildAIPromptsHTML = () => {
+    const i18n = window.VditorI18n;
+    const prompts = getAIPrompts();
+    const listHTML = prompts.length
+        ? prompts.map(p => `
+            <div class="${SETTINGS_PANEL_CLASS}__ai-prompt-row" data-prompt-id="${p.id}">
+                <span class="${SETTINGS_PANEL_CLASS}__ai-prompt-name" title="${p.content}">${p.name}</span>
+                <button type="button" class="${SETTINGS_PANEL_CLASS}__ai-prompt-del" data-del-prompt="${p.id}">
+                    <span class="codicon codicon-trash"></span>
+                </button>
+            </div>`).join("")
+        : `<div class="${SETTINGS_PANEL_CLASS}__ai-prompt-empty">${i18n.aiNoPrompts}</div>`;
+    return `<div class="${SETTINGS_PANEL_CLASS}__ai-prompts" data-ai-prompts>
+        ${listHTML}
+        <div class="${SETTINGS_PANEL_CLASS}__ai-prompt-add-row" data-ai-add-row style="display:none">
+            <input type="text" class="${SETTINGS_PANEL_CLASS}__ai-prompt-input" data-ai-add-name placeholder="${i18n.aiPromptName}" />
+            <textarea class="${SETTINGS_PANEL_CLASS}__ai-prompt-textarea" data-ai-add-content placeholder="${i18n.aiPromptContent}"></textarea>
+            <div class="${SETTINGS_PANEL_CLASS}__ai-prompt-add-actions">
+                <button type="button" class="${SETTINGS_PANEL_CLASS}__ai-prompt-btn" data-ai-save-prompt>${i18n.aiSave}</button>
+                <button type="button" class="${SETTINGS_PANEL_CLASS}__ai-prompt-btn ${SETTINGS_PANEL_CLASS}__ai-prompt-btn--cancel" data-ai-cancel-prompt>${i18n.aiCancel}</button>
+            </div>
+        </div>
+        <button type="button" class="${SETTINGS_PANEL_CLASS}__ai-add-btn" data-ai-new-prompt>
+            <span class="codicon codicon-add"></span> ${i18n.aiAddPrompt}
+        </button>
+    </div>`;
+};
+
 export const buildSettingsPanelHTML = (vditor: IVditor) => {
     const uiSize = getGlobalLocalStorageSetting<number>(UI_FONT_SIZE_KEY, UI_FONT_SIZE_DEFAULT);
     const editorSize = getGlobalLocalStorageSetting<number>(EDITOR_FONT_SIZE_KEY, EDITOR_FONT_SIZE_DEFAULT);
@@ -86,6 +117,10 @@ export const buildSettingsPanelHTML = (vditor: IVditor) => {
                 ${buildDropdownHTML(FONT_FAMILY_KEY, "Font", FONT_FAMILY_OPTIONS, fontFamily)}
                 ${buildDropdownHTML(BOLD_COLOR_KEY, "Bold", BOLD_COLOR_OPTIONS, boldColor)}
             </div>
+        </div>
+        <div class="${SETTINGS_PANEL_CLASS}__section">
+            <div class="${SETTINGS_PANEL_CLASS}__title">${window.VditorI18n.aiPrompts}</div>
+            ${buildAIPromptsHTML()}
         </div>
         <div class="${SETTINGS_PANEL_CLASS}__footer">
             <button type="button" class="${SETTINGS_PANEL_CLASS}__reset-btn" data-reset-settings>Reset to Defaults</button>

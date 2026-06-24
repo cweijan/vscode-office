@@ -96,4 +96,11 @@ window.VditorI18n = {
   'uploadError': 'upload error',
   'uploading': 'uploading...',
   'wysiwyg': 'WYSIWYG',
+  'aiPrompts': 'AI Prompts',
+  'aiNoPrompts': 'No prompts yet',
+  'aiAddPrompt': 'Add Prompt',
+  'aiPromptName': 'Name',
+  'aiPromptContent': 'Prompt content',
+  'aiSave': 'Save',
+  'aiCancel': 'Cancel',
 }

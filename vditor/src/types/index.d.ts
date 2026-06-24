@@ -424,6 +424,15 @@ interface IHint {
 }
 
 /** @link https://ld246.com/article/1549638745630#options */
+interface IAIPolishOptions {
+    goal?: string;
+    prompt?: string;
+    engine?: "vscode" | "custom";
+    customUrl?: string;
+    customKey?: string;
+    customModel?: string;
+}
+
 interface IOptions {
     /** RTL */
     rtl?: boolean;
@@ -520,6 +529,12 @@ interface IOptions {
 
     /** Mermaid 主题修改后触发 */
     changeMermaidTheme?(value: string): void;
+
+    /** AI 功能配置 */
+    ai?: {
+        /** AI 润色回调：接收 markdown 内容，处理完成后调用 apply 将结果写回编辑器 */
+        onPolish?(markdown: string, apply: (result: string) => void, options?: IAIPolishOptions): void;
+    };
 
     /** 编辑模式修改后触发 */
     changeEditMode?(value: string): void;

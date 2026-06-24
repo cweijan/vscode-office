@@ -253,7 +253,134 @@ const copyPlainText = async (text) => {
     textarea.remove()
 }
 
-export const createContextMenu = (editor) => {
+export const setAIAvailable = (available) => {
+    document.querySelectorAll('.vditor-context-menu__ai-group').forEach(el => {
+        el.style.display = available ? '' : 'none'
+    })
+}
+
+const AI_ENGINE_KEY = 'vditor-ai-engine'
+const AI_CUSTOM_URL_KEY = 'vditor-ai-custom-url'
+const AI_CUSTOM_KEY_KEY = 'vditor-ai-custom-key'
+const AI_CUSTOM_MODEL_KEY = 'vditor-ai-custom-model'
+const AI_PROMPTS_KEY = 'vditor-global-settings'
+
+const getAIPrompts = () => {
+    try {
+        const raw = localStorage.getItem(AI_PROMPTS_KEY)
+        if (!raw) return []
+        const settings = JSON.parse(raw)
+        const val = settings['aiPrompts']
+        return val ? JSON.parse(val) : []
+    } catch { return [] }
+}
+
+export const createAIDialog = (onSubmit, t) => {
+    const overlay = document.getElementById('ai-dialog-overlay')
+    const goalEl = document.getElementById('ai-goal')
+    const promptSelect = document.getElementById('ai-prompt-select')
+    const engineTabs = document.querySelectorAll('.ai-dialog__engine-tab')
+    const customFields = document.getElementById('ai-custom-fields')
+    const customUrl = document.getElementById('ai-custom-url')
+    const customKey = document.getElementById('ai-custom-key')
+    const customModel = document.getElementById('ai-custom-model')
+    const cancelBtn = document.getElementById('ai-dialog-cancel')
+    const closeBtn = document.getElementById('ai-dialog-close')
+    const submitBtn = document.getElementById('ai-dialog-submit')
+
+    let currentEngine = localStorage.getItem(AI_ENGINE_KEY) || 'vscode'
+
+    const refreshEngineUI = () => {
+        engineTabs.forEach(tab => {
+            tab.classList.toggle('ai-dialog__engine-tab--active', tab.dataset.engine === currentEngine)
+        })
+        customFields.hidden = currentEngine !== 'custom'
+    }
+
+    const populatePrompts = () => {
+        const prompts = getAIPrompts()
+        promptSelect.innerHTML = `<option value="">${t.promptNone}</option>` +
+            prompts.map(p => `<option value="${p.id}" title="${p.content}">${p.name}</option>`).join('')
+    }
+
+    const applyI18n = () => {
+        document.getElementById('ai-dialog-title').textContent = t.aiPolish
+        document.querySelector('[for="ai-goal"]').textContent = t.updateGoal
+        goalEl.placeholder = t.updateGoalPlaceholder
+        document.querySelector('[for="ai-prompt-select"]').textContent = t.prompt
+        document.querySelector('.ai-dialog__field .ai-dialog__label:last-of-type, [data-label-engine]')
+        document.querySelectorAll('.ai-dialog__engine-tab').forEach(tab => {
+            const icon = tab.querySelector('.codicon')
+            tab.textContent = tab.dataset.engine === 'vscode' ? t.vscodeApi : t.custom
+            if (icon) tab.prepend(icon)
+        })
+        customUrl.placeholder = t.apiUrl
+        customKey.placeholder = t.apiKey
+        customModel.placeholder = t.model
+        document.getElementById('ai-dialog-cancel').textContent = t.cancel
+        const submitLabel = document.getElementById('ai-dialog-submit')
+        const sparkle = submitLabel.querySelector('.codicon')
+        submitLabel.textContent = t.polish
+        if (sparkle) submitLabel.prepend(sparkle)
+    }
+
+    const openDialog = () => {
+        populatePrompts()
+        applyI18n()
+        goalEl.value = ''
+        customUrl.value = localStorage.getItem(AI_CUSTOM_URL_KEY) || ''
+        customKey.value = localStorage.getItem(AI_CUSTOM_KEY_KEY) || ''
+        customModel.value = localStorage.getItem(AI_CUSTOM_MODEL_KEY) || ''
+        refreshEngineUI()
+        overlay.hidden = false
+        goalEl.focus()
+    }
+
+    const closeDialog = () => { overlay.hidden = true }
+
+    engineTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            currentEngine = tab.dataset.engine
+            localStorage.setItem(AI_ENGINE_KEY, currentEngine)
+            refreshEngineUI()
+        })
+    })
+
+    cancelBtn.addEventListener('click', closeDialog)
+    closeBtn.addEventListener('click', closeDialog)
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeDialog() })
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !overlay.hidden) closeDialog() })
+
+    submitBtn.addEventListener('click', () => {
+        const goal = goalEl.value.trim()
+        const promptId = promptSelect.value
+        const promptText = promptId
+            ? (getAIPrompts().find(p => p.id === promptId)?.content || '')
+            : ''
+        const options = {
+            goal,
+            prompt: promptText,
+            engine: currentEngine,
+        }
+        if (currentEngine === 'custom') {
+            const url = customUrl.value.trim()
+            const key = customKey.value.trim()
+            const model = customModel.value.trim()
+            if (url) localStorage.setItem(AI_CUSTOM_URL_KEY, url)
+            if (key) localStorage.setItem(AI_CUSTOM_KEY_KEY, key)
+            if (model) localStorage.setItem(AI_CUSTOM_MODEL_KEY, model)
+            options.customUrl = url
+            options.customKey = key
+            options.customModel = model
+        }
+        closeDialog()
+        onSubmit(options)
+    })
+
+    return { open: openDialog }
+}
+
+export const createContextMenu = (editor, aiDialog) => {
     const menu = document.getElementById('context-menu')
 
     const closeMenu = () => hideContextMenu(menu)
@@ -309,6 +436,9 @@ export const createContextMenu = (editor) => {
                 break
             case 'insertImage':
                 vscodeEvent.emit('insertImage')
+                break
+            case 'aiPolish':
+                aiDialog.open()
                 break
         }
     })

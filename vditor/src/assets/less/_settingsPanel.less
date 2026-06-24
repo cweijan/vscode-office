@@ -294,6 +294,132 @@
     }
   }
 
+  &__ai-prompts {
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 11%, transparent);
+    background-color: color-mix(in srgb, var(--toolbar-icon-color) 3%, transparent);
+    overflow: hidden;
+  }
+
+  &__ai-prompt-empty {
+    padding: 8px 10px;
+    font-size: var(--ui-font-size, 13px);
+    color: color-mix(in srgb, var(--toolbar-icon-color) 45%, transparent);
+    user-select: none;
+  }
+
+  &__ai-prompt-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px 4px 10px;
+    min-height: 30px;
+    border-top: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
+    box-sizing: border-box;
+    &:first-child { border-top: none; }
+  }
+
+  &__ai-prompt-name {
+    flex: 1;
+    font-size: var(--ui-font-size, 13px);
+    color: var(--toolbar-icon-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__ai-prompt-del {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: color-mix(in srgb, var(--toolbar-icon-color) 40%, transparent);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.1s, background 0.1s;
+    .codicon { font-size: 13px; }
+    &:hover {
+      color: var(--error-color, #cf222e);
+      background: color-mix(in srgb, var(--error-color, #cf222e) 10%, transparent);
+    }
+  }
+
+  &__ai-prompt-add-row {
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-top: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
+  }
+
+  &__ai-prompt-input,
+  &__ai-prompt-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 4px 8px;
+    font-size: var(--ui-font-size, 13px);
+    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 20%, transparent);
+    border-radius: 5px;
+    background: var(--panel-background-color, #fff);
+    color: var(--toolbar-icon-color);
+    outline: none;
+    font-family: inherit;
+    &:focus { border-color: var(--settings-accent); }
+  }
+
+  &__ai-prompt-textarea {
+    resize: vertical;
+    min-height: 60px;
+    max-height: 120px;
+  }
+
+  &__ai-prompt-add-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+
+  &__ai-prompt-btn {
+    padding: 3px 12px;
+    font-size: 12px;
+    border-radius: 5px;
+    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 20%, transparent);
+    background: var(--settings-accent);
+    color: #fff;
+    cursor: pointer;
+    transition: opacity 0.1s;
+    &:hover { opacity: 0.85; }
+    &--cancel {
+      background: transparent;
+      color: var(--toolbar-icon-color);
+    }
+  }
+
+  &__ai-add-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    padding: 6px 10px;
+    border: none;
+    border-top: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
+    background: transparent;
+    color: color-mix(in srgb, var(--toolbar-icon-color) 55%, transparent);
+    font-size: var(--ui-font-size, 13px);
+    cursor: pointer;
+    transition: color 0.1s, background 0.1s;
+    .codicon { font-size: 13px; }
+    &:hover {
+      color: var(--settings-accent);
+      background: color-mix(in srgb, var(--settings-accent) 6%, transparent);
+    }
+  }
+
   &__footer {
     padding: 12px 10px 4px;
     margin-top: 6px;

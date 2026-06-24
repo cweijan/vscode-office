@@ -94,4 +94,11 @@ window.VditorI18n = {
   'uploadError': '업로드 실패',
   'uploading': '업로드중...',
   'wysiwyg': '위지위그',
+  'aiPrompts': 'AI 프롬프트',
+  'aiNoPrompts': '프롬프트 없음',
+  'aiAddPrompt': '프롬프트 추가',
+  'aiPromptName': '이름',
+  'aiPromptContent': '프롬프트 내용',
+  'aiSave': '저장',
+  'aiCancel': '취소',
 }

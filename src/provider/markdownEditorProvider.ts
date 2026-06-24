@@ -225,6 +225,10 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                 }
                 vscode.env.openExternal(vscode.Uri.parse(url));
             }
+        }).on('queryAIAvailable', () => {
+            void this.notifyAIAvailable(handler);
+        }).on('aiPolish', async (payload: { markdown: string; options?: any }) => {
+            await this.handleAIPolish(handler, payload.markdown, payload.options);
         })
 
         const basePath = Global.getConfig('workspacePathAsImageBasePath') ?
@@ -234,6 +238,93 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         webview.html = Util.buildPath(
             indexHtml.replace("{{baseUrl}}", baseUrl), webview, contextUri
         );
+    }
+
+    private async notifyAIAvailable(handler: Handler) {
+        const lm = (vscode as any).lm;
+        const available = typeof lm?.selectChatModels === 'function';
+        handler.emit('aiAvailable', available);
+    }
+
+    private buildPolishPrompt(markdown: string, options?: any): string {
+        const parts: string[] = [];
+        parts.push('You are a writing assistant.');
+        if (options?.prompt) {
+            parts.push(options.prompt);
+        } else {
+            parts.push('Polish the following Markdown text: improve clarity, fix grammar, and enhance readability.');
+        }
+        if (options?.goal) {
+            parts.push(`Focus on: ${options.goal}`);
+        }
+        parts.push('Return ONLY the polished Markdown with no extra commentary.\n\n' + markdown);
+        return parts.join('\n');
+    }
+
+    private async handleAIPolish(handler: Handler, markdown: string, options?: any) {
+        const engine = options?.engine ?? 'vscode';
+
+        if (engine === 'custom') {
+            await this.handleCustomAIPolish(handler, markdown, options);
+            return;
+        }
+
+        const lm = (vscode as any).lm;
+        if (typeof lm?.selectChatModels !== 'function') {
+            vscode.window.showWarningMessage('AI features require VS Code 1.90+ with a language model extension installed.');
+            handler.emit('aiPolishResult', markdown);
+            return;
+        }
+        try {
+            let models: any[] = await lm.selectChatModels({ family: 'gpt-4o' });
+            if (!models || models.length === 0) {
+                models = await lm.selectChatModels();
+            }
+            if (!models || models.length === 0) {
+                vscode.window.showWarningMessage('No AI language model available. Please install a language model extension (e.g. GitHub Copilot).');
+                handler.emit('aiPolishResult', markdown);
+                return;
+            }
+            const model = models[0];
+            const LanguageModelChatMessage = (vscode as any).LanguageModelChatMessage;
+            const messages = [LanguageModelChatMessage.User(this.buildPolishPrompt(markdown, options))];
+            const response = await model.sendRequest(messages, {}, new vscode.CancellationTokenSource().token);
+            let result = '';
+            for await (const chunk of response.text) {
+                result += chunk;
+            }
+            handler.emit('aiPolishResult', result.trim() || markdown);
+        } catch (err: any) {
+            vscode.window.showErrorMessage(`AI Polish failed: ${err?.message ?? err}`);
+            handler.emit('aiPolishResult', markdown);
+        }
+    }
+
+    private async handleCustomAIPolish(handler: Handler, markdown: string, options: any) {
+        const url = options?.customUrl?.trim();
+        const apiKey = options?.customKey?.trim();
+        const model = options?.customModel?.trim() || 'gpt-4o';
+        if (!url) {
+            vscode.window.showWarningMessage('Custom AI: API URL is required.');
+            handler.emit('aiPolishResult', markdown);
+            return;
+        }
+        try {
+            const body = JSON.stringify({
+                model,
+                messages: [{ role: 'user', content: this.buildPolishPrompt(markdown, options) }],
+            });
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+            if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+            const resp = await fetch(url, { method: 'POST', headers, body });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
+            const data = await resp.json();
+            const result = data?.choices?.[0]?.message?.content ?? '';
+            handler.emit('aiPolishResult', result.trim() || markdown);
+        } catch (err: any) {
+            vscode.window.showErrorMessage(`Custom AI Polish failed: ${err?.message ?? err}`);
+            handler.emit('aiPolishResult', markdown);
+        }
     }
 
     private getMarkdownWebviewConfig(configuration: vscode.WorkspaceConfiguration) {

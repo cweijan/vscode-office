@@ -85,6 +85,27 @@ export const BOLD_COLOR_OPTIONS = [
     { label: "Teal", value: "#1a7f64" },
 ] as const;
 
+export const AI_PROMPTS_KEY = "aiPrompts";
+export const AI_ENGINE_KEY = "aiEngine";
+export const AI_CUSTOM_URL_KEY = "aiCustomUrl";
+export const AI_CUSTOM_KEY_KEY = "aiCustomKey";
+export const AI_CUSTOM_MODEL_KEY = "aiCustomModel";
+
+export interface AIPrompt {
+    id: string;
+    name: string;
+    content: string;
+}
+
+export const getAIPrompts = (): AIPrompt[] => {
+    const raw = getGlobalLocalStorageSetting<string>(AI_PROMPTS_KEY, "[]");
+    try { return JSON.parse(raw as string) as AIPrompt[]; } catch { return []; }
+};
+
+export const setAIPrompts = (prompts: AIPrompt[]) => {
+    setGlobalLocalStorageSetting(AI_PROMPTS_KEY, JSON.stringify(prompts));
+};
+
 export const applyEditorSettings = (vditorElement: HTMLElement) => {
     const uiSize = getGlobalLocalStorageSetting<number>(UI_FONT_SIZE_KEY);
     const editorSize = getGlobalLocalStorageSetting<number>(EDITOR_FONT_SIZE_KEY);

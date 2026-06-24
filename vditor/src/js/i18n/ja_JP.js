@@ -94,4 +94,11 @@ window.VditorI18n = {
   'uploadError': 'アップロード失敗',
   'uploading': 'アップロード中',
   'wysiwyg': 'ウィジウィグ',
+  'aiPrompts': 'AI プロンプト',
+  'aiNoPrompts': 'プロンプトがありません',
+  'aiAddPrompt': 'プロンプトを追加',
+  'aiPromptName': '名前',
+  'aiPromptContent': 'プロンプトの内容',
+  'aiSave': '保存',
+  'aiCancel': 'キャンセル',
 }
