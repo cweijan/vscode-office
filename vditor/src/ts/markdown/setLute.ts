@@ -14,6 +14,13 @@ export const setLute = (options: ILuteOptions) => {
     lute.SetLinkBase(options.linkBase);
     lute.SetLinkPrefix(options.linkPrefix);
     lute.SetMark(options.mark);
+    if (options.obsidian) {
+        lute.SetObsidian(true);
+    } else {
+        lute.SetCallout(options.callout ?? false);
+        lute.SetObsidianWikiLink(options.obsidianWikiLink ?? false);
+        lute.SetObsidianTag(options.obsidianTag ?? false);
+    }
     if (options.lazyLoadImage) {
         lute.SetImageLazyLoading(options.lazyLoadImage);
     }

@@ -181,6 +181,15 @@
     color: var(--cm-syntax-keyword, var(--vscode-debugView-valueChangedHighlight, var(--vscode-terminal-ansiBlue, var(--vscode-charts-blue))));
   }
 
+  span.cm-annotation {
+    color: var(--cm-syntax-annotation, var(--vscode-symbolIcon-interfaceForeground, var(--vscode-terminal-ansiCyan, #56b6c2)));
+    font-weight: 600;
+  }
+
+  span.cm-operator {
+    color: var(--cm-syntax-operator, var(--vscode-symbolIcon-operatorForeground, var(--vscode-editor-foreground)));
+  }
+
   span.cm-string {
     color: var(--cm-syntax-string, var(--vscode-debugTokenExpression-string, var(--vscode-terminal-ansiRed)));
   }
@@ -672,6 +681,17 @@
   text-align: center;
 }
 
+.vditor-cm-chrome__lang--readonly {
+  .vditor-cm-chrome__lang-trigger {
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .vditor-cm-chrome__lang-chevron {
+    display: none;
+  }
+}
+
 .vditor-cm-preview-host {
   .vditor-cm-chrome__lang-trigger {
     cursor: default;
@@ -729,6 +749,54 @@
 
   > pre:first-child > code {
     display: none !important;
+  }
+}
+
+.vditor-cm-block--split {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  > pre.vditor-cm-host {
+    flex: 0 0 auto;
+    order: 0;
+    display: block !important;
+    margin: 0 !important;
+    border-radius: 6px 6px 0 0;
+
+    .vditor-cm-chrome {
+      border-radius: 6px 6px 0 0;
+    }
+
+    .cm-editor {
+      border-radius: 0;
+    }
+  }
+
+  > .vditor-wysiwyg__preview,
+  > .vditor-ir__preview {
+    flex: 0 0 auto;
+    order: 1;
+    display: block !important;
+    margin: 0 !important;
+    border-radius: 0 0 6px 6px;
+    overflow: auto;
+    pointer-events: none;
+  }
+}
+
+// 数学块预览态：禁止露出源码 pre>code（内联数学公式不受影响）
+.vditor-wysiwyg__block[data-type="math-block"]:not(.vditor-cm-block--editing) {
+  > pre:not(.vditor-wysiwyg__preview) {
+    display: none !important;
+    pointer-events: none;
+  }
+}
+
+.vditor-ir__node[data-type="math-block"]:not(.vditor-cm-block--editing) {
+  > pre.vditor-ir__marker--pre {
+    display: none !important;
+    pointer-events: none;
   }
 }
 

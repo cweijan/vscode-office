@@ -95,60 +95,6 @@
         </div>
     </div>
 
-    <!-- AI Polish Dialog -->
-    <div class="ai-dialog-overlay" id="ai-dialog-overlay" hidden>
-        <div class="ai-dialog" role="dialog" aria-modal="true" aria-labelledby="ai-dialog-title">
-            <div class="ai-dialog__header">
-                <span class="codicon codicon-sparkle ai-dialog__icon"></span>
-                <h2 class="ai-dialog__title" id="ai-dialog-title">AI Polish</h2>
-                <button class="ai-dialog__close" id="ai-dialog-close" type="button" title="Close">
-                    <span class="codicon codicon-close"></span>
-                </button>
-            </div>
-            <div class="ai-dialog__body">
-                <!-- Update Goal -->
-                <div class="ai-dialog__field">
-                    <label class="ai-dialog__label" for="ai-goal">Update Goal</label>
-                    <textarea class="ai-dialog__textarea" id="ai-goal" placeholder="Describe what you want to improve (optional)..." rows="2"></textarea>
-                </div>
-                <!-- Prompt -->
-                <div class="ai-dialog__field">
-                    <label class="ai-dialog__label" for="ai-prompt-select">Prompt</label>
-                    <div class="ai-dialog__select-wrap">
-                        <select class="ai-dialog__select" id="ai-prompt-select">
-                            <option value="">— None —</option>
-                        </select>
-                    </div>
-                </div>
-                <!-- AI Engine -->
-                <div class="ai-dialog__field">
-                    <label class="ai-dialog__label">AI Engine</label>
-                    <div class="ai-dialog__engine-tabs">
-                        <button type="button" class="ai-dialog__engine-tab ai-dialog__engine-tab--active" data-engine="vscode">
-                            <span class="codicon codicon-extensions"></span>
-                            VS Code API
-                        </button>
-                        <button type="button" class="ai-dialog__engine-tab" data-engine="custom">
-                            <span class="codicon codicon-server"></span>
-                            Custom
-                        </button>
-                    </div>
-                    <div class="ai-dialog__custom-fields" id="ai-custom-fields" hidden>
-                        <input type="url" class="ai-dialog__input" id="ai-custom-url" placeholder="API URL (e.g. https://api.openai.com/v1/chat/completions)" />
-                        <input type="password" class="ai-dialog__input" id="ai-custom-key" placeholder="API Key" />
-                        <input type="text" class="ai-dialog__input" id="ai-custom-model" placeholder="Model (e.g. gpt-4o)" />
-                    </div>
-                </div>
-            </div>
-            <div class="ai-dialog__footer">
-                <button class="ai-dialog__btn ai-dialog__btn--cancel" id="ai-dialog-cancel" type="button">Cancel</button>
-                <button class="ai-dialog__btn ai-dialog__btn--submit" id="ai-dialog-submit" type="button">
-                    <span class="codicon codicon-sparkle"></span>
-                    Polish
-                </button>
-            </div>
-        </div>
-    </div>
 </body>
 <script src="dist/index.min.js"></script>
 <script src="../lib/vscode.js"></script>

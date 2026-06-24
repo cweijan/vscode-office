@@ -14,8 +14,11 @@ import {
     removeCodeBlockChrome,
     updateCodeBlockChromeLanguage,
 } from "./codeBlockChrome";
-import { buildCodeMirrorLanguageMap } from "./codeBlockLanguageHints";
+import { loadCodeMirrorHighlightLanguage } from "./codeBlockHighlightLanguages";
 import { stopHandledCodeMirrorKeymap, vditorCodeMirrorSetup } from "./codeMirrorSetup";
+import { mathRender } from "../markdown/mathRender";
+import { mermaidRender } from "../markdown/mermaidRender";
+import { plantumlRender } from "../markdown/plantumlRender";
 
 export { focusCodeBlockChromeLanguage, isInsideCodeBlockChrome } from "./codeBlockChrome";
 export {
@@ -24,12 +27,12 @@ export {
     showCodeBlockLanguagePopover,
 } from "./codeBlockLanguagePopover";
 
-const SPECIAL_LANGUAGES = [
-    "mermaid", "plantuml", "math",
-];
-
 const CM_HOST_CLASS = "vditor-cm-host";
 export const CM_BLOCK_CLASS = "vditor-code-block--cm";
+export const CM_EDITING_CLASS = "vditor-cm-block--editing";
+export const CM_SPLIT_CLASS = "vditor-cm-block--split";
+const CM_BLOCK_DATA_TYPES = new Set(["code-block", "math-block"]);
+const SPECIAL_LANGUAGES = ["mermaid", "plantuml", "math"];
 
 interface CodeMirrorBinding {
     view: EditorView;
@@ -38,12 +41,11 @@ interface CodeMirrorBinding {
     syncCode: HTMLElement;
     updating: boolean;
     syncTimer: number;
+    previewTimer: number;
     languageName: string;
 }
 
 const bindings = new WeakMap<HTMLElement, CodeMirrorBinding>();
-
-const languageMap = buildCodeMirrorLanguageMap();
 
 export const isSpecialCodeLanguage = (codeElement: HTMLElement) => {
     for (const lang of SPECIAL_LANGUAGES) {
@@ -54,14 +56,71 @@ export const isSpecialCodeLanguage = (codeElement: HTMLElement) => {
     return false;
 };
 
-export const isCmCodeBlock = (blockElement: HTMLElement | null) => {
-    if (!blockElement || blockElement.getAttribute("data-type") !== "code-block") {
+/** PlantUML 预览渲染为 code 内的 img，不应触发普通图片编辑弹窗 */
+export const isPlantumlRenderImage = (target: EventTarget | null) => {
+    return target instanceof HTMLElement
+        && target.tagName === "IMG"
+        && !!target.closest(".language-plantuml");
+};
+
+export const isSpecialBlock = (blockElement: HTMLElement | null) => {
+    if (!blockElement) {
         return false;
     }
-    const code = blockElement.querySelector(
-        "pre.vditor-wysiwyg__pre code, pre.vditor-ir__marker--pre code, pre:first-child code",
-    ) as HTMLElement;
-    return !!code && !isSpecialCodeLanguage(code);
+    if (blockElement.getAttribute("data-type") === "math-block") {
+        return true;
+    }
+    const parts = getBlockParts(blockElement);
+    return !!parts && isSpecialCodeLanguage(parts.code);
+};
+
+export const isSpecialPreviewBlock = (blockElement: HTMLElement | null) => {
+    return isSpecialBlock(blockElement) && !blockElement?.classList.contains(CM_EDITING_CLASS);
+};
+
+export const isMathBlockElement = (blockElement: HTMLElement | null) => {
+    return blockElement?.getAttribute("data-type") === "math-block";
+};
+
+/** 数学块预览态：隐藏源码 pre，仅展示渲染结果（源码仅供 Lute / CodeMirror 同步） */
+export const ensureMathBlockPreviewMode = (blockElement: HTMLElement) => {
+    if (!isMathBlockElement(blockElement) || blockElement.classList.contains(CM_EDITING_CLASS)) {
+        return;
+    }
+    const parts = getBlockParts(blockElement);
+    if (!parts) {
+        return;
+    }
+    parts.editPre.style.display = "none";
+    parts.editPre.setAttribute("contenteditable", "false");
+    parts.code.classList.add("language-math");
+    parts.code.setAttribute("contenteditable", "false");
+    if (parts.preview) {
+        parts.preview.style.display = "";
+    }
+};
+
+export const syncMathBlocksPreviewMode = (root: ParentNode) => {
+    for (const block of root.querySelectorAll("[data-type='math-block']")) {
+        ensureMathBlockPreviewMode(block as HTMLElement);
+    }
+};
+
+export const isCmCodeBlock = (blockElement: HTMLElement | null) => {
+    if (!blockElement) {
+        return false;
+    }
+    const dataType = blockElement.getAttribute("data-type");
+    if (!dataType || !CM_BLOCK_DATA_TYPES.has(dataType)) {
+        return false;
+    }
+    if (!getBlockParts(blockElement)) {
+        return false;
+    }
+    if (isSpecialBlock(blockElement)) {
+        return blockElement.classList.contains(CM_EDITING_CLASS);
+    }
+    return true;
 };
 
 /** @deprecated use isCmCodeBlock */
@@ -139,16 +198,19 @@ const getModeEditor = (vditor: IVditor) => {
     return null;
 };
 
-const getCodeBlockSelector = (mode: string) => {
+const getCmBlockSelector = (mode: string) => {
     if (mode === "wysiwyg") {
-        return ".vditor-wysiwyg__block[data-type='code-block']";
+        return ".vditor-wysiwyg__block[data-type='code-block'], .vditor-wysiwyg__block[data-type='math-block']";
     }
-    return "[data-type='code-block']";
+    return "[data-type='code-block'], [data-type='math-block']";
 };
 
-/** 普通代码块只保留隐藏的 sync code + CodeMirror，移除 legacy 预览 DOM */
-export const prepareCmBlockDom = (blockElement: HTMLElement) => {
-    if (!isCmCodeBlock(blockElement)) {
+/** @deprecated use getCmBlockSelector */
+const getCodeBlockSelector = getCmBlockSelector;
+
+/** 普通代码块只保留隐藏的 sync code + CodeMirror；特殊块编辑时保留 preview 并上下分层显示 */
+export const prepareCmBlockDom = (blockElement: HTMLElement, keepPreview = false) => {
+    if (!isCmCodeBlock(blockElement) && !blockElement.classList.contains(CM_EDITING_CLASS)) {
         return;
     }
     const parts = getBlockParts(blockElement);
@@ -168,7 +230,11 @@ export const prepareCmBlockDom = (blockElement: HTMLElement) => {
     code.setAttribute("aria-hidden", "true");
     code.style.display = "none";
     if (preview) {
-        preview.remove();
+        if (keepPreview) {
+            preview.style.display = "";
+        } else {
+            preview.remove();
+        }
     }
 };
 
@@ -176,14 +242,201 @@ export const prepareCmBlockDom = (blockElement: HTMLElement) => {
 export const prepareWysiwygCmBlockDom = prepareCmBlockDom;
 
 const loadLanguage = (languageName: string): Promise<LanguageSupport | undefined> => {
-    const language = languageMap[languageName.toLowerCase()];
+    return loadCodeMirrorHighlightLanguage(languageName);
+};
+
+const getSpecialPreviewLanguage = (blockElement: HTMLElement, preview: HTMLElement) => {
+    const parts = getBlockParts(blockElement);
+    if (parts) {
+        const lang = getCodeLanguageName(parts.code);
+        if (lang) {
+            return lang;
+        }
+    }
+    if (blockElement.getAttribute("data-type") === "math-block") {
+        return "math";
+    }
+    const codeEl = preview.querySelector("code") as HTMLElement | null;
+    const divEl = preview.querySelector("div.language-math, div[data-type='math-block']") as HTMLElement | null;
+    return divEl ? "math" : (codeEl ? getCodeLanguageName(codeEl) : "");
+};
+
+const resetPreviewRenderElement = (
+    preview: HTMLElement,
+    source: string,
+    language: string,
+    blockElement: HTMLElement,
+) => {
+    if (isMathBlockElement(blockElement)) {
+        let mathEl = preview.querySelector(
+            "div[data-type='math-block'], div.language-math",
+        ) as HTMLElement | null;
+        if (!mathEl) {
+            preview.querySelector("code")?.remove();
+            mathEl = document.createElement("div");
+            mathEl.setAttribute("data-type", "math-block");
+            preview.replaceChildren(mathEl);
+        }
+        mathEl.className = "language-math";
+        mathEl.removeAttribute("data-math");
+        mathEl.classList.remove("vditor-reset--error");
+        mathEl.textContent = source;
+        return mathEl;
+    }
+    let codeEl = preview.querySelector(
+        language === "plantuml" || language === "mermaid"
+            ? `div.language-${language}, code.language-${language}`
+            : "code",
+    ) as HTMLElement | null;
+    if (!codeEl) {
+        codeEl = document.createElement(
+            language === "plantuml" || language === "mermaid" ? "div" : "code",
+        );
+        preview.replaceChildren(codeEl);
+    }
+    codeEl.className = `language-${language}`;
+    if (language === "mermaid") {
+        codeEl.removeAttribute("data-vditor-mermaid-processed");
+        codeEl.removeAttribute("data-mermaid");
+        codeEl.removeAttribute("id");
+        codeEl.classList.remove("vditor-reset--error");
+    } else if (language === "math") {
+        codeEl.removeAttribute("data-math");
+        codeEl.classList.remove("vditor-reset--error");
+    } else if (language === "plantuml") {
+        codeEl.classList.remove("vditor-reset--error");
+    }
+    codeEl.textContent = source;
+    return codeEl;
+};
+
+const ensureSpecialSplitLayout = (blockElement: HTMLElement) => {
+    const parts = getBlockParts(blockElement);
+    if (!parts?.preview) {
+        return;
+    }
+    blockElement.classList.add(CM_SPLIT_CLASS);
+    // CodeMirror 在上、渲染预览在下（默认 DOM：editPre 在 preview 前）
+    if (parts.preview.compareDocumentPosition(parts.editPre) & Node.DOCUMENT_POSITION_PRECEDING) {
+        blockElement.insertBefore(parts.editPre, parts.preview);
+    }
+    parts.preview.style.display = "";
+    parts.preview.style.pointerEvents = "none";
+    parts.editPre.style.display = "block";
+};
+
+const rerenderSpecialPreview = (preview: HTMLElement, vditor: IVditor, source?: string) => {
+    const blockElement = preview.closest("[data-type='code-block'], [data-type='math-block']") as HTMLElement;
+    if (!blockElement) {
+        return;
+    }
+    const language = getSpecialPreviewLanguage(blockElement, preview);
     if (!language) {
-        return Promise.resolve(undefined);
+        return;
     }
-    if (language.support) {
-        return Promise.resolve(language.support);
+    const parts = getBlockParts(blockElement);
+    const codeText = source ?? parts?.code.textContent ?? "";
+    resetPreviewRenderElement(preview, codeText, language, blockElement);
+    if (language === "mermaid") {
+        mermaidRender(preview, vditor.options.cdn, vditor);
+    } else if (language === "plantuml") {
+        plantumlRender(preview, vditor.options.cdn);
+    } else if (language === "math") {
+        mathRender(preview, { cdn: vditor.options.cdn, math: vditor.options.preview.math });
     }
-    return language.load();
+    preview.setAttribute("data-render", "1");
+};
+
+const scheduleSpecialPreviewRerender = (
+    blockElement: HTMLElement,
+    binding: CodeMirrorBinding,
+    vditor: IVditor,
+) => {
+    window.clearTimeout(binding.previewTimer);
+    binding.previewTimer = window.setTimeout(() => {
+        const parts = getBlockParts(blockElement);
+        if (!parts?.preview) {
+            return;
+        }
+        rerenderSpecialPreview(parts.preview, vditor, binding.view.state.doc.toString());
+    }, 200);
+};
+
+const exitSpecialBlockEdit = (vditor: IVditor, blockElement: HTMLElement) => {
+    if (!blockElement.classList.contains(CM_EDITING_CLASS)) {
+        return;
+    }
+    const binding = bindings.get(blockElement);
+    const finalText = binding?.view.state.doc.toString();
+    if (binding) {
+        window.clearTimeout(binding.syncTimer);
+        window.clearTimeout(binding.previewTimer);
+        binding.syncCode.textContent = finalText ?? binding.syncCode.textContent;
+        binding.view.destroy();
+        bindings.delete(blockElement);
+        binding.editPre.querySelector(".cm-editor")?.remove();
+        removeCodeBlockChrome(blockElement);
+    }
+    blockElement.classList.remove(CM_BLOCK_CLASS, CM_EDITING_CLASS, CM_SPLIT_CLASS);
+    const parts = getBlockParts(blockElement);
+    if (!parts) {
+        return;
+    }
+    parts.editPre.classList.remove(CM_HOST_CLASS);
+    parts.editPre.style.display = "none";
+    parts.code.removeAttribute("hidden");
+    parts.code.removeAttribute("aria-hidden");
+    parts.code.style.display = "";
+    if (parts.preview) {
+        parts.preview.style.display = "";
+        parts.preview.style.pointerEvents = "";
+        rerenderSpecialPreview(parts.preview, vditor, finalText);
+    }
+    if (isMathBlockElement(blockElement)) {
+        ensureMathBlockPreviewMode(blockElement);
+    }
+    if (vditor.currentMode === "wysiwyg") {
+        clearTimeout(vditor.wysiwyg.afterRenderTimeoutId);
+        recordWysiwygHistory(vditor, {
+            enableAddUndoStack: true,
+            enableHint: false,
+            enableInput: true,
+        });
+        afterRenderEvent(vditor, {
+            enableAddUndoStack: false,
+            enableHint: false,
+            enableInput: true,
+        });
+    } else if (vditor.currentMode === "ir") {
+        clearTimeout(vditor.ir.processTimeoutId);
+        recordIrHistory(vditor, {
+            enableAddUndoStack: true,
+            enableHint: false,
+            enableInput: true,
+        });
+        processAfterRender(vditor, {
+            enableAddUndoStack: false,
+            enableHint: false,
+            enableInput: true,
+        });
+    }
+};
+
+/** 数学公式 / Mermaid / PlantUML：CodeMirror 在上、预览在下，编辑时实时重绘 */
+export const enterSpecialBlockEdit = (vditor: IVditor, blockElement: HTMLElement) => {
+    if (!isSpecialBlock(blockElement) || blockElement.classList.contains(CM_EDITING_CLASS)) {
+        return false;
+    }
+    blockElement.classList.add(CM_EDITING_CLASS);
+    ensureSpecialSplitLayout(blockElement);
+    mountCodeMirror(blockElement, vditor, true);
+    const binding = bindings.get(blockElement);
+    const parts = getBlockParts(blockElement);
+    if (binding && parts?.preview) {
+        rerenderSpecialPreview(parts.preview, vditor, binding.view.state.doc.toString());
+    }
+    focusCodeMirror(blockElement, true, vditor);
+    return true;
 };
 
 const syncRenderOptions = {
@@ -218,6 +471,7 @@ export const flushCodeMirrorExternalUndo = (vditor: IVditor) => {
             continue;
         }
         window.clearTimeout(binding.syncTimer);
+        window.clearTimeout(binding.previewTimer);
         binding.syncCode.textContent = binding.view.state.doc.toString();
     }
     const recordOptions = {
@@ -239,7 +493,7 @@ export const getActiveCodeMirrorView = (): EditorView | undefined => {
     if (!cmEditor) {
         return undefined;
     }
-    const blockElement = cmEditor.closest("[data-type='code-block']") as HTMLElement | null;
+    const blockElement = cmEditor.closest("[data-type='code-block'], [data-type='math-block']") as HTMLElement | null;
     if (!blockElement) {
         return undefined;
     }
@@ -272,8 +526,12 @@ export const redoActiveCodeMirror = () => {
     return redo(view);
 };
 
-const syncCodeFromView = (binding: CodeMirrorBinding, vditor: IVditor) => {
+const syncCodeFromView = (binding: CodeMirrorBinding, vditor: IVditor, blockElement: HTMLElement) => {
     binding.syncCode.textContent = binding.view.state.doc.toString();
+    if (isSpecialBlock(blockElement) && blockElement.classList.contains(CM_EDITING_CLASS)) {
+        scheduleSpecialPreviewRerender(blockElement, binding, vditor);
+        return;
+    }
     scheduleSync(binding, vditor);
 };
 
@@ -368,8 +626,15 @@ const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding:
             if (!bindings.has(blockElement) || binding.view.hasFocus) {
                 return;
             }
+            if (blockElement.contains(document.activeElement)) {
+                return;
+            }
             clearCmSelection(binding.view);
-            flushCodeMirrorExternalUndo(vditor);
+            if (isSpecialBlock(blockElement) && blockElement.classList.contains(CM_EDITING_CLASS)) {
+                exitSpecialBlockEdit(vditor, blockElement);
+            } else {
+                flushCodeMirrorExternalUndo(vditor);
+            }
             vditor.undo.resetIcon(vditor);
         }, 0);
         return false;
@@ -409,7 +674,7 @@ const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding:
             changes: { from, to, insert: "" },
             selection: EditorSelection.cursor(from),
         });
-        syncCodeFromView(binding, vditor);
+        syncCodeFromView(binding, vditor, blockElement);
         return true;
     },
     paste: (event: Event) => {
@@ -423,7 +688,7 @@ const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding:
         clipboardEvent.preventDefault();
         if (text) {
             view.dispatch(view.state.replaceSelection(text));
-            syncCodeFromView(binding, vditor);
+            syncCodeFromView(binding, vditor, blockElement);
         }
         return true;
     },
@@ -561,12 +826,17 @@ const destroyCodeMirror = (blockElement: HTMLElement) => {
         return;
     }
     window.clearTimeout(binding.syncTimer);
+    window.clearTimeout(binding.previewTimer);
     binding.syncCode.textContent = binding.view.state.doc.toString();
     binding.view.destroy();
     bindings.delete(blockElement);
     binding.editPre.querySelector(".cm-editor")?.remove();
     removeCodeBlockChrome(blockElement);
-    prepareCmBlockDom(blockElement);
+    const wasSpecialEdit = blockElement.classList.contains(CM_EDITING_CLASS);
+    blockElement.classList.remove(CM_BLOCK_CLASS, CM_EDITING_CLASS, CM_SPLIT_CLASS);
+    if (!wasSpecialEdit) {
+        prepareCmBlockDom(blockElement);
+    }
 };
 
 export const removeCmCodeBlock = (vditor: IVditor, blockElement: HTMLElement) => {
@@ -586,6 +856,7 @@ export const removeCmCodeBlock = (vditor: IVditor, blockElement: HTMLElement) =>
     const binding = bindings.get(blockElement);
     if (binding) {
         window.clearTimeout(binding.syncTimer);
+        window.clearTimeout(binding.previewTimer);
         binding.syncCode.textContent = binding.view.state.doc.toString();
         binding.view.destroy();
         bindings.delete(blockElement);
@@ -734,17 +1005,20 @@ const cleanupStaleCmArtifacts = (blockElement: HTMLElement) => {
     });
 };
 
-const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor) => {
-    if (!isCmCodeBlock(blockElement)) {
+const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor, force = false) => {
+    if (!force && !isCmCodeBlock(blockElement)) {
         return;
     }
 
     cleanupStaleCmArtifacts(blockElement);
-    prepareCmBlockDom(blockElement);
+    prepareCmBlockDom(blockElement, isSpecialBlock(blockElement));
 
     const parts = getBlockParts(blockElement);
     if (!parts) {
         return;
+    }
+    if (isMathBlockElement(blockElement)) {
+        parts.code.classList.add("language-math");
     }
 
     const existing = bindings.get(blockElement);
@@ -773,6 +1047,7 @@ const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor) => {
         syncCode: code,
         updating: false,
         syncTimer: 0,
+        previewTimer: 0,
         languageName: "",
     };
 
@@ -791,7 +1066,7 @@ const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor) => {
                 if (binding.updating || !update.docChanged) {
                     return;
                 }
-                syncCodeFromView(binding, vditor);
+                syncCodeFromView(binding, vditor, blockElement);
                 vditor.undo.resetIcon(vditor);
             }),
             EditorView.domEventHandlers(cmDomEventHandlers(vditor, blockElement, binding)),
@@ -814,6 +1089,7 @@ export const renderCodeBlocks = (vditor: IVditor) => {
     editor.querySelectorAll(getCodeBlockSelector(vditor.currentMode)).forEach((block) => {
         mountCodeMirror(block as HTMLElement, vditor);
     });
+    syncMathBlocksPreviewMode(editor);
 };
 
 /** @deprecated use renderCodeBlocks */
@@ -892,6 +1168,9 @@ export const focusCodeMirror = (
 export const focusWysiwygCodeMirror = focusCodeMirror;
 
 export const focusCodeBlock = (blockElement: HTMLElement, vditor: IVditor, collapseToStart = true) => {
+    if (isSpecialPreviewBlock(blockElement)) {
+        return enterSpecialBlockEdit(vditor, blockElement);
+    }
     if (!isCmCodeBlock(blockElement)) {
         return false;
     }
@@ -992,21 +1271,44 @@ export const sanitizeCodeBlocksInCopyFragment = (root: ParentNode, editor: HTMLE
     }
 };
 
-/** 导出 Markdown 前还原 CM 代码块为标准 Lute 可识别的 DOM */
+/** 保存/导出前将 CodeMirror 文档同步到隐藏的 sync code 节点 */
+export const flushCodeMirrorToSyncCode = (vditor: IVditor) => {
+    const editor = getModeEditor(vditor);
+    if (!editor) {
+        return;
+    }
+    for (const block of editor.querySelectorAll(`.${CM_BLOCK_CLASS}`)) {
+        const binding = bindings.get(block as HTMLElement);
+        if (!binding) {
+            continue;
+        }
+        window.clearTimeout(binding.syncTimer);
+        window.clearTimeout(binding.previewTimer);
+        binding.syncCode.textContent = binding.view.state.doc.toString();
+    }
+};
+
+/** 导出 Markdown 前同步 CM 状态；Lute 直接识别 CM DOM，无需再篡改 DOM */
 export const buildEditorHtmlForMarkdown = (vditor: IVditor) => {
+    flushCodeMirrorToSyncCode(vditor);
     const editor = getModeEditor(vditor);
     if (!editor) {
         return "";
     }
     const clone = editor.cloneNode(true) as HTMLElement;
-    const liveBlocks = editor.querySelectorAll(`.${CM_BLOCK_CLASS}`);
-    const cloneBlocks = clone.querySelectorAll(`.${CM_BLOCK_CLASS}`);
-    for (let i = 0; i < liveBlocks.length; i++) {
-        const cloneBlock = cloneBlocks[i] as HTMLElement | undefined;
-        if (!cloneBlock) {
-            break;
+    for (const el of clone.querySelectorAll(".vditor-cm-chrome, .cm-editor")) {
+        el.remove();
+    }
+    for (const block of clone.querySelectorAll("[data-type='code-block'], [data-type='math-block']")) {
+        block.querySelectorAll(".vditor-wysiwyg__preview, .vditor-ir__preview").forEach((preview) => {
+            preview.remove();
+        });
+        const parts = getBlockParts(block as HTMLElement);
+        if (parts?.editPre) {
+            parts.editPre.style.display = "block";
+            parts.code.removeAttribute("hidden");
+            parts.code.style.display = "";
         }
-        sanitizeCmBlockCloneForMarkdown(liveBlocks[i] as HTMLElement, cloneBlock);
     }
     return clone.innerHTML;
 };

@@ -4,12 +4,10 @@ import {LanguageSupport} from "@codemirror/language";
 
 import {vditorSyntaxHighlighting} from "./codeMirrorHighlight";
 import {ensurePreviewCodeBlockChrome, removePreviewCodeBlockChrome} from "./codeBlockChrome";
-import {buildCodeMirrorLanguageMap} from "./codeBlockLanguageHints";
+import {loadCodeMirrorHighlightLanguage} from "./codeBlockHighlightLanguages";
 
 const PREVIEW_HOST_CLASS = "vditor-cm-preview-host";
 const previewViews = new WeakMap<HTMLElement, EditorView>();
-
-const languageMap = buildCodeMirrorLanguageMap();
 
 const isPreviewCodeElement = (code: HTMLElement) => {
     const pre = code.parentElement;
@@ -34,14 +32,7 @@ const getLanguageName = (code: HTMLElement) => {
 };
 
 const loadLanguage = (languageName: string): Promise<LanguageSupport | undefined> => {
-    const language = languageMap[languageName.toLowerCase()];
-    if (!language) {
-        return Promise.resolve(undefined);
-    }
-    if (language.support) {
-        return Promise.resolve(language.support);
-    }
-    return language.load();
+    return loadCodeMirrorHighlightLanguage(languageName);
 };
 
 const mountPreviewCodeMirror = (pre: HTMLElement, code: HTMLElement, showLineNumber: boolean) => {

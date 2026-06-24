@@ -25,6 +25,8 @@ import {
     isInsideCodeMirror,
     getCodeMirrorSelectionTextForCopy,
     sanitizeCodeBlocksInCopyFragment,
+    isSpecialBlock,
+    isSpecialPreviewBlock,
 } from "../codeBlock/codeMirrorManager";
 import { expandMarker } from "./expandMarker";
 import { highlightToolbarIR } from "./highlightToolbarIR";
@@ -172,7 +174,9 @@ class IR {
 
             const range = getEditorRange(vditor);
 
-            const cmBlock = (event.target as HTMLElement).closest?.("[data-type='code-block']") as HTMLElement;
+            const cmBlock = (event.target as HTMLElement).closest?.(
+                "[data-type='code-block'], [data-type='math-block']",
+            ) as HTMLElement;
             if (isCmCodeBlock(cmBlock)) {
                 if (!isInsideCodeMirror(event.target) && !isInsideCodeBlockChrome(event.target)) {
                     highlightToolbarIR(vditor);
@@ -189,8 +193,17 @@ class IR {
                     range.startContainer, "vditor-ir__preview");
             }
             if (previewElement) {
-                const blockElement = previewElement.closest("[data-type='code-block']") as HTMLElement;
-                if (!focusCodeBlock(blockElement, vditor) && previewElement.previousElementSibling) {
+                const blockElement = previewElement.closest(
+                    "[data-type='code-block'], [data-type='math-block']",
+                ) as HTMLElement;
+                if (isSpecialPreviewBlock(blockElement)) {
+                    focusCodeBlock(blockElement, vditor);
+                    highlightToolbarIR(vditor);
+                    clickToc(event, vditor);
+                    return;
+                }
+                if (!focusCodeBlock(blockElement, vditor) && previewElement.previousElementSibling
+                    && !isSpecialBlock(blockElement)) {
                     if (previewElement.previousElementSibling.firstElementChild) {
                         range.selectNodeContents(previewElement.previousElementSibling.firstElementChild);
                     } else {
@@ -284,8 +297,10 @@ class IR {
             const previewRenderElement = hasClosestByClassName(range.startContainer, "vditor-ir__preview");
 
             if (previewRenderElement) {
-                const blockElement = previewRenderElement.closest("[data-type='code-block']") as HTMLElement;
-                if (isCmCodeBlock(blockElement)) {
+                const blockElement = previewRenderElement.closest(
+                    "[data-type='code-block'], [data-type='math-block']",
+                ) as HTMLElement;
+                if (blockElement && (isSpecialBlock(blockElement) || isCmCodeBlock(blockElement))) {
                     if (event.key === "ArrowDown" || event.key === "ArrowRight") {
                         focusCodeBlock(blockElement, vditor, true);
                     } else if (event.key === "ArrowUp" || event.key === "ArrowLeft") {

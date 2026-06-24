@@ -20,6 +20,7 @@ import { applyCodeBlockLanguageChange } from "./codeBlockLanguageInput";
 import {
     focusCodeMirror,
     getCodeLanguageName,
+    isMathBlockElement,
     removeCmCodeBlock,
     resolveCmCodeBlock,
 } from "./codeMirrorManager";
@@ -54,6 +55,7 @@ interface ICodeBlockChrome {
     themeTrigger?: HTMLButtonElement;
     themePanel?: HTMLElement;
     editable: boolean;
+    langReadonly: boolean;
     getCodeText: () => string;
     langActiveIndex: number;
 }
@@ -289,9 +291,27 @@ const setLangPanelOpen = (chrome: ICodeBlockChrome, open: boolean) => {
 const filterLanguages = (query: string) => filterCodeMirrorLanguageNames(query);
 
 const getChromeCurrentLanguage = (chrome: ICodeBlockChrome) => {
-    const blockElement = chrome.root.closest("[data-type='code-block']") as HTMLElement | null;
+    const blockElement = chrome.root.closest(
+        "[data-type='code-block'], [data-type='math-block']",
+    ) as HTMLElement | null;
+    if (isMathBlockElement(blockElement)) {
+        return "math";
+    }
     const codeElement = blockElement?.querySelector("pre code") as HTMLElement | null;
     return codeElement ? getCodeLanguageName(codeElement) : "";
+};
+
+const applyLanguageReadonlyState = (chrome: ICodeBlockChrome, readonly: boolean) => {
+    chrome.langReadonly = readonly;
+    chrome.langWrap.classList.toggle("vditor-cm-chrome__lang--readonly", readonly);
+    chrome.langTrigger.disabled = readonly;
+    chrome.langSearch.disabled = readonly;
+    if (readonly) {
+        chrome.langTrigger.setAttribute("aria-label", window.VditorI18n.language || "Language");
+        if (chrome.langWrap.classList.contains("vditor-cm-chrome__lang--open")) {
+            setLangPanelOpen(chrome, false);
+        }
+    }
 };
 
 const renderLangList = (chrome: ICodeBlockChrome, query: string) => {
@@ -534,6 +554,7 @@ export const ensurePreviewCodeBlockChrome = (
     const chrome: ICodeBlockChrome = {
         ...created,
         editable: false,
+        langReadonly: true,
         getCodeText,
         langActiveIndex: -1,
     };
@@ -552,6 +573,7 @@ export const ensureCodeBlockChrome = (
     blockElement: HTMLElement,
     options: {
         editable?: boolean;
+        languageReadonly?: boolean;
         getCodeText: () => string;
     },
 ) => {
@@ -562,12 +584,14 @@ export const ensureCodeBlockChrome = (
 
     let chrome = chromeMap.get(blockElement);
     const editable = options.editable !== false;
+    const languageReadonly = options.languageReadonly ?? isMathBlockElement(blockElement);
 
     if (!chrome) {
         const created = createChromeRoot(editable);
         chrome = {
             ...created,
             editable,
+            langReadonly: languageReadonly,
             getCodeText: options.getCodeText,
             langActiveIndex: -1,
         };
@@ -578,8 +602,9 @@ export const ensureCodeBlockChrome = (
             bindDeleteButton(vditor, blockElement, chrome.deleteBtn);
         }
         bindChromeEventIsolation(chrome.root);
+        applyLanguageReadonlyState(chrome, languageReadonly);
 
-        if (editable) {
+        if (editable && !languageReadonly) {
             chrome.langWrap.addEventListener("mousedown", (event) => {
                 event.stopPropagation();
             });
@@ -599,32 +624,34 @@ export const ensureCodeBlockChrome = (
                 setLangPanelOpen(chrome!, !isOpen);
             });
             bindLanguagePanel(vditor, blockElement, chrome);
-            if (chrome.themeWrap && chrome.themeTrigger) {
-                chrome.themeWrap.addEventListener("mousedown", (event) => {
-                    event.stopPropagation();
-                });
-                chrome.themePanel?.addEventListener("mousedown", (event) => {
-                    event.stopPropagation();
-                });
-                chrome.themeTrigger.addEventListener("mousedown", (event) => {
-                    event.stopPropagation();
-                });
-                chrome.themeTrigger.addEventListener("click", (event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    const isOpen = chrome!.themeWrap!.classList.contains("vditor-cm-chrome__theme--open");
-                    setThemePanelOpen(vditor, chrome!, !isOpen);
-                });
-                bindThemePanel(vditor, chrome);
-            }
+        }
+        if (editable && chrome.themeWrap && chrome.themeTrigger) {
+            chrome.themeWrap.addEventListener("mousedown", (event) => {
+                event.stopPropagation();
+            });
+            chrome.themePanel?.addEventListener("mousedown", (event) => {
+                event.stopPropagation();
+            });
+            chrome.themeTrigger.addEventListener("mousedown", (event) => {
+                event.stopPropagation();
+            });
+            chrome.themeTrigger.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                const isOpen = chrome!.themeWrap!.classList.contains("vditor-cm-chrome__theme--open");
+                setThemePanelOpen(vditor, chrome!, !isOpen);
+            });
+            bindThemePanel(vditor, chrome);
         }
     }
 
     chrome.getCodeText = options.getCodeText;
     chrome.editable = editable;
+    applyLanguageReadonlyState(chrome, languageReadonly);
 
     const codeElement = blockElement.querySelector("pre code") as HTMLElement;
-    updateCodeBlockChromeLanguage(blockElement, codeElement ? getCodeLanguageName(codeElement) : "");
+    const languageName = isMathBlockElement(blockElement) ? "math" : (codeElement ? getCodeLanguageName(codeElement) : "");
+    updateCodeBlockChromeLanguage(blockElement, languageName);
 };
 
 export const removeCodeBlockChrome = (target: HTMLElement) => {
@@ -648,7 +675,7 @@ export const focusCodeBlockChromeLanguage = (vditor: IVditor, blockElement?: HTM
         return false;
     }
     const chrome = chromeMap.get(block);
-    if (!chrome || !chrome.editable) {
+    if (!chrome || !chrome.editable || chrome.langReadonly) {
         return false;
     }
     setLangPanelOpen(chrome, true);

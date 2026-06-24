@@ -1,6 +1,5 @@
-import { openLink, hotKeys, imageParser, getToolbar, autoSymbol, createContextMenu, createAIDialog, setAIAvailable } from "./util.js";
+import { openLink, hotKeys, imageParser, getToolbar, autoSymbol, createContextMenu, setAIAvailable } from "./util.js";
 import { mapVscodeLanguageToVditorLang } from "./lang.js";
-import { getAII18n } from "./ai-i18n.js";
 
 handler.on("open", async (md) => {
   const { content, rootPath, documentCacheId, config } = md;
@@ -30,7 +29,7 @@ handler.on("open", async (md) => {
     mermaidTheme,
     lang: mapVscodeLanguageToVditorLang(language),
     tab: '\t',
-    toolbar: await getToolbar(rootPath),
+    toolbar: await getToolbar(rootPath, isDev, () => handler.emit('doSave', editor?.getValue())),
     onAboutOpen: () => handler.emit('openAbout'),
     onSponsorLogoClick: () => handler.emit('openSponsor'),
     onSponsorSiteClick: () => handler.emit('openExternal', 'https://database-client.com/'),
@@ -69,6 +68,9 @@ handler.on("open", async (md) => {
         handler.on('aiPolishResult', (result) => {
           apply(result)
         })
+      },
+      onCancelPolish() {
+        handler.emit('aiPolishCancel')
       }
     },
     hint: {
@@ -85,15 +87,13 @@ handler.on("open", async (md) => {
       })
       handler.emit('queryAIAvailable')
       handler.on("aiAvailable", (available) => {
-        setAIAvailable(available)
+        setAIAvailable(available, isDev)
       })
       openLink()
       editor.restoreDocumentSession(true)
     }
   })
   autoSymbol(handler, editor);
-  const aiT = getAII18n(mapVscodeLanguageToVditorLang(config.language))
-  const aiDialog = createAIDialog((options) => editor.triggerAIPolish(options), aiT)
-  createContextMenu(editor, aiDialog)
+  createContextMenu(editor)
   imageParser(viewAbsoluteLocal)
 }).emit("init")

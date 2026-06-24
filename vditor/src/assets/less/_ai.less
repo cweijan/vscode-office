@@ -1,0 +1,74 @@
+@keyframes vditor-ai-spin {
+  to { transform: rotate(360deg); }
+}
+
+.vditor-ai-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: color-mix(in srgb, var(--editor-background, #1e1e1e) 72%, transparent);
+  backdrop-filter: blur(2px);
+  border-radius: inherit;
+
+  &[hidden] {
+    display: none !important;
+  }
+
+  &__spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid color-mix(in srgb, var(--link-color, #4a90d9) 25%, transparent);
+    border-top-color: var(--link-color, #4a90d9);
+    border-radius: 50%;
+    animation: vditor-ai-spin 0.75s linear infinite;
+    flex-shrink: 0;
+  }
+
+  &__cancel {
+    padding: 5px 18px;
+    border-radius: 5px;
+    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color, #586069) 30%, transparent);
+    background: color-mix(in srgb, var(--toolbar-icon-color, #586069) 8%, transparent);
+    color: var(--toolbar-icon-color, #586069);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.1s, color 0.1s, background 0.1s;
+
+    &:hover {
+      border-color: var(--error-color, #cf222e);
+      color: var(--error-color, #cf222e);
+      background: color-mix(in srgb, var(--error-color, #cf222e) 10%, transparent);
+    }
+  }
+}
+
+.vditor {
+  &--ai-loading {
+    .vditor-toolbar {
+      pointer-events: none;
+      opacity: 0.5;
+    }
+  }
+}
+
+.vditor-frozen-selection {
+  position: fixed;
+  inset: 0;
+  z-index: 19999;
+  pointer-events: none;
+
+  &__rect {
+    position: absolute;
+    border-radius: 2px;
+    background: var(
+      --vscode-editor-selectionBackground,
+      color-mix(in srgb, var(--link-color, #4a90d9) 35%, transparent)
+    );
+  }
+}

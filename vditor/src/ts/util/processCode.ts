@@ -1,4 +1,5 @@
 import { codeMirrorPreviewRender } from "../codeBlock/codeMirrorPreviewRender";
+import { ensureMathBlockPreviewMode } from "../codeBlock/codeMirrorManager";
 import { codeRender } from "../markdown/codeRender";
 import { mathRender } from "../markdown/mathRender";
 import { mermaidRender } from "../markdown/mermaidRender";
@@ -40,6 +41,9 @@ export const processCodeRender = (previewPanel: HTMLElement, vditor: IVditor) =>
         plantumlRender(previewPanel, vditor.options.cdn);
     } else if (language === "math") {
         mathRender(previewPanel, { cdn: vditor.options.cdn, math: vditor.options.preview.math });
+        if (parentElement.getAttribute("data-type") === "math-block") {
+            ensureMathBlockPreviewMode(parentElement);
+        }
     } else {
         codeRender(previewPanel);
         codeMirrorPreviewRender(previewPanel);

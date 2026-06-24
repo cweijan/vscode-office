@@ -35,6 +35,7 @@ const TOOLBAR_CODICONS: Record<string, string> = {
     outline: "list-tree",
     "editor-theme": "color-mode",
     "code-theme": "file-code",
+    "ai-settings": "sparkle",
     settings: "settings-gear",
     info: "info",
     help: "question",

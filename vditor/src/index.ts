@@ -20,6 +20,7 @@ import {Tip} from "./ts/tip/index";
 import {Toolbar} from "./ts/toolbar/index";
 import {disableToolbar, hidePanel} from "./ts/toolbar/setToolbar";
 import {enableToolbar} from "./ts/toolbar/setToolbar";
+import {AIDialog} from "./ts/ui/aiDialog";
 import {initUI} from "./ts/ui/initUI";
 import {setCodeTheme} from "./ts/ui/setCodeTheme";
 import {setEditorTheme as applyEditorTheme} from "./ts/ui/setEditorTheme";
@@ -34,6 +35,12 @@ import {getSelectText} from "./ts/util/getSelectText";
 import {Options} from "./ts/util/Options";
 import {processCodeRender} from "./ts/util/processCode";
 import {getCursorPosition, getEditorRange} from "./ts/util/selection";
+import {
+    captureEditorSelection,
+    hideFrozenSelection,
+    restoreEditorSelection,
+    showFrozenSelection,
+} from "./ts/util/frozenSelection";
 import {afterRenderEvent} from "./ts/wysiwyg/afterRenderEvent";
 import {renderToc} from "./ts/util/toc";
 import {WYSIWYG} from "./ts/wysiwyg/index";
@@ -54,6 +61,8 @@ class Vditor {
 
     public readonly version: string;
     public vditor: IVditor;
+    private aiDialog: AIDialog | null = null;
+    private aiSelectionRange: Range | null = null;
 
     /**
      * @param id 要挂载 Vditor 的元素或者元素 ID。
@@ -330,33 +339,70 @@ class Vditor {
         this.vditor.undo.addToUndoStack(this.vditor);
     }
 
-    /** 触发 AI 润色：有选区则针对选区，否则针对全文，进入 loading 状态并调用 onPolish 回调 */
-    public triggerAIPolish(options?: IAIPolishOptions) {
+    /** 打开 AI 润色弹窗，由外部（右键菜单等）调用 */
+    public openAIPolishDialog() {
+        if (!this.aiDialog) { return; }
+        const sel = this.getSelection();
+        this.aiSelectionRange = captureEditorSelection(this.vditor);
+        if (this.aiSelectionRange) {
+            showFrozenSelection(this.vditor, this.aiSelectionRange);
+        }
+        this.aiDialog.open(sel || this.getValue(), !!sel);
+    }
+
+    /** 触发 AI 润色。capturedMarkdown/isSelection 由调用方在失焦前预先捕获，避免选区丢失 */
+    public triggerAIPolish(options?: IAIPolishOptions, capturedMarkdown?: string, isSelection?: boolean) {
         const onPolish = this.vditor.options.ai?.onPolish;
         if (!onPolish) {
             return;
         }
-        const selection = this.getSelection();
-        const markdown = selection || this.getValue();
+        const replaceAll = isSelection !== undefined ? !isSelection : !this.getSelection();
+        const markdown = capturedMarkdown ?? (this.getSelection() || this.getValue());
         this.disabled();
-        this.vditor.element.classList.add("vditor--ai-loading");
+        this._showAILoadingOverlay();
         onPolish(markdown, (result: string) => {
-            this.applyAIResult(result, !selection);
+            this.applyAIResult(result, replaceAll);
         }, options);
     }
 
     /** 接收 AI 润色结果：退出 loading 状态，将 markdown 并入正文 */
     public applyAIResult(markdown: string, replaceAll = false) {
+        this._hideAILoadingOverlay();
         this.enable();
-        this.vditor.element.classList.remove("vditor--ai-loading");
+        hideFrozenSelection(this.vditor);
         if (replaceAll) {
+            this.aiSelectionRange = null;
             this.setValue(markdown);
         } else {
-            this.focus();
+            restoreEditorSelection(this.vditor, this.aiSelectionRange);
+            this.aiSelectionRange = null;
             document.execCommand("delete", false);
             const html = this.vditor.lute.Md2HTML(markdown);
             document.execCommand("insertHTML", false, html);
         }
+    }
+
+    private _showAILoadingOverlay() {
+        let overlay = this.vditor.element.querySelector(".vditor-ai-overlay") as HTMLElement | null;
+        if (!overlay) {
+            overlay = document.createElement("div");
+            overlay.className = "vditor-ai-overlay";
+            const cancelLabel = window.VditorI18n?.aiCancel || "Cancel";
+            overlay.innerHTML = `<div class="vditor-ai-overlay__spinner"></div>
+                <button class="vditor-ai-overlay__cancel" type="button">${cancelLabel}</button>`;
+            overlay.querySelector(".vditor-ai-overlay__cancel")!.addEventListener("click", () => {
+                this._hideAILoadingOverlay();
+                this.enable();
+                this.vditor.options.ai?.onCancelPolish?.();
+            });
+            this.vditor.element.appendChild(overlay);
+        }
+        overlay.hidden = false;
+    }
+
+    private _hideAILoadingOverlay() {
+        const overlay = this.vditor.element.querySelector(".vditor-ai-overlay") as HTMLElement | null;
+        if (overlay) overlay.hidden = true;
     }
 
     /** 销毁编辑器 */
@@ -407,6 +453,7 @@ class Vditor {
                 linkPrefix: this.vditor.options.preview.markdown.linkPrefix,
                 listStyle: this.vditor.options.preview.markdown.listStyle,
                 mark: this.vditor.options.preview.markdown.mark,
+                obsidian: this.vditor.options.preview.markdown.obsidian,
                 mathBlockPreview: this.vditor.options.preview.markdown
                     .mathBlockPreview,
                 paragraphBeginningSpace: this.vditor.options.preview.markdown
@@ -416,6 +463,17 @@ class Vditor {
             });
 
             initUI(this.vditor);
+
+            if (mergedOptions.ai?.onPolish) {
+                this.aiDialog = new AIDialog(this.vditor.element, (markdown, isSelection, options) => {
+                    this.triggerAIPolish(options, markdown, isSelection);
+                }, (reason) => {
+                    hideFrozenSelection(this.vditor);
+                    if (reason !== "submit") {
+                        this.aiSelectionRange = null;
+                    }
+                });
+            }
 
             if (mergedOptions.after) {
                 mergedOptions.after();

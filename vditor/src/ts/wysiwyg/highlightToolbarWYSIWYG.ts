@@ -20,6 +20,9 @@ import {
     isCmCodeBlock,
     isInsideCodeBlockChrome,
     isInsideCodeMirror,
+    isSpecialBlock,
+    CM_EDITING_CLASS,
+    syncMathBlocksPreviewMode,
     shouldShowLanguagePopover,
     updateCodeMirrorLanguage,
 } from "../codeBlock/codeMirrorManager";
@@ -230,19 +233,33 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
         // block popover: math-inline, math-block, html-block, html-inline, code-block, html-entity
         let blockRenderElement: HTMLElement | false = hasClosestByClassName(typeElement, "vditor-wysiwyg__block");
         if (!blockRenderElement && isInsideCodeMirror(typeElement)) {
-            blockRenderElement = hasClosestByAttribute(typeElement, "data-type", "code-block");
+            blockRenderElement = (hasClosestByAttribute(typeElement, "data-type", "code-block")
+                || hasClosestByAttribute(typeElement, "data-type", "math-block")) as HTMLElement;
         }
         const blockType = blockRenderElement !== false ? (blockRenderElement.getAttribute("data-type") ?? "") : "";
         const isBlock = blockType.endsWith("-block");
+        syncMathBlocksPreviewMode(vditor.wysiwyg.element);
         vditor.wysiwyg.element
             .querySelectorAll(".vditor-wysiwyg__preview")
             .forEach((itemElement) => {
-                const block = itemElement.closest("[data-type='code-block']") as HTMLElement;
+                const block = itemElement.closest(
+                    "[data-type='code-block'], [data-type='math-block']",
+                ) as HTMLElement;
+                const previousElement = itemElement.previousElementSibling as HTMLElement;
+                if (!block || !previousElement) {
+                    return;
+                }
+                if (isSpecialBlock(block)) {
+                    if (block.classList.contains(CM_EDITING_CLASS)) {
+                        return;
+                    }
+                    previousElement.style.display = "none";
+                    return;
+                }
                 if (isCmCodeBlock(block)) {
                     return;
                 }
                 if (!blockRenderElement || (blockRenderElement !== false && isBlock && !blockRenderElement.contains(itemElement))) {
-                    const previousElement = itemElement.previousElementSibling as HTMLElement;
                     previousElement.style.display = "none";
                 }
             });

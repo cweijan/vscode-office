@@ -1,10 +1,20 @@
-import { cpSync } from "fs";
+import { cpSync, existsSync, mkdirSync } from "fs";
 import { resolve } from "path";
 import { defineConfig, type Plugin } from "vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import pkg from "./package.json";
 
 const resourceMarkdownDir = resolve(__dirname, "../resource/markdown");
+const localLuteDir = resolve(__dirname, "../test/output/lute");
+const resourceLuteDir = resolve(resourceMarkdownDir, "dist/js/lute");
+
+function copyLocalLuteOverride() {
+  if (!existsSync(localLuteDir)) {
+    return;
+  }
+  mkdirSync(resourceLuteDir, { recursive: true });
+  cpSync(localLuteDir, resourceLuteDir, { recursive: true });
+}
 
 function copyBuildToResource(): Plugin {
   return {
@@ -15,6 +25,7 @@ function copyBuildToResource(): Plugin {
         resolve(resourceMarkdownDir, "dist"),
         { recursive: true },
       );
+      copyLocalLuteOverride();
     },
   };
 }

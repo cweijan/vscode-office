@@ -92,8 +92,7 @@
   & > .vditor-reset > h3.vditor-heading--active,
   & > .vditor-reset > h4.vditor-heading--active,
   & > .vditor-reset > h5.vditor-heading--active,
-  & > .vditor-reset > h6.vditor-heading--active,
-  div.vditor-wysiwyg__block[data-type="math-block"].vditor-math-block--active {
+  & > .vditor-reset > h6.vditor-heading--active {
     .vditor-block-marker-aligned-host();
   }
 
@@ -102,8 +101,7 @@
   & > .vditor-reset > h3.vditor-heading--active:before,
   & > .vditor-reset > h4.vditor-heading--active:before,
   & > .vditor-reset > h5.vditor-heading--active:before,
-  & > .vditor-reset > h6.vditor-heading--active:before,
-  div.vditor-wysiwyg__block[data-type="math-block"].vditor-math-block--active:before {
+  & > .vditor-reset > h6.vditor-heading--active:before {
     .vditor-block-marker-aligned-before();
     content: 'H1';
   }
@@ -151,10 +149,6 @@
 
   div.vditor-wysiwyg__block[data-type="yaml-front-matter"]:before {
     content: "F";
-  }
-
-  div.vditor-wysiwyg__block[data-type="math-block"].vditor-math-block--active:before {
-    content: "$$";
   }
 
   .vditor-toc:before {
@@ -210,7 +204,6 @@
     h5:before,
     h6:before,
     div.vditor-wysiwyg__block[data-type="yaml-front-matter"]:before,
-    div.vditor-wysiwyg__block[data-type="math-block"].vditor-math-block--active:before,
     div[data-type="link-ref-defs-block"]:before,
     div[data-type="footnotes-block"]:before,
     .vditor-toc:before {

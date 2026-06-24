@@ -6,6 +6,8 @@ export const vditorSyntaxHighlighting = syntaxHighlighting(HighlightStyle.define
     {tag: t.comment, class: "cm-comment"},
     {tag: t.string, class: "cm-string"},
     {tag: t.keyword, class: "cm-keyword"},
+    {tag: t.annotation, class: "cm-annotation"},
+    {tag: t.operator, class: "cm-operator"},
     {tag: t.atom, class: "cm-atom"},
     {tag: t.number, class: "cm-number"},
     {tag: t.propertyName, class: "cm-property"},

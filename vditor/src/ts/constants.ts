@@ -38,6 +38,7 @@ export abstract class Constants {
     linkPrefix: "",
     listStyle: false,
     mark: true,
+    obsidian: true,
     mathBlockPreview: true,
     paragraphBeginningSpace: false,
     sanitize: true,

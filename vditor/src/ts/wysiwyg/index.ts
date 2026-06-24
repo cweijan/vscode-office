@@ -33,6 +33,9 @@ import { input } from "./input";
 import {
     focusCodeBlock, isCmCodeBlock, isInsideCodeBlockChrome, isInsideCodeMirror,
     getCodeMirrorSelectionTextForCopy,
+    isPlantumlRenderImage,
+    isSpecialBlock,
+    isSpecialPreviewBlock,
     sanitizeCodeBlocksInCopyFragment,
 } from "../codeBlock/codeMirrorManager";
 import { focusWysiwygCodeBlock, showCode } from "./showCode";
@@ -336,7 +339,7 @@ class WYSIWYG {
             }
 
             if (event.target.tagName === "IMG" &&
-                // plantuml 图片渲染不进行提示
+                !isPlantumlRenderImage(event.target) &&
                 !event.target.parentElement.classList.contains("vditor-wysiwyg__preview")) {
                 if (event.target.getAttribute("data-type") === "link-ref") {
                     genLinkRefPopover(vditor, event.target);
@@ -362,7 +365,9 @@ class WYSIWYG {
                 }
             }
 
-            const cmBlock = (event.target as HTMLElement).closest?.("[data-type='code-block']") as HTMLElement;
+            const cmBlock = (event.target as HTMLElement).closest?.(
+                "[data-type='code-block'], [data-type='math-block']",
+            ) as HTMLElement;
             if (isCmCodeBlock(cmBlock)) {
                 if (!isInsideCodeMirror(event.target) && !isInsideCodeBlockChrome(event.target)) {
                     highlightToolbarWYSIWYG(vditor);
@@ -370,6 +375,23 @@ class WYSIWYG {
                 }
                 clickToc(event, vditor);
                 return;
+            }
+
+            let previewElement = hasClosestByClassName(event.target, "vditor-wysiwyg__preview");
+            if (!previewElement) {
+                previewElement =
+                    hasClosestByClassName(getEditorRange(vditor).startContainer, "vditor-wysiwyg__preview");
+            }
+            if (previewElement) {
+                const blockElement = previewElement.closest(
+                    "[data-type='code-block'], [data-type='math-block']",
+                ) as HTMLElement;
+                if (isSpecialPreviewBlock(blockElement)) {
+                    focusWysiwygCodeBlock(blockElement, vditor);
+                    highlightToolbarWYSIWYG(vditor);
+                    clickToc(event, vditor);
+                    return;
+                }
             }
 
             const linkRefElement = hasClosestByAttribute(event.target, "data-type", "link-ref");
@@ -385,13 +407,10 @@ class WYSIWYG {
             highlightToolbarWYSIWYG(vditor);
 
             // 点击后光标落于预览区，需展开代码块（仅特殊语言块）
-            let previewElement = hasClosestByClassName(event.target, "vditor-wysiwyg__preview");
-            if (!previewElement) {
-                previewElement =
-                    hasClosestByClassName(getEditorRange(vditor).startContainer, "vditor-wysiwyg__preview");
-            }
             if (previewElement) {
-                const blockElement = previewElement.closest("[data-type='code-block']") as HTMLElement;
+                const blockElement = previewElement.closest(
+                    "[data-type='code-block'], [data-type='math-block']",
+                ) as HTMLElement;
                 if (!focusWysiwygCodeBlock(blockElement, vditor)) {
                     showCode(previewElement, vditor);
                 }
@@ -449,8 +468,13 @@ class WYSIWYG {
             if (!previewElement) {
                 return;
             }
-            const blockElement = previewElement.closest("[data-type='code-block']") as HTMLElement;
-            if (isCmCodeBlock(blockElement)) {
+            const blockElement = previewElement.closest(
+                "[data-type='code-block'], [data-type='math-block']",
+            ) as HTMLElement;
+            if (!blockElement) {
+                return;
+            }
+            if (isSpecialBlock(blockElement) || isCmCodeBlock(blockElement)) {
                 if (event.key === "ArrowDown" || event.key === "ArrowRight") {
                     focusWysiwygCodeBlock(blockElement, vditor, true);
                 } else if (event.key === "ArrowUp" || event.key === "ArrowLeft" || event.key === "Backspace") {
@@ -459,6 +483,7 @@ class WYSIWYG {
                 event.preventDefault();
                 return;
             }
+
             const previousElement = previewElement.previousElementSibling as HTMLElement;
             if (previousElement.style.display === "none") {
                 if (event.key === "ArrowDown" || event.key === "ArrowRight") {
@@ -480,7 +505,9 @@ class WYSIWYG {
                 if (nextNode && nextNode.nodeType !== 3) {
                     const nextRenderElement = nextNode.querySelector(".vditor-wysiwyg__preview") as HTMLElement;
                     if (nextRenderElement) {
-                        const nextBlock = nextRenderElement.closest("[data-type='code-block']") as HTMLElement;
+                        const nextBlock = nextRenderElement.closest(
+                            "[data-type='code-block'], [data-type='math-block']",
+                        ) as HTMLElement;
                         if (!focusWysiwygCodeBlock(nextBlock, vditor)) {
                             showCode(nextRenderElement, vditor);
                         }

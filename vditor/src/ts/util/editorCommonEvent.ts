@@ -1,5 +1,5 @@
 import { Constants } from "../constants";
-import { isInsideCodeBlockChrome, isInsideCodeMirror } from "../codeBlock/codeMirrorManager";
+import { isInsideCodeBlockChrome, isInsideCodeMirror, isPlantumlRenderImage } from "../codeBlock/codeMirrorManager";
 import { processHeading } from "../ir/process";
 import { processKeydown as irProcessKeydown } from "../ir/processKeydown";
 import { getMarkdown } from "../markdown/getMarkdown";
@@ -64,7 +64,7 @@ export const focusEvent = (vditor: IVditor, editorElement: HTMLElement) => {
 
 export const dblclickEvent = (vditor: IVditor, editorElement: HTMLElement) => {
     editorElement.addEventListener("dblclick", (event: MouseEvent & { target: HTMLElement }) => {
-        if (event.target.tagName === "IMG") {
+        if (event.target.tagName === "IMG" && !isPlantumlRenderImage(event.target)) {
             previewImage(event.target as HTMLImageElement, vditor.options.lang, vditor.options.theme);
             return;
         }
@@ -104,7 +104,10 @@ export const blurEvent = (vditor: IVditor, editorElement: HTMLElement) => {
             clearTimeout(vditor[vditor.currentMode].hlToolbarTimeoutId);
         }
         clearActiveHeadingMarker(vditor);
-        const relatedTarget = event.relatedTarget as Node | null;
+        const relatedTarget = event.relatedTarget as HTMLElement | null;
+        if (relatedTarget?.closest(".vditor-ai-dialog-overlay")) {
+            return;
+        }
         if (!relatedTarget || (!isInsideCodeMirror(relatedTarget) && !isInsideCodeBlockChrome(relatedTarget))) {
             vditor[vditor.currentMode].range = getEditorRange(vditor);
             saveCacheFocus(vditor);

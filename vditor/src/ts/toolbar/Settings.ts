@@ -1,6 +1,5 @@
 import {
     buildSettingsPanelHTML,
-    buildAIPromptsHTML,
     refreshSettingsPanel,
     SETTINGS_PANEL_CLASS,
 } from "../ui/settingsPanel";
@@ -23,12 +22,18 @@ import {
     FONT_FAMILY_OPTIONS,
     BOLD_COLOR_KEY,
     BOLD_COLOR_OPTIONS,
+    IMAGE_MAX_WIDTH_KEY,
+    IMAGE_MAX_HEIGHT_KEY,
+    IMAGE_MAX_WIDTH_DEFAULT,
+    IMAGE_MAX_HEIGHT_DEFAULT,
+    IMAGE_MAX_WIDTH_MIN,
+    IMAGE_MAX_WIDTH_MAX,
+    IMAGE_MAX_HEIGHT_MIN,
+    IMAGE_MAX_HEIGHT_MAX,
     getGlobalLocalStorageSetting,
     setGlobalLocalStorageSetting,
     resetGlobalSettings,
     applyEditorSettings,
-    getAIPrompts,
-    setAIPrompts,
 } from "../util/globalLocalStorageSettings";
 
 const DROPDOWN_OPTIONS_MAP: Record<string, readonly { label: string; value: string }[]> = {
@@ -178,60 +183,25 @@ export class Settings extends MenuItem {
                 return;
             }
 
-            // AI Prompts: new prompt button
-            if (event.target.closest("[data-ai-new-prompt]")) {
-                const addRow = panelElement.querySelector("[data-ai-add-row]") as HTMLElement | null;
-                const addBtn = panelElement.querySelector("[data-ai-new-prompt]") as HTMLElement | null;
-                if (addRow) addRow.style.display = "";
-                if (addBtn) addBtn.style.display = "none";
-                const nameInput = panelElement.querySelector<HTMLInputElement>("[data-ai-add-name]");
-                nameInput?.focus();
-                event.preventDefault();
-                event.stopPropagation();
-                return;
-            }
-
-            // AI Prompts: cancel add
-            if (event.target.closest("[data-ai-cancel-prompt]")) {
-                const addRow = panelElement.querySelector("[data-ai-add-row]") as HTMLElement | null;
-                const addBtn = panelElement.querySelector("[data-ai-new-prompt]") as HTMLElement | null;
-                if (addRow) { addRow.style.display = "none"; }
-                if (addBtn) { addBtn.style.display = ""; }
-                const nameInput = panelElement.querySelector<HTMLInputElement>("[data-ai-add-name]");
-                const contentInput = panelElement.querySelector<HTMLTextAreaElement>("[data-ai-add-content]");
-                if (nameInput) nameInput.value = "";
-                if (contentInput) contentInput.value = "";
-                event.preventDefault();
-                event.stopPropagation();
-                return;
-            }
-
-            // AI Prompts: save prompt
-            if (event.target.closest("[data-ai-save-prompt]")) {
-                const nameInput = panelElement.querySelector<HTMLInputElement>("[data-ai-add-name]");
-                const contentInput = panelElement.querySelector<HTMLTextAreaElement>("[data-ai-add-content]");
-                const name = nameInput?.value.trim();
-                const content = contentInput?.value.trim();
-                if (name && content) {
-                    const prompts = getAIPrompts();
-                    prompts.push({ id: Date.now().toString(), name, content });
-                    setAIPrompts(prompts);
-                    const container = panelElement.querySelector("[data-ai-prompts]");
-                    if (container) container.outerHTML = buildAIPromptsHTML();
-                }
-                event.preventDefault();
-                event.stopPropagation();
-                return;
-            }
-
-            // AI Prompts: delete prompt
-            const delBtn = event.target.closest("[data-del-prompt]") as HTMLElement | null;
-            if (delBtn) {
-                const id = delBtn.getAttribute("data-del-prompt") || "";
-                const prompts = getAIPrompts().filter(p => p.id !== id);
-                setAIPrompts(prompts);
-                const container = panelElement.querySelector("[data-ai-prompts]");
-                if (container) container.outerHTML = buildAIPromptsHTML();
+            // Image size stepper
+            const imgStepBtn = event.target.closest("button[data-img-step]") as HTMLElement | null;
+            if (imgStepBtn) {
+                const row = imgStepBtn.closest("[data-img-key]") as HTMLElement | null;
+                if (!row) return;
+                const key = row.getAttribute("data-img-key") || "";
+                const isWidth = key === IMAGE_MAX_WIDTH_KEY;
+                const defaultVal = isWidth ? IMAGE_MAX_WIDTH_DEFAULT : IMAGE_MAX_HEIGHT_DEFAULT;
+                const min = isWidth ? IMAGE_MAX_WIDTH_MIN : IMAGE_MAX_HEIGHT_MIN;
+                const max = isWidth ? IMAGE_MAX_WIDTH_MAX : IMAGE_MAX_HEIGHT_MAX;
+                const unit = isWidth ? "%" : "vh";
+                const cssProp = isWidth ? "--vditor-image-max-width" : "--vditor-image-max-height";
+                const current = getGlobalLocalStorageSetting<number>(key, defaultVal) ?? defaultVal;
+                const step = parseInt(imgStepBtn.getAttribute("data-img-step") || "0", 10);
+                const next = Math.min(max, Math.max(min, current + step));
+                setGlobalLocalStorageSetting(key, next);
+                vditor.element.style.setProperty(cssProp, `${next}${unit}`);
+                const valueEl = row.querySelector("[data-img-value]");
+                if (valueEl) valueEl.textContent = `${next}${unit}`;
                 event.preventDefault();
                 event.stopPropagation();
                 return;
@@ -240,7 +210,7 @@ export class Settings extends MenuItem {
             // Reset settings
             if (event.target.closest("[data-reset-settings]")) {
                 resetGlobalSettings();
-                for (const prop of ["--ui-font-size", "--editor-font-size", "--editor-line-height", "--editor-font-family", "--bold-color"]) {
+                for (const prop of ["--ui-font-size", "--editor-font-size", "--editor-line-height", "--editor-font-family", "--bold-color", "--vditor-image-max-width", "--vditor-image-max-height"]) {
                     vditor.element.style.removeProperty(prop);
                 }
                 applyEditorSettings(vditor.element);

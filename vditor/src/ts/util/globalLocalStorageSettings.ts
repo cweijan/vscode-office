@@ -85,6 +85,15 @@ export const BOLD_COLOR_OPTIONS = [
     { label: "Teal", value: "#1a7f64" },
 ] as const;
 
+export const IMAGE_MAX_WIDTH_KEY = "imageMaxWidth";
+export const IMAGE_MAX_HEIGHT_KEY = "imageMaxHeight";
+export const IMAGE_MAX_WIDTH_DEFAULT = 100;
+export const IMAGE_MAX_HEIGHT_DEFAULT = 70;
+export const IMAGE_MAX_WIDTH_MIN = 10;
+export const IMAGE_MAX_WIDTH_MAX = 100;
+export const IMAGE_MAX_HEIGHT_MIN = 10;
+export const IMAGE_MAX_HEIGHT_MAX = 100;
+
 export const AI_PROMPTS_KEY = "aiPrompts";
 export const AI_ENGINE_KEY = "aiEngine";
 export const AI_CUSTOM_URL_KEY = "aiCustomUrl";
@@ -112,11 +121,15 @@ export const applyEditorSettings = (vditorElement: HTMLElement) => {
     const lineHeight = getGlobalLocalStorageSetting<number>(LINE_HEIGHT_KEY);
     const fontFamily = getGlobalLocalStorageSetting<string>(FONT_FAMILY_KEY);
     const boldColor = getGlobalLocalStorageSetting<string>(BOLD_COLOR_KEY, BOLD_COLOR_DEFAULT);
+    const imgMaxWidth = getGlobalLocalStorageSetting<number>(IMAGE_MAX_WIDTH_KEY);
+    const imgMaxHeight = getGlobalLocalStorageSetting<number>(IMAGE_MAX_HEIGHT_KEY);
     if (uiSize !== undefined) vditorElement.style.setProperty("--ui-font-size", `${uiSize}px`);
     if (editorSize !== undefined) vditorElement.style.setProperty("--editor-font-size", `${editorSize}px`);
     if (lineHeight !== undefined) vditorElement.style.setProperty("--editor-line-height", String(lineHeight));
     if (fontFamily !== undefined) vditorElement.style.setProperty("--editor-font-family", fontFamily);
     if (boldColor !== undefined) vditorElement.style.setProperty("--bold-color", boldColor);
+    if (imgMaxWidth !== undefined) vditorElement.style.setProperty("--vditor-image-max-width", `${imgMaxWidth}%`);
+    if (imgMaxHeight !== undefined) vditorElement.style.setProperty("--vditor-image-max-height", `${imgMaxHeight}vh`);
 
 };
 

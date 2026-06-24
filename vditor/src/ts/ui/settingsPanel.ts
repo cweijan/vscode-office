@@ -10,6 +10,10 @@ import {
     FONT_FAMILY_OPTIONS,
     BOLD_COLOR_KEY,
     BOLD_COLOR_OPTIONS,
+    IMAGE_MAX_WIDTH_KEY,
+    IMAGE_MAX_HEIGHT_KEY,
+    IMAGE_MAX_WIDTH_DEFAULT,
+    IMAGE_MAX_HEIGHT_DEFAULT,
     getAIPrompts,
     setAIPrompts,
     AIPrompt,
@@ -39,6 +43,16 @@ const buildFontSizeStepperHTML = (key: string, label: string, value: number) =>
             <button type="button" class="${SETTINGS_PANEL_CLASS}__stepper-btn" data-step="-1">−</button>
             <span class="${SETTINGS_PANEL_CLASS}__stepper-value" data-font-value>${value}px</span>
             <button type="button" class="${SETTINGS_PANEL_CLASS}__stepper-btn" data-step="1">+</button>
+        </div>
+    </div>`;
+
+const buildImageStepperHTML = (key: string, label: string, value: number, unit: string) =>
+    `<div class="${SETTINGS_PANEL_CLASS}__stepper-row" data-img-key="${key}">
+        <span class="${SETTINGS_PANEL_CLASS}__stepper-label">${label}</span>
+        <div class="${SETTINGS_PANEL_CLASS}__stepper">
+            <button type="button" class="${SETTINGS_PANEL_CLASS}__stepper-btn" data-img-step="-5">−</button>
+            <span class="${SETTINGS_PANEL_CLASS}__stepper-value" data-img-value>${value}${unit}</span>
+            <button type="button" class="${SETTINGS_PANEL_CLASS}__stepper-btn" data-img-step="5">+</button>
         </div>
     </div>`;
 
@@ -93,11 +107,14 @@ export const buildAIPromptsHTML = () => {
 };
 
 export const buildSettingsPanelHTML = (vditor: IVditor) => {
+    const i18n = window.VditorI18n;
     const uiSize = getGlobalLocalStorageSetting<number>(UI_FONT_SIZE_KEY, UI_FONT_SIZE_DEFAULT);
     const editorSize = getGlobalLocalStorageSetting<number>(EDITOR_FONT_SIZE_KEY, EDITOR_FONT_SIZE_DEFAULT);
     const lineHeight = getGlobalLocalStorageSetting<number>(LINE_HEIGHT_KEY, LINE_HEIGHT_DEFAULT);
     const fontFamily = getGlobalLocalStorageSetting<string>(FONT_FAMILY_KEY, FONT_FAMILY_OPTIONS[0].value);
     const boldColor = getGlobalLocalStorageSetting<string>(BOLD_COLOR_KEY, BOLD_COLOR_OPTIONS[0].value);
+    const imgMaxWidth = getGlobalLocalStorageSetting<number>(IMAGE_MAX_WIDTH_KEY, IMAGE_MAX_WIDTH_DEFAULT);
+    const imgMaxHeight = getGlobalLocalStorageSetting<number>(IMAGE_MAX_HEIGHT_KEY, IMAGE_MAX_HEIGHT_DEFAULT);
     return `<div class="${SETTINGS_PANEL_CLASS}">
         <div class="${SETTINGS_PANEL_CLASS}__section">
             <div class="${SETTINGS_PANEL_CLASS}__title">Edit Mode</div>
@@ -119,8 +136,11 @@ export const buildSettingsPanelHTML = (vditor: IVditor) => {
             </div>
         </div>
         <div class="${SETTINGS_PANEL_CLASS}__section">
-            <div class="${SETTINGS_PANEL_CLASS}__title">${window.VditorI18n.aiPrompts}</div>
-            ${buildAIPromptsHTML()}
+            <div class="${SETTINGS_PANEL_CLASS}__title">${i18n.imageSize}</div>
+            <div class="${SETTINGS_PANEL_CLASS}__group">
+                ${buildImageStepperHTML(IMAGE_MAX_WIDTH_KEY, i18n.imageMaxWidth, imgMaxWidth, "%")}
+                ${buildImageStepperHTML(IMAGE_MAX_HEIGHT_KEY, i18n.imageMaxHeight, imgMaxHeight, "vh")}
+            </div>
         </div>
         <div class="${SETTINGS_PANEL_CLASS}__footer">
             <button type="button" class="${SETTINGS_PANEL_CLASS}__reset-btn" data-reset-settings>Reset to Defaults</button>

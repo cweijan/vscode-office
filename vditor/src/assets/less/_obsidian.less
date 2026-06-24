@@ -1,0 +1,103 @@
+.vditor-wysiwyg,
+.vditor-ir,
+.vditor-reset {
+  .vditor-callout__info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px 6px 0 0;
+    background: color-mix(in srgb, var(--link-color, #4285f4) 12%, var(--second-bg-color, #f3f4f6));
+    color: var(--front-color, inherit);
+    user-select: none;
+  }
+
+  .vditor-callout__icon {
+    flex-shrink: 0;
+    font-size: 1.1em;
+    line-height: 1;
+  }
+
+  .vditor-callout__title {
+    font-weight: 600;
+  }
+
+  .vditor-callout__content {
+    padding: 8px 12px 12px;
+    border: 1px solid color-mix(in srgb, var(--border-color, #d0d7de) 80%, transparent);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    background: color-mix(in srgb, var(--panel-background-color, #fff) 92%, var(--second-bg-color, #f6f8fa));
+  }
+
+  div[data-type="callout"] {
+    margin: 12px 0;
+  }
+
+  .vditor-wikilink,
+  span[data-type="wikilink"] {
+    color: var(--link-color, #7c3aed);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .vditor-wikilink-embed,
+  span[data-type="wikilink-embed"] {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px dashed var(--border-color, #d0d7de);
+    background: color-mix(in srgb, var(--second-bg-color, #f6f8fa) 80%, transparent);
+    color: var(--link-color, #7c3aed);
+    cursor: pointer;
+  }
+
+  .vditor-obsidian-tag,
+  span[data-type="obsidian-tag"] {
+    color: var(--link-color, #7c3aed);
+    background: color-mix(in srgb, var(--link-color, #7c3aed) 12%, transparent);
+    border-radius: 4px;
+    padding: 0 4px;
+    font-size: 0.92em;
+  }
+
+  .callout {
+    margin: 12px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--border-color, #d0d7de) 80%, transparent);
+
+    .callout-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: color-mix(in srgb, var(--link-color, #4285f4) 12%, var(--second-bg-color, #f3f4f6));
+      font-weight: 600;
+    }
+
+    .callout-content {
+      padding: 8px 12px 12px;
+    }
+  }
+
+  .obsidian-wikilink {
+    color: var(--link-color, #7c3aed);
+    text-decoration: underline;
+  }
+
+  .obsidian-wikilink-embed {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px dashed var(--border-color, #d0d7de);
+    border-radius: 4px;
+    color: var(--link-color, #7c3aed);
+  }
+
+  .obsidian-tag {
+    color: var(--link-color, #7c3aed);
+    background: color-mix(in srgb, var(--link-color, #7c3aed) 12%, transparent);
+    border-radius: 4px;
+    padding: 0 4px;
+  }
+}

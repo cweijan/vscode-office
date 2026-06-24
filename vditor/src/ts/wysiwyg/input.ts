@@ -9,6 +9,7 @@ import {
     deactivateCodeMirrorsInScope,
     isCmCodeBlock,
     renderCodeBlocksInScope,
+    syncMathBlocksPreviewMode,
 } from "../codeBlock/codeMirrorManager";
 import { setRangeByWbr } from "../util/selection";
 import { renderToc } from "../util/toc";
@@ -242,6 +243,7 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
                 }
                 processCodeRender(item, vditor);
             });
+        syncMathBlocksPreviewMode(remountScope);
         postProcessMs = debug ? performance.now() - stepStart : 0;
     }
     stepStart = debug ? performance.now() : 0;
