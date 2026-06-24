@@ -4,14 +4,16 @@ const { existsSync } = require("fs")
 const { copy } = require("esbuild-plugin-copy")
 
 const isProd = process.argv.indexOf('--mode=production') >= 0;
-const extensionTarget = process.env.OFFICE_EXTENSION_TARGET;
-const isWebOnly = process.argv.includes('--target=web') || extensionTarget === 'web';
-const isDesktopOnly = process.argv.includes('--target=desktop') || extensionTarget === 'desktop';
+const devExtensionTarget = process.env.OFFICE_EXTENSION_TARGET;
+
+// Production always builds both; dev builds one target at a time.
+const buildDesktop = isProd || devExtensionTarget !== 'web';
+const buildWeb = isProd || devExtensionTarget === 'web';
 
 const dependencies = ['vscode-html-to-docx', 'highlight.js', 'pdf-lib', 'cheerio', 'katex', 'mustache', 'puppeteer-core']
 const nodeBuiltinStubs = ['fs', 'child_process', 'os', 'crypto', 'stream', 'https', 'http', 'net', 'tls', 'zlib', 'events', 'util', 'buffer', 'module', 'url', 'assert', 'string_decoder']
 
-function createAssetCopyPlugins() {
+function createDesktopAssetCopyPlugins() {
     return [
         copy({
             resolveFrom: 'out',
@@ -43,9 +45,6 @@ function createAssetCopyPlugins() {
 function createNodeShimPlugin() {
     const shimDir = resolve(__dirname, 'src/shims');
     const packageStubs = {
-        '7z-wasm': '7z-wasm.ts',
-        'node-unrar-js': 'node-unrar-js.ts',
-        'tar': 'tar.ts',
         'puppeteer-core': 'puppeteer-core.ts',
         'chrome-finder': 'chrome-finder.ts',
         'file-type': 'file-type.ts',
@@ -109,14 +108,14 @@ function buildDesktopExtension() {
         format: 'cjs',
         platform: 'node',
         minify: isProd,
-        watch: !isProd && !isWebOnly,
+        watch: !isProd && devExtensionTarget !== 'web',
         sourcemap: !isProd,
         logOverride: {
             'duplicate-object-key': "silent",
             'suspicious-boolean-not': "silent",
         },
         plugins: [
-            ...createAssetCopyPlugins(),
+            ...createDesktopAssetCopyPlugins(),
             createBuildNoticePlugin(),
         ],
     })
@@ -132,7 +131,7 @@ function buildWebExtension() {
         platform: 'browser',
         target: ['es2021'],
         minify: isProd,
-        watch: !isProd && !isDesktopOnly,
+        watch: !isProd && devExtensionTarget === 'web',
         sourcemap: !isProd,
         logOverride: {
             'duplicate-object-key': "silent",
@@ -143,14 +142,13 @@ function buildWebExtension() {
         },
         plugins: [
             createNodeShimPlugin(),
-            ...createAssetCopyPlugins(),
             createBuildNoticePlugin(),
         ],
     })
 }
 
 function createLib() {
-    if (isWebOnly) {
+    if (!buildDesktop) {
         return;
     }
     const points = dependencies.reduce((point, dependency) => {
@@ -173,12 +171,8 @@ function createLib() {
     })
 }
 
-createLib();
-
-const buildWeb = isWebOnly || (isProd && !isDesktopOnly);
-const buildDesktop = !isWebOnly;
-
 if (buildDesktop) {
+    createLib();
     buildDesktopExtension();
 }
 if (buildWeb) {

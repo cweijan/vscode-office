@@ -750,7 +750,6 @@
 	"scripts": {
 		"dev": "vite --mode=development",
 		"dev:web": "OFFICE_EXTENSION_TARGET=web vite --mode=development",
-		"build:extension:web": "node --experimental-strip-types build.ts --target=web --mode=production",
 		"lint:fix": "eslint src/**/*.ts --fix",
 		"build": "vite build --mode=production",
 		"package": "vsce package --no-dependencies",
