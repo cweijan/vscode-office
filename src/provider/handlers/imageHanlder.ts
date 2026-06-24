@@ -84,4 +84,7 @@ export function handleImage(handler: Handler, uri: vscode.Uri, webview: vscode.W
     };
     handler.on('images', () => { void sendImageList(); });
     handler.on('fileChange', () => { void sendImageList(); });
+    handler.on('slideTitle', (title: string) => {
+        handler.panel.title = title;
+    });
 }

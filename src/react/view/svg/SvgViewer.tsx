@@ -108,7 +108,6 @@ function SvgViewerInner() {
     const isZh = getConfigs()?.language?.startsWith('zh');
     const copySuccessText = isZh ? '已复制' : 'Copied';
     const saveText = isZh ? '保存' : 'Save';
-    const saveSuccessText = isZh ? '保存成功' : 'Saved';
     const lineWrapText = isZh ? '自动换行' : 'Line wrap';
 
     const colors = useMemo(() => parseSvgColors(content), [content]);
@@ -229,17 +228,16 @@ function SvgViewerInner() {
             lastSavedRef.current = contentRef.current;
             dirtyRef.current = false;
             setDirty(false);
-            message.success({
-                duration: 2,
-                content: saveSuccessText,
-            });
         });
-    }, [message, saveSuccessText]);
+    }, []);
 
     const updateContent = useCallback((value: string) => {
         setContent(value);
         contentRef.current = value;
         const isDirty = value !== lastSavedRef.current;
+        if (isDirty && !dirtyRef.current) {
+            handler.emit('change');
+        }
         dirtyRef.current = isDirty;
         setDirty(isDirty);
     }, []);

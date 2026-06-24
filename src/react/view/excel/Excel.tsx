@@ -244,7 +244,10 @@ function ExcelViewer() {
                 message.warning({ duration: 2, content: errMessage, className: 'excel-validation-error-message' });
             });
             spreadSheet.on('change', () => {
-                if (!fileReadOnly) spreadSheet.setSaveEnabled(true);
+                if (!fileReadOnly) {
+                    spreadSheet.setSaveEnabled(true);
+                    handler.emit('change');
+                }
             });
             const savedView = loadViewState(documentCacheIdRef.current);
             if (savedView) {
@@ -277,11 +280,6 @@ function ExcelViewer() {
                 setLoading(false);
             });
         }).on("saveDone", () => {
-            message.success({
-                duration: 2,
-                content: t('viewer.saveSuccess'),
-                className: 'excel-save-success-message',
-            });
         }).emit("init")
 
         let themeTimer: ReturnType<typeof setTimeout>;

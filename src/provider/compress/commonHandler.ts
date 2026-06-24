@@ -21,6 +21,15 @@ export function shouldSkipFileChange(uri: Uri): boolean {
     return !!(lastSaveTime && Date.now() - lastSaveTime < 100);
 }
 
+function setDirty(handler: Handler, dirty: boolean) {
+    const panel = handler.panel;
+    const title = panel.title.replace(/^● /, '');
+    panel.title = dirty ? `● ${title}` : title;
+    if (dirty) {
+        void vscode.commands.executeCommand('workbench.action.keepEditor');
+    }
+}
+
 export function handleCommonEvent(uri: Uri, handler: Handler, options?: { skipOpen?: boolean }) {
     let readOnly = false;
     const send = async () => {
@@ -44,6 +53,9 @@ export function handleCommonEvent(uri: Uri, handler: Handler, options?: { skipOp
         events.on("init", () => { void send(); }).on("fileChange", () => { void send(); })
     }
     events
+        .on("change", () => {
+            setDirty(handler, true);
+        })
         .on("save", async (content) => {
             const res = Array.isArray(content) ? new Uint8Array(content) : new TextEncoder().encode(content)
             if (readOnly) {
@@ -52,6 +64,7 @@ export function handleCommonEvent(uri: Uri, handler: Handler, options?: { skipOp
             }
             await workspace.fs.writeFile(uri, res)
             fileSaveTimes[uri.toString()] = Date.now();
+            setDirty(handler, false);
             handler.emit("saveDone")
         })
         .on("saveAs", async (payload: { content: number[], ext?: string }) => {
@@ -77,6 +90,7 @@ export function handleCommonEvent(uri: Uri, handler: Handler, options?: { skipOp
             if (!target) return;
             await workspace.fs.writeFile(target, res);
             fileSaveTimes[target.toString()] = Date.now();
+            setDirty(handler, false);
             handler.emit("saveDone");
             await vscode.commands.executeCommand('vscode.openWith', target, 'cweijan.officeViewer');
         })
