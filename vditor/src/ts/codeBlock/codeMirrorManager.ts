@@ -19,6 +19,10 @@ import { stopHandledCodeMirrorKeymap, vditorCodeMirrorSetup } from "./codeMirror
 import { mathRender } from "../markdown/mathRender";
 import { mermaidRender } from "../markdown/mermaidRender";
 import { plantumlRender } from "../markdown/plantumlRender";
+import {
+    flushFrontMatterYamlToSyncCode,
+    setupFrontMatterYamlEditors,
+} from "./frontMatterEditor";
 
 export { focusCodeBlockChromeLanguage, isInsideCodeBlockChrome } from "./codeBlockChrome";
 export {
@@ -1090,6 +1094,7 @@ export const renderCodeBlocks = (vditor: IVditor) => {
         mountCodeMirror(block as HTMLElement, vditor);
     });
     syncMathBlocksPreviewMode(editor);
+    setupFrontMatterYamlEditors(vditor);
 };
 
 /** @deprecated use renderCodeBlocks */
@@ -1291,6 +1296,7 @@ export const flushCodeMirrorToSyncCode = (vditor: IVditor) => {
 /** 导出 Markdown 前同步 CM 状态；Lute 直接识别 CM DOM，无需再篡改 DOM */
 export const buildEditorHtmlForMarkdown = (vditor: IVditor) => {
     flushCodeMirrorToSyncCode(vditor);
+    flushFrontMatterYamlToSyncCode(vditor);
     const editor = getModeEditor(vditor);
     if (!editor) {
         return "";

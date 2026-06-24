@@ -8,8 +8,6 @@
   &__node {
     &[data-type="code-block"]:before,
     &[data-type="code-block"]:after,
-    &[data-type="yaml-front-matter"]:before,
-    &[data-type="yaml-front-matter"]:after,
     &[data-type="math-block"]:before,
     &[data-type="math-block"]:after {
       content: ' ';
@@ -97,11 +95,6 @@
       &[data-type="code-block"]:before,
       &[data-type="code-block"]:after {
         content: '```';
-      }
-
-      &[data-type="yaml-front-matter"]:before,
-      &[data-type="yaml-front-matter"]:after {
-        content: '---';
       }
 
       &[data-type="math-block"]:before,

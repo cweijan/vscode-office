@@ -100,4 +100,171 @@
     border-radius: 4px;
     padding: 0 4px;
   }
+
+  div[data-type="yaml-front-matter"] {
+    margin: 0 0 16px;
+  }
+
+  .vditor-properties {
+    border: 1px solid color-mix(in srgb, var(--border-color, #d0d7de) 85%, transparent);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--panel-background-color, #fff) 94%, var(--second-bg-color, #f6f8fa));
+    overflow: hidden;
+    user-select: none;
+  }
+
+  .vditor-properties__heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-bottom: 1px solid color-mix(in srgb, var(--border-color, #d0d7de) 70%, transparent);
+    background: color-mix(in srgb, var(--second-bg-color, #f3f4f6) 60%, transparent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--second-color, var(--vscode-descriptionForeground));
+  }
+
+  .vditor-properties__heading-icon::before {
+    content: "☰";
+    opacity: 0.75;
+  }
+
+  .vditor-properties__count {
+    margin-left: auto;
+    min-width: 1.25rem;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--link-color, #7c3aed) 14%, transparent);
+    color: var(--link-color, #7c3aed);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .vditor-properties__table {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .vditor-properties__row {
+    display: grid;
+    grid-template-columns: minmax(120px, 34%) 1fr;
+    gap: 8px 12px;
+    align-items: start;
+    padding: 8px 12px;
+    border-top: 1px solid color-mix(in srgb, var(--border-color, #d0d7de) 45%, transparent);
+
+    &:first-child {
+      border-top: none;
+    }
+  }
+
+  .vditor-properties__key {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    color: var(--second-color, var(--vscode-descriptionForeground));
+    font-size: 0.85rem;
+  }
+
+  .vditor-properties__key-icon {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    opacity: 0.72;
+
+    &[data-icon="tag"]::before { content: "#"; }
+    &[data-icon="alias"]::before { content: "⛓"; }
+    &[data-icon="date"]::before { content: "📅"; }
+    &[data-icon="toggle"]::before { content: "◉"; }
+    &[data-icon="number"]::before { content: "#"; }
+    &[data-icon="list"]::before { content: "≡"; }
+    &[data-icon="text"]::before { content: "T"; }
+  }
+
+  .vditor-properties__key-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .vditor-properties__value {
+    min-width: 0;
+    font-size: 0.92rem;
+    color: var(--front-color, inherit);
+    word-break: break-word;
+  }
+
+  .vditor-properties__value--tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .vditor-properties__value--aliases {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .vditor-properties__list {
+    margin: 0;
+    padding-left: 1.1rem;
+  }
+
+  .vditor-properties__checkbox {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 6px;
+    border: 1px solid var(--border-color, #d0d7de);
+    border-radius: 3px;
+    vertical-align: -2px;
+    background: var(--panel-background-color, #fff);
+
+    &[is-checked="true"] {
+      background: var(--link-color, #7c3aed);
+      border-color: var(--link-color, #7c3aed);
+      box-shadow: inset 0 0 0 2px var(--panel-background-color, #fff);
+    }
+  }
+
+  .vditor-properties__empty {
+    opacity: 0.45;
+  }
+
+  .vditor-properties__source-wrap {
+    margin-top: 6px;
+
+    > summary.vditor-properties__source-label {
+      cursor: pointer;
+      font-size: 0.8rem;
+      color: var(--second-color, var(--vscode-descriptionForeground));
+      user-select: none;
+      list-style: none;
+
+      &::-webkit-details-marker {
+        display: none;
+      }
+
+      &::before {
+        content: "▸ ";
+      }
+    }
+
+    &[open] > summary.vditor-properties__source-label::before {
+      content: "▾ ";
+    }
+  }
+
+  .vditor-properties__source {
+    margin: 4px 0 0;
+    padding: 0;
+    border-radius: 6px;
+    background: transparent;
+    font-size: 0.85rem;
+    overflow: hidden;
+  }
 }

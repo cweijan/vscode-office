@@ -83,6 +83,12 @@ handler.on("open", async (md) => {
     },
     after() {
       handler.on("update", content => {
+        if (document.querySelector("[data-type='yaml-front-matter'].vditor-code-block--cm .cm-editor.cm-focused")) {
+          return;
+        }
+        if (editor.getValue() === content) {
+          return;
+        }
         editor.setValue(content);
       })
       handler.emit('queryAIAvailable')
