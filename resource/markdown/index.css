@@ -17,6 +17,115 @@ html {
     scrollbar-color: unset;
 }
 
+#vditor,
+.vditor-reset,
+.vditor-reset h1,
+.vditor-reset h2,
+.vditor-reset h3,
+.vditor-reset h4,
+.vditor-reset h5,
+.vditor-reset h6,
+.vditor-reset p,
+.vditor-reset li,
+.vditor-reset blockquote,
+.vditor-reset th,
+.vditor-reset td,
+.vditor-wysiwyg__block,
+.vditor-ir__node,
+#vditor [data-type="NodeParagraph"],
+#vditor [data-type="NodeListItem"],
+#vditor [data-type="NodeBlockquote"] {
+    direction: ltr;
+    text-align: left;
+    unicode-bidi: plaintext;
+}
+
+.vditor-reset p,
+.vditor-reset li,
+.vditor-reset blockquote,
+.vditor-reset th,
+.vditor-reset td,
+.vditor-wysiwyg__block,
+.vditor-ir__node,
+#vditor [data-type="NodeParagraph"],
+#vditor [data-type="NodeListItem"],
+#vditor [data-type="NodeBlockquote"] {
+    text-align: justify;
+    text-align-last: auto;
+    text-justify: inter-word;
+    overflow-wrap: anywhere;
+}
+
+#vditor .rtl-lang,
+#vditor [dir="rtl"] {
+    direction: rtl !important;
+    text-align: justify !important;
+    text-align-last: right !important;
+    unicode-bidi: plaintext !important;
+}
+
+#vditor h1.rtl-lang,
+#vditor h2.rtl-lang,
+#vditor h3.rtl-lang,
+#vditor h4.rtl-lang,
+#vditor h5.rtl-lang,
+#vditor h6.rtl-lang,
+#vditor h1[dir="rtl"],
+#vditor h2[dir="rtl"],
+#vditor h3[dir="rtl"],
+#vditor h4[dir="rtl"],
+#vditor h5[dir="rtl"],
+#vditor h6[dir="rtl"] {
+    text-align: right !important;
+}
+
+#vditor ul.rtl-lang,
+#vditor ol.rtl-lang,
+#vditor ul[dir="rtl"],
+#vditor ol[dir="rtl"],
+#vditor li.rtl-lang,
+#vditor li[dir="rtl"],
+#vditor [data-type="NodeList"].rtl-lang,
+#vditor [data-type="NodeList"][dir="rtl"],
+#vditor [data-type="NodeListItem"].rtl-lang,
+#vditor [data-type="NodeListItem"][dir="rtl"] {
+    direction: rtl !important;
+    text-align: justify !important;
+    padding-right: 2em !important;
+    padding-left: 0 !important;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    list-style-position: inside !important;
+}
+
+#vditor li.rtl-lang::marker,
+#vditor li[dir="rtl"]::marker {
+    direction: rtl !important;
+    unicode-bidi: isolate !important;
+    text-align: right !important;
+}
+
+#vditor .rtl-lang .vditor-wysiwyg__marker,
+#vditor .rtl-lang .vditor-ir__marker {
+    float: right !important;
+    margin-left: .35em !important;
+    margin-right: 0 !important;
+    direction: rtl !important;
+    text-align: right !important;
+    unicode-bidi: isolate !important;
+}
+
+.vditor-reset pre,
+.vditor-reset code,
+.vditor-reset .katex,
+.vditor-reset .vditor-mermaid-host,
+#vditor pre,
+#vditor code {
+    direction: ltr !important;
+    text-align: left !important;
+    unicode-bidi: isolate !important;
+}
+
 .vditor-context-menu {
     position: fixed;
     z-index: 10000;
