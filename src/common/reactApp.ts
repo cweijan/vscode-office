@@ -1,6 +1,7 @@
 import axios from 'axios';
 import * as vscode from 'vscode';
 import { extensionResource, getExtensionUri, readExtensionText } from './extensionResource';
+import { IconService } from '../service/icon/iconService';
 
 interface ViewOption {
     route: string;
@@ -22,16 +23,14 @@ export class ReactApp {
 
     public static async view(webview: vscode.Webview, option: ViewOption) {
         const html = await this.readContent();
-        const iconBaseUrl = webview.asWebviewUri(
-            extensionResource(this.context, 'resource', 'icon')
-        ).toString();
+        const iconConfig = IconService.getInstance().getWebviewConfig(this.context, webview);
         const sponsorBaseUrl = webview.asWebviewUri(
             extensionResource(this.context, 'resource', 'sponsor')
         ).toString();
         webview.html = this.buildPath(html, webview)
             .replace(`{{configs}}`, JSON.stringify({
                 ...option,
-                iconBaseUrl,
+                ...iconConfig,
                 sponsorBaseUrl,
                 language: vscode.env.language,
                 config: vscode.workspace.getConfiguration('vscode-office')

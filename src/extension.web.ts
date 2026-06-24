@@ -15,10 +15,12 @@ import { switchCsvEditor } from './service/csvService';
 import { TelemetryService } from './service/telemetryService';
 import { activateXml } from './provider/xml';
 import { activateYaml } from './provider/yaml';
+import { IconService } from './service/icon/iconService';
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 	setExtensionHostContext();
 	TelemetryService.init(context);
+	await IconService.getInstance().init(context);
 	FileUtil.init(context);
 	ReactApp.init(context);
 	activateYaml(context);

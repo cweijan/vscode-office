@@ -14,9 +14,11 @@ import { activateHttp } from './provider/http';
 import { activateYaml } from './provider/yaml';
 import { activateXml } from './provider/xml';
 import { activateGitHistory } from './gitHistory/provider';
+import { IconService } from './service/icon/iconService';
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 	TelemetryService.init(context);
+	await IconService.getInstance().init(context);
 	activateHttp(context);
 	activateYaml(context);
 	activateXml(context);
