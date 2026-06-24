@@ -1,6 +1,6 @@
 # Office Viewer
 
-English | [简体中文](README-CN.md) | [繁體中文](README-TW.md)
+English | [简体中文](README-CN.mdREADME-CN.md) | [繁體中文](README-TW.md)
 
 ## Introduction
 
