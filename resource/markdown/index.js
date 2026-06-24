@@ -1,4 +1,4 @@
-import { openLink, hotKeys, imageParser, getToolbar, autoSymbol, createContextMenu } from "./util.js";
+import { openLink, hotKeys, imageParser, getToolbar, autoSymbol, createContextMenu, alertParser } from "./util.js";
 import { mapVscodeLanguageToVditorLang } from "./lang.js";
 
 let state;
@@ -109,5 +109,6 @@ handler.on("open", async (md) => {
   autoSymbol(handler, editor, config);
   createContextMenu(editor)
   imageParser(config.viewAbsoluteLocal)
+  alertParser()
   zoomElement('.vditor-reset')
 }).emit("init")

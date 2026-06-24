@@ -211,3 +211,122 @@ html {
 .vditor-help-sponsor-text a:hover {
     text-decoration: underline;
 }
+
+/* GitHub-style markdown alerts */
+.vditor-reset blockquote.markdown-alert {
+    position: relative;
+    padding: 8px 16px;
+    margin-bottom: 1rem;
+    border-left: 0.25em solid var(--border-color);
+    background-color: var(--bg-color);
+    border-radius: 0 6px 6px 0;
+}
+
+.vditor-reset blockquote.markdown-alert-note {
+    --border-color: #0969da;
+    --bg-color: rgba(9, 105, 218, 0.07);
+}
+
+.vditor-reset blockquote.markdown-alert-tip {
+    --border-color: #1a7f37;
+    --bg-color: rgba(26, 127, 55, 0.07);
+}
+
+.vditor-reset blockquote.markdown-alert-important {
+    --border-color: #8250df;
+    --bg-color: rgba(130, 80, 223, 0.07);
+}
+
+.vditor-reset blockquote.markdown-alert-warning {
+    --border-color: #9a6700;
+    --bg-color: rgba(154, 103, 0, 0.07);
+}
+
+.vditor-reset blockquote.markdown-alert-caution {
+    --border-color: #d1242f;
+    --bg-color: rgba(209, 36, 47, 0.07);
+}
+
+.vditor-reset blockquote.markdown-alert::before {
+    font-family: codicon;
+    position: absolute;
+    left: 16px;
+    top: 8px;
+    font-size: 16px;
+    line-height: 22px;
+    -webkit-text-stroke: 0.4px currentColor;
+}
+
+.vditor-reset blockquote.markdown-alert-note::before {
+    content: "\ea74";
+    color: #0969da;
+}
+
+.vditor-reset blockquote.markdown-alert-tip::before {
+    content: "\ea61";
+    color: #1a7f37;
+}
+
+.vditor-reset blockquote.markdown-alert-important::before {
+    content: "\eb42";
+    color: #8250df;
+}
+
+.vditor-reset blockquote.markdown-alert-warning::before {
+    content: "\ea6c";
+    color: #9a6700;
+}
+
+.vditor-reset blockquote.markdown-alert-caution::before {
+    content: "\ea6c";
+    color: #d1242f;
+}
+
+.vditor-reset blockquote.markdown-alert > p:first-of-type::before {
+    font-weight: 600;
+    display: block;
+    padding-left: 24px;
+    margin-bottom: 4px;
+    font-size: 14px;
+    line-height: 22px;
+}
+
+.vditor-reset blockquote.markdown-alert-note > p:first-of-type::before {
+    content: "Note";
+    color: #0969da;
+}
+
+.vditor-reset blockquote.markdown-alert-tip > p:first-of-type::before {
+    content: "Tip";
+    color: #1a7f37;
+}
+
+.vditor-reset blockquote.markdown-alert-important > p:first-of-type::before {
+    content: "Important";
+    color: #8250df;
+}
+
+.vditor-reset blockquote.markdown-alert-warning > p:first-of-type::before {
+    content: "Warning";
+    color: #9a6700;
+}
+
+.vditor-reset blockquote.markdown-alert-caution > p:first-of-type::before {
+    content: "Caution";
+    color: #d1242f;
+}
+
+.vditor-reset blockquote.markdown-alert span.markdown-alert-marker {
+    display: none;
+}
+
+.vditor-reset blockquote.markdown-alert.markdown-alert--editing span.markdown-alert-marker {
+    display: inline;
+    opacity: 0.5;
+    user-select: all;
+}
+
+.vditor-reset blockquote.markdown-alert.markdown-alert--empty-header:not(.markdown-alert--editing) span.markdown-alert-marker + br {
+    display: none;
+}
+

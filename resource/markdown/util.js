@@ -370,3 +370,172 @@ export const autoSymbol = (handler, editor, config) => {
         document.getElementById('vditor').style.height = '100%'
     }
 }
+
+/**
+ * GitHub-style markdown alerts
+ */
+const alertTypes = ['note', 'tip', 'important', 'warning', 'caution'];
+
+export const cleanMarkdown = (markdown) => {
+    if (!markdown) return markdown;
+    return markdown
+        .replace(/<span[^>]*class="markdown-alert-marker"[^>]*>([\s\S]*?)<\/span>/gi, '$1')
+        .replace(/&lt;span[^&]*class="markdown-alert-marker"[^&]*&gt;([\s\S]*?)&lt;\/span&gt;/gi, '$1');
+};
+
+const processAlerts = () => {
+    const selection = window.getSelection();
+    const anchorNode = selection && selection.anchorNode;
+    const blockquotes = document.querySelectorAll('blockquote');
+
+    for (const blockquote of blockquotes) {
+        const p = blockquote.querySelector('p') || blockquote;
+        const text = p.textContent || '';
+        const match = text.trim().match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/i);
+
+        if (match) {
+            const type = match[1].toLowerCase();
+            if (!blockquote.classList.contains('markdown-alert')) {
+                blockquote.classList.add('markdown-alert');
+            }
+            const currentTypeClass = `markdown-alert-${type}`;
+            if (!blockquote.classList.contains(currentTypeClass)) {
+                // Remove other alert type classes and add current one
+                for (const t of alertTypes) {
+                    blockquote.classList.remove(`markdown-alert-${t}`);
+                }
+                blockquote.classList.add(currentTypeClass);
+            }
+
+            // Check if the header is empty (i.e. no text after the [!TYPE] on the same line)
+            let isEmptyHeader = true;
+            for (const child of p.childNodes) {
+                if (child.nodeType === Node.TEXT_NODE) {
+                    const textVal = child.nodeValue || '';
+                    const markerMatch = textVal.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/i);
+                    if (markerMatch) {
+                        const remaining = textVal.substring(markerMatch[0].length).trim();
+                        if (remaining.length > 0) {
+                            isEmptyHeader = false;
+                            break;
+                        }
+                    } else if (textVal.trim().length > 0) {
+                        isEmptyHeader = false;
+                        break;
+                    }
+                } else if (child.nodeType === Node.ELEMENT_NODE) {
+                    if (child.tagName === 'BR') {
+                        break;
+                    }
+                    if (child.classList.contains('markdown-alert-marker')) {
+                        continue;
+                    }
+                    isEmptyHeader = false;
+                    break;
+                }
+            }
+
+            if (isEmptyHeader) {
+                blockquote.classList.add('markdown-alert--empty-header');
+            } else {
+                blockquote.classList.remove('markdown-alert--empty-header');
+            }
+
+            const isEditing = anchorNode && blockquote.contains(anchorNode);
+            const span = p.querySelector('.markdown-alert-marker');
+
+            if (isEditing) {
+                if (!blockquote.classList.contains('markdown-alert--editing')) {
+                    blockquote.classList.add('markdown-alert--editing');
+                }
+            } else {
+                if (blockquote.classList.contains('markdown-alert--editing')) {
+                    blockquote.classList.remove('markdown-alert--editing');
+                }
+                if (!span) {
+                    // Wrap first text node containing marker
+                    let textNode = null;
+                    for (const child of p.childNodes) {
+                        if (child.nodeType === Node.TEXT_NODE) {
+                            textNode = child;
+                            break;
+                        }
+                    }
+                    if (textNode) {
+                        const val = textNode.nodeValue || '';
+                        const markerMatch = val.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/i);
+                        if (markerMatch) {
+                            const matchText = markerMatch[0];
+                            const remainingText = val.substring(matchText.length);
+
+                            const markerSpan = document.createElement('span');
+                            markerSpan.className = 'markdown-alert-marker';
+                            markerSpan.textContent = matchText;
+
+                            textNode.nodeValue = remainingText;
+                            p.insertBefore(markerSpan, textNode);
+                        }
+                    }
+                }
+            }
+        } else {
+            // Clean up alert styling and unwrap marker if it's no longer an alert
+            if (blockquote.classList.contains('markdown-alert')) {
+                blockquote.classList.remove('markdown-alert');
+                blockquote.classList.remove('markdown-alert--empty-header');
+                for (const t of alertTypes) {
+                    blockquote.classList.remove(`markdown-alert-${t}`);
+                }
+                blockquote.classList.remove('markdown-alert--editing');
+                const span = p.querySelector('.markdown-alert-marker');
+                if (span) {
+                    const parent = span.parentNode;
+                    const textNode = document.createTextNode(span.textContent);
+                    parent.insertBefore(textNode, span);
+                    parent.removeChild(span);
+                    parent.normalize();
+                }
+            }
+        }
+    }
+};
+
+export const alertParser = () => {
+    // Intercept emit methods on window.vscodeEvent and window.handler to clean save payloads
+    const cleanEmit = (originalEmit) => {
+        return (event, ...args) => {
+            if ((event === 'save' || event === 'doSave') && typeof args[0] === 'string') {
+                args[0] = cleanMarkdown(args[0]);
+            }
+            return originalEmit(event, ...args);
+        };
+    };
+
+    if (window.vscodeEvent && window.vscodeEvent.emit) {
+        window.vscodeEvent.emit = cleanEmit(window.vscodeEvent.emit.bind(window.vscodeEvent));
+    }
+    if (window.handler && window.handler.emit) {
+        window.handler.emit = cleanEmit(window.handler.emit.bind(window.handler));
+    }
+
+    // Run initial processing
+    processAlerts();
+
+    const observer = new MutationObserver(() => {
+        // Disconnect to avoid triggering observer from our DOM modifications
+        observer.disconnect();
+        processAlerts();
+        observer.observe(document.body, { childList: true, subtree: true });
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+
+    document.addEventListener('selectionchange', () => {
+        observer.disconnect();
+        processAlerts();
+        observer.observe(document.body, { childList: true, subtree: true });
+    });
+};
