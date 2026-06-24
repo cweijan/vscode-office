@@ -32,6 +32,88 @@ function normalizeEditMode(mode) {
   return mode === 'ir' ? 'ir' : 'wysiwyg'
 }
 
+const RTL_CHAR_RE = /[\u0590-\u08FF\uFB1D-\uFEFC]/
+const LTR_CHAR_RE = /[A-Za-z\u0400-\u052F]/
+const DIRECTION_BLOCK_SELECTOR = [
+  '#vditor .vditor-reset p',
+  '#vditor .vditor-reset li',
+  '#vditor .vditor-reset blockquote',
+  '#vditor .vditor-reset th',
+  '#vditor .vditor-reset td',
+  '#vditor .vditor-reset h1',
+  '#vditor .vditor-reset h2',
+  '#vditor .vditor-reset h3',
+  '#vditor .vditor-reset h4',
+  '#vditor .vditor-reset h5',
+  '#vditor .vditor-reset h6',
+  '#vditor .vditor-wysiwyg__block',
+  '#vditor .vditor-ir__node',
+  '#vditor [data-type="NodeParagraph"]',
+  '#vditor [data-type="NodeHeading"]',
+  '#vditor [data-type="NodeListItem"]',
+  '#vditor [data-type="NodeBlockquote"]',
+].join(',')
+const DIRECTION_LIST_SELECTOR = [
+  '#vditor .vditor-reset ul',
+  '#vditor .vditor-reset ol',
+  '#vditor [data-type="NodeList"]',
+].join(',')
+
+let directionObserver
+
+function firstStrongDirection(text) {
+  for (const char of text.trim()) {
+    if (RTL_CHAR_RE.test(char)) {
+      return 'rtl'
+    }
+    if (LTR_CHAR_RE.test(char)) {
+      return 'ltr'
+    }
+  }
+  return 'ltr'
+}
+
+function setDirection(element, direction) {
+  element.classList.toggle('rtl-lang', direction === 'rtl')
+  element.setAttribute('dir', direction)
+}
+
+function updateTextDirections() {
+  const target = document.getElementById('vditor')
+  if (!target) {
+    return
+  }
+  target.querySelectorAll(DIRECTION_BLOCK_SELECTOR).forEach((element) => {
+    if (!element.closest('pre, code, .katex, .vditor-mermaid-host')) {
+      setDirection(element, firstStrongDirection(element.textContent || ''))
+    }
+  })
+  target.querySelectorAll(DIRECTION_LIST_SELECTOR).forEach((list) => {
+    if (!list.closest('pre, code, .katex, .vditor-mermaid-host')) {
+      setDirection(list, list.querySelector('.rtl-lang') ? 'rtl' : firstStrongDirection(list.textContent || ''))
+    }
+  })
+}
+
+function scheduleTextDirections() {
+  requestAnimationFrame(updateTextDirections)
+  setTimeout(updateTextDirections, 100)
+  setTimeout(updateTextDirections, 500)
+}
+
+function watchTextDirections() {
+  const target = document.getElementById('vditor')
+  if (!target) {
+    return
+  }
+  directionObserver?.disconnect()
+  scheduleTextDirections()
+  directionObserver = new MutationObserver(scheduleTextDirections)
+  directionObserver.observe(target, { childList: true, characterData: true, subtree: true })
+}
+
+document.addEventListener('DOMContentLoaded', watchTextDirections)
+
 handler.on("open", async (md) => {
   const { config, language } = md;
   const codeMirrorTheme = normalizeCodeMirrorTheme(md.codeMirrorTheme ?? config.codeMirrorTheme)
@@ -101,9 +183,11 @@ handler.on("open", async (md) => {
     after() {
       handler.on("update", content => {
         editor.setValue(content);
+        scheduleTextDirections()
       })
       openLink()
       editor.restoreDocumentSession(true)
+      watchTextDirections()
     }
   })
   autoSymbol(handler, editor, config);
