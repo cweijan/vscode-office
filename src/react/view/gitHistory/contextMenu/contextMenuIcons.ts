@@ -39,6 +39,37 @@ const CONTEXT_MENU_ICONS: Record<string, string> = {
     viewDiffWorking: 'diff-single',
 };
 
+type IconColor = 'danger' | 'push' | 'pull' | 'create' | 'merge' | 'warning';
+
+const CONTEXT_MENU_ICON_COLORS: Record<string, IconColor> = {
+    deleteBranch: 'danger',
+    deleteRemoteBranch: 'danger',
+    deleteTag: 'danger',
+    dropStash: 'danger',
+    resetUncommittedHard: 'danger',
+    revert: 'danger',
+    cleanUntracked: 'danger',
+    pushBranch: 'push',
+    pushTag: 'push',
+    pushStash: 'push',
+    pullRemote: 'pull',
+    applyStash: 'pull',
+    popStash: 'pull',
+    createBranch: 'create',
+    branchFromStash: 'create',
+    addTag: 'create',
+    merge: 'merge',
+    mergeBranch: 'merge',
+    mergeRemote: 'merge',
+    cherryPick: 'merge',
+    reset: 'warning',
+    resetUncommittedMixed: 'warning',
+};
+
 export function getContextMenuIcon(id: string): string | undefined {
     return CONTEXT_MENU_ICONS[id];
+}
+
+export function getContextMenuIconColor(id: string): IconColor | undefined {
+    return CONTEXT_MENU_ICON_COLORS[id];
 }

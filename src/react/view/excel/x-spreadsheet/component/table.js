@@ -12,6 +12,68 @@ import { getExcelThemeColor, resolveExcelCellBg, resolveExcelCellColor } from '.
 // gobal var
 const cellPaddingWidth = 10;
 
+function computeAutoRowHeights(data, ctx) {
+  const { rows, cols, styles } = data;
+  const defaultStyle = data.defaultStyle();
+  const defaultFontName = (defaultStyle.font && defaultStyle.font.name) || 'sans-serif';
+  const defaultFontSizePt = (defaultStyle.font && defaultStyle.font.size) || 12;
+
+  rows.each((ri, row) => {
+    if (!row || !row.cells) return;
+    let maxNeededHeight = 0;
+
+    Object.keys(row.cells).forEach((ci) => {
+      const cell = row.cells[ci];
+      if (!cell || !cell.text) return;
+
+      const style = cell.style != null ? styles[cell.style] : null;
+      const hasNewline = `${cell.text}`.includes('\n');
+      const needsWrap = (style && style.textwrap) || hasNewline;
+      if (!needsWrap) return;
+
+      const rindex = parseInt(ri, 10);
+      const cindex = parseInt(ci, 10);
+
+      // skip non-origin merge cells
+      const merge = data.merges && data.merges.getFirstIncludes(rindex, cindex);
+      if (merge && (merge.sri !== rindex || merge.sci !== cindex)) return;
+
+      const colWidth = cols.getWidth(cindex);
+      const innerWidth = colWidth - cellPaddingWidth * 2 - 2;
+
+      const fontName = (style && style.font && style.font.name) || defaultFontName;
+      const fontSizePt = (style && style.font && style.font.size) || defaultFontSizePt;
+      const fontSizePx = getFontSizePxByPt(fontSizePt);
+      const bold = (style && style.font && style.font.bold) ? 'bold' : '';
+      const italic = (style && style.font && style.font.italic) ? 'italic' : '';
+      ctx.font = `${italic} ${bold} ${npx(fontSizePx)}px '${fontName}'`.trim();
+
+      const lines = `${cell.text}`.split('\n');
+      let lineCount = 0;
+      lines.forEach((line) => {
+        const lineWidth = ctx.measureText(line).width;
+        const innerWidthPx = npx(innerWidth);
+        if (innerWidthPx > 0 && lineWidth > innerWidthPx) {
+          lineCount += Math.ceil(lineWidth / innerWidthPx);
+        } else {
+          lineCount += 1;
+        }
+      });
+
+      const neededHeight = lineCount * (fontSizePx + 2) + cellPaddingWidth * 2 + 2;
+      if (neededHeight > maxNeededHeight) maxNeededHeight = neededHeight;
+    });
+
+    if (maxNeededHeight > 0) {
+      const rindex = parseInt(ri, 10);
+      const currentHeight = rows.getHeight(rindex);
+      if (maxNeededHeight > currentHeight) {
+        rows.setHeight(rindex, Math.ceil(maxNeededHeight));
+      }
+    }
+  });
+}
+
 function tableFixedHeaderCleanStyle() {
   return { fillStyle: getExcelThemeColor('--excel-header-bg', '#f4f5f8') };
 }
@@ -67,26 +129,31 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
   }
 
   const cell = data.getCell(nrindex, cindex);
-  if (cell === null) return;
-  let frozen = false;
-  if ('editable' in cell && cell.editable === false) {
-    frozen = true;
+  const isLocked = !data.canEditCell(nrindex, cindex);
+  const lockedColor = getExcelThemeColor('--excel-locked-indicator', 'rgba(61, 153, 112, 0.42)');
+
+  if (cell === null) {
+    if (!isLocked) return;
+    const style = data.getCellStyleOrDefault(nrindex, cindex);
+    const dbox = getDrawBox(data, rindex, cindex, yoffset);
+    dbox.bgcolor = resolveExcelCellBg(style.bgcolor);
+    draw.rect(dbox, () => {});
+    draw.frozen(dbox, lockedColor);
+    return;
   }
 
   const style = data.getCellStyleOrDefault(nrindex, cindex);
-  // 如果是第一行，自动添加居中加粗样式
-  if (rindex === 0) {
-    style.align = 'center';
-    if (!style.font) style.font = {};
-    style.font.fontWeight = '600';
-  }
+  const defaultStyle = data.defaultStyle();
 
   const dbox = getDrawBox(data, rindex, cindex, yoffset);
   dbox.bgcolor = resolveExcelCellBg(style.bgcolor);
   if (style.border !== undefined) {
-    dbox.setBorders(style.border);
-    // bboxes.push({ ri: rindex, ci: cindex, box: dbox });
-    draw.strokeBorders(dbox);
+    const mergeRange = data.merges && data.merges.getFirstIncludes(nrindex, cindex);
+    const isMergeSubcell = mergeRange && (mergeRange.sri !== nrindex || mergeRange.sci !== cindex);
+    if (!isMergeSubcell) {
+      dbox.setBorders(style.border);
+      draw.strokeBorders(dbox);
+    }
   }
   draw.rect(dbox, () => {
     // render text
@@ -101,24 +168,28 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
       cellText = formatm[style.format].render(cellText);
     }
     const font = Object.assign({}, style.font);
-    font.size = getFontSizePxByPt(font.size);
-    // console.log('style:', style);
-    draw.text(cellText, dbox, {
+    if (!font.name) {
+      font.name = (defaultStyle.font && defaultStyle.font.name) || 'Arial';
+    }
+    font.size = getFontSizePxByPt(font.size || (defaultStyle.font && defaultStyle.font.size) || 12);
+    const hyperlink = data.getHyperlink(rindex, cindex);
+    const drawStyle = {
       align: style.align,
       valign: style.valign,
       font,
-      color: resolveExcelCellColor(style.color),
+      color: hyperlink ? '#0563c1' : resolveExcelCellColor(style.color),
       strike: style.strike,
-      underline: style.underline,
-    }, style.textwrap);
+      underline: style.underline || !!hyperlink,
+    };
+    draw.text(cellText, dbox, drawStyle, style.textwrap);
     // error
-    const error = data.validations.getError(rindex, cindex);
+    const error = data.validations.getError(nrindex, cindex);
     if (error) {
       // console.log('error:', rindex, cindex, error);
       draw.error(dbox);
     }
-    if (frozen) {
-      draw.frozen(dbox);
+    if (isLocked) {
+      draw.frozen(dbox, lockedColor);
     }
   });
 }
@@ -145,36 +216,25 @@ function renderContent(viewRange, fw, fh, tx, ty) {
     .translate(tx, ty);
 
   const { exceptRowSet } = data;
-  // const exceptRows = Array.from(exceptRowSet);
-  const filteredTranslateFunc = (ri) => {
-    const ret = exceptRowSet.has(ri);
-    if (ret) {
-      const height = data.rows.getHeight(ri);
-      draw.translate(0, -height);
-    }
-    return !ret;
-  };
+  const rowVisible = (ri) => !exceptRowSet.has(ri);
 
-  const exceptRowTotalHeight = data.exceptRowTotalHeight(viewRange.sri, viewRange.eri);
   // 1 render cell
   draw.save();
-  draw.translate(0, -exceptRowTotalHeight);
   viewRange.each((ri, ci) => {
     renderCell(draw, data, ri, ci);
-  }, ri => filteredTranslateFunc(ri));
+  }, rowVisible);
   draw.restore();
 
 
   // 2 render mergeCell
   const rset = new Set();
   draw.save();
-  draw.translate(0, -exceptRowTotalHeight);
   data.eachMergesInView(viewRange, ({ sri, sci, eri }) => {
     if (!exceptRowSet.has(sri)) {
       renderCell(draw, data, sri, sci);
     } else if (!rset.has(sri)) {
       rset.add(sri);
-      const height = data.rows.sumHeight(sri, eri + 1);
+      const height = data.rows.sumHeight(sri, eri + 1, exceptRowSet);
       draw.translate(0, -height);
     }
   });
@@ -324,12 +384,17 @@ class Table {
 
   resetData(data) {
     this.data = data;
+    this.autoHeightsComputed = false;
     this.render();
   }
 
   render() {
     // resize canvas
     const { data } = this;
+    if (!this.autoHeightsComputed) {
+      computeAutoRowHeights(data, this.draw.ctx);
+      this.autoHeightsComputed = true;
+    }
     const { rows, cols } = data;
     // fixed width of header
     const fw = cols.indexWidth;

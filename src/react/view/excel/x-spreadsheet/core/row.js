@@ -12,7 +12,7 @@ class Rows {
   getHeight(ri) {
     if (this.isHide(ri)) return 0;
     const row = this.get(ri);
-    if (row && row.height) {
+    if (row && row.height != null) {
       return row.height;
     }
     return this.height;
@@ -347,6 +347,19 @@ class Rows {
   getData() {
     const { len } = this;
     return Object.assign({ len }, this._);
+  }
+
+  moveRange(sri, eri, insertAt) {
+    const remap = helper.buildIndexRemap(this.len, sri, eri, insertAt);
+    if (!remap) return null;
+    const ndata = {};
+    for (const ri of Object.keys(this._)) {
+      const oldRi = parseInt(ri, 10);
+      const newRi = remap.remap[oldRi];
+      if (newRi !== undefined && this._[ri]) ndata[newRi] = this._[ri];
+    }
+    this._ = ndata;
+    return remap.remap;
   }
 }
 

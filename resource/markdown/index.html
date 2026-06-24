@@ -8,12 +8,22 @@
     <link rel="stylesheet" href="dist/index.css" />
     <link rel="stylesheet" href="index.css" />
     <base href="{{baseUrl}}/">
-    <meta id="configs" data-config='{{configs}}'>
 </head>
 
 <body>
     <div id="vditor"></div>
+
+    <!-- Context Menu -->
     <div class="vditor-context-menu" id="context-menu" role="menu" hidden>
+        <div class="vditor-context-menu__group vditor-context-menu__ai-group" role="group">
+            <button class="vditor-context-menu__item vditor-context-menu__item--desktop-only" type="button" data-action="aiPolish" role="menuitem">
+                <span class="vditor-context-menu__icon" aria-hidden="true">
+                    <span class="codicon codicon-sparkle"></span>
+                </span>
+                <span class="vditor-context-menu__label">AI Polish</span>
+            </button>
+        </div>
+        <div class="vditor-context-menu__separator vditor-context-menu__ai-group" role="separator"></div>
         <div class="vditor-context-menu__group" role="group">
             <button class="vditor-context-menu__item" type="button" data-action="copy" role="menuitem">
                 <span class="vditor-context-menu__icon" aria-hidden="true">
@@ -26,6 +36,12 @@
                     <span class="codicon codicon-code"></span>
                 </span>
                 <span class="vditor-context-menu__label">Copy as HTML</span>
+            </button>
+            <button class="vditor-context-menu__item" type="button" data-action="copyAsPlainText" role="menuitem">
+                <span class="vditor-context-menu__icon" aria-hidden="true">
+                    <span class="codicon codicon-symbol-string"></span>
+                </span>
+                <span class="vditor-context-menu__label">Copy as Plain Text</span>
             </button>
             <button class="vditor-context-menu__item" type="button" data-action="paste" role="menuitem">
                 <span class="vditor-context-menu__icon" aria-hidden="true">
@@ -42,26 +58,26 @@
         </div>
         <div class="vditor-context-menu__separator" role="separator"></div>
         <div class="vditor-context-menu__group" role="group">
-            <button class="vditor-context-menu__item" type="button" data-action="exportPdf" role="menuitem">
+            <button class="vditor-context-menu__item vditor-context-menu__item--desktop-only" type="button" data-action="exportPdf" role="menuitem">
                 <span class="vditor-context-menu__icon" aria-hidden="true">
                     <span class="codicon codicon-file-pdf"></span>
                 </span>
                 <span class="vditor-context-menu__label">Export PDF</span>
             </button>
-            <button class="vditor-context-menu__item" type="button" data-action="exportPdfWithoutOutline"
+            <button class="vditor-context-menu__item vditor-context-menu__item--desktop-only" type="button" data-action="exportPdfWithoutOutline"
                 role="menuitem">
                 <span class="vditor-context-menu__icon" aria-hidden="true">
                     <span class="codicon codicon-file-pdf"></span>
                 </span>
                 <span class="vditor-context-menu__label">Export PDF (Without Outline)</span>
             </button>
-            <button class="vditor-context-menu__item" type="button" data-action="exportDocx" role="menuitem">
+            <button class="vditor-context-menu__item vditor-context-menu__item--desktop-only" type="button" data-action="exportDocx" role="menuitem">
                 <span class="vditor-context-menu__icon" aria-hidden="true">
                     <span class="codicon codicon-file-text"></span>
                 </span>
                 <span class="vditor-context-menu__label">Export Docx</span>
             </button>
-            <button class="vditor-context-menu__item" type="button" data-action="exportHtml" role="menuitem">
+            <button class="vditor-context-menu__item vditor-context-menu__item--desktop-only" type="button" data-action="exportHtml" role="menuitem">
                 <span class="vditor-context-menu__icon" aria-hidden="true">
                     <span class="codicon codicon-code"></span>
                 </span>
@@ -70,12 +86,67 @@
         </div>
         <div class="vditor-context-menu__separator" role="separator"></div>
         <div class="vditor-context-menu__group" role="group">
-            <button class="vditor-context-menu__item" type="button" data-action="showInFolder" role="menuitem">
+            <button class="vditor-context-menu__item vditor-context-menu__item--desktop-only" type="button" data-action="showInFolder" role="menuitem">
                 <span class="vditor-context-menu__icon" aria-hidden="true">
                     <span class="codicon codicon-folder-opened"></span>
                 </span>
                 <span class="vditor-context-menu__label">Show in Folder</span>
             </button>
+        </div>
+    </div>
+
+    <!-- AI Polish Dialog -->
+    <div class="ai-dialog-overlay" id="ai-dialog-overlay" hidden>
+        <div class="ai-dialog" role="dialog" aria-modal="true" aria-labelledby="ai-dialog-title">
+            <div class="ai-dialog__header">
+                <span class="codicon codicon-sparkle ai-dialog__icon"></span>
+                <h2 class="ai-dialog__title" id="ai-dialog-title">AI Polish</h2>
+                <button class="ai-dialog__close" id="ai-dialog-close" type="button" title="Close">
+                    <span class="codicon codicon-close"></span>
+                </button>
+            </div>
+            <div class="ai-dialog__body">
+                <!-- Update Goal -->
+                <div class="ai-dialog__field">
+                    <label class="ai-dialog__label" for="ai-goal">Update Goal</label>
+                    <textarea class="ai-dialog__textarea" id="ai-goal" placeholder="Describe what you want to improve (optional)..." rows="2"></textarea>
+                </div>
+                <!-- Prompt -->
+                <div class="ai-dialog__field">
+                    <label class="ai-dialog__label" for="ai-prompt-select">Prompt</label>
+                    <div class="ai-dialog__select-wrap">
+                        <select class="ai-dialog__select" id="ai-prompt-select">
+                            <option value="">— None —</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- AI Engine -->
+                <div class="ai-dialog__field">
+                    <label class="ai-dialog__label">AI Engine</label>
+                    <div class="ai-dialog__engine-tabs">
+                        <button type="button" class="ai-dialog__engine-tab ai-dialog__engine-tab--active" data-engine="vscode">
+                            <span class="codicon codicon-extensions"></span>
+                            VS Code API
+                        </button>
+                        <button type="button" class="ai-dialog__engine-tab" data-engine="custom">
+                            <span class="codicon codicon-server"></span>
+                            Custom
+                        </button>
+                    </div>
+                    <div class="ai-dialog__custom-fields" id="ai-custom-fields" hidden>
+                        <input type="url" class="ai-dialog__input" id="ai-custom-url" placeholder="API URL (e.g. https://api.openai.com/v1/chat/completions)" />
+                        <input type="password" class="ai-dialog__input" id="ai-custom-key" placeholder="API Key" />
+                        <input type="text" class="ai-dialog__input" id="ai-custom-model" placeholder="Model (e.g. gpt-4o)" />
+                    </div>
+                </div>
+            </div>
+            <div class="ai-dialog__footer">
+                <button class="ai-dialog__btn ai-dialog__btn--cancel" id="ai-dialog-cancel" type="button">Cancel</button>
+                <button class="ai-dialog__btn ai-dialog__btn--submit" id="ai-dialog-submit" type="button">
+                    <span class="codicon codicon-sparkle"></span>
+                    Polish
+                </button>
+            </div>
         </div>
     </div>
 </body>

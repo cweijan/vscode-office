@@ -1,48 +1,48 @@
 import axios from 'axios';
-import * as fs from 'fs';
 import * as vscode from 'vscode';
+import { extensionResource, getExtensionUri, readExtensionText } from './extensionResource';
+import { IconService } from '../service/icon/iconService';
 
 interface ViewOption {
     route: string;
+    fileName?: string;
     gitHistoryInit?: import('../gitHistory/util/gitHistoryInitPayload').GitHistoryEmbeddedInit;
 }
 
 export class ReactApp {
 
-    private static webviewPath: string;
-    private static extensionPath: string;
+    private static context: vscode.ExtensionContext;
+    private static webviewUri: vscode.Uri;
     public static IS_DEV = false;
+
     public static init(context: vscode.ExtensionContext) {
-        this.webviewPath = context.extensionPath + '/out/webview'
-        this.extensionPath = context.extensionPath
-        this.IS_DEV = context.extensionMode == vscode.ExtensionMode.Development
+        this.context = context;
+        this.webviewUri = extensionResource(context, 'out', 'webview');
+        this.IS_DEV = context.extensionMode == vscode.ExtensionMode.Development;
     }
 
     public static async view(webview: vscode.Webview, option: ViewOption) {
-        const html = await this.readContent()
-        const iconBaseUrl = webview.asWebviewUri(
-            vscode.Uri.file(`${this.extensionPath}/resource/icon`)
-        ).toString();
+        const html = await this.readContent();
+        const iconConfig = IconService.getInstance().getWebviewConfig(this.context, webview);
         const sponsorBaseUrl = webview.asWebviewUri(
-            vscode.Uri.file(`${this.extensionPath}/resource/sponsor`)
+            extensionResource(this.context, 'resource', 'sponsor')
         ).toString();
         webview.html = this.buildPath(html, webview)
             .replace(`{{configs}}`, JSON.stringify({
                 ...option,
-                iconBaseUrl,
+                ...iconConfig,
                 sponsorBaseUrl,
                 language: vscode.env.language,
                 config: vscode.workspace.getConfiguration('vscode-office')
-            }))
+            }));
     }
 
     private static async readContent(): Promise<string> {
         if (this.IS_DEV) {
             const data: string = (await axios.get(`http://127.0.0.1:5739/index.html`, { transformResponse: [] })).data;
-            return data.replace('/@vite/client', 'http://127.0.0.1:5739/@vite/client')
+            return data.replace('/@vite/client', 'http://127.0.0.1:5739/@vite/client');
         }
-        const targetPath = `${this.webviewPath}/index.html`;
-        return fs.readFileSync(targetPath, 'utf8')
+        return readExtensionText(this.context, 'out', 'webview', 'index.html');
     }
 
     private static buildPath(data: string, webview: vscode.Webview): string {
@@ -54,7 +54,11 @@ export class ReactApp {
         if (this.IS_DEV) {
             return `http://127.0.0.1:5739`;
         }
-        return webview.asWebviewUri(vscode.Uri.file(this.webviewPath)).toString();
+        return webview.asWebviewUri(this.webviewUri).toString();
+    }
+
+    public static getExtensionUri(): vscode.Uri {
+        return getExtensionUri(this.context);
     }
 
 }

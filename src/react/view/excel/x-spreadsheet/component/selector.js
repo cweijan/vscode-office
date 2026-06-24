@@ -73,8 +73,8 @@ class SelectorElement {
     this.clipboardEl.offset({
       left,
       top,
-      width: width - 5,
-      height: height - 5,
+      width,
+      height,
     });
   }
 
@@ -276,22 +276,23 @@ export default class Selector {
 
   resetBRTAreaOffset() {
     const offset = this.data.getSelectedRect();
-    const coffset = this.data.getClipboardRect();
     setBRAreaOffset.call(this, offset);
     setTAreaOffset.call(this, offset);
-    setBRClipboardOffset.call(this, coffset);
-    setTClipboardOffset.call(this, coffset);
+    this.resetClipboardOffset();
     this.resetOffset();
   }
 
   resetBRLAreaOffset() {
     const offset = this.data.getSelectedRect();
-    const coffset = this.data.getClipboardRect();
     setBRAreaOffset.call(this, offset);
     setLAreaOffset.call(this, offset);
-    setBRClipboardOffset.call(this, coffset);
-    setLClipboardOffset.call(this, coffset);
+    this.resetClipboardOffset();
     this.resetOffset();
+  }
+
+  resetClipboardOffset() {
+    if (this.data.clipboard.isClear()) return;
+    setAllClipboardOffset.call(this, this.data.getClipboardRect());
   }
 
   set(ri, ci, indexesUpdated = true) {

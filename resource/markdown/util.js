@@ -109,8 +109,7 @@ export async function getToolbar(resPath) {
         "redo",
         "|",
         "find",
-        "edit-mode",
-        "code-theme",
+        "settings",
         "help",
     ]
 }
@@ -190,6 +189,39 @@ const getSelectedHtml = () => {
     return container.innerHTML
 }
 
+const normalizePlainText = text => {
+    return (text || '')
+        .replace(/\u00a0/g, ' ')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim()
+}
+
+const htmlToPlainText = html => {
+    if (!html) return ''
+    const container = document.createElement('div')
+    container.innerHTML = html
+    container.querySelectorAll(
+        '.vditor-ir__marker, .vditor-ir__preview, .vditor-toolbar, .vditor-hint, script, style',
+    ).forEach(item => item.remove())
+    container.querySelectorAll('br').forEach(item => item.replaceWith('\n'))
+    container.querySelectorAll('p, div, h1, h2, h3, h4, h5, h6, li, tr, pre, blockquote').forEach(item => {
+        item.appendChild(document.createTextNode('\n'))
+    })
+    return normalizePlainText(container.textContent || '')
+}
+
+const getSelectedPlainText = () => {
+    const selection = document.getSelection()
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return ''
+    const editorRoot = document.getElementById('vditor')
+    if (!editorRoot?.contains(selection.anchorNode) || !editorRoot.contains(selection.focusNode)) return ''
+    const container = document.createElement('div')
+    for (let i = 0; i < selection.rangeCount; i++) {
+        container.appendChild(selection.getRangeAt(i).cloneContents())
+    }
+    return htmlToPlainText(container.innerHTML) || normalizePlainText(selection.toString())
+}
+
 const copyHtml = async (html) => {
     if (!html) return
     if (navigator.clipboard?.write && window.ClipboardItem) {
@@ -204,7 +236,151 @@ const copyHtml = async (html) => {
     await navigator.clipboard.writeText(html)
 }
 
-export const createContextMenu = (editor) => {
+const copyPlainText = async (text) => {
+    if (!text) return
+    if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text)
+        return
+    }
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    textarea.style.position = 'fixed'
+    textarea.style.left = '-9999px'
+    textarea.style.top = '0'
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    textarea.remove()
+}
+
+export const setAIAvailable = (available) => {
+    document.querySelectorAll('.vditor-context-menu__ai-group').forEach(el => {
+        el.style.display = available ? '' : 'none'
+    })
+}
+
+const AI_ENGINE_KEY = 'vditor-ai-engine'
+const AI_CUSTOM_URL_KEY = 'vditor-ai-custom-url'
+const AI_CUSTOM_KEY_KEY = 'vditor-ai-custom-key'
+const AI_CUSTOM_MODEL_KEY = 'vditor-ai-custom-model'
+const AI_PROMPTS_KEY = 'vditor-global-settings'
+
+const getAIPrompts = () => {
+    try {
+        const raw = localStorage.getItem(AI_PROMPTS_KEY)
+        if (!raw) return []
+        const settings = JSON.parse(raw)
+        const val = settings['aiPrompts']
+        return val ? JSON.parse(val) : []
+    } catch { return [] }
+}
+
+export const createAIDialog = (onSubmit, t) => {
+    const overlay = document.getElementById('ai-dialog-overlay')
+    const goalEl = document.getElementById('ai-goal')
+    const promptSelect = document.getElementById('ai-prompt-select')
+    const engineTabs = document.querySelectorAll('.ai-dialog__engine-tab')
+    const customFields = document.getElementById('ai-custom-fields')
+    const customUrl = document.getElementById('ai-custom-url')
+    const customKey = document.getElementById('ai-custom-key')
+    const customModel = document.getElementById('ai-custom-model')
+    const cancelBtn = document.getElementById('ai-dialog-cancel')
+    const closeBtn = document.getElementById('ai-dialog-close')
+    const submitBtn = document.getElementById('ai-dialog-submit')
+
+    let currentEngine = localStorage.getItem(AI_ENGINE_KEY) || 'vscode'
+
+    const refreshEngineUI = () => {
+        engineTabs.forEach(tab => {
+            tab.classList.toggle('ai-dialog__engine-tab--active', tab.dataset.engine === currentEngine)
+        })
+        customFields.hidden = currentEngine !== 'custom'
+    }
+
+    const populatePrompts = () => {
+        const prompts = getAIPrompts()
+        promptSelect.innerHTML = `<option value="">${t.promptNone}</option>` +
+            prompts.map(p => `<option value="${p.id}" title="${p.content}">${p.name}</option>`).join('')
+    }
+
+    const applyI18n = () => {
+        document.getElementById('ai-dialog-title').textContent = t.aiPolish
+        document.querySelector('[for="ai-goal"]').textContent = t.updateGoal
+        goalEl.placeholder = t.updateGoalPlaceholder
+        document.querySelector('[for="ai-prompt-select"]').textContent = t.prompt
+        document.querySelector('.ai-dialog__field .ai-dialog__label:last-of-type, [data-label-engine]')
+        document.querySelectorAll('.ai-dialog__engine-tab').forEach(tab => {
+            const icon = tab.querySelector('.codicon')
+            tab.textContent = tab.dataset.engine === 'vscode' ? t.vscodeApi : t.custom
+            if (icon) tab.prepend(icon)
+        })
+        customUrl.placeholder = t.apiUrl
+        customKey.placeholder = t.apiKey
+        customModel.placeholder = t.model
+        document.getElementById('ai-dialog-cancel').textContent = t.cancel
+        const submitLabel = document.getElementById('ai-dialog-submit')
+        const sparkle = submitLabel.querySelector('.codicon')
+        submitLabel.textContent = t.polish
+        if (sparkle) submitLabel.prepend(sparkle)
+    }
+
+    const openDialog = () => {
+        populatePrompts()
+        applyI18n()
+        goalEl.value = ''
+        customUrl.value = localStorage.getItem(AI_CUSTOM_URL_KEY) || ''
+        customKey.value = localStorage.getItem(AI_CUSTOM_KEY_KEY) || ''
+        customModel.value = localStorage.getItem(AI_CUSTOM_MODEL_KEY) || ''
+        refreshEngineUI()
+        overlay.hidden = false
+        goalEl.focus()
+    }
+
+    const closeDialog = () => { overlay.hidden = true }
+
+    engineTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            currentEngine = tab.dataset.engine
+            localStorage.setItem(AI_ENGINE_KEY, currentEngine)
+            refreshEngineUI()
+        })
+    })
+
+    cancelBtn.addEventListener('click', closeDialog)
+    closeBtn.addEventListener('click', closeDialog)
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeDialog() })
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !overlay.hidden) closeDialog() })
+
+    submitBtn.addEventListener('click', () => {
+        const goal = goalEl.value.trim()
+        const promptId = promptSelect.value
+        const promptText = promptId
+            ? (getAIPrompts().find(p => p.id === promptId)?.content || '')
+            : ''
+        const options = {
+            goal,
+            prompt: promptText,
+            engine: currentEngine,
+        }
+        if (currentEngine === 'custom') {
+            const url = customUrl.value.trim()
+            const key = customKey.value.trim()
+            const model = customModel.value.trim()
+            if (url) localStorage.setItem(AI_CUSTOM_URL_KEY, url)
+            if (key) localStorage.setItem(AI_CUSTOM_KEY_KEY, key)
+            if (model) localStorage.setItem(AI_CUSTOM_MODEL_KEY, model)
+            options.customUrl = url
+            options.customKey = key
+            options.customModel = model
+        }
+        closeDialog()
+        onSubmit(options)
+    })
+
+    return { open: openDialog }
+}
+
+export const createContextMenu = (editor, aiDialog) => {
     const menu = document.getElementById('context-menu')
 
     const closeMenu = () => hideContextMenu(menu)
@@ -226,7 +402,7 @@ export const createContextMenu = (editor) => {
     }
     menu.addEventListener('click', e => {
         const item = e.target.closest('[data-action]')
-        if (!item) return
+        if (!item || (item.classList.contains('vditor-context-menu__item--desktop-only') && document.body.classList.contains('is-web'))) return
         closeMenu()
         const action = item.dataset.action
         switch (action) {
@@ -235,6 +411,9 @@ export const createContextMenu = (editor) => {
                 break
             case 'copyAsHtml':
                 copyHtml(getSelectedHtml() || editor.getHTML())
+                break
+            case 'copyAsPlainText':
+                copyPlainText(getSelectedPlainText() || htmlToPlainText(editor.getHTML()))
                 break
             case 'paste':
                 if (document.getSelection()?.toString()) { document.execCommand('delete') }
@@ -257,6 +436,9 @@ export const createContextMenu = (editor) => {
                 break
             case 'insertImage':
                 vscodeEvent.emit('insertImage')
+                break
+            case 'aiPolish':
+                aiDialog.open()
                 break
         }
     })
@@ -308,7 +490,7 @@ const isInsideCodeMirrorTarget = (target) => {
 };
 // const keys = ['"', "{", "("];
 const keyCodes = [222, 219, 57];
-export const autoSymbol = (handler, editor, config) => {
+export const autoSymbol = (handler, editor) => {
     let _exec = document.execCommand.bind(document)
     document.execCommand = (cmd, ...args) => {
         if (cmd === 'delete') {

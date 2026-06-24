@@ -24,7 +24,7 @@
     }
   }
 
-  button {
+  & > button {
     color: var(--toolbar-icon-color);
     display: block;
     padding: 3px 10px;
@@ -47,7 +47,7 @@
   }
 
   &--current,
-  button:not(.vditor-menu--disabled):not(.vditor-edit-mode-panel__option):hover {
+  & > button:not(.vditor-menu--disabled):hover {
     background-color: var(--dropdown-hover-background, var(--second-bg-color, var(--toolbar-background-color)));
     color: var(--list-hover-color, var(--toolbar-icon-hover-color));
   }
@@ -129,8 +129,18 @@
   }
 
   button.vditor-theme-option--current {
-    background-color: color-mix(in srgb, var(--link-color, var(--list-hover-color, var(--toolbar-icon-hover-color))) 16%, transparent);
+    background-color: color-mix(in srgb, var(--link-color, var(--list-hover-color, var(--toolbar-icon-hover-color))) 15%, transparent);
     color: var(--link-color, var(--list-hover-color, var(--toolbar-icon-hover-color)));
+    font-weight: 600;
+
+    &::after {
+      content: "\eab2";
+      font-family: "codicon";
+      font-size: 14px;
+      float: right;
+      line-height: inherit;
+      color: var(--link-color, var(--list-hover-color, var(--toolbar-icon-hover-color)));
+    }
   }
 }
 
@@ -228,3 +238,4 @@
     }
   }
 }
+

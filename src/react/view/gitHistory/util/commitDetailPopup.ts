@@ -67,7 +67,8 @@ export function computeCommitDetailPopupPosition(
     const maxTop = Math.max(POPUP_MARGIN, viewport.height - effectiveHeight - POPUP_MARGIN);
     const top = Math.min(preferredTop, maxTop);
 
-    const preferredLeft = anchor.x + 100;
+    const preferredRight = anchor.x + 100 + COMMIT_DETAIL_POPUP_WIDTH;
+    const preferredLeft = preferredRight - popupWidth;
     const maxLeft = Math.max(POPUP_MARGIN, viewport.width - popupWidth - POPUP_MARGIN);
     const left = Math.min(Math.max(POPUP_MARGIN, preferredLeft), maxLeft);
 

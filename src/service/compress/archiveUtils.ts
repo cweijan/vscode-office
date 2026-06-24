@@ -1,13 +1,6 @@
-import { basename, extname, join, parse, resolve } from 'path';
+import { basename, join, parse, resolve } from 'path';
 import { commands, Uri } from 'vscode';
 
-export function getFileSuffix(fsPath: string): string {
-    const lower = fsPath.toLowerCase();
-    if (lower.endsWith('.tar.gz') || lower.endsWith('.tgz')) return '.tar.gz';
-    return extname(lower);
-}
-
-/** CRX (Chrome extension) wraps a ZIP payload after a binary header. */
 export function unwrapCrx(data: Buffer): { payload: Buffer; prefix?: Buffer } {
     if (data.length < 12 || data.toString('ascii', 0, 4) !== 'Cr24') {
         return { payload: data };

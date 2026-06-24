@@ -8,6 +8,6 @@ export default class Valign extends DropdownItem {
 
   dropdown() {
     const { value } = this;
-    return new DropdownAlign(['top', 'middle', 'bottom'], value);
+    return new DropdownAlign(['top', 'middle', 'bottom'], value, 'valign');
   }
 }

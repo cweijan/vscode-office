@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, type MouseEvent } from 'react';
 import { Popconfirm } from 'antd';
 import { handler } from '../../../util/vscode';
 import { IconDelete, IconSort } from '../icons';
@@ -68,8 +68,17 @@ function DeleteButton({ entryName }: { entryName: string }) {
     );
 }
 
+const DRAG_THRESHOLD = 3;
+
+function hasTextSelection() {
+    const sel = window.getSelection();
+    return !!sel && sel.toString().length > 0;
+}
+
 export default function FileItems({ items, onOpenPath }: FileItemsProps) {
     const loading = useRef(true);
+    const pointerDown = useRef<{ x: number; y: number } | null>(null);
+    const pointerMoved = useRef(false);
     const [sortField, setSortField] = useState<SortField>('name');
     const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
@@ -102,6 +111,24 @@ export default function FileItems({ items, onOpenPath }: FileItemsProps) {
             setSortField(field);
             setSortDirection('asc');
         }
+    };
+
+    const handleRowMouseDown = (e: MouseEvent<HTMLTableRowElement>) => {
+        pointerDown.current = { x: e.clientX, y: e.clientY };
+        pointerMoved.current = false;
+    };
+
+    const handleRowMouseMove = (e: MouseEvent<HTMLTableRowElement>) => {
+        if (!pointerDown.current) return;
+        const { x, y } = pointerDown.current;
+        if (Math.abs(e.clientX - x) > DRAG_THRESHOLD || Math.abs(e.clientY - y) > DRAG_THRESHOLD) {
+            pointerMoved.current = true;
+        }
+    };
+
+    const handleRowClick = (entry: FileInfo) => {
+        if (pointerMoved.current || hasTextSelection()) return;
+        onOpenPath(entry);
     };
 
     return (
@@ -150,7 +177,10 @@ export default function FileItems({ items, onOpenPath }: FileItemsProps) {
                         <tr
                             key={entry.entryName ?? entry.name}
                             className="zip-table-row"
-                            onClick={() => onOpenPath(entry)}
+                            onMouseDown={handleRowMouseDown}
+                            onMouseMove={handleRowMouseMove}
+                            onMouseUp={() => { pointerDown.current = null; }}
+                            onClick={() => handleRowClick(entry)}
                         >
                             <td className="zip-col-name">
                                 <span className="zip-file-name">

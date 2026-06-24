@@ -29,14 +29,12 @@ let toolbar = [
   'undo',
   'redo',
   '|',
-  'edit-mode',
-  "code-theme",
+  'settings',
   'help',
 ]
 
 window.vditor = new Vditor('vditor', {
   cdn: rootPath,
-  extPath: rootPath,
   editorTheme: 'Light',
   codeMirrorTheme: 'Github',
   toolbar,

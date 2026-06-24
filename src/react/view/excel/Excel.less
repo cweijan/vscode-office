@@ -1,6 +1,339 @@
+body:has(.excel-app) .ant-message {
+    left: auto !important;
+    right: 16px !important;
+    top: 16px !important;
+    width: auto !important;
+    transform: none !important;
+}
+
+body:has(.excel-app) .ant-message:has(.excel-protected-cell-message),
+body:has(.excel-app) .ant-message:has(.excel-validation-error-message),
+body:has(.excel-app) .ant-message:has(.excel-save-success-message) {
+    left: 50% !important;
+    right: auto !important;
+    top: 16px !important;
+    transform: translateX(-50%) !important;
+}
+
 .excel-viewer {
     min-height: 100vh;
     background-color: white;
+    font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size: var(--vscode-font-size, 13px);
+
+    // Canvas theme variables for light mode
+    --excel-header-bg: #f2f3f5;
+    --excel-header-fg: #4a5568;
+    --excel-cell-bg: #ffffff;
+    --excel-fg: #1a202c;
+    --excel-grid-line: #e1e4e8;
+    --excel-muted-line: #d1d5db;
+    --excel-locked-indicator: color-mix(in srgb, var(--vscode-charts-green, #3d9970) 42%, transparent);
+
+    // Light mode scrollbar
+    scrollbar-color: #c7cad1 #f2f3f5;
+
+    &::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    &::-webkit-scrollbar-track {
+        background: #f2f3f5;
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: #c7cad1;
+        border-radius: 5px;
+        border: 2px solid #f2f3f5;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: #a8adb8;
+    }
+    &::-webkit-scrollbar-corner {
+        background: #f2f3f5;
+    }
+
+    .x-spreadsheet-toolbar {
+        font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+        font-size: var(--vscode-font-size, 13px);
+
+        .x-spreadsheet-icon {
+            line-height: 18px;
+
+            .codicon {
+                font-size: 17px;
+                color: inherit;
+                opacity: 0.75;
+                position: relative;
+                top: 2px;
+            }
+        }
+    }
+
+    .x-spreadsheet-contextmenu {
+        font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+        font-size: var(--vscode-font-size, 13px);
+    }
+
+    // Light mode inner scrollbar (sheet canvas area)
+    .x-spreadsheet-scrollbar {
+        background-color: #f2f3f5;
+        scrollbar-color: #c7cad1 #f2f3f5;
+
+        &::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        &::-webkit-scrollbar-track {
+            background: #f2f3f5;
+        }
+        &::-webkit-scrollbar-thumb {
+            background-color: #c7cad1;
+            border-radius: 5px;
+            border: 2px solid #f2f3f5;
+        }
+        &::-webkit-scrollbar-thumb:hover {
+            background-color: #a8adb8;
+        }
+
+        &.horizontal > div,
+        &.vertical > div {
+            background: transparent;
+        }
+    }
+
+    // Light mode toolbar
+    .x-spreadsheet-toolbar {
+        background: #f8f9fa;
+        border-bottom: 1px solid #e1e4e8;
+
+        // Flexbox centering for toolbar buttons
+        .x-spreadsheet-toolbar-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        // Modern dark-gray sprite icons in light mode
+        .x-spreadsheet-icon-img {
+            filter: brightness(0) opacity(0.58);
+            opacity: 1;
+        }
+
+        .x-spreadsheet-toolbar-btn:hover .x-spreadsheet-icon-img,
+        .x-spreadsheet-toolbar-btn.active .x-spreadsheet-icon-img {
+            filter: brightness(0) opacity(0.82);
+        }
+
+        // Hide the spurious arrow-right line in dropdown buttons
+        .x-spreadsheet-dropdown-header .x-spreadsheet-icon.arrow-right {
+            display: none;
+        }
+
+        // ── Font + FontSize connected pill ────────────────────────────────────
+        .x-spreadsheet-font-group {
+            display: inline-flex;
+            align-items: center;
+            height: 26px;
+            border-radius: 7px;
+            border: 1px solid rgba(0, 0, 0, 0.14);
+            background: transparent;
+            overflow: visible;
+            margin: 6px 2px 0;
+
+            // Reset inherited toolbar-btn margin inside the pill
+            .x-spreadsheet-toolbar-btn {
+                margin: 0 !important;
+                height: 100%;
+                display: flex;
+                align-items: center;
+            }
+
+            // Font name section
+            .x-spreadsheet-toolbar-btn:first-child {
+                width: 120px;
+                border-right: 1px solid rgba(0, 0, 0, 0.10);
+                border-radius: 6px 0 0 6px;
+                padding: 0 4px 0 8px;
+                background: transparent;
+
+                .x-spreadsheet-dropdown-header {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    gap: 3px;
+                }
+
+                .x-spreadsheet-dropdown-title {
+                    flex: 1;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    font-size: 12.5px;
+                    font-weight: 500;
+                }
+            }
+
+            // Font size section
+            .x-spreadsheet-toolbar-btn:last-child {
+                width: 44px;
+                border-radius: 0 6px 6px 0;
+                padding: 0 2px 0 8px;
+                background: transparent;
+
+                .x-spreadsheet-dropdown-header {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    gap: 2px;
+                }
+
+                .x-spreadsheet-dropdown-title {
+                    font-size: 12.5px;
+                    font-weight: 500;
+                }
+            }
+
+            // Re-show chevron only inside this group
+            .x-spreadsheet-dropdown-header .x-spreadsheet-icon.arrow-right {
+                display: inline-flex !important;
+                width: 12px;
+                height: 12px;
+                flex-shrink: 0;
+                position: relative;
+                top: -1px;
+
+                .x-spreadsheet-icon-img {
+                    filter: brightness(0) opacity(0.38) !important;
+                }
+            }
+
+            .x-spreadsheet-toolbar-btn:hover {
+                background: rgba(0, 0, 0, 0.05) !important;
+            }
+        }
+
+        // ── Format pill ───────────────────────────────────────────────────────
+        .x-spreadsheet-format-group {
+            display: inline-flex;
+            align-items: center;
+            height: 26px;
+            border-radius: 7px;
+            border: 1px solid rgba(0, 0, 0, 0.14);
+            background: transparent;
+            margin: 6px 2px 0;
+
+            .x-spreadsheet-toolbar-btn {
+                margin: 0 !important;
+                width: 90px;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                border-radius: 6px;
+                padding: 0 4px 0 8px;
+                background: transparent;
+
+                .x-spreadsheet-dropdown-header {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    gap: 3px;
+                }
+
+                .x-spreadsheet-dropdown-title {
+                    flex: 1;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    font-size: 12.5px;
+                    font-weight: 500;
+                }
+
+                &:hover {
+                    background: rgba(0, 0, 0, 0.05) !important;
+                }
+            }
+
+            .x-spreadsheet-dropdown-header .x-spreadsheet-icon.arrow-right {
+                display: inline-flex !important;
+                width: 12px;
+                height: 12px;
+                flex-shrink: 0;
+                position: relative;
+                top: -1px;
+
+                .x-spreadsheet-icon-img {
+                    filter: brightness(0) opacity(0.38) !important;
+                }
+            }
+        }
+    }
+
+    // Light mode bottombar — pill-style sheet tabs
+    .x-spreadsheet-bottombar {
+        background: #f2f3f5;
+        border-top: 1px solid #e1e4e8;
+        height: 38px;
+        align-items: center;
+        padding: 0 6px;
+
+        // The scrollable tab list
+        .x-spreadsheet-menu {
+            align-items: center;
+        }
+
+        // All tab items
+        .x-spreadsheet-menu > li {
+            float: none;
+            height: 26px;
+            line-height: 26px;
+            padding: 0 14px;
+            border-radius: 13px;
+            border-bottom: none !important;
+            margin: 0 2px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.55);
+            text-shadow: none;
+            transition: background 0.12s ease, color 0.12s ease;
+
+            &:hover:not(.active) {
+                background: rgba(0, 0, 0, 0.06);
+                color: rgba(0, 0, 0, 0.75);
+            }
+
+            &.active {
+                background: rgba(5, 124, 82, 0.1);
+                color: #057c52;
+                border-bottom: none !important;
+            }
+        }
+
+        // "+" add-sheet button (first li, contains only the icon)
+        .x-spreadsheet-menu > li:first-child {
+            padding: 0;
+            width: 26px;
+            min-width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 6px;
+
+            .x-spreadsheet-icon {
+                margin: 0;
+            }
+
+            .x-spreadsheet-icon-img {
+                filter: brightness(0) opacity(0.45);
+                opacity: 1;
+            }
+
+            &:hover .x-spreadsheet-icon-img {
+                filter: brightness(0) opacity(0.7);
+            }
+        }
+    }
 
     .ant-tabs {
         user-select: none;
@@ -46,6 +379,88 @@
         }
     }
 
+    .excel-load-error {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(20px, 4vw, 48px);
+        background: var(--vscode-editor-background, #fff);
+        color: var(--vscode-foreground, #333);
+
+        &-panel {
+            width: min(580px, 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(12px, 2vw, 18px);
+            padding: clamp(28px, 4vw, 44px);
+            text-align: center;
+            border: 1px solid var(--vscode-editorWidget-border, rgba(0,0,0,0.12));
+            border-radius: 10px;
+            background: var(--vscode-editorWidget-background, #f8f9fa);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+
+        &-icon {
+            color: var(--vscode-editorError-foreground, #e05252);
+            opacity: 0.85;
+            flex-shrink: 0;
+        }
+
+        &-title {
+            margin: 0;
+            font-size: clamp(16px, 2vw, 20px);
+            font-weight: 600;
+            line-height: 1.35;
+            color: var(--vscode-foreground, #1a1a1a);
+        }
+
+        &-desc {
+            margin: 0;
+            font-size: clamp(12px, 1.3vw, 14px);
+            line-height: 1.65;
+            color: var(--vscode-descriptionForeground, #666);
+            max-width: 40em;
+        }
+
+        &-message {
+            display: inline-block;
+            max-width: 100%;
+            padding: 5px 14px;
+            font-family: var(--vscode-editor-font-family, ui-monospace, monospace);
+            font-size: clamp(11px, 1.1vw, 13px);
+            line-height: 1.5;
+            color: var(--vscode-foreground, #333);
+            word-break: break-all;
+            border: 1px solid var(--vscode-editorWidget-border, rgba(0,0,0,0.10));
+            border-radius: 6px;
+            background: var(--vscode-editor-background, #fff);
+        }
+    }
+
+    .excel-readonly-banner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 999;
+        padding: 4px 12px;
+        font-size: 12px;
+        text-align: center;
+        color: #5c4b00;
+        background: #fff8e1;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        pointer-events: none;
+    }
+
+    body.office-dark & .excel-readonly-banner {
+        color: #e8d48b;
+        background: rgba(92, 75, 0, 0.35);
+        border-bottom-color: rgba(255, 255, 255, 0.08);
+    }
+
     .excel-footer-actions {
         position: fixed;
         right: 12px;
@@ -79,7 +494,7 @@
     }
 
     .x-spreadsheet-selector .x-spreadsheet-selector-clipboard {
-        border-color: var(--excel-selection);
+        --clipboard-ant-color: var(--excel-selection);
     }
 
     .x-spreadsheet-selector .x-spreadsheet-selector-autofill {
@@ -144,6 +559,7 @@ body.office-dark .excel-viewer {
     --excel-widget-bg: var(--vscode-editorWidget-background, #252526);
     --excel-widget-fg: var(--vscode-editorWidget-foreground, #cccccc);
     --excel-muted-line: var(--vscode-editorWidget-border, var(--vscode-panel-border, rgba(128, 128, 128, 0.35)));
+    --excel-locked-indicator: color-mix(in srgb, var(--vscode-charts-green, #73c991) 38%, transparent);
 
     min-height: 100vh;
     background-color: var(--excel-bg);
@@ -232,21 +648,241 @@ body.office-dark .excel-viewer {
     .x-spreadsheet-toolbar {
         background: var(--excel-header-bg);
         border-bottom: 1px solid var(--excel-border);
-    }
-
-    .x-spreadsheet-menu > li {
         color: var(--excel-fg);
-        border-bottom: 3px solid transparent;
+        font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+        font-size: var(--vscode-font-size, 13px);
 
-        &.active {
-            background-color: transparent;
-            color: var(--excel-accent);
-            border-bottom-color: var(--excel-accent);
+        .x-spreadsheet-icon-img {
+            filter: brightness(0) invert(1);
+            opacity: 0.75;
         }
 
-        .x-spreadsheet-icon .x-spreadsheet-icon-img.add {
+        .x-spreadsheet-toolbar-btn:hover .x-spreadsheet-icon-img,
+        .x-spreadsheet-toolbar-btn.active .x-spreadsheet-icon-img {
             filter: brightness(0) invert(1);
-            opacity: 0.85;
+            opacity: 1;
+        }
+
+        .x-spreadsheet-toolbar-btn:hover,
+        .x-spreadsheet-toolbar-btn.active {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        // Hide the spurious arrow-right line in dropdown buttons
+        .x-spreadsheet-dropdown-header .x-spreadsheet-icon.arrow-right {
+            display: none;
+        }
+
+        // ── Font + FontSize connected pill (dark) ─────────────────────────────
+        .x-spreadsheet-font-group {
+            display: inline-flex;
+            align-items: center;
+            height: 26px;
+            border-radius: 7px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: transparent;
+            overflow: visible;
+            margin: 6px 2px 0;
+
+            // Reset inherited toolbar-btn margin inside the pill
+            .x-spreadsheet-toolbar-btn {
+                margin: 0 !important;
+                height: 100%;
+                display: flex;
+                align-items: center;
+            }
+
+            .x-spreadsheet-toolbar-btn:first-child {
+                width: 120px;
+                border-right: 1px solid rgba(255, 255, 255, 0.09);
+                border-radius: 6px 0 0 6px;
+                padding: 0 4px 0 8px;
+                background: transparent;
+
+                .x-spreadsheet-dropdown-header {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    gap: 3px;
+                }
+
+                .x-spreadsheet-dropdown-title {
+                    flex: 1;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    font-size: 12.5px;
+                    font-weight: 500;
+                }
+            }
+
+            .x-spreadsheet-toolbar-btn:last-child {
+                width: 44px;
+                border-radius: 0 6px 6px 0;
+                padding: 0 2px 0 8px;
+                background: transparent;
+
+                .x-spreadsheet-dropdown-header {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    gap: 2px;
+                }
+
+                .x-spreadsheet-dropdown-title {
+                    font-size: 12.5px;
+                    font-weight: 500;
+                }
+            }
+
+            .x-spreadsheet-dropdown-header .x-spreadsheet-icon.arrow-right {
+                display: inline-flex !important;
+                width: 12px;
+                height: 12px;
+                flex-shrink: 0;
+                position: relative;
+                top: -1px;
+
+                .x-spreadsheet-icon-img {
+                    filter: brightness(0) invert(1) opacity(0.38) !important;
+                }
+            }
+
+            .x-spreadsheet-toolbar-btn:hover {
+                background: rgba(255, 255, 255, 0.08) !important;
+            }
+        }
+
+        // ── Format pill (dark) ────────────────────────────────────────────────
+        .x-spreadsheet-format-group {
+            display: inline-flex;
+            align-items: center;
+            height: 26px;
+            border-radius: 7px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: transparent;
+            margin: 6px 2px 0;
+
+            .x-spreadsheet-toolbar-btn {
+                margin: 0 !important;
+                width: 90px;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                border-radius: 6px;
+                padding: 0 4px 0 8px;
+                background: transparent;
+
+                .x-spreadsheet-dropdown-header {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    gap: 3px;
+                }
+
+                .x-spreadsheet-dropdown-title {
+                    flex: 1;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    font-size: 12.5px;
+                    font-weight: 500;
+                }
+
+                &:hover {
+                    background: rgba(255, 255, 255, 0.08) !important;
+                }
+            }
+
+            .x-spreadsheet-dropdown-header .x-spreadsheet-icon.arrow-right {
+                display: inline-flex !important;
+                width: 12px;
+                height: 12px;
+                flex-shrink: 0;
+                position: relative;
+                top: -1px;
+
+                .x-spreadsheet-icon-img {
+                    filter: brightness(0) invert(1) opacity(0.38) !important;
+                }
+            }
+        }
+
+        .x-spreadsheet-dropdown-title,
+        .x-spreadsheet-dropdown-header {
+            color: var(--excel-fg);
+        }
+
+        .x-spreadsheet-form-select {
+            color: var(--excel-input-fg);
+            background: var(--excel-input-bg);
+            border-color: var(--excel-input-border);
+
+            &:hover {
+                border-color: var(--excel-selection);
+            }
+        }
+    }
+
+    // Dark mode pill-style sheet tabs
+    .x-spreadsheet-bottombar {
+        height: 38px;
+        align-items: center;
+        padding: 0 6px;
+
+        .x-spreadsheet-menu {
+            align-items: center;
+        }
+
+        .x-spreadsheet-menu > li {
+            float: none;
+            height: 26px;
+            line-height: 26px;
+            padding: 0 14px;
+            border-radius: 13px;
+            border-bottom: none !important;
+            margin: 0 2px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--excel-fg);
+            opacity: 0.65;
+            text-shadow: none;
+            font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+            transition: background 0.12s ease, opacity 0.12s ease;
+
+            &:hover:not(.active) {
+                background: var(--excel-hover);
+                opacity: 0.85;
+            }
+
+            &.active {
+                background: color-mix(in srgb, var(--excel-accent) 15%, transparent);
+                color: var(--excel-accent);
+                border-bottom: none !important;
+                opacity: 1;
+            }
+        }
+
+        .x-spreadsheet-menu > li:first-child {
+            padding: 0;
+            width: 26px;
+            min-width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 6px;
+            opacity: 0.55;
+
+            .x-spreadsheet-icon {
+                margin: 0;
+            }
+
+            &:hover {
+                background: var(--excel-hover);
+                opacity: 0.85;
+            }
         }
     }
 
@@ -257,6 +893,10 @@ body.office-dark .excel-viewer {
     .x-spreadsheet-toolbar-btn:hover,
     .x-spreadsheet-toolbar-btn.active {
         background: var(--excel-hover);
+    }
+
+    .x-spreadsheet-toolbar-btn {
+        color: var(--excel-fg);
     }
 
     .x-spreadsheet-scrollbar {
@@ -334,9 +974,23 @@ body.office-dark .excel-viewer {
         }
     }
 
+    .x-spreadsheet-item.state,
+    .x-spreadsheet-header.state {
+        &:before {
+            background: var(--excel-input-bg, #3c3c3c);
+            border-color: var(--excel-input-border, rgba(128, 128, 128, 0.45));
+        }
+    }
+
     .x-spreadsheet-item.state.checked:before,
     .x-spreadsheet-header.state.checked:before {
         background: var(--excel-accent);
+        border-color: var(--excel-accent);
+    }
+
+    .x-spreadsheet-item.state.checked:after,
+    .x-spreadsheet-header.state.checked:after {
+        border-color: #fff;
     }
 
     .x-spreadsheet-filter {
@@ -423,4 +1077,739 @@ body.office-dark .excel-viewer {
 
 body.office-dark {
     background-color: var(--vscode-editor-background, #1e1e1e);
+}
+
+@media (max-width: 650px) {
+    .excel-viewer .office-sponsor-bar {
+        display: none !important;
+    }
+}
+
+// ─── Apple-style UI beautification ────────────────────────────────────────────
+
+// Shared mixin: popup surface (contextmenu, dropdowns)
+.excel-viewer {
+    // System font stack
+    --apple-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Segoe UI", sans-serif;
+
+    // ── Toolbar ──────────────────────────────────────────────────────────────
+    .x-spreadsheet-toolbar {
+        height: 42px;
+        font-family: var(--apple-font);
+
+        .x-spreadsheet-toolbar-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            margin: 5px 1px 0;
+            height: 28px;
+            line-height: 28px;
+            transition: background 0.12s ease;
+        }
+    }
+
+    .x-spreadsheet-toolbar-divider {
+        margin-top: 11px;
+        height: 20px;
+    }
+
+    // ── Tooltip ───────────────────────────────────────────────────────────────
+    .x-spreadsheet-tooltip {
+        font-family: var(--apple-font);
+        font-size: 11.5px;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+        padding: 5px 10px;
+        border-radius: 7px;
+        background: rgba(20, 20, 20, 0.82);
+        color: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: none;
+    }
+
+    // ── Context menu ──────────────────────────────────────────────────────────
+    .x-spreadsheet-contextmenu {
+        width: 240px;
+        border-radius: 12px;
+        border: 0.5px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.13), 0 2px 8px rgba(0, 0, 0, 0.07);
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(24px) saturate(180%);
+        padding: 6px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+
+        &::-webkit-scrollbar { width: 4px; }
+        &::-webkit-scrollbar-track { background: transparent; }
+        &::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 2px;
+        }
+    }
+
+    // ── Suggest / autocomplete ────────────────────────────────────────────────
+    .x-spreadsheet-suggest {
+        border-radius: 10px;
+        border: 0.5px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.11);
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(20px);
+        padding: 4px;
+        overflow: visible;
+        width: max-content !important;
+        min-width: 100%;
+
+        .x-spreadsheet-item {
+            white-space: nowrap;
+        }
+    }
+
+    // ── Dropdown panels ───────────────────────────────────────────────────────
+    .x-spreadsheet-dropdown .x-spreadsheet-dropdown-content {
+        border-radius: 10px;
+        border: 0.5px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.11), 0 1px 4px rgba(0, 0, 0, 0.06);
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(20px) saturate(160%);
+        padding: 4px;
+        overflow: hidden;
+        min-width: max-content;
+
+        .x-spreadsheet-item {
+            white-space: nowrap;
+        }
+    }
+
+    // ── List items inside menus & dropdowns ───────────────────────────────────
+    .x-spreadsheet-item {
+        font-family: var(--apple-font);
+        font-size: 13px;
+        height: 28px;
+        line-height: 28px;
+        border-radius: 6px;
+        border: none;
+        padding: 0 10px;
+        margin: 1px 0;
+        color: rgba(0, 0, 0, 0.85);
+        transition: background 0.1s ease;
+        // flex layout so icon + title + shortcut align cleanly
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        &:hover, &.active {
+            background: rgba(0, 0, 0, 0.06);
+        }
+
+        &.divider {
+            height: 0;
+            padding: 0;
+            margin: 5px 4px;
+            border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0;
+            display: block;
+        }
+
+        // codicon inside menu items — default muted
+        > .codicon {
+            font-size: 14px;
+            width: 16px;
+            text-align: center;
+            flex-shrink: 0;
+            opacity: 0.55;
+        }
+
+        // Destructive — red
+        > .codicon-trash,
+        > .codicon-circle-slash {
+            color: #e5484d;
+            opacity: 0.85;
+        }
+
+        // Insert / add — green
+        > .codicon-insert {
+            color: #30a46c;
+            opacity: 0.9;
+        }
+
+        // Edit / rename — blue
+        > .codicon-edit,
+        > .codicon-paintcan {
+            color: #3b82f6;
+            opacity: 0.85;
+        }
+
+        // Lock / security — amber
+        > .codicon-lock {
+            color: #f59e0b;
+            opacity: 0.9;
+        }
+
+        // Neutral (eye, checklist, device) — keep default muted
+
+        // title text wrapper
+        > .menu-title {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .label {
+            margin-left: auto;
+            opacity: 0.4;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+    }
+
+    // ── Form select (font / format dropdowns in toolbar) ──────────────────────
+    .x-spreadsheet-form-select {
+        border-radius: 6px;
+        border: 1px solid rgba(0, 0, 0, 0.14);
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+        font-family: var(--apple-font);
+        font-size: 13px;
+        transition: border-color 0.15s ease;
+
+        &:hover {
+            border-color: rgba(0, 0, 0, 0.28);
+        }
+
+        .input-text {
+            height: 26px;
+            line-height: 26px;
+        }
+    }
+
+    .x-spreadsheet-form-input input {
+        border-radius: 6px;
+        font-family: var(--apple-font);
+        font-size: 13px;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+
+        &:focus {
+            border-color: rgba(0, 120, 215, 0.7);
+            box-shadow: 0 0 0 3px rgba(0, 120, 215, 0.12);
+        }
+    }
+
+    // ── Sort-filter panel ─────────────────────────────────────────────────────
+    .x-spreadsheet-sort-filter {
+        border-radius: 12px;
+        border: 0.5px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.13);
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(20px);
+    }
+
+    // ── Modal / toast ─────────────────────────────────────────────────────────
+    .x-spreadsheet-modal {
+        border-radius: 14px;
+        border: 0.5px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.16), 0 4px 12px rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(20px);
+        overflow: visible;
+
+        // Dropdowns inside the modal must stack above the modal's z-index (1001)
+        .x-spreadsheet-dropdown-content {
+            z-index: 1100;
+        }
+    }
+
+    .x-spreadsheet-modal-header {
+        border-radius: 14px 14px 0 0;
+        overflow: hidden;
+        font-family: var(--apple-font);
+        font-weight: 600;
+    }
+
+    .x-spreadsheet-toast {
+        border-radius: 12px;
+        border: 0.5px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(20px);
+    }
+
+    // ── Bottom bar (sheet tabs) ───────────────────────────────────────────────
+    .x-spreadsheet-bottombar {
+        .x-spreadsheet-menu > li {
+            font-family: var(--apple-font);
+            font-size: 12.5px;
+        }
+    }
+}
+
+// Dark mode additions for Apple-style shapes & blur
+body.office-dark .excel-viewer {
+    .x-spreadsheet-tooltip {
+        background: rgba(50, 50, 50, 0.9);
+        border: 0.5px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .x-spreadsheet-contextmenu {
+        border-radius: 12px;
+        border: 0.5px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+        background: rgba(40, 40, 40, 0.88);
+        backdrop-filter: blur(24px) saturate(180%);
+        padding: 6px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+
+        &::-webkit-scrollbar { width: 4px; }
+        &::-webkit-scrollbar-track { background: transparent; }
+        &::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+        }
+    }
+
+    .x-spreadsheet-suggest {
+        border-radius: 10px;
+        border: 0.5px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+        background: rgba(40, 40, 40, 0.88);
+        backdrop-filter: blur(20px);
+        padding: 4px;
+        overflow: visible;
+        width: max-content !important;
+        min-width: 100%;
+
+        .x-spreadsheet-item {
+            white-space: nowrap;
+        }
+    }
+
+    .x-spreadsheet-dropdown .x-spreadsheet-dropdown-content {
+        border-radius: 10px;
+        border: 0.5px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+        background: rgba(40, 40, 40, 0.9);
+        backdrop-filter: blur(20px) saturate(160%);
+        padding: 4px;
+        min-width: max-content;
+
+        .x-spreadsheet-item {
+            white-space: nowrap;
+        }
+    }
+
+    .x-spreadsheet-sort-filter {
+        border-radius: 12px;
+        border: 0.5px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        background: rgba(40, 40, 40, 0.9);
+        backdrop-filter: blur(20px);
+    }
+
+    .x-spreadsheet-modal {
+        border-radius: 14px;
+        border: 0.5px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(20px);
+        overflow: visible;
+
+        .x-spreadsheet-dropdown-content {
+            z-index: 1100;
+        }
+    }
+
+    .x-spreadsheet-toast {
+        border-radius: 12px;
+        border: 0.5px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(20px);
+    }
+
+    .x-spreadsheet-item {
+        border-radius: 6px;
+        margin: 1px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        &:hover, &.active {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        &.divider {
+            border-bottom-color: rgba(255, 255, 255, 0.08);
+            margin: 5px 4px;
+            display: block;
+        }
+
+        > .codicon {
+            font-size: 14px;
+            width: 16px;
+            text-align: center;
+            flex-shrink: 0;
+            opacity: 0.5;
+        }
+
+        > .codicon-trash,
+        > .codicon-circle-slash {
+            color: #f87171;
+            opacity: 0.9;
+        }
+
+        > .codicon-insert {
+            color: #4ade80;
+            opacity: 0.85;
+        }
+
+        > .codicon-edit,
+        > .codicon-paintcan {
+            color: #60a5fa;
+            opacity: 0.85;
+        }
+
+        > .codicon-lock {
+            color: #fbbf24;
+            opacity: 0.9;
+        }
+
+        > .menu-title {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .label {
+            margin-left: auto;
+            opacity: 0.35;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+    }
+
+    .x-spreadsheet-form-select {
+        border-radius: 6px;
+
+        &:hover {
+            border-color: var(--excel-selection);
+        }
+    }
+
+    .x-spreadsheet-form-input input:focus {
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--excel-selection) 25%, transparent);
+    }
+}
+
+// ── Find / Replace panel ─────────────────────────────────────────────────────
+.frp-panel {
+    position: fixed;
+    top: 52px;
+    right: 14px;
+    z-index: 1000;
+    width: 340px;
+    background: rgba(248, 249, 250, 0.92);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+    font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size: 13px;
+    color: #1a202c;
+    overflow: hidden;
+    animation: frp-slide-in 0.15s ease;
+}
+
+@keyframes frp-slide-in {
+    from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+.frp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px 8px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.frp-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    opacity: 0.55;
+    text-transform: uppercase;
+}
+
+.frp-close {
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.07);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(0, 0, 0, 0.5);
+    transition: background 0.12s, color 0.12s;
+    padding: 0;
+    flex-shrink: 0;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.14);
+        color: rgba(0, 0, 0, 0.75);
+    }
+}
+
+.frp-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px 0;
+}
+
+.frp-input-wrap {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.frp-search-icon {
+    position: absolute;
+    left: 9px;
+    color: rgba(0, 0, 0, 0.35);
+    pointer-events: none;
+    flex-shrink: 0;
+}
+
+.frp-input {
+    width: 100%;
+    height: 32px;
+    padding: 0 10px 0 30px;
+    border: 1px solid rgba(0, 0, 0, 0.13);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.8);
+    color: #1a202c;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.12s, box-shadow 0.12s;
+
+    &::placeholder {
+        color: rgba(0, 0, 0, 0.3);
+    }
+
+    &:focus {
+        border-color: rgba(59, 130, 246, 0.55);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        background: #fff;
+    }
+}
+
+.frp-nav-btns {
+    display: flex;
+    gap: 3px;
+    flex-shrink: 0;
+}
+
+.frp-nav-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(0, 0, 0, 0.55);
+    transition: background 0.1s, color 0.1s;
+    padding: 0;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.07);
+        color: rgba(0, 0, 0, 0.82);
+    }
+    &:active {
+        background: rgba(0, 0, 0, 0.12);
+    }
+}
+
+.frp-replace-btns {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.frp-action-btn {
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.7);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.1s, color 0.1s;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.07);
+        color: rgba(0, 0, 0, 0.9);
+    }
+
+    &.frp-action-btn-primary {
+        background: rgba(59, 130, 246, 0.12);
+        border-color: rgba(59, 130, 246, 0.35);
+        color: #2563eb;
+
+        &:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+    }
+}
+
+.frp-options {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 8px 12px 12px;
+}
+
+.frp-chip {
+    height: 22px;
+    padding: 0 9px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    background: transparent;
+    color: rgba(0, 0, 0, 0.5);
+    font-size: 11.5px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.1s, color 0.1s, border-color 0.1s;
+    white-space: nowrap;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.06);
+        color: rgba(0, 0, 0, 0.75);
+    }
+
+    &.frp-chip-active {
+        background: rgba(59, 130, 246, 0.1);
+        border-color: rgba(59, 130, 246, 0.4);
+        color: #2563eb;
+    }
+}
+
+.frp-status {
+    font-size: 11.5px;
+    color: rgba(0, 0, 0, 0.45);
+    margin-left: 4px;
+
+    &.frp-status-error {
+        color: #e5484d;
+    }
+}
+
+// Dark mode
+body.office-dark .frp-panel {
+    background: rgba(36, 36, 38, 0.92);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #cccccc;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+
+    .frp-title {
+        opacity: 0.45;
+    }
+
+    .frp-close {
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.45);
+        &:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.8);
+        }
+    }
+
+    .frp-header {
+        border-bottom-color: rgba(255, 255, 255, 0.07);
+    }
+
+    .frp-input {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.12);
+        color: #cccccc;
+
+        &::placeholder { color: rgba(255, 255, 255, 0.25); }
+
+        &:focus {
+            border-color: rgba(87, 156, 255, 0.55);
+            box-shadow: 0 0 0 3px rgba(87, 156, 255, 0.12);
+            background: rgba(255, 255, 255, 0.09);
+        }
+    }
+
+    .frp-search-icon {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .frp-nav-btn {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.5);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.85);
+        }
+    }
+
+    .frp-action-btn {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.65);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        &.frp-action-btn-primary {
+            background: rgba(87, 156, 255, 0.15);
+            border-color: rgba(87, 156, 255, 0.4);
+            color: #60a5fa;
+
+            &:hover { background: rgba(87, 156, 255, 0.25); }
+        }
+    }
+
+    .frp-chip {
+        border-color: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.4);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        &.frp-chip-active {
+            background: rgba(87, 156, 255, 0.15);
+            border-color: rgba(87, 156, 255, 0.45);
+            color: #60a5fa;
+        }
+    }
+
+    .frp-status {
+        color: rgba(255, 255, 255, 0.35);
+        &.frp-status-error { color: #f87171; }
+    }
 }

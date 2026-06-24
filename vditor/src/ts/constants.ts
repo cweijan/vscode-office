@@ -37,16 +37,11 @@ export abstract class Constants {
     linkBase: "",
     linkPrefix: "",
     listStyle: false,
-    mark: false,
+    mark: true,
     mathBlockPreview: true,
     paragraphBeginningSpace: false,
     sanitize: true,
     toc: true,
-  };
-  public static readonly HLJS_OPTIONS = {
-    enable: true,
-    lineNumber: false,
-    style: "Auto",
   };
   public static readonly MATH_OPTIONS: IMath = {
     inlineDigit: true,

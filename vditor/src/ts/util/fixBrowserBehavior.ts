@@ -25,6 +25,8 @@ import {
     getEditorRange,
     getSelectPosition,
     insertHTML,
+    scrollCaretIntoEditorView,
+    scrollElementIntoEditorView,
     setRangeByWbr,
     setSelectionByPosition, setSelectionFocus,
 } from "./selection";
@@ -485,9 +487,19 @@ export const fixHeadingEnter = (vditor: IVditor, range: Range, headingElement: H
     const headingEmpty = isEmpty(headingElement.textContent);
     const afterEmpty = isEmpty(afterFragment.textContent);
 
+    const scrollAfterEnter = (scrollTarget?: HTMLElement) => {
+        requestAnimationFrame(() => {
+            if (scrollTarget) {
+                scrollElementIntoEditorView(vditor, scrollTarget);
+            }
+            scrollCaretIntoEditorView(vditor, range);
+        });
+    };
+
     if (headingEmpty && afterEmpty) {
         headingElement.outerHTML = `<p data-block="0"><wbr>\n</p>`;
         setRangeByWbr(editor, range);
+        scrollAfterEnter();
         return;
     }
 
@@ -495,7 +507,7 @@ export const fixHeadingEnter = (vditor: IVditor, range: Range, headingElement: H
     if (atHeadingStart && headingEmpty) {
         const pElement = document.createElement("p");
         pElement.setAttribute("data-block", "0");
-        pElement.textContent = Constants.ZWSP;
+        pElement.textContent = `${Constants.ZWSP}\n`;
         const newHeading = document.createElement(headingElement.tagName);
         newHeading.setAttribute("data-block", "0");
         newHeading.appendChild(afterFragment);
@@ -504,6 +516,7 @@ export const fixHeadingEnter = (vditor: IVditor, range: Range, headingElement: H
         headingElement.remove();
         newHeading.insertAdjacentElement("afterbegin", document.createElement("wbr"));
         setRangeByWbr(newHeading, range);
+        scrollAfterEnter(pElement);
         return;
     }
 
@@ -517,6 +530,7 @@ export const fixHeadingEnter = (vditor: IVditor, range: Range, headingElement: H
     }
     headingElement.insertAdjacentElement("afterend", pElement);
     setRangeByWbr(pElement, range);
+    scrollAfterEnter();
 };
 
 export const splitHeadingOnNewline = (vditor: IVditor, headingElement: HTMLElement) => {

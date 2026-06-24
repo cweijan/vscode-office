@@ -94,21 +94,13 @@ const mountPreviewCodeMirror = (pre: HTMLElement, code: HTMLElement, showLineNum
     }
 };
 
-export const codeMirrorPreviewRender = (
-    hljsOption?: IHljs,
-    element: HTMLElement | Document = document,
-) => {
-    if (hljsOption?.enable === false) {
-        return;
-    }
-
+export const codeMirrorPreviewRender = (element: HTMLElement | Document = document) => {
     const root = element instanceof Document ? element.body : element;
-    const showLineNumber = hljsOption?.lineNumber ?? false;
 
     for (const code of root.querySelectorAll("pre > code")) {
         if (!isPreviewCodeElement(code as HTMLElement)) {
             continue;
         }
-        mountPreviewCodeMirror(code.parentElement as HTMLElement, code as HTMLElement, showLineNumber);
+        mountPreviewCodeMirror(code.parentElement as HTMLElement, code as HTMLElement, false);
     }
 };

@@ -307,19 +307,19 @@ const applyFocusState = (vditor: IVditor, state: CacheFocusState) => {
     }
 
     const start = Math.max(0, state.start);
-    const end = Math.max(start, state.end);
-    editor.focus({ preventScroll: true });
+    const caretOnly = state.start === state.end;
+    const end = caretOnly ? start : Math.max(start, state.end);
     const restoredByPath = setSelectionByPath(
         editor,
         state.startPath,
         state.startOffset,
-        state.endPath,
-        state.endOffset,
+        caretOnly ? state.startPath : state.endPath,
+        caretOnly ? state.startOffset : state.endOffset,
     );
-    if (restoredByPath) {
-        return;
+    if (!restoredByPath) {
+        setSelectionByPosition(start, end, editor);
     }
-    setSelectionByPosition(start, end, editor);
+    editor.focus({ preventScroll: true });
 };
 
 const finishDocumentLoadScroll = (vditor: IVditor, state: CacheFocusState | null) => {

@@ -1,14 +1,17 @@
 import {Constants} from "../constants";
 import {outlineRender} from "../markdown/outlineRender";
 import {isEditorThemeMobileLayout, isMobileOutlineDrawerOpen, setMobileOutlineDrawerOpen, syncMobileOutlinePanel} from "../ui/mobileOutlineMenu";
-import {accessLocalStorage} from "../util/compatibility";
+import {
+    getGlobalLocalStorageSetting,
+    setGlobalLocalStorageSetting,
+} from "../util/globalLocalStorageSettings";
 import {setSelectionFocus} from "../util/selection";
 import {bindOutlineScrollSpy, restoreOutlineActive, updateOutlineActive} from "./updateOutlineActive";
 
 const OUTLINE_MIN_WIDTH = 120;
 const OUTLINE_MAX_WIDTH = 480;
-const OUTLINE_WIDTH_STORAGE_KEY = "vditor-outline-width";
-const OUTLINE_ENABLE_STORAGE_KEY = "vditor-outline-enable";
+const OUTLINE_WIDTH_SETTING_KEY = "outlineWidth";
+const OUTLINE_ENABLE_SETTING_KEY = "outlineEnable";
 
 const normalizeOutlineWidth = (width: number | string | undefined | null): number => {
     const parsedWidth = Number(width);
@@ -18,63 +21,34 @@ const normalizeOutlineWidth = (width: number | string | undefined | null): numbe
     return Math.min(OUTLINE_MAX_WIDTH, Math.max(OUTLINE_MIN_WIDTH, parsedWidth));
 };
 
-const getOutlineWidthStorageKey = (vditor: IVditor): string => {
-    return vditor.options.outline?.widthStorageKey || OUTLINE_WIDTH_STORAGE_KEY;
-};
-
 const getStoredOutlineWidth = (vditor: IVditor): number => {
-    if (!accessLocalStorage()) {
-        return 0;
-    }
-    try {
-        return normalizeOutlineWidth(localStorage.getItem(getOutlineWidthStorageKey(vditor)));
-    } catch {
-        return 0;
-    }
+    return normalizeOutlineWidth(getGlobalLocalStorageSetting<number>(OUTLINE_WIDTH_SETTING_KEY));
 };
 
 const saveOutlineWidth = (vditor: IVditor, width: number) => {
     const normalizedWidth = normalizeOutlineWidth(width);
-    if (!normalizedWidth || !accessLocalStorage()) {
+    if (!normalizedWidth) {
         return;
     }
-    try {
-        localStorage.setItem(getOutlineWidthStorageKey(vditor), String(normalizedWidth));
-    } catch {
-        // ignore
-    }
+    setGlobalLocalStorageSetting(OUTLINE_WIDTH_SETTING_KEY, normalizedWidth);
 };
 
-const parseStoredOutlineEnable = (value: string | null): boolean | null => {
-    if (value === "true") {
+const parseStoredOutlineEnable = (value: boolean | string | null | undefined): boolean | null => {
+    if (value === true || value === "true") {
         return true;
     }
-    if (value === "false") {
+    if (value === false || value === "false") {
         return false;
     }
     return null;
 };
 
 const getStoredOutlineEnable = (vditor: IVditor): boolean | null => {
-    if (!accessLocalStorage()) {
-        return null;
-    }
-    try {
-        return parseStoredOutlineEnable(localStorage.getItem(OUTLINE_ENABLE_STORAGE_KEY));
-    } catch {
-        return null;
-    }
+    return parseStoredOutlineEnable(getGlobalLocalStorageSetting<boolean>(OUTLINE_ENABLE_SETTING_KEY));
 };
 
 const saveOutlineEnable = (vditor: IVditor, enable: boolean) => {
-    if (!accessLocalStorage()) {
-        return;
-    }
-    try {
-        localStorage.setItem(OUTLINE_ENABLE_STORAGE_KEY, String(enable));
-    } catch {
-        // ignore
-    }
+    setGlobalLocalStorageSetting(OUTLINE_ENABLE_SETTING_KEY, enable);
 };
 
 export class Outline {

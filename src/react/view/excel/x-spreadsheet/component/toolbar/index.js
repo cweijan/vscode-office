@@ -20,9 +20,11 @@ import Freeze from './freeze';
 import Merge from './merge';
 import Redo from './redo';
 import Undo from './undo';
-import Print from './print';
 import Textwrap from './textwrap';
 import More from './more';
+import Save from './save';
+import SaveAs from './saveas';
+import Find from './find';
 import Item from './item';
 
 import { h } from '../element';
@@ -114,18 +116,31 @@ export default class Toolbar {
       [
         this.undoEl = new Undo(),
         this.redoEl = new Redo(),
-        new Print(),
         this.paintformatEl = new Paintformat(),
         this.clearformatEl = new Clearformat(),
       ],
       buildDivider(),
       [
-        this.formatEl = new Format(),
+        this.saveEl = new Save(),
+        this.saveAsEl = new SaveAs(),
       ],
       buildDivider(),
       [
-        this.fontEl = new Font(),
-        this.fontSizeEl = new FontSize(),
+        { el: (() => {
+          this.formatEl = new Format();
+          return h('div', `${cssPrefix}-format-group`)
+            .child(this.formatEl.el);
+        })() },
+      ],
+      buildDivider(),
+      [
+        { el: (() => {
+          this.fontEl = new Font();
+          this.fontSizeEl = new FontSize();
+          return h('div', `${cssPrefix}-font-group`)
+            .child(this.fontEl.el)
+            .child(this.fontSizeEl.el);
+        })() },
       ],
       buildDivider(),
       [
@@ -149,9 +164,10 @@ export default class Toolbar {
       ],
       buildDivider(),
       [
-        this.freezeEl = new Freeze(),
-        this.autofilterEl = new Autofilter(),
         this.formulaEl = new Formula(),
+        this.autofilterEl = new Autofilter(),
+        this.freezeEl = new Freeze(),
+        this.findEl = new Find(),
       ],
     ];
 
@@ -187,7 +203,15 @@ export default class Toolbar {
       }
     });
 
+    // format-group / font-group items need change wired up separately
+    this.formatEl.change = (...args) => { this.change(...args); };
+    this.fontEl.change = (...args) => { this.change(...args); };
+    this.fontSizeEl.change = (...args) => { this.change(...args); };
+
     this.el.child(this.btns);
+    if (data.settings.mode === 'read') {
+      this.saveEl.el.hide();
+    }
     if (isHide) {
       this.el.hide();
     } else {
@@ -200,6 +224,10 @@ export default class Toolbar {
         moreResize.call(this);
       });
     }
+  }
+
+  setSaveEnabled(enabled) {
+    this.saveEl.setEnabled(enabled);
   }
 
   paintformatActive() {

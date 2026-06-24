@@ -155,7 +155,11 @@ export default function Image() {
             </div>
             <ImageGallery ref={gallery} items={images} startIndex={info.current} lazyLoad={true}
                 slideDuration={0} showIndex={true} showFullscreenButton={false} showPlayButton={false}
-                onSlide={() => setZoom(1)}
+                onSlide={(index) => {
+                    setZoom(1);
+                    const title = info.images[index]?.title;
+                    if (title) handler.emit('slideTitle', title);
+                }}
             />
             <SponsorBar placement="center" />
         </div>

@@ -23,7 +23,7 @@ declare const katex: {
     }): string;
 };
 
-export const mathRender = (element: HTMLElement, options?: { cdn?: string, extPath?: string, math?: IMath }) => {
+export const mathRender = (element: HTMLElement, options?: { cdn?: string, math?: IMath }) => {
     const mathElements = mathRenderAdapter.getElements(element);
 
     if (mathElements.length === 0) {
@@ -41,7 +41,7 @@ export const mathRender = (element: HTMLElement, options?: { cdn?: string, extPa
     }
     options = Object.assign({}, defaultOptions, options);
 
-    const baseUrl = options.extPath || options.cdn;
+    const baseUrl = options.cdn;
     addStyle(`${baseUrl}/dist/js/katex/katex.min.css`, "vditorKatexStyle");
     addScript(`${baseUrl}/dist/js/katex/katex.min.js`, "vditorKatexScript").then(() => {
         addScript(`${baseUrl}/dist/js/katex/mhchem.min.js`, "vditorKatexChemScript").then(() => {

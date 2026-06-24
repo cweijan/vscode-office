@@ -1,9 +1,11 @@
-import {isInsideMermaidThemePopover, registerPopoverOutsideDismiss} from "../ui/chromePopoverDismiss";
-import {MERMAID_THEME_GROUPS} from "../ui/mermaidThemeCatalog";
-import {applyMermaidTheme, resolveMermaidTheme} from "../ui/setMermaidTheme";
-import {MERMAID_THEME_PANEL_CLASS} from "../ui/themePickerPanel";
-import {buildMermaidThemePickerPanelHTML, refreshMermaidThemePickerPanel} from "../ui/mermaidThemePickerPanel";
-import {codicon} from "../util/codicon";
+import { isInsideMermaidThemePopover, registerPopoverOutsideDismiss } from "../ui/chromePopoverDismiss";
+import { MERMAID_THEME_GROUPS } from "../ui/mermaidThemeCatalog";
+import { applyMermaidTheme, resolveMermaidTheme } from "../ui/setMermaidTheme";
+import { MERMAID_THEME_PANEL_CLASS } from "../ui/themePickerPanel";
+import { buildMermaidThemePickerPanelHTML, refreshMermaidThemePickerPanel } from "../ui/mermaidThemePickerPanel";
+import { codicon } from "../util/codicon";
+import { svgAsPngUri } from "save-svg-as-png";
+import { showToast } from "../ui/toast";
 
 const MERMAID_HOST_CLASS = "vditor-mermaid-host";
 const MERMAID_CHROME_CLASS = "vditor-mermaid-chrome";
@@ -105,10 +107,18 @@ const createMermaidChrome = () => {
     themeWrap.appendChild(themePanel);
 
     actions.appendChild(themeWrap);
+
+    const copyBtn = document.createElement("button");
+    copyBtn.type = "button";
+    copyBtn.className = "vditor-mermaid-chrome__copy-btn";
+    copyBtn.setAttribute("aria-label", "Copy as image");
+    copyBtn.innerHTML = `<span class="vditor-mermaid-chrome__copy-icon">${codicon("copy")}</span>`;
+    actions.appendChild(copyBtn);
+
     toolbar.appendChild(actions);
     chromeRoot.appendChild(toolbar);
 
-    return {chromeRoot, themeWrap, themeTrigger, themePanel};
+    return { chromeRoot, themeWrap, themeTrigger, themePanel, copyBtn };
 };
 
 export const ensureMermaidHost = (mermaidElement: HTMLElement) => {
@@ -164,6 +174,31 @@ export const ensureMermaidChrome = (vditor: IVditor, mermaidElement: HTMLElement
         setThemePanelOpen(vditor, chrome!, !isOpen);
     });
     bindThemePanel(vditor, chrome);
+
+    created.copyBtn.addEventListener("mousedown", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+    });
+    created.copyBtn.addEventListener("click", async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const svg = host.querySelector("svg");
+        if (!svg) return;
+        try {
+            const scale = window.devicePixelRatio || 1;
+            const uri = await svgAsPngUri(svg, { scale });
+            const res = await fetch(uri);
+            const blob = await res.blob();
+            await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+            const icon = created.copyBtn.querySelector(".codicon");
+            if (icon) {
+                icon.className = "codicon codicon-check";
+                setTimeout(() => { icon.className = "codicon codicon-copy"; }, 1500);
+            }
+        } catch (error) {
+            showToast(vditor, window.VditorI18n.copyFailed, 1000, "error");
+        }
+    });
 };
 
 export const removeMermaidChrome = (host: HTMLElement) => {

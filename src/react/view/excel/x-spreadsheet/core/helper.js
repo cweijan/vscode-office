@@ -133,6 +133,22 @@ export function numberCalc(type, a1, a2) {
   return ret.toFixed(Math.max(al1, al2));
 }
 
+function buildIndexRemap(len, blockStart, blockEnd, insertAt) {
+  const n = blockEnd - blockStart + 1;
+  if (insertAt >= blockStart && insertAt <= blockEnd + 1) return null;
+  const order = [];
+  for (let i = 0; i < len; i += 1) order.push(i);
+  const block = order.splice(blockStart, n);
+  let at = insertAt;
+  if (insertAt > blockStart) at = insertAt - n;
+  order.splice(at, 0, ...block);
+  const remap = {};
+  for (let i = 0; i < order.length; i += 1) {
+    remap[order[i]] = i;
+  }
+  return { remap, insertAt: at };
+}
+
 export default {
   cloneDeep,
   merge: (...sources) => mergeDeep({}, ...sources),
@@ -142,6 +158,7 @@ export default {
   rangeEach,
   rangeSum,
   rangeReduceIf,
+  buildIndexRemap,
   deleteProperty,
   numberCalc,
 };

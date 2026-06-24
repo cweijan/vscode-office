@@ -1,7 +1,8 @@
-import { adjustImgPath, getWorkspacePath, writeFile } from '@/common/fileUtil';
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
-import { basename, isAbsolute, parse, resolve, dirname } from 'path';
+import { adjustImgPath, getWorkspacePath } from '@/common/fileUtil';
+import { basename, isAbsolute, parse, resolve } from 'path';
 import * as vscode from 'vscode';
+import { extensionResource, getExtensionResourceRoots, readExtensionText } from '@/common/extensionResource';
+import { ensureParentDirectory } from '@/common/workspaceFs';
 import { Handler } from '../common/handler';
 import { Util } from '../common/util';
 import { Holder } from '../service/markdown/holder';
@@ -9,7 +10,17 @@ import { MarkdownService } from '../service/markdownService';
 import { Global } from '@/common/global';
 import { TelemetryService } from '@/service/telemetryService';
 import { fileTypeFromPath } from '@/service/officeViewType';
-import { platform } from 'os';
+
+function getRuntimePlatform(): string {
+    if (typeof process !== 'undefined' && process.platform) {
+        return process.platform;
+    }
+    return 'web';
+}
+
+export interface MarkdownEditorProviderOptions {
+    isWeb?: boolean;
+}
 
 /**
  * support view and edit office files.
@@ -18,11 +29,13 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
     private static legacyGlobalStatePurged = false;
 
-    private extensionPath: string;
     private countStatus: vscode.StatusBarItem;
+    private aiAbortController: AbortController | null = null;
+    private aiCancellationSource: vscode.CancellationTokenSource | null = null;
 
-    constructor(private context: vscode.ExtensionContext) {
-        this.extensionPath = context.extensionPath;
+    constructor(
+        private context: vscode.ExtensionContext, private options: MarkdownEditorProviderOptions = {}
+    ) {
         this.countStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
         this.purgeLegacyGlobalState();
     }
@@ -41,6 +54,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     }
 
     private getFolders(): vscode.Uri[] {
+        if (vscode.env.uiKind === vscode.UIKind.Web) {
+            return [];
+        }
         const data = [];
         for (let i = 65; i <= 90; i++) {
             data.push(vscode.Uri.file(`${String.fromCharCode(i)}:/`))
@@ -56,25 +72,25 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         webview.options = {
             enableScripts: true,
             localResourceRoots: [
-                vscode.Uri.file(this.extensionPath),
+                ...getExtensionResourceRoots(this.context),
                 vscode.Uri.file("/"),
                 ...this.getFolders(),
             ],
         }
         const handler = Handler.bind(webviewPanel, uri);
         TelemetryService.get()?.trackViewOpen('markdown', fileTypeFromPath(uri.fsPath));
-        this.handleMarkdown(document, handler, folderPath)
+        void this.handleMarkdown(document, handler, folderPath);
         handler.on('developerTool', () => vscode.commands.executeCommand('workbench.action.toggleDevTools'))
     }
 
-    private handleMarkdown(document: vscode.TextDocument, handler: Handler, folderPath: vscode.Uri) {
+    private async handleMarkdown(document: vscode.TextDocument, handler: Handler, folderPath: vscode.Uri) {
 
         const uri = document.uri;
         const webview = handler.panel.webview;
 
         let content = document.getText();
-        const contextPath = `${this.extensionPath}/resource/markdown`;
-        const rootPath = webview.asWebviewUri(vscode.Uri.file(`${contextPath}`)).toString();
+        const contextUri = extensionResource(this.context, 'resource', 'markdown');
+        const rootPath = webview.asWebviewUri(contextUri).toString();
 
         Holder.activeDocument = document;
         handler.panel.onDidChangeViewState(e => {
@@ -89,22 +105,11 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
         let lastManualSaveTime: number;
         const config = vscode.workspace.getConfiguration("vscode-office");
-        const sponsorBaseUrl = webview.asWebviewUri(
-            vscode.Uri.file(`${this.extensionPath}/resource/sponsor`)
-        ).toString();
         handler.on("init", () => {
             handler.emit("open", {
-                title: basename(uri.fsPath),
+                content, rootPath,
                 documentCacheId: `${uri.scheme}:${uri.toString()}`,
                 config: this.getMarkdownWebviewConfig(config),
-                editorTheme: Global.getConfig("editorTheme", "Auto"),
-                codeMirrorTheme: Global.getConfig("codeMirrorTheme", "Auto"),
-                mermaidTheme: Global.getConfig("mermaidTheme", "Auto"),
-                editMode: Global.getConfig("editMode", "wysiwyg"),
-                language: vscode.env.language,
-                rootPath, content,
-                sponsorBaseUrl,
-                isDev: this.context.extensionMode === vscode.ExtensionMode.Development,
             })
             this.updateCount(content)
             this.countStatus.show()
@@ -159,9 +164,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             const ext: string = typeof payload === 'string' ? 'png' : (payload.ext || 'png');
             const { relPath, fullPath } = adjustImgPath(uri, ext);
             const imagePath = isAbsolute(fullPath) ? fullPath : `${resolve(uri.fsPath, "..")}/${relPath}`.replace(/\\/g, "/");
-            const imageDir = dirname(imagePath);
-            if (!existsSync(imageDir)) mkdirSync(imageDir, { recursive: true });
-            writeFileSync(imagePath, Buffer.from(imgData, 'binary'));
+            const imageUri = vscode.Uri.file(imagePath);
+            await ensureParentDirectory(imageUri);
+            await vscode.workspace.fs.writeFile(imageUri, Uint8Array.from(Buffer.from(imgData, 'binary')));
             const fileName = parse(relPath).name;
             const adjustRelPath = await MarkdownService.imgExtGuide(imagePath, relPath);
             vscode.env.clipboard.writeText(`![${fileName}](${adjustRelPath})`);
@@ -173,14 +178,14 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                 title: 'Select Image',
             });
             if (!files || files.length === 0) return;
-            const filePath = files[0].fsPath;
-            const ext = parse(filePath).ext.replace('.', '').toLowerCase() || 'png';
+            const sourceUri = files[0];
+            const ext = parse(sourceUri.fsPath).ext.replace('.', '').toLowerCase() || 'png';
             const { relPath, fullPath } = adjustImgPath(uri, ext);
             const imagePath = isAbsolute(fullPath) ? fullPath : `${resolve(uri.fsPath, "..")}/${relPath}`.replace(/\\/g, "/");
-            const imageDir = dirname(imagePath);
-            if (!existsSync(imageDir)) mkdirSync(imageDir, { recursive: true });
-            const { copyFileSync } = require('fs');
-            copyFileSync(filePath, imagePath);
+            const imageUri = vscode.Uri.file(imagePath);
+            await ensureParentDirectory(imageUri);
+            const fileBytes = await vscode.workspace.fs.readFile(sourceUri);
+            await vscode.workspace.fs.writeFile(imageUri, fileBytes);
             const fileName = parse(relPath).name;
             const adjustRelPath = await MarkdownService.imgExtGuide(imagePath, relPath);
             vscode.env.clipboard.writeText(`![${fileName}](${adjustRelPath})`);
@@ -189,7 +194,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             const side = full ? vscode.ViewColumn.Active : vscode.ViewColumn.Beside;
             vscode.commands.executeCommand('vscode.openWith', uri, "default", side);
         }).on("showInFolder", () => {
-            vscode.commands.executeCommand('revealFileInOS', uri);
+            if (vscode.env.uiKind !== vscode.UIKind.Web) {
+                vscode.commands.executeCommand('revealFileInOS', uri);
+            }
         }).on("save", (newContent) => {
             if (lastManualSaveTime && Date.now() - lastManualSaveTime < 800) return;
             content = newContent
@@ -220,20 +227,124 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                 }
                 vscode.env.openExternal(vscode.Uri.parse(url));
             }
+        }).on('queryAIAvailable', () => {
+            void this.notifyAIAvailable(handler);
+        }).on('aiPolish', async (payload: { markdown: string; options?: any }) => {
+            await this.handleAIPolish(handler, payload.markdown, payload.options);
+        }).on('aiPolishCancel', () => {
+            this.cancelAIPolish();
         })
 
         const basePath = Global.getConfig('workspacePathAsImageBasePath') ?
             vscode.Uri.file(getWorkspacePath(folderPath)) : folderPath;
         const baseUrl = webview.asWebviewUri(basePath).toString().replace(/\?.+$/, '').replace('https://git', 'https://file');
+        const indexHtml = await readExtensionText(this.context, 'resource', 'markdown', 'index.html');
         webview.html = Util.buildPath(
-            readFileSync(`${this.extensionPath}/resource/markdown/index.html`, 'utf8')
-                .replace("{{rootPath}}", rootPath)
-                .replace("{{baseUrl}}", baseUrl)
-                .replace(`{{configs}}`, JSON.stringify({
-                    platform: platform(),
-                    sponsorBaseUrl,
-                })),
-            webview, contextPath);
+            indexHtml.replace("{{baseUrl}}", baseUrl), webview, contextUri
+        );
+    }
+
+    private cancelAIPolish() {
+        this.aiCancellationSource?.cancel();
+        this.aiAbortController?.abort();
+    }
+
+    private async notifyAIAvailable(handler: Handler) {
+        const lm = (vscode as any).lm;
+        const available = typeof lm?.selectChatModels === 'function';
+        handler.emit('aiAvailable', available);
+    }
+
+    private buildPolishPrompt(markdown: string, options?: any): string {
+        const parts: string[] = [];
+        parts.push('You are a writing assistant.');
+        if (options?.prompt) {
+            parts.push(options.prompt);
+        } else {
+            parts.push('Polish the following Markdown text: improve clarity, fix grammar, and enhance readability.');
+        }
+        if (options?.goal) {
+            parts.push(`Focus on: ${options.goal}`);
+        }
+        parts.push('Return ONLY the polished Markdown with no extra commentary.\n\n' + markdown);
+        return parts.join('\n');
+    }
+
+    private async handleAIPolish(handler: Handler, markdown: string, options?: any) {
+        const engine = options?.engine ?? 'vscode';
+
+        this.cancelAIPolish();
+        this.aiCancellationSource = new vscode.CancellationTokenSource();
+        this.aiAbortController = new AbortController();
+
+        if (engine === 'custom') {
+            await this.handleCustomAIPolish(handler, markdown, options);
+            return;
+        }
+
+        const lm = (vscode as any).lm;
+        if (typeof lm?.selectChatModels !== 'function') {
+            vscode.window.showWarningMessage('AI features require VS Code 1.90+ with a language model extension installed.');
+            handler.emit('aiPolishResult', markdown);
+            return;
+        }
+        try {
+            let models: any[] = await lm.selectChatModels({ family: 'gpt-4o' });
+            if (!models || models.length === 0) {
+                models = await lm.selectChatModels();
+            }
+            if (!models || models.length === 0) {
+                vscode.window.showWarningMessage('No AI language model available. Please install a language model extension (e.g. GitHub Copilot).');
+                handler.emit('aiPolishResult', markdown);
+                return;
+            }
+            const model = models[0];
+            const LanguageModelChatMessage = (vscode as any).LanguageModelChatMessage;
+            const messages = [LanguageModelChatMessage.User(this.buildPolishPrompt(markdown, options))];
+            const token = this.aiCancellationSource.token;
+            const response = await model.sendRequest(messages, {}, token);
+            let result = '';
+            for await (const chunk of response.text) {
+                if (token.isCancellationRequested) break;
+                result += chunk;
+            }
+            if (!token.isCancellationRequested) {
+                handler.emit('aiPolishResult', result.trim() || markdown);
+            }
+        } catch (err: any) {
+            if (this.aiCancellationSource?.token.isCancellationRequested) return;
+            vscode.window.showErrorMessage(`AI Polish failed: ${err?.message ?? err}`);
+            handler.emit('aiPolishResult', markdown);
+        }
+    }
+
+    private async handleCustomAIPolish(handler: Handler, markdown: string, options: any) {
+        const url = options?.customUrl?.trim();
+        const apiKey = options?.customKey?.trim();
+        const model = options?.customModel?.trim() || 'gpt-4o';
+        if (!url) {
+            vscode.window.showWarningMessage('Custom AI: API URL is required.');
+            handler.emit('aiPolishResult', markdown);
+            return;
+        }
+        try {
+            const body = JSON.stringify({
+                model,
+                messages: [{ role: 'user', content: this.buildPolishPrompt(markdown, options) }],
+            });
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+            if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+            const signal = this.aiAbortController?.signal;
+            const resp = await fetch(url, { method: 'POST', headers, body, signal });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
+            const data = await resp.json();
+            const result = data?.choices?.[0]?.message?.content ?? '';
+            handler.emit('aiPolishResult', result.trim() || markdown);
+        } catch (err: any) {
+            if (err?.name === 'AbortError') return;
+            vscode.window.showErrorMessage(`Custom AI Polish failed: ${err?.message ?? err}`);
+            handler.emit('aiPolishResult', markdown);
+        }
     }
 
     private getMarkdownWebviewConfig(configuration: vscode.WorkspaceConfiguration) {
@@ -245,6 +356,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                     macros: markdownConfiguration.get<Record<string, string>>("math.macros", {}),
                 },
             },
+            language: vscode.env.language,
+            isWeb: this.options.isWeb,
+            isDev: this.context.extensionMode === vscode.ExtensionMode.Development,
         };
     }
 

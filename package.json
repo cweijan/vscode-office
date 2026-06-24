@@ -15,6 +15,7 @@
 		"excel",
 		"xlsx",
 		"csv",
+		"tsv",
 		"powerpoint",
 		"pptx",
 		"markdown",
@@ -47,7 +48,12 @@
 	"activationEvents": [
 		"onStartupFinished"
 	],
+	"extensionKind": [
+		"ui",
+		"workspace"
+	],
 	"main": "./out/extension.js",
+	"browser": "./out/extension.web.js",
 	"contributes": {
 		"themes": [
 			{
@@ -200,12 +206,14 @@
 			{
 				"command": "vscode-office.save-response-body",
 				"title": "Save Response",
-				"icon": "$(save)"
+				"icon": "$(save)",
+				"enablement": "!office.extensionHost.web"
 			},
 			{
 				"command": "vscode-office.copy-response-body",
 				"title": "Copy Response",
-				"icon": "$(copy)"
+				"icon": "$(copy)",
+				"enablement": "!office.extensionHost.web"
 			},
 			{
 				"command": "office.markdown.switch",
@@ -213,8 +221,14 @@
 				"icon": "$(edit)"
 			},
 			{
+				"command": "office.csv.switch",
+				"title": "Switch CSV editor",
+				"icon": "$(edit)"
+			},
+			{
 				"command": "office.markdown.paste",
-				"title": "Enhance paste in markdown"
+				"title": "Enhance paste in markdown",
+				"enablement": "!office.extensionHost.web"
 			},
 			{
 				"command": "office.html.preview",
@@ -223,12 +237,14 @@
 			{
 				"command": "office.gitHistory.view",
 				"title": "View Git History",
-				"icon": "$(history)"
+				"icon": "$(history)",
+				"enablement": "!office.extensionHost.web"
 			},
 			{
 				"command": "office.gitHistory.viewFileHistory",
 				"title": "View File History",
-				"icon": "$(history)"
+				"icon": "$(history)",
+				"enablement": "!office.extensionHost.web"
 			}
 		],
 		"keybindings": [
@@ -236,7 +252,7 @@
 				"command": "office.markdown.paste",
 				"key": "ctrl+v",
 				"mac": "cmd+v",
-				"when": "editorTextFocus && resourceLangId == markdown"
+				"when": "editorTextFocus && resourceLangId == markdown && !office.extensionHost.web"
 			},
 			{
 				"command": "office.html.preview",
@@ -253,7 +269,7 @@
 				"command": "vscode-office.request",
 				"key": "ctrl+enter",
 				"mac": "cmd+enter",
-				"when": "editorTextFocus && editorLangId == 'http'"
+				"when": "editorTextFocus && editorLangId == 'http' && !office.extensionHost.web"
 			}
 		],
 		"menus": {
@@ -261,31 +277,36 @@
 				{
 					"command": "office.gitHistory.view",
 					"group": "navigation",
-					"when": "scmProvider == git"
+					"when": "scmProvider == git && !office.extensionHost.web"
 				}
 			],
 			"scm/repository": [
 				{
 					"command": "office.gitHistory.view",
 					"group": "navigation",
-					"when": "scmProvider == git"
+					"when": "scmProvider == git && !office.extensionHost.web"
 				}
 			],
 			"scm/resourceState/context": [
 				{
 					"command": "office.gitHistory.viewFileHistory",
-					"when": "config.git.enabled && gitOpenRepositoryCount != 0"
+					"when": "config.git.enabled && gitOpenRepositoryCount != 0 && !office.extensionHost.web"
 				}
 			],
 			"editor/title": [
 				{
 					"command": "office.gitHistory.viewFileHistory",
 					"group": "navigation@4",
-					"when": "config.git.enabled && gitOpenRepositoryCount != 0 && resourceScheme == file"
+					"when": "config.git.enabled && gitOpenRepositoryCount != 0 && resourceScheme == file && !office.extensionHost.web"
 				},
 				{
 					"command": "office.markdown.switch",
 					"when": "resourceExtname == '.md'",
+					"group": "navigation@-2"
+				},
+				{
+					"command": "office.csv.switch",
+					"when": "resourceExtname == '.csv' || resourceExtname == '.tsv'",
 					"group": "navigation@-2"
 				},
 				{
@@ -303,7 +324,7 @@
 				{
 					"command": "office.gitHistory.viewFileHistory",
 					"group": "git",
-					"when": "config.git.enabled && gitOpenRepositoryCount != 0 && resourceScheme == file"
+					"when": "config.git.enabled && gitOpenRepositoryCount != 0 && resourceScheme == file && !office.extensionHost.web"
 				},
 				{
 					"command": "office.html.preview",
@@ -313,19 +334,19 @@
 				{
 					"command": "vscode-office.save-response-body",
 					"group": "http@2",
-					"when": "editorTextFocus && resourceScheme == rest-client-response"
+					"when": "editorTextFocus && resourceScheme == rest-client-response && !office.extensionHost.web"
 				},
 				{
 					"command": "vscode-office.copy-response-body",
 					"group": "http@4",
-					"when": "editorTextFocus && resourceScheme == rest-client-response"
+					"when": "editorTextFocus && resourceScheme == rest-client-response && !office.extensionHost.web"
 				}
 			],
 			"explorer/context": [
 				{
 					"command": "office.gitHistory.viewFileHistory",
 					"group": "git",
-					"when": "config.git.enabled && gitOpenRepositoryCount != 0 && resourceScheme == file"
+					"when": "config.git.enabled && gitOpenRepositoryCount != 0 && resourceScheme == file && !office.extensionHost.web"
 				}
 			]
 		},
@@ -334,6 +355,9 @@
 				"viewType": "cweijan.officeViewer",
 				"displayName": "Office Viewer",
 				"selector": [
+					{
+						"filenamePattern": "*.xls"
+					},
 					{
 						"filenamePattern": "*.xlsx"
 					},
@@ -344,7 +368,7 @@
 						"filenamePattern": "*.csv"
 					},
 					{
-						"filenamePattern": "*.xls"
+						"filenamePattern": "*.tsv"
 					},
 					{
 						"filenamePattern": "*.ods"
@@ -380,6 +404,33 @@
 						"filenamePattern": "*.otf"
 					},
 					{
+						"filenamePattern": "*.svg"
+					},
+					{
+						"filenamePattern": "*.icns"
+					},
+					{
+						"filenamePattern": "*.psd"
+					},
+					{
+						"filenamePattern": "*.xmind"
+					},
+					{
+						"filenamePattern": "*.tiff"
+					},
+					{
+						"filenamePattern": "*.heif"
+					},
+					{
+						"filenamePattern": "*.heic"
+					}
+				]
+			},
+			{
+				"viewType": "cweijan.archiveViewer",
+				"displayName": "Archive Viewer",
+				"selector": [
+					{
 						"filenamePattern": "*.jar"
 					},
 					{
@@ -398,6 +449,9 @@
 						"filenamePattern": "*.tgz"
 					},
 					{
+						"filenamePattern": "*.tar"
+					},
+					{
 						"filenamePattern": "*.apk"
 					},
 					{
@@ -405,30 +459,12 @@
 					},
 					{
 						"filenamePattern": "*.crx"
-					},
-					{
-						"filenamePattern": "file:/**/*.svg"
-					}
-				]
-			},
-			{
-				"viewType": "cweijan.heicTiffViewer",
-				"displayName": "Image Preview(Office Viewer)",
-				"selector": [
-					{
-						"filenamePattern": "*.heic"
-					},
-					{
-						"filenamePattern": "*.heif"
-					},
-					{
-						"filenamePattern": "*.tiff"
 					}
 				]
 			},
 			{
 				"viewType": "cweijan.imageViewer",
-				"displayName": "Image Preview(Office Viewer)",
+				"displayName": "Image Preview (Office Viewer)",
 				"priority": "option",
 				"selector": [
 					{
@@ -473,33 +509,6 @@
 				]
 			},
 			{
-				"viewType": "cweijan.icnsViewer",
-				"displayName": "ICNS Viewer",
-				"selector": [
-					{
-						"filenamePattern": "*.icns"
-					}
-				]
-			},
-			{
-				"viewType": "cweijan.psdViewer",
-				"displayName": "PSD Viewer",
-				"selector": [
-					{
-						"filenamePattern": "*.psd"
-					}
-				]
-			},
-			{
-				"viewType": "cweijan.xmindViewer",
-				"displayName": "XMind Viewer",
-				"selector": [
-					{
-						"filenamePattern": "*.xmind"
-					}
-				]
-			},
-			{
 				"viewType": "cweijan.markdownViewer",
 				"displayName": "Markdown Editor",
 				"selector": [
@@ -530,10 +539,13 @@
 				"priority": "option",
 				"selector": [
 					{
+						"filenamePattern": "*.htm"
+					},
+					{
 						"filenamePattern": "*.html"
 					},
 					{
-						"filenamePattern": "*.htm"
+						"filenamePattern": "*.xhtml"
 					}
 				]
 			},
@@ -754,6 +766,7 @@
 	},
 	"scripts": {
 		"dev": "vite --mode=development",
+		"dev:web": "OFFICE_EXTENSION_TARGET=web vite --mode=development",
 		"lint:fix": "eslint src/**/*.ts --fix",
 		"build": "vite build --mode=production",
 		"package": "vsce package --no-dependencies",
@@ -792,6 +805,7 @@
 		"@codemirror/language-data": "^6.5.2",
 		"@codemirror/state": "^6.6.0",
 		"@codemirror/view": "^6.43.1",
+		"@cweijan/exceljs": "^5.0.0",
 		"@lezer/highlight": "^1.2.3",
 		"@mind-elixir/import-xmind": "^1.0.8",
 		"@vscode/codicons": "^0.0.45",
@@ -830,6 +844,7 @@
 		"react": "^19.2.7",
 		"react-dom": "^19.2.7",
 		"react-image-gallery": "^1.3.0",
+		"save-svg-as-png": "^1.4.17",
 		"tar": "^7.5.16",
 		"udsv": "^0.5.3",
 		"utif": "^3.1.0",

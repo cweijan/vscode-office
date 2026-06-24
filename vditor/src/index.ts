@@ -94,7 +94,7 @@ class Vditor {
                         document.head.removeChild(el);
                     }
                 });
-                addScript(`${mergedOptions.extPath??mergedOptions.cdn}/dist/js/i18n/${mergedOptions.lang}.js`, i18nScriptID).then(() => {
+                addScript(`${mergedOptions.cdn}/dist/js/i18n/${mergedOptions.lang}.js`, i18nScriptID).then(() => {
                     this.init(id as HTMLElement, mergedOptions);
                 });
             }
@@ -113,7 +113,6 @@ class Vditor {
         setTheme(this.vditor);
         if (codeTheme) {
             this.vditor.options.codeMirrorTheme = codeTheme;
-            this.vditor.options.preview.hljs.style = codeTheme;
             setCodeTheme(codeTheme, this.vditor.element);
         }
     }
@@ -329,6 +328,35 @@ class Vditor {
     public clearStack() {
         this.vditor.undo.clearStack(this.vditor);
         this.vditor.undo.addToUndoStack(this.vditor);
+    }
+
+    /** 触发 AI 润色：有选区则针对选区，否则针对全文，进入 loading 状态并调用 onPolish 回调 */
+    public triggerAIPolish(options?: IAIPolishOptions) {
+        const onPolish = this.vditor.options.ai?.onPolish;
+        if (!onPolish) {
+            return;
+        }
+        const selection = this.getSelection();
+        const markdown = selection || this.getValue();
+        this.disabled();
+        this.vditor.element.classList.add("vditor--ai-loading");
+        onPolish(markdown, (result: string) => {
+            this.applyAIResult(result, !selection);
+        }, options);
+    }
+
+    /** 接收 AI 润色结果：退出 loading 状态，将 markdown 并入正文 */
+    public applyAIResult(markdown: string, replaceAll = false) {
+        this.enable();
+        this.vditor.element.classList.remove("vditor--ai-loading");
+        if (replaceAll) {
+            this.setValue(markdown);
+        } else {
+            this.focus();
+            document.execCommand("delete", false);
+            const html = this.vditor.lute.Md2HTML(markdown);
+            document.execCommand("insertHTML", false, html);
+        }
     }
 
     /** 销毁编辑器 */

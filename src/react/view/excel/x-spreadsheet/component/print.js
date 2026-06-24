@@ -70,7 +70,7 @@ export default class Print {
       .children(
         h('div', `${cssPrefix}-print-bar`)
           .children(
-            h('div', '-title').child('Print settings'),
+            h('div', '-title').child(t('print.settings')),
             h('div', '-right').children(
               h('div', `${cssPrefix}-buttons`).children(
                 new Button('cancel').on('click', btnClick.bind(this, 'cancel')),

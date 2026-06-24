@@ -271,3 +271,9 @@ body.office-dark .word-page-total {
     bottom: auto;
     padding: 0;
 }
+
+@media (max-width: 650px) {
+    .word-viewer .office-sponsor-bar {
+        display: none !important;
+    }
+}

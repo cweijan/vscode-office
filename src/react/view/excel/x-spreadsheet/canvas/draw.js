@@ -1,4 +1,5 @@
 /* global window */
+
 function dpr() {
   return window.devicePixelRatio || 1;
 }
@@ -220,13 +221,14 @@ class Draw {
     const {
       align, valign, font, color, strike, underline,
     } = attr;
+    const fontName = (font.name || 'Arial').replace(/'/g, "\\'");
     const tx = box.textx(align);
     ctx.save();
     ctx.beginPath();
     this.attr({
       textAlign: align,
       textBaseline: valign,
-      font: `${font.italic ? 'italic' : ''} ${font.bold ? 'bold' : ''} ${font.fontWeight || ''} ${npx(font.size)}px ${font.name}`,
+      font: `${font.italic ? 'italic' : ''} ${font.bold ? 'bold' : ''} ${font.fontWeight || ''} ${npx(font.size)}px '${fontName}'`.trim(),
       fillStyle: color,
       strokeStyle: color,
       shadowBlur: 0.3,
@@ -275,11 +277,13 @@ class Draw {
     ntxts.forEach((txt) => {
       const txtWidth = ctx.measureText(txt).width;
       this.fillText(txt, tx, ty);
+      // txtWidth is in device pixels; drawFontLine expects CSS pixels
+      const txtWidthCSS = txtWidth / dpr();
       if (strike) {
-        drawFontLine.call(this, 'strike', tx, ty, align, valign, font.size, txtWidth);
+        drawFontLine.call(this, 'strike', tx, ty, align, valign, font.size, txtWidthCSS);
       }
       if (underline) {
-        drawFontLine.call(this, 'underline', tx, ty, align, valign, font.size, txtWidth);
+        drawFontLine.call(this, 'underline', tx, ty, align, valign, font.size, txtWidthCSS);
       }
       ty += font.size + 2;
     });
@@ -381,17 +385,18 @@ class Draw {
     ctx.restore();
   }
 
-  frozen(box) {
+  frozen(box, fillStyle = 'rgba(61, 153, 112, 0.42)') {
     const { ctx } = this;
     const { x, y, width } = box;
+    const size = 7;
     const sx = x + width - 1;
     ctx.save();
     ctx.beginPath();
-    ctx.moveTo(npx(sx - 8), npx(y - 1));
+    ctx.moveTo(npx(sx - size), npx(y - 1));
     ctx.lineTo(npx(sx), npx(y - 1));
-    ctx.lineTo(npx(sx), npx(y + 8));
+    ctx.lineTo(npx(sx), npx(y + size - 1));
     ctx.closePath();
-    ctx.fillStyle = 'rgba(0, 255, 0, .85)';
+    ctx.fillStyle = fillStyle;
     ctx.fill();
     ctx.restore();
   }

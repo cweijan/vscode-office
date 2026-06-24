@@ -4,27 +4,25 @@ import { cssPrefix } from '../config';
 import { tf } from '../locale/locale';
 
 const menuItems = [
-  { key: 'copy', title: tf('contextmenu.copy'), label: 'Ctrl+C' },
-  { key: 'cut', title: tf('contextmenu.cut'), label: 'Ctrl+X' },
-  { key: 'paste', title: tf('contextmenu.paste'), label: 'Ctrl+V' },
-  { key: 'paste-value', title: tf('contextmenu.pasteValue'), label: 'Ctrl+Shift+V' },
-  { key: 'paste-format', title: tf('contextmenu.pasteFormat'), label: 'Ctrl+Alt+V' },
+  { key: 'copy',             title: tf('contextmenu.copy'),           label: 'Ctrl+C',       icon: 'copy' },
+  { key: 'cut',              title: tf('contextmenu.cut'),            label: 'Ctrl+X',       icon: 'screen-cut' },
+  { key: 'paste',            title: tf('contextmenu.paste'),          label: 'Ctrl+V',       icon: 'clippy' },
+  { key: 'paste-value',      title: tf('contextmenu.pasteValue'),     label: 'Ctrl+Shift+V', icon: 'symbol-numeric' },
+  { key: 'paste-format',     title: tf('contextmenu.pasteFormat'),    label: 'Ctrl+Alt+V',   icon: 'paintcan' },
   { key: 'divider' },
-  { key: 'insert-row', title: tf('contextmenu.insertRow') },
-  { key: 'insert-column', title: tf('contextmenu.insertColumn') },
+  { key: 'insert-row',       title: tf('contextmenu.insertRow'),                             icon: 'insert' },
+  { key: 'insert-column',    title: tf('contextmenu.insertColumn'),                          icon: 'insert' },
   { key: 'divider' },
-  { key: 'delete-row', title: tf('contextmenu.deleteRow') },
-  { key: 'delete-column', title: tf('contextmenu.deleteColumn') },
-  { key: 'delete-cell-text', title: tf('contextmenu.deleteCellText') },
-  { key: 'hide', title: tf('contextmenu.hide') },
+  { key: 'delete-row',       title: tf('contextmenu.deleteRow'),                             icon: 'trash' },
+  { key: 'delete-column',    title: tf('contextmenu.deleteColumn'),                          icon: 'trash' },
+  { key: 'delete-cell-text', title: tf('contextmenu.deleteCellText'),                        icon: 'clear-all' },
+  { key: 'hide',             title: tf('contextmenu.hide'),                                  icon: 'eye-closed' },
   { key: 'divider' },
-  { key: 'validation', title: tf('contextmenu.validation') },
+  { key: 'hyperlink',        title: tf('contextmenu.hyperlink'),                             icon: 'link' },
+  { key: 'validation',       title: tf('contextmenu.validation'),                            icon: 'checklist' },
   { key: 'divider' },
-  { key: 'cell-printable', title: tf('contextmenu.cellprintable') },
-  { key: 'cell-non-printable', title: tf('contextmenu.cellnonprintable') },
-  { key: 'divider' },
-  { key: 'cell-editable', title: tf('contextmenu.celleditable') },
-  { key: 'cell-non-editable', title: tf('contextmenu.cellnoneditable') },
+  { key: 'cell-editable',     title: tf('contextmenu.celleditable'),                         icon: 'edit' },
+  { key: 'cell-non-editable', title: tf('contextmenu.cellnoneditable'),                      icon: 'lock' },
 ];
 
 function buildMenuItem(item) {
@@ -37,7 +35,8 @@ function buildMenuItem(item) {
       this.hide();
     })
     .children(
-      item.title(),
+      h('i', `codicon codicon-${item.icon}`),
+      h('span', 'menu-title').child(item.title()),
       h('div', 'label').child(item.label || ''),
     );
 }

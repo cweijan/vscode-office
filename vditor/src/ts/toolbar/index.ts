@@ -19,6 +19,7 @@ import {MenuItem} from "./MenuItem";
 import {Outdent} from "./Outdent";
 import {Outline} from "./Outline";
 import {Redo} from "./Redo";
+import {Settings} from "./Settings";
 import {bindToolbarTooltipDismiss, toggleSubMenu} from "./setToolbar";
 import {Undo} from "./Undo";
 import {Upload} from "./Upload";
@@ -131,6 +132,9 @@ export class Toolbar {
                 break;
             case "code-theme":
                 menuItemObj = new CodeTheme(vditor, menuItem);
+                break;
+            case "settings":
+                menuItemObj = new Settings(vditor, menuItem);
                 break;
             case "editor-theme-label":
                 menuItemObj = new EditorThemeLabel(vditor, menuItem);

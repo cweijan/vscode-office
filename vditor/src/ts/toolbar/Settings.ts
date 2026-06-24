@@ -1,0 +1,269 @@
+import {
+    buildSettingsPanelHTML,
+    buildAIPromptsHTML,
+    refreshSettingsPanel,
+    SETTINGS_PANEL_CLASS,
+} from "../ui/settingsPanel";
+import { getEventName } from "../util/compatibility";
+import { setEditMode } from "./EditMode";
+import { MenuItem } from "./MenuItem";
+import { toggleSubMenu } from "./setToolbar";
+import {
+    UI_FONT_SIZE_KEY,
+    EDITOR_FONT_SIZE_KEY,
+    UI_FONT_SIZE_DEFAULT,
+    EDITOR_FONT_SIZE_DEFAULT,
+    FONT_SIZE_MIN,
+    FONT_SIZE_MAX,
+    LINE_HEIGHT_KEY,
+    LINE_HEIGHT_DEFAULT,
+    LINE_HEIGHT_MIN,
+    LINE_HEIGHT_MAX,
+    FONT_FAMILY_KEY,
+    FONT_FAMILY_OPTIONS,
+    BOLD_COLOR_KEY,
+    BOLD_COLOR_OPTIONS,
+    getGlobalLocalStorageSetting,
+    setGlobalLocalStorageSetting,
+    resetGlobalSettings,
+    applyEditorSettings,
+    getAIPrompts,
+    setAIPrompts,
+} from "../util/globalLocalStorageSettings";
+
+const DROPDOWN_OPTIONS_MAP: Record<string, readonly { label: string; value: string }[]> = {
+    [FONT_FAMILY_KEY]: FONT_FAMILY_OPTIONS,
+    [BOLD_COLOR_KEY]: BOLD_COLOR_OPTIONS,
+};
+
+export class Settings extends MenuItem {
+    public element: HTMLElement;
+
+    constructor(vditor: IVditor, menuItem: IMenuItem) {
+        super(vditor, menuItem);
+
+        const actionBtn = this.element.children[0] as HTMLElement;
+        const panelElement = document.createElement("div");
+        panelElement.className = `vditor-hint${menuItem.level === 2 ? "" : " vditor-panel--arrow"}`;
+        panelElement.innerHTML = buildSettingsPanelHTML(vditor);
+        this.element.appendChild(panelElement);
+
+        // Floating dropdown (singleton, appended to body)
+        const floatingMenu = document.createElement("div");
+        floatingMenu.className = `${SETTINGS_PANEL_CLASS}__floating-menu`;
+        floatingMenu.hidden = true;
+        document.body.appendChild(floatingMenu);
+
+        let activeDropdownKey = "";
+        let activeTrigger: HTMLElement | null = null;
+
+        const closeFloatingMenu = () => {
+            floatingMenu.hidden = true;
+            activeTrigger?.classList.remove(`${SETTINGS_PANEL_CLASS}__dropdown-trigger--open`);
+            activeTrigger = null;
+            activeDropdownKey = "";
+        };
+
+        const openFloatingMenu = (trigger: HTMLElement, key: string) => {
+            const options = DROPDOWN_OPTIONS_MAP[key];
+            if (!options) return;
+            const currentValue = getGlobalLocalStorageSetting<string>(key, options[0].value) ?? options[0].value;
+
+            floatingMenu.innerHTML = options.map(o =>
+                `<button type="button" class="${SETTINGS_PANEL_CLASS}__dropdown-option${o.value === currentValue ? ` ${SETTINGS_PANEL_CLASS}__dropdown-option--current` : ""}" data-value="${o.value}" data-dropdown-key="${key}">${o.label}</button>`
+            ).join("");
+
+            floatingMenu.hidden = false;
+            const rect = trigger.getBoundingClientRect();
+            floatingMenu.style.top = `${rect.bottom + 4}px`;
+            floatingMenu.style.left = `${rect.left}px`;
+            floatingMenu.style.minWidth = `${rect.width}px`;
+
+            activeDropdownKey = key;
+            activeTrigger = trigger;
+            trigger.classList.add(`${SETTINGS_PANEL_CLASS}__dropdown-trigger--open`);
+        };
+
+        // Close floating menu on outside click
+        const onDocumentClick = (e: MouseEvent) => {
+            if (!floatingMenu.hidden && !floatingMenu.contains(e.target as Node) && e.target !== activeTrigger) {
+                closeFloatingMenu();
+            }
+        };
+        document.addEventListener(getEventName(), onDocumentClick, true);
+
+        // Handle option click in floating menu
+        floatingMenu.addEventListener(getEventName(), (event: MouseEvent & { target: HTMLElement }) => {
+            const option = event.target.closest(`.${SETTINGS_PANEL_CLASS}__dropdown-option`) as HTMLElement | null;
+            if (!option) return;
+            const key = option.getAttribute("data-dropdown-key") || "";
+            const value = option.getAttribute("data-value") || "";
+            const label = option.textContent || "";
+            setGlobalLocalStorageSetting(key, value);
+            if (key === FONT_FAMILY_KEY) vditor.element.style.setProperty("--editor-font-family", value);
+            else if (key === BOLD_COLOR_KEY) vditor.element.style.setProperty("--bold-color", value);
+            // update trigger label
+            const trigger = panelElement.querySelector(`[data-dropdown-key="${key}"]`) as HTMLElement | null;
+            if (trigger) trigger.querySelector(`.${SETTINGS_PANEL_CLASS}__dropdown-value`)!.textContent = label;
+            closeFloatingMenu();
+            event.preventDefault();
+            event.stopPropagation();
+        });
+
+        actionBtn.addEventListener(getEventName(), () => {
+            closeFloatingMenu();
+            refreshSettingsPanel(panelElement, vditor);
+        }, true);
+
+        panelElement.addEventListener(getEventName(), (event: MouseEvent & { target: HTMLElement }) => {
+            // Edit mode
+            const modeButton = event.target.closest("button[data-mode]") as HTMLElement | null;
+            if (modeButton) {
+                setEditMode(vditor, modeButton.getAttribute("data-mode") || "", event, { keepToolbarPanel: true });
+                refreshSettingsPanel(panelElement, vditor);
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            // Font size stepper
+            const stepBtn = event.target.closest(`button[data-step]`) as HTMLElement | null;
+            if (stepBtn) {
+                const row = stepBtn.closest("[data-font-key]") as HTMLElement | null;
+                if (!row) return;
+                const key = row.getAttribute("data-font-key") || "";
+                const isUI = key === UI_FONT_SIZE_KEY;
+                const defaultVal = isUI ? UI_FONT_SIZE_DEFAULT : EDITOR_FONT_SIZE_DEFAULT;
+                const current = getGlobalLocalStorageSetting<number>(key, defaultVal) ?? defaultVal;
+                const step = parseInt(stepBtn.getAttribute("data-step") || "0", 10);
+                const next = Math.min(FONT_SIZE_MAX, Math.max(FONT_SIZE_MIN, current + step));
+                setGlobalLocalStorageSetting(key, next);
+                vditor.element.style.setProperty(isUI ? "--ui-font-size" : "--editor-font-size", `${next}px`);
+                const valueEl = row.querySelector("[data-font-value]");
+                if (valueEl) valueEl.textContent = `${next}px`;
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            // Line height stepper
+            const lhBtn = event.target.closest("button[data-lh-step]") as HTMLElement | null;
+            if (lhBtn) {
+                const row = lhBtn.closest("[data-lh-key]") as HTMLElement | null;
+                if (!row) return;
+                const current = getGlobalLocalStorageSetting<number>(LINE_HEIGHT_KEY, LINE_HEIGHT_DEFAULT) ?? LINE_HEIGHT_DEFAULT;
+                const step = parseFloat(lhBtn.getAttribute("data-lh-step") || "0");
+                const next = Math.round(Math.min(LINE_HEIGHT_MAX, Math.max(LINE_HEIGHT_MIN, current + step)) * 10) / 10;
+                setGlobalLocalStorageSetting(LINE_HEIGHT_KEY, next);
+                vditor.element.style.setProperty("--editor-line-height", String(next));
+                const input = row.querySelector<HTMLInputElement>("[data-lh-value]");
+                if (input) input.value = next.toFixed(1);
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            // Dropdown trigger
+            const dropdownTrigger = event.target.closest(`[data-dropdown-trigger]`) as HTMLElement | null;
+            if (dropdownTrigger) {
+                const key = dropdownTrigger.getAttribute("data-dropdown-key") || "";
+                if (activeDropdownKey === key) {
+                    closeFloatingMenu();
+                } else {
+                    closeFloatingMenu();
+                    openFloatingMenu(dropdownTrigger, key);
+                }
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            // AI Prompts: new prompt button
+            if (event.target.closest("[data-ai-new-prompt]")) {
+                const addRow = panelElement.querySelector("[data-ai-add-row]") as HTMLElement | null;
+                const addBtn = panelElement.querySelector("[data-ai-new-prompt]") as HTMLElement | null;
+                if (addRow) addRow.style.display = "";
+                if (addBtn) addBtn.style.display = "none";
+                const nameInput = panelElement.querySelector<HTMLInputElement>("[data-ai-add-name]");
+                nameInput?.focus();
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            // AI Prompts: cancel add
+            if (event.target.closest("[data-ai-cancel-prompt]")) {
+                const addRow = panelElement.querySelector("[data-ai-add-row]") as HTMLElement | null;
+                const addBtn = panelElement.querySelector("[data-ai-new-prompt]") as HTMLElement | null;
+                if (addRow) { addRow.style.display = "none"; }
+                if (addBtn) { addBtn.style.display = ""; }
+                const nameInput = panelElement.querySelector<HTMLInputElement>("[data-ai-add-name]");
+                const contentInput = panelElement.querySelector<HTMLTextAreaElement>("[data-ai-add-content]");
+                if (nameInput) nameInput.value = "";
+                if (contentInput) contentInput.value = "";
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            // AI Prompts: save prompt
+            if (event.target.closest("[data-ai-save-prompt]")) {
+                const nameInput = panelElement.querySelector<HTMLInputElement>("[data-ai-add-name]");
+                const contentInput = panelElement.querySelector<HTMLTextAreaElement>("[data-ai-add-content]");
+                const name = nameInput?.value.trim();
+                const content = contentInput?.value.trim();
+                if (name && content) {
+                    const prompts = getAIPrompts();
+                    prompts.push({ id: Date.now().toString(), name, content });
+                    setAIPrompts(prompts);
+                    const container = panelElement.querySelector("[data-ai-prompts]");
+                    if (container) container.outerHTML = buildAIPromptsHTML();
+                }
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            // AI Prompts: delete prompt
+            const delBtn = event.target.closest("[data-del-prompt]") as HTMLElement | null;
+            if (delBtn) {
+                const id = delBtn.getAttribute("data-del-prompt") || "";
+                const prompts = getAIPrompts().filter(p => p.id !== id);
+                setAIPrompts(prompts);
+                const container = panelElement.querySelector("[data-ai-prompts]");
+                if (container) container.outerHTML = buildAIPromptsHTML();
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            // Reset settings
+            if (event.target.closest("[data-reset-settings]")) {
+                resetGlobalSettings();
+                for (const prop of ["--ui-font-size", "--editor-font-size", "--editor-line-height", "--editor-font-family", "--bold-color"]) {
+                    vditor.element.style.removeProperty(prop);
+                }
+                applyEditorSettings(vditor.element);
+                panelElement.innerHTML = buildSettingsPanelHTML(vditor);
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+        });
+
+        // Line height manual input
+        panelElement.addEventListener("change", (event: Event) => {
+            const input = event.target as HTMLInputElement;
+            if (input.dataset.lhValue !== undefined) {
+                const parsed = parseFloat(input.value);
+                const next = isNaN(parsed) ? LINE_HEIGHT_DEFAULT : Math.round(Math.min(LINE_HEIGHT_MAX, Math.max(LINE_HEIGHT_MIN, parsed)) * 10) / 10;
+                input.value = next.toFixed(1);
+                setGlobalLocalStorageSetting(LINE_HEIGHT_KEY, next);
+                vditor.element.style.setProperty("--editor-line-height", String(next));
+            }
+        });
+
+        toggleSubMenu(vditor, panelElement, actionBtn, menuItem.level);
+    }
+}

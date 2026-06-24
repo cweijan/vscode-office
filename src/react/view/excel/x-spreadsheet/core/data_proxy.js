@@ -1,18 +1,21 @@
-/* global document */
+/* global document, navigator */
 
 import Selector from './selector';
 import Scroll from './scroll';
 import History from './history';
 import Clipboard from './clipboard';
+import { formatTsvRows, parseTsvRows } from './clipboard_text';
 import AutoFilter from './auto_filter';
 import { Merges } from './merge';
 import helper from './helper';
+import { MIN_VIEW_COLS, MIN_VIEW_ROWS } from '../config';
 import { Rows } from './row';
 import { Cols } from './col';
 import { Validations } from './validation';
 import { CellRange } from './cell_range';
 import { expr2xy, xy2expr } from './alphabet';
 import { t } from '../locale/locale';
+import { baseFonts } from './font';
 
 // private methods
 /*
@@ -68,6 +71,10 @@ import { t } from '../locale/locale';
  *  }
  * }
  */
+function getDefaultFontName() {
+  return baseFonts[0].key;
+}
+
 const defaultSettings = {
   mode: 'edit', // edit | read
   view: {
@@ -79,11 +86,11 @@ const defaultSettings = {
   showContextmenu: true,
   showBottomBar: true,
   row: {
-    len: 100,
+    len: MIN_VIEW_ROWS,
     height: 25,
   },
   col: {
-    len: 26,
+    len: MIN_VIEW_COLS,
     width: 100,
     indexWidth: 60,
     minWidth: 60,
@@ -97,8 +104,8 @@ const defaultSettings = {
     underline: false,
     color: '#0a0a0a',
     font: {
-      name: 'Arial',
-      size: 10,
+      name: getDefaultFontName(),
+      size: 12,
       bold: false,
       italic: false,
     },
@@ -108,6 +115,20 @@ const defaultSettings = {
 
 const toolbarHeight = 41;
 const bottombarHeight = 41;
+
+function applyFontStyleAttr(cstyle, property, value) {
+  const font = Object.assign({}, cstyle.font || {});
+  if (property === 'font-bold') {
+    font.bold = value;
+  } else if (property === 'font-italic') {
+    font.italic = value;
+  } else if (property === 'font-name') {
+    font.name = value;
+  } else if (property === 'font-size') {
+    font.size = value;
+  }
+  cstyle.font = font;
+}
 
 // src: cellRange
 // dst: cellRange
@@ -334,6 +355,9 @@ export default class DataProxy {
     this.cols = new Cols(this.settings.col);
     this.validations = new Validations();
     this.hyperlinks = {};
+    this.images = [];
+    this.backgroundImage = null;
+    this.sheetProtection = null;
     this.comments = {};
     // save data end
 
@@ -353,6 +377,7 @@ export default class DataProxy {
     // console.log('mode:', mode, ', ref:', ref, ', validator:', validator);
     this.changeData(() => {
       this.validations.add(mode, ref, validator);
+      this.revalidateAll();
     });
   }
 
@@ -378,6 +403,126 @@ export default class DataProxy {
       ret.validator = v.validator;
     }
     return ret;
+  }
+
+  getHyperlink(ri, ci) {
+    return this.hyperlinks[`${ri}_${ci}`] || null;
+  }
+
+  getSelectedHyperlink() {
+    const { ri, ci } = this.selector;
+    return this.getHyperlink(ri, ci);
+  }
+
+  setHyperlink(ri, ci, link, tooltip) {
+    const key = `${ri}_${ci}`;
+    this.changeData(() => {
+      if (!link) {
+        delete this.hyperlinks[key];
+      } else {
+        this.hyperlinks[key] = { link, tooltip };
+      }
+    });
+  }
+
+  setSelectedHyperlink(link, tooltip) {
+    const { ri, ci } = this.selector;
+    this.setHyperlink(ri, ci, link, tooltip);
+  }
+
+  removeSelectedHyperlink() {
+    const { ri, ci } = this.selector;
+    this.setHyperlink(ri, ci, '');
+  }
+
+  remapHyperlinks(rowRemap, colRemap) {
+    const links = this.hyperlinks;
+    if (!links || !Object.keys(links).length) return;
+    const next = {};
+    for (const key of Object.keys(links)) {
+      const parts = key.split('_');
+      const ri = Number(parts[0]);
+      const ci = Number(parts[1]);
+      if (Number.isNaN(ri) || Number.isNaN(ci)) continue;
+      const nri = rowRemap ? (rowRemap[ri] ?? ri) : ri;
+      const nci = colRemap ? (colRemap[ci] ?? ci) : ci;
+      next[`${nri}_${nci}`] = links[key];
+    }
+    this.hyperlinks = next;
+  }
+
+  remapMerges(rowRemap, colRemap) {
+    this.merges.forEach((cr) => {
+      if (rowRemap) {
+        cr.sri = rowRemap[cr.sri] ?? cr.sri;
+        cr.eri = rowRemap[cr.eri] ?? cr.eri;
+      }
+      if (colRemap) {
+        cr.sci = colRemap[cr.sci] ?? cr.sci;
+        cr.eci = colRemap[cr.eci] ?? cr.eci;
+      }
+    });
+  }
+
+  moveRows(sri, eri, insertAt) {
+    this.changeData(() => {
+      const rowRemap = this.rows.moveRange(sri, eri, insertAt);
+      if (!rowRemap) return;
+      this.remapHyperlinks(rowRemap, null);
+      this.remapMerges(rowRemap, null);
+      const { selector } = this;
+      if (selector.ri >= 0) {
+        selector.ri = rowRemap[selector.ri] ?? selector.ri;
+      }
+      const { sri: sr, sci, eri: er, eci } = selector.range;
+      selector.range = new CellRange(
+        rowRemap[sr] ?? sr,
+        sci,
+        rowRemap[er] ?? er,
+        eci,
+      );
+      selector.moveIndexes = [selector.ri, selector.ci];
+    });
+  }
+
+  moveColumns(sci, eci, insertAt) {
+    this.changeData(() => {
+      const { cols, rows } = this;
+      const built = helper.buildIndexRemap(cols.len, sci, eci, insertAt);
+      if (!built) return;
+      const { remap: colRemap } = built;
+      rows.each((ri, row) => {
+        if (!row.cells) return;
+        const ncells = {};
+        for (const ci of Object.keys(row.cells)) {
+          const oldCi = parseInt(ci, 10);
+          const newCi = colRemap[oldCi];
+          if (newCi !== undefined) ncells[newCi] = row.cells[ci];
+        }
+        row.cells = ncells;
+      });
+      const ncol = {};
+      for (const ci of Object.keys(cols._)) {
+        const oldCi = parseInt(ci, 10);
+        const newCi = colRemap[oldCi];
+        if (newCi !== undefined) ncol[newCi] = cols._[ci];
+      }
+      cols._ = ncol;
+      this.remapHyperlinks(null, colRemap);
+      this.remapMerges(null, colRemap);
+      const { selector } = this;
+      const { sri, eri, sci: sc, eci: ec } = selector.range;
+      selector.range = new CellRange(
+        sri,
+        colRemap[sc] ?? sc,
+        eri,
+        colRemap[ec] ?? ec,
+      );
+      if (selector.ci >= 0) {
+        selector.ci = colRemap[selector.ci] ?? selector.ci;
+      }
+      selector.moveIndexes = [selector.ri, selector.ci];
+    });
   }
 
   canUndo() {
@@ -420,7 +565,7 @@ export default class DataProxy {
     }
 
     // Adding \n and why not adding \r\n is to support online office and client MS office and WPS
-    copyText = copyText.map(row => row.join('\t')).join('\n');
+    copyText = formatTsvRows(copyText);
 
     // why used this
     // cuz http protocol will be blocked request clipboard by browser
@@ -433,9 +578,7 @@ export default class DataProxy {
     // this need https protocol
     /* global navigator */
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(copyText).then(() => {}, (err) => {
-        console.log('text copy to the system clipboard error  ', copyText, err);
-      });
+      navigator.clipboard.writeText(copyText).then(() => {}, () => {});
     }
   }
 
@@ -456,6 +599,7 @@ export default class DataProxy {
       } else if (clipboard.isCut()) {
         cutPaste.call(this, clipboard.range, selector.range);
       }
+      this.revalidateAll();
     });
     return true;
   }
@@ -473,37 +617,25 @@ export default class DataProxy {
         });
         startRow += 1;
       });
+      this.revalidateAll();
       resetSheet();
       eventTrigger(this.rows.getData());
     });
   }
 
   parseClipboardContent(clipboardContent) {
-    const parsedData = [];
-
-    // first we need to figure out how many rows we need to paste
-    const rows = clipboardContent.split('\n');
-
-    // for each row parse cell data
-    let i = 0;
-    rows.forEach((row) => {
-      parsedData[i] = row.split('\t');
-      i += 1;
-    });
-    return parsedData;
+    return parseTsvRows(clipboardContent);
   }
 
   pasteFromText(txt) {
-    let lines = [];
-
-    if (/\r\n/.test(txt)) lines = txt.split('\r\n').map(it => it.replace(/"/g, '').split('\t'));
-    else lines = txt.split('\n').map(it => it.replace(/"/g, '').split('\t'));
+    const lines = this.parseClipboardContent(txt);
 
     if (lines.length) {
       const { rows, selector } = this;
 
       this.changeData(() => {
         rows.paste(lines, selector.range);
+        this.revalidateAll();
       });
     }
   }
@@ -513,6 +645,7 @@ export default class DataProxy {
     if (!canPaste.call(this, srcRange, cellRange, error)) return false;
     this.changeData(() => {
       copyPaste.call(this, srcRange, cellRange, what, true);
+      this.revalidateAll();
     });
     return true;
   }
@@ -607,9 +740,7 @@ export default class DataProxy {
             cell.style = this.addStyle(cstyle);
           } else if (property === 'font-bold' || property === 'font-italic'
             || property === 'font-name' || property === 'font-size') {
-            const nfont = {};
-            nfont[property.split('-')[1]] = value;
-            cstyle.font = Object.assign(cstyle.font || {}, nfont);
+            applyFontStyleAttr(cstyle, property, value);
             cell.style = this.addStyle(cstyle);
           } else if (property === 'strike' || property === 'textwrap'
             || property === 'underline'
@@ -680,6 +811,58 @@ export default class DataProxy {
       return this.getRect(clipboard.range);
     }
     return { left: -100, top: -100 };
+  }
+
+  getImageDisplayRect(anchor) {
+    const { scroll, rows, cols, exceptRowSet } = this;
+    const col = anchor.col ?? 0;
+    const row = anchor.row ?? 0;
+    const ci = Math.floor(col);
+    const ri = Math.floor(row);
+    const colFrac = col - ci;
+    const rowFrac = row - ri;
+
+    const left = cols.sumWidth(0, ci) + colFrac * cols.getWidth(ci);
+    const top = rows.sumHeight(0, ri, exceptRowSet) + rowFrac * rows.getHeight(ri);
+
+    let width;
+    let height;
+    if (anchor.width != null && anchor.height != null) {
+      width = anchor.width;
+      height = anchor.height;
+    } else if (anchor.brCol != null && anchor.brRow != null) {
+      const brCi = Math.floor(anchor.brCol);
+      const brRi = Math.floor(anchor.brRow);
+      const brColFrac = anchor.brCol - brCi;
+      const brRowFrac = anchor.brRow - brRi;
+      const right = cols.sumWidth(0, brCi) + brColFrac * cols.getWidth(brCi);
+      const bottom = rows.sumHeight(0, brRi, exceptRowSet) + brRowFrac * rows.getHeight(brRi);
+      width = Math.max(right - left, 1);
+      height = Math.max(bottom - top, 1);
+    } else {
+      width = 64;
+      height = 64;
+    }
+
+    let left0 = left - scroll.x;
+    let top0 = top - scroll.y;
+    const fsh = this.freezeTotalHeight();
+    const fsw = this.freezeTotalWidth();
+    if (fsw > 0 && fsw > left) {
+      left0 = left;
+    }
+    if (fsh > 0 && fsh > top) {
+      top0 = top;
+    }
+    return {
+      l: left,
+      t: top,
+      left: left0,
+      top: top0,
+      width,
+      height,
+      scroll,
+    };
   }
 
   getRect(cellRange) {
@@ -777,16 +960,24 @@ export default class DataProxy {
     const { selector, rows } = this;
     if (this.isSingleSelected()) return;
     const [rn, cn] = selector.size();
-    // console.log('merge:', rn, cn);
     if (rn > 1 || cn > 1) {
-      const { sri, sci } = selector.range;
+      const { sri, sci, eri, eci } = selector.range;
+      // collect all non-empty cell texts before deleting
+      const texts = [];
+      for (let r = sri; r <= eri; r += 1) {
+        for (let c = sci; c <= eci; c += 1) {
+          const cell = rows.getCell(r, c);
+          if (cell && cell.text && cell.text.trim() !== '') {
+            texts.push(cell.text.trim());
+          }
+        }
+      }
       this.changeData(() => {
         const cell = rows.getCellOrNew(sri, sci);
         cell.merge = [rn - 1, cn - 1];
+        if (texts.length > 0) cell.text = texts.join(' ');
         this.merges.add(selector.range);
-        // delete merge cells
         this.rows.deleteCells(selector.range);
-        // console.log('cell:', cell, this.d);
         this.rows.setCell(sri, sci, cell);
       });
     }
@@ -831,6 +1022,7 @@ export default class DataProxy {
     const { autoFilter, rows } = this;
     if (!autoFilter.active()) return;
     const { sort } = autoFilter;
+    const { sri } = autoFilter.range();
     const { rset, fset } = autoFilter.filteredRows((r, c) => rows.getCell(r, c));
     const fary = Array.from(fset);
     const oldAry = Array.from(fset);
@@ -841,6 +1033,7 @@ export default class DataProxy {
         return 0;
       });
     }
+    rset.delete(sri);
     this.exceptRowSet = rset;
     this.sortedRowMap = new Map();
     this.unsortedRowMap = new Map();
@@ -848,6 +1041,10 @@ export default class DataProxy {
       this.sortedRowMap.set(oldAry[index], it);
       this.unsortedRowMap.set(it, oldAry[index]);
     });
+    // 筛选后回到表头行，首行不参与筛选且始终可见
+    const { scroll } = this;
+    scroll.ri = sri;
+    scroll.y = rows.sumHeight(0, sri, this.exceptRowSet);
   }
 
   deleteCell(what = 'all') {
@@ -946,11 +1143,14 @@ export default class DataProxy {
   }
 
   scrolly(y, cb) {
-    const { scroll, freeze, rows } = this;
+    const { scroll, freeze, rows, exceptRowSet } = this;
     const [fri] = freeze;
     const [
       ri, top, height,
-    ] = helper.rangeReduceIf(fri, rows.len, 0, 0, y, i => rows.getHeight(i));
+    ] = helper.rangeReduceIf(fri, rows.len, 0, 0, y, (i) => {
+      if (exceptRowSet.has(i)) return 0;
+      return rows.getHeight(i);
+    });
     let y1 = top;
     if (y > 0) y1 += height;
     // console.log('ri:', ri, ' ,y:', y1);
@@ -962,20 +1162,17 @@ export default class DataProxy {
   }
 
   cellRect(ri, ci) {
-    const { rows, cols } = this;
+    const { rows, cols, exceptRowSet } = this;
     const left = cols.sumWidth(0, ci);
-    const top = rows.sumHeight(0, ri);
+    const top = rows.sumHeight(0, ri, exceptRowSet);
     const cell = rows.getCell(ri, ci);
     let width = cols.getWidth(ci);
     let height = rows.getHeight(ri);
     if (cell !== null) {
       if (cell.merge) {
         const [rn, cn] = cell.merge;
-        // console.log('cell.merge:', cell.merge);
         if (rn > 0) {
-          for (let i = 1; i <= rn; i += 1) {
-            height += rows.getHeight(ri + i);
-          }
+          height = rows.sumHeight(ri, ri + rn + 1, exceptRowSet);
         }
         if (cn > 0) {
           for (let i = 1; i <= cn; i += 1) {
@@ -1019,8 +1216,18 @@ export default class DataProxy {
     return this.getCellStyleOrDefault(ri, ci);
   }
 
+  canEditCell(ri, ci) {
+    if (this.sheetProtection) {
+      const cell = this.rows.getCell(ri, ci);
+      return cell?.editable === true;
+    }
+    const cell = this.rows.getCell(ri, ci);
+    return !cell || cell.editable !== false;
+  }
+
   // state: input | finished
   setCellText(ri, ci, text, state) {
+    if (!this.canEditCell(ri, ci)) return;
     const { rows, history, validations } = this;
     if (state === 'finished') {
       rows.setCellText(ri, ci, '');
@@ -1030,8 +1237,43 @@ export default class DataProxy {
       rows.setCellText(ri, ci, text);
       this.change(this.getData());
     }
-    // validator
     validations.validate(ri, ci, text);
+  }
+
+  revalidateAll() {
+    const { rows, validations } = this;
+    validations.validateAll((ri, ci) => {
+      const cell = rows.getCell(ri, ci);
+      return (cell && cell.text) ? cell.text : '';
+    });
+  }
+
+  ensureViewExtent() {
+    const { rows, cols } = this;
+    if (rows.len < MIN_VIEW_ROWS) rows.len = MIN_VIEW_ROWS;
+    if (cols.len < MIN_VIEW_COLS) cols.len = MIN_VIEW_COLS;
+  }
+
+  expandViewRows() {
+    const { rows } = this;
+    const prev = rows.len;
+    rows.len = prev * 2;
+    return rows.len > prev;
+  }
+
+  expandViewCols() {
+    const { cols } = this;
+    const prev = cols.len;
+    cols.len = prev * 2;
+    return cols.len > prev;
+  }
+
+  getValidationError(ri, ci) {
+    let nri = ri;
+    if (this.unsortedRowMap.has(ri)) {
+      nri = this.unsortedRowMap.get(ri);
+    }
+    return this.validations.getError(nri, ci);
   }
 
   freezeIsActive() {
@@ -1232,18 +1474,32 @@ export default class DataProxy {
         this.freeze = [y, x];
       } else if (property === 'autofilter') {
         this.autoFilter.setData(d[property]);
+      } else if (property === 'hyperlinks') {
+        this.hyperlinks = d[property] || {};
+      } else if (property === 'images') {
+        this.images = d[property] || [];
+      } else if (property === 'backgroundImage') {
+        this.backgroundImage = d[property] || null;
       } else if (d[property] !== undefined) {
         this[property] = d[property];
       }
     });
+    this.resetAutoFilter();
+    if (d.rows || d.cols) {
+      this.ensureViewExtent();
+    }
+    if (d.validations) {
+      this.revalidateAll();
+    }
     return this;
   }
 
   getData() {
     const {
-      name, freeze, styles, merges, rows, cols, validations, autoFilter,
+      name, freeze, styles, merges, rows, cols, validations, autoFilter, hyperlinks, sheetProtection,
+      images, backgroundImage,
     } = this;
-    return {
+    const data = {
       name,
       freeze: xy2expr(freeze[1], freeze[0]),
       styles,
@@ -1253,5 +1509,18 @@ export default class DataProxy {
       validations: validations.getData(),
       autofilter: autoFilter.getData(),
     };
+    if (hyperlinks && Object.keys(hyperlinks).length > 0) {
+      data.hyperlinks = hyperlinks;
+    }
+    if (images && images.length > 0) {
+      data.images = images;
+    }
+    if (backgroundImage) {
+      data.backgroundImage = backgroundImage;
+    }
+    if (sheetProtection) {
+      data.sheetProtection = sheetProtection;
+    }
+    return data;
   }
 }

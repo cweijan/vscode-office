@@ -31,7 +31,6 @@ export class Options {
         },
         placeholder: "",
         preview: {
-            hljs: Constants.HLJS_OPTIONS,
             markdown: Constants.MARKDOWN_OPTIONS,
             math: Constants.MATH_OPTIONS,
         },
@@ -62,11 +61,10 @@ export class Options {
             "undo",
             "redo",
             "|",
-            "edit-mode",
+            "settings",
             {
                 name: "more",
                 toolbar: [
-                    "code-theme",
                     "outline",
                     "info",
                     "help",
@@ -246,6 +244,10 @@ export class Options {
         }, {
             icon: getToolbarCodicon("edit-mode"),
             name: "edit-mode",
+        }, {
+            icon: getToolbarCodicon("settings"),
+            name: "settings",
+            tip: "Settings",
         }, {
             icon: getToolbarCodicon("outline"),
             name: "outline",

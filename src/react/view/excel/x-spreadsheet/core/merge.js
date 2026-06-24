@@ -93,7 +93,7 @@ class Merges {
   }
 
   setData(merges) {
-    this._ = merges.map(merge => CellRange.valueOf(merge));
+    this._ = (merges || []).map(merge => CellRange.valueOf(merge));
     return this;
   }
 
