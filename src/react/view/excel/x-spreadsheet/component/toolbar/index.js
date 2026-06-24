@@ -20,9 +20,9 @@ import Freeze from './freeze';
 import Merge from './merge';
 import Redo from './redo';
 import Undo from './undo';
-import Print from './print';
 import Textwrap from './textwrap';
 import More from './more';
+import Save from './save';
 import Item from './item';
 
 import { h } from '../element';
@@ -114,9 +114,12 @@ export default class Toolbar {
       [
         this.undoEl = new Undo(),
         this.redoEl = new Redo(),
-        new Print(),
         this.paintformatEl = new Paintformat(),
         this.clearformatEl = new Clearformat(),
+      ],
+      buildDivider(),
+      [
+        this.saveEl = new Save(),
       ],
       buildDivider(),
       [
@@ -200,6 +203,10 @@ export default class Toolbar {
         moreResize.call(this);
       });
     }
+  }
+
+  setSaveEnabled(enabled) {
+    this.saveEl.setEnabled(enabled);
   }
 
   paintformatActive() {

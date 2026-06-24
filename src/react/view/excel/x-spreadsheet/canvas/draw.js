@@ -275,11 +275,13 @@ class Draw {
     ntxts.forEach((txt) => {
       const txtWidth = ctx.measureText(txt).width;
       this.fillText(txt, tx, ty);
+      // txtWidth is in device pixels; drawFontLine expects CSS pixels
+      const txtWidthCSS = txtWidth / dpr();
       if (strike) {
-        drawFontLine.call(this, 'strike', tx, ty, align, valign, font.size, txtWidth);
+        drawFontLine.call(this, 'strike', tx, ty, align, valign, font.size, txtWidthCSS);
       }
       if (underline) {
-        drawFontLine.call(this, 'underline', tx, ty, align, valign, font.size, txtWidth);
+        drawFontLine.call(this, 'underline', tx, ty, align, valign, font.size, txtWidthCSS);
       }
       ty += font.size + 2;
     });

@@ -119,24 +119,29 @@ export default class AutoFilter {
   }
 
   filteredRows(getCell) {
-    // const ary = [];
-    // let lastri = 0;
     const rset = new Set();
     const fset = new Set();
     if (this.active()) {
       const { sri, eri } = this.range();
       const { filters } = this;
+      // 首行 sri 为表头，不参与筛选
       for (let ri = sri + 1; ri <= eri; ri += 1) {
+        let visible = filters.length === 0;
         for (let i = 0; i < filters.length; i += 1) {
           const filter = filters[i];
           const cell = getCell(ri, filter.ci);
           const ctext = cell ? cell.text : '';
-          if (!filter.includes(ctext)) {
-            rset.add(ri);
-            break;
+          if (filter.includes(ctext)) {
+            visible = true;
           } else {
-            fset.add(ri);
+            visible = false;
+            break;
           }
+        }
+        if (visible) {
+          fset.add(ri);
+        } else {
+          rset.add(ri);
         }
       }
     }

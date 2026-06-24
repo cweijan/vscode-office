@@ -11,6 +11,7 @@ import { OfficeViewerProvider } from './provider/officeViewerProvider';
 import { WebUnsupportedViewerProvider } from './provider/webUnsupportedViewerProvider';
 import { HtmlService } from './service/htmlService';
 import { MarkdownService } from './service/markdownService';
+import { switchCsvEditor } from './service/csvService';
 import { TelemetryService } from './service/telemetryService';
 import { activateXml } from './provider/xml';
 import { activateYaml } from './provider/yaml';
@@ -32,6 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('office.markdown.switch', (uri) => { markdownService.switchEditor(uri); }),
+		vscode.commands.registerCommand('office.csv.switch', (uri) => { switchCsvEditor(uri); }),
 		vscode.commands.registerCommand('office.html.preview', (uri) => HtmlService.previewHtml(uri, context)),
 		vscode.window.registerCustomEditorProvider('cweijan.markdownViewer', markdownEditorProvider, mdViewOption),
 		vscode.window.registerCustomEditorProvider('cweijan.markdownPreview', markdownEditorProvider, mdViewOption),

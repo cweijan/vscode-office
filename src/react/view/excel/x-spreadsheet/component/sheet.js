@@ -175,6 +175,7 @@ function overlayerMousemove(evt) {
   const cRect = data.getCellRectByXY(evt.offsetX, evt.offsetY);
   if (cRect.ri >= 0 && cRect.ci === -1) {
     cRect.width = cols.indexWidth;
+    cRect.height = rows.getHeight(cRect.ri);
     rowResizer.show(cRect, {
       width: tRect.width,
     });
@@ -438,10 +439,10 @@ function rowResizerFinished(cRect, distance) {
   const { sri, eri } = selector.range;
   if (ri >= sri && ri <= eri) {
     for (let row = sri; row <= eri; row += 1) {
-      data.rows.setHeight(row, distance);
+      data.setRowHeight(row, distance);
     }
   } else {
-    data.rows.setHeight(ri, distance);
+    data.setRowHeight(ri, distance);
   }
 
   table.render();
@@ -512,7 +513,11 @@ function insertDeleteRowColumn(type) {
 }
 
 function toolbarChange(type, value) {
-  const { data } = this;
+  const { data, toolbar } = this;
+  if (type === 'save') {
+    this.trigger('save');
+    return;
+  }
   if (type === 'undo') {
     this.undo();
   } else if (type === 'redo') {
@@ -871,6 +876,9 @@ export default class Sheet {
 
   trigger(eventName, ...args) {
     const { eventMap } = this;
+    if (eventName === 'change') {
+      this.toolbar.setSaveEnabled(true);
+    }
     eventMap.fire(eventName, args);
   }
 
@@ -882,6 +890,7 @@ export default class Sheet {
     verticalScrollbarSet.call(this);
     horizontalScrollbarSet.call(this);
     this.toolbar.resetData(data);
+    this.toolbar.setSaveEnabled(false);
     this.print.resetData(data);
     this.selector.resetData(data);
     this.table.resetData(data);

@@ -220,6 +220,11 @@
 				"icon": "$(edit)"
 			},
 			{
+				"command": "office.csv.switch",
+				"title": "Switch CSV editor",
+				"icon": "$(edit)"
+			},
+			{
 				"command": "office.markdown.paste",
 				"title": "Enhance paste in markdown",
 				"enablement": "!office.extensionHost.web"
@@ -296,6 +301,11 @@
 				{
 					"command": "office.markdown.switch",
 					"when": "resourceExtname == '.md'",
+					"group": "navigation@-2"
+				},
+				{
+					"command": "office.csv.switch",
+					"when": "resourceExtname == '.csv'",
 					"group": "navigation@-2"
 				},
 				{
@@ -791,6 +801,7 @@
 		"@codemirror/language-data": "^6.5.2",
 		"@codemirror/state": "^6.6.0",
 		"@codemirror/view": "^6.43.1",
+		"@cweijan/exceljs": "^5.0.0",
 		"@lezer/highlight": "^1.2.3",
 		"@mind-elixir/import-xmind": "^1.0.8",
 		"@vscode/codicons": "^0.0.45",

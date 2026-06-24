@@ -1,4 +1,4 @@
-import { extname } from 'path';
+import { basename, extname } from 'path';
 import { Uri, workspace, type Webview } from 'vscode';
 import { Handler } from '@/common/handler';
 
@@ -35,6 +35,7 @@ export async function emitVirtualOfficeOpen(handler: Handler, uri: Uri): Promise
         const payload: Record<string, unknown> = {
             ext,
             path: uri.fsPath,
+            fileName: basename(uri.fsPath),
             scheme: uri.scheme,
             nonce: now,
         };
@@ -48,6 +49,7 @@ export async function emitVirtualOfficeOpen(handler: Handler, uri: Uri): Promise
         handler.emit('open', {
             ext,
             path: uri.fsPath,
+            fileName: basename(uri.fsPath),
             scheme: uri.scheme,
             error: error instanceof Error ? error.message : 'Failed to read file',
             nonce: now,
@@ -60,5 +62,6 @@ export function emitFileOfficeOpen(handler: Handler, uri: Uri, webview: Webview)
     handler.emit('open', {
         ext: extname(uri.fsPath),
         path: webview.asWebviewUri(uri).with({ query: `nonce=${now.toString()}` }).toString(),
+        fileName: basename(uri.fsPath),
     });
 }

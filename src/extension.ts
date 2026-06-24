@@ -7,6 +7,7 @@ import { ArchiveViewerProvider } from './provider/archiveViewerProvider';
 import { ClassViewerProvider } from './provider/classViewerProvider';
 import { HtmlService } from './service/htmlService';
 import { MarkdownService } from './service/markdownService';
+import { switchCsvEditor } from './service/csvService';
 import { FileUtil } from './common/fileUtil';
 import { ReactApp } from './common/reactApp';
 import { activateHttp } from './provider/http';
@@ -31,6 +32,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const markdownEditorProvider = new MarkdownEditorProvider(context)
 	context.subscriptions.push(
 		vscode.commands.registerCommand('office.markdown.switch', (uri) => { markdownService.switchEditor(uri) }),
+		vscode.commands.registerCommand('office.csv.switch', (uri) => { switchCsvEditor(uri) }),
 		vscode.commands.registerCommand('office.markdown.paste', () => { markdownService.loadClipboardImage() }),
 		vscode.commands.registerCommand('office.html.preview', uri => HtmlService.previewHtml(uri, context)),
 		vscode.workspace.registerTextDocumentContentProvider('decompile_java', new JavaDecompilerProvider()),

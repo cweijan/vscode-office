@@ -70,11 +70,12 @@ class SelectorElement {
     const {
       left, top, width, height,
     } = v;
+    // inset by border-width (2px) so the outer border edge aligns with the cell boundary
     this.clipboardEl.offset({
-      left,
-      top,
-      width: width - 5,
-      height: height - 5,
+      left: left + 2,
+      top: top + 2,
+      width: width - 4,
+      height: height - 4,
     });
   }
 

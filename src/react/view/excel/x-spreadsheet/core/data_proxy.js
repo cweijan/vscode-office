@@ -104,6 +104,7 @@ const defaultSettings = {
     },
     format: 'normal',
   },
+  headerRowStyle: false,
 };
 
 const toolbarHeight = 41;
@@ -777,16 +778,24 @@ export default class DataProxy {
     const { selector, rows } = this;
     if (this.isSingleSelected()) return;
     const [rn, cn] = selector.size();
-    // console.log('merge:', rn, cn);
     if (rn > 1 || cn > 1) {
-      const { sri, sci } = selector.range;
+      const { sri, sci, eri, eci } = selector.range;
+      // collect all non-empty cell texts before deleting
+      const texts = [];
+      for (let r = sri; r <= eri; r += 1) {
+        for (let c = sci; c <= eci; c += 1) {
+          const cell = rows.getCell(r, c);
+          if (cell && cell.text && cell.text.trim() !== '') {
+            texts.push(cell.text.trim());
+          }
+        }
+      }
       this.changeData(() => {
         const cell = rows.getCellOrNew(sri, sci);
         cell.merge = [rn - 1, cn - 1];
+        if (texts.length > 0) cell.text = texts.join(' ');
         this.merges.add(selector.range);
-        // delete merge cells
         this.rows.deleteCells(selector.range);
-        // console.log('cell:', cell, this.d);
         this.rows.setCell(sri, sci, cell);
       });
     }
@@ -831,6 +840,7 @@ export default class DataProxy {
     const { autoFilter, rows } = this;
     if (!autoFilter.active()) return;
     const { sort } = autoFilter;
+    const { sri } = autoFilter.range();
     const { rset, fset } = autoFilter.filteredRows((r, c) => rows.getCell(r, c));
     const fary = Array.from(fset);
     const oldAry = Array.from(fset);
@@ -841,6 +851,7 @@ export default class DataProxy {
         return 0;
       });
     }
+    rset.delete(sri);
     this.exceptRowSet = rset;
     this.sortedRowMap = new Map();
     this.unsortedRowMap = new Map();
@@ -848,6 +859,10 @@ export default class DataProxy {
       this.sortedRowMap.set(oldAry[index], it);
       this.unsortedRowMap.set(it, oldAry[index]);
     });
+    // 筛选后回到表头行，首行不参与筛选且始终可见
+    const { scroll } = this;
+    scroll.ri = sri;
+    scroll.y = rows.sumHeight(0, sri, this.exceptRowSet);
   }
 
   deleteCell(what = 'all') {
@@ -946,11 +961,14 @@ export default class DataProxy {
   }
 
   scrolly(y, cb) {
-    const { scroll, freeze, rows } = this;
+    const { scroll, freeze, rows, exceptRowSet } = this;
     const [fri] = freeze;
     const [
       ri, top, height,
-    ] = helper.rangeReduceIf(fri, rows.len, 0, 0, y, i => rows.getHeight(i));
+    ] = helper.rangeReduceIf(fri, rows.len, 0, 0, y, (i) => {
+      if (exceptRowSet.has(i)) return 0;
+      return rows.getHeight(i);
+    });
     let y1 = top;
     if (y > 0) y1 += height;
     // console.log('ri:', ri, ' ,y:', y1);
@@ -962,20 +980,17 @@ export default class DataProxy {
   }
 
   cellRect(ri, ci) {
-    const { rows, cols } = this;
+    const { rows, cols, exceptRowSet } = this;
     const left = cols.sumWidth(0, ci);
-    const top = rows.sumHeight(0, ri);
+    const top = rows.sumHeight(0, ri, exceptRowSet);
     const cell = rows.getCell(ri, ci);
     let width = cols.getWidth(ci);
     let height = rows.getHeight(ri);
     if (cell !== null) {
       if (cell.merge) {
         const [rn, cn] = cell.merge;
-        // console.log('cell.merge:', cell.merge);
         if (rn > 0) {
-          for (let i = 1; i <= rn; i += 1) {
-            height += rows.getHeight(ri + i);
-          }
+          height = rows.sumHeight(ri, ri + rn + 1, exceptRowSet);
         }
         if (cn > 0) {
           for (let i = 1; i <= cn; i += 1) {
@@ -1236,6 +1251,7 @@ export default class DataProxy {
         this[property] = d[property];
       }
     });
+    this.resetAutoFilter();
     return this;
   }
 

@@ -6,6 +6,7 @@ import Bottombar from './component/bottombar';
 import { cssPrefix } from './config';
 import { locale } from './locale/locale';
 import './index.less';
+import '@vscode/codicons/dist/codicon.css';
 
 export interface ExtendToolbarOption {
     tip?: string;
@@ -54,6 +55,8 @@ export interface Options {
             italic: false;
         };
     };
+    /** 首行自动居中加粗，用于 csv/xls 等无样式文件 */
+    headerRowStyle?: boolean;
 }
 
 export type CELL_SELECTED = 'cell-selected';
@@ -82,20 +85,31 @@ export interface RowData {
     cells: {
         [key: number]: CellData;
     };
+    height?: number;
+}
+
+export interface RowsData {
+    len?: number;
+    [key: number]: RowData | number | undefined;
+}
+
+export interface SheetAutofilterData {
+    ref: string;
+    filters?: { ci: number; operator: string; value: unknown }[];
+    sort?: { ci: number; order: string };
 }
 
 export interface SheetData {
     name?: string;
     freeze?: string;
+    autofilter?: SheetAutofilterData;
     styles?: CellStyle[];
     merges?: string[];
     cols?: {
         len?: number;
-        [key: number]: ColProperties;
+        [key: number]: ColProperties | number | undefined;
     };
-    rows?: {
-        [key: number]: RowData;
-    };
+    rows?: RowsData;
 }
 
 export interface SpreadsheetData {
@@ -107,10 +121,15 @@ export interface CellStyle {
     align?: 'left' | 'center' | 'right';
     valign?: 'top' | 'middle' | 'bottom';
     font?: {
+        name?: string;
+        size?: number;
         bold?: boolean;
+        italic?: boolean;
     };
     bgcolor?: string;
     textwrap?: boolean;
+    strike?: boolean;
+    underline?: boolean;
     color?: string;
     border?: {
         top?: string[];
@@ -118,6 +137,7 @@ export interface CellStyle {
         bottom?: string[];
         left?: string[];
     };
+    format?: string;
 }
 
 export interface Editor { }
@@ -240,6 +260,11 @@ export class Spreadsheet {
 
     reRender(): this {
         this.sheet.table.render();
+        return this;
+    }
+
+    setSaveEnabled(enabled: boolean): this {
+        (this.sheet as any).toolbar.setSaveEnabled(enabled);
         return this;
     }
 
