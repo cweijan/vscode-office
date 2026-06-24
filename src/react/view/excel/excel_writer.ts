@@ -1,5 +1,5 @@
 import { handler } from "../../util/vscode";
-import * as XLSX from 'xlsx/dist/xlsx.mini.min.js';
+import * as XLSX from 'xlsx';
 import Spreadsheet from "x-data-spreadsheet";
 import { CsvEncoding, encodeCsvText } from './csvEncoding';
 

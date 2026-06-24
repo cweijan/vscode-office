@@ -1,5 +1,5 @@
 import ExcelJS from 'exceljs';
-import * as XLSX from 'xlsx/dist/xlsx.mini.min.js';
+import * as XLSX from 'xlsx';
 import { inferSchema, initParser } from 'udsv';
 import { decodeCsvBuffer } from './csvEncoding';
 
@@ -254,12 +254,13 @@ const loadCsv = (buffer: ArrayBuffer): ExcelData => {
 
 const isCsvExt = (ext: string) => ext.toLowerCase().includes('csv');
 const isOdsExt = (ext: string) => ext.toLowerCase().includes('ods');
+const isXlsExt = (ext: string) => ext.toLowerCase().replace(/^\./, '') === 'xls';
 
 export async function loadSheets(buffer: ArrayBuffer, ext: string): Promise<ExcelData> {
     if (isCsvExt(ext)) {
         return loadCsv(buffer);
     }
-    if (isOdsExt(ext)) {
+    if (isXlsExt(ext) || isOdsExt(ext)) {
         return loadWithSheetJs(buffer);
     }
     return loadWithExcelJs(buffer);

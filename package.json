@@ -345,6 +345,9 @@
 				"displayName": "Office Viewer",
 				"selector": [
 					{
+						"filenamePattern": "*.xls"
+					},
+					{
 						"filenamePattern": "*.xlsx"
 					},
 					{
