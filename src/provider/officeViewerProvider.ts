@@ -54,6 +54,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 			case '.xlsm':
 			case '.xls':
 			case '.csv':
+			case '.tsv':
 			case '.ods':
 				route = 'excel';
 				break;

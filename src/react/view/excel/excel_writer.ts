@@ -210,8 +210,8 @@ export async function exportSaveAs(
         handler.emit('saveAs', { content: [...new Uint8Array(buf)], ext });
         return;
     }
-    if (ext === 'csv') {
-        const csvContent = XLSX.utils.sheet_to_csv(dataToSheetJs(sheets[0]));
+    if (ext === 'csv' || ext === 'tsv') {
+        const csvContent = XLSX.utils.sheet_to_csv(dataToSheetJs(sheets[0]), ext === 'tsv' ? { FS: '\t' } : undefined);
         const bytes = encodeCsvText(csvContent, csvEncoding);
         handler.emit('saveAs', { content: [...bytes], ext });
     }
@@ -234,8 +234,8 @@ export async function export_xlsx(
         exportWithSheetJs(sheets, ext);
         return;
     }
-    if (ext === 'csv') {
-        const csvContent = XLSX.utils.sheet_to_csv(dataToSheetJs(sheets[0]));
+    if (ext === 'csv' || ext === 'tsv') {
+        const csvContent = XLSX.utils.sheet_to_csv(dataToSheetJs(sheets[0]), ext === 'tsv' ? { FS: '\t' } : undefined);
         const bytes = encodeCsvText(csvContent, csvEncoding);
         handler.emit('save', [...bytes]);
     }

@@ -15,6 +15,7 @@
 		"excel",
 		"xlsx",
 		"csv",
+		"tsv",
 		"powerpoint",
 		"pptx",
 		"markdown",
@@ -305,7 +306,7 @@
 				},
 				{
 					"command": "office.csv.switch",
-					"when": "resourceExtname == '.csv'",
+					"when": "resourceExtname == '.csv' || resourceExtname == '.tsv'",
 					"group": "navigation@-2"
 				},
 				{
@@ -365,6 +366,9 @@
 					},
 					{
 						"filenamePattern": "*.csv"
+					},
+					{
+						"filenamePattern": "*.tsv"
 					},
 					{
 						"filenamePattern": "*.ods"

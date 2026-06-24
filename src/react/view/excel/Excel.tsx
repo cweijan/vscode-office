@@ -280,6 +280,7 @@ function ExcelViewer() {
             message.success({
                 duration: 2,
                 content: t('viewer.saveSuccess'),
+                className: 'excel-save-success-message',
             });
         }).emit("init")
 

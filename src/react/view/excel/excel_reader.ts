@@ -359,7 +359,7 @@ const loadCsv = (buffer: ArrayBuffer): ExcelData => {
     }
 };
 
-const isCsvExt = (ext: string) => ext.toLowerCase().includes('csv');
+const isCsvExt = (ext: string) => /csv|tsv/.test(ext.toLowerCase());
 const isOdsExt = (ext: string) => ext.toLowerCase().includes('ods');
 const isXlsExt = (ext: string) => ext.toLowerCase().replace(/^\./, '') === 'xls';
 
