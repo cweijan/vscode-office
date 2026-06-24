@@ -31,6 +31,14 @@
       color: var(--bold-color);
     }
 
+    mark[data-marker="=="],
+    mark[data-newline="1"] {
+      background-color: color-mix(in srgb, #ffeb3b 50%, transparent);
+      color: color-mix(in srgb, var(--front-color, #586069) 25%, #ffffff);
+      border-radius: 2px;
+      padding: 0 2px;
+    }
+
     ul ul ul {
       list-style-type: square;
     }
@@ -68,7 +76,7 @@
     }
 
     img {
-      max-width: 100%;
+      max-width: var(--vditor-image-max-width, 100%);
       max-height: var(--vditor-image-max-height, 70vh);
       height: auto;
       object-fit: contain;

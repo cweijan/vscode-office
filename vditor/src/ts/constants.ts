@@ -37,7 +37,7 @@ export abstract class Constants {
     linkBase: "",
     linkPrefix: "",
     listStyle: false,
-    mark: false,
+    mark: true,
     mathBlockPreview: true,
     paragraphBeginningSpace: false,
     sanitize: true,
