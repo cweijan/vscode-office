@@ -8,6 +8,6 @@ export default class Align extends DropdownItem {
 
   dropdown() {
     const { value } = this;
-    return new DropdownAlign(['left', 'center', 'right'], value);
+    return new DropdownAlign(['left', 'center', 'right'], value, 'align');
   }
 }

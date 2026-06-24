@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type Spreadsheet from './x-spreadsheet/index';
 import type { FindMatch, FindOptions } from './x-spreadsheet/index';
+import { t } from './excel_i18n';
 
 export interface FindReplacePanelProps {
     spreadSheet: Spreadsheet | null;
     mode: 'find' | 'replace';
     onClose: () => void;
-    isZh: boolean;
     readOnly?: boolean;
     onChanged?: () => void;
 }
@@ -15,7 +15,6 @@ export default function FindReplacePanel({
     spreadSheet,
     mode,
     onClose,
-    isZh,
     readOnly = false,
     onChanged,
 }: FindReplacePanelProps) {
@@ -33,6 +32,8 @@ export default function FindReplacePanel({
         findInputRef.current?.select();
     }, [mode]);
 
+    const panelRef = useRef<HTMLDivElement>(null);
+
     const buildOptions = useCallback((): FindOptions => ({
         matchCase,
         wholeCell,
@@ -41,18 +42,16 @@ export default function FindReplacePanel({
 
     const gotoMatch = useCallback((match: FindMatch | null) => {
         if (!spreadSheet || !match) {
-            setStatus({ text: isZh ? '未找到' : 'Not found', error: true });
+            setStatus({ text: t('findReplace.notFound'), error: true });
             return;
         }
         spreadSheet.gotoMatch(match);
         lastMatchRef.current = match;
         const col = String.fromCharCode(65 + (match.ci % 26));
         setStatus({
-            text: isZh
-                ? `Sheet${match.sheetIndex + 1}  ${col}${match.ri + 1}`
-                : `Sheet ${match.sheetIndex + 1} · ${col}${match.ri + 1}`,
+            text: t('findReplace.matchLocation', match.sheetIndex + 1, col, match.ri + 1),
         });
-    }, [spreadSheet, isZh]);
+    }, [spreadSheet]);
 
     const handleFindNext = useCallback((backward = false) => {
         if (!spreadSheet || !findText) return;
@@ -70,21 +69,21 @@ export default function FindReplacePanel({
         let match = lastMatchRef.current;
         if (!match) {
             match = spreadSheet.findFirst(findText, options);
-            if (!match) { setStatus({ text: isZh ? '未找到' : 'Not found', error: true }); return; }
+            if (!match) { setStatus({ text: t('findReplace.notFound'), error: true }); return; }
         }
         spreadSheet.replaceAt(match, findText, replaceText, options);
         onChanged?.();
         const next = spreadSheet.findNext(findText, match, options);
         gotoMatch(next ?? spreadSheet.findFirst(findText, options));
-    }, [spreadSheet, findText, replaceText, buildOptions, gotoMatch, onChanged, isZh]);
+    }, [spreadSheet, findText, replaceText, buildOptions, gotoMatch, onChanged]);
 
     const handleReplaceAll = useCallback(() => {
         if (!spreadSheet || !findText) return;
         const count = spreadSheet.replaceAll(findText, replaceText, buildOptions());
         onChanged?.();
-        setStatus({ text: isZh ? `已替换 ${count} 处` : `Replaced ${count}` });
+        setStatus({ text: t('findReplace.replacedCount', count) });
         lastMatchRef.current = null;
-    }, [spreadSheet, findText, replaceText, buildOptions, onChanged, isZh]);
+    }, [spreadSheet, findText, replaceText, buildOptions, onChanged]);
 
     const showReplace = mode === 'replace' && !readOnly;
 
@@ -100,13 +99,13 @@ export default function FindReplacePanel({
     );
 
     return (
-        <div className="frp-panel">
+        <div className="frp-panel" ref={panelRef}>
             {/* Header */}
             <div className="frp-header">
                 <span className="frp-title">
-                    {showReplace ? (isZh ? '查找和替换' : 'Find & Replace') : (isZh ? '查找' : 'Find')}
+                    {showReplace ? t('findReplace.titleReplace') : t('findReplace.title')}
                 </span>
-                <button type="button" className="frp-close" onClick={onClose} aria-label="close">
+                <button type="button" className="frp-close" onClick={onClose} aria-label={t('findReplace.close')}>
                     <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
                         <path d="M1 1 L9 9 M9 1 L1 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                     </svg>
@@ -123,22 +122,27 @@ export default function FindReplacePanel({
                     <input
                         ref={findInputRef}
                         className="frp-input"
-                        placeholder={isZh ? '查找…' : 'Find…'}
+                        placeholder={t('findReplace.placeholder')}
                         value={findText}
                         onChange={e => { setFindText(e.target.value); setStatus(null); lastMatchRef.current = null; }}
                         onKeyDown={e => {
-                            if (e.key === 'Enter') handleFindNext(e.shiftKey);
+                            e.nativeEvent.stopPropagation();
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleFindNext(e.shiftKey);
+                                findInputRef.current?.focus();
+                            }
                             if (e.key === 'Escape') onClose();
                         }}
                     />
                 </div>
                 <div className="frp-nav-btns">
-                    <button type="button" className="frp-nav-btn" title={isZh ? '上一个 (Shift+Enter)' : 'Previous (Shift+Enter)'} onClick={() => handleFindNext(true)}>
+                    <button type="button" className="frp-nav-btn" title={t('findReplace.previous')} onClick={() => handleFindNext(true)}>
                         <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
                             <path d="M2 8 L6 4 L10 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                     </button>
-                    <button type="button" className="frp-nav-btn" title={isZh ? '下一个 (Enter)' : 'Next (Enter)'} onClick={() => handleFindNext(false)}>
+                    <button type="button" className="frp-nav-btn" title={t('findReplace.next')} onClick={() => handleFindNext(false)}>
                         <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
                             <path d="M2 4 L6 8 L10 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
@@ -155,18 +159,18 @@ export default function FindReplacePanel({
                         </svg>
                         <input
                             className="frp-input"
-                            placeholder={isZh ? '替换为…' : 'Replace with…'}
+                            placeholder={t('findReplace.replacePlaceholder')}
                             value={replaceText}
                             onChange={e => setReplaceText(e.target.value)}
-                            onKeyDown={e => { if (e.key === 'Enter') handleReplace(); if (e.key === 'Escape') onClose(); }}
+                            onKeyDown={e => { e.nativeEvent.stopPropagation(); if (e.key === 'Enter') handleReplace(); if (e.key === 'Escape') onClose(); }}
                         />
                     </div>
                     <div className="frp-replace-btns">
                         <button type="button" className="frp-action-btn" onClick={() => handleReplace()}>
-                            {isZh ? '替换' : 'Replace'}
+                            {t('findReplace.replace')}
                         </button>
                         <button type="button" className="frp-action-btn frp-action-btn-primary" onClick={() => handleReplaceAll()}>
-                            {isZh ? '全部替换' : 'All'}
+                            {t('findReplace.replaceAll')}
                         </button>
                     </div>
                 </div>
@@ -174,9 +178,9 @@ export default function FindReplacePanel({
 
             {/* Options */}
             <div className="frp-options">
-                <OptionChip checked={matchCase} onChange={setMatchCase} label={isZh ? 'Aa' : 'Aa'} />
-                <OptionChip checked={wholeCell} onChange={setWholeCell} label={isZh ? '整格' : 'Whole'} />
-                <OptionChip checked={allSheets} onChange={setAllSheets} label={isZh ? '全表' : 'All sheets'} />
+                <OptionChip checked={matchCase} onChange={setMatchCase} label="Aa" />
+                <OptionChip checked={wholeCell} onChange={setWholeCell} label={t('findReplace.wholeCell')} />
+                <OptionChip checked={allSheets} onChange={setAllSheets} label={t('findReplace.allSheets')} />
                 {status && (
                     <span className={`frp-status${status.error ? ' frp-status-error' : ''}`}>
                         {status.text}

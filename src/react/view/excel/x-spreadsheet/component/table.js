@@ -15,8 +15,8 @@ const cellPaddingWidth = 10;
 function computeAutoRowHeights(data, ctx) {
   const { rows, cols, styles } = data;
   const defaultStyle = data.defaultStyle();
-  const defaultFontName = (defaultStyle.font && defaultStyle.font.name) || 'Arial';
-  const defaultFontSizePt = (defaultStyle.font && defaultStyle.font.size) || 10;
+  const defaultFontName = (defaultStyle.font && defaultStyle.font.name) || 'sans-serif';
+  const defaultFontSizePt = (defaultStyle.font && defaultStyle.font.size) || 12;
 
   rows.each((ri, row) => {
     if (!row || !row.cells) return;
@@ -27,7 +27,9 @@ function computeAutoRowHeights(data, ctx) {
       if (!cell || !cell.text) return;
 
       const style = cell.style != null ? styles[cell.style] : null;
-      if (!style || !style.textwrap) return;
+      const hasNewline = `${cell.text}`.includes('\n');
+      const needsWrap = (style && style.textwrap) || hasNewline;
+      if (!needsWrap) return;
 
       const rindex = parseInt(ri, 10);
       const cindex = parseInt(ci, 10);
@@ -39,12 +41,12 @@ function computeAutoRowHeights(data, ctx) {
       const colWidth = cols.getWidth(cindex);
       const innerWidth = colWidth - cellPaddingWidth * 2 - 2;
 
-      const fontName = (style.font && style.font.name) || defaultFontName;
-      const fontSizePt = (style.font && style.font.size) || defaultFontSizePt;
+      const fontName = (style && style.font && style.font.name) || defaultFontName;
+      const fontSizePt = (style && style.font && style.font.size) || defaultFontSizePt;
       const fontSizePx = getFontSizePxByPt(fontSizePt);
-      const bold = (style.font && style.font.bold) ? 'bold' : '';
-      const italic = (style.font && style.font.italic) ? 'italic' : '';
-      ctx.font = `${italic} ${bold} ${npx(fontSizePx)}px ${fontName}`.trim();
+      const bold = (style && style.font && style.font.bold) ? 'bold' : '';
+      const italic = (style && style.font && style.font.italic) ? 'italic' : '';
+      ctx.font = `${italic} ${bold} ${npx(fontSizePx)}px '${fontName}'`.trim();
 
       const lines = `${cell.text}`.split('\n');
       let lineCount = 0;
@@ -141,6 +143,7 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
   }
 
   const style = data.getCellStyleOrDefault(nrindex, cindex);
+  const defaultStyle = data.defaultStyle();
 
   const dbox = getDrawBox(data, rindex, cindex, yoffset);
   dbox.bgcolor = resolveExcelCellBg(style.bgcolor);
@@ -165,7 +168,10 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
       cellText = formatm[style.format].render(cellText);
     }
     const font = Object.assign({}, style.font);
-    font.size = getFontSizePxByPt(font.size);
+    if (!font.name) {
+      font.name = (defaultStyle.font && defaultStyle.font.name) || 'Arial';
+    }
+    font.size = getFontSizePxByPt(font.size || (defaultStyle.font && defaultStyle.font.size) || 12);
     const hyperlink = data.getHyperlink(rindex, cindex);
     const drawStyle = {
       align: style.align,
@@ -177,7 +183,7 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
     };
     draw.text(cellText, dbox, drawStyle, style.textwrap);
     // error
-    const error = data.validations.getError(rindex, cindex);
+    const error = data.validations.getError(nrindex, cindex);
     if (error) {
       // console.log('error:', rindex, cindex, error);
       draw.error(dbox);

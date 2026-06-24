@@ -124,6 +124,30 @@ export interface SheetValidationData {
     value?: string | string[] | number;
 }
 
+export interface SheetImageAnchor {
+    col: number;
+    row: number;
+    width?: number;
+    height?: number;
+    brCol?: number;
+    brRow?: number;
+    editAs?: string;
+}
+
+export interface SheetImage {
+    id: string;
+    imageId: number;
+    extension: 'jpeg' | 'png' | 'gif';
+    base64: string;
+    anchor: SheetImageAnchor;
+}
+
+export interface SheetBackgroundImage {
+    imageId: number;
+    extension: 'jpeg' | 'png' | 'gif';
+    base64: string;
+}
+
 export interface SheetData {
     name?: string;
     freeze?: string;
@@ -132,6 +156,8 @@ export interface SheetData {
     validations?: SheetValidationData[];
     /** Excel 工作表保护配置（不含密码） */
     sheetProtection?: Record<string, unknown>;
+    images?: SheetImage[];
+    backgroundImage?: SheetBackgroundImage;
     styles?: CellStyle[];
     merges?: string[];
     cols?: {
@@ -401,23 +427,15 @@ export class Spreadsheet {
     }
 
     scrollToCell(ri: number, ci: number, sheetIndex = 0): this {
-        const before = this.getSelection();
         this.activateSheet(sheetIndex);
         const data = this.datas[sheetIndex];
         if (!data) {
-            console.warn('[excel-view] scrollToCell: no data', { sheetIndex, ri, ci });
             return this;
         }
         const maxRi = Math.max(0, (data.rows.len ?? 1) - 1);
         const maxCi = Math.max(0, (data.cols.len ?? 1) - 1);
         const row = Math.min(Math.max(0, ri), maxRi);
         const col = Math.min(Math.max(0, ci), maxCi);
-        console.log('[excel-view] scrollToCell', {
-            request: { ri, ci, sheetIndex },
-            clamped: { row, col },
-            before,
-            activeSheet: this.getActiveSheetIndex(),
-        });
         (this.sheet as any).scrollToCell(row, col);
         return this;
     }
@@ -439,6 +457,11 @@ export class Spreadsheet {
 
     onProtectedCellDblClick(cb: () => void): this {
         this.sheet.on('protected-cell-dblclick', cb);
+        return this;
+    }
+
+    onValidationError(cb: (message: string) => void): this {
+        this.sheet.on('validation-error', cb);
         return this;
     }
 

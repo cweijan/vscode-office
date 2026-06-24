@@ -4,6 +4,9 @@ import { cssPrefix } from '../config';
 const CODICON_MAP = {
   save: 'save',
   'save-as': 'save-as',
+  find: 'search',
+  autofilter: 'filter',
+  freeze: 'pin',
 };
 
 export default class Icon extends Element {

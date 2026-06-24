@@ -24,6 +24,7 @@ import Textwrap from './textwrap';
 import More from './more';
 import Save from './save';
 import SaveAs from './saveas';
+import Find from './find';
 import Item from './item';
 
 import { h } from '../element';
@@ -125,12 +126,21 @@ export default class Toolbar {
       ],
       buildDivider(),
       [
-        this.formatEl = new Format(),
+        { el: (() => {
+          this.formatEl = new Format();
+          return h('div', `${cssPrefix}-format-group`)
+            .child(this.formatEl.el);
+        })() },
       ],
       buildDivider(),
       [
-        this.fontEl = new Font(),
-        this.fontSizeEl = new FontSize(),
+        { el: (() => {
+          this.fontEl = new Font();
+          this.fontSizeEl = new FontSize();
+          return h('div', `${cssPrefix}-font-group`)
+            .child(this.fontEl.el)
+            .child(this.fontSizeEl.el);
+        })() },
       ],
       buildDivider(),
       [
@@ -154,9 +164,10 @@ export default class Toolbar {
       ],
       buildDivider(),
       [
-        this.freezeEl = new Freeze(),
-        this.autofilterEl = new Autofilter(),
         this.formulaEl = new Formula(),
+        this.autofilterEl = new Autofilter(),
+        this.freezeEl = new Freeze(),
+        this.findEl = new Find(),
       ],
     ];
 
@@ -191,6 +202,11 @@ export default class Toolbar {
         this.btns.child(it.el);
       }
     });
+
+    // format-group / font-group items need change wired up separately
+    this.formatEl.change = (...args) => { this.change(...args); };
+    this.fontEl.change = (...args) => { this.change(...args); };
+    this.fontSizeEl.change = (...args) => { this.change(...args); };
 
     this.el.child(this.btns);
     if (data.settings.mode === 'read') {

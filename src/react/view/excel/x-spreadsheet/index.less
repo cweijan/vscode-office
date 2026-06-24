@@ -328,7 +328,7 @@ body {
   }
 }
 
-.@{css-prefix}-editor, .@{css-prefix}-selector {
+.@{css-prefix}-editor, .@{css-prefix}-selector, .@{css-prefix}-sheet-images {
   box-sizing: content-box;
   position: absolute;
   overflow: hidden;
@@ -337,6 +337,32 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
+}
+
+.@{css-prefix}-sheet-images {
+  z-index: 1;
+  overflow: visible;
+
+  img {
+    display: block;
+  }
+}
+
+@keyframes x-spreadsheet-marching-ants {
+  0% {
+    background-position:
+      0 0,
+      0 100%,
+      0 0,
+      100% 0;
+  }
+  100% {
+    background-position:
+      8px 0,
+      -8px 100%,
+      0 -8px,
+      100% 8px;
+  }
 }
 
 /* @{css-prefix}-selector */
@@ -352,17 +378,43 @@ body {
   }
   .@{css-prefix}-selector-area {
     position: absolute;
+    box-sizing: border-box;
     border: 2px solid rgb(33, 186, 69);
     background: rgba(33, 186, 69, .1);
     z-index: 5;
   }
   .@{css-prefix}-selector-clipboard, .@{css-prefix}-selector-autofill {
     position: absolute;
+    box-sizing: border-box;
     background: transparent;
     z-index: 100;
   }
   .@{css-prefix}-selector-clipboard {
-    border: 2px dashed rgb(33, 186, 69);
+    --clipboard-ant-color: rgb(33, 186, 69);
+    --clipboard-ant-size: 8px;
+    --clipboard-ant-weight: 2px;
+    border: none;
+    background:
+      linear-gradient(90deg, var(--clipboard-ant-color) 50%, transparent 0) repeat-x,
+      linear-gradient(90deg, var(--clipboard-ant-color) 50%, transparent 0) repeat-x,
+      linear-gradient(0deg, var(--clipboard-ant-color) 50%, transparent 0) repeat-y,
+      linear-gradient(0deg, var(--clipboard-ant-color) 50%, transparent 0) repeat-y;
+    background-size:
+      var(--clipboard-ant-size) var(--clipboard-ant-weight),
+      var(--clipboard-ant-size) var(--clipboard-ant-weight),
+      var(--clipboard-ant-weight) var(--clipboard-ant-size),
+      var(--clipboard-ant-weight) var(--clipboard-ant-size);
+    background-position:
+      0 0,
+      0 100%,
+      0 0,
+      100% 0;
+    animation: x-spreadsheet-marching-ants 0.8s steps(4, end) infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+      border: var(--clipboard-ant-weight) dashed var(--clipboard-ant-color);
+    }
   }
   .@{css-prefix}-selector-autofill {
     border: 1px dashed rgba(0, 0, 0, .45);
@@ -400,11 +452,9 @@ body {
       resize: none;
       text-align: start;
       overflow-y: auto;
-      font: 400 13px Arial, 'Lato', 'Source Sans Pro', Roboto, Helvetica, sans-serif;
       color: black;
       white-space: normal;
       word-wrap: break-word;
-      line-height: 22px;
       margin: 0;
       max-width: 400px;
       text-shadow: 0 0 0.35px currentcolor;

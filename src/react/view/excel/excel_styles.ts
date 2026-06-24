@@ -203,8 +203,8 @@ export function excelJsCellToStyle(cell: ExcelJS.Cell): CellStyle | null {
     }
 
     const fill = cell.fill;
-    if (fill && fill.type === 'pattern' && fill.fgColor) {
-        const bgcolor = colorToHex(fill.fgColor);
+    if (fill && fill.type === 'pattern') {
+        const bgcolor = colorToHex(fill.fgColor) ?? colorToHex(fill.bgColor);
         if (bgcolor && bgcolor !== '#ffffff') {
             style.bgcolor = bgcolor;
             hasStyle = true;

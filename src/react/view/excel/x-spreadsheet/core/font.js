@@ -1,42 +1,80 @@
 // docs
 import './_.prototypes';
 
+function getSystemDefaultFont() {
+  const ua = (typeof navigator !== 'undefined' && navigator.userAgent) || '';
+  if (ua.includes('Mac OS')) return { key: 'PingFang SC', title: 'PingFang SC' };
+  if (ua.includes('Windows')) return { key: 'Microsoft YaHei', title: 'Microsoft YaHei' };
+  return { key: 'Arial', title: 'Arial' };
+}
+
 /** default font list
  * @type {BaseFont[]}
  */
-const baseFonts = [
-  { key: 'Arial', title: 'Arial' },
-  { key: 'Helvetica', title: 'Helvetica' },
-  { key: 'Source Sans Pro', title: 'Source Sans Pro' },
-  { key: 'Comic Sans MS', title: 'Comic Sans MS' },
-  { key: 'Courier New', title: 'Courier New' },
-  { key: 'Verdana', title: 'Verdana' },
-  { key: 'Lato', title: 'Lato' },
+const macCnFonts = [
+  { key: 'STSong', title: '华文宋体' },
+  { key: 'STHeiti', title: '华文黑体' },
+  { key: 'STKaiti', title: '华文楷体' },
+  { key: 'STFangsong', title: '华文仿宋' },
+  { key: 'STXihei', title: '华文细黑' },
+  { key: 'Menlo', title: 'Menlo' },
 ];
 
-/** default fontSize list
+const winCnFonts = [
+  { key: 'SimSun', title: '宋体' },
+  { key: 'SimHei', title: '黑体' },
+  { key: 'KaiTi', title: '楷体' },
+  { key: 'FangSong', title: '仿宋' },
+  { key: 'Consolas', title: 'Consolas' },
+];
+
+function getPlatformCnFonts() {
+  const ua = (typeof navigator !== 'undefined' && navigator.userAgent) || '';
+  if (ua.includes('Mac OS')) return macCnFonts;
+  if (ua.includes('Windows')) return winCnFonts;
+  return [];
+}
+
+const baseFonts = [
+  // 系统默认
+  getSystemDefaultFont(),
+  { divider: true },
+  // 通用字体
+  { key: 'Arial', title: 'Arial' },
+  { key: 'Helvetica', title: 'Helvetica' },
+  { key: 'Verdana', title: 'Verdana' },
+  { key: 'Tahoma', title: 'Tahoma' },
+  { key: 'Calibri', title: 'Calibri' },
+  { key: 'Segoe UI', title: 'Segoe UI' },
+  { key: 'Times New Roman', title: 'Times New Roman' },
+  { key: 'Georgia', title: 'Georgia' },
+  { key: 'Courier New', title: 'Courier New' },
+  // 平台中文字体
+  ...(() => {
+    const cnFonts = getPlatformCnFonts();
+    return cnFonts.length ? [{ divider: true }, ...cnFonts] : [];
+  })(),
+];
+
+/** default fontSize list — aligned with Excel standard sizes
  * @type {FontSize[]}
  */
 const fontSizes = [
-  { pt: 7.5, px: 10 },
-  { pt: 8, px: 11 },
+  { pt: 8, px: 10.7 },
   { pt: 9, px: 12 },
-  { pt: 10, px: 13 },
-  { pt: 10.5, px: 14 },
-  { pt: 11, px: 15 },
+  { pt: 10, px: 13.3 },
+  { pt: 11, px: 14.7 },
   { pt: 12, px: 16 },
   { pt: 14, px: 18.7 },
-  { pt: 15, px: 20 },
   { pt: 16, px: 21.3 },
   { pt: 18, px: 24 },
+  { pt: 20, px: 26.7 },
   { pt: 22, px: 29.3 },
   { pt: 24, px: 32 },
-  { pt: 26, px: 34.7 },
+  { pt: 28, px: 37.3 },
   { pt: 36, px: 48 },
-  { pt: 42, px: 56 },
-  // { pt: 54, px: 71.7 },
-  // { pt: 63, px: 83.7 },
-  // { pt: 72, px: 95.6 },
+  { pt: 48, px: 64 },
+  { pt: 72, px: 96 },
 ];
 
 /** map pt to px

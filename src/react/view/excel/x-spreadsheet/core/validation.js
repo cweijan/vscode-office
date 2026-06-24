@@ -80,6 +80,19 @@ class Validations {
     return true;
   }
 
+  validateAll(getCellText) {
+    this.errors.clear();
+    for (let i = 0; i < this._.length; i += 1) {
+      const v = this._[i];
+      for (let j = 0; j < v.refs.length; j += 1) {
+        const cr = CellRange.valueOf(v.refs[j]);
+        cr.each((ri, ci) => {
+          this.validate(ri, ci, getCellText(ri, ci));
+        });
+      }
+    }
+  }
+
   // type: date|number|phone|email|list
   // validator: { required, value, operator }
   add(mode, ref, {

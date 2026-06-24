@@ -1,6 +1,26 @@
 import { h } from './element';
 import { bindClickoutside, unbindClickoutside } from './event';
 import { cssPrefix } from '../config';
+import { formulaDisplayName } from '../core/formula';
+
+function isDividerItem(it) {
+  return typeof it === 'object' && it !== null && it.divider === true;
+}
+
+function stripOrphanDividers(items) {
+  const result = [];
+  for (let i = 0; i < items.length; i += 1) {
+    const it = items[i];
+    if (!isDividerItem(it)) {
+      result.push(it);
+      continue;
+    }
+    const hasBefore = result.some((x) => !isDividerItem(x));
+    const hasAfter = items.slice(i + 1).some((x) => !isDividerItem(x));
+    if (hasBefore && hasAfter) result.push(it);
+  }
+  return result;
+}
 
 function inputMovePrev(evt) {
   evt.preventDefault();
@@ -97,14 +117,42 @@ export default class Suggest {
   search(word) {
     let { items } = this;
     if (!/^\s*$/.test(word)) {
-      items = items.filter(it => (it.key || it).startsWith(word.toUpperCase()));
+      items = items.filter((it) => {
+        if (isDividerItem(it)) return true;
+        return (it.key || it).startsWith(word.toUpperCase());
+      });
     }
+    items = stripOrphanDividers(items);
     items = items.map((it) => {
-      let { title } = it;
-      if (title) {
-        if (typeof title === 'function') {
-          title = title();
+      if (isDividerItem(it)) {
+        return h('div', `${cssPrefix}-item divider`);
+      }
+      let title = '';
+      if (typeof it === 'object' && it !== null && it.key) {
+        if (typeof it.title === 'function') {
+          // formula-style item: key is the formula name, title() returns a description hint
+          const hint = it.title();
+          title = formulaDisplayName(it.key);
+          if (hint) {
+            const item = h('div', `${cssPrefix}-item`)
+              .children(
+                h('span', '').child(title),
+                h('div', 'label').html(hint),
+              )
+              .on('click.stop', () => {
+                this.itemClick(it);
+                this.hide();
+              });
+            return item;
+          }
+        } else if (it.title) {
+          // plain item with explicit string title (e.g. validation operator options)
+          title = it.title;
+        } else {
+          title = formulaDisplayName(it.key);
         }
+      } else if (typeof it === 'object' && it !== null && it.title) {
+        title = typeof it.title === 'function' ? it.title() : it.title;
       } else {
         title = it;
       }

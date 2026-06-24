@@ -70,12 +70,11 @@ class SelectorElement {
     const {
       left, top, width, height,
     } = v;
-    // inset by border-width (2px) so the outer border edge aligns with the cell boundary
     this.clipboardEl.offset({
-      left: left + 2,
-      top: top + 2,
-      width: width - 4,
-      height: height - 4,
+      left,
+      top,
+      width,
+      height,
     });
   }
 
@@ -277,22 +276,23 @@ export default class Selector {
 
   resetBRTAreaOffset() {
     const offset = this.data.getSelectedRect();
-    const coffset = this.data.getClipboardRect();
     setBRAreaOffset.call(this, offset);
     setTAreaOffset.call(this, offset);
-    setBRClipboardOffset.call(this, coffset);
-    setTClipboardOffset.call(this, coffset);
+    this.resetClipboardOffset();
     this.resetOffset();
   }
 
   resetBRLAreaOffset() {
     const offset = this.data.getSelectedRect();
-    const coffset = this.data.getClipboardRect();
     setBRAreaOffset.call(this, offset);
     setLAreaOffset.call(this, offset);
-    setBRClipboardOffset.call(this, coffset);
-    setLClipboardOffset.call(this, coffset);
+    this.resetClipboardOffset();
     this.resetOffset();
+  }
+
+  resetClipboardOffset() {
+    if (this.data.clipboard.isClear()) return;
+    setAllClipboardOffset.call(this, this.data.getClipboardRect());
   }
 
   set(ri, ci, indexesUpdated = true) {

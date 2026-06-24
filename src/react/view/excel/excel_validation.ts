@@ -49,6 +49,39 @@ function toFormulaValue(value: string | number): string | number {
     return trimmed;
 }
 
+function refTopLeft(ref: string): string {
+    const idx = ref.indexOf(':');
+    return idx === -1 ? ref : ref.slice(0, idx);
+}
+
+/** Excel custom validation: 11-digit mobile starting with 1–9 */
+function buildPhoneFormula(cell: string): string {
+    return `AND(LEN(${cell})=11,ISNUMBER(--${cell}),--LEFT(${cell},1)>=1)`;
+}
+
+/** Excel custom validation: basic email shape */
+function buildEmailFormula(cell: string): string {
+    return `AND(NOT(ISERROR(FIND("@",${cell}))),NOT(ISERROR(FIND(".",${cell},FIND("@",${cell})+1))),LEN(${cell})>=5)`;
+}
+
+function normalizeFormula(formula: string): string {
+    return formula.trim().replace(/^=/, '').replace(/\$/g, '').toUpperCase();
+}
+
+function detectCustomValidationType(formula: string, ref: string): 'phone' | 'email' | null {
+    const cell = refTopLeft(ref);
+    const norm = normalizeFormula(formula);
+    if (norm === normalizeFormula(buildPhoneFormula(cell))) return 'phone';
+    if (norm === normalizeFormula(buildEmailFormula(cell))) return 'email';
+    if (/LEN\([^)]+\)=11/.test(norm) && /ISNUMBER/.test(norm) && /--LEFT\([^)]+\)>=1/.test(norm)) {
+        return 'phone';
+    }
+    if (/FIND\("@"/.test(norm) && /FIND\("\./.test(norm) && /LEN\([^)]+\)>=5/.test(norm)) {
+        return 'email';
+    }
+    return null;
+}
+
 export function excelValidationToSpreadsheet(
     ref: string,
     dv: ExcelJS.DataValidation,
@@ -97,6 +130,18 @@ export function excelValidationToSpreadsheet(
             value,
         };
     }
+    if (dv.type === 'custom') {
+        const customType = detectCustomValidationType(String(dv.formulae?.[0] ?? ''), ref);
+        if (customType) {
+            return {
+                refs: [ref],
+                mode,
+                type: customType,
+                required: !dv.allowBlank,
+                value: '',
+            };
+        }
+    }
     return null;
 }
 
@@ -113,7 +158,10 @@ export function readWorksheetValidations(worksheet: ExcelJS.Worksheet): Spreadsh
     return items;
 }
 
-export function spreadsheetValidationToExcel(item: SpreadsheetValidationItem): ExcelJS.DataValidation | null {
+export function spreadsheetValidationToExcel(
+    item: SpreadsheetValidationItem,
+    ref?: string,
+): ExcelJS.DataValidation | null {
     const { type, operator, value, required } = item;
     const allowBlank = !required;
 
@@ -162,7 +210,13 @@ export function spreadsheetValidationToExcel(item: SpreadsheetValidationItem): E
         };
     }
     if (type === 'email' || type === 'phone') {
-        return null;
+        const cell = refTopLeft(ref ?? item.refs[0] ?? 'A1');
+        const formula = type === 'phone' ? buildPhoneFormula(cell) : buildEmailFormula(cell);
+        return {
+            type: 'custom',
+            allowBlank,
+            formulae: [`=${formula}`],
+        };
     }
     return null;
 }
@@ -177,10 +231,11 @@ export function writeWorksheetValidations(
     if (!dv?.add) return;
     for (let i = 0; i < items.length; i += 1) {
         const item = items[i];
-        const excelDv = spreadsheetValidationToExcel(item);
-        if (!excelDv) continue;
         for (let j = 0; j < item.refs.length; j += 1) {
-            dv.add(item.refs[j], excelDv);
+            const sheetRef = item.refs[j];
+            const excelDv = spreadsheetValidationToExcel(item, sheetRef);
+            if (!excelDv) continue;
+            dv.add(sheetRef, excelDv);
         }
     }
 }

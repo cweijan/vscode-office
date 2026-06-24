@@ -17,6 +17,12 @@ function stringAt(index: number): string {
 /** x-spreadsheet 默认行高（px），与 Excel.tsx 中 row.height 一致 */
 export const DEFAULT_ROW_HEIGHT_PX = 30;
 
+/** 视口最少列数（A–X，共 24 列） */
+export const MIN_VIEW_COLS = 24;
+
+/** 视口最少行数 */
+export const MIN_VIEW_ROWS = 40;
+
 /** Excel 行高（磅）→ 像素 */
 export function excelRowHeightToPx(pt: number): number {
     return Math.round(pt * 96 / 72);

@@ -9,6 +9,7 @@ import { applySpreadsheetStyle } from './excel_styles';
 import { hyperlinkKey, writeCellHyperlink, type SpreadsheetHyperlink } from './excel_hyperlink';
 import { writeWorksheetValidations } from './excel_validation';
 import { writeWorksheetProtection } from './excel_protection';
+import { writeWorksheetImages } from './excel_images';
 
 const DEFAULT_COL_WIDTH = 100;
 
@@ -81,7 +82,7 @@ function writeRowHeights(worksheet: ExcelJS.Worksheet, rows: SheetData['rows']) 
     }
 }
 
-async function writeSheetToExcelJs(worksheet: ExcelJS.Worksheet, sheetData: SheetData) {
+async function writeSheetToExcelJs(worksheet: ExcelJS.Worksheet, workbook: ExcelJS.Workbook, sheetData: SheetData) {
     const { rows, cols, styles = [], merges = [], hyperlinks = {}, validations } = sheetData;
 
     if (cols?.len) {
@@ -121,6 +122,7 @@ async function writeSheetToExcelJs(worksheet: ExcelJS.Worksheet, sheetData: Shee
         }
     }
 
+    writeWorksheetImages(worksheet, workbook, sheetData.images, sheetData.backgroundImage);
     await writeWorksheetProtection(worksheet, sheetData);
 }
 
@@ -138,7 +140,7 @@ async function exportWithExcelJs(sheets: SheetData[], options?: ExportOptions) {
     for (let i = 0; i < sheets.length; i += 1) {
         const sheetData = sheets[i];
         const worksheet = workbook.addWorksheet(sheetData.name || `Sheet${i + 1}`);
-        await writeSheetToExcelJs(worksheet, sheetData);
+        await writeSheetToExcelJs(worksheet, workbook, sheetData);
     }
     const buffer = await workbook.xlsx.writeBuffer();
     await emitSave(new Uint8Array(buffer), options);

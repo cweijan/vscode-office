@@ -2,16 +2,19 @@ import { MoonOutlined, SunOutlined } from "@ant-design/icons";
 import { App, Button, Modal, Radio, Spin } from "antd";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { handler, loadDarkMode, applyDarkMode } from "../../util/vscode.ts";
-import { getConfigs } from "../../util/vscodeConfig.ts";
 import { loadOfficeBuffer } from "../../util/loadOfficeContent.ts";
 import SponsorBar from '../components/SponsorBar';
 import './Excel.less';
+import { MIN_VIEW_COLS, MIN_VIEW_ROWS } from "./excel_meta.ts";
 import { detectCsvEncoding } from "./csvEncoding.ts";
 import { loadSheets } from "./excel_reader.ts";
 import { export_xlsx, exportSaveAs, buildFormattingSnapshot, hasFormattingChanged } from "./excel_writer.ts";
 import Spreadsheet from './x-spreadsheet/index';
 import FindReplacePanel from './FindReplacePanel';
 import { parseSpreadsheetLink } from './excel_hyperlink';
+import { initExcelLocale, t } from './excel_i18n';
+
+initExcelLocale();
 
 type ExcelViewState = { ri: number; ci: number; sheetIndex: number };
 
@@ -61,6 +64,7 @@ function ExcelViewer() {
     const [dark, setDark] = useState(loadDarkMode)
     const [readOnly, setReadOnly] = useState(false)
     const [findPanel, setFindPanel] = useState<'find' | 'replace' | null>(null)
+    const [loadError, setLoadError] = useState<string | null>(null)
     const [saveAsVisible, setSaveAsVisible] = useState(false)
     const [saveAsFormat, setSaveAsFormat] = useState('xlsx')
     const extRef = useRef('')
@@ -69,9 +73,6 @@ function ExcelViewer() {
     const spreadSheetRef = useRef<Spreadsheet | null>(null)
     const csvEncodingRef = useRef<'utf8' | 'gbk'>('utf8')
     const initialFormattingRef = useRef('')
-    const isZh = getConfigs()?.language?.startsWith('zh');
-    const saveSuccessText = isZh ? '保存成功' : 'Save done';
-    const protectedCellText = isZh ? '被保护单元格不支持此功能' : 'Protected cells do not support this function';
 
     useEffect(() => {
         document.body.classList.toggle('office-dark', dark)
@@ -93,20 +94,6 @@ function ExcelViewer() {
         setSaveAsVisible(true);
     }, []);
 
-    const confirmSaveAs = useCallback(async (fmt: string) => {
-        const spreadSheet = spreadSheetRef.current;
-        if (!spreadSheet) return;
-        setSaveAsVisible(false);
-        try {
-            await exportSaveAs(spreadSheet, fmt, csvEncodingRef.current);
-            if (!readOnlyRef.current) {
-                spreadSheet.setSaveEnabled(false);
-            }
-        } catch (error) {
-            console.error(`Failed to save Excel file: ${(error as Error).message}`);
-        }
-    }, []);
-
     const handleSave = useCallback(async () => {
         const spreadSheet = spreadSheetRef.current;
         if (!spreadSheet) return;
@@ -122,12 +109,10 @@ function ExcelViewer() {
         if (ext !== 'xlsx' && ext !== 'xlsm' && hasFormattingChanged(initialFormattingRef.current, sheets)) {
             await new Promise<void>((resolve) => {
                 const dialog = modal.confirm({
-                    title: isZh ? '格式将无法保存' : 'Formatting cannot be preserved',
-                    content: isZh
-                        ? `${ext.toUpperCase()} 格式不支持保存样式、合并单元格、公式等富格式内容。是否另存为 xlsx？`
-                        : `${ext.toUpperCase()} cannot preserve styles, merges, formulas, etc. Save as xlsx instead?`,
-                    okText: isZh ? '另存为 xlsx' : 'Save as xlsx',
-                    cancelText: isZh ? '取消' : 'Cancel',
+                    title: t('viewer.formatCannotPreserveTitle'),
+                    content: t('viewer.formatCannotPreserveContent', ext.toUpperCase()),
+                    okText: t('viewer.saveAsXlsx'),
+                    cancelText: t('button.cancel'),
                     centered: true,
                     getContainer: () => document.body,
                     onOk: async () => {
@@ -154,7 +139,7 @@ function ExcelViewer() {
                                     })();
                                 }}
                             >
-                                {isZh ? '仍保存原格式' : 'Save as original'}
+                                {t('viewer.saveAsOriginal')}
                             </Button>
                             <OkBtn />
                         </>
@@ -171,7 +156,21 @@ function ExcelViewer() {
         } catch (error) {
             console.error(`Failed to save Excel file: ${(error as Error).message}`);
         }
-    }, [isZh, modal, handleSaveAs]);
+    }, [modal, handleSaveAs]);
+
+    const confirmSaveAs = useCallback(async (fmt: string) => {
+        const spreadSheet = spreadSheetRef.current;
+        if (!spreadSheet) return;
+        setSaveAsVisible(false);
+        try {
+            await exportSaveAs(spreadSheet, fmt, csvEncodingRef.current);
+            if (!readOnlyRef.current) {
+                spreadSheet.setSaveEnabled(false);
+            }
+        } catch (error) {
+            console.error(`Failed to save Excel file: ${(error as Error).message}`);
+        }
+    }, []);
 
     useEffect(() => {
         const onKeyDown = (e: KeyboardEvent) => {
@@ -201,85 +200,86 @@ function ExcelViewer() {
     useEffect(() => {
         const container = document.getElementById('container');
 
+        const initSpreadsheet = async (buffer: ArrayBuffer, payload: any) => {
+            const fileReadOnly = payload.readOnly === true;
+            if (payload.ext?.match(/csv/i)) {
+                csvEncodingRef.current = detectCsvEncoding(buffer);
+            }
+            const { sheets, maxLength, maxCols } = await loadSheets(buffer, payload.ext);
+            const viewRowLen = Math.max(maxLength ?? 0, MIN_VIEW_ROWS);
+            const viewColLen = Math.max(maxCols ?? 0, MIN_VIEW_COLS);
+            container.innerHTML = '';
+            const spreadSheet = new Spreadsheet(container, {
+                mode: fileReadOnly ? 'read' : 'edit',
+                showToolbar: true,
+                row: { len: viewRowLen, height: 30 },
+                col: { len: viewColLen },
+                view: { height: () => window.innerHeight - 2 },
+            });
+            spreadSheetRef.current = spreadSheet;
+            setLoading(false);
+            spreadSheet.loadData(sheets);
+            if (!fileReadOnly) {
+                spreadSheet.on('save', () => void handleSave());
+            }
+            spreadSheet.on('save-as', () => { void handleSaveAs(); });
+            spreadSheet.on('find', () => { setFindPanel('find'); });
+            const persistView = () => {
+                saveViewState(documentCacheIdRef.current, spreadSheet.getSelection());
+            };
+            spreadSheet.on('cell-selected', () => { persistView(); });
+            spreadSheet.onSheetChange(() => { persistView(); });
+            spreadSheet.onOpenLink((linkPayload) => {
+                const parsed = parseSpreadsheetLink(linkPayload.link);
+                if (parsed.type === 'internal') {
+                    spreadSheet.followHyperlink(linkPayload);
+                } else {
+                    handler.emit('openExternal', parsed.url);
+                }
+            });
+            spreadSheet.onProtectedCellDblClick(() => {
+                message.info({ duration: 2, content: t('viewer.protectedCell'), className: 'excel-protected-cell-message' });
+            });
+            spreadSheet.onValidationError((errMessage) => {
+                message.warning({ duration: 2, content: errMessage, className: 'excel-validation-error-message' });
+            });
+            spreadSheet.on('change', () => {
+                if (!fileReadOnly) spreadSheet.setSaveEnabled(true);
+            });
+            const savedView = loadViewState(documentCacheIdRef.current);
+            if (savedView) {
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => { restoreViewState(spreadSheet, savedView); });
+                });
+            }
+            initialFormattingRef.current = buildFormattingSnapshot(spreadSheet.getData());
+        };
+
         handler.on("open", (payload) => {
             extRef.current = payload.ext ?? '';
             documentCacheIdRef.current = payload.documentCacheId ?? '';
             const fileReadOnly = payload.readOnly === true;
             readOnlyRef.current = fileReadOnly;
             setReadOnly(fileReadOnly);
-            loadOfficeBuffer(payload).then(async (res) => {
-                if (payload.ext?.match(/csv/i)) {
-                    csvEncodingRef.current = detectCsvEncoding(res);
+            loadOfficeBuffer(payload).then(async (buffer) => {
+                try {
+                    await initSpreadsheet(buffer, payload);
+                } catch (e) {
+                    const msg = (e as Error).message || String(e);
+                    console.error(`Failed to load Excel file: ${msg}`);
+                    setLoadError(msg);
+                    setLoading(false);
                 }
-                const { sheets, maxLength, maxCols } = await loadSheets(res, payload.ext);
-                container.innerHTML = ''
-                const spreadSheet = new Spreadsheet(container, {
-                    mode: fileReadOnly ? 'read' : 'edit',
-                    showToolbar: true,
-                    row: {
-                        len: maxLength + 50,
-                        height: 30,
-                    },
-                    col: {
-                        len: maxCols,
-                    },
-                    view: {
-                        height: () => window.innerHeight - 2,
-                    }
-                });
-                spreadSheetRef.current = spreadSheet;
-                setLoading(false)
-                spreadSheet.loadData(sheets);
-                if (!fileReadOnly) {
-                    spreadSheet.on('save', () => void handleSave());
-                }
-                spreadSheet.on('save-as', () => { void handleSaveAs(); });
-                const persistView = () => {
-                    saveViewState(documentCacheIdRef.current, spreadSheet.getSelection());
-                };
-                spreadSheet.on('cell-selected', () => {
-                    persistView();
-                });
-                spreadSheet.onSheetChange(() => {
-                    persistView();
-                });
-                spreadSheet.onOpenLink((payload) => {
-                    const parsed = parseSpreadsheetLink(payload.link);
-                    if (parsed.type === 'internal') {
-                        spreadSheet.followHyperlink(payload);
-                    } else {
-                        handler.emit('openExternal', parsed.url);
-                    }
-                });
-                spreadSheet.onProtectedCellDblClick(() => {
-                    message.info({
-                        duration: 2,
-                        content: protectedCellText,
-                        className: 'excel-protected-cell-message',
-                    });
-                });
-                spreadSheet.on('change', () => {
-                    if (!fileReadOnly) {
-                        spreadSheet.setSaveEnabled(true);
-                    }
-                });
-                const savedView = loadViewState(documentCacheIdRef.current);
-                if (savedView) {
-                    requestAnimationFrame(() => {
-                        requestAnimationFrame(() => {
-                            restoreViewState(spreadSheet, savedView);
-                        });
-                    });
-                }
-                initialFormattingRef.current = buildFormattingSnapshot(spreadSheet.getData());
             }).catch(error => {
-                console.error(`Failed to load Excel file: ${error.message}`);
-                setLoading(false)
+                const msg = (error as Error).message || String(error);
+                console.error(`Failed to load Excel file: ${msg}`);
+                setLoadError(msg);
+                setLoading(false);
             });
         }).on("saveDone", () => {
             message.success({
                 duration: 2,
-                content: saveSuccessText,
+                content: t('viewer.saveSuccess'),
             });
         }).emit("init")
 
@@ -294,22 +294,35 @@ function ExcelViewer() {
             themeObserver.disconnect();
             clearTimeout(themeTimer);
         };
-    }, [message, saveSuccessText, protectedCellText, handleSave, handleSaveAs])
+    }, [message, handleSave, handleSaveAs])
 
     return (
         <div className='excel-viewer'>
             <Spin spinning={loading} fullscreen={true} />
-            {readOnly && !loading && (
-                <div className="excel-readonly-banner">
-                    {isZh ? '只读模式 — 可浏览与查找，请使用「另存为」保存更改' : 'Read-only — browse and find; use Save As to save changes'}
+            {loadError && !loading && (
+                <div className="excel-load-error">
+                    <div className="excel-load-error-panel">
+                        <svg className="excel-load-error-icon" width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden>
+                            <circle cx="22" cy="22" r="20" stroke="currentColor" strokeWidth="1.8"/>
+                            <path d="M22 13v12" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+                            <circle cx="22" cy="31" r="1.8" fill="currentColor"/>
+                        </svg>
+                        <h2 className="excel-load-error-title">Failed to open file</h2>
+                        <p className="excel-load-error-desc">The file could not be loaded. It may be corrupted, password-protected, or an unsupported format.</p>
+                        <span className="excel-load-error-message">{loadError}</span>
+                    </div>
                 </div>
             )}
-            {findPanel && !loading && (
+            {readOnly && !loading && !loadError && (
+                <div className="excel-readonly-banner">
+                    {t('viewer.readonlyBanner')}
+                </div>
+            )}
+            {findPanel && !loading && !loadError && (
                 <FindReplacePanel
                     spreadSheet={spreadSheetRef.current}
                     mode={findPanel}
                     onClose={() => setFindPanel(null)}
-                    isZh={!!isZh}
                     readOnly={readOnly}
                     onChanged={() => {
                         if (!readOnlyRef.current) {
@@ -320,14 +333,14 @@ function ExcelViewer() {
             )}
             <Modal
                 open={saveAsVisible}
-                title={isZh ? '另存为' : 'Save As'}
+                title={t('button.saveAs')}
                 onCancel={() => setSaveAsVisible(false)}
                 footer={[
                     <Button key="cancel" onClick={() => setSaveAsVisible(false)}>
-                        {isZh ? '取消' : 'Cancel'}
+                        {t('button.cancel')}
                     </Button>,
                     <Button key="ok" type="primary" onClick={() => void confirmSaveAs(saveAsFormat)}>
-                        {isZh ? '保存' : 'Save'}
+                        {t('button.save')}
                     </Button>,
                 ]}
                 getContainer={() => document.body}
@@ -336,7 +349,7 @@ function ExcelViewer() {
             >
                 <div style={{ padding: '8px 0 16px' }}>
                     <div style={{ marginBottom: 12, opacity: 0.65, fontSize: 12 }}>
-                        {isZh ? '选择导出格式' : 'Choose export format'}
+                        {t('viewer.chooseExportFormat')}
                     </div>
                     <Radio.Group
                         value={saveAsFormat}
@@ -344,10 +357,10 @@ function ExcelViewer() {
                         style={{ display: 'flex', flexDirection: 'column', gap: 10 }}
                     >
                         {[
-                            { value: 'xlsx', label: 'Excel Workbook (.xlsx)', desc: isZh ? '支持样式、公式、合并单元格' : 'Supports styles, formulas, merged cells' },
-                            { value: 'csv',  label: 'CSV (.csv)',             desc: isZh ? '纯文本，仅首个工作表' : 'Plain text, first sheet only' },
-                            { value: 'xls',  label: 'Excel 97-2003 (.xls)',   desc: isZh ? '旧版 Excel 格式' : 'Legacy Excel format' },
-                            { value: 'ods',  label: 'OpenDocument (.ods)',     desc: isZh ? '兼容 LibreOffice / WPS' : 'Compatible with LibreOffice / WPS' },
+                            { value: 'xlsx', label: t('viewer.exportXlsxLabel'), desc: t('viewer.exportXlsxDesc') },
+                            { value: 'csv',  label: t('viewer.exportCsvLabel'), desc: t('viewer.exportCsvDesc') },
+                            { value: 'xls',  label: t('viewer.exportXlsLabel'), desc: t('viewer.exportXlsDesc') },
+                            { value: 'ods',  label: t('viewer.exportOdsLabel'), desc: t('viewer.exportOdsDesc') },
                         ].map(f => (
                             <Radio key={f.value} value={f.value} style={{ alignItems: 'flex-start' }}>
                                 <span style={{ fontWeight: 500 }}>{f.label}</span>
@@ -362,7 +375,7 @@ function ExcelViewer() {
                 <button
                     type="button"
                     className="dark-mode-toggle"
-                    title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+                    title={dark ? t('viewer.switchToLightMode') : t('viewer.switchToDarkMode')}
                     onClick={toggleDark}
                 >
                     {dark ? <SunOutlined /> : <MoonOutlined />}

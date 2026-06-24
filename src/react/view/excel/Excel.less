@@ -6,7 +6,8 @@ body:has(.excel-app) .ant-message {
     transform: none !important;
 }
 
-body:has(.excel-app) .ant-message:has(.excel-protected-cell-message) {
+body:has(.excel-app) .ant-message:has(.excel-protected-cell-message),
+body:has(.excel-app) .ant-message:has(.excel-validation-error-message) {
     left: 50% !important;
     right: auto !important;
     top: 16px !important;
@@ -61,6 +62,8 @@ body:has(.excel-app) .ant-message:has(.excel-protected-cell-message) {
                 font-size: 17px;
                 color: inherit;
                 opacity: 0.75;
+                position: relative;
+                top: 2px;
             }
         }
     }
@@ -123,6 +126,144 @@ body:has(.excel-app) .ant-message:has(.excel-protected-cell-message) {
         // Hide the spurious arrow-right line in dropdown buttons
         .x-spreadsheet-dropdown-header .x-spreadsheet-icon.arrow-right {
             display: none;
+        }
+
+        // ── Font + FontSize connected pill ────────────────────────────────────
+        .x-spreadsheet-font-group {
+            display: inline-flex;
+            align-items: center;
+            height: 26px;
+            border-radius: 7px;
+            border: 1px solid rgba(0, 0, 0, 0.14);
+            background: transparent;
+            overflow: visible;
+            margin: 6px 2px 0;
+
+            // Reset inherited toolbar-btn margin inside the pill
+            .x-spreadsheet-toolbar-btn {
+                margin: 0 !important;
+                height: 100%;
+                display: flex;
+                align-items: center;
+            }
+
+            // Font name section
+            .x-spreadsheet-toolbar-btn:first-child {
+                width: 120px;
+                border-right: 1px solid rgba(0, 0, 0, 0.10);
+                border-radius: 6px 0 0 6px;
+                padding: 0 4px 0 8px;
+                background: transparent;
+
+                .x-spreadsheet-dropdown-header {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    gap: 3px;
+                }
+
+                .x-spreadsheet-dropdown-title {
+                    flex: 1;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    font-size: 12.5px;
+                    font-weight: 500;
+                }
+            }
+
+            // Font size section
+            .x-spreadsheet-toolbar-btn:last-child {
+                width: 44px;
+                border-radius: 0 6px 6px 0;
+                padding: 0 2px 0 8px;
+                background: transparent;
+
+                .x-spreadsheet-dropdown-header {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    gap: 2px;
+                }
+
+                .x-spreadsheet-dropdown-title {
+                    font-size: 12.5px;
+                    font-weight: 500;
+                }
+            }
+
+            // Re-show chevron only inside this group
+            .x-spreadsheet-dropdown-header .x-spreadsheet-icon.arrow-right {
+                display: inline-flex !important;
+                width: 12px;
+                height: 12px;
+                flex-shrink: 0;
+                position: relative;
+                top: -1px;
+
+                .x-spreadsheet-icon-img {
+                    filter: brightness(0) opacity(0.38) !important;
+                }
+            }
+
+            .x-spreadsheet-toolbar-btn:hover {
+                background: rgba(0, 0, 0, 0.05) !important;
+            }
+        }
+
+        // ── Format pill ───────────────────────────────────────────────────────
+        .x-spreadsheet-format-group {
+            display: inline-flex;
+            align-items: center;
+            height: 26px;
+            border-radius: 7px;
+            border: 1px solid rgba(0, 0, 0, 0.14);
+            background: transparent;
+            margin: 6px 2px 0;
+
+            .x-spreadsheet-toolbar-btn {
+                margin: 0 !important;
+                width: 90px;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                border-radius: 6px;
+                padding: 0 4px 0 8px;
+                background: transparent;
+
+                .x-spreadsheet-dropdown-header {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    gap: 3px;
+                }
+
+                .x-spreadsheet-dropdown-title {
+                    flex: 1;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    font-size: 12.5px;
+                    font-weight: 500;
+                }
+
+                &:hover {
+                    background: rgba(0, 0, 0, 0.05) !important;
+                }
+            }
+
+            .x-spreadsheet-dropdown-header .x-spreadsheet-icon.arrow-right {
+                display: inline-flex !important;
+                width: 12px;
+                height: 12px;
+                flex-shrink: 0;
+                position: relative;
+                top: -1px;
+
+                .x-spreadsheet-icon-img {
+                    filter: brightness(0) opacity(0.38) !important;
+                }
+            }
         }
     }
 
@@ -237,6 +378,67 @@ body:has(.excel-app) .ant-message:has(.excel-protected-cell-message) {
         }
     }
 
+    .excel-load-error {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(20px, 4vw, 48px);
+        background: var(--vscode-editor-background, #fff);
+        color: var(--vscode-foreground, #333);
+
+        &-panel {
+            width: min(580px, 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(12px, 2vw, 18px);
+            padding: clamp(28px, 4vw, 44px);
+            text-align: center;
+            border: 1px solid var(--vscode-editorWidget-border, rgba(0,0,0,0.12));
+            border-radius: 10px;
+            background: var(--vscode-editorWidget-background, #f8f9fa);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+
+        &-icon {
+            color: var(--vscode-editorError-foreground, #e05252);
+            opacity: 0.85;
+            flex-shrink: 0;
+        }
+
+        &-title {
+            margin: 0;
+            font-size: clamp(16px, 2vw, 20px);
+            font-weight: 600;
+            line-height: 1.35;
+            color: var(--vscode-foreground, #1a1a1a);
+        }
+
+        &-desc {
+            margin: 0;
+            font-size: clamp(12px, 1.3vw, 14px);
+            line-height: 1.65;
+            color: var(--vscode-descriptionForeground, #666);
+            max-width: 40em;
+        }
+
+        &-message {
+            display: inline-block;
+            max-width: 100%;
+            padding: 5px 14px;
+            font-family: var(--vscode-editor-font-family, ui-monospace, monospace);
+            font-size: clamp(11px, 1.1vw, 13px);
+            line-height: 1.5;
+            color: var(--vscode-foreground, #333);
+            word-break: break-all;
+            border: 1px solid var(--vscode-editorWidget-border, rgba(0,0,0,0.10));
+            border-radius: 6px;
+            background: var(--vscode-editor-background, #fff);
+        }
+    }
+
     .excel-readonly-banner {
         position: fixed;
         top: 0;
@@ -291,7 +493,7 @@ body:has(.excel-app) .ant-message:has(.excel-protected-cell-message) {
     }
 
     .x-spreadsheet-selector .x-spreadsheet-selector-clipboard {
-        border-color: var(--excel-selection);
+        --clipboard-ant-color: var(--excel-selection);
     }
 
     .x-spreadsheet-selector .x-spreadsheet-selector-autofill {
@@ -468,6 +670,141 @@ body.office-dark .excel-viewer {
         // Hide the spurious arrow-right line in dropdown buttons
         .x-spreadsheet-dropdown-header .x-spreadsheet-icon.arrow-right {
             display: none;
+        }
+
+        // ── Font + FontSize connected pill (dark) ─────────────────────────────
+        .x-spreadsheet-font-group {
+            display: inline-flex;
+            align-items: center;
+            height: 26px;
+            border-radius: 7px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: transparent;
+            overflow: visible;
+            margin: 6px 2px 0;
+
+            // Reset inherited toolbar-btn margin inside the pill
+            .x-spreadsheet-toolbar-btn {
+                margin: 0 !important;
+                height: 100%;
+                display: flex;
+                align-items: center;
+            }
+
+            .x-spreadsheet-toolbar-btn:first-child {
+                width: 120px;
+                border-right: 1px solid rgba(255, 255, 255, 0.09);
+                border-radius: 6px 0 0 6px;
+                padding: 0 4px 0 8px;
+                background: transparent;
+
+                .x-spreadsheet-dropdown-header {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    gap: 3px;
+                }
+
+                .x-spreadsheet-dropdown-title {
+                    flex: 1;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    font-size: 12.5px;
+                    font-weight: 500;
+                }
+            }
+
+            .x-spreadsheet-toolbar-btn:last-child {
+                width: 44px;
+                border-radius: 0 6px 6px 0;
+                padding: 0 2px 0 8px;
+                background: transparent;
+
+                .x-spreadsheet-dropdown-header {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    gap: 2px;
+                }
+
+                .x-spreadsheet-dropdown-title {
+                    font-size: 12.5px;
+                    font-weight: 500;
+                }
+            }
+
+            .x-spreadsheet-dropdown-header .x-spreadsheet-icon.arrow-right {
+                display: inline-flex !important;
+                width: 12px;
+                height: 12px;
+                flex-shrink: 0;
+                position: relative;
+                top: -1px;
+
+                .x-spreadsheet-icon-img {
+                    filter: brightness(0) invert(1) opacity(0.38) !important;
+                }
+            }
+
+            .x-spreadsheet-toolbar-btn:hover {
+                background: rgba(255, 255, 255, 0.08) !important;
+            }
+        }
+
+        // ── Format pill (dark) ────────────────────────────────────────────────
+        .x-spreadsheet-format-group {
+            display: inline-flex;
+            align-items: center;
+            height: 26px;
+            border-radius: 7px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: transparent;
+            margin: 6px 2px 0;
+
+            .x-spreadsheet-toolbar-btn {
+                margin: 0 !important;
+                width: 90px;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                border-radius: 6px;
+                padding: 0 4px 0 8px;
+                background: transparent;
+
+                .x-spreadsheet-dropdown-header {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    gap: 3px;
+                }
+
+                .x-spreadsheet-dropdown-title {
+                    flex: 1;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    font-size: 12.5px;
+                    font-weight: 500;
+                }
+
+                &:hover {
+                    background: rgba(255, 255, 255, 0.08) !important;
+                }
+            }
+
+            .x-spreadsheet-dropdown-header .x-spreadsheet-icon.arrow-right {
+                display: inline-flex !important;
+                width: 12px;
+                height: 12px;
+                flex-shrink: 0;
+                position: relative;
+                top: -1px;
+
+                .x-spreadsheet-icon-img {
+                    filter: brightness(0) invert(1) opacity(0.38) !important;
+                }
+            }
         }
 
         .x-spreadsheet-dropdown-title,
@@ -799,7 +1136,17 @@ body.office-dark {
         background: rgba(255, 255, 255, 0.92);
         backdrop-filter: blur(24px) saturate(180%);
         padding: 6px;
-        overflow: hidden;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+
+        &::-webkit-scrollbar { width: 4px; }
+        &::-webkit-scrollbar-track { background: transparent; }
+        &::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 2px;
+        }
     }
 
     // ── Suggest / autocomplete ────────────────────────────────────────────────
@@ -810,7 +1157,13 @@ body.office-dark {
         background: rgba(255, 255, 255, 0.92);
         backdrop-filter: blur(20px);
         padding: 4px;
-        overflow: hidden;
+        overflow: visible;
+        width: max-content !important;
+        min-width: 100%;
+
+        .x-spreadsheet-item {
+            white-space: nowrap;
+        }
     }
 
     // ── Dropdown panels ───────────────────────────────────────────────────────
@@ -822,6 +1175,11 @@ body.office-dark {
         backdrop-filter: blur(20px) saturate(160%);
         padding: 4px;
         overflow: hidden;
+        min-width: max-content;
+
+        .x-spreadsheet-item {
+            white-space: nowrap;
+        }
     }
 
     // ── List items inside menus & dropdowns ───────────────────────────────────
@@ -865,7 +1223,6 @@ body.office-dark {
 
         // Destructive — red
         > .codicon-trash,
-        > .codicon-clear-all,
         > .codicon-circle-slash {
             color: #e5484d;
             opacity: 0.85;
@@ -882,16 +1239,6 @@ body.office-dark {
         > .codicon-paintcan {
             color: #3b82f6;
             opacity: 0.85;
-        }
-
-        // Clipboard group — indigo
-        > .codicon-copy,
-        > .codicon-scissors,
-        > .codicon-clippy,
-        > .codicon-symbol-numeric,
-        > .codicon-files {
-            color: #6366f1;
-            opacity: 0.8;
         }
 
         // Lock / security — amber
@@ -966,11 +1313,17 @@ body.office-dark {
         border: 0.5px solid rgba(0, 0, 0, 0.1);
         box-shadow: 0 16px 48px rgba(0, 0, 0, 0.16), 0 4px 12px rgba(0, 0, 0, 0.08);
         backdrop-filter: blur(20px);
-        overflow: hidden;
+        overflow: visible;
+
+        // Dropdowns inside the modal must stack above the modal's z-index (1001)
+        .x-spreadsheet-dropdown-content {
+            z-index: 1100;
+        }
     }
 
     .x-spreadsheet-modal-header {
         border-radius: 14px 14px 0 0;
+        overflow: hidden;
         font-family: var(--apple-font);
         font-weight: 600;
     }
@@ -1005,6 +1358,17 @@ body.office-dark .excel-viewer {
         background: rgba(40, 40, 40, 0.88);
         backdrop-filter: blur(24px) saturate(180%);
         padding: 6px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+
+        &::-webkit-scrollbar { width: 4px; }
+        &::-webkit-scrollbar-track { background: transparent; }
+        &::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+        }
     }
 
     .x-spreadsheet-suggest {
@@ -1014,6 +1378,13 @@ body.office-dark .excel-viewer {
         background: rgba(40, 40, 40, 0.88);
         backdrop-filter: blur(20px);
         padding: 4px;
+        overflow: visible;
+        width: max-content !important;
+        min-width: 100%;
+
+        .x-spreadsheet-item {
+            white-space: nowrap;
+        }
     }
 
     .x-spreadsheet-dropdown .x-spreadsheet-dropdown-content {
@@ -1023,6 +1394,11 @@ body.office-dark .excel-viewer {
         background: rgba(40, 40, 40, 0.9);
         backdrop-filter: blur(20px) saturate(160%);
         padding: 4px;
+        min-width: max-content;
+
+        .x-spreadsheet-item {
+            white-space: nowrap;
+        }
     }
 
     .x-spreadsheet-sort-filter {
@@ -1038,7 +1414,11 @@ body.office-dark .excel-viewer {
         border: 0.5px solid rgba(255, 255, 255, 0.08);
         box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
         backdrop-filter: blur(20px);
-        overflow: hidden;
+        overflow: visible;
+
+        .x-spreadsheet-dropdown-content {
+            z-index: 1100;
+        }
     }
 
     .x-spreadsheet-toast {
@@ -1074,7 +1454,6 @@ body.office-dark .excel-viewer {
         }
 
         > .codicon-trash,
-        > .codicon-clear-all,
         > .codicon-circle-slash {
             color: #f87171;
             opacity: 0.9;
@@ -1089,15 +1468,6 @@ body.office-dark .excel-viewer {
         > .codicon-paintcan {
             color: #60a5fa;
             opacity: 0.85;
-        }
-
-        > .codicon-copy,
-        > .codicon-scissors,
-        > .codicon-clippy,
-        > .codicon-symbol-numeric,
-        > .codicon-files {
-            color: #a5b4fc;
-            opacity: 0.8;
         }
 
         > .codicon-lock {

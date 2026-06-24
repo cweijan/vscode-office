@@ -3,7 +3,22 @@ import { h } from './element';
 import Suggest from './suggest';
 import Datepicker from './datepicker';
 import { cssPrefix } from '../config';
+import { getFontSizePxByPt } from '../core/font';
 // import { mouseMoveUp } from '../event';
+
+const FORMULA_MIN_WIDTH = 300;
+const FORMULA_MIN_HEIGHT = 80;
+
+function buildEditorFontCss(font, defaultFontName = 'Arial') {
+  const sizePx = getFontSizePxByPt(font?.size ?? 12);
+  const parts = [];
+  if (font?.italic) parts.push('italic');
+  if (font?.bold) parts.push('bold');
+  parts.push(`${sizePx}px`);
+  const name = (font?.name || defaultFontName).replace(/"/g, '\\"');
+  parts.push(`"${name}"`);
+  return parts.join(' ');
+}
 
 function resetTextareaSize() {
   const { inputText } = this;
@@ -11,6 +26,7 @@ function resetTextareaSize() {
     const {
       textlineEl, textEl, areaOffset,
     } = this;
+    const isFormula = inputText.trimStart().startsWith('=');
     const txts = inputText.split('\n');
     const maxTxtSize = Math.max(...txts.map(it => it.length));
     const tlOffset = textlineEl.offset();
@@ -18,9 +34,9 @@ function resetTextareaSize() {
     const tlineWidth = (maxTxtSize + 1) * fontWidth + 5;
     const maxWidth = this.viewFn().width - areaOffset.left - fontWidth;
     let h1 = txts.length;
-    if (tlineWidth > areaOffset.width) {
-      let twidth = tlineWidth;
-      if (tlineWidth > maxWidth) {
+    if (tlineWidth > areaOffset.width || (isFormula && FORMULA_MIN_WIDTH > areaOffset.width)) {
+      let twidth = Math.max(tlineWidth, isFormula ? FORMULA_MIN_WIDTH : 0);
+      if (twidth > maxWidth) {
         twidth = maxWidth;
         h1 += parseInt(tlineWidth / maxWidth, 10);
         h1 += (tlineWidth % maxWidth) > 0 ? 1 : 0;
@@ -28,8 +44,9 @@ function resetTextareaSize() {
       textEl.css('width', `${twidth}px`);
     }
     h1 *= this.rowHeight;
-    if (h1 > areaOffset.height) {
-      textEl.css('height', `${h1}px`);
+    const minH = isFormula ? FORMULA_MIN_HEIGHT : 0;
+    if (h1 > areaOffset.height || minH > areaOffset.height) {
+      textEl.css('height', `${Math.max(h1, minH)}px`);
     }
   }
 }
@@ -257,7 +274,7 @@ export default class Editor {
     }
   }
 
-  setCell(cell, validator) {
+  setCell(cell, validator, cellStyle) {
     if (cell && cell.editable === false) return;
 
     // console.log('::', validator);
@@ -266,6 +283,9 @@ export default class Editor {
     this.cell = cell;
     const text = (cell && cell.text) || '';
     this.setText(text);
+    if (cellStyle) {
+      this.applyCellStyle(cellStyle);
+    }
 
     this.validator = validator;
     if (validator) {
@@ -288,5 +308,21 @@ export default class Editor {
     // console.log('text>>:', text);
     setText.call(this, text, text.length);
     resetTextareaSize.call(this);
+  }
+
+  applyCellStyle(cellStyle) {
+    const { textEl, textlineEl } = this;
+    const font = cellStyle?.font;
+    if (!font) return;
+    const fontCss = buildEditorFontCss(font);
+    const lineHeight = `${getFontSizePxByPt(font.size ?? 12) + 2}px`;
+    textEl.css('font', fontCss);
+    textEl.css('line-height', lineHeight);
+    textlineEl.css('font', fontCss);
+    textlineEl.css('line-height', lineHeight);
+    if (cellStyle.color) {
+      textEl.css('color', cellStyle.color);
+      textlineEl.css('color', cellStyle.color);
+    }
   }
 }

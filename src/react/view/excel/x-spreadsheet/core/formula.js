@@ -13,6 +13,13 @@
 import { tf } from '../locale/locale';
 import { numberCalc } from './helper';
 
+/** 函数名展示：首字母大写，其余小写（Sum / Average） */
+export function formulaDisplayName(key) {
+  if (!key) return '';
+  const lower = String(key).toLowerCase();
+  return lower.charAt(0).toUpperCase() + lower.slice(1);
+}
+
 /** @type {Formula[]} */
 const baseFormulas = [
   {
@@ -74,6 +81,31 @@ const baseFormulas = [
   */
 ];
 
+const FORMULA_DIVIDER = { divider: true };
+
+const FORMULA_MENU_ORDER = [
+  'SUM', 'AVERAGE', 'MAX', 'MIN', 'CONCAT',
+  FORMULA_DIVIDER,
+  'IF', 'AND', 'OR',
+];
+
+function getFormulaMenuItems() {
+  const map = new Map(baseFormulas.map((f) => [f.key, f]));
+  const items = [];
+  for (let i = 0; i < FORMULA_MENU_ORDER.length; i += 1) {
+    const entry = FORMULA_MENU_ORDER[i];
+    if (entry === FORMULA_DIVIDER) {
+      items.push(FORMULA_DIVIDER);
+    } else {
+      const formula = map.get(entry);
+      if (formula) items.push(formula);
+    }
+  }
+  return items;
+}
+
+const formulaMenuItems = getFormulaMenuItems();
+
 const formulas = baseFormulas;
 
 // const formulas = (formulaAry = []) => {
@@ -95,4 +127,7 @@ export {
   formulam,
   formulas,
   baseFormulas,
+  formulaMenuItems,
+  getFormulaMenuItems,
+  FORMULA_DIVIDER,
 };

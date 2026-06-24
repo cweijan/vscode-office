@@ -5,6 +5,7 @@ import { decodeCsvBuffer } from './csvEncoding';
 import { DEFAULT_ROW_HEIGHT_PX, excelFreezeToExpr, excelRowHeightToPx, readAutofilterRef } from './excel_meta';
 import { excelJsCellToStyle, StyleRegistry } from './excel_styles';
 import { mergeHyperlinkMaps, readCellHyperlink } from './excel_hyperlink';
+import { readWorksheetBackgroundImage, readWorksheetImages } from './excel_images';
 import { readWorksheetValidations } from './excel_validation';
 import {
     isWorksheetProtected,
@@ -122,7 +123,7 @@ const applyRowHeight = (rows: RowMap, ri: number, excelRow: ExcelJS.Row) => {
     }
 };
 
-const convertExcelJsWorksheet = (worksheet: ExcelJS.Worksheet): Pick<SheetData, 'rows' | 'cols' | 'styles' | 'merges' | 'freeze' | 'autofilter' | 'hyperlinks' | 'validations' | 'sheetProtection'> => {
+const convertExcelJsWorksheet = (worksheet: ExcelJS.Worksheet, workbook: ExcelJS.Workbook): Pick<SheetData, 'rows' | 'cols' | 'styles' | 'merges' | 'freeze' | 'autofilter' | 'hyperlinks' | 'validations' | 'sheetProtection' | 'images' | 'backgroundImage'> => {
     const rows: RowMap = {};
     const styleRegistry = new StyleRegistry();
     const hyperlinkParts: Record<string, { link: string; tooltip?: string }>[] = [];
@@ -131,24 +132,27 @@ const convertExcelJsWorksheet = (worksheet: ExcelJS.Worksheet): Pick<SheetData, 
     let maxCols = 0;
     let maxRow = 0;
 
-    worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+    worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+        if (!row || row.cellCount === 0) return;
         const ri = rowNumber - 1;
         const cells: Record<number, CellData> = {};
-        row.eachCell({ includeEmpty: false }, (cell, colNumber) => {
+        row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
             if (cell.isMerged && cell.address !== cell.master.address) return;
 
             const ci = colNumber - 1;
             const text = formatCellText(cell);
             const cellStyle = excelJsCellToStyle(cell);
+            const editable = readCellEditableFromExcel(cell, sheetProtected);
+            const hl = readCellHyperlink(cell, ri, ci);
+            if (!text && !cellStyle && editable === undefined && !Object.keys(hl).length) return;
+
             const styleIndex = styleRegistry.add(cellStyle);
             const cellData: CellData = { text };
             if (styleIndex != null) cellData.style = styleIndex;
-            const editable = readCellEditableFromExcel(cell, sheetProtected);
             if (editable !== undefined) cellData.editable = editable;
             cells[ci] = cellData;
             if (ci + 1 > maxCols) maxCols = ci + 1;
             if (ri + 1 > maxRow) maxRow = ri + 1;
-            const hl = readCellHyperlink(cell, ri, ci);
             if (Object.keys(hl).length) hyperlinkParts.push(hl);
         });
         if (Object.keys(cells).length > 0) {
@@ -173,6 +177,8 @@ const convertExcelJsWorksheet = (worksheet: ExcelJS.Worksheet): Pick<SheetData, 
     const sheetExtras = readSheetExtras(worksheet);
     const hyperlinks = mergeHyperlinkMaps(...hyperlinkParts);
     const validations = readWorksheetValidations(worksheet);
+    const images = readWorksheetImages(worksheet, workbook);
+    const backgroundImage = readWorksheetBackgroundImage(worksheet, workbook);
 
     return {
         rows: { len: maxRow, ...rows },
@@ -182,6 +188,8 @@ const convertExcelJsWorksheet = (worksheet: ExcelJS.Worksheet): Pick<SheetData, 
         ...(Object.keys(hyperlinks).length ? { hyperlinks } : {}),
         ...(validations.length ? { validations } : {}),
         ...(sheetProtection ? { sheetProtection } : {}),
+        ...(images.length ? { images } : {}),
+        ...(backgroundImage ? { backgroundImage } : {}),
         ...sheetExtras,
     };
 };
@@ -192,7 +200,7 @@ const convertExcelJsWorkbook = (workbook: ExcelJS.Workbook): ExcelData => {
     let maxCols = 26;
 
     for (const worksheet of workbook.worksheets) {
-        const converted = convertExcelJsWorksheet(worksheet);
+        const converted = convertExcelJsWorksheet(worksheet, workbook);
         const rowCount = converted.rows?.len ?? 0;
         if (maxLength < rowCount) maxLength = rowCount;
 
@@ -210,6 +218,8 @@ const convertExcelJsWorkbook = (workbook: ExcelJS.Workbook): ExcelData => {
             ...(converted.hyperlinks ? { hyperlinks: converted.hyperlinks } : {}),
             ...(converted.validations ? { validations: converted.validations } : {}),
             ...(converted.sheetProtection ? { sheetProtection: converted.sheetProtection } : {}),
+            ...(converted.images ? { images: converted.images } : {}),
+            ...(converted.backgroundImage ? { backgroundImage: converted.backgroundImage } : {}),
         });
     }
 

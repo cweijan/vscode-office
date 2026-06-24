@@ -125,8 +125,8 @@ export default class Toolbar {
     this.ddFontSize = new DropdownFontSize();
     this.ddTextColor = new DropdownColor('text-color', style.color);
     this.ddFillColor = new DropdownColor('fill-color', style.bgcolor);
-    this.ddAlign = new DropdownAlign(['left', 'center', 'right'], style.align);
-    this.ddVAlign = new DropdownAlign(['top', 'middle', 'bottom'], style.valign);
+    this.ddAlign = new DropdownAlign(['left', 'center', 'right'], style.align, 'align');
+    this.ddVAlign = new DropdownAlign(['top', 'middle', 'bottom'], style.valign, 'valign');
     this.ddBorder = new DropdownBorder();
     this.ddMore = new DropdownMore();
     this.btnChildren = [

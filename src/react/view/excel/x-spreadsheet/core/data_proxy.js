@@ -1,18 +1,21 @@
-/* global document */
+/* global document, navigator */
 
 import Selector from './selector';
 import Scroll from './scroll';
 import History from './history';
 import Clipboard from './clipboard';
+import { formatTsvRows, parseTsvRows } from './clipboard_text';
 import AutoFilter from './auto_filter';
 import { Merges } from './merge';
 import helper from './helper';
+import { MIN_VIEW_COLS, MIN_VIEW_ROWS } from '../config';
 import { Rows } from './row';
 import { Cols } from './col';
 import { Validations } from './validation';
 import { CellRange } from './cell_range';
 import { expr2xy, xy2expr } from './alphabet';
 import { t } from '../locale/locale';
+import { baseFonts } from './font';
 
 // private methods
 /*
@@ -68,6 +71,10 @@ import { t } from '../locale/locale';
  *  }
  * }
  */
+function getDefaultFontName() {
+  return baseFonts[0].key;
+}
+
 const defaultSettings = {
   mode: 'edit', // edit | read
   view: {
@@ -79,11 +86,11 @@ const defaultSettings = {
   showContextmenu: true,
   showBottomBar: true,
   row: {
-    len: 100,
+    len: MIN_VIEW_ROWS,
     height: 25,
   },
   col: {
-    len: 26,
+    len: MIN_VIEW_COLS,
     width: 100,
     indexWidth: 60,
     minWidth: 60,
@@ -97,8 +104,8 @@ const defaultSettings = {
     underline: false,
     color: '#0a0a0a',
     font: {
-      name: 'Arial',
-      size: 10,
+      name: getDefaultFontName(),
+      size: 12,
       bold: false,
       italic: false,
     },
@@ -108,6 +115,20 @@ const defaultSettings = {
 
 const toolbarHeight = 41;
 const bottombarHeight = 41;
+
+function applyFontStyleAttr(cstyle, property, value) {
+  const font = Object.assign({}, cstyle.font || {});
+  if (property === 'font-bold') {
+    font.bold = value;
+  } else if (property === 'font-italic') {
+    font.italic = value;
+  } else if (property === 'font-name') {
+    font.name = value;
+  } else if (property === 'font-size') {
+    font.size = value;
+  }
+  cstyle.font = font;
+}
 
 // src: cellRange
 // dst: cellRange
@@ -334,6 +355,8 @@ export default class DataProxy {
     this.cols = new Cols(this.settings.col);
     this.validations = new Validations();
     this.hyperlinks = {};
+    this.images = [];
+    this.backgroundImage = null;
     this.sheetProtection = null;
     this.comments = {};
     // save data end
@@ -354,6 +377,7 @@ export default class DataProxy {
     // console.log('mode:', mode, ', ref:', ref, ', validator:', validator);
     this.changeData(() => {
       this.validations.add(mode, ref, validator);
+      this.revalidateAll();
     });
   }
 
@@ -541,7 +565,7 @@ export default class DataProxy {
     }
 
     // Adding \n and why not adding \r\n is to support online office and client MS office and WPS
-    copyText = copyText.map(row => row.join('\t')).join('\n');
+    copyText = formatTsvRows(copyText);
 
     // why used this
     // cuz http protocol will be blocked request clipboard by browser
@@ -554,9 +578,7 @@ export default class DataProxy {
     // this need https protocol
     /* global navigator */
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(copyText).then(() => {}, (err) => {
-        console.log('text copy to the system clipboard error  ', copyText, err);
-      });
+      navigator.clipboard.writeText(copyText).then(() => {}, () => {});
     }
   }
 
@@ -577,6 +599,7 @@ export default class DataProxy {
       } else if (clipboard.isCut()) {
         cutPaste.call(this, clipboard.range, selector.range);
       }
+      this.revalidateAll();
     });
     return true;
   }
@@ -594,37 +617,25 @@ export default class DataProxy {
         });
         startRow += 1;
       });
+      this.revalidateAll();
       resetSheet();
       eventTrigger(this.rows.getData());
     });
   }
 
   parseClipboardContent(clipboardContent) {
-    const parsedData = [];
-
-    // first we need to figure out how many rows we need to paste
-    const rows = clipboardContent.split('\n');
-
-    // for each row parse cell data
-    let i = 0;
-    rows.forEach((row) => {
-      parsedData[i] = row.split('\t');
-      i += 1;
-    });
-    return parsedData;
+    return parseTsvRows(clipboardContent);
   }
 
   pasteFromText(txt) {
-    let lines = [];
-
-    if (/\r\n/.test(txt)) lines = txt.split('\r\n').map(it => it.replace(/"/g, '').split('\t'));
-    else lines = txt.split('\n').map(it => it.replace(/"/g, '').split('\t'));
+    const lines = this.parseClipboardContent(txt);
 
     if (lines.length) {
       const { rows, selector } = this;
 
       this.changeData(() => {
         rows.paste(lines, selector.range);
+        this.revalidateAll();
       });
     }
   }
@@ -634,6 +645,7 @@ export default class DataProxy {
     if (!canPaste.call(this, srcRange, cellRange, error)) return false;
     this.changeData(() => {
       copyPaste.call(this, srcRange, cellRange, what, true);
+      this.revalidateAll();
     });
     return true;
   }
@@ -728,9 +740,7 @@ export default class DataProxy {
             cell.style = this.addStyle(cstyle);
           } else if (property === 'font-bold' || property === 'font-italic'
             || property === 'font-name' || property === 'font-size') {
-            const nfont = {};
-            nfont[property.split('-')[1]] = value;
-            cstyle.font = Object.assign(cstyle.font || {}, nfont);
+            applyFontStyleAttr(cstyle, property, value);
             cell.style = this.addStyle(cstyle);
           } else if (property === 'strike' || property === 'textwrap'
             || property === 'underline'
@@ -801,6 +811,58 @@ export default class DataProxy {
       return this.getRect(clipboard.range);
     }
     return { left: -100, top: -100 };
+  }
+
+  getImageDisplayRect(anchor) {
+    const { scroll, rows, cols, exceptRowSet } = this;
+    const col = anchor.col ?? 0;
+    const row = anchor.row ?? 0;
+    const ci = Math.floor(col);
+    const ri = Math.floor(row);
+    const colFrac = col - ci;
+    const rowFrac = row - ri;
+
+    const left = cols.sumWidth(0, ci) + colFrac * cols.getWidth(ci);
+    const top = rows.sumHeight(0, ri, exceptRowSet) + rowFrac * rows.getHeight(ri);
+
+    let width;
+    let height;
+    if (anchor.width != null && anchor.height != null) {
+      width = anchor.width;
+      height = anchor.height;
+    } else if (anchor.brCol != null && anchor.brRow != null) {
+      const brCi = Math.floor(anchor.brCol);
+      const brRi = Math.floor(anchor.brRow);
+      const brColFrac = anchor.brCol - brCi;
+      const brRowFrac = anchor.brRow - brRi;
+      const right = cols.sumWidth(0, brCi) + brColFrac * cols.getWidth(brCi);
+      const bottom = rows.sumHeight(0, brRi, exceptRowSet) + brRowFrac * rows.getHeight(brRi);
+      width = Math.max(right - left, 1);
+      height = Math.max(bottom - top, 1);
+    } else {
+      width = 64;
+      height = 64;
+    }
+
+    let left0 = left - scroll.x;
+    let top0 = top - scroll.y;
+    const fsh = this.freezeTotalHeight();
+    const fsw = this.freezeTotalWidth();
+    if (fsw > 0 && fsw > left) {
+      left0 = left;
+    }
+    if (fsh > 0 && fsh > top) {
+      top0 = top;
+    }
+    return {
+      l: left,
+      t: top,
+      left: left0,
+      top: top0,
+      width,
+      height,
+      scroll,
+    };
   }
 
   getRect(cellRange) {
@@ -1175,8 +1237,43 @@ export default class DataProxy {
       rows.setCellText(ri, ci, text);
       this.change(this.getData());
     }
-    // validator
     validations.validate(ri, ci, text);
+  }
+
+  revalidateAll() {
+    const { rows, validations } = this;
+    validations.validateAll((ri, ci) => {
+      const cell = rows.getCell(ri, ci);
+      return (cell && cell.text) ? cell.text : '';
+    });
+  }
+
+  ensureViewExtent() {
+    const { rows, cols } = this;
+    if (rows.len < MIN_VIEW_ROWS) rows.len = MIN_VIEW_ROWS;
+    if (cols.len < MIN_VIEW_COLS) cols.len = MIN_VIEW_COLS;
+  }
+
+  expandViewRows() {
+    const { rows } = this;
+    const prev = rows.len;
+    rows.len = prev * 2;
+    return rows.len > prev;
+  }
+
+  expandViewCols() {
+    const { cols } = this;
+    const prev = cols.len;
+    cols.len = prev * 2;
+    return cols.len > prev;
+  }
+
+  getValidationError(ri, ci) {
+    let nri = ri;
+    if (this.unsortedRowMap.has(ri)) {
+      nri = this.unsortedRowMap.get(ri);
+    }
+    return this.validations.getError(nri, ci);
   }
 
   freezeIsActive() {
@@ -1379,17 +1476,28 @@ export default class DataProxy {
         this.autoFilter.setData(d[property]);
       } else if (property === 'hyperlinks') {
         this.hyperlinks = d[property] || {};
+      } else if (property === 'images') {
+        this.images = d[property] || [];
+      } else if (property === 'backgroundImage') {
+        this.backgroundImage = d[property] || null;
       } else if (d[property] !== undefined) {
         this[property] = d[property];
       }
     });
     this.resetAutoFilter();
+    if (d.rows || d.cols) {
+      this.ensureViewExtent();
+    }
+    if (d.validations) {
+      this.revalidateAll();
+    }
     return this;
   }
 
   getData() {
     const {
       name, freeze, styles, merges, rows, cols, validations, autoFilter, hyperlinks, sheetProtection,
+      images, backgroundImage,
     } = this;
     const data = {
       name,
@@ -1403,6 +1511,12 @@ export default class DataProxy {
     };
     if (hyperlinks && Object.keys(hyperlinks).length > 0) {
       data.hyperlinks = hyperlinks;
+    }
+    if (images && images.length > 0) {
+      data.images = images;
+    }
+    if (backgroundImage) {
+      data.backgroundImage = backgroundImage;
     }
     if (sheetProtection) {
       data.sheetProtection = sheetProtection;

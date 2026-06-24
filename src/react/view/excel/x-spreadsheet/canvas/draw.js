@@ -1,4 +1,5 @@
 /* global window */
+
 function dpr() {
   return window.devicePixelRatio || 1;
 }
@@ -220,13 +221,14 @@ class Draw {
     const {
       align, valign, font, color, strike, underline,
     } = attr;
+    const fontName = (font.name || 'Arial').replace(/'/g, "\\'");
     const tx = box.textx(align);
     ctx.save();
     ctx.beginPath();
     this.attr({
       textAlign: align,
       textBaseline: valign,
-      font: `${font.italic ? 'italic' : ''} ${font.bold ? 'bold' : ''} ${font.fontWeight || ''} ${npx(font.size)}px ${font.name}`,
+      font: `${font.italic ? 'italic' : ''} ${font.bold ? 'bold' : ''} ${font.fontWeight || ''} ${npx(font.size)}px '${fontName}'`.trim(),
       fillStyle: color,
       strokeStyle: color,
       shadowBlur: 0.3,
