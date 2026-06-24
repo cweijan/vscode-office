@@ -6,6 +6,9 @@ import type { RowData, SheetData } from './x-spreadsheet/index';
 import { CsvEncoding, encodeCsvText } from './csvEncoding';
 import { DEFAULT_ROW_HEIGHT_PX, freezeExprToExcelView, pxToExcelRowHeight } from './excel_meta';
 import { applySpreadsheetStyle } from './excel_styles';
+import { hyperlinkKey, writeCellHyperlink, type SpreadsheetHyperlink } from './excel_hyperlink';
+import { writeWorksheetValidations } from './excel_validation';
+import { writeWorksheetProtection } from './excel_protection';
 
 const DEFAULT_COL_WIDTH = 100;
 
@@ -14,6 +17,8 @@ export { buildFormattingSnapshot, hasFormattingChanged } from './excel_meta';
 export interface ExportOptions {
     /** 通过另存为对话框保存，而非覆盖当前文件 */
     saveAs?: boolean;
+    /** saveAs 时指定目标格式 */
+    saveAsExt?: string;
 }
 
 function isRowData(row: RowData | number | undefined): row is RowData {
@@ -76,8 +81,8 @@ function writeRowHeights(worksheet: ExcelJS.Worksheet, rows: SheetData['rows']) 
     }
 }
 
-function writeSheetToExcelJs(worksheet: ExcelJS.Worksheet, sheetData: SheetData) {
-    const { rows, cols, styles = [], merges = [] } = sheetData;
+async function writeSheetToExcelJs(worksheet: ExcelJS.Worksheet, sheetData: SheetData) {
+    const { rows, cols, styles = [], merges = [], hyperlinks = {}, validations } = sheetData;
 
     if (cols?.len) {
         for (let ci = 0; ci < cols.len; ci += 1) {
@@ -91,6 +96,7 @@ function writeSheetToExcelJs(worksheet: ExcelJS.Worksheet, sheetData: SheetData)
 
     applySheetMeta(worksheet, sheetData);
     writeRowHeights(worksheet, rows);
+    writeWorksheetValidations(worksheet, validations);
 
     if (!rows) return;
 
@@ -103,18 +109,25 @@ function writeSheetToExcelJs(worksheet: ExcelJS.Worksheet, sheetData: SheetData)
             if (Number.isNaN(ci)) continue;
             const cellData = row.cells[ci];
             const excelCell = worksheet.getCell(ri + 1, ci + 1);
-            setCellValue(excelCell, cellData.text ?? '');
+            const hl = hyperlinks[hyperlinkKey(ri, ci)] as SpreadsheetHyperlink | undefined;
+            if (hl?.link) {
+                writeCellHyperlink(excelCell, cellData.text ?? '', hl);
+            } else {
+                setCellValue(excelCell, cellData.text ?? '');
+            }
             if (cellData.style != null && styles[cellData.style]) {
                 applySpreadsheetStyle(excelCell, styles[cellData.style]);
             }
         }
     }
+
+    await writeWorksheetProtection(worksheet, sheetData);
 }
 
 async function emitSave(buffer: Uint8Array, options?: ExportOptions) {
     const content = [...buffer];
     if (options?.saveAs) {
-        handler.emit('saveAs', { content });
+        handler.emit('saveAs', { content, ext: options.saveAsExt ?? 'xlsx' });
         return;
     }
     handler.emit('save', content);
@@ -125,7 +138,7 @@ async function exportWithExcelJs(sheets: SheetData[], options?: ExportOptions) {
     for (let i = 0; i < sheets.length; i += 1) {
         const sheetData = sheets[i];
         const worksheet = workbook.addWorksheet(sheetData.name || `Sheet${i + 1}`);
-        writeSheetToExcelJs(worksheet, sheetData);
+        await writeSheetToExcelJs(worksheet, sheetData);
     }
     const buffer = await workbook.xlsx.writeBuffer();
     await emitSave(new Uint8Array(buffer), options);
@@ -172,6 +185,34 @@ function exportWithSheetJs(sheets: SheetData[], bookType: XLSX.BookType) {
     }
     const buffer = XLSX.write(workbook, { bookType, type: 'array' });
     handler.emit('save', [...new Uint8Array(buffer)]);
+}
+
+export async function exportSaveAs(
+    spreadSheet: Spreadsheet,
+    targetExt: string,
+    csvEncoding: CsvEncoding = 'utf8',
+) {
+    const ext = targetExt.replace('.', '').toLowerCase();
+    const sheets = spreadSheet.getData();
+    if (ext === 'xlsx' || ext === 'xlsm') {
+        await exportWithExcelJs(sheets, { saveAs: true, saveAsExt: ext });
+        return;
+    }
+    if (ext === 'xls' || ext === 'ods') {
+        const wb = XLSX.utils.book_new();
+        sheets.forEach((s, i) => {
+            const ws = dataToSheetJs(s);
+            XLSX.utils.book_append_sheet(wb, ws, s.name || `Sheet${i + 1}`);
+        });
+        const buf = XLSX.write(wb, { bookType: ext as XLSX.BookType, type: 'array' });
+        handler.emit('saveAs', { content: [...new Uint8Array(buf)], ext });
+        return;
+    }
+    if (ext === 'csv') {
+        const csvContent = XLSX.utils.sheet_to_csv(dataToSheetJs(sheets[0]));
+        const bytes = encodeCsvText(csvContent, csvEncoding);
+        handler.emit('saveAs', { content: [...bytes], ext });
+    }
 }
 
 export async function export_xlsx(

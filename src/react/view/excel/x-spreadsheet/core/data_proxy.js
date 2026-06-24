@@ -104,7 +104,6 @@ const defaultSettings = {
     },
     format: 'normal',
   },
-  headerRowStyle: false,
 };
 
 const toolbarHeight = 41;
@@ -335,6 +334,7 @@ export default class DataProxy {
     this.cols = new Cols(this.settings.col);
     this.validations = new Validations();
     this.hyperlinks = {};
+    this.sheetProtection = null;
     this.comments = {};
     // save data end
 
@@ -379,6 +379,126 @@ export default class DataProxy {
       ret.validator = v.validator;
     }
     return ret;
+  }
+
+  getHyperlink(ri, ci) {
+    return this.hyperlinks[`${ri}_${ci}`] || null;
+  }
+
+  getSelectedHyperlink() {
+    const { ri, ci } = this.selector;
+    return this.getHyperlink(ri, ci);
+  }
+
+  setHyperlink(ri, ci, link, tooltip) {
+    const key = `${ri}_${ci}`;
+    this.changeData(() => {
+      if (!link) {
+        delete this.hyperlinks[key];
+      } else {
+        this.hyperlinks[key] = { link, tooltip };
+      }
+    });
+  }
+
+  setSelectedHyperlink(link, tooltip) {
+    const { ri, ci } = this.selector;
+    this.setHyperlink(ri, ci, link, tooltip);
+  }
+
+  removeSelectedHyperlink() {
+    const { ri, ci } = this.selector;
+    this.setHyperlink(ri, ci, '');
+  }
+
+  remapHyperlinks(rowRemap, colRemap) {
+    const links = this.hyperlinks;
+    if (!links || !Object.keys(links).length) return;
+    const next = {};
+    for (const key of Object.keys(links)) {
+      const parts = key.split('_');
+      const ri = Number(parts[0]);
+      const ci = Number(parts[1]);
+      if (Number.isNaN(ri) || Number.isNaN(ci)) continue;
+      const nri = rowRemap ? (rowRemap[ri] ?? ri) : ri;
+      const nci = colRemap ? (colRemap[ci] ?? ci) : ci;
+      next[`${nri}_${nci}`] = links[key];
+    }
+    this.hyperlinks = next;
+  }
+
+  remapMerges(rowRemap, colRemap) {
+    this.merges.forEach((cr) => {
+      if (rowRemap) {
+        cr.sri = rowRemap[cr.sri] ?? cr.sri;
+        cr.eri = rowRemap[cr.eri] ?? cr.eri;
+      }
+      if (colRemap) {
+        cr.sci = colRemap[cr.sci] ?? cr.sci;
+        cr.eci = colRemap[cr.eci] ?? cr.eci;
+      }
+    });
+  }
+
+  moveRows(sri, eri, insertAt) {
+    this.changeData(() => {
+      const rowRemap = this.rows.moveRange(sri, eri, insertAt);
+      if (!rowRemap) return;
+      this.remapHyperlinks(rowRemap, null);
+      this.remapMerges(rowRemap, null);
+      const { selector } = this;
+      if (selector.ri >= 0) {
+        selector.ri = rowRemap[selector.ri] ?? selector.ri;
+      }
+      const { sri: sr, sci, eri: er, eci } = selector.range;
+      selector.range = new CellRange(
+        rowRemap[sr] ?? sr,
+        sci,
+        rowRemap[er] ?? er,
+        eci,
+      );
+      selector.moveIndexes = [selector.ri, selector.ci];
+    });
+  }
+
+  moveColumns(sci, eci, insertAt) {
+    this.changeData(() => {
+      const { cols, rows } = this;
+      const built = helper.buildIndexRemap(cols.len, sci, eci, insertAt);
+      if (!built) return;
+      const { remap: colRemap } = built;
+      rows.each((ri, row) => {
+        if (!row.cells) return;
+        const ncells = {};
+        for (const ci of Object.keys(row.cells)) {
+          const oldCi = parseInt(ci, 10);
+          const newCi = colRemap[oldCi];
+          if (newCi !== undefined) ncells[newCi] = row.cells[ci];
+        }
+        row.cells = ncells;
+      });
+      const ncol = {};
+      for (const ci of Object.keys(cols._)) {
+        const oldCi = parseInt(ci, 10);
+        const newCi = colRemap[oldCi];
+        if (newCi !== undefined) ncol[newCi] = cols._[ci];
+      }
+      cols._ = ncol;
+      this.remapHyperlinks(null, colRemap);
+      this.remapMerges(null, colRemap);
+      const { selector } = this;
+      const { sri, eri, sci: sc, eci: ec } = selector.range;
+      selector.range = new CellRange(
+        sri,
+        colRemap[sc] ?? sc,
+        eri,
+        colRemap[ec] ?? ec,
+      );
+      if (selector.ci >= 0) {
+        selector.ci = colRemap[selector.ci] ?? selector.ci;
+      }
+      selector.moveIndexes = [selector.ri, selector.ci];
+    });
   }
 
   canUndo() {
@@ -1034,8 +1154,18 @@ export default class DataProxy {
     return this.getCellStyleOrDefault(ri, ci);
   }
 
+  canEditCell(ri, ci) {
+    if (this.sheetProtection) {
+      const cell = this.rows.getCell(ri, ci);
+      return cell?.editable === true;
+    }
+    const cell = this.rows.getCell(ri, ci);
+    return !cell || cell.editable !== false;
+  }
+
   // state: input | finished
   setCellText(ri, ci, text, state) {
+    if (!this.canEditCell(ri, ci)) return;
     const { rows, history, validations } = this;
     if (state === 'finished') {
       rows.setCellText(ri, ci, '');
@@ -1247,6 +1377,8 @@ export default class DataProxy {
         this.freeze = [y, x];
       } else if (property === 'autofilter') {
         this.autoFilter.setData(d[property]);
+      } else if (property === 'hyperlinks') {
+        this.hyperlinks = d[property] || {};
       } else if (d[property] !== undefined) {
         this[property] = d[property];
       }
@@ -1257,9 +1389,9 @@ export default class DataProxy {
 
   getData() {
     const {
-      name, freeze, styles, merges, rows, cols, validations, autoFilter,
+      name, freeze, styles, merges, rows, cols, validations, autoFilter, hyperlinks, sheetProtection,
     } = this;
-    return {
+    const data = {
       name,
       freeze: xy2expr(freeze[1], freeze[0]),
       styles,
@@ -1269,5 +1401,12 @@ export default class DataProxy {
       validations: validations.getData(),
       autofilter: autoFilter.getData(),
     };
+    if (hyperlinks && Object.keys(hyperlinks).length > 0) {
+      data.hyperlinks = hyperlinks;
+    }
+    if (sheetProtection) {
+      data.sheetProtection = sheetProtection;
+    }
+    return data;
   }
 }

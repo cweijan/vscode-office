@@ -3,6 +3,7 @@ import { cssPrefix } from '../config';
 
 const CODICON_MAP = {
   save: 'save',
+  'save-as': 'save-as',
 };
 
 export default class Icon extends Element {

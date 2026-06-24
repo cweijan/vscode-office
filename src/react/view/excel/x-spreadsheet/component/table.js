@@ -127,18 +127,20 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
   }
 
   const cell = data.getCell(nrindex, cindex);
-  if (cell === null) return;
-  let frozen = false;
-  if ('editable' in cell && cell.editable === false) {
-    frozen = true;
+  const isLocked = !data.canEditCell(nrindex, cindex);
+  const lockedColor = getExcelThemeColor('--excel-locked-indicator', 'rgba(61, 153, 112, 0.42)');
+
+  if (cell === null) {
+    if (!isLocked) return;
+    const style = data.getCellStyleOrDefault(nrindex, cindex);
+    const dbox = getDrawBox(data, rindex, cindex, yoffset);
+    dbox.bgcolor = resolveExcelCellBg(style.bgcolor);
+    draw.rect(dbox, () => {});
+    draw.frozen(dbox, lockedColor);
+    return;
   }
 
   const style = data.getCellStyleOrDefault(nrindex, cindex);
-  if (rindex === 0 && data.settings.headerRowStyle) {
-    style.align = 'center';
-    if (!style.font) style.font = {};
-    style.font.fontWeight = '600';
-  }
 
   const dbox = getDrawBox(data, rindex, cindex, yoffset);
   dbox.bgcolor = resolveExcelCellBg(style.bgcolor);
@@ -164,23 +166,24 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
     }
     const font = Object.assign({}, style.font);
     font.size = getFontSizePxByPt(font.size);
-    // console.log('style:', style);
-    draw.text(cellText, dbox, {
+    const hyperlink = data.getHyperlink(rindex, cindex);
+    const drawStyle = {
       align: style.align,
       valign: style.valign,
       font,
-      color: resolveExcelCellColor(style.color),
+      color: hyperlink ? '#0563c1' : resolveExcelCellColor(style.color),
       strike: style.strike,
-      underline: style.underline,
-    }, style.textwrap);
+      underline: style.underline || !!hyperlink,
+    };
+    draw.text(cellText, dbox, drawStyle, style.textwrap);
     // error
     const error = data.validations.getError(rindex, cindex);
     if (error) {
       // console.log('error:', rindex, cindex, error);
       draw.error(dbox);
     }
-    if (frozen) {
-      draw.frozen(dbox);
+    if (isLocked) {
+      draw.frozen(dbox, lockedColor);
     }
   });
 }

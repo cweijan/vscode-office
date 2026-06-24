@@ -34,6 +34,9 @@ export default {
     deleteColumn: 'Spalte löschen',
     deleteCell: 'Zelle löschen',
     deleteCellText: 'Zellentext löschen',
+    deleteSheet: 'Löschen',
+    renameSheet: 'Umbenennen',
+    duplicateSheet: 'Duplizieren',
   },
   format: {
     normal: 'Regulär',

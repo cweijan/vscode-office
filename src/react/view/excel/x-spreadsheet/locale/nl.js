@@ -34,6 +34,9 @@ export default {
     deleteColumn: 'Kolom verwijderen',
     deleteCell: 'Cel verwijderen',
     deleteCellText: 'Celtekst verwijderen',
+    deleteSheet: 'Verwijderen',
+    renameSheet: 'Hernoemen',
+    duplicateSheet: 'Dupliceren',
   },
   format: {
     normal: 'Standaard',

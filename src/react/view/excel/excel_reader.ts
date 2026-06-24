@@ -4,6 +4,13 @@ import { inferSchema, initParser } from 'udsv';
 import { decodeCsvBuffer } from './csvEncoding';
 import { DEFAULT_ROW_HEIGHT_PX, excelFreezeToExpr, excelRowHeightToPx, readAutofilterRef } from './excel_meta';
 import { excelJsCellToStyle, StyleRegistry } from './excel_styles';
+import { mergeHyperlinkMaps, readCellHyperlink } from './excel_hyperlink';
+import { readWorksheetValidations } from './excel_validation';
+import {
+    isWorksheetProtected,
+    readCellEditableFromExcel,
+    readWorksheetProtection,
+} from './excel_protection';
 import type { CellData, SheetData } from './x-spreadsheet/index';
 
 type RowMap = NonNullable<SheetData['rows']>;
@@ -59,6 +66,11 @@ const buildColsFromWorksheet = (worksheet: ExcelJS.Worksheet, colCount: number) 
 };
 
 const formatCellText = (cell: ExcelJS.Cell) => {
+    const raw = cell.value;
+    if (raw && typeof raw === 'object' && 'hyperlink' in raw) {
+        const hv = raw as ExcelJS.CellHyperlinkValue;
+        return hv.text || hv.hyperlink || '';
+    }
     if (cell.formula) return `=${cell.formula}`;
     const value = cell.value;
     if (value && typeof value === 'object' && 'formula' in value) {
@@ -110,9 +122,12 @@ const applyRowHeight = (rows: RowMap, ri: number, excelRow: ExcelJS.Row) => {
     }
 };
 
-const convertExcelJsWorksheet = (worksheet: ExcelJS.Worksheet): Pick<SheetData, 'rows' | 'cols' | 'styles' | 'merges' | 'freeze' | 'autofilter'> => {
+const convertExcelJsWorksheet = (worksheet: ExcelJS.Worksheet): Pick<SheetData, 'rows' | 'cols' | 'styles' | 'merges' | 'freeze' | 'autofilter' | 'hyperlinks' | 'validations' | 'sheetProtection'> => {
     const rows: RowMap = {};
     const styleRegistry = new StyleRegistry();
+    const hyperlinkParts: Record<string, { link: string; tooltip?: string }>[] = [];
+    const sheetProtected = isWorksheetProtected(worksheet);
+    const sheetProtection = readWorksheetProtection(worksheet);
     let maxCols = 0;
     let maxRow = 0;
 
@@ -128,9 +143,13 @@ const convertExcelJsWorksheet = (worksheet: ExcelJS.Worksheet): Pick<SheetData, 
             const styleIndex = styleRegistry.add(cellStyle);
             const cellData: CellData = { text };
             if (styleIndex != null) cellData.style = styleIndex;
+            const editable = readCellEditableFromExcel(cell, sheetProtected);
+            if (editable !== undefined) cellData.editable = editable;
             cells[ci] = cellData;
             if (ci + 1 > maxCols) maxCols = ci + 1;
             if (ri + 1 > maxRow) maxRow = ri + 1;
+            const hl = readCellHyperlink(cell, ri, ci);
+            if (Object.keys(hl).length) hyperlinkParts.push(hl);
         });
         if (Object.keys(cells).length > 0) {
             rows[ri] = { cells };
@@ -152,12 +171,17 @@ const convertExcelJsWorksheet = (worksheet: ExcelJS.Worksheet): Pick<SheetData, 
     const styles = styleRegistry.getStyles();
     const merges = worksheet.model.merges ?? [];
     const sheetExtras = readSheetExtras(worksheet);
+    const hyperlinks = mergeHyperlinkMaps(...hyperlinkParts);
+    const validations = readWorksheetValidations(worksheet);
 
     return {
         rows: { len: maxRow, ...rows },
         cols: { len: colCount, ...cols },
         styles: styles.length > 0 ? styles : undefined,
         merges: merges.length > 0 ? merges : undefined,
+        ...(Object.keys(hyperlinks).length ? { hyperlinks } : {}),
+        ...(validations.length ? { validations } : {}),
+        ...(sheetProtection ? { sheetProtection } : {}),
         ...sheetExtras,
     };
 };
@@ -183,6 +207,9 @@ const convertExcelJsWorkbook = (workbook: ExcelJS.Workbook): ExcelData => {
             ...(converted.merges ? { merges: converted.merges } : {}),
             ...(converted.freeze ? { freeze: converted.freeze } : {}),
             ...(converted.autofilter ? { autofilter: converted.autofilter } : {}),
+            ...(converted.hyperlinks ? { hyperlinks: converted.hyperlinks } : {}),
+            ...(converted.validations ? { validations: converted.validations } : {}),
+            ...(converted.sheetProtection ? { sheetProtection: converted.sheetProtection } : {}),
         });
     }
 

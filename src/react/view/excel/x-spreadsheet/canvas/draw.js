@@ -383,17 +383,18 @@ class Draw {
     ctx.restore();
   }
 
-  frozen(box) {
+  frozen(box, fillStyle = 'rgba(61, 153, 112, 0.42)') {
     const { ctx } = this;
     const { x, y, width } = box;
+    const size = 7;
     const sx = x + width - 1;
     ctx.save();
     ctx.beginPath();
-    ctx.moveTo(npx(sx - 8), npx(y - 1));
+    ctx.moveTo(npx(sx - size), npx(y - 1));
     ctx.lineTo(npx(sx), npx(y - 1));
-    ctx.lineTo(npx(sx), npx(y + 8));
+    ctx.lineTo(npx(sx), npx(y + size - 1));
     ctx.closePath();
-    ctx.fillStyle = 'rgba(0, 255, 0, .85)';
+    ctx.fillStyle = fillStyle;
     ctx.fill();
     ctx.restore();
   }

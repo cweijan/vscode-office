@@ -24,8 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
 	activateYaml(context);
 	activateXml(context);
 
-	const mdViewOption = { webviewOptions: { retainContextWhenHidden: true } };
-	const viewOption = { webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true } };
+	const viewOption = { webviewOptions: { retainContextWhenHidden: true } };
 	const markdownService = new MarkdownService(context);
 	const markdownEditorProvider = new MarkdownEditorProvider(context, { isWeb: true });
 	const viewerInstance = new OfficeViewerProvider(context);
@@ -35,8 +34,8 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('office.markdown.switch', (uri) => { markdownService.switchEditor(uri); }),
 		vscode.commands.registerCommand('office.csv.switch', (uri) => { switchCsvEditor(uri); }),
 		vscode.commands.registerCommand('office.html.preview', (uri) => HtmlService.previewHtml(uri, context)),
-		vscode.window.registerCustomEditorProvider('cweijan.markdownViewer', markdownEditorProvider, mdViewOption),
-		vscode.window.registerCustomEditorProvider('cweijan.markdownPreview', markdownEditorProvider, mdViewOption),
+		vscode.window.registerCustomEditorProvider('cweijan.markdownViewer', markdownEditorProvider, viewOption),
+		vscode.window.registerCustomEditorProvider('cweijan.markdownPreview', markdownEditorProvider, viewOption),
 		...webUnsupportedViewer.bindCustomEditors(viewOption),
 		...viewerInstance.bindCustomEditors(viewOption),
 	);

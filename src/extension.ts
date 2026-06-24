@@ -21,8 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
 	activateYaml(context);
 	activateXml(context);
 	activateGitHistory(context);
-	const mdViewOption = { webviewOptions: { retainContextWhenHidden: true } };
-	const viewOption = { webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true } };
+	const viewOption = { webviewOptions: { retainContextWhenHidden: true } };
 	FileUtil.init(context)
 	ReactApp.init(context)
 	const markdownService = new MarkdownService(context);
@@ -36,8 +35,8 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('office.markdown.paste', () => { markdownService.loadClipboardImage() }),
 		vscode.commands.registerCommand('office.html.preview', uri => HtmlService.previewHtml(uri, context)),
 		vscode.workspace.registerTextDocumentContentProvider('decompile_java', new JavaDecompilerProvider()),
-		vscode.window.registerCustomEditorProvider("cweijan.markdownViewer", markdownEditorProvider, mdViewOption),
-		vscode.window.registerCustomEditorProvider("cweijan.markdownPreview", markdownEditorProvider, mdViewOption),
+		vscode.window.registerCustomEditorProvider("cweijan.markdownViewer", markdownEditorProvider, viewOption),
+		vscode.window.registerCustomEditorProvider("cweijan.markdownPreview", markdownEditorProvider, viewOption),
 		archiveViewerInstance.bindCustomEditor(viewOption),
 		classViewerInstance.bindCustomEditor(viewOption),
 		...viewerInstance.bindCustomEditors(viewOption)

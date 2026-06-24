@@ -30,6 +30,8 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     private static legacyGlobalStatePurged = false;
 
     private countStatus: vscode.StatusBarItem;
+    private aiAbortController: AbortController | null = null;
+    private aiCancellationSource: vscode.CancellationTokenSource | null = null;
 
     constructor(
         private context: vscode.ExtensionContext, private options: MarkdownEditorProviderOptions = {}
@@ -229,6 +231,8 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             void this.notifyAIAvailable(handler);
         }).on('aiPolish', async (payload: { markdown: string; options?: any }) => {
             await this.handleAIPolish(handler, payload.markdown, payload.options);
+        }).on('aiPolishCancel', () => {
+            this.cancelAIPolish();
         })
 
         const basePath = Global.getConfig('workspacePathAsImageBasePath') ?
@@ -238,6 +242,11 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         webview.html = Util.buildPath(
             indexHtml.replace("{{baseUrl}}", baseUrl), webview, contextUri
         );
+    }
+
+    private cancelAIPolish() {
+        this.aiCancellationSource?.cancel();
+        this.aiAbortController?.abort();
     }
 
     private async notifyAIAvailable(handler: Handler) {
@@ -264,6 +273,10 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     private async handleAIPolish(handler: Handler, markdown: string, options?: any) {
         const engine = options?.engine ?? 'vscode';
 
+        this.cancelAIPolish();
+        this.aiCancellationSource = new vscode.CancellationTokenSource();
+        this.aiAbortController = new AbortController();
+
         if (engine === 'custom') {
             await this.handleCustomAIPolish(handler, markdown, options);
             return;
@@ -288,13 +301,18 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             const model = models[0];
             const LanguageModelChatMessage = (vscode as any).LanguageModelChatMessage;
             const messages = [LanguageModelChatMessage.User(this.buildPolishPrompt(markdown, options))];
-            const response = await model.sendRequest(messages, {}, new vscode.CancellationTokenSource().token);
+            const token = this.aiCancellationSource.token;
+            const response = await model.sendRequest(messages, {}, token);
             let result = '';
             for await (const chunk of response.text) {
+                if (token.isCancellationRequested) break;
                 result += chunk;
             }
-            handler.emit('aiPolishResult', result.trim() || markdown);
+            if (!token.isCancellationRequested) {
+                handler.emit('aiPolishResult', result.trim() || markdown);
+            }
         } catch (err: any) {
+            if (this.aiCancellationSource?.token.isCancellationRequested) return;
             vscode.window.showErrorMessage(`AI Polish failed: ${err?.message ?? err}`);
             handler.emit('aiPolishResult', markdown);
         }
@@ -316,12 +334,14 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             });
             const headers: Record<string, string> = { 'Content-Type': 'application/json' };
             if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
-            const resp = await fetch(url, { method: 'POST', headers, body });
+            const signal = this.aiAbortController?.signal;
+            const resp = await fetch(url, { method: 'POST', headers, body, signal });
             if (!resp.ok) throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
             const data = await resp.json();
             const result = data?.choices?.[0]?.message?.content ?? '';
             handler.emit('aiPolishResult', result.trim() || markdown);
         } catch (err: any) {
+            if (err?.name === 'AbortError') return;
             vscode.window.showErrorMessage(`Custom AI Polish failed: ${err?.message ?? err}`);
             handler.emit('aiPolishResult', markdown);
         }

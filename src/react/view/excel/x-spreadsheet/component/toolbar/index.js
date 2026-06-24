@@ -23,6 +23,7 @@ import Undo from './undo';
 import Textwrap from './textwrap';
 import More from './more';
 import Save from './save';
+import SaveAs from './saveas';
 import Item from './item';
 
 import { h } from '../element';
@@ -120,6 +121,7 @@ export default class Toolbar {
       buildDivider(),
       [
         this.saveEl = new Save(),
+        this.saveAsEl = new SaveAs(),
       ],
       buildDivider(),
       [
@@ -191,6 +193,9 @@ export default class Toolbar {
     });
 
     this.el.child(this.btns);
+    if (data.settings.mode === 'read') {
+      this.saveEl.el.hide();
+    }
     if (isHide) {
       this.el.hide();
     } else {

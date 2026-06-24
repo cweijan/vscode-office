@@ -34,10 +34,13 @@ export default {
     insertRow: 'Insert row',
     insertColumn: 'Insert column',
     deleteSheet: 'Delete',
+    renameSheet: 'Rename',
+    duplicateSheet: 'Duplicate',
     deleteRow: 'Delete row',
     deleteColumn: 'Delete column',
     deleteCell: 'Delete cell',
     deleteCellText: 'Delete cell text',
+    hyperlink: 'Hyperlink',
     validation: 'Data validations',
     cellprintable: 'Enable export',
     cellnonprintable: 'Disable export',
@@ -97,6 +100,7 @@ export default {
     cancel: 'Cancel',
     remove: 'Remove',
     save: 'Save',
+    saveAs: 'Save As',
     ok: 'OK',
   },
   sort: {
@@ -105,6 +109,10 @@ export default {
   },
   filter: {
     empty: 'empty',
+  },
+  hyperlink: {
+    address: 'Address',
+    tooltip: 'Tooltip',
   },
   dataValidation: {
     mode: 'Mode',

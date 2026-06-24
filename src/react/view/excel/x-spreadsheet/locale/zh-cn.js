@@ -34,10 +34,13 @@ export default {
     insertRow: '插入行',
     insertColumn: '插入列',
     deleteSheet: '删除',
+    renameSheet: '重命名',
+    duplicateSheet: '创建副本',
     deleteRow: '删除行',
     deleteColumn: '删除列',
     deleteCell: '删除',
     deleteCellText: '删除数据',
+    hyperlink: '超链接',
     validation: '数据验证',
     cellprintable: '可打印',
     cellnonprintable: '不可打印',
@@ -97,6 +100,7 @@ export default {
     cancel: '取消',
     remove: '删除',
     save: '保存',
+    saveAs: '另存为',
     ok: '确认',
   },
   sort: {
@@ -105,6 +109,10 @@ export default {
   },
   filter: {
     empty: '空白',
+  },
+  hyperlink: {
+    address: '链接地址',
+    tooltip: '提示',
   },
   dataValidation: {
     mode: '模式',
