@@ -24,7 +24,7 @@
     }
   }
 
-  button {
+  & > button {
     color: var(--toolbar-icon-color);
     display: block;
     padding: 3px 10px;
@@ -47,7 +47,7 @@
   }
 
   &--current,
-  button:not(.vditor-menu--disabled):not(.vditor-edit-mode-panel__option):not(.vditor-settings-panel__segment):hover {
+  & > button:not(.vditor-menu--disabled):hover {
     background-color: var(--dropdown-hover-background, var(--second-bg-color, var(--toolbar-background-color)));
     color: var(--list-hover-color, var(--toolbar-icon-hover-color));
   }
@@ -239,156 +239,3 @@
   }
 }
 
-.vditor-settings-panel {
-  --settings-accent: var(--list-hover-color, var(--link-color, @blurColor));
-
-  width: min(300px, calc(100vw - 32px));
-  padding: 12px;
-  box-sizing: border-box;
-
-  &__section {
-    & + & {
-      margin-top: 14px;
-    }
-  }
-
-  &__title {
-    padding: 0 2px 6px;
-    font-size: 10.5px;
-    font-weight: 600;
-    line-height: 14px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: color-mix(in srgb, var(--toolbar-icon-color) 45%, transparent);
-    user-select: none;
-    cursor: default;
-  }
-
-  &__segmented {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  &__segment {
-    min-width: 0;
-    height: 30px;
-    padding: 0 10px;
-    border-radius: 0;
-    font-size: var(--ui-font-size);
-    font-weight: 500;
-    line-height: 30px;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease;
-
-    &:first-child {
-      border-radius: 9px 0 0 9px;
-    }
-
-    &:last-child {
-      border-radius: 0 9px 9px 0;
-    }
-  }
-
-  // Inset-grouped card (Apple Settings style)
-  &__group {
-    border-radius: 10px;
-    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 11%, transparent);
-    overflow: hidden;
-    background-color: color-mix(in srgb, var(--toolbar-icon-color) 3%, transparent);
-  }
-
-  &__row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    min-height: 30px;
-    padding: 4px 10px;
-    border: none;
-    border-top: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
-    border-radius: 0;
-    color: var(--toolbar-icon-color);
-    background-color: transparent;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-    box-sizing: border-box;
-    transition: background-color 0.1s ease;
-
-    &:first-child {
-      border-top: none;
-    }
-
-    &:hover,
-    &--open {
-      background-color: color-mix(in srgb, var(--toolbar-icon-color) 6%, transparent);
-    }
-  }
-
-  &__row-label {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: var(--ui-font-size);
-    font-weight: 400;
-  }
-
-  &__row-value {
-    min-width: 0;
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: color-mix(in srgb, var(--settings-accent) 80%, transparent);
-    font-size: 12px;
-    font-weight: 400;
-  }
-
-  &__row-chevron {
-    font-size: 13px;
-    line-height: 1;
-    color: color-mix(in srgb, var(--toolbar-icon-color) 38%, transparent);
-    transition: transform 0.18s ease, color 0.1s ease;
-  }
-
-  &__row--open &__row-chevron {
-    color: var(--settings-accent);
-    transform: rotate(90deg);
-  }
-}
-
-.vditor-hint .vditor-settings-panel__segment {
-  border: none;
-  text-align: center;
-  width: 100%;
-  display: block;
-  color: color-mix(in srgb, var(--toolbar-icon-color) 55%, transparent);
-  background-color: var(--toolbar-background-color);
-
-
-  &:hover {
-    background-color: color-mix(in srgb, var(--toolbar-icon-color) 10%, var(--toolbar-background-color));
-    color: var(--toolbar-icon-color);
-  }
-
-  &.vditor-settings-panel__segment--current {
-    background-color: color-mix(in srgb, var(--toolbar-icon-color) 18%, var(--toolbar-background-color));
-    color: var(--toolbar-icon-hover-color, var(--toolbar-icon-color));
-
-    &:hover {
-      background-color: color-mix(in srgb, var(--toolbar-icon-color) 22%, var(--toolbar-background-color));
-      color: var(--toolbar-icon-hover-color, var(--toolbar-icon-color));
-    }
-  }
-}
-
-.vditor-hint:has(.vditor-settings-panel) {
-  min-width: min(300px, calc(100vw - 32px));
-  max-width: min(300px, calc(100vw - 32px));
-}

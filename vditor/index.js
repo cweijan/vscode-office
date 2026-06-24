@@ -35,7 +35,6 @@ let toolbar = [
 
 window.vditor = new Vditor('vditor', {
   cdn: rootPath,
-  extPath: rootPath,
   editorTheme: 'Light',
   codeMirrorTheme: 'Github',
   toolbar,

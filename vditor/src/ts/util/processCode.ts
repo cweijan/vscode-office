@@ -1,9 +1,9 @@
-import {codeMirrorPreviewRender} from "../codeBlock/codeMirrorPreviewRender";
-import {codeRender} from "../markdown/codeRender";
-import {mathRender} from "../markdown/mathRender";
-import {mermaidRender} from "../markdown/mermaidRender";
-import {plantumlRender} from "../markdown/plantumlRender";
-import {isCmCodeBlock, renderCodeBlocks} from "../codeBlock/codeMirrorManager";
+import { codeMirrorPreviewRender } from "../codeBlock/codeMirrorPreviewRender";
+import { codeRender } from "../markdown/codeRender";
+import { mathRender } from "../markdown/mathRender";
+import { mermaidRender } from "../markdown/mermaidRender";
+import { plantumlRender } from "../markdown/plantumlRender";
+import { isCmCodeBlock, renderCodeBlocks } from "../codeBlock/codeMirrorManager";
 
 export const processPasteCode = (html: string, text: string, type = "ir") => {
     return false;
@@ -21,8 +21,7 @@ export const processCodeRender = (previewPanel: HTMLElement, vditor: IVditor) =>
         previewPanel.setAttribute("data-render", "1");
         return;
     }
-    if ((vditor.currentMode === "wysiwyg" || vditor.currentMode === "ir") &&
-        isCmCodeBlock(parentElement)) {
+    if (isCmCodeBlock(parentElement)) {
         renderCodeBlocks(vditor);
         previewPanel.setAttribute("data-render", "1");
         return;
@@ -40,10 +39,10 @@ export const processCodeRender = (previewPanel: HTMLElement, vditor: IVditor) =>
     } else if (language === "plantuml") {
         plantumlRender(previewPanel, vditor.options.cdn);
     } else if (language === "math") {
-        mathRender(previewPanel, {cdn: vditor.options.cdn,extPath: vditor.options.extPath, math: vditor.options.preview.math});
+        mathRender(previewPanel, { cdn: vditor.options.cdn, math: vditor.options.preview.math });
     } else {
         codeRender(previewPanel);
-        codeMirrorPreviewRender(Object.assign({}, vditor.options.preview.hljs), previewPanel);
+        codeMirrorPreviewRender(previewPanel);
     }
 
     previewPanel.setAttribute("data-render", "1");

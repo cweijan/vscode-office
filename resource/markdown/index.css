@@ -85,6 +85,19 @@ html {
     outline: none;
 }
 
+.vditor-context-menu__item:disabled,
+.vditor-context-menu__item:disabled:hover,
+.vditor-context-menu__item:disabled:focus-visible,
+body.is-web .vditor-context-menu__item--desktop-only,
+body.is-web .vditor-context-menu__item--desktop-only:hover,
+body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: transparent;
+    color: inherit;
+    pointer-events: none;
+}
+
 .vditor-context-menu__item:hover .vditor-context-menu__icon .codicon,
 .vditor-context-menu__item:focus-visible .vditor-context-menu__icon .codicon {
     opacity: 1;

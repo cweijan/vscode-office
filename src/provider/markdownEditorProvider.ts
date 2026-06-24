@@ -18,6 +18,10 @@ function getRuntimePlatform(): string {
     return 'web';
 }
 
+export interface MarkdownEditorProviderOptions {
+    isWeb?: boolean;
+}
+
 /**
  * support view and edit office files.
  */
@@ -27,7 +31,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
     private countStatus: vscode.StatusBarItem;
 
-    constructor(private context: vscode.ExtensionContext) {
+    constructor(
+        private context: vscode.ExtensionContext, private options: MarkdownEditorProviderOptions = {}
+    ) {
         this.countStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
         this.purgeLegacyGlobalState();
     }
@@ -97,22 +103,11 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
         let lastManualSaveTime: number;
         const config = vscode.workspace.getConfiguration("vscode-office");
-        const sponsorBaseUrl = webview.asWebviewUri(
-            extensionResource(this.context, 'resource', 'sponsor')
-        ).toString();
         handler.on("init", () => {
             handler.emit("open", {
-                title: basename(uri.fsPath),
+                content, rootPath,
                 documentCacheId: `${uri.scheme}:${uri.toString()}`,
                 config: this.getMarkdownWebviewConfig(config),
-                editorTheme: Global.getConfig("editorTheme", "Auto"),
-                codeMirrorTheme: Global.getConfig("codeMirrorTheme", "Auto"),
-                mermaidTheme: Global.getConfig("mermaidTheme", "Auto"),
-                editMode: Global.getConfig("editMode", "wysiwyg"),
-                language: vscode.env.language,
-                rootPath, content,
-                sponsorBaseUrl,
-                isDev: this.context.extensionMode === vscode.ExtensionMode.Development,
             })
             this.updateCount(content)
             this.countStatus.show()
@@ -237,14 +232,8 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         const baseUrl = webview.asWebviewUri(basePath).toString().replace(/\?.+$/, '').replace('https://git', 'https://file');
         const indexHtml = await readExtensionText(this.context, 'resource', 'markdown', 'index.html');
         webview.html = Util.buildPath(
-            indexHtml
-                .replace("{{rootPath}}", rootPath)
-                .replace("{{baseUrl}}", baseUrl)
-                .replace(`{{configs}}`, JSON.stringify({
-                    platform: getRuntimePlatform(),
-                    sponsorBaseUrl,
-                })),
-            webview, contextUri);
+            indexHtml.replace("{{baseUrl}}", baseUrl), webview, contextUri
+        );
     }
 
     private getMarkdownWebviewConfig(configuration: vscode.WorkspaceConfiguration) {
@@ -256,6 +245,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                     macros: markdownConfiguration.get<Record<string, string>>("math.macros", {}),
                 },
             },
+            language: vscode.env.language,
+            isWeb: this.options.isWeb,
+            isDev: this.context.extensionMode === vscode.ExtensionMode.Development,
         };
     }
 

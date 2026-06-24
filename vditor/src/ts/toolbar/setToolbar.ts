@@ -1,6 +1,7 @@
 import {Constants} from "../constants";
 import {
     isInsideSettingsThemePopover,
+    isInsideSettingsFloatingMenu,
     isInsideToolbar,
     registerPopoverOutsideDismiss,
 } from "../ui/chromePopoverDismiss";
@@ -18,7 +19,7 @@ const hasOpenToolbarSubPanel = (vditor: IVditor) => {
 export const bindToolbarOutsideDismiss = (vditor: IVditor) => {
     registerPopoverOutsideDismiss({
         isActive: () => hasOpenToolbarSubPanel(vditor),
-        shouldIgnoreTarget: (target) => isInsideToolbar(target) || isInsideSettingsThemePopover(target),
+        shouldIgnoreTarget: (target) => isInsideToolbar(target) || isInsideSettingsThemePopover(target) || isInsideSettingsFloatingMenu(target),
         dismiss: () => hidePanel(vditor, ["subToolbar"]),
     });
 };

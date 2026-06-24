@@ -354,16 +354,6 @@ interface IMenuItem {
     click?(event: Event, vditor: IVditor): void;
 }
 
-/** @link https://ld246.com/article/1549638745630#options-preview-hljs */
-interface IHljs {
-    /** 是否启用行号。默认值: false */
-    lineNumber?: boolean;
-    /** 代码风格，可选值参见 [Chroma](https://xyproto.github.io/splash/docs/longer/all.html)。 默认值: 'github' */
-    style?: string;
-    /** 是否启用代码高亮。默认值: true */
-    enable?: boolean;
-}
-
 /** @link https://ld246.com/article/1549638745630#options-preview-math */
 interface IMath {
     /** 内联数学公式起始 $ 后是否允许数字。默认值: true */
@@ -402,7 +392,6 @@ interface IMarkdownConfig {
 
 /** @link https://ld246.com/article/1549638745630#options-preview */
 interface IPreview {
-    hljs?: IHljs;
     math?: IMath;
     markdown?: IMarkdownConfig;
 }
@@ -507,7 +496,6 @@ interface IOptions {
     upload?: IUpload;
     /** 配置自建 CDN 地址。默认值: 'https://unpkg.com/vditor@${VDITOR_VERSION}' */
     cdn?: string;
-    extPath?: string;
     /** tab 键操作字符串，支持 \t 及任意字符串 */
     tab?: string;
     /** @link https://ld246.com/article/1549638745630#options-outline */

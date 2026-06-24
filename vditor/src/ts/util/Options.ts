@@ -31,7 +31,6 @@ export class Options {
         },
         placeholder: "",
         preview: {
-            hljs: Constants.HLJS_OPTIONS,
             markdown: Constants.MARKDOWN_OPTIONS,
             math: Constants.MATH_OPTIONS,
         },

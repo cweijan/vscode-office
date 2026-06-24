@@ -1,0 +1,386 @@
+.vditor-hint:has(.vditor-settings-panel) {
+  min-width: min(300px, calc(100vw - 32px));
+  max-width: min(300px, calc(100vw - 32px));
+}
+
+.vditor-settings-panel {
+  --settings-accent: var(--list-hover-color, var(--link-color, #4285f4));
+
+  width: min(300px, calc(100vw - 32px));
+  padding: 12px;
+  box-sizing: border-box;
+
+  &__section {
+    & + & {
+      margin-top: 14px;
+    }
+  }
+
+  &__title {
+    padding: 0 2px 6px;
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 14px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--toolbar-icon-color) 45%, transparent);
+    user-select: none;
+    cursor: default;
+  }
+
+  &__segmented {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  &__segment {
+    min-width: 0;
+    height: 30px;
+    padding: 0 10px;
+    border: none;
+    border-radius: 0;
+    font-size: var(--ui-font-size);
+    font-weight: 500;
+    line-height: 30px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    color: color-mix(in srgb, var(--toolbar-icon-color) 55%, transparent);
+    background-color: var(--toolbar-background-color);
+    transition: background-color 0.15s ease, color 0.15s ease;
+
+    &:first-child {
+      border-radius: 9px 0 0 9px;
+    }
+
+    &:last-child {
+      border-radius: 0 9px 9px 0;
+    }
+
+    &:hover {
+      background-color: color-mix(in srgb, var(--toolbar-icon-color) 10%, var(--toolbar-background-color));
+      color: var(--toolbar-icon-color);
+    }
+
+    &--current {
+      background-color: color-mix(in srgb, var(--toolbar-icon-color) 18%, var(--toolbar-background-color));
+      color: var(--toolbar-icon-hover-color, var(--toolbar-icon-color));
+
+      &:hover {
+        background-color: color-mix(in srgb, var(--toolbar-icon-color) 22%, var(--toolbar-background-color));
+        color: var(--toolbar-icon-hover-color, var(--toolbar-icon-color));
+      }
+    }
+  }
+
+  &__group {
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 11%, transparent);
+    overflow: hidden;
+    background-color: color-mix(in srgb, var(--toolbar-icon-color) 3%, transparent);
+  }
+
+  &__stepper-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 10px;
+    min-height: 30px;
+    border-top: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
+    box-sizing: border-box;
+
+    &:first-child {
+      border-top: none;
+    }
+  }
+
+  &__stepper-label {
+    font-size: var(--ui-font-size);
+    color: var(--toolbar-icon-color);
+    user-select: none;
+  }
+
+  &__stepper {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  &__stepper-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border-radius: 5px;
+    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 20%, transparent);
+    background: color-mix(in srgb, var(--toolbar-icon-color) 5%, transparent);
+    color: var(--toolbar-icon-color);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    user-select: none;
+    transition: background-color 0.1s ease;
+
+    &:hover {
+      background: color-mix(in srgb, var(--toolbar-icon-color) 12%, transparent);
+      color: var(--toolbar-icon-color);
+    }
+  }
+
+  &__stepper-value {
+    font-size: 12px;
+    color: var(--toolbar-icon-color);
+    min-width: 36px;
+    text-align: center;
+    user-select: none;
+  }
+
+  &__stepper-input {
+    width: 80px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--textarea-text-color);
+    -webkit-text-fill-color: var(--textarea-text-color);
+    background: var(--vscode-input-background, var(--textarea-background-color, var(--bg-color)));
+    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 16%, transparent);
+    border-radius: 5px;
+    padding: 3px 8px;
+    outline: none;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: var(--link-color, var(--list-hover-color));
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--link-color, var(--list-hover-color)) 20%, transparent);
+    }
+  }
+
+  &__dropdown-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 10px;
+    min-height: 32px;
+    border-top: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
+    box-sizing: border-box;
+
+    &:first-child {
+      border-top: none;
+    }
+  }
+
+  &__dropdown-label {
+    font-size: var(--ui-font-size);
+    color: var(--toolbar-icon-color);
+    user-select: none;
+    flex-shrink: 0;
+  }
+
+  &__dropdown-trigger {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 18%, transparent);
+    background: color-mix(in srgb, var(--toolbar-icon-color) 5%, transparent);
+    color: var(--toolbar-icon-color);
+    font-size: 12px;
+    cursor: pointer;
+    width: 130px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: border-color 0.1s ease, background 0.1s ease;
+
+    &:hover,
+    &--open {
+      background: color-mix(in srgb, var(--toolbar-icon-color) 10%, transparent);
+      border-color: color-mix(in srgb, var(--toolbar-icon-color) 28%, transparent);
+      color: var(--toolbar-icon-color);
+    }
+  }
+
+  &__dropdown-value {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__dropdown-chevron {
+    font-size: 12px;
+    flex-shrink: 0;
+    color: color-mix(in srgb, var(--toolbar-icon-color) 50%, transparent);
+    transition: transform 0.15s ease;
+  }
+
+  &__dropdown-trigger--open &__dropdown-chevron {
+    transform: rotate(180deg);
+  }
+
+  &__toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 10px;
+    min-height: 30px;
+    border-top: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
+    box-sizing: border-box;
+
+    &:first-child {
+      border-top: none;
+    }
+  }
+
+  &__toggle-label {
+    font-size: var(--ui-font-size);
+    color: var(--toolbar-icon-color);
+    user-select: none;
+  }
+
+  &__toggle {
+    position: relative;
+    display: block;
+    width: 32px;
+    height: 18px;
+    padding: 0;
+    border-radius: 9px;
+    border: none;
+    background: color-mix(in srgb, var(--toolbar-icon-color) 22%, transparent);
+    cursor: pointer;
+    white-space: normal;
+    overflow: visible;
+    flex-shrink: 0;
+    transition: background 0.18s ease;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--panel-background-color, #fff);
+      transition: transform 0.18s ease;
+      box-shadow: 0 1px 3px color-mix(in srgb, #000 20%, transparent);
+    }
+
+    &:hover {
+      background: color-mix(in srgb, var(--toolbar-icon-color) 30%, transparent);
+      color: inherit;
+    }
+
+    &--on {
+      background: var(--settings-accent);
+
+      &::after {
+        transform: translateX(14px);
+      }
+
+      &:hover {
+        background: color-mix(in srgb, var(--settings-accent) 85%, #000);
+      }
+    }
+  }
+
+  &__footer {
+    padding: 12px 10px 4px;
+    margin-top: 6px;
+    display: flex;
+    justify-content: center;
+  }
+
+  &__reset-btn {
+    font-size: 11px;
+    color: color-mix(in srgb, var(--toolbar-icon-color) 60%, transparent);
+    background: color-mix(in srgb, var(--toolbar-icon-color) 7%, transparent);
+    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 12%, transparent);
+    border-radius: 5px;
+    width: auto;
+    text-align: center;
+    padding: 5px 20px;
+    cursor: pointer;
+    transition: color 0.1s ease, background 0.1s ease, border-color 0.1s ease;
+
+    &:hover {
+      color: var(--error-color, #cf222e);
+      background: color-mix(in srgb, var(--error-color, #cf222e) 10%, transparent);
+      border-color: color-mix(in srgb, var(--error-color, #cf222e) 25%, transparent);
+    }
+  }
+}
+
+.vditor-settings-panel__floating-menu {
+  position: fixed;
+  z-index: 9999;
+  min-width: 120px;
+  max-height: 240px;
+  overflow-y: auto;
+  background: var(--panel-background-color, #fff);
+  border: 1px solid color-mix(in srgb, var(--toolbar-icon-color, #586069) 14%, transparent);
+  border-radius: 8px;
+  box-shadow:
+    0 6px 18px color-mix(in srgb, #000 16%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--toolbar-icon-color, #586069) 5%, transparent);
+  padding: 4px;
+  box-sizing: border-box;
+  .vditor-scrollbar(var(--panel-background-color, #fff));
+
+  &[hidden] {
+    display: none;
+  }
+
+  button {
+    color: var(--toolbar-icon-color);
+    display: block;
+    padding: 4px 10px;
+    margin: 1px 0;
+    border: 0;
+    border-radius: 5px;
+    line-height: 18px;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+    background-color: transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-size: var(--ui-font-size, 13px);
+    transition: background-color 0.1s ease;
+
+    &:hover {
+      background-color: color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
+    }
+
+    &.vditor-settings-panel__dropdown-option--current {
+      background-color: color-mix(in srgb, var(--link-color, var(--list-hover-color, var(--toolbar-icon-hover-color))) 15%, transparent);
+      color: var(--link-color, var(--list-hover-color, var(--toolbar-icon-hover-color)));
+      font-weight: 600;
+
+      &::after {
+        content: "\eab2";
+        font-family: "codicon";
+        font-size: 14px;
+        float: right;
+        line-height: inherit;
+        color: var(--link-color, var(--list-hover-color, var(--toolbar-icon-hover-color)));
+      }
+
+      &:hover {
+        background-color: color-mix(in srgb, var(--link-color, var(--list-hover-color, var(--toolbar-icon-hover-color))) 20%, transparent);
+      }
+    }
+  }
+}

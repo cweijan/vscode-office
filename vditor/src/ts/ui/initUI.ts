@@ -1,14 +1,15 @@
-import {setEditMode} from "../toolbar/EditMode";
-import {bindToolbarOutsideDismiss} from "../toolbar/setToolbar";
-import {bindCacheFocusPersistence, markCacheContentRestored, persistScrollFocusAnchor} from "../util/cacheFocus";
-import {bindDocumentScrollPersistence, purgeLegacyDocumentStateKeys, setScrollFocusAnchorHandler} from "../util/documentState";
-import {bindHistoryInputBufferClick} from "../util/historyInputBuffer";
-import {accessLocalStorage} from "../util/compatibility";
-import {macOptionSymbolEvent} from "../util/editorCommonEvent";
-import {initEditorTheme} from "./setEditorTheme";
-import {initMermaidTheme} from "./setMermaidTheme";
-import {resolveCodeMirrorTheme, setCodeTheme} from "./setCodeTheme";
-import {setTheme} from "./setTheme";
+import { setEditMode } from "../toolbar/EditMode";
+import { bindToolbarOutsideDismiss } from "../toolbar/setToolbar";
+import { bindCacheFocusPersistence, markCacheContentRestored, persistScrollFocusAnchor } from "../util/cacheFocus";
+import { bindDocumentScrollPersistence, purgeLegacyDocumentStateKeys, setScrollFocusAnchorHandler } from "../util/documentState";
+import { bindHistoryInputBufferClick } from "../util/historyInputBuffer";
+import { accessLocalStorage } from "../util/compatibility";
+import { macOptionSymbolEvent } from "../util/editorCommonEvent";
+import { initEditorTheme } from "./setEditorTheme";
+import { initMermaidTheme } from "./setMermaidTheme";
+import { resolveCodeMirrorTheme, setCodeTheme } from "./setCodeTheme";
+import { setTheme } from "./setTheme";
+import { applyEditorSettings } from "../util/globalLocalStorageSettings";
 
 export const initUI = (vditor: IVditor) => {
   purgeLegacyDocumentStateKeys();
@@ -19,6 +20,7 @@ export const initUI = (vditor: IVditor) => {
     vditor.element.setAttribute("dir", "rtl")
   }
   setTheme(vditor);
+  applyEditorSettings(vditor.element);
   macOptionSymbolEvent(vditor);
   setCodeTheme(resolveCodeMirrorTheme(vditor.options), vditor.element);
   if (typeof vditor.options.height === "number") {

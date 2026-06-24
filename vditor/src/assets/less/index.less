@@ -67,6 +67,10 @@
 
 .vditor {
   --ui-font-size: 13px;
+  --editor-font-size: var(--vscode-editor-font-size, 16px);
+  --editor-line-height: 1.7;
+  --editor-font-family: inherit;
+  --bold-color: color-mix(in srgb, var(--link-color, #4a78c8) 50%, var(--front-color, #586069));
   --border-color: #d1d5da;
   --second-color: rgba(88, 96, 105, 0.36);
 
@@ -164,6 +168,7 @@
 @import "_toolbar";
 @import "_content";
 @import "_hint";
+@import "_settingsPanel";
 @import "_toast";
 @import "_editorTheme";
 @import "_editorThemes";

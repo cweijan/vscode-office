@@ -26,7 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const mdViewOption = { webviewOptions: { retainContextWhenHidden: true } };
 	const viewOption = { webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true } };
 	const markdownService = new MarkdownService(context);
-	const markdownEditorProvider = new MarkdownEditorProvider(context);
+	const markdownEditorProvider = new MarkdownEditorProvider(context, { isWeb: true });
 	const viewerInstance = new OfficeViewerProvider(context);
 	const webUnsupportedViewer = new WebUnsupportedViewerProvider(context);
 

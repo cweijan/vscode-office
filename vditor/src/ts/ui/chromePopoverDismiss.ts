@@ -73,3 +73,7 @@ export const isInsideMermaidThemePopover = (target: Element | null) => {
 export const isInsideSettingsThemePopover = (target: Element | null) => {
     return !!target?.closest(".vditor-theme-picker-popover");
 };
+
+export const isInsideSettingsFloatingMenu = (target: Element | null) => {
+    return !!target?.closest(".vditor-settings-panel__floating-menu");
+};

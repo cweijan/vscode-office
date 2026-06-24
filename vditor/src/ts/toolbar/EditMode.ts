@@ -86,7 +86,6 @@ export const setEditMode = (
         vditor.ir.element.querySelectorAll(".vditor-toc").forEach((item: HTMLElement) => {
             mathRender(item, {
                 cdn: vditor.options.cdn,
-                extPath: vditor.options.extPath,
                 math: vditor.options.preview.math,
             });
         });
@@ -108,7 +107,6 @@ export const setEditMode = (
         vditor.wysiwyg.element.querySelectorAll(".vditor-toc").forEach((item: HTMLElement) => {
             mathRender(item, {
                 cdn: vditor.options.cdn,
-                extPath: vditor.options.extPath,
                 math: vditor.options.preview.math,
             });
         });

@@ -15,13 +15,11 @@ export const normalizeCodeMirrorThemeId = (theme?: string) => {
     return Constants.CODE_THEME.includes(theme) ? theme : CM_THEME_AUTO;
 };
 
-/** Resolve CodeMirror theme from options (`codeMirrorTheme` takes precedence over `preview.hljs.style`). */
+/** Resolve CodeMirror theme from options. */
 export const resolveCodeMirrorTheme = (options: {
     codeMirrorTheme?: string;
-    preview: {hljs: {style: string}};
 }) => {
-    const theme = options.codeMirrorTheme ?? options.preview.hljs.style;
-    return normalizeCodeMirrorThemeId(theme);
+    return normalizeCodeMirrorThemeId(options.codeMirrorTheme);
 };
 
 /** Apply CodeMirror syntax / chrome colors on the editor root element. */
@@ -43,7 +41,6 @@ export const setCodeTheme = (codeTheme: string, root?: HTMLElement) => {
 export const applyCodeMirrorTheme = (vditor: IVditor, theme: string) => {
     const resolved = normalizeCodeMirrorThemeId(theme);
     vditor.options.codeMirrorTheme = resolved;
-    vditor.options.preview.hljs.style = resolved;
     setCodeTheme(resolved, vditor.element);
     if (vditor.options.changeCodeTheme) {
         vditor.options.changeCodeTheme(resolved);

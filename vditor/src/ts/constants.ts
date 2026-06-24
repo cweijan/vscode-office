@@ -43,11 +43,6 @@ export abstract class Constants {
     sanitize: true,
     toc: true,
   };
-  public static readonly HLJS_OPTIONS = {
-    enable: true,
-    lineNumber: false,
-    style: "Auto",
-  };
   public static readonly MATH_OPTIONS: IMath = {
     inlineDigit: true,
     macros: {},

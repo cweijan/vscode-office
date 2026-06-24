@@ -275,7 +275,7 @@ export const createContextMenu = (editor) => {
     }
     menu.addEventListener('click', e => {
         const item = e.target.closest('[data-action]')
-        if (!item) return
+        if (!item || (item.classList.contains('vditor-context-menu__item--desktop-only') && document.body.classList.contains('is-web'))) return
         closeMenu()
         const action = item.dataset.action
         switch (action) {
@@ -360,7 +360,7 @@ const isInsideCodeMirrorTarget = (target) => {
 };
 // const keys = ['"', "{", "("];
 const keyCodes = [222, 219, 57];
-export const autoSymbol = (handler, editor, config) => {
+export const autoSymbol = (handler, editor) => {
     let _exec = document.execCommand.bind(document)
     document.execCommand = (cmd, ...args) => {
         if (cmd === 'delete') {

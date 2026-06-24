@@ -19,13 +19,17 @@
 
     color: var(--textarea-text-color, #24292e);
     font-variant-ligatures: no-common-ligatures;
-    font-family: @font-family-base;
+    font-family: var(--editor-font-family, @font-family-base);
     word-wrap: break-word;
     overflow: auto;
     .vditor-scrollbar(var(--textarea-background-color, var(--bg-color, #fafbfc)));
-    line-height: 1.5;
-    font-size: var(--vscode-editor-font-size, 16px);
+    line-height: var(--editor-line-height, 1.5);
+    font-size: var(--editor-font-size);
     word-break: break-word;
+
+    strong, b {
+      color: var(--bold-color);
+    }
 
     ul ul ul {
       list-style-type: square;
@@ -217,7 +221,7 @@
       }
     }
 
-    code:not(.hljs):not(.highlight-chroma) {
+    code:not(.highlight-chroma) {
       padding: 0.2em 0.4em;
       margin: 0;
       font-size: 85%;
@@ -516,7 +520,7 @@
     border: var(--vditor-outline-border, none);
     display: none;
     overflow: hidden;
-    font-size: 14px;
+    font-size: var(--ui-font-size, 14px);
 
     @media (max-width: 1450px) {
       width: 210px;
@@ -590,15 +594,15 @@
     }
 
     &__content > ul > li > span > span {
-      font-size: 14px;
+      font-size: var(--ui-font-size, 14px);
     }
 
     li li > span > span {
-      font-size: 13.5px;
+      font-size: calc(var(--ui-font-size, 14px) - 0.5px);
     }
 
     li li li > span > span {
-      font-size: 13px;
+      font-size: calc(var(--ui-font-size, 14px) - 1px);
     }
 
     li > span {

@@ -94,7 +94,7 @@ class Vditor {
                         document.head.removeChild(el);
                     }
                 });
-                addScript(`${mergedOptions.extPath??mergedOptions.cdn}/dist/js/i18n/${mergedOptions.lang}.js`, i18nScriptID).then(() => {
+                addScript(`${mergedOptions.cdn}/dist/js/i18n/${mergedOptions.lang}.js`, i18nScriptID).then(() => {
                     this.init(id as HTMLElement, mergedOptions);
                 });
             }
@@ -113,7 +113,6 @@ class Vditor {
         setTheme(this.vditor);
         if (codeTheme) {
             this.vditor.options.codeMirrorTheme = codeTheme;
-            this.vditor.options.preview.hljs.style = codeTheme;
             setCodeTheme(codeTheme, this.vditor.element);
         }
     }
