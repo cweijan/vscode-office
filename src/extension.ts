@@ -3,6 +3,8 @@ import { TelemetryService } from './service/telemetryService';
 import { JavaDecompilerProvider } from './provider/javaDecompilerProvider';
 import { MarkdownEditorProvider } from './provider/markdownEditorProvider';
 import { OfficeViewerProvider } from './provider/officeViewerProvider';
+import { ArchiveViewerProvider } from './provider/archiveViewerProvider';
+import { ClassViewerProvider } from './provider/classViewerProvider';
 import { HtmlService } from './service/htmlService';
 import { MarkdownService } from './service/markdownService';
 import { FileUtil } from './common/fileUtil';
@@ -24,6 +26,8 @@ export function activate(context: vscode.ExtensionContext) {
 	ReactApp.init(context)
 	const markdownService = new MarkdownService(context);
 	const viewerInstance = new OfficeViewerProvider(context);
+	const archiveViewerInstance = new ArchiveViewerProvider(context);
+	const classViewerInstance = new ClassViewerProvider(context);
 	const markdownEditorProvider = new MarkdownEditorProvider(context)
 	context.subscriptions.push(
 		vscode.commands.registerCommand('office.markdown.switch', (uri) => { markdownService.switchEditor(uri) }),
@@ -32,6 +36,8 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.workspace.registerTextDocumentContentProvider('decompile_java', new JavaDecompilerProvider()),
 		vscode.window.registerCustomEditorProvider("cweijan.markdownViewer", markdownEditorProvider, mdViewOption),
 		vscode.window.registerCustomEditorProvider("cweijan.markdownPreview", markdownEditorProvider, mdViewOption),
+		archiveViewerInstance.bindCustomEditor(viewOption),
+		classViewerInstance.bindCustomEditor(viewOption),
 		...viewerInstance.bindCustomEditors(viewOption)
 	);
 }

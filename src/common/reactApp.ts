@@ -4,6 +4,7 @@ import { extensionResource, getExtensionUri, readExtensionText } from './extensi
 
 interface ViewOption {
     route: string;
+    fileName?: string;
     gitHistoryInit?: import('../gitHistory/util/gitHistoryInitPayload').GitHistoryEmbeddedInit;
 }
 

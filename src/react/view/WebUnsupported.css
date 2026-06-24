@@ -1,0 +1,65 @@
+@import './common/viewerTheme.css';
+
+.web-unsupported {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(20px, 4vw, 48px);
+    background: var(--viewer-bg);
+    color: var(--viewer-fg);
+}
+
+.web-unsupported-panel {
+    width: min(640px, 100%);
+    min-height: clamp(160px, 24vh, 280px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(12px, 2vw, 20px);
+    padding: clamp(24px, 4vw, 40px) clamp(24px, 4vw, 40px);
+    text-align: center;
+    border: 1px solid var(--viewer-border);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--viewer-sider-bg) 55%, var(--viewer-bg));
+    box-shadow: 0 8px 32px color-mix(in srgb, var(--viewer-fg) 6%, transparent);
+}
+
+.web-unsupported-icon {
+    font-size: clamp(36px, 6vw, 52px);
+    color: var(--vscode-editorWarning-foreground, #e2b340);
+    line-height: 1;
+}
+
+.web-unsupported-title {
+    margin: 0;
+    font-size: clamp(18px, 2vw, 22px);
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--viewer-fg);
+}
+
+.web-unsupported-desc {
+    margin: 0;
+    max-width: 44em;
+    font-size: clamp(13px, 1.4vw, 15px);
+    line-height: 1.65;
+    color: var(--viewer-muted);
+}
+
+.web-unsupported-file {
+    display: inline-block;
+    max-width: 100%;
+    margin-top: 4px;
+    padding: 4px 12px;
+    font-family: var(--vscode-editor-font-family, ui-monospace, monospace);
+    font-size: clamp(12px, 1.2vw, 14px);
+    line-height: 1.4;
+    color: var(--viewer-fg);
+    word-break: break-all;
+    border: 1px solid var(--viewer-border);
+    border-radius: 6px;
+    background: var(--viewer-bg);
+}

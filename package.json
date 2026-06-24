@@ -47,7 +47,12 @@
 	"activationEvents": [
 		"onStartupFinished"
 	],
+	"extensionKind": [
+		"ui",
+		"workspace"
+	],
 	"main": "./out/extension.js",
+	"browser": "./out/extension.web.js",
 	"contributes": {
 		"themes": [
 			{
@@ -200,12 +205,14 @@
 			{
 				"command": "vscode-office.save-response-body",
 				"title": "Save Response",
-				"icon": "$(save)"
+				"icon": "$(save)",
+				"enablement": "!office.extensionHost.web"
 			},
 			{
 				"command": "vscode-office.copy-response-body",
 				"title": "Copy Response",
-				"icon": "$(copy)"
+				"icon": "$(copy)",
+				"enablement": "!office.extensionHost.web"
 			},
 			{
 				"command": "office.markdown.switch",
@@ -214,7 +221,8 @@
 			},
 			{
 				"command": "office.markdown.paste",
-				"title": "Enhance paste in markdown"
+				"title": "Enhance paste in markdown",
+				"enablement": "!office.extensionHost.web"
 			},
 			{
 				"command": "office.html.preview",
@@ -223,12 +231,14 @@
 			{
 				"command": "office.gitHistory.view",
 				"title": "View Git History",
-				"icon": "$(history)"
+				"icon": "$(history)",
+				"enablement": "!office.extensionHost.web"
 			},
 			{
 				"command": "office.gitHistory.viewFileHistory",
 				"title": "View File History",
-				"icon": "$(history)"
+				"icon": "$(history)",
+				"enablement": "!office.extensionHost.web"
 			}
 		],
 		"keybindings": [
@@ -236,7 +246,7 @@
 				"command": "office.markdown.paste",
 				"key": "ctrl+v",
 				"mac": "cmd+v",
-				"when": "editorTextFocus && resourceLangId == markdown"
+				"when": "editorTextFocus && resourceLangId == markdown && !office.extensionHost.web"
 			},
 			{
 				"command": "office.html.preview",
@@ -253,7 +263,7 @@
 				"command": "vscode-office.request",
 				"key": "ctrl+enter",
 				"mac": "cmd+enter",
-				"when": "editorTextFocus && editorLangId == 'http'"
+				"when": "editorTextFocus && editorLangId == 'http' && !office.extensionHost.web"
 			}
 		],
 		"menus": {
@@ -261,27 +271,27 @@
 				{
 					"command": "office.gitHistory.view",
 					"group": "navigation",
-					"when": "scmProvider == git"
+					"when": "scmProvider == git && !office.extensionHost.web"
 				}
 			],
 			"scm/repository": [
 				{
 					"command": "office.gitHistory.view",
 					"group": "navigation",
-					"when": "scmProvider == git"
+					"when": "scmProvider == git && !office.extensionHost.web"
 				}
 			],
 			"scm/resourceState/context": [
 				{
 					"command": "office.gitHistory.viewFileHistory",
-					"when": "config.git.enabled && gitOpenRepositoryCount != 0"
+					"when": "config.git.enabled && gitOpenRepositoryCount != 0 && !office.extensionHost.web"
 				}
 			],
 			"editor/title": [
 				{
 					"command": "office.gitHistory.viewFileHistory",
 					"group": "navigation@4",
-					"when": "config.git.enabled && gitOpenRepositoryCount != 0 && resourceScheme == file"
+					"when": "config.git.enabled && gitOpenRepositoryCount != 0 && resourceScheme == file && !office.extensionHost.web"
 				},
 				{
 					"command": "office.markdown.switch",
@@ -303,7 +313,7 @@
 				{
 					"command": "office.gitHistory.viewFileHistory",
 					"group": "git",
-					"when": "config.git.enabled && gitOpenRepositoryCount != 0 && resourceScheme == file"
+					"when": "config.git.enabled && gitOpenRepositoryCount != 0 && resourceScheme == file && !office.extensionHost.web"
 				},
 				{
 					"command": "office.html.preview",
@@ -313,19 +323,19 @@
 				{
 					"command": "vscode-office.save-response-body",
 					"group": "http@2",
-					"when": "editorTextFocus && resourceScheme == rest-client-response"
+					"when": "editorTextFocus && resourceScheme == rest-client-response && !office.extensionHost.web"
 				},
 				{
 					"command": "vscode-office.copy-response-body",
 					"group": "http@4",
-					"when": "editorTextFocus && resourceScheme == rest-client-response"
+					"when": "editorTextFocus && resourceScheme == rest-client-response && !office.extensionHost.web"
 				}
 			],
 			"explorer/context": [
 				{
 					"command": "office.gitHistory.viewFileHistory",
 					"group": "git",
-					"when": "config.git.enabled && gitOpenRepositoryCount != 0 && resourceScheme == file"
+					"when": "config.git.enabled && gitOpenRepositoryCount != 0 && resourceScheme == file && !office.extensionHost.web"
 				}
 			]
 		},
@@ -377,6 +387,33 @@
 						"filenamePattern": "*.otf"
 					},
 					{
+						"filenamePattern": "*.svg"
+					},
+					{
+						"filenamePattern": "*.icns"
+					},
+					{
+						"filenamePattern": "*.psd"
+					},
+					{
+						"filenamePattern": "*.xmind"
+					},
+					{
+						"filenamePattern": "*.tiff"
+					},
+					{
+						"filenamePattern": "*.heif"
+					},
+					{
+						"filenamePattern": "*.heic"
+					}
+				]
+			},
+			{
+				"viewType": "cweijan.archiveViewer",
+				"displayName": "Archive Viewer",
+				"selector": [
+					{
 						"filenamePattern": "*.jar"
 					},
 					{
@@ -395,6 +432,9 @@
 						"filenamePattern": "*.tgz"
 					},
 					{
+						"filenamePattern": "*.tar"
+					},
+					{
 						"filenamePattern": "*.apk"
 					},
 					{
@@ -402,30 +442,12 @@
 					},
 					{
 						"filenamePattern": "*.crx"
-					},
-					{
-						"filenamePattern": "file:/**/*.svg"
-					}
-				]
-			},
-			{
-				"viewType": "cweijan.heicTiffViewer",
-				"displayName": "Image Preview(Office Viewer)",
-				"selector": [
-					{
-						"filenamePattern": "*.heic"
-					},
-					{
-						"filenamePattern": "*.heif"
-					},
-					{
-						"filenamePattern": "*.tiff"
 					}
 				]
 			},
 			{
 				"viewType": "cweijan.imageViewer",
-				"displayName": "Image Preview(Office Viewer)",
+				"displayName": "Image Preview (Office Viewer)",
 				"priority": "option",
 				"selector": [
 					{
@@ -470,33 +492,6 @@
 				]
 			},
 			{
-				"viewType": "cweijan.icnsViewer",
-				"displayName": "ICNS Viewer",
-				"selector": [
-					{
-						"filenamePattern": "*.icns"
-					}
-				]
-			},
-			{
-				"viewType": "cweijan.psdViewer",
-				"displayName": "PSD Viewer",
-				"selector": [
-					{
-						"filenamePattern": "*.psd"
-					}
-				]
-			},
-			{
-				"viewType": "cweijan.xmindViewer",
-				"displayName": "XMind Viewer",
-				"selector": [
-					{
-						"filenamePattern": "*.xmind"
-					}
-				]
-			},
-			{
 				"viewType": "cweijan.markdownViewer",
 				"displayName": "Markdown Editor",
 				"selector": [
@@ -527,10 +522,13 @@
 				"priority": "option",
 				"selector": [
 					{
+						"filenamePattern": "*.htm"
+					},
+					{
 						"filenamePattern": "*.html"
 					},
 					{
-						"filenamePattern": "*.htm"
+						"filenamePattern": "*.xhtml"
 					}
 				]
 			},
@@ -751,6 +749,8 @@
 	},
 	"scripts": {
 		"dev": "vite --mode=development",
+		"dev:web": "OFFICE_EXTENSION_TARGET=web vite --mode=development",
+		"build:extension:web": "node --experimental-strip-types build.ts --target=web --mode=production",
 		"lint:fix": "eslint src/**/*.ts --fix",
 		"build": "vite build --mode=production",
 		"package": "vsce package --no-dependencies",

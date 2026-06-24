@@ -4,32 +4,60 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-            "label": "dev",
-            "type": "npm",
-            "script": "dev",
-            "group": "build",
+			"label": "dev",
+			"type": "npm",
+			"script": "dev",
+			"group": "build",
 			"isBackground": true,
 			"problemMatcher": [
-                {
-                    "pattern": [
-                        {
-                            "regexp": ".",
-                            "file": 1,
-                            "location": 2,
-                            "message": 3
-                        }
-                    ],
-                    "background": {
-                        "activeOnStart": true,
-                        "beginsPattern": {
-                            "regexp": "build start"
-                        },
-                        "endsPattern": {
-                            "regexp": "build success"
-                        }
-                    }
-                }
-            ]
-        }
+				{
+					"pattern": [
+						{
+							"regexp": ".",
+							"file": 1,
+							"location": 2,
+							"message": 3
+						}
+					],
+					"background": {
+						"activeOnStart": true,
+						"beginsPattern": {
+							"regexp": "build start"
+						},
+						"endsPattern": {
+							"regexp": "build success"
+						}
+					}
+				}
+			]
+		},
+		{
+			"label": "dev:web",
+			"type": "npm",
+			"script": "dev:web",
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": [
+				{
+					"pattern": [
+						{
+							"regexp": ".",
+							"file": 1,
+							"location": 2,
+							"message": 3
+						}
+					],
+					"background": {
+						"activeOnStart": true,
+						"beginsPattern": {
+							"regexp": "build start"
+						},
+						"endsPattern": {
+							"regexp": "build success"
+						}
+					}
+				}
+			]
+		}
 	]
 }

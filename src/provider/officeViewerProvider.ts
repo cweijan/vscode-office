@@ -1,16 +1,11 @@
 import { ReactApp } from '@/common/reactApp';
+import { getFileSuffix } from '@/common/fileSuffix';
 import * as vscode from 'vscode';
 import { Handler } from '../common/handler';
 import { Util } from '../common/util';
-import { handleClass } from './handlers/classHandler';
 import { handleImage, isImage } from './handlers/imageHanlder';
 import { handleSvg } from './handlers/svgHandler';
 import { isVirtualUri, readUriText } from './handlers/officeContent';
-import { getFileSuffix } from '@/service/compress/archiveUtils';
-import { handleZip } from './compress/zipHandler';
-import { handleRar } from './compress/rarHandler';
-import { handleTarGz } from './compress/tarHandler';
-import { handleSevenZip } from './compress/sevenZipHandler';
 import { handleCommonEvent } from './compress/commonHandler';
 import { TelemetryService } from '@/service/telemetryService';
 import { extensionResource, getExtensionResourceRoots, readExtensionText } from '@/common/extensionResource';
@@ -20,150 +15,125 @@ import { extensionResource, getExtensionResourceRoots, readExtensionText } from 
  */
 export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider {
 
-    constructor(private context: vscode.ExtensionContext) { }
+	constructor(private context: vscode.ExtensionContext) { }
 
-    bindCustomEditors(viewOption: { webviewOptions: vscode.WebviewPanelOptions }) {
-        const viewers = ['cweijan.officeViewer', 'cweijan.imageViewer', 'cweijan.heicTiffViewer', 'cweijan.icnsViewer', 'cweijan.psdViewer', 'cweijan.xmindViewer', 'cweijan.htmlViewer', 'cweijan.classViewer']
-        return viewers.map(viewer => vscode.window.registerCustomEditorProvider(viewer, this, viewOption))
-    }
+	bindCustomEditors(viewOption: { webviewOptions: vscode.WebviewPanelOptions }) {
+		return [
+			vscode.window.registerCustomEditorProvider('cweijan.officeViewer', this, viewOption),
+			vscode.window.registerCustomEditorProvider('cweijan.imageViewer', this, viewOption),
+		];
+	}
 
-    public openCustomDocument(uri: vscode.Uri, openContext: vscode.CustomDocumentOpenContext, token: vscode.CancellationToken): vscode.CustomDocument | Thenable<vscode.CustomDocument> {
-        return { uri, dispose: (): void => { } };
-    }
-    public resolveCustomEditor(document: vscode.CustomDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): void | Thenable<void> {
-        const uri = document.uri;
-        const webview = webviewPanel.webview;
-        const folderPath = vscode.Uri.joinPath(uri, '..')
-        webview.options = {
-            enableScripts: true,
-            localResourceRoots: [...getExtensionResourceRoots(this.context), folderPath]
-        }
+	public openCustomDocument(uri: vscode.Uri, openContext: vscode.CustomDocumentOpenContext, token: vscode.CancellationToken): vscode.CustomDocument | Thenable<vscode.CustomDocument> {
+		return { uri, dispose: (): void => { } };
+	}
+	public resolveCustomEditor(document: vscode.CustomDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): void | Thenable<void> {
+		const uri = document.uri;
+		const webview = webviewPanel.webview;
+		const folderPath = vscode.Uri.joinPath(uri, '..');
+		webview.options = {
+			enableScripts: true,
+			localResourceRoots: [...getExtensionResourceRoots(this.context), folderPath],
+		};
 
-        const handler = Handler.bind(webviewPanel, uri)
+		const handler = Handler.bind(webviewPanel, uri);
 
-        let route: string;
-        const suffix = getFileSuffix(uri.fsPath);
-        const isSvg = /\.svg$/i.test(suffix);
-        handleCommonEvent(uri, handler, isSvg ? { skipOpen: true } : undefined)
-        if (isSvg) {
-            route = 'svg';
-            handleSvg(handler, uri);
-        } else if (isImage(suffix)) {
-            handleImage(handler, uri, webview)
-            route = 'image'
-        }
-        switch (suffix) {
-            case ".xlsx":
-            case ".xlsm":
-            case ".xls":
-            case ".csv":
-            case ".ods":
-                route = 'excel';
-                break;
-            case ".docx":
-            case ".dotx":
-                route = 'word'
-                break;
-            case ".pptx":
-            case ".pptm":
-                route = 'ppt'
-                break;
-            case ".zip":
-            case ".jar":
-            case ".apk":
-            case ".vsix":
-            case ".crx":
-                route = 'zip';
-                handleZip(uri, handler);
-                break;
-            case ".7z":
-                route = 'zip';
-                handleSevenZip(uri, handler);
-                break;
-            case ".rar":
-                route = 'zip';
-                handleRar(uri, handler);
-                break;
-            case ".tar.gz":
-                route = 'zip';
-                handleTarGz(uri, handler, true);
-                break;
-            case ".tar":
-                route = 'zip';
-                handleTarGz(uri, handler, false);
-                break;
-            case ".ttf":
-            case ".woff":
-            case ".woff2":
-            case ".otf":
-                route = 'font';
-                break;
-            case ".pdf":
-                void this.loadPdfViewer(webview);
-                break;
-            case ".epub":
-                route = 'epub';
-                break;
-            case ".icns":
-                route = 'icns';
-                break;
-            case ".psd":
-                route = 'psd';
-                break;
-            case ".xmind":
-                route = 'xmind';
-                break;
-            case ".class":
-                handleClass(uri, webviewPanel);
-                break;
-            case ".htm":
-            case ".html":
-                if (isVirtualUri(uri)) {
-                    void this.loadVirtualHtml(webviewPanel, uri, folderPath);
-                } else {
-                    void this.loadWorkspaceHtml(webviewPanel, uri, folderPath);
-                }
-                break;
-            default:
-                if (route) break;
-                vscode.commands.executeCommand('vscode.openWith', uri, "default");
-        }
-        const fileType = suffix.startsWith('.') ? suffix.slice(1) : suffix;
-        TelemetryService.get()?.trackOfficeViewOpen(uri.fsPath, route, fileType);
-        if (route) return ReactApp.view(webview, { route })
-    }
+		let route: string;
+		const suffix = getFileSuffix(uri.fsPath);
+		const isSvg = /\.svg$/i.test(suffix);
+		handleCommonEvent(uri, handler, isSvg ? { skipOpen: true } : undefined);
+		if (isSvg) {
+			route = 'svg';
+			handleSvg(handler, uri);
+		} else if (isImage(suffix)) {
+			handleImage(handler, uri, webview);
+			route = 'image';
+		}
+		switch (suffix) {
+			case '.xlsx':
+			case '.xlsm':
+			case '.xls':
+			case '.csv':
+			case '.ods':
+				route = 'excel';
+				break;
+			case '.docx':
+			case '.dotx':
+				route = 'word';
+				break;
+			case '.pptx':
+			case '.pptm':
+				route = 'ppt';
+				break;
+			case '.ttf':
+			case '.woff':
+			case '.woff2':
+			case '.otf':
+				route = 'font';
+				break;
+			case '.pdf':
+				void this.loadPdfViewer(webview);
+				break;
+			case '.epub':
+				route = 'epub';
+				break;
+			case '.icns':
+				route = 'icns';
+				break;
+			case '.psd':
+				route = 'psd';
+				break;
+			case '.xmind':
+				route = 'xmind';
+				break;
+			case '.htm':
+			case '.html':
+				if (isVirtualUri(uri)) {
+					void this.loadVirtualHtml(webviewPanel, uri, folderPath);
+				} else {
+					void this.loadWorkspaceHtml(webviewPanel, uri, folderPath);
+				}
+				break;
+			default:
+				if (route) break;
+				vscode.commands.executeCommand('vscode.openWith', uri, 'default');
+		}
+		const fileType = suffix.startsWith('.') ? suffix.slice(1) : suffix;
+		TelemetryService.get()?.trackOfficeViewOpen(uri.fsPath, route, fileType);
+		if (route) return ReactApp.view(webview, { route });
+	}
 
-    private async loadPdfViewer(webview: vscode.Webview) {
-        const html = await readExtensionText(this.context, 'resource', 'pdf', 'viewer.html');
-        webview.html = html.replace("{{baseUrl}}", this.getBaseUrl(webview, 'pdf'));
-    }
+	private async loadPdfViewer(webview: vscode.Webview) {
+		const html = await readExtensionText(this.context, 'resource', 'pdf', 'viewer.html');
+		webview.html = html.replace('{{baseUrl}}', this.getBaseUrl(webview, 'pdf'));
+	}
 
-    private async loadWorkspaceHtml(webviewPanel: vscode.WebviewPanel, uri: vscode.Uri, folderPath: vscode.Uri) {
-        const webview = webviewPanel.webview;
-        const render = async () => {
-            const content = await readUriText(uri);
-            webview.html = Util.buildPath(content, webview, folderPath);
-        };
-        await render();
-        Util.listen(webviewPanel, uri, () => {
-            void render();
-        });
-    }
+	private async loadWorkspaceHtml(webviewPanel: vscode.WebviewPanel, uri: vscode.Uri, folderPath: vscode.Uri) {
+		const webview = webviewPanel.webview;
+		const render = async () => {
+			const content = await readUriText(uri);
+			webview.html = Util.buildPath(content, webview, folderPath);
+		};
+		await render();
+		Util.listen(webviewPanel, uri, () => {
+			void render();
+		});
+	}
 
-    private async loadVirtualHtml(webviewPanel: vscode.WebviewPanel, uri: vscode.Uri, folderPath: vscode.Uri) {
-        try {
-            const content = await readUriText(uri);
-            webviewPanel.webview.html = Util.buildPath(content, webviewPanel.webview, folderPath);
-        } catch (error) {
-            const message = error instanceof Error ? error.message : 'Failed to read HTML';
-            webviewPanel.webview.html = `<pre>${message}</pre>`;
-        }
-    }
+	private async loadVirtualHtml(webviewPanel: vscode.WebviewPanel, uri: vscode.Uri, folderPath: vscode.Uri) {
+		try {
+			const content = await readUriText(uri);
+			webviewPanel.webview.html = Util.buildPath(content, webviewPanel.webview, folderPath);
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Failed to read HTML';
+			webviewPanel.webview.html = `<pre>${message}</pre>`;
+		}
+	}
 
-    private getBaseUrl(webview: vscode.Webview, path: string) {
-        const baseUrl = webview.asWebviewUri(extensionResource(this.context, 'resource', path))
-            .toString().replace(/\?.+$/, '').replace('https://git', 'https://file')
-        return baseUrl;
-    }
+	private getBaseUrl(webview: vscode.Webview, path: string) {
+		const baseUrl = webview.asWebviewUri(extensionResource(this.context, 'resource', path))
+			.toString().replace(/\?.+$/, '').replace('https://git', 'https://file');
+		return baseUrl;
+	}
 
 }

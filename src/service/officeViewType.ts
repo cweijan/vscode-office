@@ -1,4 +1,4 @@
-import { getFileSuffix } from '@/service/compress/archiveUtils';
+import { getFileSuffix } from '@/common/fileSuffix';
 
 export function resolveOfficeViewType(fsPath: string, route?: string): string | undefined {
     if (route) {

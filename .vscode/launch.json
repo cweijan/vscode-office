@@ -6,12 +6,30 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-            "name": "Extension",
-            "type": "extensionHost",
-            "request": "launch",
-            "args": ["--extensionDevelopmentPath=${workspaceRoot}" ],
-            "outFiles": [ "${workspaceRoot}/out/**/*.js" ],
-            "preLaunchTask": "dev"
-        }
+			"name": "Extension",
+			"type": "extensionHost",
+			"request": "launch",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}"
+			],
+			"outFiles": [
+				"${workspaceFolder}/out/**/*.js"
+			],
+			"preLaunchTask": "dev"
+		},
+		{
+			"name": "Extension (Web)",
+			"type": "extensionHost",
+			"request": "launch",
+			"debugWebWorkerHost": true,
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}",
+				"--extensionDevelopmentKind=web"
+			],
+			"outFiles": [
+				"${workspaceFolder}/out/**/*.js"
+			],
+			"preLaunchTask": "dev:web"
+		}
 	]
 }

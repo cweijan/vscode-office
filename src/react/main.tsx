@@ -17,6 +17,7 @@ const Epub = lazy(() => import('./view/epub/Epub.tsx'))
 const IcnsViewer = lazy(() => import('./view/icns/IcnsViewer.tsx'))
 const PsdViewer = lazy(() => import('./view/psd/PsdViewer.tsx'))
 const XmindViewer = lazy(() => import('./view/xmind/XmindViewer.tsx'))
+const WebUnsupported = lazy(() => import('./view/WebUnsupported.tsx'))
 
 document.getElementById('_defaultStyles')?.parentNode?.removeChild(document.getElementById('_defaultStyles'))
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -52,6 +53,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           return <XmindViewer />
         case 'gitHistory':
           return <GitHistory />
+        case 'webUnsupported':
+          return <WebUnsupported />
         default:
           return <>Office Viewer</>
       }
