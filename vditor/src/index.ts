@@ -345,6 +345,11 @@ class Vditor {
         this.vditor.undo.addToUndoStack(this.vditor);
     }
 
+    /** 设置 Github Copilot（VS Code Language Model API）是否可选 */
+    public setCopilotAvailable(available: boolean) {
+        this.aiDialog?.setCopilotAvailable(available);
+    }
+
     /** 打开 AI 润色弹窗，由外部（右键菜单等）调用 */
     public openAIPolishDialog() {
         if (!this.aiDialog) { return; }

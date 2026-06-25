@@ -234,7 +234,9 @@
   }
 
   &__picker-option {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 7px;
     width: 100%;
     padding: 7px 10px;
     text-align: left;
@@ -245,6 +247,7 @@
     font-family: inherit;
     cursor: pointer;
     transition: background 0.1s;
+    box-sizing: border-box;
 
     &:hover {
       background: color-mix(in srgb, var(--link-color, #4a78c8) 10%, transparent);
@@ -254,6 +257,40 @@
       color: var(--link-color, #4a78c8);
       font-weight: 600;
     }
+  }
+
+  &__provider-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    font-style: normal;
+    user-select: none;
+    object-fit: contain;
+  }
+
+  &__picker-trigger-inner {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  &__picker-trigger-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
   }
 
 
@@ -288,6 +325,19 @@
       background: color-mix(in srgb, var(--link-color, #4a78c8) 12%, transparent);
       color: var(--link-color, #4a78c8);
       font-weight: 600;
+    }
+
+    &--disabled,
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed !important;
+    }
+
+    &--disabled:hover,
+    &:disabled:hover {
+      border-color: var(--border-color);
+      color: var(--toolbar-icon-color);
+      background: transparent;
     }
   }
 

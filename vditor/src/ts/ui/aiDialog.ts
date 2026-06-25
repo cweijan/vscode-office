@@ -4,7 +4,7 @@ import {
     getAIModels, setAIModels,
     AIPrompt, AIModel,
 } from "../util/globalLocalStorageSettings";
-import { AI_FORMAT_OPTIONS, nameFromUrl } from "./settingsPanel";
+import { AI_FORMAT_OPTIONS, nameFromUrl, getProviderIcon } from "./settingsPanel";
 import { accessLocalStorage } from "../util/compatibility";
 
 const ls = {
@@ -61,7 +61,9 @@ const buildHTML = (): string => {
             <div class="vditor-ai-dialog__row">
               <div class="vditor-ai-dialog__picker" data-picker="model">
                 <button type="button" class="vditor-ai-dialog__picker-trigger">
-                  <span class="vditor-ai-dialog__picker-label">${i.aiNoModelSelected}</span>
+                  <span class="vditor-ai-dialog__picker-trigger-inner">
+                    <span class="vditor-ai-dialog__picker-label">${i.aiNoModelSelected}</span>
+                  </span>
                   <span class="codicon codicon-chevron-down vditor-ai-dialog__picker-chevron"></span>
                 </button>
                 <div class="vditor-ai-dialog__picker-list" hidden></div>
@@ -196,6 +198,7 @@ export class AIDialog {
     private onSubmit: (markdown: string, isSelection: boolean, options: IAIPolishOptions) => void;
     private onClose: (reason: "cancel" | "submit") => void;
     private activePickerName: string | null = null;
+    private copilotAvailable = false;
 
     constructor(
         container: HTMLElement,
@@ -218,7 +221,9 @@ export class AIDialog {
         this.overlay.querySelectorAll<HTMLElement>(".vditor-ai-dialog__picker").forEach(pickerEl => {
             const name = pickerEl.dataset.picker!;
             const trigger = pickerEl.querySelector<HTMLElement>(".vditor-ai-dialog__picker-trigger")!;
-            const label = pickerEl.querySelector<HTMLElement>(".vditor-ai-dialog__picker-label")!;
+            // Model picker uses __picker-trigger-inner for icon+text; others use __picker-label
+            const label = pickerEl.querySelector<HTMLElement>(".vditor-ai-dialog__picker-trigger-inner")
+                ?? pickerEl.querySelector<HTMLElement>(".vditor-ai-dialog__picker-label")!;
             const list = pickerEl.querySelector<HTMLElement>(".vditor-ai-dialog__picker-list")!;
             // Move list to body so it escapes overflow/stacking context
             document.body.appendChild(list);
@@ -233,6 +238,11 @@ export class AIDialog {
         ).join("");
 
         this.bindEvents();
+    }
+
+    public setCopilotAvailable(available: boolean) {
+        this.copilotAvailable = available;
+        this.refreshEngine();
     }
 
     public open(capturedMarkdown: string, capturedIsSelection: boolean) {
@@ -310,6 +320,15 @@ export class AIDialog {
         this.updatePickerSelection(picker.list, this.promptValue);
     }
 
+    private setModelPickerLabel(el: HTMLElement, model: AIModel | null, placeholder: string) {
+        if (model) {
+            const displayName = model.name || nameFromUrl(model.url);
+            el.innerHTML = `${getProviderIcon(model.url, "vditor-ai-dialog__provider-icon")}<span class="vditor-ai-dialog__picker-trigger-text">${displayName}</span>`;
+        } else {
+            el.innerHTML = `<span class="vditor-ai-dialog__picker-trigger-text">${placeholder}</span>`;
+        }
+    }
+
     private refreshModels() {
         const i = window.VditorI18n;
         const models = getAIModels();
@@ -318,10 +337,10 @@ export class AIDialog {
         if (savedId) this.modelValue = savedId;
         picker.list.innerHTML = `<button type="button" class="vditor-ai-dialog__picker-option" data-value="">${i.aiNoModelSelected}</button>` +
             models.map(m =>
-                `<button type="button" class="vditor-ai-dialog__picker-option" data-value="${m.id}">${m.name || nameFromUrl(m.url)}</button>`
+                `<button type="button" class="vditor-ai-dialog__picker-option" data-value="${m.id}">${getProviderIcon(m.url, "vditor-ai-dialog__provider-icon")}<span>${m.name || nameFromUrl(m.url)}</span></button>`
             ).join("");
         const found = models.find(m => m.id === this.modelValue);
-        picker.label.textContent = found ? (found.name || nameFromUrl(found.url)) : i.aiNoModelSelected;
+        this.setModelPickerLabel(picker.label, found ?? null, i.aiNoModelSelected);
         if (!found) this.modelValue = "";
         this.updatePickerSelection(picker.list, this.modelValue);
         this.refreshModelNames(found ?? null);
@@ -353,6 +372,16 @@ export class AIDialog {
     }
 
     private refreshEngine() {
+        const vscodeTab = this.overlay.querySelector<HTMLButtonElement>('.vditor-ai-dialog__engine-tab[data-engine="vscode"]');
+        if (vscodeTab) {
+            vscodeTab.disabled = !this.copilotAvailable;
+            vscodeTab.classList.toggle("vditor-ai-dialog__engine-tab--disabled", !this.copilotAvailable);
+            vscodeTab.title = this.copilotAvailable ? "" : window.VditorI18n.aiCopilotUnavailable;
+        }
+        if (!this.copilotAvailable && this.currentEngine === "vscode") {
+            this.currentEngine = "custom";
+            ls.set(AI_ENGINE_KEY, this.currentEngine);
+        }
         this.engineTabs.forEach(tab => {
             tab.classList.toggle("vditor-ai-dialog__engine-tab--active", tab.dataset.engine === this.currentEngine);
         });
@@ -362,6 +391,9 @@ export class AIDialog {
     private bindEvents() {
         this.engineTabs.forEach(tab => {
             tab.addEventListener("click", () => {
+                if (tab.dataset.engine === "vscode" && !this.copilotAvailable) {
+                    return;
+                }
                 this.currentEngine = tab.dataset.engine!;
                 ls.set(AI_ENGINE_KEY, this.currentEngine);
                 this.refreshEngine();
@@ -411,7 +443,7 @@ export class AIDialog {
                     this.modelValue = value;
                     ls.set(AI_SELECTED_MODEL_KEY, value);
                     const found = getAIModels().find(m => m.id === value);
-                    picker.label.textContent = found ? (found.name || nameFromUrl(found.url)) : window.VditorI18n.aiNoModelSelected;
+                    this.setModelPickerLabel(picker.label, found ?? null, window.VditorI18n.aiNoModelSelected);
                     this.selectedModelName = "";
                     this.refreshModelNames(found ?? null);
                 } else if (name === "model-name") {

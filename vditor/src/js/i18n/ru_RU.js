@@ -110,6 +110,7 @@ window.VditorI18n = {
   'aiPromptNone': '— Нет —',
   'aiEngine': 'ИИ-движок',
   'aiVscodeApi': 'Github Copilot',
+  'aiCopilotUnavailable': 'GitHub Copilot недоступен. Установите расширение языковой модели (например, GitHub Copilot).',
   'aiCustom': 'Свой',
   'aiApiUrl': 'URL API (базовый или полный endpoint)',
   'aiApiKey': 'API-ключ',

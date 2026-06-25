@@ -1,4 +1,4 @@
-import { hotKeys, imageParser, getToolbar, autoSymbol, createContextMenu, setAIAvailable } from "./util.js";
+import { hotKeys, imageParser, getToolbar, bindShorctut, createContextMenu, setAIAvailable } from "./util.js";
 import { mapVscodeLanguageToVditorLang } from "./lang.js";
 
 handler.on("open", async (md) => {
@@ -116,7 +116,7 @@ handler.on("open", async (md) => {
       })
       handler.emit('queryAIAvailable')
       handler.on("aiAvailable", (available) => {
-        setAIAvailable(available, isDev)
+        setAIAvailable(available, editor)
       })
       editor.restoreDocumentSession(true)
       if (pendingFragment) {
@@ -124,7 +124,7 @@ handler.on("open", async (md) => {
       }
     }
   })
-  autoSymbol(handler, editor);
+  bindShorctut(handler, editor);
   createContextMenu(editor)
   imageParser(viewAbsoluteLocal)
 }).emit("init")

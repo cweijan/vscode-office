@@ -20,6 +20,7 @@ import { matchHotKey } from "./hotKey";
 import { getEditorRange } from "./selection";
 import { saveCacheFocus } from "./cacheFocus";
 import { clearActiveHeadingMarker } from "./updateActiveHeadingMarker";
+import { handleAutoSymbolPair } from "./autoSymbol";
 import { handleVscodeShortcut } from "./vscodeShortcut";
 
 const markImageLoading = (img: HTMLImageElement) => {
@@ -148,6 +149,9 @@ export const hotkeyEvent = (vditor: IVditor, editorElement: HTMLElement) => {
     editorElement.addEventListener("keydown", (event: KeyboardEvent & { target: HTMLElement }) => {
         if (isInsideCodeBlockChrome(event.target)) {
             return;
+        }
+        if (vditor.currentMode === "wysiwyg" || vditor.currentMode === "ir") {
+            handleAutoSymbolPair(event);
         }
         // hint: 上下选择
         if (vditor.options.hint.extend.length > 0 &&

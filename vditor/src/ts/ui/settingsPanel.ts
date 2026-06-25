@@ -1,3 +1,4 @@
+import { PROVIDER_ICONS } from "./providerIcons";
 import {
     getGlobalLocalStorageSetting,
     UI_FONT_SIZE_KEY,
@@ -115,6 +116,46 @@ export const buildAIPromptsHTML = () => {
     </div>`;
 };
 
+const PROVIDER_COLORS: Record<string, string> = {
+    openai:      "#10a37f",
+    anthropic:   "#d97706",
+    google:      "#4285f4",
+    gemini:      "#4285f4",
+    groq:        "#f55036",
+    ollama:      "#2563eb",
+    mistral:     "#fa520f",
+    deepseek:    "#0070f3",
+    cohere:      "#39594d",
+    azure:       "#0078d4",
+    perplexity:  "#20b2aa",
+    moonshot:    "#4f46e5",
+    zhipuai:     "#7c3aed",
+    baidu:       "#2932e1",
+    together:    "#6366f1",
+    fireworks:   "#ef4444",
+    nvidia:      "#76b900",
+    huggingface: "#ff9900",
+    replicate:   "#000000",
+    qwen:        "#6200ea",
+    dashscope:   "#6200ea",
+    siliconflow: "#0ea5e9",
+    silicon:     "#0ea5e9",
+    xai:         "#000000",
+    minimax:     "#1a73e8",
+    minimaxi:    "#1a73e8",
+    stepfun:     "#0066ff",
+    lingyi:      "#5b4aff",
+    doubao:      "#4e6ef2",
+    volcengine:  "#4e6ef2",
+    ark:         "#4e6ef2",
+    hunyuan:     "#0052d9",
+    tencent:     "#0052d9",
+    qwen:        "#6200ea",
+    dashscope:   "#6200ea",
+    tongyi:      "#ff6a00",
+    ernie:       "#2932e1",
+};
+
 export const nameFromUrl = (url: string): string => {
     try {
         const href = /^https?:\/\//i.test(url) ? url : `https://${url}`;
@@ -131,6 +172,17 @@ export const nameFromUrl = (url: string): string => {
     }
 };
 
+export const getProviderIcon = (url: string, cls = `${SETTINGS_PANEL_CLASS}__provider-icon`): string => {
+    const host = nameFromUrl(url).toLowerCase();
+    const imgSrc = PROVIDER_ICONS[host];
+    if (imgSrc) {
+        return `<img class="${cls}" src="${imgSrc}" alt="${host}" aria-hidden="true">`;
+    }
+    const color = PROVIDER_COLORS[host] ?? "#6b7280";
+    const letter = host.charAt(0).toUpperCase();
+    return `<i class="${cls}" style="background:${color}" aria-hidden="true">${letter}</i>`;
+};
+
 export const AI_FORMAT_OPTIONS = [
     { value: "auto", i18nKey: "aiApiFormatAuto" },
     { value: "openai", i18nKey: "aiApiFormatOpenAI" },
@@ -145,6 +197,7 @@ export const buildAIModelsHTML = () => {
     const listHTML = models.length
         ? models.map(m => `
             <div class="${SETTINGS_PANEL_CLASS}__ai-prompt-row" data-model-id="${m.id}">
+                ${getProviderIcon(m.url)}
                 <span class="${SETTINGS_PANEL_CLASS}__ai-prompt-name" title="${m.url}">${m.name || nameFromUrl(m.url)}</span>
                 <button type="button" class="${SETTINGS_PANEL_CLASS}__ai-prompt-edit" data-edit-model="${m.id}" title="${i18n.aiEdit ?? 'Edit'}">
                     <span class="codicon codicon-edit"></span>

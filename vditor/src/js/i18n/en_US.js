@@ -112,6 +112,7 @@ window.VditorI18n = {
   'aiPromptNone': '— None —',
   'aiEngine': 'AI Engine',
   'aiVscodeApi': 'Github Copilot',
+  'aiCopilotUnavailable': 'GitHub Copilot is not available. Install a language model extension (e.g. GitHub Copilot).',
   'aiCustom': 'Custom',
   'aiApiUrl': 'API URL',
   'aiApiKey': 'API Key',

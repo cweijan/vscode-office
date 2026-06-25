@@ -216,11 +216,8 @@ const copyPlainText = async (text) => {
     textarea.remove()
 }
 
-export const setAIAvailable = (available, isDev = false) => {
-    const show = available && isDev
-    document.querySelectorAll('.vditor-context-menu__ai-group').forEach(el => {
-        el.style.display = show ? '' : 'none'
-    })
+export const setAIAvailable = (available, editor) => {
+    editor?.setCopilotAvailable?.(available);
 }
 
 export const createContextMenu = (editor) => {
@@ -324,16 +321,12 @@ function matchShortcut(hotkey, event) {
 }
 
 
-/**
- * 自动补全符号
- */
 const isInsideCodeMirrorTarget = (target) => {
     const node = target?.nodeType === 1 ? target : target?.parentElement;
     return !!node?.closest?.(".vditor-code-block--cm .cm-editor");
 };
-// const keys = ['"', "{", "("];
-const keyCodes = [222, 219, 57];
-export const autoSymbol = (handler, editor) => {
+
+export const bindShorctut = (handler, editor) => {
     let _exec = document.execCommand.bind(document)
     document.execCommand = (cmd, ...args) => {
         if (cmd === 'delete') {
@@ -369,25 +362,12 @@ export const autoSymbol = (handler, editor) => {
                         e.stopPropagation();
                     }
                     else if (document.getSelection()?.toString()) {
-                        // 修复剪切后选中文本没有被清除
+                        // vscode webview only: 修复剪切后选中文本没有被清除
                         document.execCommand("delete")
                     }
                     e.preventDefault();
                     break;
             }
-        }
-        if (!keyCodes.includes(e.keyCode)) return;
-        const selectText = document.getSelection().toString();
-        if (selectText != "") { return; }
-        if (e.key == '(') {
-            document.execCommand('insertText', false, ')');
-            document.getSelection().modify('move', 'left', 'character')
-        } else if (e.key == '{') {
-            document.execCommand('insertText', false, '}');
-            document.getSelection().modify('move', 'left', 'character')
-        } else if (e.key == '"') {
-            document.execCommand('insertText', false, e.key);
-            document.getSelection().modify('move', 'left', 'character')
         }
     }, isMac ? true : undefined)
 
