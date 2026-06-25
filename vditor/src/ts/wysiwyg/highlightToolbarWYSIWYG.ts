@@ -3,7 +3,7 @@ import {disableToolbar} from "../toolbar/setToolbar";
 import {enableToolbar} from "../toolbar/setToolbar";
 import {removeCurrentToolbar} from "../toolbar/setToolbar";
 import {setCurrentToolbar} from "../toolbar/setToolbar";
-import {isCtrl, updateHotkeyTip} from "../util/compatibility";
+import {isCtrl, updateHotkeyTip, formatAltEnterHotkeyTip} from "../util/compatibility";
 import {
     hasClosestByAttribute,
     hasClosestByClassName,
@@ -20,13 +20,14 @@ import {
     isCmCodeBlock,
     isInsideCodeBlockChrome,
     isInsideCodeMirror,
+    isPlantumlRenderImage,
     isSpecialBlock,
     CM_EDITING_CLASS,
     syncMathBlocksDisplayMode,
     shouldShowLanguagePopover,
     updateCodeMirrorLanguage,
 } from "../codeBlock/codeMirrorManager";
-import {showCodeBlockLanguagePopover} from "../codeBlock/codeBlockLanguagePopover";
+import {showCodeBlockLanguagePopover, getModeEditorElement, getModePopover} from "../codeBlock/codeBlockLanguagePopover";
 import {
     getEditorRange,
     selectIsEditor,
@@ -41,17 +42,28 @@ import {showToast} from "../ui/toast";
 import {codicon} from "../util/codicon";
 import {updateBlockHandle} from "./blockHandle";
 import {updateTableHandle} from "./tableHandle";
+import {resolveAdjacentElementFromRange} from "../util/rangeAdjacentElement";
 
 export const hideLinkPopover = (vditor: IVditor) => {
-    clearTimeout(vditor.wysiwyg.hlToolbarTimeoutId);
-    vditor.wysiwyg.popover.style.display = "none";
-    delete (vditor.wysiwyg.popover as { _sourceElement?: HTMLElement })._sourceElement;
+    if (vditor.currentMode === "wysiwyg" || vditor.currentMode === "ir") {
+        clearTimeout(vditor[vditor.currentMode].hlToolbarTimeoutId);
+    }
+    const popover = getModePopover(vditor);
+    if (!popover) {
+        return;
+    }
+    popover.style.display = "none";
+    delete (popover as { _sourceElement?: HTMLElement })._sourceElement;
 };
 
 /** 退出链接/图片编辑弹窗，光标回到元素后（与 Alt+Enter 一致） */
 export const exitLinkPopoverToElement = (vditor: IVditor, element: HTMLElement) => {
     hideLinkPopover(vditor);
-    focusEditorWithoutScroll(vditor.wysiwyg.element);
+    const editorElement = getModeEditorElement(vditor);
+    if (!editorElement) {
+        return;
+    }
+    focusEditorWithoutScroll(editorElement);
     const range = getEditorRange(vditor);
     element.insertAdjacentHTML("afterend", Constants.ZWSP);
     range.setStartAfter(element.nextSibling as Node);
@@ -61,6 +73,13 @@ export const exitLinkPopoverToElement = (vditor: IVditor, element: HTMLElement) 
 
 const focusEditorWithoutScroll = (editor: HTMLElement) => {
     editor.focus({ preventScroll: true });
+};
+
+const createLinkPopoverExitHint = () => {
+    const hint = document.createElement("span");
+    hint.className = "vditor-link-popover__hint";
+    hint.textContent = formatAltEnterHotkeyTip();
+    return hint;
 };
 
 export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
@@ -423,30 +442,39 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
 };
 
 const setPopoverPosition = (vditor: IVditor, element: HTMLElement, popoverType?: "link" | "link-ref" | "image") => {
+    const popover = getModePopover(vditor);
+    const editorElement = getModeEditorElement(vditor);
+    if (!popover || !editorElement) {
+        return;
+    }
     const isLinkPanel = popoverType === "link" || popoverType === "link-ref" || popoverType === "image";
-    vditor.wysiwyg.popover.classList.toggle("vditor-panel--link", isLinkPanel);
-    vditor.wysiwyg.popover.classList.toggle("vditor-panel--link-ref", popoverType === "link-ref");
-    vditor.wysiwyg.popover.classList.toggle("vditor-panel--image", popoverType === "image");
-    vditor.wysiwyg.popover.style.left = "0";
-    vditor.wysiwyg.popover.style.display = "block";
+    popover.classList.toggle("vditor-panel--link", isLinkPanel);
+    popover.classList.toggle("vditor-panel--link-ref", popoverType === "link-ref");
+    popover.classList.toggle("vditor-panel--image", popoverType === "image");
+    popover.style.left = "0";
+    popover.style.display = "block";
 
     const elementRect = element.getClientRects()[0] || element.getBoundingClientRect();
-    const editorRect = vditor.wysiwyg.element.getBoundingClientRect();
-    const anchorTop = elementRect.top - editorRect.top + vditor.wysiwyg.element.scrollTop;
-    const anchorLeft = elementRect.left - editorRect.left + vditor.wysiwyg.element.scrollLeft;
-    const popoverTop = anchorTop - (isLinkPanel ? vditor.wysiwyg.popover.clientHeight + 8 : 21);
-    const maxLeft = vditor.wysiwyg.element.clientWidth - vditor.wysiwyg.popover.clientWidth;
+    const editorRect = editorElement.getBoundingClientRect();
+    const anchorTop = elementRect.top - editorRect.top + editorElement.scrollTop;
+    const anchorLeft = elementRect.left - editorRect.left + editorElement.scrollLeft;
+    const popoverTop = anchorTop - (isLinkPanel ? popover.clientHeight + 8 : 21);
+    const maxLeft = editorElement.clientWidth - popover.clientWidth;
 
-    vditor.wysiwyg.popover.style.top =
-        Math.max(-8, popoverTop - vditor.wysiwyg.element.scrollTop) + "px";
-    vditor.wysiwyg.popover.style.left =
-        Math.max(0, Math.min(anchorLeft - vditor.wysiwyg.element.scrollLeft, maxLeft)) + "px";
-    vditor.wysiwyg.popover.setAttribute("data-top", popoverTop.toString());
+    popover.style.top =
+        Math.max(-8, popoverTop - editorElement.scrollTop) + "px";
+    popover.style.left =
+        Math.max(0, Math.min(anchorLeft - editorElement.scrollLeft, maxLeft)) + "px";
+    popover.setAttribute("data-top", popoverTop.toString());
 };
 
 export const genLinkRefPopover = (vditor: IVditor, linkRefElement: HTMLElement) => {
-    (vditor.wysiwyg.popover as any)._sourceElement = linkRefElement;
-    vditor.wysiwyg.popover.innerHTML = "";
+    const popover = getModePopover(vditor);
+    if (!popover) {
+        return;
+    }
+    (popover as { _sourceElement?: HTMLElement })._sourceElement = linkRefElement;
+    popover.innerHTML = "";
 
     const getDisplayText = () => {
         if (linkRefElement.tagName === "IMG") {
@@ -575,8 +603,8 @@ export const genLinkRefPopover = (vditor: IVditor, linkRefElement: HTMLElement) 
     remove.innerHTML = `<span class="vditor-link-popover__button-icon">${codicon("trash")}</span>`;
     remove.onclick = removeLinkRef;
 
-    view.append(textInput, refInput, copy, remove);
-    vditor.wysiwyg.popover.insertAdjacentElement("beforeend", view);
+    view.append(textInput, refInput, copy, remove, createLinkPopoverExitHint());
+    popover.insertAdjacentElement("beforeend", view);
     setPopoverPosition(vditor, linkRefElement, "link-ref");
 };
 
@@ -604,6 +632,16 @@ const linkHotkey = (
     if (
         !isCtrl(event) &&
         !event.shiftKey &&
+        !event.altKey &&
+        event.key === "Enter"
+    ) {
+        exitLinkPopoverToElement(vditor, element);
+        event.preventDefault();
+        return;
+    }
+    if (
+        !isCtrl(event) &&
+        !event.shiftKey &&
         event.altKey &&
         event.key === "Enter"
     ) {
@@ -613,8 +651,12 @@ const linkHotkey = (
 };
 
 export const genAPopover = (vditor: IVditor, aElement: HTMLElement) => {
-    (vditor.wysiwyg.popover as { _sourceElement?: HTMLElement })._sourceElement = aElement;
-    vditor.wysiwyg.popover.innerHTML = "";
+    const popover = getModePopover(vditor);
+    if (!popover) {
+        return;
+    }
+    (popover as { _sourceElement?: HTMLElement })._sourceElement = aElement;
+    popover.innerHTML = "";
 
     const updateText = () => {
         if (textInput.value.trim() !== "") {
@@ -729,19 +771,20 @@ export const genAPopover = (vditor: IVditor, aElement: HTMLElement) => {
     remove.innerHTML = `<span class="vditor-link-popover__button-icon">${codicon("trash")}</span>`;
     remove.onclick = unlinkA;
 
-    const hint = document.createElement("span");
-    hint.className = "vditor-link-popover__hint";
-    hint.textContent = updateHotkeyTip("⌥Enter");
+    const hint = createLinkPopoverExitHint();
 
     view.append(textInput, hrefInput, copy, remove, hint);
-    vditor.wysiwyg.popover.insertAdjacentElement("beforeend", view);
+    popover.insertAdjacentElement("beforeend", view);
     setPopoverPosition(vditor, aElement, "link");
 };
 
-export const genImagePopover = (event: Event, vditor: IVditor) => {
-    const imgElement = event.target as HTMLImageElement;
-    (vditor.wysiwyg.popover as any)._sourceElement = imgElement;
-    vditor.wysiwyg.popover.innerHTML = "";
+export const genImagePopoverForElement = (vditor: IVditor, imgElement: HTMLImageElement) => {
+    const popover = getModePopover(vditor);
+    if (!popover) {
+        return;
+    }
+    (popover as { _sourceElement?: HTMLElement })._sourceElement = imgElement;
+    popover.innerHTML = "";
 
     const updateAlt = () => {
         imgElement.setAttribute("alt", altInput.value);
@@ -839,9 +882,111 @@ export const genImagePopover = (event: Event, vditor: IVditor) => {
     remove.innerHTML = `<span class="vditor-link-popover__button-icon">${codicon("trash")}</span>`;
     remove.onclick = removeImage;
 
-    view.append(altInput, srcInput, copy, remove);
-    vditor.wysiwyg.popover.insertAdjacentElement("beforeend", view);
+    view.append(altInput, srcInput, copy, remove, createLinkPopoverExitHint());
+    popover.insertAdjacentElement("beforeend", view);
     setPopoverPosition(vditor, imgElement, "image");
+};
+
+export const genImagePopover = (event: Event, vditor: IVditor) => {
+    genImagePopoverForElement(vditor, event.target as HTMLImageElement);
+};
+
+const linkRefFromSibling = (node: Node | null): HTMLElement | null =>
+    node?.nodeType === 1 && (node as HTMLElement).getAttribute("data-type") === "link-ref"
+        ? node as HTMLElement : null;
+
+const anchorFromSibling = (node: Node | null): HTMLElement | null =>
+    node?.nodeType === 1 && (node as Element).tagName === "A" ? node as HTMLElement : null;
+
+const createEditableImageMatcher = (vditor: IVditor) => (node: Node | null): HTMLImageElement | null => {
+    if (!(node instanceof HTMLImageElement)) {
+        return null;
+    }
+    if (isPlantumlRenderImage(node)) {
+        return null;
+    }
+    if (vditor.currentMode === "wysiwyg" && node.parentElement?.classList.contains("vditor-wysiwyg__preview")) {
+        return null;
+    }
+    return node;
+};
+
+const resolveAdjacentLinkRef = (range: Range) =>
+    resolveAdjacentElementFromRange(
+        range,
+        (currentRange) => {
+            const inside = hasClosestByAttribute(currentRange.startContainer, "data-type", "link-ref") as HTMLElement | false;
+            return inside || null;
+        },
+        linkRefFromSibling,
+    );
+
+const resolveAdjacentAnchor = (range: Range) =>
+    resolveAdjacentElementFromRange(
+        range,
+        (currentRange) => {
+            const inside = hasClosestByMatchTag(currentRange.startContainer, "A") as HTMLElement | false;
+            return inside || null;
+        },
+        anchorFromSibling,
+    );
+
+const resolveAdjacentEditableImage = (vditor: IVditor, range: Range) => {
+    const matcher = createEditableImageMatcher(vditor);
+    return resolveAdjacentElementFromRange(
+        range,
+        (currentRange) => {
+            const inside = hasClosestByMatchTag(currentRange.startContainer, "IMG") as HTMLImageElement | false;
+            if (!inside) {
+                return null;
+            }
+            return matcher(inside);
+        },
+        matcher,
+    );
+};
+
+const focusLinkPopoverInput = (vditor: IVditor) => {
+    const inputElement = getModePopover(vditor)?.querySelector("input") as HTMLInputElement | null;
+    if (!inputElement) {
+        return;
+    }
+    inputElement.focus();
+    inputElement.select();
+};
+
+const isLinkPopoverOpen = (vditor: IVditor) => {
+    const popover = getModePopover(vditor);
+    return popover?.style.display === "block" && popover.classList.contains("vditor-panel--link");
+};
+
+export const handleLinkPopoverAltEnter = (vditor: IVditor, range: Range): boolean => {
+    if (isLinkPopoverOpen(vditor)) {
+        return false;
+    }
+
+    const linkRef = resolveAdjacentLinkRef(range);
+    if (linkRef) {
+        genLinkRefPopover(vditor, linkRef);
+        focusLinkPopoverInput(vditor);
+        return true;
+    }
+
+    const image = resolveAdjacentEditableImage(vditor, range);
+    if (image) {
+        genImagePopoverForElement(vditor, image);
+        focusLinkPopoverInput(vditor);
+        return true;
+    }
+
+    const anchor = resolveAdjacentAnchor(range);
+    if (anchor) {
+        genAPopover(vditor, anchor);
+        focusLinkPopoverInput(vditor);
+        return true;
+    }
+
+    return false;
 };
 
 

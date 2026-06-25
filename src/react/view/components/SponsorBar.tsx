@@ -18,6 +18,7 @@ export default function SponsorBar({ placement }: SponsorBarProps) {
     const openWebsite = (e: MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
+        handler.emit('sponsorClick', { action: 'site', component: 'bar', placement });
         handler.emit('openExternal', SPONSOR_URL);
     };
 
@@ -28,7 +29,10 @@ export default function SponsorBar({ placement }: SponsorBarProps) {
                 className="office-sponsor-bar-logo-btn"
                 title="Database Client — open extension"
                 aria-label="Database Client extension"
-                onClick={() => handler.emit('openSponsor')}
+                onClick={() => {
+                    handler.emit('sponsorClick', { action: 'logo', component: 'bar', placement });
+                    handler.emit('openSponsor');
+                }}
             >
                 <img className="office-sponsor-bar-logo" src={iconSrc} alt="Database Client" draggable={false} />
             </button>

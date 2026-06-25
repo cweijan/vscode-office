@@ -17,6 +17,7 @@ import {
     setFileHistorySplitLayout,
     type FileHistorySplitLayout,
 } from '../util/gitHistoryPreferences';
+import { TelemetryService } from '@/service/telemetryService';
 
 const DEFAULT_MAX_COMMITS = 300;
 
@@ -89,6 +90,10 @@ export class MessageRouter {
                 this.onGitAction(content as GitActionPayload)))
             .on('saveFileHistorySplitLayout', this.wrapHandler((content) =>
                 this.onSaveFileHistorySplitLayout(content as { layout: FileHistorySplitLayout })))
+            .on('sponsorClick', this.wrapHandler((content) => {
+                const payload = content as { action: 'logo' | 'site'; component?: string; placement?: string; variant?: string };
+                TelemetryService.get()?.trackPreviewSponsorClick(payload.action, payload);
+            }))
             .on('openSponsor', this.wrapHandler(() => {
                 void vscode.commands.executeCommand(
                     'workbench.extensions.action.showExtensionsWithIds',

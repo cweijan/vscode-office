@@ -79,18 +79,33 @@ export class TelemetryService {
         this.reporter!.sendTelemetryEvent('markdown.export', { type });
     }
 
-    trackAboutOpen(): void {
+    trackMarkdownSponsorOpen(): void {
         if (!this.enabled()) {
             return;
         }
-        this.reporter!.sendTelemetryEvent('markdown.about.open');
+        this.reporter!.sendTelemetryEvent('markdown.sponsor.open');
     }
 
-    trackAboutClick(action: 'logo' | 'site'): void {
+    trackMarkdownSponsorClick(action: 'logo' | 'site'): void {
         if (!this.enabled()) {
             return;
         }
-        this.reporter!.sendTelemetryEvent('markdown.about.click', { action });
+        this.reporter!.sendTelemetryEvent('markdown.sponsor.click', { action });
+    }
+
+    trackPreviewSponsorClick(
+        action: 'logo' | 'site',
+        context?: { component?: string; placement?: string; variant?: string },
+    ): void {
+        if (!this.enabled()) {
+            return;
+        }
+        this.reporter!.sendTelemetryEvent('preview.sponsor.click', {
+            action,
+            ...(context?.component ? { component: context.component } : {}),
+            ...(context?.placement ? { placement: context.placement } : {}),
+            ...(context?.variant ? { variant: context.variant } : {}),
+        });
     }
 
     trackEvent(event: string, properties?: Record<string, string>): void {

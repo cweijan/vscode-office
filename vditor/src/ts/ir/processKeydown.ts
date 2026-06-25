@@ -35,6 +35,8 @@ import {recordHistoryChange} from "../util/instantHistory";
 import {getEditorRange, getSelectPosition, setSelectionFocus} from "../util/selection";
 import {keydownToc} from "../util/toc";
 import {expandMarkerWithMathSync} from "./expandMarkerSync";
+import {handleHtmlEditorAltEnter} from "../htmlInline/htmlInlineEditor";
+import {handleLinkPopoverAltEnter} from "../wysiwyg/highlightToolbarWYSIWYG";
 import {processAfterRender, processHeading} from "./process";
 
 export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
@@ -196,6 +198,18 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
     // task list
     if (fixTask(vditor, range, event)) {
         return true;
+    }
+
+    // alt+enter: 打开 html / 链接 / 图片编辑弹窗
+    if (event.altKey && event.key === "Enter" && !isCtrl(event) && !event.shiftKey) {
+        if (handleHtmlEditorAltEnter(vditor, range)) {
+            event.preventDefault();
+            return true;
+        }
+        if (handleLinkPopoverAltEnter(vditor, range)) {
+            event.preventDefault();
+            return true;
+        }
     }
 
     // tab

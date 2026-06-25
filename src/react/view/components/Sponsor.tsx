@@ -40,6 +40,7 @@ export default function Sponsor({ dark, variant = 'fixed' }: SponsorProps) {
     const openWebsite = (e: MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
+        handler.emit('sponsorClick', { action: 'site', component: 'sidebar', variant });
         handler.emit('openExternal', SPONSOR_URL);
     };
 
@@ -50,7 +51,10 @@ export default function Sponsor({ dark, variant = 'fixed' }: SponsorProps) {
                 className="office-sponsor-logo-btn"
                 title="Database Client — open extension"
                 aria-label="Database Client extension"
-                onClick={() => handler.emit('openSponsor')}
+                onClick={() => {
+                    handler.emit('sponsorClick', { action: 'logo', component: 'sidebar', variant });
+                    handler.emit('openSponsor');
+                }}
             >
                 <img className="office-sponsor-logo" src={logoSrc} alt="Database Client" draggable={false} />
             </button>

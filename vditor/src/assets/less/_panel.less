@@ -186,9 +186,28 @@
 
       .vditor-html-inline-popover__actions {
         display: flex;
-        justify-content: flex-end;
+        align-items: center;
+        justify-content: space-between;
         gap: 8px;
         padding-top: 2px;
+      }
+
+      .vditor-html-inline-popover__actions-buttons {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+
+      .vditor-html-inline-popover__hint {
+        flex-shrink: 0;
+        font-size: 11px;
+        color: var(--textarea-text-color);
+        opacity: 0.45;
+        white-space: nowrap;
+        padding: 2px 4px;
+        user-select: none;
+        pointer-events: none;
       }
 
       .vditor-html-inline-popover__button {
@@ -227,6 +246,36 @@
 
           &:focus-visible {
             box-shadow: 0 0 0 2px color-mix(in srgb, var(--link-color, #4285f4) 35%, transparent);
+          }
+        }
+
+        &--wrap {
+          min-width: 28px;
+          padding: 5px 8px;
+          background: transparent;
+          border-color: color-mix(in srgb, var(--toolbar-icon-color) 20%, transparent);
+          color: var(--toolbar-icon-color);
+
+          .vditor-html-inline-popover__button-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+
+            .codicon {
+              font-size: 16px;
+              line-height: 1;
+            }
+          }
+
+          &:hover {
+            background: color-mix(in srgb, var(--toolbar-icon-color) 10%, transparent);
+          }
+
+          &.vditor-html-inline-popover__button--wrap-active {
+            background: color-mix(in srgb, var(--link-color, #4285f4) 16%, transparent);
+            border-color: color-mix(in srgb, var(--link-color, #4285f4) 35%, transparent);
+            color: var(--link-color, #4285f4);
           }
         }
       }

@@ -54,6 +54,7 @@ export const FONT_SIZE_MAX = 24;
 export const LINE_HEIGHT_KEY = "editorLineHeight";
 export const FONT_FAMILY_KEY = "editorFontFamily";
 export const BOLD_COLOR_KEY = "boldColor";
+export const HTML_EDITOR_LINE_WRAP_KEY = "htmlEditorLineWrap";
 
 export const LINE_HEIGHT_MIN = 1.0;
 export const LINE_HEIGHT_MAX = 3.0;

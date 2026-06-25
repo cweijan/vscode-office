@@ -7,8 +7,18 @@ import { loadCodeMirrorHighlightLanguage } from "../codeBlock/codeBlockHighlight
 import { stopHandledCodeMirrorKeymap, vditorCodeMirrorSetup } from "../codeBlock/codeMirrorSetup";
 import { Constants } from "../constants";
 import { hasClosestByAttribute, hasClosestByClassName } from "../util/hasClosest";
+import { resolveAdjacentElementFromRange } from "../util/rangeAdjacentElement";
+import { getEditorRange, setSelectionFocus } from "../util/selection";
+import { formatAltEnterHotkeyTip } from "../util/compatibility";
+import { codicon } from "../util/codicon";
+import {
+    getGlobalLocalStorageSetting,
+    HTML_EDITOR_LINE_WRAP_KEY,
+    setGlobalLocalStorageSetting,
+} from "../util/globalLocalStorageSettings";
 import { afterRenderEvent } from "../wysiwyg/afterRenderEvent";
 import { processAfterRender } from "../ir/process";
+import { telemetry } from "../util/telemetry";
 
 const HTML_EDITOR_POPOVER_CLASS = "vditor-popover--html-inline";
 const HTML_EDITOR_PANEL_CLASS = "vditor-panel--html-inline";
@@ -25,14 +35,17 @@ const decodeMdSourceAttr = (raw: string | null): string => {
 
 type HtmlEditTarget = {
     anchorElement: HTMLElement;
+    focusElement: HTMLElement;
     getSource: () => string;
-    applySource: (source: string) => void;
+    applySource: (source: string) => HTMLElement | null;
     remove: () => void;
 };
 
 type HtmlEditorPopoverBinding = {
     view: EditorView;
     languageCompartment: Compartment;
+    wrapCompartment: Compartment;
+    lineWrapEnabled: boolean;
 };
 
 let activeHtmlEditorPopover: HtmlEditorPopoverBinding | null = null;
@@ -152,6 +165,65 @@ const hideHtmlEditorPopover = (vditor: IVditor) => {
     popover.innerHTML = "";
 };
 
+const restoreFocusAfterHtmlRemove = (
+    vditor: IVditor,
+    parent: HTMLElement | null,
+    next: Node | null,
+) => {
+    const editorElement = getModeEditorElement(vditor);
+    if (!editorElement) {
+        return;
+    }
+    editorElement.focus({ preventScroll: true });
+    if (!parent?.isConnected) {
+        return;
+    }
+    const range = getEditorRange(vditor);
+    if (next && parent.contains(next)) {
+        if (next.nodeType === 3) {
+            range.setStart(next, 0);
+        } else {
+            range.setStartBefore(next);
+        }
+    } else {
+        parent.insertAdjacentHTML("beforeend", Constants.ZWSP);
+        range.selectNodeContents(parent);
+        range.collapse(false);
+    }
+    range.collapse(true);
+    setSelectionFocus(range);
+};
+
+const restoreFocusToHtmlElement = (vditor: IVditor, element: HTMLElement | null) => {
+    const editorElement = getModeEditorElement(vditor);
+    if (!editorElement) {
+        return;
+    }
+    editorElement.focus({ preventScroll: true });
+    if (!element?.isConnected) {
+        return;
+    }
+    const range = getEditorRange(vditor);
+    element.insertAdjacentHTML("afterend", Constants.ZWSP);
+    range.setStartAfter(element.nextSibling as Node);
+    range.collapse(true);
+    setSelectionFocus(range);
+};
+
+const closeHtmlEditorPopover = (
+    vditor: IVditor,
+    focusElement: HTMLElement | null,
+    removedParent?: HTMLElement | null,
+    removedNext?: Node | null,
+) => {
+    hideHtmlEditorPopover(vditor);
+    if (removedParent !== undefined) {
+        restoreFocusAfterHtmlRemove(vditor, removedParent, removedNext ?? null);
+        return;
+    }
+    restoreFocusToHtmlElement(vditor, focusElement);
+};
+
 const notifyAfterHtmlEditorChange = (vditor: IVditor) => {
     if (vditor.currentMode === "ir") {
         processAfterRender(vditor);
@@ -211,30 +283,47 @@ const getHtmlBlockAnchor = (blockElement: HTMLElement): HTMLElement => {
 
 const createHtmlInlineTargetWithVditor = (vditor: IVditor, element: HTMLElement): HtmlEditTarget => ({
     anchorElement: element,
+    focusElement: element,
     getSource: () => decodeMdSourceAttr(element.getAttribute("data-md-source")),
     applySource: (source: string) => {
         const newHtml = renderHtmlInlineFromMd(vditor, source);
         if (newHtml) {
-            element.outerHTML = newHtml;
-            return;
+            const wrapper = document.createElement("div");
+            wrapper.innerHTML = newHtml;
+            const newNode = wrapper.firstElementChild as HTMLElement | null;
+            if (!newNode) {
+                return null;
+            }
+            element.replaceWith(newNode);
+            return newNode;
         }
         element.setAttribute("data-md-source", source);
         const display = element.querySelector(".vditor-html-inline__display");
         if (display) {
             display.textContent = source;
         }
+        return element;
     },
     remove: () => element.remove(),
 });
 
 const createHtmlBlockTarget = (vditor: IVditor, blockElement: HTMLElement): HtmlEditTarget => ({
     anchorElement: getHtmlBlockAnchor(blockElement),
+    focusElement: blockElement,
     getSource: () => getHtmlBlockSource(blockElement),
     applySource: (source: string) => {
         const newHtml = renderHtmlBlockFromMd(vditor, source);
         if (newHtml) {
-            blockElement.outerHTML = newHtml;
+            const wrapper = document.createElement("div");
+            wrapper.innerHTML = newHtml;
+            const newNode = wrapper.firstElementChild as HTMLElement | null;
+            if (!newNode) {
+                return null;
+            }
+            blockElement.replaceWith(newNode);
+            return newNode;
         }
+        return blockElement;
     },
     remove: () => blockElement.remove(),
 });
@@ -274,12 +363,14 @@ const mountHtmlEditorCodeMirror = (
 ) => {
     destroyHtmlEditorCodeMirror();
     const languageCompartment = new Compartment();
+    const wrapCompartment = new Compartment();
     const view = new EditorView({
         doc: initialSource,
         parent: host,
         extensions: [
             vditorCodeMirrorSetup,
             languageCompartment.of([]),
+            wrapCompartment.of([]),
             keymap.of(stopHandledCodeMirrorKeymap([
                 { key: "Tab", run: insertLiteralTab, shift: indentLess },
                 {
@@ -305,7 +396,7 @@ const mountHtmlEditorCodeMirror = (
             }),
         ],
     });
-    activeHtmlEditorPopover = { view, languageCompartment };
+    activeHtmlEditorPopover = { view, languageCompartment, wrapCompartment, lineWrapEnabled: false };
     loadCodeMirrorHighlightLanguage("html").then((lang) => {
         if (!lang || activeHtmlEditorPopover?.view !== view) {
             scheduleFocusHtmlEditorAtStart(view);
@@ -317,6 +408,38 @@ const mountHtmlEditorCodeMirror = (
         scheduleFocusHtmlEditorAtStart(view);
     });
     return view;
+};
+
+const readHtmlEditorLineWrapEnabled = (): boolean =>
+    getGlobalLocalStorageSetting<boolean>(HTML_EDITOR_LINE_WRAP_KEY, false) === true;
+
+const persistHtmlEditorLineWrapEnabled = (enabled: boolean) => {
+    setGlobalLocalStorageSetting(HTML_EDITOR_LINE_WRAP_KEY, enabled);
+};
+
+const applyHtmlEditorLineWrap = (wrapButton: HTMLButtonElement, enabled: boolean) => {
+    const binding = activeHtmlEditorPopover;
+    if (!binding) {
+        return;
+    }
+    binding.lineWrapEnabled = enabled;
+    binding.view.dispatch({
+        effects: binding.wrapCompartment.reconfigure(
+            enabled ? EditorView.lineWrapping : [],
+        ),
+    });
+    wrapButton.classList.toggle("vditor-html-inline-popover__button--wrap-active", enabled);
+    wrapButton.setAttribute("aria-pressed", String(enabled));
+};
+
+const toggleHtmlEditorLineWrap = (wrapButton: HTMLButtonElement) => {
+    const binding = activeHtmlEditorPopover;
+    if (!binding) {
+        return;
+    }
+    const enabled = !binding.lineWrapEnabled;
+    applyHtmlEditorLineWrap(wrapButton, enabled);
+    persistHtmlEditorLineWrapEnabled(enabled);
 };
 
 export const showHtmlEditorPopover = (vditor: IVditor, target: HtmlEditTarget) => {
@@ -337,10 +460,19 @@ export const showHtmlEditorPopover = (vditor: IVditor, target: HtmlEditTarget) =
     const actions = document.createElement("div");
     actions.className = "vditor-html-inline-popover__actions";
 
-    const cancelButton = document.createElement("button");
-    cancelButton.type = "button";
-    cancelButton.className = "vditor-html-inline-popover__button vditor-html-inline-popover__button--cancel";
-    cancelButton.textContent = "Cancel";
+    const hint = document.createElement("span");
+    hint.className = "vditor-html-inline-popover__hint";
+    hint.textContent = formatAltEnterHotkeyTip();
+
+    const actionsButtons = document.createElement("div");
+    actionsButtons.className = "vditor-html-inline-popover__actions-buttons";
+
+    const wrapButton = document.createElement("button");
+    wrapButton.type = "button";
+    wrapButton.className = "vditor-html-inline-popover__button vditor-html-inline-popover__button--wrap";
+    wrapButton.setAttribute("aria-label", "Toggle line wrap");
+    wrapButton.setAttribute("aria-pressed", "false");
+    wrapButton.innerHTML = `<span class="vditor-html-inline-popover__button-icon">${codicon("word-wrap")}</span>`;
 
     const saveButton = document.createElement("button");
     saveButton.type = "button";
@@ -352,29 +484,38 @@ export const showHtmlEditorPopover = (vditor: IVditor, target: HtmlEditTarget) =
 
     const save = () => {
         const newMd = (activeHtmlEditorPopover?.view.state.doc.toString() ?? initialSource).trim();
+        const htmlType = targetRef.anchorElement.getAttribute("data-type") === "html-block" ? "block" : "inline";
+        telemetry(vditor, "markdown.html.save", { type: htmlType, isEmpty: !newMd });
         vditor.undo.addToUndoStack(vditor);
         if (!newMd) {
+            const parent = targetRef.focusElement.parentElement;
+            const next = targetRef.focusElement.nextSibling;
             targetRef.remove();
-        } else {
-            targetRef.applySource(newMd);
+            notifyAfterHtmlEditorChange(vditor);
+            closeHtmlEditorPopover(vditor, null, parent, next);
+            return;
         }
-        hideHtmlEditorPopover(vditor);
+        const focusElement = targetRef.applySource(newMd) ?? targetRef.focusElement;
         notifyAfterHtmlEditorChange(vditor);
+        closeHtmlEditorPopover(vditor, focusElement);
     };
 
     const cancel = () => {
-        hideHtmlEditorPopover(vditor);
+        closeHtmlEditorPopover(vditor, targetRef.focusElement);
     };
 
-    cancelButton.addEventListener("click", cancel);
     saveButton.addEventListener("click", save);
+    wrapButton.addEventListener("click", () => toggleHtmlEditorLineWrap(wrapButton));
 
-    actions.appendChild(cancelButton);
-    actions.appendChild(saveButton);
+    actionsButtons.appendChild(wrapButton);
+    actionsButtons.appendChild(saveButton);
+    actions.appendChild(hint);
+    actions.appendChild(actionsButtons);
     panel.appendChild(cmHost);
     panel.appendChild(actions);
     popover.appendChild(panel);
     const view = mountHtmlEditorCodeMirror(cmHost, initialSource, save, cancel);
+    applyHtmlEditorLineWrap(wrapButton, readHtmlEditorLineWrapEnabled());
     scheduleHtmlEditorPopoverPosition(vditor, target.anchorElement);
     scheduleFocusHtmlEditorAtStart(view);
 };
@@ -411,6 +552,64 @@ export const handleHtmlEditorClick = (
     if (htmlBlock) {
         event.preventDefault();
         event.stopPropagation();
+        showHtmlEditorPopover(vditor, createHtmlBlockTarget(vditor, htmlBlock));
+        return true;
+    }
+
+    return false;
+};
+
+const isReadonlyHtmlInline = (el: Element | null): el is HTMLElement =>
+    !!el && el.nodeType === 1 &&
+    (el as HTMLElement).getAttribute("data-type") === "html-inline" &&
+    (el as HTMLElement).getAttribute("contenteditable") === "false";
+
+const isReadonlyHtmlBlock = (el: Element | null): el is HTMLElement =>
+    !!el && el.nodeType === 1 &&
+    (el as HTMLElement).getAttribute("data-type") === "html-block" &&
+    (el as HTMLElement).getAttribute("contenteditable") === "false";
+
+const htmlInlineFromSibling = (node: Node | null): HTMLElement | null =>
+    node?.nodeType === 1 && isReadonlyHtmlInline(node as Element) ? node as HTMLElement : null;
+
+const htmlBlockFromSibling = (node: Node | null): HTMLElement | null =>
+    node?.nodeType === 1 && isReadonlyHtmlBlock(node as Element) ? node as HTMLElement : null;
+
+const resolveReadonlyHtmlFromRange = (
+    range: Range,
+    typeAttr: "html-inline" | "html-block",
+    matcher: (node: Node | null) => HTMLElement | null,
+): HTMLElement | null => {
+    const insideResolver = (currentRange: Range) => {
+        const inside = hasClosestByAttribute(currentRange.startContainer, "data-type", typeAttr) as HTMLElement | false;
+        if (inside && inside.getAttribute("contenteditable") === "false") {
+            return inside;
+        }
+        return null;
+    };
+    return resolveAdjacentElementFromRange(range, insideResolver, matcher);
+};
+
+const resolveReadonlyHtmlInlineFromRange = (range: Range): HTMLElement | null =>
+    resolveReadonlyHtmlFromRange(range, "html-inline", htmlInlineFromSibling);
+
+const resolveReadonlyHtmlBlockFromRange = (range: Range): HTMLElement | null =>
+    resolveReadonlyHtmlFromRange(range, "html-block", htmlBlockFromSibling);
+
+export const handleHtmlEditorAltEnter = (vditor: IVditor, range: Range): boolean => {
+    const popover = getModePopover(vditor);
+    if (popover?.classList.contains(HTML_EDITOR_PANEL_CLASS) && popover.style.display !== "none") {
+        return false;
+    }
+
+    const htmlInline = resolveReadonlyHtmlInlineFromRange(range);
+    if (htmlInline) {
+        showHtmlEditorPopover(vditor, createHtmlInlineTargetWithVditor(vditor, htmlInline));
+        return true;
+    }
+
+    const htmlBlock = resolveReadonlyHtmlBlockFromRange(range);
+    if (htmlBlock) {
         showHtmlEditorPopover(vditor, createHtmlBlockTarget(vditor, htmlBlock));
         return true;
     }

@@ -120,6 +120,36 @@
 				"purpose": "FeatureInsight",
 				"endPoint": "Azure"
 			}
+		},
+		"preview.sponsor.click": {
+			"action": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			},
+			"component": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			},
+			"placement": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			},
+			"variant": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			}
+		},
+		"markdown.sponsor.open": {},
+		"markdown.sponsor.click": {
+			"action": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			}
 		}
 	}
 }

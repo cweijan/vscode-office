@@ -33,11 +33,12 @@ import { recordHistoryChange } from "../util/instantHistory";
 import { getEditorRange, getSelectPosition, setSelectionFocus } from "../util/selection";
 import { keydownToc, renderToc } from "../util/toc";
 import { afterRenderEvent } from "./afterRenderEvent";
-import { moveDown, moveUp, genAPopover, genLinkRefPopover } from "./highlightToolbarWYSIWYG";
+import { moveDown, moveUp, handleLinkPopoverAltEnter } from "./highlightToolbarWYSIWYG";
 import { nextIsCode } from "./inlineTag";
 import { removeHeading, setHeading } from "./setHeading";
 import { focusWysiwygCodeBlock, showCode } from "./showCode";
 import { enterInlineMathEdit } from "../math/inlineMathCodeMirror";
+import { handleHtmlEditorAltEnter } from "../htmlInline/htmlInlineEditor";
 
 export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
     // Chrome firefox 触发 compositionend 机制不一致 https://github.com/Vanessa219/vditor/issues/188
@@ -257,21 +258,13 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
 
     // alt+enter
     if (event.altKey && event.key === "Enter" && !isCtrl(event) && !event.shiftKey) {
-        // 切换到链接、链接引用、脚注引用弹出的输入框中
-        const aElement = hasClosestByMatchTag(startContainer, "A");
-        const linRefElement = hasClosestByAttribute(startContainer, "data-type", "link-ref");
-        const footnoteRefElement = hasClosestByAttribute(startContainer, "data-type", "footnotes-ref");
-        if (aElement || linRefElement || footnoteRefElement) {
-            if (aElement && vditor.wysiwyg.popover.style.display !== "block") {
-                genAPopover(vditor, aElement as HTMLElement);
-            } else if (linRefElement && vditor.wysiwyg.popover.style.display !== "block") {
-                genLinkRefPopover(vditor, linRefElement as HTMLElement);
-            }
-            const inputElement = vditor.wysiwyg.popover.querySelector("input");
-            if (inputElement) {
-                inputElement.focus();
-                inputElement.select();
-            }
+        if (handleHtmlEditorAltEnter(vditor, range)) {
+            event.preventDefault();
+            return true;
+        }
+        if (handleLinkPopoverAltEnter(vditor, range)) {
+            event.preventDefault();
+            return true;
         }
     }
 
