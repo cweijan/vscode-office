@@ -25,6 +25,101 @@
 				"purpose": "FeatureInsight",
 				"endPoint": "Azure"
 			}
+		},
+		"markdown.ai.addPrompt": {
+			"source": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			}
+		},
+		"markdown.ai.addModel": {
+			"source": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			}
+		},
+		"markdown.ai.polish": {
+			"engine": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			},
+			"isSelection": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			}
+		},
+		"markdown.settings.open": {},
+		"markdown.html.save": {
+			"type": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			},
+			"isEmpty": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			}
+		},
+		"markdown.theme.editor": {
+			"theme": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			}
+		},
+		"markdown.theme.toggle": {
+			"theme": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			}
+		},
+		"markdown.theme.code": {
+			"theme": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			}
+		},
+		"markdown.editInVSCode": {
+			"full": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			}
+		},
+		"markdown.find.open": {
+			"source": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			}
+		},
+		"markdown.save": {
+			"source": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			}
+		},
+		"markdown.upload": {
+			"fileCount": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			}
+		},
+		"markdown.editMode": {
+			"mode": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			}
 		}
 	}
 }

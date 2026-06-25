@@ -30,6 +30,7 @@ export async function getToolbar(resPath, onSave = null) {
             className: 'right',
             icon: codicon('save'),
             click() {
+                handler.emit('telemetry', { event: 'markdown.save', properties: { source: 'toolbar' } });
                 onSave?.()
             }
         },
@@ -292,6 +293,7 @@ export const bindShortcut = (handler, editor) => {
         if (isCompose(e)) {
             switch (e.code) {
                 case 'KeyS':
+                    handler.emit('telemetry', { event: 'markdown.save', properties: { source: 'shortcut' } });
                     vscodeEvent.emit("doSave", editor.getValue());
                     e.stopPropagation();
                     e.preventDefault();

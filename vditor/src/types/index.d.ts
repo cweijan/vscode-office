@@ -599,6 +599,9 @@ interface IOptions {
 
     /** 点击赞助站点后触发 */
     onSponsorSiteClick?(): void;
+
+    /** 遥测事件回调；配置后 vditor 内部通过 telemetry() 上报 */
+    onTelemetry?(event: string, properties?: Record<string, string | number | boolean>): void;
 }
 
 interface IEChart {

@@ -207,6 +207,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             vscode.env.clipboard.writeText(`![${fileName}](${adjustRelPath})`);
             vscode.commands.executeCommand("editor.action.clipboardPasteAction");
         }).on("editInVSCode", (full: boolean) => {
+            TelemetryService.get()?.trackEvent('markdown.editInVSCode', { full: full ? 'true' : 'false' });
             const side = full ? vscode.ViewColumn.Active : vscode.ViewColumn.Beside;
             vscode.commands.executeCommand('vscode.openWith', uri, "default", side);
         }).on("showInFolder", () => {
@@ -266,6 +267,8 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             await this.handleAIPolish(handler, payload.markdown, payload.options);
         }).on('aiPolishCancel', () => {
             this.cancelAIPolish();
+        }).on('telemetry', (payload: { event: string; properties?: Record<string, string | number | boolean> }) => {
+            TelemetryService.get()?.trackEvent(payload.event, payload.properties);
         })
 
         const basePath = Global.getConfig('workspacePathAsImageBasePath') ?

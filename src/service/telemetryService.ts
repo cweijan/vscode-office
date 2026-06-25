@@ -10,7 +10,9 @@ const TELEMETRY_CONNECTION_STRING = 'InstrumentationKey=596d6b52-80df-4535-9724-
 
 export class TelemetryService {
     private static instance: TelemetryService | undefined;
+    private static readonly VIEW_OPEN_INTERVAL_MS = 60 * 60 * 1000;
     private reporter: TelemetryReporter | undefined;
+    private viewOpenLastSentByFileType = new Map<string, number>();
 
     static init(context: ExtensionContext): TelemetryService {
         if (!TelemetryService.instance) {
@@ -42,6 +44,13 @@ export class TelemetryService {
         if (!this.enabled()) {
             return;
         }
+        const rateLimitKey = fileType ?? viewType;
+        const now = Date.now();
+        const lastSent = this.viewOpenLastSentByFileType.get(rateLimitKey);
+        if (lastSent !== undefined && now - lastSent < TelemetryService.VIEW_OPEN_INTERVAL_MS) {
+            return;
+        }
+        this.viewOpenLastSentByFileType.set(rateLimitKey, now);
         this.reporter!.sendTelemetryEvent('view.open', {
             viewType,
             ...(fileType ? { fileType } : {}),
@@ -82,5 +91,12 @@ export class TelemetryService {
             return;
         }
         this.reporter!.sendTelemetryEvent('markdown.about.click', { action });
+    }
+
+    trackEvent(event: string, properties?: Record<string, string>): void {
+        if (!this.enabled()) {
+            return;
+        }
+        this.reporter!.sendTelemetryEvent(event, properties);
     }
 }

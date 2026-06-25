@@ -7,12 +7,15 @@ import {
     getAIModels, setAIModels,
 } from "../util/globalLocalStorageSettings";
 import { showConfirm } from "../util/confirm";
+import { telemetry } from "../util/telemetry";
 
 export class AISettings extends MenuItem {
     public element: HTMLElement;
+    private vditor: IVditor;
 
     constructor(vditor: IVditor, menuItem: IMenuItem) {
         super(vditor, menuItem);
+        this.vditor = vditor;
 
         const actionBtn = this.element.children[0] as HTMLElement;
         const panelElement = document.createElement("div");
@@ -51,6 +54,7 @@ export class AISettings extends MenuItem {
                         delete panelElement.dataset.editingPromptId;
                     } else {
                         prompts.push({ id: Date.now().toString(), name, content });
+                        telemetry(this.vditor, "markdown.ai.addPrompt", { source: "settings" });
                     }
                     setAIPrompts(prompts);
                     panelElement.querySelector("[data-ai-prompts]")!.outerHTML = buildAIPromptsHTML();
@@ -116,6 +120,7 @@ export class AISettings extends MenuItem {
                         delete panelElement.dataset.editingModelId;
                     } else {
                         models.push({ id: Date.now().toString(), name, url, key, model, format });
+                        telemetry(this.vditor, "markdown.ai.addModel", { source: "settings" });
                     }
                     setAIModels(models);
                     panelElement.querySelector("[data-ai-models]")!.outerHTML = buildAIModelsHTML();

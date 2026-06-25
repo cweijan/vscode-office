@@ -37,6 +37,7 @@ import {
     resetGlobalSettings,
     applyEditorSettings,
 } from "../util/globalLocalStorageSettings";
+import { telemetry } from "../util/telemetry";
 
 const DROPDOWN_OPTIONS_MAP: Record<string, readonly { label: string; value: string }[]> = {
     [FONT_FAMILY_KEY]: FONT_FAMILY_OPTIONS,
@@ -126,8 +127,12 @@ export class Settings extends MenuItem {
         });
 
         actionBtn.addEventListener(getEventName(), () => {
+            const willOpen = panelElement.style.display !== "block";
             closeFloatingMenu();
             refreshSettingsPanel(panelElement, vditor);
+            if (willOpen) {
+                telemetry(vditor, "markdown.settings.open");
+            }
         }, true);
 
         panelElement.addEventListener(getEventName(), (event: MouseEvent & { target: HTMLElement }) => {

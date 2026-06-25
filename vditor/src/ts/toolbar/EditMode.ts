@@ -17,6 +17,7 @@ import {renderDomByMd} from "../wysiwyg/renderDomByMd";
 import {renderCodeBlocks} from "../codeBlock/codeMirrorManager";
 import {MenuItem} from "./MenuItem";
 import {refreshSettingsToolbarPanel} from "../ui/settingsPanel";
+import {telemetry} from "../util/telemetry";
 import {
     disableToolbar,
     enableToolbar,
@@ -136,8 +137,11 @@ export const setEditMode = (
 
     vditor.outline.toggle(vditor, vditor.options.outline.enable);
 
-    if (typeof event !== "string" && vditor.options.changeEditMode) {
-        vditor.options.changeEditMode(vditor.currentMode);
+    if (typeof event !== "string") {
+        if (vditor.options.changeEditMode) {
+            vditor.options.changeEditMode(vditor.currentMode);
+        }
+        telemetry(vditor, "markdown.editMode", { mode: vditor.currentMode });
     }
 
     refreshEditModePanel(vditor);

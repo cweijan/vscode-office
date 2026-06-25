@@ -21,6 +21,7 @@ import {Toolbar} from "./ts/toolbar/index";
 import {disableToolbar, hidePanel} from "./ts/toolbar/setToolbar";
 import {enableToolbar} from "./ts/toolbar/setToolbar";
 import {AIDialog} from "./ts/ui/aiDialog";
+import {telemetry} from "./ts/util/telemetry";
 import {AIResultPanel} from "./ts/ui/aiResultPanel";
 import {initUI} from "./ts/ui/initUI";
 import {setCodeTheme} from "./ts/ui/setCodeTheme";
@@ -395,6 +396,10 @@ class Vditor {
             () => discardOrCancel(false),
             () => discardOrCancel(true),
         );
+        telemetry(this.vditor, "markdown.ai.polish", {
+            engine: options?.engine ?? "vscode",
+            isSelection: !replaceAll,
+        });
         onPolish(markdown, (_result: string) => { /* unused — streaming via streamAIChunk/endAIStream */ }, options);
     }
 
@@ -486,7 +491,7 @@ class Vditor {
             initUI(this.vditor);
 
             if (mergedOptions.ai?.onPolish) {
-                this.aiDialog = new AIDialog(this.vditor.element, (markdown, isSelection, options) => {
+                this.aiDialog = new AIDialog(this.vditor, (markdown, isSelection, options) => {
                     this.triggerAIPolish(options, markdown, isSelection);
                 }, (reason) => {
                     hideFrozenSelection(this.vditor);

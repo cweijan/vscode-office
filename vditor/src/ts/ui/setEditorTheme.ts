@@ -7,6 +7,7 @@ import {
 import {resolveMermaidTheme} from "./setMermaidTheme";
 import {updateEditorThemeToggle} from "./editorThemeToggle";
 import {initMobileOutlineMenu, prepareEditorThemeMobileOutline} from "./mobileOutlineMenu";
+import {telemetry} from "../util/telemetry";
 
 const LEGACY_THEME_LINK_ID = "vditor-editor-theme-css";
 
@@ -53,11 +54,17 @@ const observeVscodeTheme = (vditor: IVditor) => {
 };
 
 /** Apply bundled editor theme via data-editor-theme (css bundled in index.css). */
-export const setEditorTheme = (vditor: IVditor, theme: string, notify = true) => {
+export const setEditorTheme = (
+    vditor: IVditor,
+    theme: string,
+    notify = true,
+    telemetryKind: "editor" | "toggle" = "editor",
+) => {
     const resolved = resolveEditorTheme(theme);
     if (!EDITOR_THEME_IDS.includes(resolved)) {
         return;
     }
+    const previous = resolveEditorTheme(vditor.options.editorTheme);
 
     applyEditorThemeAttribute(vditor, resolved);
     vditor.options.editorTheme = resolved;
@@ -68,8 +75,16 @@ export const setEditorTheme = (vditor: IVditor, theme: string, notify = true) =>
         refreshMermaidTheme(vditor.element, vditor.options.cdn, vditor);
     }
 
-    if (notify && vditor.options.changeEditorTheme) {
-        vditor.options.changeEditorTheme(resolved);
+    if (notify) {
+        if (resolved !== previous) {
+            const event = telemetryKind === "toggle"
+                ? "markdown.theme.toggle"
+                : "markdown.theme.editor";
+            telemetry(vditor, event, { theme: resolved });
+        }
+        if (vditor.options.changeEditorTheme) {
+            vditor.options.changeEditorTheme(resolved);
+        }
     }
 };
 

@@ -21,7 +21,7 @@ export class EditorThemeToggle extends MenuItem {
                 return;
             }
             const nextTheme = theme === "Light" ? "Auto" : "Light";
-            setEditorTheme(vditor, nextTheme);
+            setEditorTheme(vditor, nextTheme, true, "toggle");
         });
 
         registerThemeToggleCallback((theme) => this.update(btn, theme));
