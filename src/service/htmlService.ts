@@ -5,6 +5,7 @@ import { extensionResource } from "../common/extensionResource";
 import { readUriText } from "../common/workspaceFs";
 import { fileTypeFromPath } from "@/service/officeViewType";
 import { TelemetryService } from "@/service/telemetryService";
+import { i18n } from "@/common/global";
 
 export class HtmlService {
 
@@ -12,7 +13,7 @@ export class HtmlService {
         const activeEditor = window.activeTextEditor;
         if (!uri) {
             if (!activeEditor) {
-                void window.showWarningMessage('No HTML file to preview.');
+                void window.showWarningMessage(i18n('ext.html.noFile'));
                 return;
             }
             uri = activeEditor.document.uri;

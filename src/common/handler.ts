@@ -5,6 +5,7 @@ import { Output } from "./Output";
 
 export class Handler {
 
+    private isEnd: boolean;
     constructor(public panel: WebviewPanel, private eventEmitter: SimpleEventEmitter) { }
 
     on(event: string, callback: (content: any) => any | Promise<any>): this {
@@ -26,6 +27,7 @@ export class Handler {
     }
 
     emit(event: string, content?: any) {
+        if (this.isEnd) return this;
         this.panel.webview.postMessage({ type: event, content })
         return this;
     }
@@ -43,7 +45,9 @@ export class Handler {
                 eventEmitter.emit("externalUpdate", e)
             }
         });
+        const handle = new Handler(panel, eventEmitter)
         panel.onDidDispose(() => {
+            handle.isEnd = true;
             fileWatcher?.dispose()
             changeDocumentSubscription.dispose()
             eventEmitter.emit("dispose")
@@ -53,7 +57,7 @@ export class Handler {
         panel.webview.onDidReceiveMessage((message) => {
             eventEmitter.emit(message.type, message.content)
         })
-        return new Handler(panel, eventEmitter);
+        return handle;
     }
 
     private static createFileWatcher(uri: vscode.Uri): vscode.FileSystemWatcher | undefined {

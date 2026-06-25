@@ -1,3 +1,5 @@
+import { $t } from '../../../i18n/i18nConfig';
+
 export type FormField =
     | { type: 'text'; id: string; label: string; placeholder?: string; defaultValue?: string; info?: string }
     | { type: 'checkbox'; id: string; label: string; defaultValue?: boolean; info?: string }
@@ -67,42 +69,45 @@ export function getPromptSteps(
             return [{
                 kind: 'form',
                 id: 'createBranch',
-                title: 'Create Branch',
+                title: $t('git.createBranch'),
                 variant: 'createBranch',
                 commitHash: payload.hash as string,
-                submitLabel: 'Create Branch',
+                submitLabel: $t('git.createBranch'),
                 fields: [
-                    { type: 'text', id: 'branchName', label: 'Name', placeholder: 'branch-name' },
-                    { type: 'checkbox', id: 'checkout', label: 'Check out', defaultValue: false },
+                    { type: 'text', id: 'branchName', label: $t('git.branchName'), placeholder: 'branch-name' },
+                    { type: 'checkbox', id: 'checkout', label: $t('git.checkOut'), defaultValue: false },
                 ],
             }];
         case 'deleteBranch':
             return [{
                 kind: 'form',
                 id: 'deleteBranch',
-                title: 'Delete Branch',
+                title: $t('git.deleteBranch'),
                 variant: 'deleteBranch',
                 branchName: payload.branch as string,
-                submitLabel: 'Delete',
+                submitLabel: $t('common.delete'),
                 fields: [
-                    { type: 'checkbox', id: 'forceDelete', label: 'Force Delete', defaultValue: false },
+                    { type: 'checkbox', id: 'forceDelete', label: $t('git.forceDelete'), defaultValue: false },
                 ],
             }];
         case 'renameBranch':
             return [{
                 kind: 'input',
                 id: 'newName',
-                title: 'Rename Branch',
-                label: 'New branch name',
+                title: $t('git.renameBranch'),
+                label: $t('git.newBranchName'),
                 defaultValue: payload.branch as string,
             }];
         case 'deleteRemoteBranch':
             return [{
                 kind: 'confirm',
                 id: 'confirm',
-                title: 'Delete Remote Branch',
-                message: `Delete remote branch "${payload.remote}/${payload.branch}"?`,
-                confirmLabel: 'Delete',
+                title: $t('git.deleteRemoteBranchTitle'),
+                message: $t('git.deleteRemoteBranchMsg', {
+                    remote: String(payload.remote),
+                    branch: String(payload.branch),
+                }),
+                confirmLabel: $t('common.delete'),
                 danger: true,
             }];
         case 'pushBranch': {
@@ -114,17 +119,17 @@ export function getPromptSteps(
             }));
             const fields: FormField[] = [
                 ...remoteFields,
-                { type: 'checkbox', id: 'force', label: 'Force Push', defaultValue: false },
+                { type: 'checkbox', id: 'force', label: $t('git.forcePush'), defaultValue: false },
             ];
             return [{
                 kind: 'form',
                 id: 'pushBranch',
-                title: 'Push Branch',
+                title: $t('git.pushBranch'),
                 variant: 'pushBranch' as any,
                 message: ctx.remotes.length > 1
-                    ? `Push "${payload.branch as string}" to remote`
-                    : `Push "${payload.branch as string}" to ${ctx.remotes[0] ?? ''}`,
-                submitLabel: 'Push',
+                    ? $t('git.pushBranchToRemote', { branch: payload.branch as string })
+                    : $t('git.pushBranchTo', { branch: payload.branch as string, remote: ctx.remotes[0] ?? '' }),
+                submitLabel: $t('git.push'),
                 fields,
             }];
         }
@@ -139,32 +144,32 @@ export function getPromptSteps(
             return [{
                 kind: 'form',
                 id: 'merge',
-                title: 'Merge',
+                title: $t('git.merge'),
                 variant: 'merge',
                 mergeOn,
                 mergeTarget,
                 branchName,
-                submitLabel: 'Merge',
+                submitLabel: $t('git.merge'),
                 fields: [
                     {
                         type: 'checkbox',
                         id: 'createNewCommit',
-                        label: 'Create a new commit even if fast-forward is possible',
+                        label: $t('git.createNewCommit'),
                         defaultValue: true,
                     },
                     {
                         type: 'checkbox',
                         id: 'squash',
-                        label: 'Squash Commits',
+                        label: $t('git.squashCommits'),
                         defaultValue: false,
-                        info: `Create a single commit on the current branch whose effect is the same as merging this ${mergeKind}.`,
+                        info: $t('git.squashInfo', { kind: $t(mergeKind === 'commit' ? 'git.commit' : 'git.branch') }),
                     },
                     {
                         type: 'checkbox',
                         id: 'noCommit',
-                        label: 'No Commit',
+                        label: $t('git.noCommit'),
                         defaultValue: false,
-                        info: 'The changes of the merge will be staged but not committed, so that you can review and/or modify the merge result before committing.',
+                        info: $t('git.noCommitMergeInfo'),
                     },
                 ],
             }];
@@ -176,9 +181,9 @@ export function getPromptSteps(
                 fields.push({
                     type: 'select',
                     id: 'parentIndex',
-                    label: 'Parent Hash',
+                    label: $t('git.parentHash'),
                     defaultValue: '1',
-                    info: 'Choose the parent hash on the main branch, to cherry pick the commit relative to.',
+                    info: $t('git.parentHashInfo'),
                     options: parents.map((hash, index) => ({
                         value: String(index + 1),
                         label: abbrevHash(hash),
@@ -189,16 +194,16 @@ export function getPromptSteps(
                 {
                     type: 'checkbox',
                     id: 'recordOrigin',
-                    label: 'Record Origin',
+                    label: $t('git.recordOrigin'),
                     defaultValue: false,
-                    info: 'Record that this commit was the origin of the cherry pick by appending a line to the original commit message that states "(cherry picked from commit ...)".',
+                    info: $t('git.recordOriginInfo'),
                 },
                 {
                     type: 'checkbox',
                     id: 'noCommit',
-                    label: 'No Commit',
+                    label: $t('git.noCommit'),
                     defaultValue: false,
-                    info: 'Cherry picked changes will be staged but not committed, so that you can select and commit specific parts of this commit.',
+                    info: $t('git.noCommitCherryInfo'),
                 },
             );
             return [{
@@ -228,36 +233,36 @@ export function getPromptSteps(
             return [{
                 kind: 'pick',
                 id: 'mode',
-                title: 'Reset Branch',
+                title: $t('git.resetBranch'),
                 variant: 'resetMode',
                 branchName,
                 commitHash: payload.hash as string,
-                submitLabel: 'Reset',
+                submitLabel: $t('git.reset'),
                 options: [
-                    { value: 'soft', label: 'Soft - Keep all changes, but reset head' },
-                    { value: 'mixed', label: 'Mixed - Keep working tree, but reset index' },
-                    { value: 'hard', label: 'Hard - Discard all changes' },
+                    { value: 'soft', label: $t('git.softReset') },
+                    { value: 'mixed', label: $t('git.mixedReset') },
+                    { value: 'hard', label: $t('git.hardResetOption') },
                 ],
             }];
         }
         case 'addTag': {
             const fields: FormField[] = [
-                { type: 'text', id: 'tagName', label: 'Name', placeholder: 'v1.0.0' },
+                { type: 'text', id: 'tagName', label: $t('git.name'), placeholder: 'v1.0.0' },
                 {
                     type: 'text',
                     id: 'message',
-                    label: 'Message',
-                    placeholder: 'Optional',
+                    label: $t('git.tagMessage'),
+                    placeholder: $t('git.optional'),
                 },
             ];
             if (ctx.remotes.length > 1) {
                 fields.push({
                     type: 'select',
                     id: 'pushToRemote',
-                    label: 'Push to remote',
+                    label: $t('git.pushToRemote'),
                     defaultValue: '-1',
                     options: [
-                        { value: '-1', label: "Don't push" },
+                        { value: '-1', label: $t('git.dontPush') },
                         ...ctx.remotes.map((remote, index) => ({ value: String(index), label: remote })),
                     ],
                 });
@@ -265,17 +270,17 @@ export function getPromptSteps(
                 fields.push({
                     type: 'checkbox',
                     id: 'pushToRemote',
-                    label: 'Push to remote',
+                    label: $t('git.pushToRemote'),
                     defaultValue: false,
                 });
             }
             return [{
                 kind: 'form',
                 id: 'addTag',
-                title: 'Add Tag',
+                title: $t('git.addTag'),
                 variant: 'addTag',
                 commitHash: payload.hash as string,
-                submitLabel: 'Add Tag',
+                submitLabel: $t('git.addTag'),
                 fields,
             }];
         }
@@ -289,12 +294,12 @@ export function getPromptSteps(
             return [{
                 kind: 'form',
                 id: 'pushTag',
-                title: `Push Tag "${payload.tag as string}"`,
+                title: $t('git.pushTagTitle', { tag: payload.tag as string }),
                 variant: 'pushTag' as any,
                 message: ctx.remotes.length > 1
-                    ? `Push "${payload.tag as string}" to remote`
-                    : `Push "${payload.tag as string}" to ${ctx.remotes[0] ?? ''}`,
-                submitLabel: 'Push',
+                    ? $t('git.pushTagToRemote', { tag: payload.tag as string })
+                    : $t('git.pushTagTo', { tag: payload.tag as string, remote: ctx.remotes[0] ?? '' }),
+                submitLabel: $t('git.push'),
                 fields: remoteFields,
             }];
         }
@@ -308,9 +313,9 @@ export function getPromptSteps(
             return [{
                 kind: 'confirm',
                 id: 'deleteTag',
-                title: 'Delete Tag',
-                message: `Delete tag "${payload.tag as string}"?`,
-                confirmLabel: 'Delete',
+                title: $t('git.deleteTagTitle'),
+                message: $t('git.deleteTagConfirm', { tag: payload.tag as string }),
+                confirmLabel: $t('common.delete'),
                 danger: true,
                 fields: remoteFields.length > 0 ? remoteFields : undefined,
             }];
@@ -319,25 +324,25 @@ export function getPromptSteps(
             return [{
                 kind: 'confirm',
                 id: 'confirm',
-                title: 'Drop Stash',
-                message: 'Drop this stash?',
-                confirmLabel: 'Drop',
+                title: $t('git.dropStashTitle'),
+                message: $t('git.dropStashConfirm'),
+                confirmLabel: $t('git.drop'),
                 danger: true,
             }];
         case 'branchFromStash':
             return [{
                 kind: 'input',
                 id: 'branchName',
-                title: 'Create Branch from Stash',
-                label: 'Branch name',
+                title: $t('git.createBranchFromStash'),
+                label: $t('git.branchName'),
                 placeholder: 'branch-name',
             }];
         case 'pushStash':
             return [{
                 kind: 'input',
                 id: 'message',
-                title: 'Stash Changes',
-                label: 'Stash message (optional)',
+                title: $t('git.stashChanges'),
+                label: $t('git.stashMessage'),
                 placeholder: 'WIP',
                 optional: true,
             }];
@@ -345,18 +350,18 @@ export function getPromptSteps(
             return [{
                 kind: 'confirm',
                 id: 'confirm',
-                title: 'Reset Uncommitted Changes',
-                message: `Reset uncommitted changes (${payload.mode})?`,
-                confirmLabel: 'Reset',
+                title: $t('git.resetUncommitted'),
+                message: $t('git.resetUncommittedConfirm', { mode: String(payload.mode) }),
+                confirmLabel: $t('git.reset'),
                 danger: payload.mode === 'hard',
             }];
         case 'cleanUntracked':
             return [{
                 kind: 'confirm',
                 id: 'confirm',
-                title: 'Clean Untracked Files',
-                message: 'Clean untracked files and directories?',
-                confirmLabel: 'Clean',
+                title: $t('git.cleanUntracked'),
+                message: $t('git.cleanUntrackedConfirm'),
+                confirmLabel: $t('git.clean'),
                 danger: true,
             }];
         default:
@@ -373,9 +378,9 @@ export function getFollowUpSteps(
         return [{
             kind: 'confirm',
             id: 'hardConfirm',
-            title: 'Hard Reset',
-            message: 'Hard reset will discard all uncommitted changes. Continue?',
-            confirmLabel: 'Reset',
+            title: $t('git.hardReset'),
+            message: $t('git.hardResetConfirm'),
+            confirmLabel: $t('git.reset'),
             danger: true,
         }];
     }

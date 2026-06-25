@@ -9,7 +9,7 @@ import path, { dirname, extname, isAbsolute, join, parse } from 'path';
 import * as vscode from 'vscode';
 import { Holder } from './markdown/holder';
 import { convertMd } from "./markdown/markdown-pdf";
-import { Global } from "@/common/global";
+import { Global, i18n } from "@/common/global";
 import { TelemetryService } from "./telemetryService";
 
 export type ExportType = 'pdf' | 'html' | 'docx';
@@ -33,10 +33,10 @@ export class MarkdownService {
         TelemetryService.get()?.trackMarkdownExport(type);
         try {
             if (type != 'html') { // html导出速度快, 无需等待
-                vscode.window.showInformationMessage(`Starting export markdown to ${type}.`)
+                vscode.window.showInformationMessage(i18n('ext.markdown.exportStart', type))
             }
             await convertMd({ markdownFilePath: uri.fsPath, config: this.getConfig(option) })
-            vscode.window.showInformationMessage(`Export markdown to ${type} success!`)
+            vscode.window.showInformationMessage(i18n('ext.markdown.exportSuccess', type))
         } catch (error) {
             Output.log(error)
         }
@@ -115,7 +115,7 @@ export class MarkdownService {
             console.debug(`using chrome path is ${chromePath}`)
             return chromePath;
         } catch (e) {
-            const msg = "Not chromium found, export fail.";
+            const msg = i18n('ext.markdown.noChromium');
             vscode.window.showErrorMessage(msg)
             throw new Error(msg)
         }
@@ -141,7 +141,7 @@ export class MarkdownService {
         this.saveClipboardImageToFileAndGetPath(imagePath, async (savedImagePath) => {
             if (!savedImagePath) return;
             if (savedImagePath === 'no image') {
-                vscode.window.showErrorMessage('There is not an image in the clipboard.');
+                vscode.window.showErrorMessage(i18n('ext.markdown.noClipboardImage'));
                 return;
             }
             this.copyFromPath(savedImagePath, imagePath);
@@ -181,7 +181,7 @@ export class MarkdownService {
         if (savedImagePath.startsWith("copied:")) {
             const copiedFile = savedImagePath.replace("copied:", "");
             if (lstatSync(copiedFile).isDirectory()) {
-                vscode.window.showErrorMessage('Not support paste directory.');
+                vscode.window.showErrorMessage(i18n('ext.markdown.noPasteDirectory'));
             } else {
                 copyFileSync(copiedFile, targetPath);
             }
@@ -235,7 +235,7 @@ export class MarkdownService {
             ascript.stdout.on('data', function (data) {
                 const result = data.toString().trim();
                 if (result == "no xclip") {
-                    vscode.window.showInformationMessage('You need to install xclip command first.');
+                    vscode.window.showInformationMessage(i18n('ext.markdown.installXclip'));
                     return;
                 }
                 cb(result);

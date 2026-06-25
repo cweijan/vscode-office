@@ -7,6 +7,7 @@ import prettyBytes from "@/service/zip/pretty-bytes";
 import { ZipArchive } from "@/service/zip/zipArchive";
 import { mkdirSync, writeFileSync } from "fs";
 import { basename, resolve } from "path";
+import { i18n } from '@/common/global';
 import { Uri, commands, window, workspace } from "vscode";
 import { handlerCommonDecompress } from "./decompressHandler";
 
@@ -69,7 +70,7 @@ export async function handleZip(uri: Uri, handler: Handler) {
                 if (isZipPasswordError(err)) {
                     archivePassword = undefined;
                     handler.emit('passwordError');
-                    window.showErrorMessage('Wrong password');
+                    window.showErrorMessage(i18n('ext.compress.wrongPassword'));
                 } else {
                     window.showErrorMessage((err as Error).message);
                 }
@@ -78,7 +79,7 @@ export async function handleZip(uri: Uri, handler: Handler) {
             archivePassword = applyPassword(archivePassword, inputPassword);
             if (encrypted && !archivePassword) return;
 
-            window.showInformationMessage("Start extracting...");
+            window.showInformationMessage(i18n('ext.compress.startExtract'));
             const plan = planExtractTarget(uri.fsPath, files.length);
             if (plan.createSubfolder) {
                 mkdirSync(plan.targetDir, { recursive: true });
@@ -86,14 +87,14 @@ export async function handleZip(uri: Uri, handler: Handler) {
             try {
                 const filePaths = Object.keys(fileMap);
                 await archive.extractAllTo(plan.targetDir, archivePassword, fileMap);
-                window.showInformationMessage("Extract success!");
+                window.showInformationMessage(i18n('ext.compress.extractSuccess'));
                 await revealExtractResult(plan, filePaths);
             } catch (err) {
                 Output.debug(err);
                 if (isZipPasswordError(err)) {
                     archivePassword = undefined;
                     handler.emit('passwordError');
-                    window.showErrorMessage('Wrong password');
+                    window.showErrorMessage(i18n('ext.compress.wrongPassword'));
                 } else {
                     window.showErrorMessage((err as Error).message);
                 }

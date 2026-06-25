@@ -3,6 +3,7 @@
  * Desktop-only: HTTP, Git History, clipboard paste, Java decompile, archive viewer.
  */
 import * as vscode from 'vscode';
+import { Global } from './common/global';
 import { FileUtil } from './common/fileUtil';
 import { setExtensionHostContext } from './common/extensionHost';
 import { ReactApp } from './common/reactApp';
@@ -19,6 +20,7 @@ import { IconService } from './service/icon/iconService';
 
 export async function activate(context: vscode.ExtensionContext) {
 	setExtensionHostContext();
+	Global.init(context);
 	TelemetryService.init(context);
 	await IconService.getInstance().init(context);
 	FileUtil.init(context);

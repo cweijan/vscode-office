@@ -7,6 +7,7 @@ import iconv from 'iconv-lite';
 import { mkdirSync } from 'fs';
 import { basename, dirname, join, parse, relative, resolve, sep } from 'path';
 import SevenZip from '7z-wasm';
+import { i18n } from '@/common/global';
 import { Uri, commands, window, workspace } from 'vscode';
 import { handlerCommonDecompress } from './decompressHandler';
 
@@ -78,14 +79,14 @@ export async function handleSevenZip(uri: Uri, handler: Handler) {
                 archivePassword = applyPassword(archivePassword, inputPassword);
                 if (encrypted && !archivePassword) return;
 
-                window.showInformationMessage('Start extracting...');
+                window.showInformationMessage(i18n('ext.compress.startExtract'));
                 const plan = planExtractTarget(uri.fsPath, files.length);
                 if (plan.createSubfolder) {
                     mkdirSync(plan.targetDir, { recursive: true });
                 }
                 const success = await extractSevenZipEntries(uri.fsPath, plan.targetDir, undefined, archivePassword, filenameEncoding);
                 if (success) {
-                    window.showInformationMessage('Extract success!');
+                    window.showInformationMessage(i18n('ext.compress.extractSuccess'));
                     await revealExtractResult(plan, filePaths);
                 } else if (archivePassword && encrypted) {
                     archivePassword = undefined;
@@ -95,7 +96,7 @@ export async function handleSevenZip(uri: Uri, handler: Handler) {
         } catch (err) {
             Output.debug(err);
             if (isSevenZipPasswordError(err)) {
-                window.showErrorMessage(archivePassword ? 'Wrong password' : 'This archive is password protected.');
+                window.showErrorMessage(archivePassword ? i18n('ext.compress.wrongPassword') : i18n('ext.compress.passwordProtected'));
             } else {
                 window.showErrorMessage((err as Error).message);
             }
@@ -179,7 +180,7 @@ async function extractSevenZipEntries(
     } catch (err) {
         Output.debug(err);
         if (password && isSevenZipPasswordError(err)) {
-            window.showErrorMessage('Wrong password');
+            window.showErrorMessage(i18n('ext.compress.wrongPassword'));
         } else if (!password && isSevenZipPasswordError(err)) {
             return false;
         } else {

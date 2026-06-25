@@ -7,7 +7,7 @@ import { Handler } from '../common/handler';
 import { Util } from '../common/util';
 import { Holder } from '../service/markdown/holder';
 import { MarkdownService } from '../service/markdownService';
-import { Global } from '@/common/global';
+import { Global, i18n } from '@/common/global';
 import { TelemetryService } from '@/service/telemetryService';
 import { openWikiLink } from '@/service/markdown/wikilink';
 import { streamCustomAI } from '@/service/ai/customAIClient';
@@ -191,7 +191,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             const files = await vscode.window.showOpenDialog({
                 canSelectMany: false,
                 filters: { Images: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'] },
-                title: 'Select Image',
+                title: i18n('ext.markdown.selectImage'),
             });
             if (!files || files.length === 0) return;
             const sourceUri = files[0];
@@ -317,7 +317,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
         const lm = (vscode as any).lm;
         if (typeof lm?.selectChatModels !== 'function') {
-            vscode.window.showWarningMessage('AI features require VS Code 1.90+ with a language model extension installed.');
+            vscode.window.showWarningMessage(i18n('ext.markdown.aiRequiresVscode'));
             handler.emit('aiPolishResult', markdown);
             return;
         }
@@ -333,7 +333,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                     models = await lm.selectChatModels();
                 }
                 if (!models || models.length === 0) {
-                    vscode.window.showWarningMessage('No AI language model available. Please install a language model extension (e.g. GitHub Copilot).');
+                    vscode.window.showWarningMessage(i18n('ext.markdown.noAiModel'));
                     handler.emit('aiPolishEnd');
                     return;
                 }
@@ -352,7 +352,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             }
         } catch (err: any) {
             if (this.aiCancellationSource?.token.isCancellationRequested) return;
-            vscode.window.showErrorMessage(`AI Polish failed: ${err?.message ?? err}`);
+            vscode.window.showErrorMessage(i18n('ext.markdown.aiPolishFailed', String(err?.message ?? err)));
             handler.emit('aiPolishEnd');
         }
     }
@@ -360,7 +360,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     private async handleCustomAIPolish(handler: Handler, markdown: string, options: any) {
         const url = options?.customUrl?.trim();
         if (!url) {
-            vscode.window.showWarningMessage('Custom AI: API URL is required.');
+            vscode.window.showWarningMessage(i18n('ext.markdown.customAiUrlRequired'));
             handler.emit('aiPolishResult', markdown);
             return;
         }
@@ -379,7 +379,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             handler.emit('aiPolishEnd');
         } catch (err: any) {
             if (err?.name === 'AbortError') return;
-            vscode.window.showErrorMessage(`Custom AI Polish failed: ${err?.message ?? err}`);
+            vscode.window.showErrorMessage(i18n('ext.markdown.customAiPolishFailed', String(err?.message ?? err)));
             handler.emit('aiPolishEnd');
         }
     }
@@ -400,7 +400,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     }
 
     private updateCount(content: string) {
-        this.countStatus.text = `Line ${content.split(/\r\n|\r|\n/).length}    Count ${content.length}`
+        this.countStatus.text = i18n('ext.markdown.statusBar', String(content.split(/\r\n|\r|\n/).length), String(content.length))
     }
 
     private updateTextDocument(document: vscode.TextDocument, content: any) {

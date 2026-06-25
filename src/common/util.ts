@@ -1,8 +1,5 @@
 import * as vscode from 'vscode';
-
-enum Confirm {
-    YES = "YES", NO = "NO"
-}
+import { i18n } from '@/common/global';
 
 export class Util {
     public static buildPath(data: string, webview: vscode.Webview, contextPath: string | vscode.Uri): string {
@@ -27,13 +24,14 @@ export class Util {
     }
 
     public static async confirmActual(options: vscode.QuickPickOptions, callback?: () => void): Promise<boolean> {
-        const res = await vscode.window.showQuickPick([Confirm.YES, Confirm.NO], options);
-        const yes = res == Confirm.YES;
-        if (yes && callback) {
-            await callback()
+        const yes = i18n('ext.common.yes');
+        const no = i18n('ext.common.no');
+        const res = await vscode.window.showQuickPick([yes, no], options);
+        if (res === yes && callback) {
+            await callback();
             return true;
         }
-        return yes;
+        return res === yes;
     }
   
     public static limitTitle(title: string): string {

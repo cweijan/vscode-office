@@ -1,5 +1,7 @@
 import type { ContextMenuItem } from '../components/ContextMenu';
+import { $t } from '../../../i18n/i18nConfig';
 import type { GitCommit, GitCommitRemote, GitFileChange } from '../types';
+import type { GitPullDefaults } from '../util/gitHistoryState';
 
 const UNCOMMITTED = '*';
 const EMPTY_TREE_HASH = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
@@ -7,8 +9,6 @@ const EMPTY_TREE_HASH = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
 export interface GitActionEmitter {
     (action: Record<string, unknown> & { action: string }): void;
 }
-
-import type { GitPullDefaults } from '../util/gitHistoryState';
 
 export interface MenuContext {
     repo: string;
@@ -37,18 +37,18 @@ export function buildCommitContextMenu(commit: GitCommit, ctx: MenuContext): Con
 
     const hash = commit.hash;
     const items: ContextMenuItem[] = [
-        { id: 'copyHash', label: 'Copy Commit Hash' },
-        { id: 'copyMessage', label: 'Copy Commit Message' },
-        { id: 'reset', label: 'Reset Branch' },
-        { id: 'createBranch', label: 'Create Branch' },
-        { id: 'addTag', label: 'Add Tag' },
+        { id: 'copyHash', label: $t('git.copyCommitHash') },
+        { id: 'copyMessage', label: $t('git.copyCommitMessage') },
+        { id: 'reset', label: $t('git.resetBranch') },
+        { id: 'createBranch', label: $t('git.createBranch') },
+        { id: 'addTag', label: $t('git.addTag') },
         ...sep([
             { id: 'checkout', label: 'Checkout' },
             { id: 'cherryPick', label: 'Cherry Pick' },
             { id: 'revert', label: 'Revert' },
         ]),
         ...sep([
-            { id: 'merge', label: 'Merge into current branch' },
+            { id: 'merge', label: $t('git.mergeIntoCurrent') },
         ]),
     ];
 
@@ -67,15 +67,15 @@ export function buildBranchContextMenu(
 ): ContextMenuItem[] {
     const isHead = ctx.head === branchName;
     return [
-        { id: 'checkoutBranch', label: 'Checkout Branch', disabled: isHead },
-        { id: 'renameBranch', label: 'Rename Branch' },
-        { id: 'deleteBranch', label: 'Delete Branch', disabled: isHead },
+        { id: 'checkoutBranch', label: $t('git.checkoutBranch'), disabled: isHead },
+        { id: 'renameBranch', label: $t('git.renameBranch') },
+        { id: 'deleteBranch', label: $t('git.deleteBranch'), disabled: isHead },
         ...sep([
-            { id: 'mergeBranch', label: 'Merge into current branch', disabled: isHead },
-            { id: 'pushBranch', label: 'Push Branch', disabled: ctx.remotes.length === 0 },
+            { id: 'mergeBranch', label: $t('git.mergeIntoCurrent'), disabled: isHead },
+            { id: 'pushBranch', label: $t('git.pushBranchMenu'), disabled: ctx.remotes.length === 0 },
         ]),
         ...sep([
-            { id: 'copyBranch', label: 'Copy Branch Name' },
+            { id: 'copyBranch', label: $t('git.copyBranchName') },
         ]),
     ].map((item) => ({ ...item, _branch: branchName, _hash: commitHash })) as ContextMenuItem[];
 }
@@ -88,14 +88,14 @@ export function buildRemoteBranchContextMenu(
 ): ContextMenuItem[] {
     const localExists = ctx.branches.includes(branchName);
     return [
-        { id: 'checkoutRemote', label: 'Checkout Branch' },
-        { id: 'deleteRemoteBranch', label: 'Delete Remote Branch' },
+        { id: 'checkoutRemote', label: $t('git.checkoutBranch') },
+        { id: 'deleteRemoteBranch', label: $t('git.deleteRemoteBranch') },
         ...sep([
-            { id: 'pullRemote', label: 'Pull into current branch', disabled: !localExists },
-            { id: 'mergeRemote', label: 'Merge into current branch' },
+            { id: 'pullRemote', label: $t('git.pullIntoCurrent'), disabled: !localExists },
+            { id: 'mergeRemote', label: $t('git.mergeIntoCurrent') },
         ]),
         ...sep([
-            { id: 'copyRemote', label: 'Copy Branch Name' },
+            { id: 'copyRemote', label: $t('git.copyBranchName') },
         ]),
     ].map((item) => ({
         ...item,
@@ -107,30 +107,30 @@ export function buildRemoteBranchContextMenu(
 
 export function buildTagContextMenu(tagName: string, ctx: MenuContext): ContextMenuItem[] {
     return [
-        { id: 'pushTag', label: 'Push Tag', disabled: ctx.remotes.length === 0 },
-        { id: 'deleteTag', label: 'Delete Tag' },
-        ...sep([{ id: 'copyTag', label: 'Copy Tag Name' }]),
+        { id: 'pushTag', label: $t('git.pushTag'), disabled: ctx.remotes.length === 0 },
+        { id: 'deleteTag', label: $t('git.deleteTag') },
+        ...sep([{ id: 'copyTag', label: $t('git.copyTagName') }]),
     ].map((item) => ({ ...item, _tag: tagName })) as ContextMenuItem[];
 }
 
 export function buildStashContextMenu(selector: string, _ctx: MenuContext): ContextMenuItem[] {
     return [
-        { id: 'applyStash', label: 'Apply Stash' },
-        { id: 'popStash', label: 'Pop Stash' },
-        { id: 'dropStash', label: 'Drop Stash' },
-        ...sep([{ id: 'branchFromStash', label: 'Create Branch from Stash' }]),
+        { id: 'applyStash', label: $t('git.applyStash') },
+        { id: 'popStash', label: $t('git.popStash') },
+        { id: 'dropStash', label: $t('git.dropStash') },
+        ...sep([{ id: 'branchFromStash', label: $t('git.createBranchFromStash') }]),
     ].map((item) => ({ ...item, _selector: selector })) as ContextMenuItem[];
 }
 
 export function buildUncommittedContextMenu(_ctx: MenuContext): ContextMenuItem[] {
     return [
-        { id: 'pushStash', label: 'Stash uncommitted changes' },
+        { id: 'pushStash', label: $t('git.stashUncommitted') },
         ...sep([
-            { id: 'resetUncommittedMixed', label: 'Reset uncommitted changes (Mixed)' },
-            { id: 'resetUncommittedHard', label: 'Reset uncommitted changes (Hard)' },
-            { id: 'cleanUntracked', label: 'Clean untracked files' },
+            { id: 'resetUncommittedMixed', label: $t('git.resetUncommittedMixed') },
+            { id: 'resetUncommittedHard', label: $t('git.resetUncommittedHard') },
+            { id: 'cleanUntracked', label: $t('git.cleanUntrackedFiles') },
         ]),
-        ...sep([{ id: 'viewScm', label: 'Open Source Control View' }]),
+        ...sep([{ id: 'viewScm', label: $t('git.openScm') }]),
     ];
 }
 
@@ -142,16 +142,16 @@ export function buildFileChangeContextMenu(
 ): ContextMenuItem[] {
     const path = change.type === 'D' ? change.oldFilePath : change.newFilePath;
     const items: ContextMenuItem[] = [
-        { id: 'viewDiff', label: 'View Diff' },
-        { id: 'viewFileAtRevision', label: 'View File at This Revision' },
-        { id: 'openFile', label: 'Open File' },
+        { id: 'viewDiff', label: $t('git.viewDiff') },
+        { id: 'viewFileAtRevision', label: $t('git.viewFileAtThisRevision') },
+        { id: 'openFile', label: $t('git.openFile') },
         ...sep([
-            { id: 'copyRelPath', label: 'Copy Relative File Path' },
-            { id: 'copyAbsPath', label: 'Copy Absolute File Path' },
+            { id: 'copyRelPath', label: $t('git.copyRelPath') },
+            { id: 'copyAbsPath', label: $t('git.copyAbsPath') },
         ]),
     ];
     if (commitHash !== UNCOMMITTED && hasParents) {
-        items.push({ id: 'viewDiffWorking', label: 'View Diff with Working File', separatorBefore: true });
+        items.push({ id: 'viewDiffWorking', label: $t('git.viewDiffWorking'), separatorBefore: true });
     }
     return items.map((item) => ({
         ...item,

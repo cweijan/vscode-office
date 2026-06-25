@@ -2,6 +2,7 @@ import './polyfills/buffer';
 import ReactDOM from 'react-dom/client';
 import './util/vscode.js';
 import { getConfigs } from './util/vscodeConfig.ts';
+import { initI18n, $t } from './i18n/i18nConfig.ts';
 import './main.css'
 import { ConfigProvider } from 'antd';
 import { lazy } from 'react';
@@ -21,13 +22,14 @@ const XmindViewer = lazy(() => import('./view/xmind/XmindViewer.tsx'))
 const WebUnsupported = lazy(() => import('./view/WebUnsupported.tsx'))
 
 document.getElementById('_defaultStyles')?.parentNode?.removeChild(document.getElementById('_defaultStyles'))
+const configs = getConfigs();
+initI18n(configs?.language);
 ReactDOM.createRoot(document.getElementById('root')).render(
   <ConfigProvider
     componentSize='small'
     theme={antThemeConfig}
   >
     {(() => {
-      const configs = getConfigs()
       const route = configs?.route
       switch (route) {
         case 'image':
@@ -57,7 +59,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         case 'webUnsupported':
           return <WebUnsupported />
         default:
-          return <>Office Viewer</>
+          return <>{$t('common.officeViewer')}</>
       }
     })()}
   </ConfigProvider>

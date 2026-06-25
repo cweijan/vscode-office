@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { MouseEvent } from 'react';
 import { Alert, ConfigProvider, Spin } from 'antd';
 import { handler } from '../../util/vscode';
+import { $t } from '../../i18n/i18nConfig';
 import ActionDialog from './components/ActionDialog';
 import RemoteFormDialog from './components/RemoteFormDialog';
 import { useGitActionPrompt } from './hooks/useGitActionPrompt';
@@ -47,7 +48,7 @@ const ROW_HEIGHT = 28;
 const TABLE_HEADER_HEIGHT = 28;
 const INITIAL_MAX_COMMITS = 300;
 const LOAD_MORE_COMMITS = 100;
-const QUICK_SYNC_DEFAULT_MESSAGE = 'Quick Sync';
+const QUICK_SYNC_DEFAULT_MESSAGE = () => $t('git.quickSync');
 
 function countRealCommits(commits: ReadonlyArray<GitCommit>): number {
     let count = 0;
@@ -164,7 +165,7 @@ function GitHistoryView({
     const { menu, showMenu, closeMenu } = useContextMenu();
     const menuContextRef = useRef<MenuContext | null>(null);
     const menuMetaRef = useRef<Record<string, MenuPayloadMeta>>({});
-    const pendingQuickSyncCommitMessageRef = useRef(QUICK_SYNC_DEFAULT_MESSAGE);
+    const pendingQuickSyncCommitMessageRef = useRef(QUICK_SYNC_DEFAULT_MESSAGE());
     const pendingOpenRemoteRepoRef = useRef<string | null>(null);
 
     const executeGitAction = useCallback((action: GitActionRequest) => {
@@ -779,7 +780,7 @@ function GitHistoryView({
     const handlePush = (event: MouseEvent<HTMLButtonElement>) => {
         if (!repo || !branchHead) return;
         if (remotes.length === 0) {
-            setError('No remotes configured.');
+            setError($t('git.noRemotes'));
             return;
         }
         const remoteFields = remotes.map((remote, index) => ({
@@ -827,7 +828,7 @@ function GitHistoryView({
             return;
         }
         if (branchHead.startsWith('(HEAD detached')) {
-            setError('Cannot quick sync in detached HEAD state.');
+            setError($t('git.detachedHead'));
             return;
         }
         const hasUncommitted = commits[0]?.hash === UNCOMMITTED;
@@ -848,7 +849,7 @@ function GitHistoryView({
                     type: 'text',
                     id: 'commitMessage',
                     label: 'Commit message',
-                    defaultValue: QUICK_SYNC_DEFAULT_MESSAGE,
+                    defaultValue: QUICK_SYNC_DEFAULT_MESSAGE(),
                 }]
                 : [],
         });
@@ -925,7 +926,7 @@ function GitHistoryView({
         const promptId = toolbarPrompt?.id;
         if (kind === 'quickSyncConfirm') {
             const formValues = typeof value === 'string' ? null : value;
-            const commitMessage = formValues?.commitMessage?.trim() || QUICK_SYNC_DEFAULT_MESSAGE;
+            const commitMessage = formValues?.commitMessage?.trim() || QUICK_SYNC_DEFAULT_MESSAGE();
             pendingQuickSyncCommitMessageRef.current = commitMessage;
             if (remotes.length > 1) {
                 setToolbarPrompt({
@@ -1255,7 +1256,7 @@ function GitHistoryView({
             <ConfigProvider theme={antTheme}>
                 <div className="git-graph git-graph-loading" style={themeStyle(cssVars)}>
                     <div className="git-graph-loading-main">
-                        <Spin size="large" tip="Loading Git History..." />
+                        <Spin size="large" tip={$t('git.loading')} />
                     </div>
                     <GitHistoryBottomBar />
                 </div>
@@ -1270,8 +1271,8 @@ function GitHistoryView({
                     <div className="git-graph-empty-main">
                         <Alert
                             type="info"
-                            message="No Git repositories found"
-                            description="Open a workspace folder containing a Git repository."
+                            message={$t('git.noRepos')}
+                            description={$t('git.noReposDesc')}
                         />
                     </div>
                     <GitHistoryBottomBar />
@@ -1346,7 +1347,7 @@ function GitHistoryView({
                     <div className="git-graph-content" ref={contentRef}>
                         {loading && commits.length === 0 ? (
                             <div className="git-graph-content-loading">
-                                <Spin size="large" tip="Loading..." />
+                                <Spin size="large" tip={$t('common.loading')} />
                             </div>
                         ) : (
                             <CommitTable

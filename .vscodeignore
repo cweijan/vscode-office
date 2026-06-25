@@ -21,3 +21,4 @@ lib.js
 vite/
 backlog.md
 yarn.lock
+!package.nls*.json

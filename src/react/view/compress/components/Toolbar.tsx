@@ -1,4 +1,5 @@
 import { type ReactNode } from 'react';
+import { $t } from '../../../i18n/i18nConfig';
 import { handler } from '../../../util/vscode';
 import { IconExtract, IconFileAdd, IconFolderOpen, IconMoon, IconReload, IconSidebar, IconSun } from '../icons';
 
@@ -69,14 +70,14 @@ export default function Toolbar({
                     <IconReload size={15} />
                 </ToolbarButton>
                 {editable && (
-                    <ToolbarButton title="Add file" onClick={() => handler.emit('addFile', currentDir)}>
+                    <ToolbarButton title={$t('compress.add')} onClick={() => handler.emit('addFile', currentDir)}>
                         <IconFileAdd size={15} />
-                        <span>Add</span>
+                        <span>{$t('compress.add')}</span>
                     </ToolbarButton>
                 )}
-                <ToolbarButton title="Extract" primary onClick={onExtract}>
+                <ToolbarButton title={$t('compress.extract')} primary onClick={onExtract}>
                     <IconExtract size={15} />
-                    <span>Extract</span>
+                    <span>{$t('compress.extract')}</span>
                 </ToolbarButton>
             </div>
 
@@ -88,7 +89,7 @@ export default function Toolbar({
 
             <div className="zip-toolbar-right">
                 <span className="zip-size">
-                    <span className="zip-size-label">Size</span>
+                    <span className="zip-size-label">{$t('compress.size')}</span>
                     <span className="zip-size-value">{size}</span>
                 </span>
                 <ToolbarButton

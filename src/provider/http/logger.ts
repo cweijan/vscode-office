@@ -3,7 +3,7 @@ import { RestClientSettings } from './models/configurationSettings';
 import { LogLevel } from './models/types';
 
 class Log {
-    private readonly outputChannel: OutputChannel = window.createOutputChannel('REST');
+    private readonly outputChannel: OutputChannel = window.createOutputChannel('Office Http Request');
     private readonly settings = RestClientSettings.Instance;
 
     public error(message: string, data?: unknown): void {

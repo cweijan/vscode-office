@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState, type MouseEvent } from 'react';
 import { Popconfirm } from 'antd';
+import { $t } from '../../../i18n/i18nConfig';
 import { handler } from '../../../util/vscode';
 import { IconDelete, IconSort } from '../icons';
 import { FileTypeIcon } from './FileTypeIcon';
@@ -23,10 +24,10 @@ interface Column {
 }
 
 const columns: Column[] = [
-    { key: 'name', title: 'Name', sortable: true, className: 'zip-col-name' },
-    { key: 'modifyDateTime', title: 'Modified', width: '160px', sortable: true },
-    { key: 'compressedSize', title: 'Size', width: '88px', sortable: true, align: 'right' },
-    { key: 'fileSize', title: 'Origin', width: '96px', sortable: true, align: 'right' },
+    { key: 'name', title: $t('compress.name'), sortable: true, className: 'zip-col-name' },
+    { key: 'modifyDateTime', title: $t('compress.modified'), width: '160px', sortable: true },
+    { key: 'compressedSize', title: $t('compress.size'), width: '88px', sortable: true, align: 'right' },
+    { key: 'fileSize', title: $t('compress.origin'), width: '96px', sortable: true, align: 'right' },
     { key: 'action', title: '', width: '44px', align: 'center' },
 ];
 
@@ -47,9 +48,9 @@ function compareItems(a: FileInfo, b: FileInfo, field: SortField, direction: Sor
 function DeleteButton({ entryName }: { entryName: string }) {
     return (
         <Popconfirm
-            title="Delete?"
-            okText="Yes"
-            cancelText="No"
+            title={$t('compress.deleteConfirm')}
+            okText={$t('common.yes')}
+            cancelText={$t('common.no')}
             onConfirm={(e) => {
                 e?.stopPropagation();
                 handler.emit('removeFile', entryName);
@@ -59,7 +60,7 @@ function DeleteButton({ entryName }: { entryName: string }) {
             <button
                 type="button"
                 className="zip-delete-btn"
-                title="Delete file"
+                title={$t('compress.deleteFile')}
                 onClick={(e) => e.stopPropagation()}
             >
                 <IconDelete size={14} />

@@ -7,6 +7,7 @@ import {
 import { WIKI_URI_PREFIX } from './constants';
 import { parseWikiLinkUri } from './parse';
 import { resolveWikiLinkFile } from './resolve';
+import { i18n } from '@/common/global';
 
 export async function openWikiLink(currentUri: vscode.Uri, wikiUri: string): Promise<void> {
     const target = parseWikiLinkUri(wikiUri);
@@ -17,7 +18,7 @@ export async function openWikiLink(currentUri: vscode.Uri, wikiUri: string): Pro
     const fileUri = await resolveWikiLinkFile(currentUri, target.page);
     if (!fileUri) {
         const label = target.page || wikiUri.slice(WIKI_URI_PREFIX.length);
-        void vscode.window.showWarningMessage(`找不到双链目标：${label}`);
+        void vscode.window.showWarningMessage(i18n('ext.markdown.wikilinkNotFound', label));
         return;
     }
 

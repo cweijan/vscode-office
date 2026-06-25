@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { App } from 'antd';
 import { handler, loadDarkMode, applyDarkMode } from '../../util/vscode';
-import { getConfigs } from '../../util/vscodeConfig';
+import { $t } from '../../i18n/i18nConfig';
 import { useWindowSize } from '../../util/reactUtils';
 import FileItems from './components/FileItems';
 import PasswordModal from './components/PasswordModal';
@@ -25,7 +25,7 @@ export default function Zip() {
 
 function ZipViewer() {
     const { message } = App.useApp();
-    const saveSuccessText = getConfigs()?.language?.startsWith('zh') ? '保存成功' : 'Saved';
+    const saveSuccessText = $t('common.saved');
     const [currentDir, setCurrentDir] = useState('')
     const [size, setSize] = useState('')
     const [extension, setExtension] = useState('')
@@ -119,7 +119,7 @@ function ZipViewer() {
         })
         .on('passwordError', () => {
             setArchivePassword(undefined)
-            setPasswordError('Wrong password')
+            setPasswordError($t('compress.wrongPassword'))
         })
         .on('data', (info: CompressInfo) => {
             setInfo(info)

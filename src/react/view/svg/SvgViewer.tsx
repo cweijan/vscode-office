@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useWindowSize } from '../../util/reactUtils';
 import { handler } from '../../util/vscode';
 import { getConfigs } from '../../util/vscodeConfig';
+import { $t } from '../../i18n/i18nConfig';
 import SponsorBar from '../components/SponsorBar';
 import { VSCodeLogoSVG } from '../vscode';
 import SvgCodeEditor from './SvgCodeEditor';
@@ -105,10 +106,9 @@ function SvgViewerInner() {
             return next;
         });
     }, []);
-    const isZh = getConfigs()?.language?.startsWith('zh');
-    const copySuccessText = isZh ? '已复制' : 'Copied';
-    const saveText = isZh ? '保存' : 'Save';
-    const lineWrapText = isZh ? '自动换行' : 'Line wrap';
+    const copySuccessText = $t('svg.copySuccess');
+    const saveText = $t('common.save');
+    const lineWrapText = $t('svg.lineWrap');
 
     const colors = useMemo(() => parseSvgColors(content), [content]);
     const [previewUrl, setPreviewUrl] = useState('');

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { CommitService } from '../service/commitService';
 import { GitActions } from '../service/gitActions';
-import { findGit, UNABLE_TO_FIND_GIT_MSG } from '../service/findGit';
+import { findGit } from '../service/findGit';
 import { GitExecutor } from '../service/gitExecutor';
 import { GitRepoCommands } from '../service/gitRepoCommands';
 import { RepoDiscovery } from '../service/repoDiscovery';
@@ -14,6 +14,7 @@ import {
     resolvePreferredRepo,
 } from '../util/resolveGitHistoryCommandContext';
 import { TelemetryService } from '@/service/telemetryService';
+import { i18n } from '@/common/global';
 
 let commitService: CommitService | undefined;
 let repoDiscovery: RepoDiscovery | undefined;
@@ -55,7 +56,7 @@ async function openGitHistory(
     await repoDiscovery.discover();
     const preferredRepo = resolvePreferredRepo(panelContext, repoDiscovery);
     if (panelContext.fileUri && !preferredRepo) {
-        vscode.window.showErrorMessage('The file is not within a Git repository in the current workspace.');
+        vscode.window.showErrorMessage(i18n('ext.git.notInRepo'));
         return;
     }
     if (preferredRepo) {
@@ -86,10 +87,10 @@ export async function activateGitHistory(context: vscode.ExtensionContext): Prom
     } catch {
         context.subscriptions.push(
             vscode.commands.registerCommand('office.gitHistory.view', () => {
-                vscode.window.showErrorMessage(UNABLE_TO_FIND_GIT_MSG);
+                vscode.window.showErrorMessage(i18n('ext.git.unableToFindGit'));
             }),
             vscode.commands.registerCommand('office.gitHistory.viewFileHistory', () => {
-                vscode.window.showErrorMessage(UNABLE_TO_FIND_GIT_MSG);
+                vscode.window.showErrorMessage(i18n('ext.git.unableToFindGit'));
             })
         );
         return;
@@ -98,7 +99,7 @@ export async function activateGitHistory(context: vscode.ExtensionContext): Prom
     const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
     statusBarItem.command = 'office.gitHistory.view';
     statusBarItem.text = '$(git-commit) Git';
-    statusBarItem.tooltip = 'Open Git History';
+    statusBarItem.tooltip = i18n('ext.git.statusBarTooltip');
     statusBarItem.show();
     context.subscriptions.push(statusBarItem);
 
@@ -111,7 +112,7 @@ export async function activateGitHistory(context: vscode.ExtensionContext): Prom
             const fromArg = buildPanelContextFromCommandArg(arg);
             const fileUri = resolveFileUri(arg) ?? fromArg.fileUri;
             if (!fileUri) {
-                vscode.window.showWarningMessage('Open a file to view its Git history.');
+                vscode.window.showWarningMessage(i18n('ext.git.openFileFirst'));
                 return;
             }
             await openGitHistory(context, mergePanelContext({ fileUri }, fromArg));

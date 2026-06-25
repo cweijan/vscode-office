@@ -6,6 +6,7 @@ import { extractTarEntries, formatTarModifyTime, listTarEntries } from '@/servic
 import prettyBytes from '@/service/zip/pretty-bytes';
 import { mkdirSync } from 'fs';
 import { basename } from 'path';
+import { i18n } from '@/common/global';
 import { Uri, commands, window, workspace } from 'vscode';
 import { handlerCommonDecompress } from './decompressHandler';
 
@@ -50,14 +51,14 @@ export async function handleTarGz(uri: Uri, handler: Handler, gzip = true) {
                 window.showErrorMessage((err as Error).message);
             }
         }).on('autoExtract', async () => {
-            window.showInformationMessage('Start extracting...');
+            window.showInformationMessage(i18n('ext.compress.startExtract'));
             const plan = planExtractTarget(uri.fsPath, files.length);
             if (plan.createSubfolder) {
                 mkdirSync(plan.targetDir, { recursive: true });
             }
             try {
                 await extractTarEntries(data, plan.targetDir, gzip);
-                window.showInformationMessage('Extract success!');
+                window.showInformationMessage(i18n('ext.compress.extractSuccess'));
                 await revealExtractResult(plan, filePaths);
             } catch (err) {
                 Output.debug(err);
