@@ -115,12 +115,28 @@ export const buildAIPromptsHTML = () => {
     </div>`;
 };
 
+export const nameFromUrl = (url: string): string => {
+    try {
+        const href = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+        const { hostname } = new URL(href);
+        // IPv4
+        if (/^\d{1,3}(\.\d{1,3}){3}$/.test(hostname)) return hostname;
+        // IPv6 (brackets stripped by URL parser)
+        if (/^[\da-f:]+$/i.test(hostname)) return hostname;
+        // Domain: second-to-last label (e.g. "openai" from "api.openai.com")
+        const parts = hostname.split(".");
+        return parts.length >= 2 ? parts[parts.length - 2] : hostname;
+    } catch {
+        return url;
+    }
+};
+
 export const AI_FORMAT_OPTIONS = [
-    { value: "auto",      i18nKey: "aiApiFormatAuto" },
-    { value: "openai",    i18nKey: "aiApiFormatOpenAI" },
+    { value: "auto", i18nKey: "aiApiFormatAuto" },
+    { value: "openai", i18nKey: "aiApiFormatOpenAI" },
     { value: "anthropic", i18nKey: "aiApiFormatAnthropic" },
-    { value: "gemini",    i18nKey: "aiApiFormatGemini" },
-    { value: "ollama",    i18nKey: "aiApiFormatOllama" },
+    { value: "gemini", i18nKey: "aiApiFormatGemini" },
+    { value: "ollama", i18nKey: "aiApiFormatOllama" },
 ] as const;
 
 export const buildAIModelsHTML = () => {
@@ -129,7 +145,7 @@ export const buildAIModelsHTML = () => {
     const listHTML = models.length
         ? models.map(m => `
             <div class="${SETTINGS_PANEL_CLASS}__ai-prompt-row" data-model-id="${m.id}">
-                <span class="${SETTINGS_PANEL_CLASS}__ai-prompt-name" title="${m.url}">${m.name}</span>
+                <span class="${SETTINGS_PANEL_CLASS}__ai-prompt-name" title="${m.url}">${m.name || nameFromUrl(m.url)}</span>
                 <button type="button" class="${SETTINGS_PANEL_CLASS}__ai-prompt-edit" data-edit-model="${m.id}" title="${i18n.aiEdit ?? 'Edit'}">
                     <span class="codicon codicon-edit"></span>
                 </button>
@@ -143,10 +159,10 @@ export const buildAIModelsHTML = () => {
     return `<div class="${SETTINGS_PANEL_CLASS}__ai-prompts" data-ai-models>
         ${listHTML}
         <div class="${SETTINGS_PANEL_CLASS}__ai-prompt-add-row" data-ai-add-model-row style="display:none">
-            <input type="text" class="${SETTINGS_PANEL_CLASS}__ai-prompt-input" data-ai-add-model-name placeholder="${i18n.aiModelName}" />
+            <input type="text" class="${SETTINGS_PANEL_CLASS}__ai-prompt-input" data-ai-add-model-name placeholder="${i18n.aiModelName} (optional)" />
             <input type="url" class="${SETTINGS_PANEL_CLASS}__ai-prompt-input" data-ai-add-model-url placeholder="${i18n.aiApiUrl}" />
             <input type="password" class="${SETTINGS_PANEL_CLASS}__ai-prompt-input" data-ai-add-model-key placeholder="${i18n.aiApiKey}" />
-            <input type="text" class="${SETTINGS_PANEL_CLASS}__ai-prompt-input" data-ai-add-model-model placeholder="${i18n.aiModel} (e.g. gpt-4o,gpt-4o-mini)" />
+            <input type="text" class="${SETTINGS_PANEL_CLASS}__ai-prompt-input" data-ai-add-model-model placeholder="${i18n.aiModel}" />
             <select class="${SETTINGS_PANEL_CLASS}__ai-prompt-input" data-ai-add-model-format>${formatOptions}</select>
             <div class="${SETTINGS_PANEL_CLASS}__ai-prompt-add-actions">
                 <button type="button" class="${SETTINGS_PANEL_CLASS}__ai-prompt-btn" data-ai-save-model>${i18n.aiSave}</button>

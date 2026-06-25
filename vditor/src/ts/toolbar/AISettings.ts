@@ -1,4 +1,4 @@
-import { buildAIPromptsHTML, buildAIModelsHTML, SETTINGS_PANEL_CLASS } from "../ui/settingsPanel";
+import { buildAIPromptsHTML, buildAIModelsHTML, nameFromUrl, SETTINGS_PANEL_CLASS } from "../ui/settingsPanel";
 import { getEventName } from "../util/compatibility";
 import { MenuItem } from "./MenuItem";
 import { toggleSubMenu } from "./setToolbar";
@@ -91,7 +91,7 @@ export class AISettings extends MenuItem {
                 const formatEl = panelElement.querySelector<HTMLSelectElement>("[data-ai-add-model-format]");
                 if (formatEl) formatEl.value = "auto";
                 toggleAddRow(panelElement, "[data-ai-add-model-row]", "[data-ai-new-model]", true);
-                panelElement.querySelector<HTMLInputElement>("[data-ai-add-model-name]")?.focus();
+                panelElement.querySelector<HTMLInputElement>("[data-ai-add-model-url]")?.focus();
                 stop(event); return;
             }
             if (event.target.closest("[data-ai-cancel-model]")) {
@@ -106,7 +106,8 @@ export class AISettings extends MenuItem {
                 const key = panelElement.querySelector<HTMLInputElement>("[data-ai-add-model-key]")?.value.trim() || "";
                 const model = panelElement.querySelector<HTMLInputElement>("[data-ai-add-model-model]")?.value.trim() || "";
                 const format = panelElement.querySelector<HTMLSelectElement>("[data-ai-add-model-format]")?.value || "auto";
-                if (name && url) {
+                if (url) {
+                    const effectiveName = name || nameFromUrl(url);
                     const editingId = panelElement.dataset.editingModelId;
                     const models = getAIModels();
                     if (editingId) {
@@ -138,7 +139,7 @@ export class AISettings extends MenuItem {
                 if (modelEl) modelEl.value = m.model || "";
                 if (formatEl) formatEl.value = m.format || "auto";
                 toggleAddRow(panelElement, "[data-ai-add-model-row]", "[data-ai-new-model]", true);
-                nameEl?.focus();
+                urlEl?.focus();
                 stop(event); return;
             }
             const delModelBtn = event.target.closest("[data-del-model]") as HTMLElement | null;

@@ -115,7 +115,7 @@ window.VditorI18n = {
   'aiCustom': '自訂',
   'aiApiUrl': 'API 位址（可填基礎位址或完整端點）',
   'aiApiKey': 'API 金鑰',
-  'aiModel': '模型（例如 gpt-4o）',
+  'aiModel': '模型（例如 gpt-4o,gpt-4o-mini）',
   'aiApiFormat': 'API 格式',
   'aiApiFormatAuto': '自動識別',
   'aiApiFormatOpenAI': 'OpenAI 相容',

@@ -113,7 +113,7 @@ window.VditorI18n = {
   'aiCustom': '사용자 정의',
   'aiApiUrl': 'API URL（기본 또는 전체 엔드포인트）',
   'aiApiKey': 'API 키',
-  'aiModel': '모델（예：gpt-4o）',
+  'aiModel': '모델（예：gpt-4o,gpt-4o-mini）',
   'aiApiFormat': 'API 형식',
   'aiApiFormatAuto': '자동 감지',
   'aiApiFormatOpenAI': 'OpenAI 호환',

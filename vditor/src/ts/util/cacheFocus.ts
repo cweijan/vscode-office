@@ -287,6 +287,54 @@ const isEditorFocused = (vditor: IVditor) => {
         || isInsideCodeBlockChrome(activeElement);
 };
 
+/** 有打开的弹窗/浮层时不应自动抢回编辑器焦点，否则会把弹窗关掉 */
+const hasOpenEditorOverlay = (vditor: IVditor) => {
+    const root = vditor.element;
+    const aiDialog = root.querySelector<HTMLElement>(".vditor-ai-dialog-overlay");
+    if (aiDialog && !aiDialog.hidden) {
+        return true;
+    }
+    const aiOverlay = root.querySelector<HTMLElement>(".vditor-ai-overlay");
+    if (aiOverlay && !aiOverlay.hidden) {
+        return true;
+    }
+    if (document.querySelector(".vditor-confirm-overlay") || document.querySelector(".vditor-img")) {
+        return true;
+    }
+    const findBar = root.querySelector<HTMLElement>(".vditor-find-bar");
+    if (findBar && findBar.style.display !== "none") {
+        return true;
+    }
+    if (vditor.hint?.element?.style.display === "block") {
+        return true;
+    }
+    if (vditor.wysiwyg?.popover?.style.display === "block") {
+        return true;
+    }
+    if (vditor.ir?.popover?.style.display === "block") {
+        return true;
+    }
+    for (const panel of vditor.toolbar.element.querySelectorAll<HTMLElement>(".vditor-hint")) {
+        if (panel.style.display === "block") {
+            return true;
+        }
+    }
+    if (document.querySelector<HTMLElement>(".vditor-settings-panel__floating-menu:not([hidden])")) {
+        return true;
+    }
+    const themePanel = document.querySelector<HTMLElement>(".vditor-theme-picker-popover");
+    if (themePanel && themePanel.style.display === "block") {
+        return true;
+    }
+    if (root.querySelector(".vditor-cm-chrome__lang--open, .vditor-cm-chrome__theme--open, .vditor-mermaid-chrome__theme--open")) {
+        return true;
+    }
+    if (document.querySelector(".vditor-sponsor-popup")) {
+        return true;
+    }
+    return false;
+};
+
 const canRestoreFocus = (vditor: IVditor, onLoad: boolean) => {
     if (onLoad) {
         return true;
@@ -415,7 +463,7 @@ export const restoreCacheFocus = (vditor: IVditor, options?: RestoreFocusOptions
 export const bindCacheFocusPersistence = (vditor: IVditor) => {
     const persistFocus = () => saveCacheFocus(vditor);
     const tryRestoreFocus = () => {
-        if (isEditorFocused(vditor)) {
+        if (hasOpenEditorOverlay(vditor) || isEditorFocused(vditor)) {
             return;
         }
         restoreCacheFocus(vditor);

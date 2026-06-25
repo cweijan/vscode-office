@@ -113,7 +113,7 @@ window.VditorI18n = {
   'aiCustom': 'カスタム',
   'aiApiUrl': 'API URL（ベースまたは完全なエンドポイント）',
   'aiApiKey': 'API キー',
-  'aiModel': 'モデル（例：gpt-4o）',
+  'aiModel': 'モデル（例：gpt-4o,gpt-4o-mini）',
   'aiApiFormat': 'API 形式',
   'aiApiFormatAuto': '自動検出',
   'aiApiFormatOpenAI': 'OpenAI 互換',

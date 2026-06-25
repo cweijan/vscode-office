@@ -28,7 +28,10 @@ export function showConfirm(message: string, confirmLabel?: string): Promise<boo
 
         overlay.querySelector("[data-cancel]")!.addEventListener("click", () => close(false));
         overlay.querySelector("[data-ok]")!.addEventListener("click", () => close(true));
-        overlay.addEventListener("click", e => { if (e.target === overlay) close(false); });
+        overlay.addEventListener("click", e => {
+            e.stopPropagation();
+            if (e.target === overlay) close(false);
+        });
         document.addEventListener("keydown", onKey, true);
 
         document.body.appendChild(overlay);

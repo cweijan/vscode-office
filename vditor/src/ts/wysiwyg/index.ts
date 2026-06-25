@@ -473,10 +473,7 @@ class WYSIWYG {
             const blockElement = previewElement.closest(
                 "[data-type='code-block'], [data-type='math-block']",
             ) as HTMLElement;
-            if (!blockElement) {
-                return;
-            }
-            if (isSpecialBlock(blockElement) || isCmCodeBlock(blockElement)) {
+            if (blockElement && (isSpecialBlock(blockElement) || isCmCodeBlock(blockElement))) {
                 if (event.key === "ArrowDown" || event.key === "ArrowRight") {
                     focusWysiwygCodeBlock(blockElement, vditor, true);
                 } else if (event.key === "ArrowUp" || event.key === "ArrowLeft" || event.key === "Backspace") {

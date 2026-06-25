@@ -113,7 +113,7 @@ window.VditorI18n = {
   'aiCustom': 'Свой',
   'aiApiUrl': 'URL API (базовый или полный endpoint)',
   'aiApiKey': 'API-ключ',
-  'aiModel': 'Модель (например gpt-4o)',
+  'aiModel': 'Модель (например gpt-4o,gpt-4o-mini)',
   'aiApiFormat': 'Формат API',
   'aiApiFormatAuto': 'Автоопределение',
   'aiApiFormatOpenAI': 'OpenAI совместимый',

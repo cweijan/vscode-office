@@ -262,18 +262,20 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
                     "[data-type='code-block'], [data-type='math-block']",
                 ) as HTMLElement;
                 const previousElement = itemElement.previousElementSibling as HTMLElement;
-                if (!block || !previousElement) {
+                if (!previousElement) {
                     return;
                 }
-                if (isSpecialBlock(block)) {
-                    if (block.classList.contains(CM_EDITING_CLASS)) {
+                if (block) {
+                    if (isSpecialBlock(block)) {
+                        if (block.classList.contains(CM_EDITING_CLASS)) {
+                            return;
+                        }
+                        previousElement.style.display = "none";
                         return;
                     }
-                    previousElement.style.display = "none";
-                    return;
-                }
-                if (isCmCodeBlock(block)) {
-                    return;
+                    if (isCmCodeBlock(block)) {
+                        return;
+                    }
                 }
                 if (!blockRenderElement || (blockRenderElement !== false && isBlock && !blockRenderElement.contains(itemElement))) {
                     previousElement.style.display = "none";

@@ -4,7 +4,7 @@ import {
     getAIModels, setAIModels,
     AIPrompt, AIModel,
 } from "../util/globalLocalStorageSettings";
-import { AI_FORMAT_OPTIONS } from "./settingsPanel";
+import { AI_FORMAT_OPTIONS, nameFromUrl } from "./settingsPanel";
 import { accessLocalStorage } from "../util/compatibility";
 
 const ls = {
@@ -133,7 +133,7 @@ const buildHTML = (): string => {
       <div class="vditor-ai-dialog__body">
         <div class="vditor-ai-dialog__field">
           <label class="vditor-ai-dialog__label">${i.aiModelName}</label>
-          <input type="text" class="vditor-ai-dialog__input" id="vditor-ai-new-model-name" placeholder="${i.aiModelName}" />
+          <input type="text" class="vditor-ai-dialog__input" id="vditor-ai-new-model-name" placeholder="${i.aiModelName} (optional)" />
         </div>
         <div class="vditor-ai-dialog__field">
           <label class="vditor-ai-dialog__label">${i.aiApiUrl}</label>
@@ -318,10 +318,10 @@ export class AIDialog {
         if (savedId) this.modelValue = savedId;
         picker.list.innerHTML = `<button type="button" class="vditor-ai-dialog__picker-option" data-value="">${i.aiNoModelSelected}</button>` +
             models.map(m =>
-                `<button type="button" class="vditor-ai-dialog__picker-option" data-value="${m.id}">${m.name}</button>`
+                `<button type="button" class="vditor-ai-dialog__picker-option" data-value="${m.id}">${m.name || nameFromUrl(m.url)}</button>`
             ).join("");
         const found = models.find(m => m.id === this.modelValue);
-        picker.label.textContent = found ? found.name : i.aiNoModelSelected;
+        picker.label.textContent = found ? (found.name || nameFromUrl(found.url)) : i.aiNoModelSelected;
         if (!found) this.modelValue = "";
         this.updatePickerSelection(picker.list, this.modelValue);
         this.refreshModelNames(found ?? null);
@@ -411,7 +411,7 @@ export class AIDialog {
                     this.modelValue = value;
                     ls.set(AI_SELECTED_MODEL_KEY, value);
                     const found = getAIModels().find(m => m.id === value);
-                    picker.label.textContent = found ? found.name : window.VditorI18n.aiNoModelSelected;
+                    picker.label.textContent = found ? (found.name || nameFromUrl(found.url)) : window.VditorI18n.aiNoModelSelected;
                     this.selectedModelName = "";
                     this.refreshModelNames(found ?? null);
                 } else if (name === "model-name") {
@@ -465,7 +465,7 @@ export class AIDialog {
         const modelEl = this.overlay.querySelector<HTMLInputElement>("#vditor-ai-new-model-model")!;
         const name = nameEl.value.trim();
         const url = urlEl.value.trim();
-        if (!name || !url) return;
+        if (!url) return;
         const id = Date.now().toString();
         const models = getAIModels();
         models.push({ id, name, url, key: keyEl.value.trim(), model: modelEl.value.trim(), format: this.formatValue } as AIModel);
