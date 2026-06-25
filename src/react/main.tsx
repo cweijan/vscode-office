@@ -1,3 +1,4 @@
+import './polyfills/buffer';
 import ReactDOM from 'react-dom/client';
 import './util/vscode.js';
 import { getConfigs } from './util/vscodeConfig.ts';

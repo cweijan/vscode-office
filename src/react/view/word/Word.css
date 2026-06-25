@@ -6,8 +6,12 @@ body,
     overflow: hidden;
 }
 
-body {
-    background-color: #ececec !important;
+/* VS Code 自适应模式：同步 webview 页面底色 */
+html:has(.word-viewer--vscode-theme),
+html:has(.word-viewer--vscode-theme) body,
+html:has(.word-viewer--vscode-theme) #root {
+    background-color: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);
 }
 
 .word-viewer {
@@ -15,129 +19,66 @@ body {
     flex-direction: column;
     height: 100vh;
     min-height: 100vh;
-    background: #ececec;
     overflow: hidden;
+    position: relative;
+
+    /*
+     * 工具栏尺寸调节（docx-editor 用 Tailwind rem 类，如 h-8=2rem、gap-2=0.5rem）。
+     * rem 相对 html 字号，不受父级 font-size 影响。
+     *
+     * 方式一（推荐）：zoom 同比缩放工具栏行，改 --word-toolbar-zoom 即可（如 0.875）。
+     * 方式二：改 html rem 基准，取消方式一后启用 --word-editor-rem-scale（如 0.875）。
+     */
+    --word-toolbar-zoom: 0.97;
+    --word-editor-rem-scale: 1;
 }
 
-.word-body {
+html:has(.word-viewer) {
+    font-size: calc(16px * var(--word-editor-rem-scale));
+}
+
+/* formatting-bar 在 editor-toolbar 内，勿重复 zoom，否则末尾按钮间距会塌陷 */
+.word-viewer [data-testid="editor-toolbar"],
+.word-viewer .docx-responsive-toolbar {
+    zoom: var(--word-toolbar-zoom);
+}
+
+/* 格式化条末尾：评论、编辑模式等（非 fe 分组子节点） */
+.word-viewer [data-testid="formatting-bar"] > [role="separator"] {
+    margin-left: 6px !important;
+    margin-right: 6px !important;
+}
+
+.word-viewer [data-testid="formatting-bar"] > .ep-toolbar-toggle {
+    margin-left: 2px;
+}
+
+.word-viewer [data-testid="formatting-bar"] > div[style*="position: relative"] {
+    margin-left: 2px;
+}
+
+.word-editor {
     flex: 1;
     min-height: 0;
-    overflow: auto;
-    padding: 20px 16px;
 }
 
-.word-content {
-    width: 100%;
-    max-width: 816px;
-    margin: 0 auto;
-}
-
-.word-content .docx-wrapper {
-    padding: 0 !important;
-    background-color: #ececec !important;
-}
-
-.word-content .docx-wrapper>section.docx {
-    width: 100% !important;
-    max-width: 100%;
-    margin: 0 auto 16px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
-    background: #fff;
-}
-
-.word-content .docx-wrapper>section.docx:last-child {
-    margin-bottom: 0;
-}
-
-.word-footer {
+.word-readonly-banner {
     flex-shrink: 0;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 16px 10px;
-    min-height: 44px;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
-    background: rgba(255, 255, 255, 0.78);
-    backdrop-filter: blur(10px);
-}
-
-.word-page-nav {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    padding: 3px 4px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    background: #fff;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-}
-
-.word-page-btn {
-    width: 28px;
-    height: 28px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    border-radius: 7px;
-    background: transparent;
-    color: rgba(0, 0, 0, 0.65);
-    font-size: 12px;
-    cursor: pointer;
-    transition: background-color 0.15s, color 0.15s;
-}
-
-.word-page-btn:hover:not(:disabled) {
-    background: rgba(0, 0, 0, 0.06);
-    color: #1677ff;
-}
-
-.word-page-btn:disabled {
-    color: rgba(0, 0, 0, 0.25);
-    cursor: not-allowed;
-}
-
-.word-page-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    padding: 0 10px;
-    min-width: 0;
-    font-size: 12px;
-    color: rgba(0, 0, 0, 0.55);
-    user-select: none;
-}
-
-.word-page-input {
-    width: 3.2em;
-    border: none;
-    border-bottom: 1px solid transparent;
-    background: transparent;
-    color: rgba(0, 0, 0, 0.88);
-    font: inherit;
-    font-weight: 600;
+    padding: 6px 16px;
     text-align: center;
-    padding: 2px 4px;
-    outline: none;
-    transition: border-color 0.15s;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.65);
+    background: #fffbe6;
+    border-bottom: 1px solid #ffe58f;
 }
 
-.word-page-input:hover,
-.word-page-input:focus {
-    border-bottom-color: rgba(22, 119, 255, 0.45);
-}
-
-.word-page-total {
-    font-weight: 500;
-    color: rgba(0, 0, 0, 0.45);
-}
-
-.dark-mode-toggle {
+/* ── 亮暗切换按钮（样式参考 Excel）──── */
+.word-viewer .dark-mode-toggle {
     position: fixed;
-    top: 10px;
-    right: 28px;
+    top: 18px;
+    right: 18px;
     z-index: 1000;
+    flex-shrink: 0;
     width: 32px;
     height: 32px;
     display: flex;
@@ -148,132 +89,352 @@ body {
     background-color: rgba(255, 255, 255, 0.85);
     color: #2c3e50;
     cursor: pointer;
+    font-size: 13px;
 }
 
-.dark-mode-toggle:hover {
+.word-viewer .dark-mode-toggle:hover {
     background-color: rgba(0, 0, 0, 0.06);
 }
 
-body.office-dark {
-    background-color: var(--vscode-editor-background, #1e1e1e) !important;
-}
-
-body.office-dark .word-viewer {
-    background-color: var(--vscode-editor-background, #1e1e1e);
-}
-
-body.office-dark .word-body,
-body.office-dark .word-content .docx-wrapper {
-    background-color: var(--vscode-editor-background, #1e1e1e) !important;
-}
-
-body.office-dark .word-body {
-    scrollbar-color: var(--vscode-scrollbarSlider-background, #797979) var(--vscode-editor-background, #1e1e1e);
-}
-
-body.office-dark .word-body::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-}
-
-body.office-dark .word-body::-webkit-scrollbar-track {
-    background: var(--vscode-editor-background, #1e1e1e);
-}
-
-body.office-dark .word-body::-webkit-scrollbar-thumb {
-    background-color: var(--vscode-scrollbarSlider-background, #797979);
-    border-radius: 5px;
-    border: 2px solid var(--vscode-editor-background, #1e1e1e);
-}
-
-body.office-dark .word-body::-webkit-scrollbar-thumb:hover {
-    background-color: var(--vscode-scrollbarSlider-hoverBackground, var(--vscode-scrollbarSlider-background, #797979));
-}
-
-body.office-dark .word-body::-webkit-scrollbar-corner {
-    background: var(--vscode-editor-background, #1e1e1e);
-}
-
-body.office-dark .word-content .docx-wrapper>section.docx {
-    background: var(--vscode-editor-background, #1e1e1e);
-    color: var(--vscode-editor-foreground, #cccccc);
-    box-shadow: 0 2px 12px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.36));
-}
-
-body.office-dark .word-content .docx-wrapper>section.docx p,
-body.office-dark .word-content .docx-wrapper>section.docx span,
-body.office-dark .word-content .docx-wrapper>section.docx td,
-body.office-dark .word-content .docx-wrapper>section.docx th,
-body.office-dark .word-content .docx-wrapper>section.docx li,
-body.office-dark .word-content .docx-wrapper>section.docx h1,
-body.office-dark .word-content .docx-wrapper>section.docx h2,
-body.office-dark .word-content .docx-wrapper>section.docx h3,
-body.office-dark .word-content .docx-wrapper>section.docx h4,
-body.office-dark .word-content .docx-wrapper>section.docx h5,
-body.office-dark .word-content .docx-wrapper>section.docx h6 {
-    color: var(--vscode-editor-foreground, #cccccc) !important;
-}
-
-body.office-dark .dark-mode-toggle {
+.word-viewer--vscode-theme .dark-mode-toggle {
     background-color: var(--vscode-editorWidget-background, #252526);
     color: var(--vscode-editor-foreground, #cccccc);
     border-color: var(--vscode-editorWidget-border, rgba(128, 128, 128, 0.45));
 }
 
-body.office-dark .dark-mode-toggle:hover {
+.word-viewer--vscode-theme .dark-mode-toggle:hover {
     background-color: var(--vscode-toolbar-hoverBackground, rgba(90, 93, 94, 0.31));
 }
 
-body.office-dark .word-footer {
-    border-top-color: var(--vscode-editorWidget-border, rgba(128, 128, 128, 0.35));
-    background: color-mix(in srgb, var(--vscode-editor-background, #1e1e1e) 88%, transparent);
+.word-sponsor-footer {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: 2px 12px 4px;
+    border-top: 1px solid #e0e0e0;
+    background: #f8f9fa;
 }
 
-body.office-dark .word-page-nav {
-    background: var(--vscode-editorWidget-background, #252526);
-    border-color: var(--vscode-editorWidget-border, rgba(128, 128, 128, 0.45));
-    box-shadow: 0 1px 4px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.36));
-}
-
-body.office-dark .word-page-btn {
-    color: var(--vscode-descriptionForeground, rgba(204, 204, 204, 0.7));
-}
-
-body.office-dark .word-page-btn:hover:not(:disabled) {
-    background: var(--vscode-toolbar-hoverBackground, rgba(90, 93, 94, 0.31));
-    color: var(--vscode-textLink-foreground, #3794ff);
-}
-
-body.office-dark .word-page-btn:disabled {
-    color: var(--vscode-disabledForeground, rgba(204, 204, 204, 0.4));
-}
-
-body.office-dark .word-page-indicator {
-    color: var(--vscode-descriptionForeground, rgba(204, 204, 204, 0.7));
-}
-
-body.office-dark .word-page-input {
-    color: var(--vscode-editor-foreground, #cccccc);
-}
-
-body.office-dark .word-page-input:hover,
-body.office-dark .word-page-input:focus {
-    border-bottom-color: var(--vscode-focusBorder, #007fd4);
-}
-
-body.office-dark .word-page-total {
-    color: var(--vscode-descriptionForeground, rgba(204, 204, 204, 0.55));
-}
-
-.word-viewer .word-footer .office-sponsor-bar--right {
-    position: absolute;
-    right: 16px;
+.word-sponsor-footer .office-sponsor-bar {
+    position: static;
     bottom: auto;
+    right: auto;
+    left: auto;
+    z-index: auto;
+    flex-shrink: 0;
+    gap: 6px;
     padding: 0;
 }
 
-@media (max-width: 650px) {
-    .word-viewer .office-sponsor-bar {
-        display: none !important;
-    }
+.word-sponsor-footer .office-sponsor-bar-logo {
+    width: 22px;
+    height: 22px;
+}
+
+.word-viewer--vscode-theme .word-sponsor-footer {
+    border-top-color: var(--vscode-panel-border, var(--vscode-editorWidget-border));
+    background: var(--vscode-editorGroupHeader-tabsBackground, var(--vscode-sideBar-background, var(--vscode-editor-background)));
+}
+
+.word-viewer--vscode-theme .word-sponsor-footer .office-sponsor-bar {
+    --sponsor-bar-muted: var(--vscode-descriptionForeground);
+    --sponsor-bar-accent: var(--vscode-textLink-foreground);
+}
+
+.word-viewer--vscode-theme .word-readonly-banner {
+    color: var(--vscode-editorWarning-foreground);
+    background: color-mix(in srgb, var(--vscode-editorWarning-foreground) 14%, var(--vscode-editor-background));
+    border-bottom-color: var(--vscode-panel-border, var(--vscode-editorWidget-border));
+}
+
+/* ── VS Code 主题 → docx-editor（变量定义在 .ep-root 上）── */
+.word-viewer--vscode-theme {
+    font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size: var(--vscode-font-size, 13px);
+}
+
+.word-viewer--vscode-theme .ep-root {
+    --doc-surface: var(--vscode-editorGroupHeader-tabsBackground, var(--vscode-sideBar-background, var(--vscode-editor-background)));
+    --doc-card: var(--vscode-sideBar-background, var(--vscode-editorWidget-background, var(--vscode-editor-background)));
+    --doc-bg: var(--vscode-editor-background);
+    --doc-bg-subtle: var(--vscode-sideBarSectionHeader-background, var(--vscode-editorGroupHeader-tabsBackground, var(--vscode-sideBar-background)));
+    --doc-bg-hover: var(--vscode-toolbar-hoverBackground, var(--vscode-list-hoverBackground, color-mix(in srgb, var(--vscode-foreground) 6%, transparent)));
+    --doc-bg-input: var(--vscode-input-background, var(--vscode-editor-background));
+    --doc-primary: var(--vscode-textLink-foreground);
+    --doc-primary-hover: var(--vscode-textLink-activeForeground, var(--vscode-textLink-foreground));
+    --doc-primary-light: color-mix(in srgb, var(--vscode-textLink-foreground) 18%, transparent);
+    --doc-accent: var(--vscode-textLink-foreground);
+    --doc-accent-bg: color-mix(in srgb, var(--vscode-textLink-foreground) 14%, var(--vscode-editor-background));
+    --doc-on-primary: var(--vscode-button-foreground, #ffffff);
+    --doc-toggle-active-bg: var(--doc-primary-light);
+    --doc-toggle-active-fg: var(--doc-primary);
+    --doc-text: var(--vscode-foreground, var(--vscode-editor-foreground));
+    --doc-text-muted: var(--vscode-descriptionForeground);
+    --doc-text-subtle: var(--vscode-input-placeholderForeground, var(--vscode-descriptionForeground));
+    --doc-text-placeholder: var(--vscode-input-placeholderForeground, var(--vscode-descriptionForeground));
+    --doc-border: var(--vscode-editorWidget-border, var(--vscode-panel-border, var(--vscode-input-border)));
+    --doc-border-light: var(--vscode-panel-border, var(--vscode-editorWidget-border));
+    --doc-border-dark: var(--vscode-contrastBorder, var(--vscode-panel-border));
+    --doc-border-input: var(--vscode-input-border, var(--vscode-panel-border));
+    --doc-error: var(--vscode-errorForeground);
+    --doc-error-bg: color-mix(in srgb, var(--vscode-errorForeground) 14%, var(--vscode-editor-background));
+    --doc-success: var(--vscode-gitDecoration-addedResourceForeground, #73c991);
+    --doc-success-bg: color-mix(in srgb, var(--vscode-gitDecoration-addedResourceForeground, #73c991) 14%, var(--vscode-editor-background));
+    --doc-warning: var(--vscode-editorWarning-foreground);
+    --doc-warning-bg: color-mix(in srgb, var(--vscode-editorWarning-foreground) 14%, var(--vscode-editor-background));
+    --doc-warning-text: var(--vscode-editorWarning-foreground);
+    --doc-link: var(--vscode-textLink-foreground);
+    --doc-shadow: var(--vscode-widget-shadow, rgba(0, 0, 0, 0.2));
+    --doc-shadow-strong: color-mix(in srgb, var(--vscode-widget-shadow, rgba(0, 0, 0, 0.2)) 140%, transparent);
+    --doc-shadow-subtle: color-mix(in srgb, var(--vscode-widget-shadow, rgba(0, 0, 0, 0.2)) 40%, transparent);
+    --doc-card-shadow: 0 1px 3px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.2));
+    --doc-card-shadow-strong: 0 1px 3px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.2)), 0 4px 8px 3px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.2));
+    --doc-shadow-lg: 0 10px 15px -3px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.2)), 0 4px 6px -4px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.2));
+    --doc-overlay: color-mix(in srgb, var(--vscode-foreground, var(--vscode-editor-foreground)) 40%, transparent);
+    --doc-focus-ring: color-mix(in srgb, var(--vscode-focusBorder, var(--vscode-textLink-foreground)) 45%, transparent);
+    --doc-selection: color-mix(in srgb, var(--vscode-textLink-foreground) 30%, transparent);
+    --doc-scrollbar-size: 14px;
+    --doc-scrollbar-thumb: var(--vscode-scrollbarSlider-background);
+    --doc-scrollbar-thumb-hover: var(--vscode-scrollbarSlider-hoverBackground);
+    --doc-scrollbar-track: transparent;
+    --doc-page-bg: var(--vscode-tab-inactiveBackground, var(--vscode-editorGroupHeader-tabsBackground, #e8e8e8));
+    --doc-page-text: var(--vscode-editor-foreground);
+    --doc-caret: var(--vscode-input-foreground, var(--vscode-editor-foreground));
+
+    color: var(--doc-text);
+    background-color: var(--doc-bg);
+}
+
+/* 标题栏 / 工具栏 / 菜单栏 */
+.word-viewer--vscode-theme [data-testid="editor-toolbar"],
+.word-viewer--vscode-theme [data-testid="title-bar"] {
+    background-color: var(--doc-surface) !important;
+    color: var(--doc-text);
+    border-color: var(--doc-border);
+}
+
+.word-viewer--vscode-theme [data-testid="title-bar"] [role="menubar"] button {
+    color: var(--doc-text);
+}
+
+.word-viewer--vscode-theme .docx-editor__scroll-container {
+    background-color: var(--doc-bg) !important;
+}
+
+/* 文档页正文色 */
+.word-viewer--vscode-theme .layout-page,
+.word-viewer--vscode-theme .layout-page-content,
+.word-viewer--vscode-theme .layout-page-header,
+.word-viewer--vscode-theme .layout-page-footer,
+.word-viewer--vscode-theme .docx-paragraph,
+.word-viewer--vscode-theme .docx-run {
+    color: var(--doc-page-text);
+}
+
+/* 工具栏格式化条（水平滚动） */
+.word-viewer--vscode-theme [data-testid="formatting-bar"] {
+    background-color: var(--doc-bg-subtle) !important;
+    scrollbar-color: var(--doc-scrollbar-thumb) var(--doc-scrollbar-track);
+    scrollbar-width: thin;
+}
+
+.word-viewer--vscode-theme [data-testid="formatting-bar"]::-webkit-scrollbar {
+    height: 8px;
+}
+
+.word-viewer--vscode-theme [data-testid="formatting-bar"]::-webkit-scrollbar-track {
+    background: var(--doc-scrollbar-track);
+}
+
+.word-viewer--vscode-theme [data-testid="formatting-bar"]::-webkit-scrollbar-thumb {
+    background: var(--doc-scrollbar-thumb);
+    background-clip: content-box;
+    border: 2px solid transparent;
+    border-radius: 9999px;
+}
+
+.word-viewer--vscode-theme [data-testid="formatting-bar"]:hover::-webkit-scrollbar-thumb {
+    background: var(--doc-scrollbar-thumb-hover);
+    background-clip: content-box;
+    border: 2px solid transparent;
+    border-radius: 9999px;
+}
+
+.word-viewer--vscode-theme .docx-responsive-toolbar {
+    scrollbar-color: var(--doc-scrollbar-thumb) var(--doc-scrollbar-track);
+    scrollbar-width: thin;
+}
+
+.word-viewer--vscode-theme .docx-responsive-toolbar::-webkit-scrollbar {
+    height: 8px;
+}
+
+.word-viewer--vscode-theme .docx-responsive-toolbar::-webkit-scrollbar-track {
+    background: var(--doc-scrollbar-track);
+}
+
+.word-viewer--vscode-theme .docx-responsive-toolbar::-webkit-scrollbar-thumb {
+    background: var(--doc-scrollbar-thumb);
+    background-clip: content-box;
+    border: 2px solid transparent;
+    border-radius: 9999px;
+}
+
+.word-viewer--vscode-theme .docx-responsive-toolbar:hover::-webkit-scrollbar-thumb {
+    background: var(--doc-scrollbar-thumb-hover);
+    background-clip: content-box;
+    border: 2px solid transparent;
+    border-radius: 9999px;
+}
+
+/* 工具栏按钮 */
+.word-viewer--vscode-theme .ep-root .ep-toolbar-toggle {
+    color: var(--doc-text-muted) !important;
+}
+
+.word-viewer--vscode-theme .ep-root .ep-toolbar-toggle:hover {
+    color: var(--doc-text) !important;
+    background-color: var(--doc-bg-hover) !important;
+}
+
+/* shadcn / tailwind 工具类覆盖 */
+.word-viewer--vscode-theme .ep-root .bg-background,
+.word-viewer--vscode-theme .ep-root .bg-doc-bg {
+    background-color: var(--doc-bg) !important;
+}
+
+.word-viewer--vscode-theme .ep-root [data-testid="editor-toolbar"].bg-doc-surface,
+.word-viewer--vscode-theme .ep-root [data-testid="title-bar"].bg-doc-surface,
+.word-viewer--vscode-theme .ep-root .bg-doc-surface {
+    background-color: var(--doc-surface) !important;
+}
+
+.word-viewer--vscode-theme .ep-root .bg-popover,
+.word-viewer--vscode-theme .ep-root .bg-card {
+    background-color: var(--doc-surface) !important;
+}
+
+.word-viewer--vscode-theme .ep-root .bg-muted,
+.word-viewer--vscode-theme .ep-root .bg-doc-bg-subtle,
+.word-viewer--vscode-theme .ep-root [data-testid="formatting-bar"].bg-muted {
+    background-color: var(--doc-bg-subtle) !important;
+}
+
+.word-viewer--vscode-theme .ep-root .bg-doc-bg-hover,
+.word-viewer--vscode-theme .ep-root .hover\:bg-doc-bg-hover:hover,
+.word-viewer--vscode-theme .ep-root .hover\:bg-accent:hover,
+.word-viewer--vscode-theme .ep-root .hover\:bg-muted:hover,
+.word-viewer--vscode-theme .ep-root .hover\:bg-muted\/80:hover {
+    background-color: var(--doc-bg-hover) !important;
+}
+
+.word-viewer--vscode-theme .ep-root .bg-primary {
+    background-color: var(--doc-primary) !important;
+}
+
+.word-viewer--vscode-theme .ep-root .bg-doc-bg-input,
+.word-viewer--vscode-theme .ep-root .focus\:bg-doc-bg-input:focus {
+    background-color: var(--doc-bg-input) !important;
+}
+
+.word-viewer--vscode-theme .ep-root .text-foreground,
+.word-viewer--vscode-theme .ep-root .text-doc-text,
+.word-viewer--vscode-theme .ep-root .hover\:text-foreground:hover,
+.word-viewer--vscode-theme .ep-root .hover\:text-accent-foreground:hover {
+    color: var(--doc-text) !important;
+}
+
+.word-viewer--vscode-theme .ep-root .text-muted-foreground,
+.word-viewer--vscode-theme .ep-root .text-doc-text-muted {
+    color: var(--doc-text-muted) !important;
+}
+
+.word-viewer--vscode-theme .ep-root .text-popover-foreground,
+.word-viewer--vscode-theme .ep-root .text-secondary-foreground {
+    color: var(--doc-text) !important;
+}
+
+.word-viewer--vscode-theme .ep-root .text-primary-foreground {
+    color: var(--doc-on-primary) !important;
+}
+
+.word-viewer--vscode-theme .ep-root .text-primary {
+    color: var(--doc-primary) !important;
+}
+
+.word-viewer--vscode-theme .ep-root .ep-toolbar-toggle[data-active="true"],
+.word-viewer--vscode-theme .ep-root .ep-toolbar-toggle[data-active="true"]:hover {
+    background-color: var(--doc-toggle-active-bg) !important;
+    color: var(--doc-primary) !important;
+}
+
+.word-viewer--vscode-theme .ep-root .text-destructive {
+    color: var(--doc-error) !important;
+}
+
+.word-viewer--vscode-theme .ep-root .border-border,
+.word-viewer--vscode-theme .ep-root .border-input,
+.word-viewer--vscode-theme .ep-root .border-border\/50,
+.word-viewer--vscode-theme .ep-root .hover\:border-input:hover {
+    border-color: var(--doc-border) !important;
+}
+
+.word-viewer--vscode-theme .ep-root .ring-ring,
+.word-viewer--vscode-theme .ep-root .focus\:ring-ring:focus,
+.word-viewer--vscode-theme .ep-root .focus-visible\:ring-ring:focus-visible {
+    --tw-ring-color: var(--doc-focus-ring) !important;
+}
+
+/* 选区 / 表格焦点 */
+.word-viewer--vscode-theme .docx-run ::selection,
+.word-viewer--vscode-theme .docx-run-editable ::selection,
+.word-viewer--vscode-theme .docx-run-editable::selection,
+.word-viewer--vscode-theme .docx-run::selection,
+.word-viewer--vscode-theme [contenteditable=true] ::selection,
+.word-viewer--vscode-theme [contenteditable=true]::selection,
+.word-viewer--vscode-theme .docx-paragraph ::selection,
+.word-viewer--vscode-theme .docx-paragraph-editable ::selection,
+.word-viewer--vscode-theme .docx-paragraph-editable::selection,
+.word-viewer--vscode-theme .docx-paragraph::selection,
+.word-viewer--vscode-theme .docx-hyperlink ::selection,
+.word-viewer--vscode-theme .docx-hyperlink::selection {
+    background-color: var(--doc-selection) !important;
+    color: inherit !important;
+}
+
+.word-viewer--vscode-theme .docx-run ::-moz-selection,
+.word-viewer--vscode-theme .docx-run-editable ::-moz-selection,
+.word-viewer--vscode-theme .docx-run-editable::-moz-selection,
+.word-viewer--vscode-theme .docx-run::-moz-selection,
+.word-viewer--vscode-theme [contenteditable=true] ::-moz-selection,
+.word-viewer--vscode-theme [contenteditable=true]::-moz-selection,
+.word-viewer--vscode-theme .docx-paragraph ::-moz-selection,
+.word-viewer--vscode-theme .docx-paragraph-editable ::-moz-selection,
+.word-viewer--vscode-theme .docx-paragraph-editable::-moz-selection,
+.word-viewer--vscode-theme .docx-paragraph::-moz-selection,
+.word-viewer--vscode-theme .docx-hyperlink ::-moz-selection,
+.word-viewer--vscode-theme .docx-hyperlink::-moz-selection {
+    background-color: var(--doc-selection) !important;
+    color: inherit !important;
+}
+
+.word-viewer--vscode-theme .layout-table-cell-selected {
+    outline-color: var(--doc-focus-ring);
+}
+
+.word-viewer--vscode-theme .layout-table-cell-selected:after {
+    background-color: var(--doc-primary-light);
+}
+
+.word-viewer--vscode-theme .layout-table-resize-handle.dragging,
+.word-viewer--vscode-theme .layout-table-resize-handle:hover,
+.word-viewer--vscode-theme .layout-table-edge-handle-bottom.dragging,
+.word-viewer--vscode-theme .layout-table-edge-handle-bottom:hover,
+.word-viewer--vscode-theme .layout-table-row-resize-handle.dragging,
+.word-viewer--vscode-theme .layout-table-row-resize-handle:hover,
+.word-viewer--vscode-theme .layout-table-edge-handle-right.dragging,
+.word-viewer--vscode-theme .layout-table-edge-handle-right:hover {
+    background-color: var(--doc-focus-ring);
 }

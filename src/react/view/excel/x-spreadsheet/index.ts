@@ -397,6 +397,10 @@ export class Spreadsheet {
 
     reRender(): this {
         this.sheet.table.render();
+        const sheet = this.sheet as any;
+        if (sheet.editor?.cell) {
+            sheet.editor.applyCellStyle(sheet.data.getSelectedCellStyle());
+        }
         return this;
     }
 

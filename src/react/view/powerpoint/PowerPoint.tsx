@@ -567,8 +567,9 @@ export default function PowerPoint() {
                 </Layout>
                 <button
                     type="button"
-                    className={`dark-mode-toggle${slideCount > 0 ? ' is-above-status' : ''}`}
+                    className={`color-mode-toggle${slideCount > 0 ? ' is-above-status' : ''}`}
                     title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+                    aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
                     onClick={toggleDark}
                 >
                     {dark ? <SunOutlined /> : <MoonOutlined />}

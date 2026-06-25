@@ -4,6 +4,7 @@ import Suggest from './suggest';
 import Datepicker from './datepicker';
 import { cssPrefix } from '../config';
 import { getFontSizePxByPt } from '../core/font';
+import { resolveExcelCellColor } from '../../theme';
 // import { mouseMoveUp } from '../event';
 
 const FORMULA_MIN_WIDTH = 300;
@@ -312,17 +313,18 @@ export default class Editor {
 
   applyCellStyle(cellStyle) {
     const { textEl, textlineEl } = this;
-    const font = cellStyle?.font;
-    if (!font) return;
-    const fontCss = buildEditorFontCss(font);
-    const lineHeight = `${getFontSizePxByPt(font.size ?? 12) + 2}px`;
-    textEl.css('font', fontCss);
-    textEl.css('line-height', lineHeight);
-    textlineEl.css('font', fontCss);
-    textlineEl.css('line-height', lineHeight);
-    if (cellStyle.color) {
-      textEl.css('color', cellStyle.color);
-      textlineEl.css('color', cellStyle.color);
+    if (!cellStyle) return;
+    const font = cellStyle.font;
+    if (font) {
+      const fontCss = buildEditorFontCss(font);
+      const lineHeight = `${getFontSizePxByPt(font.size ?? 12) + 2}px`;
+      textEl.css('font', fontCss);
+      textEl.css('line-height', lineHeight);
+      textlineEl.css('font', fontCss);
+      textlineEl.css('line-height', lineHeight);
     }
+    const color = resolveExcelCellColor(cellStyle.color);
+    textEl.css('color', color);
+    textlineEl.css('color', color);
   }
 }

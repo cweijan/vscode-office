@@ -23,6 +23,17 @@ export default defineConfig(({ command, mode }) => ({
     command === 'serve' ?
       vditorDevPlugin() : vditorProdBuildPlugin()
   ],
+  define: {
+    global: 'globalThis',
+  },
+  resolve: {
+    alias: {
+      buffer: 'buffer',
+    },
+  },
+  optimizeDeps: {
+    include: ['buffer'],
+  },
   server: {
     cors: {
       origin: true,

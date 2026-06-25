@@ -234,28 +234,41 @@ body.office-dark .ppt-thumb img {
     background: var(--viewer-toolbar-bg);
 }
 
-.ppt-viewer .dark-mode-toggle {
+.ppt-viewer .color-mode-toggle {
     position: fixed;
-    right: 12px;
+    right: 18px;
     bottom: 8px;
     z-index: 1000;
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--viewer-border);
-    border-radius: 6px;
-    background: color-mix(in srgb, var(--viewer-toolbar-bg) 90%, transparent);
-    color: var(--viewer-fg);
+    border: 0.5px solid rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px) saturate(1.8);
+    -webkit-backdrop-filter: blur(20px) saturate(1.8);
+    color: #3c3c43;
     cursor: pointer;
-    backdrop-filter: blur(4px);
+    font-size: 13px;
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.08),
+        0 0 0 0.5px rgba(255, 255, 255, 0.6) inset;
+    transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
 }
 
-.ppt-viewer .dark-mode-toggle.is-above-status {
+.ppt-viewer .color-mode-toggle.is-above-status {
     bottom: 36px;
 }
 
-.ppt-viewer .dark-mode-toggle:hover {
-    background: var(--viewer-hover);
+.ppt-viewer .color-mode-toggle:hover {
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.12),
+        0 0 0 0.5px rgba(255, 255, 255, 0.7) inset;
+}
+
+.ppt-viewer .color-mode-toggle:active {
+    transform: scale(0.93);
 }

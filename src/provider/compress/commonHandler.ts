@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { join, parse } from 'path';
+import { basename, join, parse } from 'path';
 import { Handler } from "@/common/handler";
 import { isUriReadOnly } from '@/common/fileReadOnly';
 import { Uri, workspace } from 'vscode';
@@ -21,10 +21,10 @@ export function shouldSkipFileChange(uri: Uri): boolean {
     return !!(lastSaveTime && Date.now() - lastSaveTime < 100);
 }
 
-function setDirty(handler: Handler, dirty: boolean) {
+function setDirty(handler: Handler, uri: Uri, dirty: boolean) {
     const panel = handler.panel;
-    const title = panel.title.replace(/^● /, '');
-    panel.title = dirty ? `● ${title}` : title;
+    const fileName = basename(uri.fsPath);
+    panel.title = dirty ? `● ${fileName}` : fileName;
     if (dirty) {
         void vscode.commands.executeCommand('workbench.action.keepEditor');
     }
@@ -54,7 +54,7 @@ export function handleCommonEvent(uri: Uri, handler: Handler, options?: { skipOp
     }
     events
         .on("change", () => {
-            setDirty(handler, true);
+            setDirty(handler, uri, true);
         })
         .on("save", async (content) => {
             const res = Array.isArray(content) ? new Uint8Array(content) : new TextEncoder().encode(content)
@@ -64,7 +64,7 @@ export function handleCommonEvent(uri: Uri, handler: Handler, options?: { skipOp
             }
             await workspace.fs.writeFile(uri, res)
             fileSaveTimes[uri.toString()] = Date.now();
-            setDirty(handler, false);
+            setDirty(handler, uri, false);
             handler.emit("saveDone")
         })
         .on("saveAs", async (payload: { content: number[], ext?: string }) => {
@@ -81,6 +81,8 @@ export function handleCommonEvent(uri: Uri, handler: Handler, options?: { skipOp
                 xls: { label: 'Excel 97-2003 Workbook', exts: ['xls'] },
                 ods: { label: 'OpenDocument Spreadsheet', exts: ['ods'] },
                 csv: { label: 'CSV (Comma delimited)', exts: ['csv'] },
+                docx: { label: 'Word Document', exts: ['docx'] },
+                dotx: { label: 'Word Template', exts: ['dotx'] },
             };
             const info = filterMap[ext] ?? { label: ext.toUpperCase(), exts: [ext] };
             const target = await vscode.window.showSaveDialog({
@@ -90,7 +92,7 @@ export function handleCommonEvent(uri: Uri, handler: Handler, options?: { skipOp
             if (!target) return;
             await workspace.fs.writeFile(target, res);
             fileSaveTimes[target.toString()] = Date.now();
-            setDirty(handler, false);
+            setDirty(handler, uri, false);
             handler.emit("saveDone");
             await vscode.commands.executeCommand('vscode.openWith', target, 'cweijan.officeViewer');
         })

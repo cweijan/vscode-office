@@ -1,12 +1,50 @@
-*,
-*::before,
-*::after {
+/* Modern CSS Reset */
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
-  /* position: relative; */
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  tab-size: 4;
 }
 
 body {
-  min-height: 95vh;
+  line-height: 1.5;
   color: #2c3e50;
+}
+
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+ol, ul {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
 }
