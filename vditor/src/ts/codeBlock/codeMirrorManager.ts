@@ -1463,21 +1463,143 @@ export const getCodeMirrorView = (blockElement: HTMLElement) => bindings.get(blo
 /** @deprecated use getCodeMirrorView */
 export const getWysiwygCodeMirrorView = getCodeMirrorView;
 
-const sanitizeCmBlockCloneForMarkdown = (liveBlock: HTMLElement, cloneBlock: HTMLElement) => {
-    const binding = bindings.get(liveBlock);
+const resolveLanguageFromCmDom = (root: ParentNode): string => {
+    const chromeLang = (root as HTMLElement).querySelector(".vditor-cm-chrome__lang")?.getAttribute("data-lang");
+    if (chromeLang && chromeLang !== "plain") {
+        return chromeLang;
+    }
+    const syncCode = root.querySelector("pre code, code");
+    if (syncCode) {
+        const fromCode = getCodeLanguageName(syncCode as HTMLElement);
+        if (fromCode) {
+            return fromCode;
+        }
+    }
+    const cmLang = root.querySelector(".cm-content")?.getAttribute("data-language");
+    if (cmLang) {
+        return cmLang;
+    }
+    const infoEl = root.querySelector('[data-type="code-block-info"]');
+    if (infoEl?.textContent) {
+        const info = infoEl.textContent.replace(Constants.ZWSP, "").trim();
+        if (info) {
+            return info;
+        }
+    }
+    return "";
+};
+
+const resolveCodeTextFromCmDom = (root: ParentNode): string => {
+    const syncCode = root.querySelector("pre code");
+    if (syncCode?.textContent) {
+        return syncCode.textContent;
+    }
+    const cmContent = root.querySelector(".cm-content");
+    if (cmContent) {
+        return cmContent.textContent || "";
+    }
+    return "";
+};
+
+const resolveCmBlockLanguage = (liveBlock: HTMLElement, binding?: CodeMirrorBinding): string => {
+    if (binding?.languageName) {
+        return binding.languageName;
+    }
     const parts = getBlockParts(liveBlock);
-    if (!parts) {
-        return;
+    if (parts) {
+        const fromCode = getCodeLanguageName(parts.code);
+        if (fromCode) {
+            return fromCode;
+        }
     }
-    const languageName = getCodeLanguageName(parts.code);
-    const codeText = binding ? binding.view.state.doc.toString() : (parts.code.textContent || "");
-    const clonePre = cloneBlock.querySelector("pre") as HTMLElement;
-    if (!clonePre) {
-        return;
+    return resolveLanguageFromCmDom(liveBlock);
+};
+
+const resolveCmBlockCodeText = (liveBlock: HTMLElement, binding?: CodeMirrorBinding): string => {
+    if (binding) {
+        return binding.view.state.doc.toString();
     }
-    const isWysiwygPre = clonePre.classList.contains("vditor-wysiwyg__pre") ||
-        liveBlock.closest(".vditor-wysiwyg") !== null;
-    clonePre.className = isWysiwygPre ? "vditor-wysiwyg__pre" : "vditor-ir__marker--pre";
+    if (isMathBlockElement(liveBlock)) {
+        const parts = getBlockParts(liveBlock);
+        return (parts?.code.textContent || "").replaceAll(Constants.ZWSP, "");
+    }
+    const parts = getBlockParts(liveBlock);
+    if (parts?.code.textContent) {
+        return parts.code.textContent;
+    }
+    return resolveCodeTextFromCmDom(liveBlock);
+};
+
+const COPY_SANITIZE_BLOCK_SELECTOR = [
+    ".vditor-wysiwyg__block[data-type='code-block']",
+    ".vditor-wysiwyg__block[data-type='math-block']",
+    ".vditor-wysiwyg__block[data-type='math-inline']",
+    ".vditor-wysiwyg__block[data-type='yaml-front-matter']",
+    ".vditor-ir__node[data-type='code-block']",
+    ".vditor-ir__node[data-type='math-block']",
+    ".vditor-ir__node[data-type='math-inline']",
+    ".vditor-ir__node[data-type='yaml-front-matter']",
+].join(", ");
+
+const isOutermostSanitizeBlock = (el: HTMLElement): boolean => {
+    const type = el.getAttribute("data-type");
+    if (!type) {
+        return false;
+    }
+    if (type === "math-inline") {
+        return el.classList.contains("vditor-wysiwyg__block") || el.classList.contains("vditor-ir__node");
+    }
+    if (type === "code-block" || type === "math-block" || type === "yaml-front-matter") {
+        return el.classList.contains("vditor-wysiwyg__block") || el.classList.contains("vditor-ir__node");
+    }
+    return false;
+};
+
+const collectSanitizeBlocksInOrder = (root: ParentNode): HTMLElement[] => {
+    const blocks: HTMLElement[] = [];
+    const candidates = (root as HTMLElement).querySelectorAll(COPY_SANITIZE_BLOCK_SELECTOR);
+    for (let i = 0; i < candidates.length; i++) {
+        const el = candidates[i] as HTMLElement;
+        if (isOutermostSanitizeBlock(el)) {
+            blocks.push(el);
+        }
+    }
+    return blocks;
+};
+
+const rangeIntersectsElement = (range: Range, el: HTMLElement): boolean => {
+    try {
+        const nodeRange = document.createRange();
+        nodeRange.selectNodeContents(el);
+        return range.compareBoundaryPoints(Range.END_TO_START, nodeRange) < 0
+            && range.compareBoundaryPoints(Range.START_TO_END, nodeRange) > 0;
+    } catch {
+        return false;
+    }
+};
+
+const findLiveBlockStartIndex = (liveBlocks: HTMLElement[], range: Range | null): number => {
+    if (!range || liveBlocks.length === 0) {
+        return 0;
+    }
+    for (let i = 0; i < liveBlocks.length; i++) {
+        if (rangeIntersectsElement(range, liveBlocks[i])) {
+            return i;
+        }
+    }
+    return 0;
+};
+
+const isWysiwygBlock = (block: HTMLElement) => block.closest(".vditor-wysiwyg") !== null;
+
+const rebuildCmBlockPreForMarkdown = (
+    cloneBlock: HTMLElement,
+    clonePre: HTMLElement,
+    languageName: string,
+    codeText: string,
+    isWysiwyg: boolean,
+) => {
+    clonePre.className = isWysiwyg ? "vditor-wysiwyg__pre" : "vditor-ir__marker--pre";
     clonePre.removeAttribute("contenteditable");
     clonePre.style.display = "";
     const cloneCode = document.createElement("code");
@@ -1489,6 +1611,197 @@ const sanitizeCmBlockCloneForMarkdown = (liveBlock: HTMLElement, cloneBlock: HTM
     if (infoElement) {
         infoElement.textContent = Constants.ZWSP + languageName;
     }
+};
+
+const removeBlockPreviews = (block: HTMLElement) => {
+    block.querySelectorAll(".vditor-wysiwyg__preview, .vditor-ir__preview").forEach((preview) => {
+        preview.remove();
+    });
+};
+
+const showBlockSourcePre = (block: HTMLElement) => {
+    const parts = getBlockParts(block);
+    if (!parts) {
+        return;
+    }
+    parts.editPre.style.display = "block";
+    parts.editPre.removeAttribute("contenteditable");
+    parts.code.removeAttribute("hidden");
+    parts.code.removeAttribute("aria-hidden");
+    parts.code.style.display = "";
+};
+
+const syncBlockSourceFromLive = (cloneBlock: HTMLElement, liveBlock?: HTMLElement) => {
+    if (!liveBlock) {
+        return;
+    }
+    const cloneParts = getBlockParts(cloneBlock);
+    const liveParts = getBlockParts(liveBlock);
+    if (!cloneParts || !liveParts) {
+        return;
+    }
+    const binding = bindings.get(liveBlock);
+    const codeText = resolveCmBlockCodeText(liveBlock, binding);
+    cloneParts.code.textContent = codeText;
+    const language = resolveCmBlockLanguage(liveBlock, binding);
+    if (language) {
+        cloneParts.code.className = `language-${language}`;
+    }
+};
+
+const sanitizeCmCodeBlockClone = (
+    cloneBlock: HTMLElement,
+    liveBlock: HTMLElement | undefined,
+) => {
+    const clonePre = cloneBlock.querySelector("pre") as HTMLElement;
+    if (!clonePre) {
+        return;
+    }
+    const binding = liveBlock ? bindings.get(liveBlock) : undefined;
+    const languageName = liveBlock
+        ? resolveCmBlockLanguage(liveBlock, binding)
+        : resolveLanguageFromCmDom(cloneBlock);
+    const codeText = liveBlock
+        ? resolveCmBlockCodeText(liveBlock, binding)
+        : resolveCodeTextFromCmDom(cloneBlock);
+    rebuildCmBlockPreForMarkdown(cloneBlock, clonePre, languageName, codeText, isWysiwygBlock(cloneBlock));
+};
+
+const sanitizePreviewCodeBlockClone = (
+    cloneBlock: HTMLElement,
+    liveBlock: HTMLElement | undefined,
+) => {
+    removeBlockPreviews(cloneBlock);
+    cloneBlock.querySelectorAll(".vditor-cm-chrome, .cm-editor, .vditor-mermaid-chrome").forEach((el) => {
+        el.remove();
+    });
+    syncBlockSourceFromLive(cloneBlock, liveBlock);
+    if (!liveBlock) {
+        const parts = getBlockParts(cloneBlock);
+        if (parts && !getCodeLanguageName(parts.code)) {
+            const lang = resolveLanguageFromCmDom(cloneBlock);
+            if (lang) {
+                parts.code.className = `language-${lang}`;
+            }
+        }
+    }
+    showBlockSourcePre(cloneBlock);
+    cloneBlock.classList.remove(CM_BLOCK_CLASS);
+};
+
+const sanitizeMathBlockClone = (
+    cloneBlock: HTMLElement,
+    liveBlock: HTMLElement | undefined,
+) => {
+    if (cloneBlock.classList.contains(CM_BLOCK_CLASS)) {
+        const clonePre = cloneBlock.querySelector("pre") as HTMLElement;
+        if (clonePre) {
+            const binding = liveBlock ? bindings.get(liveBlock) : undefined;
+            const codeText = liveBlock
+                ? resolveCmBlockCodeText(liveBlock, binding)
+                : resolveCodeTextFromCmDom(cloneBlock);
+            rebuildCmBlockPreForMarkdown(cloneBlock, clonePre, "math", codeText, isWysiwygBlock(cloneBlock));
+        }
+    } else {
+        removeBlockPreviews(cloneBlock);
+        cloneBlock.querySelectorAll(".vditor-cm-chrome, .cm-editor").forEach((el) => {
+            el.remove();
+        });
+        syncBlockSourceFromLive(cloneBlock, liveBlock);
+        const parts = getBlockParts(cloneBlock);
+        if (parts) {
+            parts.code.classList.add("language-math");
+            if (!parts.code.textContent && liveBlock) {
+                parts.code.textContent = resolveCmBlockCodeText(liveBlock);
+            }
+        }
+        showBlockSourcePre(cloneBlock);
+        cloneBlock.classList.remove(CM_BLOCK_CLASS);
+    }
+};
+
+const sanitizeInlineMathClone = (
+    cloneBlock: HTMLElement,
+    liveBlock: HTMLElement | undefined,
+) => {
+    cloneBlock.querySelectorAll(
+        ".vditor-math-inline__cm-host, .vditor-wysiwyg__preview, .vditor-ir__preview, .cm-editor",
+    ).forEach((el) => {
+        el.remove();
+    });
+    cloneBlock.classList.remove("vditor-math-inline--editing");
+    cloneBlock.removeAttribute("contenteditable");
+    const cloneCode = cloneBlock.querySelector("code[data-type='math-inline']") as HTMLElement;
+    if (!cloneCode) {
+        return;
+    }
+    if (liveBlock) {
+        const liveCode = liveBlock.querySelector("code[data-type='math-inline']") as HTMLElement;
+        if (liveCode?.textContent) {
+            cloneCode.textContent = liveCode.textContent;
+        }
+    }
+};
+
+const sanitizeYamlFrontMatterClone = (
+    cloneBlock: HTMLElement,
+    liveBlock: HTMLElement | undefined,
+) => {
+    cloneBlock.querySelectorAll(".vditor-cm-chrome, .cm-editor").forEach((el) => {
+        el.remove();
+    });
+    const cloneCode = cloneBlock.querySelector("code[data-type='yaml-front-matter']") as HTMLElement;
+    if (!cloneCode) {
+        return;
+    }
+    if (liveBlock) {
+        const liveCode = liveBlock.querySelector("code[data-type='yaml-front-matter']") as HTMLElement;
+        if (liveCode?.textContent) {
+            cloneCode.textContent = liveCode.textContent;
+        }
+    }
+    cloneCode.classList.add("language-yaml");
+    cloneCode.removeAttribute("hidden");
+    cloneCode.style.display = "";
+};
+
+const sanitizeCopyBlockClone = (
+    cloneBlock: HTMLElement,
+    liveBlock: HTMLElement | undefined,
+) => {
+    const type = cloneBlock.getAttribute("data-type");
+    switch (type) {
+        case "code-block":
+            if (cloneBlock.classList.contains(CM_BLOCK_CLASS)) {
+                sanitizeCmCodeBlockClone(cloneBlock, liveBlock);
+            } else {
+                sanitizePreviewCodeBlockClone(cloneBlock, liveBlock);
+            }
+            break;
+        case "math-block":
+            sanitizeMathBlockClone(cloneBlock, liveBlock);
+            break;
+        case "math-inline":
+            sanitizeInlineMathClone(cloneBlock, liveBlock);
+            break;
+        case "yaml-front-matter":
+            sanitizeYamlFrontMatterClone(cloneBlock, liveBlock);
+            break;
+        default:
+            break;
+    }
+};
+
+const stripCopyFragmentChrome = (root: ParentNode) => {
+    (root as HTMLElement).querySelectorAll(
+        ".vditor-cm-chrome, .vditor-mermaid-chrome, .cm-editor",
+    ).forEach((el) => {
+        el.remove();
+    });
+    (root as HTMLElement).querySelectorAll(".vditor-math-inline--editing").forEach((container) => {
+        container.classList.remove("vditor-math-inline--editing");
+        container.removeAttribute("contenteditable");
+    });
 };
 
 /** 复制时读取 CodeMirror 内部选区（DOM Selection 通常为空） */
@@ -1511,22 +1824,19 @@ export const getCodeMirrorSelectionTextForCopy = (vditor: IVditor) => {
     return null;
 };
 
-/** 复制/导出前还原 CM 代码块 DOM，供 Lute 正确转为 Markdown */
-export const sanitizeCodeBlocksInCopyFragment = (root: ParentNode, editor: HTMLElement) => {
-    const liveBlocks = editor.querySelectorAll(`.${CM_BLOCK_CLASS}[data-type='code-block']`);
-    const cloneBlocks = root.querySelectorAll("[data-type='code-block']");
+/** 复制前还原编辑态 DOM（CM / 预览块 / 行内公式等），供 Lute 正确转为 Markdown */
+export const sanitizeCodeBlocksInCopyFragment = (
+    root: ParentNode,
+    editor: HTMLElement,
+    range: Range | null = null,
+) => {
+    const cloneBlocks = collectSanitizeBlocksInOrder(root);
+    const liveBlocks = collectSanitizeBlocksInOrder(editor);
+    const liveStart = findLiveBlockStartIndex(liveBlocks, range);
     for (let i = 0; i < cloneBlocks.length; i++) {
-        const cloneBlock = cloneBlocks[i] as HTMLElement;
-        let liveBlock = cloneBlock.getAttribute("data-block") != null
-            ? editor.querySelector(`[data-type='code-block'][data-block="${cloneBlock.getAttribute("data-block")}"]`) as HTMLElement | null
-            : null;
-        if (!liveBlock && i < liveBlocks.length) {
-            liveBlock = liveBlocks[i] as HTMLElement;
-        }
-        if (liveBlock) {
-            sanitizeCmBlockCloneForMarkdown(liveBlock, cloneBlock);
-        }
+        sanitizeCopyBlockClone(cloneBlocks[i], liveBlocks[liveStart + i]);
     }
+    stripCopyFragmentChrome(root);
 };
 
 /** 保存/导出前将 CodeMirror 文档同步到隐藏的 sync code 节点 */

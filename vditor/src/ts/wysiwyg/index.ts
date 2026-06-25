@@ -147,7 +147,7 @@ class WYSIWYG {
 
         const tempElement = document.createElement("div");
         tempElement.appendChild(range.cloneContents());
-        sanitizeCodeBlocksInCopyFragment(tempElement, vditor.wysiwyg.element);
+        sanitizeCodeBlocksInCopyFragment(tempElement, vditor.wysiwyg.element, range);
 
         event.clipboardData.setData("text/plain", vditor.lute.VditorDOM2Md(tempElement.innerHTML).trim());
         event.clipboardData.setData("text/html", "");
