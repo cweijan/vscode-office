@@ -36,7 +36,10 @@ export class GitExecutor {
 
     spawn<T>(args: string[], repo: string, resolveValue: (stdout: string) => T): Promise<T> {
         return new Promise((resolve, reject) => {
-            const child = spawn(this.gitExecutable.path, args, {
+            // Force UTF-8 output encoding for all git commands to ensure non-ASCII
+            // characters (e.g. Chinese, Japanese, Korean) are not garbled on Windows
+            // systems where the locale encoding may differ from UTF-8.
+            const child = spawn(this.gitExecutable.path, ['-c', 'i18n.logOutputEncoding=utf-8', ...args], {
                 cwd: repo,
                 env: process.env,
             });
