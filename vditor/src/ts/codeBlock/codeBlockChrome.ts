@@ -56,7 +56,7 @@ interface ICodeBlockChrome {
     themePanel?: HTMLElement;
     editable: boolean;
     langReadonly: boolean;
-    getCodeText: () => string;
+    performCopy: () => Promise<boolean>;
     langActiveIndex: number;
 }
 
@@ -82,26 +82,6 @@ const formatLanguageLabel = (languageName: string) => {
     return languageName.replace(/-/g, " ");
 };
 
-const copyToClipboard = async (text: string) => {
-    if (!text) {
-        return false;
-    }
-    try {
-        await navigator.clipboard.writeText(text);
-        return true;
-    } catch {
-        const textarea = document.createElement("textarea");
-        textarea.value = text;
-        textarea.style.position = "fixed";
-        textarea.style.opacity = "0";
-        document.body.appendChild(textarea);
-        textarea.select();
-        const copied = document.execCommand("copy");
-        document.body.removeChild(textarea);
-        return copied;
-    }
-};
-
 const bindDeleteButton = (
     vditor: IVditor,
     blockElement: HTMLElement,
@@ -121,7 +101,7 @@ const bindDeleteButton = (
     });
 };
 
-const bindCopyButton = (copyBtn: HTMLButtonElement, getCodeText: () => string) => {
+const bindCopyButton = (copyBtn: HTMLButtonElement, performCopy: () => Promise<boolean>) => {
     if (copyBtn.dataset.copyBound === "true") {
         return;
     }
@@ -149,7 +129,7 @@ const bindCopyButton = (copyBtn: HTMLButtonElement, getCodeText: () => string) =
     copyBtn.addEventListener("click", async (event) => {
         event.preventDefault();
         event.stopPropagation();
-        const copied = await copyToClipboard(getCodeText());
+        const copied = await performCopy();
         if (!copied) {
             return;
         }
@@ -541,11 +521,11 @@ const createChromeRoot = (editable: boolean) => {
 export const ensurePreviewCodeBlockChrome = (
     host: HTMLElement,
     languageName: string,
-    getCodeText: () => string,
+    performCopy: () => Promise<boolean>,
 ) => {
     if (chromeMap.has(host)) {
         const chrome = chromeMap.get(host)!;
-        chrome.getCodeText = getCodeText;
+        chrome.performCopy = performCopy;
         updateCodeBlockChromeLanguage(host, languageName);
         return;
     }
@@ -555,12 +535,12 @@ export const ensurePreviewCodeBlockChrome = (
         ...created,
         editable: false,
         langReadonly: true,
-        getCodeText,
+        performCopy,
         langActiveIndex: -1,
     };
     chromeMap.set(host, chrome);
     host.insertBefore(chrome.root, host.firstChild);
-    bindCopyButton(chrome.copyBtn, () => chrome.getCodeText());
+    bindCopyButton(chrome.copyBtn, () => chrome.performCopy());
     updateCodeBlockChromeLanguage(host, languageName);
 };
 
@@ -574,7 +554,7 @@ export const ensureCodeBlockChrome = (
     options: {
         editable?: boolean;
         languageReadonly?: boolean;
-        getCodeText: () => string;
+        performCopy: () => Promise<boolean>;
     },
 ) => {
     const host = blockElement.querySelector("pre.vditor-cm-host, pre.vditor-cm-preview-host") as HTMLElement;
@@ -592,12 +572,12 @@ export const ensureCodeBlockChrome = (
             ...created,
             editable,
             langReadonly: languageReadonly,
-            getCodeText: options.getCodeText,
+            performCopy: options.performCopy,
             langActiveIndex: -1,
         };
         chromeMap.set(blockElement, chrome);
         host.insertBefore(chrome.root, host.firstChild);
-        bindCopyButton(chrome.copyBtn, () => chrome.getCodeText());
+        bindCopyButton(chrome.copyBtn, () => chrome.performCopy());
         if (chrome.deleteBtn) {
             bindDeleteButton(vditor, blockElement, chrome.deleteBtn);
         }
@@ -645,7 +625,7 @@ export const ensureCodeBlockChrome = (
         }
     }
 
-    chrome.getCodeText = options.getCodeText;
+    chrome.performCopy = options.performCopy;
     chrome.editable = editable;
     applyLanguageReadonlyState(chrome, languageReadonly);
 

@@ -22,6 +22,7 @@ import {
     updateCodeBlockChromeLanguage,
 } from "./codeBlockChrome";
 import { loadCodeMirrorHighlightLanguage } from "./codeBlockHighlightLanguages";
+import { resolveCodeMirrorCopyPayload } from "./codeMirrorRichCopy";
 import { stopHandledCodeMirrorKeymap, vditorCodeMirrorSetup } from "./codeMirrorSetup";
 import { mathRender } from "../markdown/mathRender";
 import { mermaidRender } from "../markdown/mermaidRender";
@@ -662,6 +663,63 @@ const getCmSelectionText = (view: EditorView) => {
     return parts.join("\n");
 };
 
+const resolveCodeMirrorCopyText = (
+    view: EditorView,
+    wholeDocumentIfNoSelection = false,
+): string => {
+    const payload = resolveCodeMirrorCopyPayload(view, "", wholeDocumentIfNoSelection);
+    return payload?.plain ?? "";
+};
+
+const writeCodeMirrorCopyToClipboard = async (
+    plain: string,
+    html: string,
+): Promise<boolean> => {
+    if (!plain) {
+        return false;
+    }
+    if (navigator.clipboard?.write) {
+        try {
+            await navigator.clipboard.write([
+                new ClipboardItem({
+                    "text/plain": new Blob([plain], { type: "text/plain" }),
+                    "text/html": new Blob([html], { type: "text/html" }),
+                }),
+            ]);
+            return true;
+        } catch {
+            // fall through to plain text
+        }
+    }
+    try {
+        await navigator.clipboard.writeText(plain);
+        return true;
+    } catch {
+        const textarea = document.createElement("textarea");
+        textarea.value = plain;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        const copied = document.execCommand("copy");
+        document.body.removeChild(textarea);
+        return copied;
+    }
+};
+
+/** 工具栏复制：plain + 带语法高亮样式的 HTML */
+export const copyCodeMirrorView = async (
+    view: EditorView,
+    languageName = "",
+    wholeDocumentIfNoSelection = true,
+): Promise<boolean> => {
+    const payload = resolveCodeMirrorCopyPayload(view, languageName, wholeDocumentIfNoSelection);
+    if (!payload) {
+        return false;
+    }
+    return writeCodeMirrorCopyToClipboard(payload.plain, payload.html);
+};
+
 /** 无选区时按整行剪切（含行尾换行，末行除外） */
 const getCmCutRange = (view: EditorView) => {
     const { from, to } = view.state.selection.main;
@@ -736,13 +794,14 @@ const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding:
         if (!view?.state || !clipboardEvent.clipboardData) {
             return false;
         }
-        const text = getCmSelectionText(view);
-        if (!text) {
+        const payload = resolveCodeMirrorCopyPayload(view, binding.languageName, false);
+        if (!payload) {
             return false;
         }
         event.stopPropagation();
         clipboardEvent.preventDefault();
-        clipboardEvent.clipboardData.setData("text/plain", text);
+        clipboardEvent.clipboardData.setData("text/plain", payload.plain);
+        clipboardEvent.clipboardData.setData("text/html", payload.html);
         return true;
     },
     cut: (event: Event) => {
@@ -1288,7 +1347,7 @@ const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor, force = fal
             applyLanguage(blockElement, existing, languageName);
         }
         ensureCodeBlockChrome(vditor, blockElement, {
-            getCodeText: () => existing.view.state.doc.toString(),
+            performCopy: () => copyCodeMirrorView(existing.view, existing.languageName),
         });
         updateCodeBlockChromeLanguage(blockElement, languageName);
         return;
@@ -1335,7 +1394,7 @@ const mountCodeMirror = (blockElement: HTMLElement, vditor: IVditor, force = fal
     bindings.set(blockElement, binding);
     applyLanguage(blockElement, binding, languageName);
     ensureCodeBlockChrome(vditor, blockElement, {
-        getCodeText: () => binding.view.state.doc.toString(),
+        performCopy: () => copyCodeMirrorView(binding.view, binding.languageName),
     });
 };
 

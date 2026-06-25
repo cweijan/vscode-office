@@ -4,6 +4,7 @@ import {LanguageSupport} from "@codemirror/language";
 
 import {vditorSyntaxHighlighting} from "./codeMirrorHighlight";
 import {ensurePreviewCodeBlockChrome, removePreviewCodeBlockChrome} from "./codeBlockChrome";
+import {copyCodeMirrorView} from "./codeMirrorManager";
 import {loadCodeMirrorHighlightLanguage} from "./codeBlockHighlightLanguages";
 
 const PREVIEW_HOST_CLASS = "vditor-cm-preview-host";
@@ -70,7 +71,7 @@ const mountPreviewCodeMirror = (pre: HTMLElement, code: HTMLElement, showLineNum
     ensurePreviewCodeBlockChrome(
         pre,
         languageName,
-        () => view.state.doc.toString(),
+        () => copyCodeMirrorView(view, languageName),
     );
 
     if (languageName) {
