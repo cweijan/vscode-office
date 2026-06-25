@@ -1,4 +1,4 @@
-import { hotKeys, imageParser, getToolbar, bindShorctut, createContextMenu, setAIAvailable } from "./util.js";
+import { imageParser, getToolbar, bindShorctut, createContextMenu, setAIAvailable } from "./util.js";
 import { mapVscodeLanguageToVditorLang } from "./lang.js";
 
 handler.on("open", async (md) => {
@@ -90,9 +90,6 @@ handler.on("open", async (md) => {
       onCancelPolish() {
         handler.emit('aiPolishCancel')
       }
-    },
-    hint: {
-      extend: hotKeys
     },
     preview: {
       math: {

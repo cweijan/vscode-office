@@ -1,5 +1,6 @@
 import { LanguageSupport, StreamLanguage } from "@codemirror/language";
 import { mermaid } from "codemirror-lang-mermaid";
+import { latex } from "codemirror-lang-latex";
 
 import { buildCodeMirrorLanguageMap } from "./codeBlockLanguageHints";
 
@@ -65,6 +66,8 @@ const plantumlLanguage = StreamLanguage.define({
 const plantumlLanguageSupport = new LanguageSupport(plantumlLanguage);
 
 const STATIC_LANGUAGE_SUPPORTS: Record<string, () => LanguageSupport> = {
+    // Use codemirror-lang-latex for both highlight + completions (via language data).
+    latex: () => latex({ enableAutocomplete: true }),
     mermaid: getMermaidLanguageSupport,
     plantuml: () => plantumlLanguageSupport,
 };
