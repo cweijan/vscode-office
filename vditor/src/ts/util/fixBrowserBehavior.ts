@@ -29,8 +29,16 @@ import {
     scrollElementIntoEditorView,
     setRangeByWbr,
     setSelectionByPosition, setSelectionFocus,
+    focusTableCellContent,
 } from "./selection";
+import { expandMarkerWithMathSync } from "../ir/expandMarkerSync";
 import { Constants } from "../constants";
+
+const finishTableCellNavigation = (vditor: IVditor, range: Range, cell: HTMLTableCellElement, atEnd: boolean) => {
+    focusTableCellContent(range, cell, atEnd);
+    setSelectionFocus(range);
+    expandMarkerWithMathSync(range, vditor);
+};
 
 // https://github.com/Vanessa219/vditor/issues/508 软键盘无法删除空块
 export const fixGSKeyBackspace = (event: KeyboardEvent, vditor: IVditor, startContainer: Node) => {
@@ -173,10 +181,7 @@ const goPreviousCell = (cellElement: HTMLElement, range: Range, isSelected = tru
         }
     }
     if (previousElement) {
-        range.selectNodeContents(previousElement);
-        if (!isSelected) {
-            range.collapse(false);
-        }
+        focusTableCellContent(range, previousElement as HTMLTableCellElement, !isSelected);
         setSelectionFocus(range);
     }
     return previousElement;
@@ -923,6 +928,7 @@ export const fixTable = (vditor: IVditor, event: KeyboardEvent, range: Range) =>
             if (event.shiftKey) {
                 // shift + tab 光标移动到前一个 cell
                 goPreviousCell(cellElement, range);
+                expandMarkerWithMathSync(range, vditor);
                 event.preventDefault();
                 return true;
             }
@@ -940,8 +946,7 @@ export const fixTable = (vditor: IVditor, event: KeyboardEvent, range: Range) =>
                 }
             }
             if (nextElement) {
-                range.selectNodeContents(nextElement);
-                setSelectionFocus(range);
+                finishTableCellNavigation(vditor, range, nextElement as HTMLTableCellElement, false);
             }
             event.preventDefault();
             return true;
@@ -973,9 +978,7 @@ export const fixTable = (vditor: IVditor, event: KeyboardEvent, range: Range) =>
             if (!previousElement) {
                 previousElement = trElement.parentElement.previousElementSibling.firstChild as HTMLTableRowElement;
             }
-            range.selectNodeContents(previousElement.cells[m]);
-            range.collapse(false);
-            setSelectionFocus(range);
+            finishTableCellNavigation(vditor, range, previousElement.cells[m], true);
             return true;
         }
 
@@ -1004,9 +1007,7 @@ export const fixTable = (vditor: IVditor, event: KeyboardEvent, range: Range) =>
             if (!nextElement) {
                 nextElement = trElement.parentElement.nextElementSibling.firstChild as HTMLTableRowElement;
             }
-            range.selectNodeContents(nextElement.cells[m]);
-            range.collapse(true);
-            setSelectionFocus(range);
+            finishTableCellNavigation(vditor, range, nextElement.cells[m], false);
             return true;
         }
 
@@ -1024,7 +1025,9 @@ export const fixTable = (vditor: IVditor, event: KeyboardEvent, range: Range) =>
         if (!isCtrl(event) && !event.shiftKey && !event.altKey && event.key === "Backspace"
             && range.startOffset === 0 && range.toString() === "") {
             const previousCellElement = goPreviousCell(cellElement, range, false);
-            if (!previousCellElement && tableElement) {
+            if (previousCellElement) {
+                expandMarkerWithMathSync(range, vditor);
+            } else if (tableElement) {
                 if (tableElement.textContent.trim() === "") {
                     tableElement.outerHTML = `<p data-block="0"><wbr>\n</p>`;
                     setRangeByWbr(vditor[vditor.currentMode].element, range);

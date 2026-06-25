@@ -262,6 +262,63 @@ export const selectIsEditor = (editor: HTMLElement, range?: Range) => {
     return editor.isEqualNode(container) || editor.contains(container);
 };
 
+const getWikilinkSourceElement = (wikilink: HTMLElement): HTMLElement | null => {
+    for (let i = 0; i < wikilink.children.length; i++) {
+        const child = wikilink.children[i];
+        if (!(child instanceof HTMLElement)) {
+            continue;
+        }
+        if (child.classList.contains("vditor-wikilink__source") || child.getAttribute("data-newline") === "1") {
+            return child;
+        }
+    }
+    return null;
+};
+
+const focusInlineNodeTextRange = (range: Range, node: HTMLElement, atEnd: boolean) => {
+    const source = getWikilinkSourceElement(node);
+    const target = source || node;
+    let textNode: Text | null = null;
+    let lastText: Text | null = null;
+    const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+        lastText = walker.currentNode as Text;
+        if (!textNode) {
+            textNode = lastText;
+        }
+    }
+    const focusedText = atEnd ? (lastText || textNode) : textNode;
+    if (focusedText) {
+        range.setStart(focusedText, atEnd ? focusedText.textContent.length : 0);
+        range.collapse(true);
+        return;
+    }
+    range.selectNodeContents(target);
+    range.collapse(atEnd);
+};
+
+export const focusTableCellContent = (range: Range, cell: HTMLTableCellElement, atEnd: boolean) => {
+    const wikilinks = cell.querySelectorAll('[data-type="wikilink"], [data-type="wikilink-embed"]');
+    if (wikilinks.length === 1) {
+        const wikilink = wikilinks[0] as HTMLElement;
+        const cellText = (cell.textContent || "").replace(/\u200b/g, "").trim();
+        const linkText = (wikilink.textContent || "").replace(/\u200b/g, "").trim();
+        if (cellText === linkText) {
+            focusInlineNodeTextRange(range, wikilink, atEnd);
+            return;
+        }
+    }
+    const inlineNode = atEnd
+        ? cell.querySelector(".vditor-ir__node:last-of-type")
+        : cell.querySelector(".vditor-ir__node:first-of-type");
+    if (inlineNode instanceof HTMLElement && !inlineNode.getAttribute("data-block")) {
+        focusInlineNodeTextRange(range, inlineNode, atEnd);
+        return;
+    }
+    range.selectNodeContents(cell);
+    range.collapse(atEnd);
+};
+
 export const setSelectionFocus = (range: Range) => {
     const selection = window.getSelection();
     selection.removeAllRanges();

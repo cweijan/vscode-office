@@ -17,6 +17,7 @@ import {
     renderCodeBlocksInScope,
 } from "../codeBlock/codeMirrorManager";
 import {getEditorRange, getSelectPosition, preserveEditorScroll, setRangeByWbr} from "../util/selection";
+import {expandMarker} from "./expandMarker";
 import {renderToc} from "../util/toc";
 import {processAfterRender} from "./process";
 import {getMarkdown} from "../markdown/getMarkdown";
@@ -238,6 +239,7 @@ export const input = (vditor: IVditor, range: Range, ignoreSpace = false, event?
         }
 
         setRangeByWbr(vditor.ir.element, range);
+        expandMarker(getEditorRange(vditor), vditor.ir.element);
     });
 
     let remountScope = spinScope;

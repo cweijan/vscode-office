@@ -35,35 +35,16 @@
   }
 
   .vditor-wikilink,
-  span[data-type="wikilink"] {
+  span[data-type="wikilink"],
+  .vditor-ir__node[data-type="wikilink"] {
     color: var(--link-color, #7c3aed);
     text-decoration: underline;
     cursor: pointer;
-
-    > code[data-type="wikilink"] {
-      display: none;
-      text-decoration: none;
-      font-family: inherit;
-    }
-
-    .vditor-wikilink__preview {
-      display: inline;
-    }
-
-    &:hover,
-    &.vditor-wikilink--raw {
-      > code[data-type="wikilink"] {
-        display: inline;
-      }
-
-      .vditor-wikilink__preview {
-        display: none;
-      }
-    }
   }
 
   .vditor-wikilink-embed,
-  span[data-type="wikilink-embed"] {
+  span[data-type="wikilink-embed"],
+  .vditor-ir__node[data-type="wikilink-embed"] {
     display: inline-block;
     padding: 2px 8px;
     border-radius: 4px;
@@ -71,28 +52,37 @@
     background: color-mix(in srgb, var(--second-bg-color, #f6f8fa) 80%, transparent);
     color: var(--link-color, #7c3aed);
     cursor: pointer;
+  }
 
-    > code[data-type="wikilink-embed"] {
+  // Wikilink uses IR-style expand markers in both WYSIWYG and IR.
+  .vditor-ir__node[data-type="wikilink"],
+  .vditor-ir__node[data-type="wikilink-embed"] {
+    .vditor-ir__marker {
+      width: 0;
+      overflow: hidden;
+      display: inline-block;
+      height: 0;
+      transition: @transition;
+    }
+
+    .vditor-wikilink__source {
       display: none;
-      border: 0;
-      background: transparent;
-      padding: 0;
-      font-family: inherit;
-      color: inherit;
     }
 
-    .vditor-wikilink__preview {
-      display: inline;
-    }
-
-    &:hover,
-    &.vditor-wikilink--raw {
-      > code[data-type="wikilink-embed"] {
+    &.vditor-ir__node--expand {
+      .vditor-ir__marker {
+        color: var(--second-color);
         display: inline;
+        height: auto;
+        width: auto;
       }
 
-      .vditor-wikilink__preview {
+      .vditor-wikilink__display {
         display: none;
+      }
+
+      .vditor-wikilink__source {
+        display: inline;
       }
     }
   }

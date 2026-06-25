@@ -15,6 +15,7 @@ import {
     syncMathBlocksDisplayMode,
 } from "../codeBlock/codeMirrorManager";
 import { getEditorRange, setRangeByWbr } from "../util/selection";
+import { expandMarker } from "../ir/expandMarker";
 import { renderToc } from "../util/toc";
 import { afterRenderEvent } from "./afterRenderEvent";
 import { previoueIsEmptyA } from "./inlineTag";
@@ -237,6 +238,7 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
 
         // 设置光标
         setRangeByWbr(vditor.wysiwyg.element, range);
+        expandMarker(getEditorRange(vditor), vditor.wysiwyg.element);
         renderCodeBlocksInScope(vditor, remountScope);
         syncMathBlocksDisplayMode(remountScope, vditor);
         const activeRange = getEditorRange(vditor);

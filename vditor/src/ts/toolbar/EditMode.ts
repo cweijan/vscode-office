@@ -10,6 +10,7 @@ import {
 import {restoreCacheFocus, wasCacheContentRestored} from "../util/cacheFocus";
 import {getEventName} from "../util/compatibility";
 import {highlightToolbar} from "../util/highlightToolbar";
+import {log} from "../util/log";
 import {processCodeRender} from "../util/processCode";
 import {renderToc} from "../util/toc";
 import {renderDomByMd} from "../wysiwyg/renderDomByMd";
@@ -72,7 +73,9 @@ export const setEditMode = (
         vditor.lute.SetVditorWYSIWYG(false);
 
         vditor.currentMode = "ir";
-        vditor.ir.element.innerHTML = vditor.lute.Md2VditorIRDOM(markdownText);
+        const irHTML = vditor.lute.Md2VditorIRDOM(markdownText);
+        log("Md2VditorIRDOM", irHTML, "result", vditor.options.debugger);
+        vditor.ir.element.innerHTML = irHTML;
         processAfterRender(vditor, {
             enableAddUndoStack: true,
             enableHint: false,

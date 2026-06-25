@@ -166,7 +166,8 @@ export const nameFromUrl = (url: string): string => {
         if (/^[\da-f:]+$/i.test(hostname)) return hostname;
         // Domain: second-to-last label (e.g. "openai" from "api.openai.com")
         const parts = hostname.split(".");
-        return parts.length >= 2 ? parts[parts.length - 2] : hostname;
+        const name = parts.length >= 2 ? parts[parts.length - 2] : hostname;
+        return name.charAt(0).toUpperCase() + name.slice(1);
     } catch {
         return url;
     }

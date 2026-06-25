@@ -792,7 +792,7 @@ const focusAdjacentEditorBlock = (
         range.collapse(toStart);
         setSelectionFocus(range);
         if (vditor.currentMode === "ir") {
-            expandMarker(range, vditor);
+            expandMarker(range, vditor.ir.element);
             syncIrMathBlockAfterExpand(vditor, range);
         }
     };
@@ -961,7 +961,7 @@ export const removeCmCodeBlock = (vditor: IVditor, blockElement: HTMLElement) =>
             range.collapse(false);
             setSelectionFocus(range);
             if (vditor.currentMode === "ir") {
-                expandMarker(range, vditor);
+                expandMarker(range, vditor.ir.element);
                 syncIrMathBlockAfterExpand(vditor, range);
             }
         }
@@ -973,7 +973,7 @@ export const removeCmCodeBlock = (vditor: IVditor, blockElement: HTMLElement) =>
             range.collapse(true);
             setSelectionFocus(range);
             if (vditor.currentMode === "ir") {
-                expandMarker(range, vditor);
+                expandMarker(range, vditor.ir.element);
                 syncIrMathBlockAfterExpand(vditor, range);
             }
         }

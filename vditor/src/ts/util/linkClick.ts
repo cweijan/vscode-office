@@ -93,10 +93,13 @@ export const resolveLinkClickFromTarget = (
             || wikiEl.classList.contains("obsidian-wikilink-embed")
             || wikiEl.classList.contains("vditor-wikilink-embed");
         if (href) {
+            const previewText = (wikiEl.querySelector(".vditor-wikilink__display") as HTMLElement | null)
+                ?.textContent?.trim()
+                || (wikiEl.querySelector(".vditor-wikilink__source") as HTMLElement | null)?.textContent?.trim();
             return {
                 type: isEmbed ? "wikilink-embed" : "wikilink",
                 href,
-                text: wikiEl.textContent?.trim() || href,
+                text: previewText || wikiEl.textContent?.trim() || href,
                 element: wikiEl,
             };
         }
@@ -105,7 +108,7 @@ export const resolveLinkClickFromTarget = (
     if (target.tagName === "IMG" && !isPlantumlRenderImage(target)) {
         const img = target as HTMLImageElement;
         const parentA = hasClosestByMatchTag(target, "A") as HTMLAnchorElement | false;
-        if (parentA?.href) {
+        if (parentA && parentA.href) {
             return {
                 type: "link",
                 href: parentA.href,

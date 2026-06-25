@@ -43,6 +43,7 @@ import { getMarkdown } from "../markdown/getMarkdown";
 import { initBlockHandle } from "./blockHandle";
 import { linkClickEvent } from "../util/linkClick";
 import { initTableHandle } from "./tableHandle";
+import { expandMarkerWithMathSync } from "../ir/expandMarkerSync";
 
 class WYSIWYG {
     public range: Range;
@@ -408,6 +409,14 @@ class WYSIWYG {
 
             highlightToolbarWYSIWYG(vditor);
 
+            if (range.toString() === "") {
+                expandMarkerWithMathSync(range, vditor);
+            } else {
+                setTimeout(() => {
+                    expandMarkerWithMathSync(getEditorRange(vditor), vditor);
+                });
+            }
+
             // 点击后光标落于预览区，需展开代码块（仅特殊语言块）
             if (previewElement) {
                 const blockElement = previewElement.closest(
@@ -446,6 +455,10 @@ class WYSIWYG {
 
             // 没有被块元素包裹
             modifyPre(vditor, range);
+
+            if (event.key.indexOf("Arrow") > -1) {
+                expandMarkerWithMathSync(range, vditor);
+            }
 
             highlightToolbarWYSIWYG(vditor);
 
