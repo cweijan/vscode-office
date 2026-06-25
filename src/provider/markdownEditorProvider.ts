@@ -72,7 +72,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     }
 
     resolveCustomTextEditor(document: vscode.TextDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): void | Thenable<void> {
-        // console.log('schema', document.uri.scheme);
+        // console.log('schema', document.uri.scheme, document.uri.path, document.uri.query);
         const uri = document.uri;
         const webview = webviewPanel.webview;
         const folderPath = vscode.Uri.joinPath(uri, '..')
@@ -245,6 +245,23 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             }
         }).on('queryAIAvailable', () => {
             void this.notifyAIAvailable(handler);
+        }).on('queryVSCodeModels', async () => {
+            const lm = (vscode as any).lm;
+            if (typeof lm?.selectChatModels !== 'function') {
+                handler.emit('vscodeModels', []);
+                return;
+            }
+            try {
+                const models: any[] = await lm.selectChatModels();
+                handler.emit('vscodeModels', (models ?? []).map((m: any) => ({
+                    id: m.id,
+                    name: m.name,
+                    family: m.family,
+                    vendor: m.vendor,
+                })));
+            } catch {
+                handler.emit('vscodeModels', []);
+            }
         }).on('aiPolish', async (payload: { markdown: string; options?: any }) => {
             await this.handleAIPolish(handler, payload.markdown, payload.options);
         }).on('aiPolishCancel', () => {
@@ -305,16 +322,23 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             return;
         }
         try {
-            let models: any[] = await lm.selectChatModels({ family: 'gpt-4o' });
-            if (!models || models.length === 0) {
-                models = await lm.selectChatModels();
+            let model: any;
+            if (options?.vscodeModelId) {
+                const all: any[] = await lm.selectChatModels();
+                model = all?.find((m: any) => m.id === options.vscodeModelId);
             }
-            if (!models || models.length === 0) {
-                vscode.window.showWarningMessage('No AI language model available. Please install a language model extension (e.g. GitHub Copilot).');
-                handler.emit('aiPolishEnd');
-                return;
+            if (!model) {
+                let models: any[] = await lm.selectChatModels({ family: 'gpt-4o' });
+                if (!models || models.length === 0) {
+                    models = await lm.selectChatModels();
+                }
+                if (!models || models.length === 0) {
+                    vscode.window.showWarningMessage('No AI language model available. Please install a language model extension (e.g. GitHub Copilot).');
+                    handler.emit('aiPolishEnd');
+                    return;
+                }
+                model = models[0];
             }
-            const model = models[0];
             const LanguageModelChatMessage = (vscode as any).LanguageModelChatMessage;
             const messages = [LanguageModelChatMessage.User(this.buildPolishPrompt(markdown, options))];
             const token = this.aiCancellationSource.token;

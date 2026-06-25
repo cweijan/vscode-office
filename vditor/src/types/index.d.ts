@@ -457,6 +457,7 @@ interface IAIPolishOptions {
     goal?: string;
     prompt?: string;
     engine?: "vscode" | "custom";
+    vscodeModelId?: string;
     customUrl?: string;
     customKey?: string;
     customModel?: string;

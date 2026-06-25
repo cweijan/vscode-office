@@ -354,6 +354,11 @@ class Vditor {
         this.aiDialog?.setCopilotAvailable(available);
     }
 
+    /** 设置可用的 VS Code 语言模型列表 */
+    public setVSCodeModels(models: Array<{ id: string; name: string; family: string; vendor: string }>) {
+        this.aiDialog?.setVSCodeModels(models);
+    }
+
     /** 打开 AI 润色弹窗，由外部（右键菜单等）调用 */
     public openAIPolishDialog() {
         if (!this.aiDialog) { return; }

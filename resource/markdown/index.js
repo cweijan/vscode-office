@@ -117,6 +117,12 @@ handler.on("open", async (md) => {
       handler.emit('queryAIAvailable')
       handler.on("aiAvailable", (available) => {
         setAIAvailable(available, editor)
+        if (available) {
+          handler.emit('queryVSCodeModels')
+        }
+      })
+      handler.on("vscodeModels", (models) => {
+        editor.setVSCodeModels(models)
       })
       editor.restoreDocumentSession(true)
       if (pendingFragment) {

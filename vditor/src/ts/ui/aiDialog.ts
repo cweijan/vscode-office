@@ -51,11 +51,20 @@ const buildHTML = (): string => {
           <label class="vditor-ai-dialog__label">${i.aiEngine}</label>
           <div class="vditor-ai-dialog__engine-tabs">
             <button type="button" class="vditor-ai-dialog__engine-tab" data-engine="vscode">
-              <span class="codicon codicon-extensions"></span>${i.aiVscodeApi}
+              <span class="codicon codicon-copilot"></span>${i.aiVscodeApi}
             </button>
             <button type="button" class="vditor-ai-dialog__engine-tab" data-engine="custom">
               <span class="codicon codicon-server"></span>${i.aiCustom}
             </button>
+          </div>
+          <div class="vditor-ai-dialog__vscode-fields" hidden>
+            <div class="vditor-ai-dialog__picker" data-picker="vscode-model">
+              <button type="button" class="vditor-ai-dialog__picker-trigger">
+                <span class="vditor-ai-dialog__picker-label">${i.aiVscodeModelAuto ?? "Auto"}</span>
+                <span class="codicon codicon-chevron-down vditor-ai-dialog__picker-chevron"></span>
+              </button>
+              <div class="vditor-ai-dialog__picker-list" hidden></div>
+            </div>
           </div>
           <div class="vditor-ai-dialog__custom-fields" hidden>
             <div class="vditor-ai-dialog__row">
@@ -178,6 +187,7 @@ interface PickerState {
     trigger: HTMLElement;
     label: HTMLElement;
     list: HTMLElement;
+    optionsEl: HTMLElement;
     value: string;
 }
 
@@ -199,6 +209,9 @@ export class AIDialog {
     private onClose: (reason: "cancel" | "submit") => void;
     private activePickerName: string | null = null;
     private copilotAvailable = false;
+    private vscodeFields: HTMLElement;
+    private vscodeModels: Array<{ id: string; name: string; family: string; vendor: string }> = [];
+    private vscodeModelValue: string = "";
 
     constructor(
         container: HTMLElement,
@@ -213,6 +226,7 @@ export class AIDialog {
 
         this.goalEl = this.overlay.querySelector<HTMLTextAreaElement>("#vditor-ai-goal")!;
         this.customFields = this.overlay.querySelector<HTMLElement>(".vditor-ai-dialog__custom-fields")!;
+        this.vscodeFields = this.overlay.querySelector<HTMLElement>(".vditor-ai-dialog__vscode-fields")!;
         this.modelNameField = this.overlay.querySelector<HTMLElement>("#vditor-ai-model-name-field")!;
         this.engineTabs = this.overlay.querySelectorAll<HTMLElement>(".vditor-ai-dialog__engine-tab[data-engine]");
         this.currentEngine = ls.get(AI_ENGINE_KEY) || "vscode";
@@ -225,9 +239,31 @@ export class AIDialog {
             const label = pickerEl.querySelector<HTMLElement>(".vditor-ai-dialog__picker-trigger-inner")
                 ?? pickerEl.querySelector<HTMLElement>(".vditor-ai-dialog__picker-label")!;
             const list = pickerEl.querySelector<HTMLElement>(".vditor-ai-dialog__picker-list")!;
+
+            // Wrap raw list contents in a scrollable __picker-options div
+            const optionsEl = document.createElement("div");
+            optionsEl.className = "vditor-ai-dialog__picker-options";
+            while (list.firstChild) optionsEl.appendChild(list.firstChild);
+            list.appendChild(optionsEl);
+
+            // For the vscode-model picker, prepend a search input
+            if (name === "vscode-model") {
+                const searchEl = document.createElement("input");
+                searchEl.type = "text";
+                searchEl.className = "vditor-ai-dialog__picker-search";
+                searchEl.placeholder = window.VditorI18n.aiSearch ?? "Search…";
+                list.insertBefore(searchEl, optionsEl);
+                searchEl.addEventListener("input", () => {
+                    const q = searchEl.value.toLowerCase();
+                    optionsEl.querySelectorAll<HTMLElement>(".vditor-ai-dialog__picker-option").forEach(btn => {
+                        btn.style.display = (q && !btn.textContent?.toLowerCase().includes(q)) ? "none" : "";
+                    });
+                });
+            }
+
             // Move list to body so it escapes overflow/stacking context
             document.body.appendChild(list);
-            this.pickers.set(name, { trigger, label, list, value: "" });
+            this.pickers.set(name, { trigger, label, list, optionsEl, value: "" });
         });
 
         // Populate format picker options (static)
@@ -243,6 +279,11 @@ export class AIDialog {
     public setCopilotAvailable(available: boolean) {
         this.copilotAvailable = available;
         this.refreshEngine();
+    }
+
+    public setVSCodeModels(models: Array<{ id: string; name: string; family: string; vendor: string }>) {
+        this.vscodeModels = models;
+        this.refreshVSCodeModelPicker();
     }
 
     public open(capturedMarkdown: string, capturedIsSelection: boolean) {
@@ -283,6 +324,17 @@ export class AIDialog {
         list.style.top = `${rect.bottom + 4}px`;
         list.hidden = false;
         this.activePickerName = name;
+        // If this picker has a search input, reset it and show all options
+        if (name === "vscode-model") {
+            const searchEl = list.querySelector<HTMLInputElement>(".vditor-ai-dialog__picker-search");
+            if (searchEl) {
+                searchEl.value = "";
+                picker.optionsEl.querySelectorAll<HTMLElement>(".vditor-ai-dialog__picker-option").forEach(btn => {
+                    btn.style.display = "";
+                });
+                requestAnimationFrame(() => searchEl.focus());
+            }
+        }
         // Flip up if overflows viewport bottom
         requestAnimationFrame(() => {
             const listRect = list.getBoundingClientRect();
@@ -375,6 +427,21 @@ export class AIDialog {
         this.modelNameField.hidden = false;
     }
 
+    private refreshVSCodeModelPicker() {
+        const picker = this.pickers.get("vscode-model");
+        if (!picker) return;
+        const i = window.VditorI18n;
+        const autoLabel = i.aiVscodeModelAuto ?? "Auto";
+        picker.optionsEl.innerHTML =
+            `<button type="button" class="vditor-ai-dialog__picker-option" data-value="">${autoLabel}</button>` +
+            this.vscodeModels.map(m =>
+                `<button type="button" class="vditor-ai-dialog__picker-option" data-value="${m.id}">${m.name}</button>`
+            ).join("");
+        const found = this.vscodeModels.find(m => m.id === this.vscodeModelValue);
+        picker.label.textContent = found ? found.name : autoLabel;
+        this.updatePickerSelection(picker.optionsEl, this.vscodeModelValue);
+    }
+
     private refreshEngine() {
         const vscodeTab = this.overlay.querySelector<HTMLButtonElement>('.vditor-ai-dialog__engine-tab[data-engine="vscode"]');
         if (vscodeTab) {
@@ -390,6 +457,7 @@ export class AIDialog {
             tab.classList.toggle("vditor-ai-dialog__engine-tab--active", tab.dataset.engine === this.currentEngine);
         });
         this.customFields.hidden = this.currentEngine !== "custom";
+        this.vscodeFields.hidden = this.currentEngine !== "vscode";
     }
 
     private bindEvents() {
@@ -444,6 +512,10 @@ export class AIDialog {
                     ls.set(AI_SELECTED_PROMPT_KEY, value);
                     const found = getAIPrompts().find(p => p.id === value);
                     picker.label.textContent = found ? found.name : window.VditorI18n.aiPromptNone;
+                } else if (name === "vscode-model") {
+                    this.vscodeModelValue = value;
+                    const found = this.vscodeModels.find(m => m.id === value);
+                    picker.label.textContent = found ? found.name : (window.VditorI18n.aiVscodeModelAuto ?? "Auto");
                 } else if (name === "model") {
                     this.modelValue = value;
                     ls.set(AI_SELECTED_MODEL_KEY, value);
@@ -464,8 +536,10 @@ export class AIDialog {
                 return;
             }
 
-            // Close picker when clicking outside
-            if (this.activePickerName && !target.closest(".vditor-ai-dialog__picker-trigger")) {
+            // Close picker when clicking outside (but not inside the list itself)
+            if (this.activePickerName
+                && !target.closest(".vditor-ai-dialog__picker-trigger")
+                && !target.closest(".vditor-ai-dialog__picker-list")) {
                 this.closeActivePicker();
             }
         }, true);
@@ -525,6 +599,9 @@ export class AIDialog {
         const goal = this.goalEl.value.trim();
         const promptText = this.promptValue ? (getAIPrompts().find(p => p.id === this.promptValue)?.content || "") : "";
         const options: IAIPolishOptions = { goal, prompt: promptText, engine: this.currentEngine as "vscode" | "custom" };
+        if (this.currentEngine === "vscode" && this.vscodeModelValue) {
+            options.vscodeModelId = this.vscodeModelValue;
+        }
         if (this.currentEngine === "custom") {
             const m = getAIModels().find(m => m.id === this.modelValue);
             if (m) {
