@@ -95,10 +95,13 @@ export const IMAGE_MAX_HEIGHT_MIN = 10;
 export const IMAGE_MAX_HEIGHT_MAX = 100;
 
 export const AI_PROMPTS_KEY = "aiPrompts";
+export const AI_MODELS_KEY = "aiModels";
 export const AI_ENGINE_KEY = "aiEngine";
 export const AI_CUSTOM_URL_KEY = "aiCustomUrl";
 export const AI_CUSTOM_KEY_KEY = "aiCustomKey";
 export const AI_CUSTOM_MODEL_KEY = "aiCustomModel";
+export const AI_CUSTOM_FORMAT_KEY = "aiCustomApiFormat";
+export const AI_SELECTED_MODEL_KEY = "aiSelectedModel";
 
 export interface AIPrompt {
     id: string;
@@ -106,13 +109,53 @@ export interface AIPrompt {
     content: string;
 }
 
+const DEFAULT_AI_PROMPTS: AIPrompt[] = [
+    {
+        id: "default-1",
+        name: "Expand",
+        content: "Expand this content with more detail, examples, and explanation. Make it more comprehensive while keeping it well-structured and easy to read.",
+    },
+    {
+        id: "default-2",
+        name: "Fix Grammar",
+        content: "Fix any grammar, spelling, and punctuation errors. Ensure the text is grammatically correct and reads naturally.",
+    },
+    {
+        id: "default-3",
+        name: "Polish Writing",
+        content: "Polish the writing to make it clearer, more concise, and more engaging. Improve sentence structure, word choice, and flow while preserving the original meaning and tone.",
+    },
+];
+
 export const getAIPrompts = (): AIPrompt[] => {
-    const raw = getGlobalLocalStorageSetting<string>(AI_PROMPTS_KEY, "[]");
-    try { return JSON.parse(raw as string) as AIPrompt[]; } catch { return []; }
+    const raw = getGlobalLocalStorageSetting<string>(AI_PROMPTS_KEY, "");
+    if (!raw) return DEFAULT_AI_PROMPTS;
+    try {
+        const parsed = JSON.parse(raw as string) as AIPrompt[];
+        return parsed.length ? parsed : DEFAULT_AI_PROMPTS;
+    } catch { return DEFAULT_AI_PROMPTS; }
 };
 
 export const setAIPrompts = (prompts: AIPrompt[]) => {
     setGlobalLocalStorageSetting(AI_PROMPTS_KEY, JSON.stringify(prompts));
+};
+
+export interface AIModel {
+    id: string;
+    name: string;
+    url: string;
+    key: string;
+    model: string;
+    format: string;
+}
+
+export const getAIModels = (): AIModel[] => {
+    const raw = getGlobalLocalStorageSetting<string>(AI_MODELS_KEY, "[]");
+    try { return JSON.parse(raw as string) as AIModel[]; } catch { return []; }
+};
+
+export const setAIModels = (models: AIModel[]) => {
+    setGlobalLocalStorageSetting(AI_MODELS_KEY, JSON.stringify(models));
 };
 
 export const applyEditorSettings = (vditorElement: HTMLElement) => {

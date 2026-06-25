@@ -10,6 +10,7 @@ import { MarkdownService } from '../service/markdownService';
 import { Global } from '@/common/global';
 import { TelemetryService } from '@/service/telemetryService';
 import { openWikiLink } from '@/service/markdown/wikilink';
+import { callCustomAI } from '@/service/ai/customAIClient';
 import {
     consumePendingBlockScroll,
     registerMarkdownWebview,
@@ -335,25 +336,20 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
     private async handleCustomAIPolish(handler: Handler, markdown: string, options: any) {
         const url = options?.customUrl?.trim();
-        const apiKey = options?.customKey?.trim();
-        const model = options?.customModel?.trim() || 'gpt-4o';
         if (!url) {
             vscode.window.showWarningMessage('Custom AI: API URL is required.');
             handler.emit('aiPolishResult', markdown);
             return;
         }
         try {
-            const body = JSON.stringify({
-                model,
-                messages: [{ role: 'user', content: this.buildPolishPrompt(markdown, options) }],
+            const result = await callCustomAI({
+                url,
+                apiKey: options?.customKey?.trim(),
+                model: options?.customModel?.trim(),
+                format: options?.customApiFormat,
+                prompt: this.buildPolishPrompt(markdown, options),
+                signal: this.aiAbortController?.signal,
             });
-            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-            if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
-            const signal = this.aiAbortController?.signal;
-            const resp = await fetch(url, { method: 'POST', headers, body, signal });
-            if (!resp.ok) throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
-            const data = await resp.json();
-            const result = data?.choices?.[0]?.message?.content ?? '';
             handler.emit('aiPolishResult', result.trim() || markdown);
         } catch (err: any) {
             if (err?.name === 'AbortError') return;

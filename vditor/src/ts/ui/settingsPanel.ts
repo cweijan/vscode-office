@@ -17,6 +17,9 @@ import {
     getAIPrompts,
     setAIPrompts,
     AIPrompt,
+    getAIModels,
+    setAIModels,
+    AIModel,
 } from "../util/globalLocalStorageSettings";
 
 export const SETTINGS_PANEL_CLASS = "vditor-settings-panel";
@@ -85,6 +88,9 @@ export const buildAIPromptsHTML = () => {
         ? prompts.map(p => `
             <div class="${SETTINGS_PANEL_CLASS}__ai-prompt-row" data-prompt-id="${p.id}">
                 <span class="${SETTINGS_PANEL_CLASS}__ai-prompt-name" title="${p.content}">${p.name}</span>
+                <button type="button" class="${SETTINGS_PANEL_CLASS}__ai-prompt-edit" data-edit-prompt="${p.id}" title="${i18n.aiEdit ?? 'Edit'}">
+                    <span class="codicon codicon-edit"></span>
+                </button>
                 <button type="button" class="${SETTINGS_PANEL_CLASS}__ai-prompt-del" data-del-prompt="${p.id}">
                     <span class="codicon codicon-trash"></span>
                 </button>
@@ -102,6 +108,50 @@ export const buildAIPromptsHTML = () => {
         </div>
         <button type="button" class="${SETTINGS_PANEL_CLASS}__ai-add-btn" data-ai-new-prompt>
             <span class="codicon codicon-add"></span> ${i18n.aiAddPrompt}
+        </button>
+    </div>`;
+};
+
+export const AI_FORMAT_OPTIONS = [
+    { value: "auto",      i18nKey: "aiApiFormatAuto" },
+    { value: "openai",    i18nKey: "aiApiFormatOpenAI" },
+    { value: "anthropic", i18nKey: "aiApiFormatAnthropic" },
+    { value: "gemini",    i18nKey: "aiApiFormatGemini" },
+    { value: "ollama",    i18nKey: "aiApiFormatOllama" },
+] as const;
+
+export const buildAIModelsHTML = () => {
+    const i18n = window.VditorI18n;
+    const models = getAIModels();
+    const listHTML = models.length
+        ? models.map(m => `
+            <div class="${SETTINGS_PANEL_CLASS}__ai-prompt-row" data-model-id="${m.id}">
+                <span class="${SETTINGS_PANEL_CLASS}__ai-prompt-name" title="${m.url}">${m.name}</span>
+                <button type="button" class="${SETTINGS_PANEL_CLASS}__ai-prompt-edit" data-edit-model="${m.id}" title="${i18n.aiEdit ?? 'Edit'}">
+                    <span class="codicon codicon-edit"></span>
+                </button>
+                <button type="button" class="${SETTINGS_PANEL_CLASS}__ai-prompt-del" data-del-model="${m.id}">
+                    <span class="codicon codicon-trash"></span>
+                </button>
+            </div>`).join("")
+        : `<div class="${SETTINGS_PANEL_CLASS}__ai-prompt-empty">${i18n.aiNoModels}</div>`;
+    const formatOptions = AI_FORMAT_OPTIONS.map(o =>
+        `<option value="${o.value}">${i18n[o.i18nKey]}</option>`).join("");
+    return `<div class="${SETTINGS_PANEL_CLASS}__ai-prompts" data-ai-models>
+        ${listHTML}
+        <div class="${SETTINGS_PANEL_CLASS}__ai-prompt-add-row" data-ai-add-model-row style="display:none">
+            <input type="text" class="${SETTINGS_PANEL_CLASS}__ai-prompt-input" data-ai-add-model-name placeholder="${i18n.aiModelName}" />
+            <input type="url" class="${SETTINGS_PANEL_CLASS}__ai-prompt-input" data-ai-add-model-url placeholder="${i18n.aiApiUrl}" />
+            <input type="password" class="${SETTINGS_PANEL_CLASS}__ai-prompt-input" data-ai-add-model-key placeholder="${i18n.aiApiKey}" />
+            <input type="text" class="${SETTINGS_PANEL_CLASS}__ai-prompt-input" data-ai-add-model-model placeholder="${i18n.aiModel} (e.g. gpt-4o,gpt-4o-mini)" />
+            <select class="${SETTINGS_PANEL_CLASS}__ai-prompt-input" data-ai-add-model-format>${formatOptions}</select>
+            <div class="${SETTINGS_PANEL_CLASS}__ai-prompt-add-actions">
+                <button type="button" class="${SETTINGS_PANEL_CLASS}__ai-prompt-btn" data-ai-save-model>${i18n.aiSave}</button>
+                <button type="button" class="${SETTINGS_PANEL_CLASS}__ai-prompt-btn ${SETTINGS_PANEL_CLASS}__ai-prompt-btn--cancel" data-ai-cancel-model>${i18n.aiCancel}</button>
+            </div>
+        </div>
+        <button type="button" class="${SETTINGS_PANEL_CLASS}__ai-add-btn" data-ai-new-model>
+            <span class="codicon codicon-add"></span> ${i18n.aiAddModel}
         </button>
     </div>`;
 };

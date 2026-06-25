@@ -29,6 +29,7 @@ export class EditorTheme extends MenuItem {
             const theme = button.getAttribute("data-theme") || "";
             setEditorTheme(vditor, theme);
             refreshEditorThemePanel(panelElement, theme);
+            panelElement.style.display = "none";
             event.preventDefault();
             event.stopPropagation();
         });

@@ -150,12 +150,13 @@
     font-size: 12px;
     color: var(--textarea-text-color);
     -webkit-text-fill-color: var(--textarea-text-color);
-    background: var(--vscode-input-background, var(--textarea-background-color, var(--bg-color)));
-    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 16%, transparent);
+    background: var(--textarea-background-color);
+    border: 1px solid var(--border-color);
     border-radius: 5px;
     padding: 3px 8px;
     outline: none;
     box-sizing: border-box;
+    transition: border-color 0.15s;
 
     &:focus {
       border-color: var(--link-color, var(--list-hover-color));
@@ -328,6 +329,7 @@
     white-space: nowrap;
   }
 
+  &__ai-prompt-edit,
   &__ai-prompt-del {
     flex-shrink: 0;
     width: 22px;
@@ -336,16 +338,27 @@
     border: none;
     border-radius: 4px;
     background: transparent;
-    color: color-mix(in srgb, var(--toolbar-icon-color) 40%, transparent);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: color 0.1s, background 0.1s;
     .codicon { font-size: 13px; }
+  }
+
+  &__ai-prompt-edit {
+    color: color-mix(in srgb, var(--link-color, #4a78c8) 65%, transparent);
+    &:hover {
+      color: var(--link-color, #4a78c8);
+      background: color-mix(in srgb, var(--link-color, #4a78c8) 12%, transparent);
+    }
+  }
+
+  &__ai-prompt-del {
+    color: color-mix(in srgb, var(--error-color, #cf222e) 65%, transparent);
     &:hover {
       color: var(--error-color, #cf222e);
-      background: color-mix(in srgb, var(--error-color, #cf222e) 10%, transparent);
+      background: color-mix(in srgb, var(--error-color, #cf222e) 12%, transparent);
     }
   }
 

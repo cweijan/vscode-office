@@ -383,9 +383,6 @@ interface ILinkClickPayload {
     element: HTMLElement;
 }
 
-/** AI 润色可选参数 */
-interface IAIPolishOptions {
-
 /** @link https://ld246.com/article/1549638745630#options-preview-markdown */
 interface IMarkdownConfig {
     /** 自动空格。默认值: false */
@@ -463,6 +460,8 @@ interface IAIPolishOptions {
     customUrl?: string;
     customKey?: string;
     customModel?: string;
+    /** auto | openai | anthropic | gemini | ollama */
+    customApiFormat?: "auto" | "openai" | "anthropic" | "gemini" | "ollama";
 }
 
 interface IOptions {
