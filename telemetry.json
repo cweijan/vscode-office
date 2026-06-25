@@ -150,6 +150,28 @@
 				"purpose": "FeatureInsight",
 				"endPoint": "Azure"
 			}
+		},
+		"markdown.toolbar.click": {
+			"action": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			},
+			"level": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			},
+			"op": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			},
+			"show": {
+				"classification": "SystemMetaData",
+				"purpose": "FeatureInsight",
+				"endPoint": "Azure"
+			}
 		}
 	}
 }

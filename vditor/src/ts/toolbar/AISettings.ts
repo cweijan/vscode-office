@@ -7,7 +7,7 @@ import {
     getAIModels, setAIModels,
 } from "../util/globalLocalStorageSettings";
 import { showConfirm } from "../util/confirm";
-import { telemetry } from "../util/telemetry";
+import { telemetry, telemetryToolbar } from "../util/telemetry";
 
 export class AISettings extends MenuItem {
     public element: HTMLElement;
@@ -24,7 +24,11 @@ export class AISettings extends MenuItem {
         this.element.appendChild(panelElement);
 
         actionBtn.addEventListener(getEventName(), () => {
+            const willOpen = panelElement.style.display !== "block";
             panelElement.innerHTML = this.buildPanelHTML();
+            if (willOpen) {
+                telemetryToolbar(this.vditor, "ai-settings");
+            }
         }, true);
 
         panelElement.addEventListener(getEventName(), (event: MouseEvent & { target: HTMLElement }) => {

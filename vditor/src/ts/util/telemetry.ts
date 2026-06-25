@@ -8,3 +8,11 @@ export const telemetry = (
         fn(event, properties);
     }
 };
+
+export const telemetryToolbar = (
+    vditor: IVditor,
+    action: string,
+    properties?: Record<string, string | number | boolean>,
+) => {
+    telemetry(vditor, "markdown.toolbar.click", { action, ...properties });
+};

@@ -5,6 +5,7 @@ import {afterRenderEvent} from "../wysiwyg/afterRenderEvent";
 import {removeHeading, setHeading} from "../wysiwyg/setHeading";
 import {MenuItem} from "./MenuItem";
 import {hidePanel} from "./setToolbar";
+import {telemetryToolbar} from "../util/telemetry";
 
 export class Headings extends MenuItem {
     public element: HTMLElement;
@@ -35,6 +36,7 @@ export class Headings extends MenuItem {
             }
             actionBtn.blur();
             if (actionBtn.classList.contains("vditor-menu--current")) {
+                telemetryToolbar(vditor, "headings", { op: "remove" });
                 if (vditor.currentMode === "wysiwyg") {
                     removeHeading(vditor);
                     afterRenderEvent(vditor);
@@ -43,6 +45,7 @@ export class Headings extends MenuItem {
                 }
                 actionBtn.classList.remove("vditor-menu--current");
             } else {
+                telemetryToolbar(vditor, "headings", { op: "open" });
                 hidePanel(vditor, ["subToolbar"]);
                 panelElement.style.display = "block";
             }
@@ -51,8 +54,10 @@ export class Headings extends MenuItem {
         for (let i = 0; i < 6; i++) {
             panelElement.children.item(i).addEventListener(getEventName(), (event: Event) => {
                 event.preventDefault();
+                const tag = (event.target as HTMLElement).getAttribute("data-tag") || "";
+                telemetryToolbar(vditor, "headings", { level: tag });
                 if (vditor.currentMode === "wysiwyg") {
-                    setHeading(vditor, (event.target as HTMLElement).getAttribute("data-tag"));
+                    setHeading(vditor, tag);
                     afterRenderEvent(vditor);
                     actionBtn.classList.add("vditor-menu--current");
                 } else if (vditor.currentMode === "ir") {

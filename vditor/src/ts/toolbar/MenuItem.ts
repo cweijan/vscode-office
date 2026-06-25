@@ -3,6 +3,7 @@ import {processToolbar} from "../ir/process";
 import {getEventName} from "../util/compatibility";
 import {updateHotkeyTip} from "../util/compatibility";
 import {toolbarEvent} from "../wysiwyg/toolbarEvent";
+import {telemetryToolbar} from "../util/telemetry";
 
 export class MenuItem {
     public element: HTMLElement;
@@ -45,6 +46,7 @@ export class MenuItem {
             if (this.element.firstElementChild.classList.contains(Constants.CLASS_MENU_DISABLED)) {
                 return;
             }
+            telemetryToolbar(vditor, menuItem.name);
             if (vditor.currentMode === "wysiwyg") {
                 toolbarEvent(vditor, this.element.children[0], event);
             } else if (vditor.currentMode === "ir") {
