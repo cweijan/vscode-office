@@ -123,56 +123,6 @@ export async function getToolbar(resPath, isDev = false, onSave = null) {
     ]
 }
 
-/**
- * 针对wysiwyg和ir两种模式对超链接做不同的处理
- */
-export const openLink = () => {
-    const clickCallback = e => {
-        let ele = e.target;
-        e.stopPropagation()
-        const isSpecial = ['dblclick', 'auxclick'].includes(e.type)
-        if (!isCompose(e) && !isSpecial) {
-            return;
-        }
-        if (ele.tagName == 'A') {
-            handler.emit("openLink", ele.href)
-        } else if (ele.dataset?.type === 'wikilink' || ele.dataset?.type === 'wikilink-embed') {
-            const href = ele.dataset.href;
-            if (href) {
-                handler.emit("openLink", `wiki:${href}`)
-            }
-        } else if (ele.closest?.('[data-type="wikilink"], [data-type="wikilink-embed"]')) {
-            const link = ele.closest('[data-type="wikilink"], [data-type="wikilink-embed"]');
-            const href = link?.dataset?.href;
-            if (href) {
-                handler.emit("openLink", `wiki:${href}`)
-            }
-        } else if (ele.tagName == 'IMG') {
-            const parent = ele.parentElement;
-            if (parent?.tagName == 'A' && parent.href) {
-                handler.emit("openLink", parent.href)
-                return;
-            }
-            const src = ele.src;
-            if (src?.match(/http/)) {
-                handler.emit("openLink", src)
-            }
-        }
-    }
-    const content = document.querySelector(".vditor-wysiwyg");
-    content.addEventListener('dblclick', clickCallback);
-    content.addEventListener('click', clickCallback);
-    document.querySelector(".vditor-ir").addEventListener('click', e => {
-        let ele = e.target;
-        if (ele.classList.contains('vditor-ir__link')) {
-            ele = e.target.nextElementSibling?.nextElementSibling?.nextElementSibling
-        }
-        if (ele.classList.contains('vditor-ir__marker--link')) {
-            handler.emit("openLink", ele.textContent)
-        }
-    });
-}
-
 const hideContextMenu = (menu) => {
     menu.hidden = true
 }

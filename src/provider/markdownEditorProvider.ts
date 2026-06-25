@@ -9,6 +9,12 @@ import { Holder } from '../service/markdown/holder';
 import { MarkdownService } from '../service/markdownService';
 import { Global } from '@/common/global';
 import { TelemetryService } from '@/service/telemetryService';
+import { openWikiLink } from '@/service/markdown/wikilink';
+import {
+    consumePendingBlockScroll,
+    registerMarkdownWebview,
+    unregisterMarkdownWebview,
+} from '@/service/markdown/blockScroll';
 import { fileTypeFromPath } from '@/service/officeViewType';
 
 function getRuntimePlatform(): string {
@@ -105,10 +111,15 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
         let lastManualSaveTime: number;
         const config = vscode.workspace.getConfiguration("vscode-office");
+        registerMarkdownWebview(uri, handler);
+        handler.panel.onDidDispose(() => {
+            unregisterMarkdownWebview(uri);
+        });
         handler.on("init", () => {
             handler.emit("open", {
                 content, rootPath,
                 documentCacheId: `${uri.scheme}:${uri.toString()}`,
+                pendingFragment: consumePendingBlockScroll(uri),
                 config: this.getMarkdownWebviewConfig(config),
             })
             this.updateCount(content)
@@ -122,13 +133,17 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             handler.emit("update", updatedText)
         }).on("command", (command) => {
             vscode.commands.executeCommand(command)
-        }).on("openLink", (uri: string) => {
+        }).on("openLink", async (linkUri: string) => {
+            if (linkUri.startsWith('wiki:')) {
+                await openWikiLink(uri, linkUri);
+                return;
+            }
             const resReg = /https:\/\/file.*\.net/i;
-            if (uri.match(resReg)) {
-                const localPath = uri.replace(resReg, '')
+            if (linkUri.match(resReg)) {
+                const localPath = linkUri.replace(resReg, '')
                 vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(localPath));
             } else {
-                vscode.env.openExternal(vscode.Uri.parse(uri));
+                vscode.env.openExternal(vscode.Uri.parse(linkUri));
             }
         }).on("codeMirrorTheme", (theme: string) => {
             const validThemes = [

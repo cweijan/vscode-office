@@ -41,6 +41,7 @@ import {
 import { focusWysiwygCodeBlock, showCode } from "./showCode";
 import { getMarkdown } from "../markdown/getMarkdown";
 import { initBlockHandle } from "./blockHandle";
+import { linkClickEvent } from "../util/linkClick";
 import { initTableHandle } from "./tableHandle";
 
 class WYSIWYG {
@@ -71,6 +72,7 @@ class WYSIWYG {
         initBlockHandle(vditor, divElement, this.element);
         initTableHandle(vditor, divElement, this.element);
 
+        linkClickEvent(vditor, divElement);
         focusEvent(vditor, this.element);
         dblclickEvent(vditor, this.element);
         blurEvent(vditor, this.element);

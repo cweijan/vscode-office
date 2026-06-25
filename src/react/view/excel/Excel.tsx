@@ -123,7 +123,7 @@ function ExcelViewer() {
                             throw error;
                         }
                     },
-                    onCancel: () => {},
+                    onCancel: () => { },
                     footer: (_, { OkBtn, CancelBtn }) => (
                         <>
                             <CancelBtn />
@@ -269,13 +269,13 @@ function ExcelViewer() {
                     await initSpreadsheet(buffer, payload);
                 } catch (e) {
                     const msg = (e as Error).message || String(e);
-                    console.error(`Failed to load Excel file: ${msg}`);
+                    console.error(`Failed to load Excel file: ${msg}`, e);
                     setLoadError(msg);
                     setLoading(false);
                 }
             }).catch(error => {
                 const msg = (error as Error).message || String(error);
-                console.error(`Failed to load Excel file: ${msg}`);
+                console.error(`Failed to load Excel file: ${msg}`, error);
                 setLoadError(msg);
                 setLoading(false);
             });
@@ -302,12 +302,11 @@ function ExcelViewer() {
                 <div className="excel-load-error">
                     <div className="excel-load-error-panel">
                         <svg className="excel-load-error-icon" width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden>
-                            <circle cx="22" cy="22" r="20" stroke="currentColor" strokeWidth="1.8"/>
-                            <path d="M22 13v12" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
-                            <circle cx="22" cy="31" r="1.8" fill="currentColor"/>
+                            <circle cx="22" cy="22" r="20" stroke="currentColor" strokeWidth="1.8" />
+                            <path d="M22 13v12" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+                            <circle cx="22" cy="31" r="1.8" fill="currentColor" />
                         </svg>
                         <h2 className="excel-load-error-title">Failed to open file</h2>
-                        <p className="excel-load-error-desc">The file could not be loaded. It may be corrupted, password-protected, or an unsupported format.</p>
                         <span className="excel-load-error-message">{loadError}</span>
                     </div>
                 </div>
@@ -357,9 +356,9 @@ function ExcelViewer() {
                     >
                         {[
                             { value: 'xlsx', label: t('viewer.exportXlsxLabel'), desc: t('viewer.exportXlsxDesc') },
-                            { value: 'csv',  label: t('viewer.exportCsvLabel'), desc: t('viewer.exportCsvDesc') },
-                            { value: 'xls',  label: t('viewer.exportXlsLabel'), desc: t('viewer.exportXlsDesc') },
-                            { value: 'ods',  label: t('viewer.exportOdsLabel'), desc: t('viewer.exportOdsDesc') },
+                            { value: 'csv', label: t('viewer.exportCsvLabel'), desc: t('viewer.exportCsvDesc') },
+                            { value: 'xls', label: t('viewer.exportXlsLabel'), desc: t('viewer.exportXlsDesc') },
+                            { value: 'ods', label: t('viewer.exportOdsLabel'), desc: t('viewer.exportOdsDesc') },
                         ].map(f => (
                             <Radio key={f.value} value={f.value} style={{ alignItems: 'flex-start' }}>
                                 <span style={{ fontWeight: 500 }}>{f.label}</span>

@@ -1,8 +1,8 @@
-import { openLink, hotKeys, imageParser, getToolbar, autoSymbol, createContextMenu, setAIAvailable } from "./util.js";
+import { hotKeys, imageParser, getToolbar, autoSymbol, createContextMenu, setAIAvailable } from "./util.js";
 import { mapVscodeLanguageToVditorLang } from "./lang.js";
 
 handler.on("open", async (md) => {
-  const { content, rootPath, documentCacheId, config } = md;
+  const { content, rootPath, documentCacheId, pendingFragment, config } = md;
   const {
     language, isWeb, isDev,
     markdown, viewAbsoluteLocal,
@@ -33,6 +33,24 @@ handler.on("open", async (md) => {
     onAboutOpen: () => handler.emit('openAbout'),
     onSponsorLogoClick: () => handler.emit('openSponsor'),
     onSponsorSiteClick: () => handler.emit('openExternal', 'https://database-client.com/'),
+    onLinkClick(payload, event) {
+      const isCompose = event.metaKey || event.ctrlKey;
+      if (payload.action !== "dblclick" && !(payload.action === "click" && isCompose)) {
+        return;
+      }
+      let uri = payload.href;
+      if (payload.type === "wikilink" || payload.type === "wikilink-embed") {
+        const hashIndex = uri.indexOf("#");
+        const page = hashIndex < 0 ? uri : uri.slice(0, hashIndex);
+        const fragment = hashIndex < 0 ? "" : uri.slice(hashIndex + 1);
+        if (!page && fragment) {
+          editor.scrollToBlock(fragment);
+          return;
+        }
+        uri = `wiki:${payload.href}`;
+      }
+      handler.emit("openLink", uri);
+    },
     debugger: isDev,
     changeEditorTheme(theme) {
       handler.emit('editorTheme', theme)
@@ -91,12 +109,19 @@ handler.on("open", async (md) => {
         }
         editor.setValue(content);
       })
+      handler.on("gotoBlock", (fragment) => {
+        if (fragment) {
+          editor.scrollToBlock(fragment);
+        }
+      })
       handler.emit('queryAIAvailable')
       handler.on("aiAvailable", (available) => {
         setAIAvailable(available, isDev)
       })
-      openLink()
       editor.restoreDocumentSession(true)
+      if (pendingFragment) {
+        editor.scrollToBlock(pendingFragment);
+      }
     }
   })
   autoSymbol(handler, editor);

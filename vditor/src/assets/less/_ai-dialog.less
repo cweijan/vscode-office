@@ -18,27 +18,26 @@
   width: 100%;
   max-width: 440px;
   background: var(--panel-background-color);
-  border: 1px solid var(--panel-border, rgba(128, 128, 128, 0.35));
+  border: 1px solid var(--border-color);
   border-radius: 10px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   font-size: 13px;
-  color: var(--editor-foreground, #ccc);
+  color: var(--textarea-text-color);
 
   &__header {
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 12px 14px 10px;
-    border-bottom: 1px solid var(--panel-border, rgba(128, 128, 128, 0.2));
+    border-bottom: 1px solid var(--border-color);
   }
 
   &__icon {
     font-size: 16px;
-    color: var(--link-color, #4a90d9);
+    color: var(--link-color, #4a78c8);
     flex-shrink: 0;
   }
 
@@ -57,7 +56,7 @@
     border: none;
     border-radius: 4px;
     background: transparent;
-    color: var(--toolbar-icon-color, #999);
+    color: var(--toolbar-icon-color);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -66,8 +65,8 @@
     transition: background 0.1s, color 0.1s;
 
     &:hover {
-      background: color-mix(in srgb, var(--toolbar-icon-color, #999) 15%, transparent);
-      color: var(--editor-foreground, #ccc);
+      background: color-mix(in srgb, var(--toolbar-icon-color) 15%, transparent);
+      color: var(--textarea-text-color);
     }
   }
 
@@ -91,7 +90,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: color-mix(in srgb, var(--editor-foreground, #ccc) 60%, transparent);
+    color: var(--toolbar-icon-color);
     user-select: none;
   }
 
@@ -100,10 +99,10 @@
     width: 100%;
     box-sizing: border-box;
     padding: 6px 9px;
-    background: color-mix(in srgb, var(--editor-foreground, #ccc) 7%, transparent);
-    border: 1px solid color-mix(in srgb, var(--editor-foreground, #ccc) 12%, transparent);
+    background: var(--textarea-background-color);
+    border: 1px solid var(--border-color);
     border-radius: 5px;
-    color: var(--editor-foreground, #ccc);
+    color: var(--textarea-text-color);
     font-size: inherit;
     font-family: inherit;
     outline: none;
@@ -111,11 +110,11 @@
     resize: none;
 
     &:focus {
-      border-color: var(--link-color, #4a90d9);
+      border-color: var(--link-color, #4a78c8);
     }
 
     &::placeholder {
-      color: color-mix(in srgb, var(--editor-foreground, #ccc) 40%, transparent);
+      color: color-mix(in srgb, var(--toolbar-icon-color) 70%, transparent);
     }
   }
 
@@ -131,7 +130,7 @@
       transform: translateY(-50%);
       font-size: 13px;
       pointer-events: none;
-      color: var(--toolbar-icon-color, #999);
+      color: var(--toolbar-icon-color);
     }
   }
 
@@ -139,10 +138,10 @@
     width: 100%;
     box-sizing: border-box;
     padding: 6px 28px 6px 9px;
-    background: color-mix(in srgb, var(--editor-foreground, #ccc) 7%, transparent);
-    border: 1px solid color-mix(in srgb, var(--editor-foreground, #ccc) 12%, transparent);
+    background: var(--textarea-background-color);
+    border: 1px solid var(--border-color);
     border-radius: 5px;
-    color: var(--editor-foreground, #ccc);
+    color: var(--textarea-text-color);
     font-size: inherit;
     font-family: inherit;
     outline: none;
@@ -150,7 +149,7 @@
     cursor: pointer;
 
     &:focus {
-      border-color: var(--link-color, #4a90d9);
+      border-color: var(--link-color, #4a78c8);
     }
   }
 
@@ -166,24 +165,24 @@
     justify-content: center;
     gap: 5px;
     padding: 6px 10px;
-    border: 1px solid var(--panel-border, rgba(128, 128, 128, 0.3));
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     background: transparent;
-    color: color-mix(in srgb, var(--editor-foreground, #ccc) 60%, transparent);
+    color: var(--toolbar-icon-color);
     font-size: 12px;
     font-family: inherit;
     cursor: pointer;
     transition: border-color 0.15s, color 0.15s, background 0.15s;
 
     &:hover {
-      border-color: var(--link-color, #4a90d9);
-      color: var(--editor-foreground, #ccc);
+      border-color: var(--link-color, #4a78c8);
+      color: var(--textarea-text-color);
     }
 
     &--active {
-      border-color: var(--link-color, #4a90d9);
-      background: color-mix(in srgb, var(--link-color, #4a90d9) 12%, transparent);
-      color: var(--link-color, #4a90d9);
+      border-color: var(--link-color, #4a78c8);
+      background: color-mix(in srgb, var(--link-color, #4a78c8) 12%, transparent);
+      color: var(--link-color, #4a78c8);
       font-weight: 600;
     }
   }
@@ -204,7 +203,7 @@
     justify-content: flex-end;
     gap: 8px;
     padding: 10px 14px 14px;
-    border-top: 1px solid var(--panel-border, rgba(128, 128, 128, 0.2));
+    border-top: 1px solid var(--border-color);
   }
 
   &__btn {
@@ -221,18 +220,18 @@
 
     &--cancel {
       background: transparent;
-      border-color: var(--panel-border, rgba(128, 128, 128, 0.3));
-      color: var(--editor-foreground, #ccc);
+      border-color: var(--border-color);
+      color: var(--textarea-text-color);
 
       &:hover {
-        background: color-mix(in srgb, var(--editor-foreground, #ccc) 7%, transparent);
+        background: color-mix(in srgb, var(--toolbar-icon-color) 10%, transparent);
       }
     }
 
     &--submit {
-      background: var(--link-color, #0e639c);
+      background: var(--link-color, #4a78c8);
       color: #fff;
-      border-color: var(--link-color, #0e639c);
+      border-color: var(--link-color, #4a78c8);
 
       &:hover {
         opacity: 0.88;

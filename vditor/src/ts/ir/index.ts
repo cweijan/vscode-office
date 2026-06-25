@@ -28,7 +28,7 @@ import {
     isSpecialBlock,
     isSpecialPreviewBlock,
 } from "../codeBlock/codeMirrorManager";
-import { expandMarker } from "./expandMarker";
+import { linkClickEvent } from "../util/linkClick";
 import { highlightToolbarIR } from "./highlightToolbarIR";
 import { input } from "./input";
 import { processAfterRender, processHint } from "./process";
@@ -56,6 +56,7 @@ class IR {
 
         this.bindEvent(vditor);
 
+        linkClickEvent(vditor, divElement);
         focusEvent(vditor, this.element);
         dblclickEvent(vditor, this.element);
         blurEvent(vditor, this.element);

@@ -370,6 +370,22 @@ interface IMath {
     macros?: object;
 }
 
+type ILinkClickType = "link" | "wikilink" | "wikilink-embed" | "image" | "tag" | "footnote-ref" | "link-ref";
+
+type ILinkClickAction = "click" | "dblclick" | "auxclick";
+
+interface ILinkClickPayload {
+    type: ILinkClickType;
+    /** 单击 / 双击 / 中键 */
+    action: ILinkClickAction;
+    href: string;
+    text: string;
+    element: HTMLElement;
+}
+
+/** AI 润色可选参数 */
+interface IAIPolishOptions {
+
 /** @link https://ld246.com/article/1549638745630#options-preview-markdown */
 interface IMarkdownConfig {
     /** 自动空格。默认值: false */
@@ -574,6 +590,9 @@ interface IOptions {
 
     /** 打开 About 面板时触发 */
     onAboutOpen?(): void;
+
+    /** Ctrl/⌘+单击、双击或中键打开链接时触发；未配置则使用浏览器默认行为 */
+    onLinkClick?(payload: ILinkClickPayload, event: MouseEvent, vditor: IVditor): void;
 
     /** 点击赞助 Logo 后触发 */
     onSponsorLogoClick?(): void;

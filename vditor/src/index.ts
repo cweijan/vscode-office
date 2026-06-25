@@ -43,6 +43,7 @@ import {
 } from "./ts/util/frozenSelection";
 import {afterRenderEvent} from "./ts/wysiwyg/afterRenderEvent";
 import {renderToc} from "./ts/util/toc";
+import {scrollToBlock as scrollToBlockUtil} from "./ts/util/scrollToBlock";
 import {WYSIWYG} from "./ts/wysiwyg/index";
 import {input} from "./ts/wysiwyg/input";
 import {renderDomByMd} from "./ts/wysiwyg/renderDomByMd";
@@ -210,6 +211,11 @@ class Vditor {
     /** 恢复滚动与焦点；onLoad 用于页面首次加载 */
     public restoreDocumentSession(onLoad = false) {
         restoreCacheFocus(this.vditor, { onLoad });
+    }
+
+    /** 滚动到块引用或标题 fragment（如 ^block-id 或标题 slug） */
+    public scrollToBlock(fragment: string) {
+        return scrollToBlockUtil(this.vditor, fragment);
     }
 
     /** 上传是否还在进行中 */

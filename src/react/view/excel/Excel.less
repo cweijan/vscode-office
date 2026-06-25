@@ -417,22 +417,14 @@ body:has(.excel-app) .ant-message:has(.excel-save-success-message) {
             color: var(--vscode-foreground, #1a1a1a);
         }
 
-        &-desc {
-            margin: 0;
-            font-size: clamp(12px, 1.3vw, 14px);
-            line-height: 1.65;
-            color: var(--vscode-descriptionForeground, #666);
-            max-width: 40em;
-        }
-
-        &-message {
+&-message {
             display: inline-block;
             max-width: 100%;
             padding: 5px 14px;
             font-family: var(--vscode-editor-font-family, ui-monospace, monospace);
-            font-size: clamp(11px, 1.1vw, 13px);
+            font-size: clamp(12px, 1.3vw, 15px);
             line-height: 1.5;
-            color: var(--vscode-foreground, #333);
+            color: var(--vscode-editorError-foreground, #c0392b);
             word-break: break-all;
             border: 1px solid var(--vscode-editorWidget-border, rgba(0,0,0,0.10));
             border-radius: 6px;
