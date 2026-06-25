@@ -1,5 +1,5 @@
 import {
-    AI_ENGINE_KEY, AI_SELECTED_MODEL_KEY,
+    AI_ENGINE_KEY, AI_SELECTED_MODEL_KEY, AI_SELECTED_PROMPT_KEY,
     getAIPrompts, setAIPrompts,
     getAIModels, setAIModels,
     AIPrompt, AIModel,
@@ -310,6 +310,10 @@ export class AIDialog {
         const i = window.VditorI18n;
         const prompts = getAIPrompts();
         const picker = this.pickers.get("prompt")!;
+        // Restore persisted selection on first load, then validate it still exists
+        if (!this.promptValue) {
+            this.promptValue = ls.get(AI_SELECTED_PROMPT_KEY);
+        }
         picker.list.innerHTML = `<button type="button" class="vditor-ai-dialog__picker-option" data-value="">${i.aiPromptNone}</button>` +
             prompts.map(p =>
                 `<button type="button" class="vditor-ai-dialog__picker-option" data-value="${p.id}" title="${p.content}">${p.name}</button>`
@@ -437,6 +441,7 @@ export class AIDialog {
                 const picker = this.pickers.get(name)!;
                 if (name === "prompt") {
                     this.promptValue = value;
+                    ls.set(AI_SELECTED_PROMPT_KEY, value);
                     const found = getAIPrompts().find(p => p.id === value);
                     picker.label.textContent = found ? found.name : window.VditorI18n.aiPromptNone;
                 } else if (name === "model") {

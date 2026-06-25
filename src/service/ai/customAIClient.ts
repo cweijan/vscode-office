@@ -330,6 +330,109 @@ const parseErrorMessage = (data: any, status: number, statusText: string): strin
     return `HTTP ${status} ${statusText}`;
 };
 
+export interface StreamCustomAIOptions extends CustomAIRequestOptions {
+    onChunk: (chunk: string) => void;
+}
+
+/** 从 SSE 行中提取 delta 文本，兼容 OpenAI / Anthropic / Ollama / Gemini 流格式 */
+const parseStreamChunk = (format: Exclude<CustomAIApiFormat, "auto">, line: string): string => {
+    const dataPrefix = "data: ";
+    if (line.startsWith(dataPrefix)) {
+        const raw = line.slice(dataPrefix.length).trim();
+        if (raw === "[DONE]") return "";
+        try {
+            const obj = JSON.parse(raw);
+            switch (format) {
+                case "anthropic":
+                    return obj?.delta?.text ?? "";
+                case "gemini":
+                    return obj?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+                default:
+                    return obj?.choices?.[0]?.delta?.content ?? "";
+            }
+        } catch { return ""; }
+    }
+    // Ollama: newline-delimited JSON (no "data:" prefix)
+    if (format === "ollama" && line.trim()) {
+        try {
+            const obj = JSON.parse(line);
+            return obj?.message?.content ?? obj?.response ?? "";
+        } catch { return ""; }
+    }
+    return "";
+};
+
+/** 流式请求 body（在 non-stream body 上加 stream: true） */
+const buildStreamBody = (
+    format: Exclude<CustomAIApiFormat, "auto">,
+    body: Record<string, unknown>,
+): Record<string, unknown> => {
+    switch (format) {
+        case "anthropic":
+            return { ...body, stream: true };
+        case "gemini":
+            // Gemini 流式需要换用 streamGenerateContent 端点，URL 已在 resolveGeminiUrl 中处理
+            return body;
+        case "ollama":
+            return { ...body, stream: true };
+        default:
+            return { ...body, stream: true };
+    }
+};
+
+/** 将 Gemini URL 从 generateContent 换为 streamGenerateContent */
+const toGeminiStreamUrl = (url: string): string =>
+    url.replace(/:generateContent(\?|$)/, ":streamGenerateContent$1");
+
+/** 流式调用自定义 AI，每个 token 通过 onChunk 回调，全部结束后 resolve */
+export const streamCustomAI = async (options: StreamCustomAIOptions): Promise<void> => {
+    const rawUrl = options.url?.trim();
+    if (!rawUrl) throw new Error("API URL is required.");
+
+    const format = resolveFormat(rawUrl, options.format);
+    const model = resolveModel(format, options.model);
+    const request = buildRequest(format, options.prompt, model, rawUrl, options.apiKey?.trim());
+
+    const streamUrl = format === "gemini" ? toGeminiStreamUrl(request.url) : request.url;
+    const streamBody = buildStreamBody(format, request.body as Record<string, unknown>);
+
+    const resp = await fetch(streamUrl, {
+        method: "POST",
+        headers: request.headers,
+        body: JSON.stringify(streamBody),
+        signal: options.signal,
+    });
+
+    if (!resp.ok) {
+        const rawText = await resp.text().catch(() => "");
+        let data: any;
+        try { data = rawText ? JSON.parse(rawText) : {}; } catch { data = {}; }
+        throw new Error(parseErrorMessage(data, resp.status, resp.statusText));
+    }
+
+    const reader = resp.body?.getReader();
+    if (!reader) throw new Error("No response body.");
+
+    const decoder = new TextDecoder();
+    let buf = "";
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split("\n");
+        buf = lines.pop() ?? "";
+        for (const line of lines) {
+            const chunk = parseStreamChunk(format, line);
+            if (chunk) options.onChunk(chunk);
+        }
+    }
+    // flush remaining buffer
+    if (buf.trim()) {
+        const chunk = parseStreamChunk(format, buf);
+        if (chunk) options.onChunk(chunk);
+    }
+};
+
 /** 调用自定义 AI HTTP 接口，自动适配 OpenAI / Anthropic / Gemini / Ollama 等格式 */
 export const callCustomAI = async (options: CustomAIRequestOptions): Promise<string> => {
     const rawUrl = options.url?.trim();

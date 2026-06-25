@@ -114,6 +114,7 @@ export const AI_CUSTOM_KEY_KEY = "aiCustomKey";
 export const AI_CUSTOM_MODEL_KEY = "aiCustomModel";
 export const AI_CUSTOM_FORMAT_KEY = "aiCustomApiFormat";
 export const AI_SELECTED_MODEL_KEY = "aiSelectedModel";
+export const AI_SELECTED_PROMPT_KEY = "aiSelectedPrompt";
 
 export interface AIPrompt {
     id: string;
@@ -124,8 +125,8 @@ export interface AIPrompt {
 const DEFAULT_AI_PROMPTS: AIPrompt[] = [
     {
         id: "default-1",
-        name: "Expand",
-        content: "Expand this content with more detail, examples, and explanation. Make it more comprehensive while keeping it well-structured and easy to read.",
+        name: "Polish Writing",
+        content: "Polish the writing to make it clearer, more concise, and more engaging. Improve sentence structure, word choice, and flow while preserving the original meaning and tone.",
     },
     {
         id: "default-2",
@@ -134,8 +135,8 @@ const DEFAULT_AI_PROMPTS: AIPrompt[] = [
     },
     {
         id: "default-3",
-        name: "Polish Writing",
-        content: "Polish the writing to make it clearer, more concise, and more engaging. Improve sentence structure, word choice, and flow while preserving the original meaning and tone.",
+        name: "Expand Content",
+        content: "Expand this content with more detail, examples, and explanation. Make it more comprehensive while keeping it well-structured and easy to read.",
     },
 ];
 

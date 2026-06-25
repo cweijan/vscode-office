@@ -88,6 +88,12 @@ export class AIResultPanel {
         if (this.acceptBtn) this.acceptBtn.disabled = false;
     }
 
+    public endStream() {
+        if (this.spinnerEl) this.spinnerEl.hidden = true;
+        if (this.resultEl) this.resultEl.classList.remove(`${CLS}__text--loading`);
+        if (this.acceptBtn) this.acceptBtn.disabled = false;
+    }
+
     public destroy() {
         this.el?.remove();
         this.el = null;

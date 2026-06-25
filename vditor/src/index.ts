@@ -376,31 +376,31 @@ class Vditor {
         this.aiReplaceAll = replaceAll;
         const markdown = capturedMarkdown ?? (this.getSelection() || this.getValue());
         this.disabled();
+        const discardOrCancel = (cancel = false) => {
+            this.enable();
+            hideFrozenSelection(this.vditor);
+            this.aiSelectionRange = null;
+            this.aiSelectionRect = null;
+            if (cancel) this.vditor.options.ai?.onCancelPolish?.();
+        };
         this.aiResultPanel.open(
             markdown,
             this.aiSelectionRect,
-            (result) => {
-                this.applyAIResult(result, this.aiReplaceAll);
-            },
-            () => {
-                // Discard
-                this.enable();
-                hideFrozenSelection(this.vditor);
-                this.aiSelectionRange = null;
-                this.aiSelectionRect = null;
-            },
-            () => {
-                // Cancel during loading
-                this.enable();
-                hideFrozenSelection(this.vditor);
-                this.aiSelectionRange = null;
-                this.aiSelectionRect = null;
-                this.vditor.options.ai?.onCancelPolish?.();
-            },
+            (result) => this.applyAIResult(result, this.aiReplaceAll),
+            () => discardOrCancel(false),
+            () => discardOrCancel(true),
         );
-        onPolish(markdown, (result: string) => {
-            this.aiResultPanel.showResult(result);
-        }, options);
+        onPolish(markdown, (_result: string) => { /* unused — streaming via streamAIChunk/endAIStream */ }, options);
+    }
+
+    /** 流式接收 AI chunk，实时渲染到结果面板 */
+    public streamAIChunk(chunk: string) {
+        this.aiResultPanel.stream(chunk);
+    }
+
+    /** AI 流结束，启用确认按钮 */
+    public endAIStream() {
+        this.aiResultPanel.endStream();
     }
 
     /** 接收 AI 润色结果：退出 loading 状态，将 markdown 并入正文 */

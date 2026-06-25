@@ -83,8 +83,11 @@ handler.on("open", async (md) => {
     ai: {
       onPolish(markdown, apply, options) {
         handler.emit('aiPolish', { markdown, options })
-        handler.on('aiPolishResult', (result) => {
-          apply(result)
+        handler.on('aiPolishChunk', (chunk) => {
+          editor.streamAIChunk(chunk)
+        })
+        handler.on('aiPolishEnd', () => {
+          editor.endAIStream()
         })
       },
       onCancelPolish() {

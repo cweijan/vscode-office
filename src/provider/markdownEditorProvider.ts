@@ -10,7 +10,7 @@ import { MarkdownService } from '../service/markdownService';
 import { Global } from '@/common/global';
 import { TelemetryService } from '@/service/telemetryService';
 import { openWikiLink } from '@/service/markdown/wikilink';
-import { callCustomAI } from '@/service/ai/customAIClient';
+import { streamCustomAI } from '@/service/ai/customAIClient';
 import {
     consumePendingBlockScroll,
     registerMarkdownWebview,
@@ -311,7 +311,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             }
             if (!models || models.length === 0) {
                 vscode.window.showWarningMessage('No AI language model available. Please install a language model extension (e.g. GitHub Copilot).');
-                handler.emit('aiPolishResult', markdown);
+                handler.emit('aiPolishEnd');
                 return;
             }
             const model = models[0];
@@ -319,18 +319,17 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             const messages = [LanguageModelChatMessage.User(this.buildPolishPrompt(markdown, options))];
             const token = this.aiCancellationSource.token;
             const response = await model.sendRequest(messages, {}, token);
-            let result = '';
             for await (const chunk of response.text) {
                 if (token.isCancellationRequested) break;
-                result += chunk;
+                handler.emit('aiPolishChunk', chunk);
             }
             if (!token.isCancellationRequested) {
-                handler.emit('aiPolishResult', result.trim() || markdown);
+                handler.emit('aiPolishEnd');
             }
         } catch (err: any) {
             if (this.aiCancellationSource?.token.isCancellationRequested) return;
             vscode.window.showErrorMessage(`AI Polish failed: ${err?.message ?? err}`);
-            handler.emit('aiPolishResult', markdown);
+            handler.emit('aiPolishEnd');
         }
     }
 
@@ -342,19 +341,22 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             return;
         }
         try {
-            const result = await callCustomAI({
+            await streamCustomAI({
                 url,
                 apiKey: options?.customKey?.trim(),
                 model: options?.customModel?.trim(),
                 format: options?.customApiFormat,
                 prompt: this.buildPolishPrompt(markdown, options),
                 signal: this.aiAbortController?.signal,
+                onChunk: (chunk: string) => {
+                    handler.emit('aiPolishChunk', chunk);
+                },
             });
-            handler.emit('aiPolishResult', result.trim() || markdown);
+            handler.emit('aiPolishEnd');
         } catch (err: any) {
             if (err?.name === 'AbortError') return;
             vscode.window.showErrorMessage(`Custom AI Polish failed: ${err?.message ?? err}`);
-            handler.emit('aiPolishResult', markdown);
+            handler.emit('aiPolishEnd');
         }
     }
 
