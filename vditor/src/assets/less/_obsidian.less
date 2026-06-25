@@ -235,21 +235,35 @@
     color: var(--second-color, var(--vscode-descriptionForeground));
   }
 
+  .vditor-properties__edit {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid color-mix(in srgb, var(--border-color, #d0d7de) 80%, transparent);
+    border-radius: 6px;
+    background: var(--panel-background-color, #fff);
+    color: var(--front-color, var(--toolbar-icon-color));
+    cursor: pointer;
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--border-color, #d0d7de) 35%, transparent);
+
+    &:hover {
+      background: color-mix(in srgb, var(--toolbar-icon-color) 8%, var(--panel-background-color, #fff));
+      border-color: color-mix(in srgb, var(--toolbar-icon-color) 28%, transparent);
+      color: var(--toolbar-icon-color);
+    }
+
+    .codicon {
+      font-size: 16px;
+    }
+  }
+
   .vditor-properties__heading-icon::before {
     content: "☰";
     opacity: 0.75;
-  }
-
-  .vditor-properties__count {
-    margin-left: auto;
-    min-width: 1.25rem;
-    padding: 0 6px;
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--link-color, #7c3aed) 14%, transparent);
-    color: var(--link-color, #7c3aed);
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-align: center;
   }
 
   .vditor-properties__table {
@@ -345,36 +359,7 @@
     opacity: 0.45;
   }
 
-  .vditor-properties__source-wrap {
-    margin-top: 6px;
-
-    > summary.vditor-properties__source-label {
-      cursor: pointer;
-      font-size: 0.8rem;
-      color: var(--second-color, var(--vscode-descriptionForeground));
-      user-select: none;
-      list-style: none;
-
-      &::-webkit-details-marker {
-        display: none;
-      }
-
-      &::before {
-        content: "▸ ";
-      }
-    }
-
-    &[open] > summary.vditor-properties__source-label::before {
-      content: "▾ ";
-    }
-  }
-
-  .vditor-properties__source {
-    margin: 4px 0 0;
-    padding: 0;
-    border-radius: 6px;
-    background: transparent;
-    font-size: 0.85rem;
-    overflow: hidden;
+  .vditor-properties__source-sync {
+    display: none !important;
   }
 }

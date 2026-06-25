@@ -477,7 +477,12 @@ export const showHtmlEditorPopover = (vditor: IVditor, target: HtmlEditTarget) =
     const saveButton = document.createElement("button");
     saveButton.type = "button";
     saveButton.className = "vditor-html-inline-popover__button vditor-html-inline-popover__button--primary";
-    saveButton.textContent = "Save";
+    saveButton.textContent = window.VditorI18n?.aiSave ?? "Save";
+
+    const cancelButton = document.createElement("button");
+    cancelButton.type = "button";
+    cancelButton.className = "vditor-html-inline-popover__button vditor-html-inline-popover__button--cancel";
+    cancelButton.textContent = window.VditorI18n?.aiCancel ?? "Cancel";
 
     const initialSource = target.getSource();
     const targetRef = target;
@@ -505,9 +510,11 @@ export const showHtmlEditorPopover = (vditor: IVditor, target: HtmlEditTarget) =
     };
 
     saveButton.addEventListener("click", save);
+    cancelButton.addEventListener("click", cancel);
     wrapButton.addEventListener("click", () => toggleHtmlEditorLineWrap(wrapButton));
 
     actionsButtons.appendChild(wrapButton);
+    actionsButtons.appendChild(cancelButton);
     actionsButtons.appendChild(saveButton);
     actions.appendChild(hint);
     actions.appendChild(actionsButtons);

@@ -46,6 +46,7 @@ import { linkClickEvent } from "../util/linkClick";
 import { initTableHandle } from "./tableHandle";
 import { expandMarkerWithMathSync } from "../ir/expandMarkerSync";
 import { handleHtmlEditorClick } from "../htmlInline/htmlInlineEditor";
+import { handleFrontMatterEditorClick } from "../codeBlock/frontMatterEditor";
 
 class WYSIWYG {
     public range: Range;
@@ -334,6 +335,11 @@ class WYSIWYG {
             }
 
             if (handleHtmlEditorClick(vditor, event)) {
+                clickToc(event, vditor);
+                return;
+            }
+
+            if (handleFrontMatterEditorClick(vditor, event)) {
                 clickToc(event, vditor);
                 return;
             }

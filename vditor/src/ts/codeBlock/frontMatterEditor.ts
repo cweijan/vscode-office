@@ -2,25 +2,28 @@ import { indentLess } from "@codemirror/commands";
 import { Compartment } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 
-import { processAfterRender } from "../ir/process";
-import { afterRenderEvent } from "../wysiwyg/afterRenderEvent";
+import { getModeEditorElement, getModePopover } from "./codeBlockLanguagePopover";
 import { loadCodeMirrorHighlightLanguage } from "./codeBlockHighlightLanguages";
 import { stopHandledCodeMirrorKeymap, vditorCodeMirrorSetup } from "./codeMirrorSetup";
+import { processAfterRender } from "../ir/process";
+import { formatAltEnterHotkeyTip } from "../util/compatibility";
+import { afterRenderEvent } from "../wysiwyg/afterRenderEvent";
 
-const CM_HOST_CLASS = "vditor-cm-host";
-const CM_BLOCK_CLASS = "vditor-code-block--cm";
+const FRONT_MATTER_POPOVER_CLASS = "vditor-popover--front-matter";
+const FRONT_MATTER_PANEL_CLASS = "vditor-panel--front-matter";
+const POPOVER_INSET = 8;
+const VIEWPORT_MARGIN = 12;
 
-interface YamlBinding {
+type FrontMatterPopoverBinding = {
     view: EditorView;
     languageCompartment: Compartment;
-    syncCode: HTMLElement;
     blockElement: HTMLElement;
-    syncTimer: number;
-    propertiesTimer: number;
-    updating: boolean;
-}
+};
 
-const yamlBindings = new WeakMap<HTMLElement, YamlBinding>();
+let activeFrontMatterPopover: FrontMatterPopoverBinding | null = null;
+let positionAnchor: HTMLElement | null = null;
+let positionVditor: IVditor | null = null;
+let scrollRepositionHandler: (() => void) | null = null;
 
 const getModeEditor = (vditor: IVditor) => {
     if (vditor.currentMode === "wysiwyg") {
@@ -32,6 +35,135 @@ const getModeEditor = (vditor: IVditor) => {
     return null;
 };
 
+const getYamlSourceFromBlock = (blockElement: HTMLElement) => {
+    const code = blockElement.querySelector("code[data-type='yaml-front-matter']") as HTMLElement | null;
+    return (code?.textContent || "").trimEnd();
+};
+
+const spinFrontMatterBlock = (vditor: IVditor, blockElement: HTMLElement) => {
+    const html = vditor.currentMode === "ir"
+        ? vditor.lute.SpinVditorIRDOM(blockElement.outerHTML)
+        : vditor.lute.SpinVditorDOM(blockElement.outerHTML);
+    blockElement.outerHTML = html;
+    return getModeEditor(vditor)?.querySelector("[data-type='yaml-front-matter']") as HTMLElement | null;
+};
+
+const notifyAfterFrontMatterChange = (vditor: IVditor) => {
+    if (vditor.currentMode === "ir") {
+        processAfterRender(vditor);
+        return;
+    }
+    afterRenderEvent(vditor);
+};
+
+const destroyFrontMatterCodeMirror = () => {
+    if (!activeFrontMatterPopover) {
+        return;
+    }
+    activeFrontMatterPopover.view.destroy();
+    activeFrontMatterPopover = null;
+};
+
+const detachPopoverReposition = () => {
+    if (scrollRepositionHandler) {
+        window.removeEventListener("scroll", scrollRepositionHandler, true);
+        if (positionVditor) {
+            getModeEditorElement(positionVditor)?.removeEventListener("scroll", scrollRepositionHandler);
+        }
+    }
+    scrollRepositionHandler = null;
+    positionAnchor = null;
+    positionVditor = null;
+};
+
+const getPopoverContainer = (editorElement: HTMLElement) => editorElement.parentElement as HTMLElement;
+
+const clampFrontMatterPopoverPosition = (vditor: IVditor, anchorElement: HTMLElement) => {
+    const popover = getModePopover(vditor);
+    const editorElement = getModeEditorElement(vditor);
+    if (!popover || !editorElement || !anchorElement.isConnected) {
+        return;
+    }
+    const container = getPopoverContainer(editorElement);
+    if (!container) {
+        return;
+    }
+
+    popover.style.display = "block";
+    const anchorRect = anchorElement.getClientRects()[0] || anchorElement.getBoundingClientRect();
+    const popoverWidth = popover.offsetWidth;
+    const popoverHeight = popover.offsetHeight;
+    const containerRect = container.getBoundingClientRect();
+
+    let viewportTop = anchorRect.bottom + POPOVER_INSET;
+    let viewportLeft = anchorRect.right - popoverWidth;
+
+    if (viewportTop + popoverHeight > window.innerHeight - VIEWPORT_MARGIN) {
+        const aboveTop = anchorRect.top - popoverHeight - POPOVER_INSET;
+        if (aboveTop >= VIEWPORT_MARGIN) {
+            viewportTop = aboveTop;
+        } else {
+            viewportTop = Math.max(
+                VIEWPORT_MARGIN,
+                window.innerHeight - popoverHeight - VIEWPORT_MARGIN,
+            );
+        }
+    }
+    if (viewportTop < VIEWPORT_MARGIN) {
+        viewportTop = VIEWPORT_MARGIN;
+    }
+
+    if (viewportLeft + popoverWidth > window.innerWidth - VIEWPORT_MARGIN) {
+        viewportLeft = window.innerWidth - popoverWidth - VIEWPORT_MARGIN;
+    }
+    if (viewportLeft < VIEWPORT_MARGIN) {
+        viewportLeft = VIEWPORT_MARGIN;
+    }
+
+    const maxLeft = containerRect.left + container.clientWidth - popoverWidth - VIEWPORT_MARGIN;
+    if (viewportLeft > maxLeft) {
+        viewportLeft = Math.max(containerRect.left + VIEWPORT_MARGIN, maxLeft);
+    }
+
+    popover.style.top = `${Math.round(viewportTop - containerRect.top)}px`;
+    popover.style.left = `${Math.round(viewportLeft - containerRect.left)}px`;
+};
+
+const attachPopoverReposition = (vditor: IVditor, anchorElement: HTMLElement) => {
+    detachPopoverReposition();
+    positionAnchor = anchorElement;
+    positionVditor = vditor;
+    scrollRepositionHandler = () => {
+        if (positionAnchor?.isConnected && positionVditor) {
+            clampFrontMatterPopoverPosition(positionVditor, positionAnchor);
+        }
+    };
+    window.addEventListener("scroll", scrollRepositionHandler, true);
+    getModeEditorElement(vditor)?.addEventListener("scroll", scrollRepositionHandler);
+};
+
+const scheduleFrontMatterPopoverPosition = (vditor: IVditor, anchorElement: HTMLElement) => {
+    requestAnimationFrame(() => {
+        if (!anchorElement.isConnected) {
+            return;
+        }
+        clampFrontMatterPopoverPosition(vditor, anchorElement);
+        attachPopoverReposition(vditor, anchorElement);
+    });
+};
+
+const hideFrontMatterEditorPopover = (vditor: IVditor) => {
+    const popover = getModePopover(vditor);
+    if (!popover) {
+        return;
+    }
+    detachPopoverReposition();
+    destroyFrontMatterCodeMirror();
+    popover.style.display = "none";
+    popover.classList.remove(FRONT_MATTER_POPOVER_CLASS, FRONT_MATTER_PANEL_CLASS);
+    popover.innerHTML = "";
+};
+
 const insertLiteralTab = (view: EditorView) => {
     view.dispatch(view.state.update(view.state.replaceSelection("\t"), {
         scrollIntoView: true,
@@ -40,260 +172,187 @@ const insertLiteralTab = (view: EditorView) => {
     return true;
 };
 
-const prepareYamlCmDom = (blockElement: HTMLElement, pre: HTMLElement, code: HTMLElement) => {
-    blockElement.classList.add(CM_BLOCK_CLASS);
-    if (blockElement.classList.contains("vditor-ir__node")) {
-        blockElement.classList.add("vditor-ir__node--expand");
-    }
-    pre.classList.add(CM_HOST_CLASS);
-    pre.setAttribute("contenteditable", "false");
-    pre.style.display = "block";
-    code.setAttribute("contenteditable", "false");
-    code.setAttribute("hidden", "");
-    code.setAttribute("aria-hidden", "true");
-    code.style.display = "none";
-};
-
-const cleanupYamlCmDom = (blockElement: HTMLElement, pre: HTMLElement, code: HTMLElement) => {
-    blockElement.classList.remove(CM_BLOCK_CLASS);
-    if (blockElement.classList.contains("vditor-ir__node")) {
-        blockElement.classList.remove("vditor-ir__node--expand");
-    }
-    pre.classList.remove(CM_HOST_CLASS);
-    pre.removeAttribute("contenteditable");
-    pre.style.display = "";
-    code.removeAttribute("contenteditable");
-    code.removeAttribute("hidden");
-    code.removeAttribute("aria-hidden");
-    code.style.display = "";
-};
-
-const flushYamlToDocument = (binding: YamlBinding, vditor: IVditor) => {
-    window.clearTimeout(binding.syncTimer);
-    binding.syncCode.textContent = binding.view.state.doc.toString();
-    const options = {
-        enableAddUndoStack: false,
-        enableHint: false,
-        enableInput: true,
-    };
-    if (vditor.currentMode === "wysiwyg") {
-        afterRenderEvent(vditor, options);
-    } else if (vditor.currentMode === "ir") {
-        processAfterRender(vditor, options);
-    }
-};
-
-const scheduleYamlSync = (binding: YamlBinding, vditor: IVditor) => {
-    window.clearTimeout(binding.syncTimer);
-    binding.syncTimer = window.setTimeout(() => {
-        binding.syncCode.textContent = binding.view.state.doc.toString();
-        const options = {
-            enableAddUndoStack: false,
-            enableHint: false,
-            enableInput: false,
-        };
-        if (vditor.currentMode === "wysiwyg") {
-            afterRenderEvent(vditor, options);
-        } else if (vditor.currentMode === "ir") {
-            processAfterRender(vditor, options);
-        }
-    }, vditor.options.undoDelay);
-};
-
-const renderFrontMatterPreviewHtml = (vditor: IVditor, yaml: string) => {
-    if (!vditor.lute) {
-        return "";
-    }
-    const md = `---\n${yaml.trimEnd()}\n---\n`;
-    if (vditor.currentMode === "ir") {
-        return vditor.lute.Md2VditorIRDOM(md);
-    }
-    return vditor.lute.Md2VditorDOM(md);
-};
-
-const refreshPropertiesPanel = (block: HTMLElement, yaml: string, vditor: IVditor) => {
-    const html = renderFrontMatterPreviewHtml(vditor, yaml);
-    if (!html) {
+const focusFrontMatterEditorAtStart = (view: EditorView) => {
+    if (!view.dom.isConnected) {
         return;
     }
-    const wrap = document.createElement("div");
-    wrap.innerHTML = html;
-    const freshProps = wrap.querySelector(".vditor-properties");
-    const currentProps = block.querySelector(".vditor-properties");
-    const anchor = block.querySelector("details.vditor-properties__source-wrap");
-
-    if (freshProps && currentProps) {
-        currentProps.replaceWith(freshProps);
-        return;
-    }
-    if (freshProps && !currentProps && anchor) {
-        block.insertBefore(freshProps, anchor);
-        return;
-    }
-    if (!freshProps && currentProps) {
-        currentProps.remove();
-    }
+    view.dispatch({
+        selection: { anchor: 0, head: 0 },
+        scrollIntoView: false,
+    });
+    view.contentDOM.focus({ preventScroll: true });
 };
 
-const schedulePropertiesRefresh = (
-    binding: YamlBinding,
-    vditor: IVditor,
+const scheduleFocusFrontMatterEditorAtStart = (view: EditorView) => {
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            focusFrontMatterEditorAtStart(view);
+        });
+    });
+};
+
+const mountFrontMatterCodeMirror = (
+    host: HTMLElement,
+    blockElement: HTMLElement,
+    initialSource: string,
+    onSave: () => void,
+    onCancel: () => void,
 ) => {
-    window.clearTimeout(binding.propertiesTimer);
-    binding.propertiesTimer = window.setTimeout(() => {
-        const yaml = binding.view.state.doc.toString();
-        binding.syncCode.textContent = yaml;
-        refreshPropertiesPanel(binding.blockElement, yaml, vditor);
-    }, 150);
-};
-
-const mountYamlEditor = (pre: HTMLElement, vditor: IVditor) => {
-    if (yamlBindings.has(pre)) {
-        return;
-    }
-    const code = pre.querySelector("code[data-type='yaml-front-matter']") as HTMLElement | null;
-    const blockElement = pre.closest("[data-type='yaml-front-matter']") as HTMLElement | null;
-    if (!code || !blockElement) {
-        return;
-    }
-
-    prepareYamlCmDom(blockElement, pre, code);
+    destroyFrontMatterCodeMirror();
     const languageCompartment = new Compartment();
-    const binding: YamlBinding = {
-        view: null as unknown as EditorView,
-        languageCompartment,
-        syncCode: code,
-        blockElement,
-        syncTimer: 0,
-        propertiesTimer: 0,
-        updating: false,
-    };
-
     const view = new EditorView({
-        doc: (code.textContent || "").trimEnd(),
-        parent: pre,
+        doc: initialSource,
+        parent: host,
         extensions: [
             vditorCodeMirrorSetup,
+            languageCompartment.of([]),
             keymap.of(stopHandledCodeMirrorKeymap([
                 { key: "Tab", run: insertLiteralTab, shift: indentLess },
+                {
+                    key: "Alt-Enter",
+                    run: () => {
+                        onSave();
+                        return true;
+                    },
+                },
+                {
+                    key: "Escape",
+                    run: () => {
+                        onCancel();
+                        return true;
+                    },
+                },
             ])),
-            languageCompartment.of([]),
-            EditorView.updateListener.of((update) => {
-                if (binding.updating || !update.docChanged) {
-                    return;
-                }
-                binding.syncCode.textContent = binding.view.state.doc.toString();
-                schedulePropertiesRefresh(binding, vditor);
-                scheduleYamlSync(binding, vditor);
-            }),
             EditorView.domEventHandlers({
                 mousedown: (event) => {
                     event.stopPropagation();
-                },
-                blur: () => {
-                    window.setTimeout(() => {
-                        if (!yamlBindings.has(pre) || binding.view.hasFocus) {
-                            return;
-                        }
-                        if (pre.contains(document.activeElement)) {
-                            return;
-                        }
-                        flushYamlToDocument(binding, vditor);
-                    }, 0);
                     return false;
                 },
             }),
         ],
     });
-
-    binding.view = view;
-    yamlBindings.set(pre, binding);
-
+    activeFrontMatterPopover = { view, languageCompartment, blockElement };
     loadCodeMirrorHighlightLanguage("yaml").then((lang) => {
-        if (!lang || !yamlBindings.has(pre)) {
+        if (!lang || activeFrontMatterPopover?.view !== view) {
+            scheduleFocusFrontMatterEditorAtStart(view);
             return;
         }
         view.dispatch({
             effects: languageCompartment.reconfigure(lang),
         });
+        scheduleFocusFrontMatterEditorAtStart(view);
     });
+    return view;
 };
 
-const unmountYamlEditor = (pre: HTMLElement, vditor: IVditor) => {
-    const binding = yamlBindings.get(pre);
-    if (!binding) {
-        return;
+const applyYamlToBlock = (vditor: IVditor, blockElement: HTMLElement, yaml: string) => {
+    const syncCode = blockElement.querySelector("code[data-type='yaml-front-matter']") as HTMLElement | null;
+    if (syncCode) {
+        syncCode.textContent = yaml;
     }
-    window.clearTimeout(binding.syncTimer);
-    window.clearTimeout(binding.propertiesTimer);
-    binding.syncCode.textContent = binding.view.state.doc.toString();
-    refreshPropertiesPanel(binding.blockElement, binding.syncCode.textContent, vditor);
-    flushYamlToDocument(binding, vditor);
-    binding.view.destroy();
-    yamlBindings.delete(pre);
-    cleanupYamlCmDom(binding.blockElement, pre, binding.syncCode);
-    pre.querySelectorAll(".cm-editor").forEach((editor) => {
-        editor.remove();
-    });
+    return spinFrontMatterBlock(vditor, blockElement);
 };
 
-const bindYamlSourceDetails = (details: HTMLDetailsElement, pre: HTMLElement, vditor: IVditor) => {
-    if (details.dataset.cmBound === "true") {
-        if (details.open) {
-            mountYamlEditor(pre, vditor);
-        }
+export const showFrontMatterEditorPopover = (vditor: IVditor, blockElement: HTMLElement) => {
+    const popover = getModePopover(vditor);
+    const editButton = blockElement.querySelector(".vditor-properties__edit") as HTMLElement | null;
+    const anchorElement = editButton || blockElement;
+    if (!popover || !blockElement.isConnected) {
         return;
     }
-    details.dataset.cmBound = "true";
-    details.addEventListener("toggle", () => {
-        if (details.open) {
-            mountYamlEditor(pre, vditor);
-        } else {
-            unmountYamlEditor(pre, vditor);
-        }
-    });
-    if (details.open) {
-        mountYamlEditor(pre, vditor);
-    }
+
+    popover.classList.add(FRONT_MATTER_POPOVER_CLASS, FRONT_MATTER_PANEL_CLASS);
+    popover.innerHTML = "";
+
+    const panel = document.createElement("div");
+    panel.className = "vditor-html-inline-popover vditor-front-matter-popover";
+
+    const cmHost = document.createElement("div");
+    cmHost.className = "vditor-html-inline-popover__cm-host vditor-cm-host";
+
+    const actions = document.createElement("div");
+    actions.className = "vditor-html-inline-popover__actions";
+
+    const hint = document.createElement("span");
+    hint.className = "vditor-html-inline-popover__hint";
+    hint.textContent = formatAltEnterHotkeyTip();
+
+    const actionsButtons = document.createElement("div");
+    actionsButtons.className = "vditor-html-inline-popover__actions-buttons";
+
+    const saveButton = document.createElement("button");
+    saveButton.type = "button";
+    saveButton.className = "vditor-html-inline-popover__button vditor-html-inline-popover__button--primary";
+    saveButton.textContent = window.VditorI18n?.aiSave ?? "Save";
+
+    const cancelButton = document.createElement("button");
+    cancelButton.type = "button";
+    cancelButton.className = "vditor-html-inline-popover__button vditor-html-inline-popover__button--cancel";
+    cancelButton.textContent = window.VditorI18n?.aiCancel ?? "Cancel";
+
+    const initialSource = getYamlSourceFromBlock(blockElement);
+    const blockRef = blockElement;
+
+    const save = () => {
+        const yaml = (activeFrontMatterPopover?.view.state.doc.toString() ?? initialSource).trimEnd();
+        vditor.undo.addToUndoStack(vditor);
+        applyYamlToBlock(vditor, blockRef, yaml);
+        notifyAfterFrontMatterChange(vditor);
+        hideFrontMatterEditorPopover(vditor);
+    };
+
+    const cancel = () => {
+        hideFrontMatterEditorPopover(vditor);
+    };
+
+    saveButton.addEventListener("click", save);
+    cancelButton.addEventListener("click", cancel);
+
+    actionsButtons.appendChild(cancelButton);
+    actionsButtons.appendChild(saveButton);
+    actions.appendChild(hint);
+    actions.appendChild(actionsButtons);
+    panel.appendChild(cmHost);
+    panel.appendChild(actions);
+    popover.appendChild(panel);
+    mountFrontMatterCodeMirror(cmHost, blockRef, initialSource, save, cancel);
+    scheduleFrontMatterPopoverPosition(vditor, anchorElement);
 };
 
-/** 为 Obsidian Properties 中展开的 YAML 源码区挂载 CodeMirror */
-export const setupFrontMatterYamlEditors = (vditor: IVditor) => {
-    const editor = getModeEditor(vditor);
-    if (!editor) {
-        return;
+export const handleFrontMatterEditorClick = (
+    vditor: IVditor,
+    event: MouseEvent & { target: HTMLElement },
+): boolean => {
+    const editButton = event.target.closest(".vditor-properties__edit") as HTMLElement | null;
+    if (!editButton) {
+        return false;
     }
-    for (const details of editor.querySelectorAll(
-        "[data-type='yaml-front-matter'] details.vditor-properties__source-wrap",
-    )) {
-        const pre = details.querySelector(".vditor-properties__source") as HTMLElement | null;
-        if (!pre) {
-            continue;
-        }
-        bindYamlSourceDetails(details as HTMLDetailsElement, pre, vditor);
+    const blockElement = editButton.closest("[data-type='yaml-front-matter']") as HTMLElement | null;
+    if (!blockElement) {
+        return false;
     }
+    event.preventDefault();
+    event.stopPropagation();
+    showFrontMatterEditorPopover(vditor, blockElement);
+    return true;
+};
+
+/** @deprecated inline YAML editor removed; kept for renderCodeBlocks compatibility */
+export const setupFrontMatterYamlEditors = (_vditor: IVditor) => {
 };
 
 export const flushFrontMatterYamlToSyncCode = (vditor: IVditor) => {
-    const editor = getModeEditor(vditor);
-    if (!editor) {
+    if (!activeFrontMatterPopover) {
         return;
     }
-    for (const pre of editor.querySelectorAll(
-        `[data-type='yaml-front-matter'].${CM_BLOCK_CLASS} .vditor-cm-host`,
-    )) {
-        const binding = yamlBindings.get(pre as HTMLElement);
-        if (!binding) {
-            continue;
-        }
-        window.clearTimeout(binding.syncTimer);
-        window.clearTimeout(binding.propertiesTimer);
-        binding.syncCode.textContent = binding.view.state.doc.toString();
+    const { blockElement, view } = activeFrontMatterPopover;
+    const syncCode = blockElement.querySelector("code[data-type='yaml-front-matter']") as HTMLElement | null;
+    if (syncCode) {
+        syncCode.textContent = view.state.doc.toString();
     }
+    hideFrontMatterEditorPopover(vditor);
 };
 
 export const isFrontMatterYamlCmFocused = () => {
-    return !!document.querySelector(
-        `[data-type='yaml-front-matter'].${CM_BLOCK_CLASS} .cm-editor.cm-focused`,
-    );
+    return !!activeFrontMatterPopover?.view.hasFocus;
 };

@@ -35,6 +35,7 @@ import {
 import { enterInlineMathEdit } from "../math/inlineMathCodeMirror";
 import { expandMarkerWithMathSync } from "./expandMarkerSync";
 import { handleHtmlEditorClick } from "../htmlInline/htmlInlineEditor";
+import { handleFrontMatterEditorClick } from "../codeBlock/frontMatterEditor";
 import { linkClickEvent } from "../util/linkClick";
 import { highlightToolbarIR } from "./highlightToolbarIR";
 import { input } from "./input";
@@ -196,6 +197,11 @@ class IR {
             }
 
             if (handleHtmlEditorClick(vditor, event)) {
+                clickToc(event, vditor);
+                return;
+            }
+
+            if (handleFrontMatterEditorClick(vditor, event)) {
                 clickToc(event, vditor);
                 return;
             }

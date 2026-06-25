@@ -12,9 +12,18 @@
     height: 100%;
     box-sizing: border-box;
 
-    // 纯文本段落作为首段时与编辑器顶部保持间距
-    > p:first-child {
+    // 首块与编辑器顶部保持间距（标题除外，沿用全局 24px）
+    > :first-child {
       margin-top: 18px;
+    }
+
+    > h1:first-child,
+    > h2:first-child,
+    > h3:first-child,
+    > h4:first-child,
+    > h5:first-child,
+    > h6:first-child {
+      margin-top: 24px;
     }
 
     &[contenteditable="false"] {

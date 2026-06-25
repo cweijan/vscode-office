@@ -32,7 +32,6 @@ import {
 } from "../math/inlineMathCodeMirror";
 import {
     flushFrontMatterYamlToSyncCode,
-    setupFrontMatterYamlEditors,
 } from "./frontMatterEditor";
 
 export { focusCodeBlockChromeLanguage, isInsideCodeBlockChrome } from "./codeBlockChrome";
@@ -1349,7 +1348,6 @@ export const renderCodeBlocks = (vditor: IVditor) => {
         mountCodeMirror(block as HTMLElement, vditor);
     });
     syncMathBlocksDisplayMode(editor, vditor);
-    setupFrontMatterYamlEditors(vditor);
 };
 
 /** @deprecated use renderCodeBlocks */
