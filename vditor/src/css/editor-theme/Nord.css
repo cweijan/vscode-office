@@ -12,6 +12,7 @@ html[data-editor-theme="Nord"],
 
     /* Link & State */
     --link-color: var(--list-hover-color);
+    --wikilink-color: #b48ead;
     --list-hover-color: #88c0d0;
     --dropdown-hover-background: #434c5e;
     --error-color: #bf616a;

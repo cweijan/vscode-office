@@ -12,6 +12,7 @@ html[data-editor-theme="Dim Light"],
 
     /* Link & State */
     --link-color: var(--list-hover-color);
+    --wikilink-color: #8b5cf6;
     --list-hover-color: #3b82f6;
     --dropdown-hover-background: #d1d5db;
     --error-color: #dc2626;

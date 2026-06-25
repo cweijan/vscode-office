@@ -12,6 +12,7 @@ html[data-editor-theme="Light"],
 
     /* Link & State */
     --link-color: var(--list-hover-color);
+    --wikilink-color: #7b68ee;
     --list-hover-color: #0451a5;
     --dropdown-hover-background: #e8eef3;
     --error-color: #e51400;

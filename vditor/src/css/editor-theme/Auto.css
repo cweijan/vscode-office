@@ -12,6 +12,7 @@ html[data-editor-theme="Auto"],
 
     /* Link & State */
     --link-color: var(--vscode-textLink-foreground, #3794ff);
+    --wikilink-color: var(--vscode-charts-purple, #b180d7);
     --list-hover-color: var(--vscode-textLink-foreground, var(--vscode-list-focusHighlightForeground, #3794ff));
     --dropdown-hover-background: var(--vscode-list-hoverBackground, var(--vscode-menu-selectionBackground));
     --error-color: var(--vscode-errorForeground, var(--vscode-charts-red));

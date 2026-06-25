@@ -12,6 +12,7 @@ html[data-editor-theme="Solarized"],
 
     /* Link & State */
     --link-color: var(--list-hover-color);
+    --wikilink-color: #6c71c4;
     --list-hover-color: #268bd2;
     --dropdown-hover-background: #dfca88;
     --error-color: #e51400;

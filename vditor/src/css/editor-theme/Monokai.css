@@ -12,6 +12,7 @@ html[data-editor-theme="Monokai"],
 
     /* Link & State */
     --link-color: var(--list-hover-color);
+    --wikilink-color: #ae81ff;
     --list-hover-color: #66d9ef;
     --dropdown-hover-background: #49483e;
     --error-color: #f92672;

@@ -12,6 +12,7 @@ html[data-editor-theme="Dracula"],
 
     /* Link & State */
     --link-color: #8be9fd;
+    --wikilink-color: #bd93f9;
     --list-hover-color: #bd93f9;
     --dropdown-hover-background: #383a4a;
     --error-color: #ff5555;

@@ -12,6 +12,7 @@ html[data-editor-theme="One Dark"],
 
     /* Link & State */
     --link-color: var(--list-hover-color);
+    --wikilink-color: #c678dd;
     --list-hover-color: #61afef;
     --dropdown-hover-background: #3a3f4b;
     --error-color: #e06c75;

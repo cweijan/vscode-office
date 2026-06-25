@@ -1,7 +1,10 @@
 import * as vscode from 'vscode';
-import { notifyBlockScroll } from '@/service/markdown/blockScroll';
+import {
+    getMarkdownWebviewHandler,
+    notifyBlockScroll,
+    setPendingBlockScroll,
+} from '@/service/markdown/blockScroll';
 import { WIKI_URI_PREFIX } from './constants';
-import { findFragmentPosition } from './fragment';
 import { parseWikiLinkUri } from './parse';
 import { resolveWikiLinkFile } from './resolve';
 
@@ -18,18 +21,16 @@ export async function openWikiLink(currentUri: vscode.Uri, wikiUri: string): Pro
         return;
     }
 
-    const openOptions: vscode.TextDocumentShowOptions = { preview: false };
-    if (target.fragment) {
-        try {
-            const doc = await vscode.workspace.openTextDocument(fileUri);
-            const position = findFragmentPosition(doc, target.fragment);
-            if (position) {
-                openOptions.selection = new vscode.Range(position, position);
-            }
-        } catch {
-        }
-        notifyBlockScroll(fileUri, target.fragment);
+    const baseUri = fileUri.with({ query: '', fragment: '' });
+    const hasExistingWebview = !!getMarkdownWebviewHandler(baseUri);
+
+    if (target.fragment && !hasExistingWebview) {
+        setPendingBlockScroll(baseUri, target.fragment);
     }
 
-    await vscode.commands.executeCommand('vscode.open', fileUri, openOptions);
+    await vscode.commands.executeCommand('vscode.open', baseUri, { preview: false });
+
+    if (hasExistingWebview && target.fragment) {
+        notifyBlockScroll(baseUri, target.fragment);
+    }
 }

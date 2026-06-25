@@ -12,6 +12,7 @@ html[data-editor-theme="Github Dark"],
 
     /* Link & State */
     --link-color: var(--list-hover-color);
+    --wikilink-color: #a371f7;
     --list-hover-color: #539bf5;
     --dropdown-hover-background: rgba(99, 110, 123, 0.4);
     --error-color: #f14c4c;
