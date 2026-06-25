@@ -56,7 +56,8 @@
 
   // Wikilink uses IR-style expand markers in both WYSIWYG and IR.
   .vditor-ir__node[data-type="wikilink"],
-  .vditor-ir__node[data-type="wikilink-embed"] {
+  .vditor-ir__node[data-type="wikilink-embed"],
+  .vditor-ir__node[data-type="html-inline"].vditor-html-inline {
     .vditor-ir__marker {
       width: 0;
       overflow: hidden;
@@ -65,7 +66,8 @@
       transition: @transition;
     }
 
-    .vditor-wikilink__source {
+    .vditor-wikilink__source,
+    .vditor-html-inline__source {
       display: none;
     }
 
@@ -77,12 +79,33 @@
         width: auto;
       }
 
-      .vditor-wikilink__display {
+      .vditor-wikilink__display,
+      .vditor-html-inline__display {
         display: none;
       }
 
-      .vditor-wikilink__source {
+      .vditor-wikilink__source,
+      .vditor-html-inline__source {
         display: inline;
+      }
+    }
+  }
+
+  .vditor-ir__node[data-type="html-inline"]:not(.vditor-html-inline) {
+    .vditor-ir__marker {
+      width: 0;
+      overflow: hidden;
+      display: inline-block;
+      height: 0;
+      transition: @transition;
+    }
+
+    &.vditor-ir__node--expand {
+      .vditor-ir__marker {
+        color: var(--second-color);
+        display: inline;
+        height: auto;
+        width: auto;
       }
     }
   }

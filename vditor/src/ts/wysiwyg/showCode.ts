@@ -2,7 +2,7 @@ import {enterSpecialBlockEdit, focusCodeBlock, isSpecialPreviewBlock} from "../c
 import { enterInlineMathEdit } from "../math/inlineMathCodeMirror";
 import {setSelectionFocus} from "../util/selection";
 
-const INLINE_PREVIEW_TYPES = new Set(["math-inline", "html-inline", "html-entity"]);
+const INLINE_PREVIEW_TYPES = new Set(["math-inline", "html-entity"]);
 
 /** 行内 math/html：点击预览区展开源码 code 并聚焦 */
 const showInlineCode = (previewElement: HTMLElement, vditor: IVditor, first = true) => {
