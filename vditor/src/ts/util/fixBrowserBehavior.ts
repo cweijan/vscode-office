@@ -20,6 +20,7 @@ import { highlightToolbar } from "./highlightToolbar";
 import { clearPendingHistoryTimeout, recordHistoryChange, recordHistoryPosition } from "./instantHistory";
 import { matchHotKey } from "./hotKey";
 import { isPasteableUrl, linkifyPastePlainText } from "./linkifyPaste";
+import { routePasteClipboard } from "./pasteRouting";
 import { processCodeRender, processPasteCode } from "./processCode";
 import {
     getEditorRange,
@@ -1608,15 +1609,6 @@ export const fixFirefoxArrowUpTable = (event: KeyboardEvent, blockElement: false
     return false;
 };
 
-const inlineHTMLTagInPlain = /<\/[a-zA-Z][\w:-]*>|<[a-zA-Z][\w:-]*(?:\s[^>]*)?\/?>/;
-
-const shouldPreferPlainTextPaste = (textPlain: string, textHTML: string): boolean => {
-    if (!textPlain.trim() || !textHTML.trim()) {
-        return false;
-    }
-    return inlineHTMLTagInPlain.test(textPlain);
-};
-
 const preparePastePlainText = (vditor: IVditor, text: string): string => {
     const trimmed = text.trim();
     if (!trimmed) {
@@ -1744,6 +1736,10 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
         vscodeEditorData = event.dataTransfer.getData("vscode-editor-data");
     }
 
+    const routed = routePasteClipboard(textHTML, textPlain, vscodeEditorData);
+    textHTML = routed.textHTML;
+    textPlain = routed.textPlain;
+
     // process code
     const code = processPasteCode(textHTML, textPlain, vditor.currentMode, vscodeEditorData);
     const codeElement = hasClosestByMatchTag(event.target, "CODE");
@@ -1773,9 +1769,6 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
         }
         if (preparedPlain !== textPlain) {
             textPlain = preparedPlain;
-            textHTML = "";
-        }
-        if (shouldPreferPlainTextPaste(textPlain, textHTML)) {
             textHTML = "";
         }
         if (textHTML.trim() !== "") {

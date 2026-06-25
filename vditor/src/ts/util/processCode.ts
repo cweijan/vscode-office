@@ -10,7 +10,7 @@ import { getEditorRange, insertHTML, setRangeByWbr } from "./selection";
 
 const inlineMdHTMLInPlain = /<(mark|kbd|u|span|del|sub|sup)\b[^>]*>[\s\S]*?<\/\1>/i;
 
-const isMarkdownLikePlain = (text: string): boolean => {
+export const isMarkdownLikePlain = (text: string): boolean => {
     const trimmed = text.trim();
     if (!trimmed) {
         return false;
@@ -33,15 +33,20 @@ const isMarkdownLikePlain = (text: string): boolean => {
     return false;
 };
 
-const parseVscodeEditorLanguage = (raw: string): string => {
+/** null=无 vscode 数据，false=有数据但不应走代码粘贴，string=语言（可为空） */
+const parseVscodeEditorLanguage = (raw: string): string | false | null => {
     if (!raw) {
-        return "";
+        return null;
     }
     try {
-        const data = JSON.parse(raw) as { mode?: string };
-        return normalizePasteFenceLanguage(data.mode || "");
+        const mode = ((JSON.parse(raw) as { mode?: string }).mode || "").trim();
+        const modeLower = mode.toLowerCase();
+        if (!modeLower || modeLower === "markdown") {
+            return false;
+        }
+        return normalizePasteFenceLanguage(mode);
     } catch {
-        return "";
+        return false;
     }
 };
 
@@ -67,7 +72,7 @@ const languageFromHtml = (root: HTMLElement): string => {
     return "";
 };
 
-const isIdeCodeHtml = (html: string): boolean => {
+export const isIdeCodeHtml = (html: string): boolean => {
     if (!html.trim()) {
         return false;
     }
@@ -118,17 +123,19 @@ export const processPasteCode = (
         return false;
     }
 
-    const fromVscodeEditor = !!vscodeEditorData;
-    if (!fromVscodeEditor && isMarkdownLikePlain(plain)) {
+    const vscodeLanguage = parseVscodeEditorLanguage(vscodeEditorData);
+    if (vscodeLanguage === false) {
         return false;
     }
+    const fromVscodeEditor = vscodeLanguage !== null;
 
     if (!fromVscodeEditor && !isIdeCodeHtml(html)) {
         return false;
     }
 
-    const language = parseVscodeEditorLanguage(vscodeEditorData)
-        || normalizePasteFenceLanguage(languageFromHtml((() => {
+    const language = fromVscodeEditor
+        ? vscodeLanguage
+        : normalizePasteFenceLanguage(languageFromHtml((() => {
             const el = document.createElement("div");
             el.innerHTML = html;
             return el;
