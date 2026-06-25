@@ -39,6 +39,27 @@
     color: var(--link-color, #7c3aed);
     text-decoration: underline;
     cursor: pointer;
+
+    > code[data-type="wikilink"] {
+      display: none;
+      text-decoration: none;
+      font-family: inherit;
+    }
+
+    .vditor-wikilink__preview {
+      display: inline;
+    }
+
+    &:hover,
+    &.vditor-wikilink--raw {
+      > code[data-type="wikilink"] {
+        display: inline;
+      }
+
+      .vditor-wikilink__preview {
+        display: none;
+      }
+    }
   }
 
   .vditor-wikilink-embed,
@@ -50,6 +71,30 @@
     background: color-mix(in srgb, var(--second-bg-color, #f6f8fa) 80%, transparent);
     color: var(--link-color, #7c3aed);
     cursor: pointer;
+
+    > code[data-type="wikilink-embed"] {
+      display: none;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      font-family: inherit;
+      color: inherit;
+    }
+
+    .vditor-wikilink__preview {
+      display: inline;
+    }
+
+    &:hover,
+    &.vditor-wikilink--raw {
+      > code[data-type="wikilink-embed"] {
+        display: inline;
+      }
+
+      .vditor-wikilink__preview {
+        display: none;
+      }
+    }
   }
 
   .vditor-obsidian-tag,

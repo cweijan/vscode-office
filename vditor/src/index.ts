@@ -21,6 +21,7 @@ import {Toolbar} from "./ts/toolbar/index";
 import {disableToolbar, hidePanel} from "./ts/toolbar/setToolbar";
 import {enableToolbar} from "./ts/toolbar/setToolbar";
 import {AIDialog} from "./ts/ui/aiDialog";
+import {AIResultPanel} from "./ts/ui/aiResultPanel";
 import {initUI} from "./ts/ui/initUI";
 import {setCodeTheme} from "./ts/ui/setCodeTheme";
 import {setEditorTheme as applyEditorTheme} from "./ts/ui/setEditorTheme";
@@ -64,6 +65,9 @@ class Vditor {
     public vditor: IVditor;
     private aiDialog: AIDialog | null = null;
     private aiSelectionRange: Range | null = null;
+    private aiSelectionRect: DOMRect | null = null;
+    private aiResultPanel: AIResultPanel = new AIResultPanel();
+    private aiReplaceAll = false;
 
     /**
      * @param id 要挂载 Vditor 的元素或者元素 ID。
@@ -356,7 +360,10 @@ class Vditor {
         const sel = this.getSelection();
         this.aiSelectionRange = captureEditorSelection(this.vditor);
         if (this.aiSelectionRange) {
+            this.aiSelectionRect = this.aiSelectionRange.getBoundingClientRect();
             showFrozenSelection(this.vditor, this.aiSelectionRange);
+        } else {
+            this.aiSelectionRect = null;
         }
         this.aiDialog.open(sel || this.getValue(), !!sel);
     }
@@ -364,56 +371,54 @@ class Vditor {
     /** 触发 AI 润色。capturedMarkdown/isSelection 由调用方在失焦前预先捕获，避免选区丢失 */
     public triggerAIPolish(options?: IAIPolishOptions, capturedMarkdown?: string, isSelection?: boolean) {
         const onPolish = this.vditor.options.ai?.onPolish;
-        if (!onPolish) {
-            return;
-        }
+        if (!onPolish) { return; }
         const replaceAll = isSelection !== undefined ? !isSelection : !this.getSelection();
+        this.aiReplaceAll = replaceAll;
         const markdown = capturedMarkdown ?? (this.getSelection() || this.getValue());
         this.disabled();
-        this._showAILoadingOverlay();
+        this.aiResultPanel.open(
+            markdown,
+            this.aiSelectionRect,
+            (result) => {
+                this.applyAIResult(result, this.aiReplaceAll);
+            },
+            () => {
+                // Discard
+                this.enable();
+                hideFrozenSelection(this.vditor);
+                this.aiSelectionRange = null;
+                this.aiSelectionRect = null;
+            },
+            () => {
+                // Cancel during loading
+                this.enable();
+                hideFrozenSelection(this.vditor);
+                this.aiSelectionRange = null;
+                this.aiSelectionRect = null;
+                this.vditor.options.ai?.onCancelPolish?.();
+            },
+        );
         onPolish(markdown, (result: string) => {
-            this.applyAIResult(result, replaceAll);
+            this.aiResultPanel.showResult(result);
         }, options);
     }
 
     /** 接收 AI 润色结果：退出 loading 状态，将 markdown 并入正文 */
     public applyAIResult(markdown: string, replaceAll = false) {
-        this._hideAILoadingOverlay();
         this.enable();
         hideFrozenSelection(this.vditor);
         if (replaceAll) {
             this.aiSelectionRange = null;
+            this.aiSelectionRect = null;
             this.setValue(markdown);
         } else {
             restoreEditorSelection(this.vditor, this.aiSelectionRange);
             this.aiSelectionRange = null;
+            this.aiSelectionRect = null;
             document.execCommand("delete", false);
             const html = this.vditor.lute.Md2HTML(markdown);
             document.execCommand("insertHTML", false, html);
         }
-    }
-
-    private _showAILoadingOverlay() {
-        let overlay = this.vditor.element.querySelector(".vditor-ai-overlay") as HTMLElement | null;
-        if (!overlay) {
-            overlay = document.createElement("div");
-            overlay.className = "vditor-ai-overlay";
-            const cancelLabel = window.VditorI18n?.aiCancel || "Cancel";
-            overlay.innerHTML = `<div class="vditor-ai-overlay__spinner"></div>
-                <button class="vditor-ai-overlay__cancel" type="button">${cancelLabel}</button>`;
-            overlay.querySelector(".vditor-ai-overlay__cancel")!.addEventListener("click", () => {
-                this._hideAILoadingOverlay();
-                this.enable();
-                this.vditor.options.ai?.onCancelPolish?.();
-            });
-            this.vditor.element.appendChild(overlay);
-        }
-        overlay.hidden = false;
-    }
-
-    private _hideAILoadingOverlay() {
-        const overlay = this.vditor.element.querySelector(".vditor-ai-overlay") as HTMLElement | null;
-        if (overlay) overlay.hidden = true;
     }
 
     /** 销毁编辑器 */

@@ -20,6 +20,10 @@ const AI_I18N = {
         namePlaceholder: 'Name',
         contentPlaceholder: 'Prompt content',
         save: 'Save',
+        aiOriginal: 'Original',
+        aiResult: 'AI Result',
+        aiAccept: 'Accept',
+        aiDiscard: 'Discard',
     },
     zh_CN: {
         aiPolish: 'AI 润色',
@@ -41,6 +45,10 @@ const AI_I18N = {
         namePlaceholder: '名称',
         contentPlaceholder: '提示词内容',
         save: '保存',
+        aiOriginal: '原文',
+        aiResult: 'AI 结果',
+        aiAccept: '接受',
+        aiDiscard: '放弃',
     },
     zh_TW: {
         aiPolish: 'AI 潤色',
