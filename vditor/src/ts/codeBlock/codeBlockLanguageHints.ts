@@ -116,6 +116,72 @@ export const toCodeBlockLanguageName = (displayName: string): string => {
     return displayName;
 };
 
+/** VS Code languageId / vscode-editor-data mode → CodeMirror 可识别的别名 */
+const VSCODE_EDITOR_MODE_ALIASES: Record<string, string> = {
+    typescriptreact: "tsx",
+    javascriptreact: "jsx",
+    shellscript: "shell",
+    shell: "shell",
+    bash: "shell",
+    zsh: "shell",
+    sh: "shell",
+    csharp: "csharp",
+    cs: "csharp",
+    fsharp: "fsharp",
+    fs: "fsharp",
+    vb: "vb",
+    objectivec: "objective-c",
+    "objective-c": "objective-c",
+    objectivecpp: "objective-cpp",
+    "objective-cpp": "objective-cpp",
+    cpp: "cpp",
+    "c++": "cpp",
+    cuda: "cuda",
+    "cuda-cpp": "cuda",
+    jsonc: "json",
+    json5: "json",
+    dockercompose: "yaml",
+    "dockercompose-yaml": "yaml",
+    jupyter: "python",
+    pip: "pip",
+    "pip-requirements": "pip",
+    plaintext: "",
+    text: "",
+    restructuredtext: "rst",
+    rst: "rst",
+    tex: "latex",
+    "vue-html": "vue",
+    "vue-postcss": "vue",
+    wgsl: "wgsl",
+    hlsl: "hlsl",
+    glsl: "glsl",
+    shaderlab: "hlsl",
+    scminput: "scheme",
+    handlebars: "handlebars",
+    hbs: "handlebars",
+    gradle: "groovy",
+    npm: "json",
+    "ignore": "ignore",
+    dotenv: "shell",
+    properties: "properties",
+    "gradle-kotlin-dsl": "kotlin",
+};
+
+export const normalizePasteFenceLanguage = (raw: string): string => {
+    const trimmed = raw.trim();
+    if (!trimmed) {
+        return "";
+    }
+    const vscodeKey = trimmed.toLowerCase();
+    const mapped = VSCODE_EDITOR_MODE_ALIASES[vscodeKey];
+    const candidate = mapped !== undefined ? mapped : trimmed;
+    if (!candidate) {
+        return "";
+    }
+    const resolved = resolveCodeMirrorLanguageName(candidate);
+    return resolved.toLowerCase();
+};
+
 export const resolveCodeMirrorLanguageName = (languageName: string): string => {
     const normalized = toCodeBlockLanguageName(languageName.trim());
     if (!normalized) {

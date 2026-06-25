@@ -11,6 +11,7 @@ import {
     selectEvent,
 } from "../util/editorCommonEvent";
 import { isHeadingMD, isHrMD, paste, splitHeadingOnNewline } from "../util/fixBrowserBehavior";
+import { insertPastedCode } from "../util/processCode";
 import {
     hasClosestBlock, hasClosestByAttribute,
     hasClosestByClassName, hasClosestByMatchTag,
@@ -186,17 +187,7 @@ class WYSIWYG {
         this.element.addEventListener("paste", (event: ClipboardEvent & { target: HTMLElement }) => {
             paste(vditor, event, {
                 pasteCode: (code: string) => {
-                    const range = getEditorRange(vditor);
-                    const node = document.createElement("template");
-                    node.innerHTML = code;
-                    range.insertNode(node.content.cloneNode(true));
-                    const blockElement = hasClosestByAttribute(range.startContainer, "data-block", "0");
-                    if (blockElement) {
-                        blockElement.outerHTML = vditor.lute.SpinVditorDOM(blockElement.outerHTML);
-                    } else {
-                        vditor.wysiwyg.element.innerHTML = vditor.lute.SpinVditorDOM(vditor.wysiwyg.element.innerHTML);
-                    }
-                    setRangeByWbr(vditor.wysiwyg.element, range);
+                    insertPastedCode(vditor, code);
                 },
             });
         });

@@ -10,6 +10,7 @@ import {
     selectEvent,
 } from "../util/editorCommonEvent";
 import { paste } from "../util/fixBrowserBehavior";
+import { insertPastedCode } from "../util/processCode";
 import { hasClosestByClassName } from "../util/hasClosest";
 import { isDeleteInput, recordHistoryChange } from "../util/instantHistory";
 import { flushBufferedHistory, trackHistoryInputFromEvent } from "../util/historyInputBuffer";
@@ -112,7 +113,7 @@ class IR {
         this.element.addEventListener("paste", (event: ClipboardEvent & { target: HTMLElement }) => {
             paste(vditor, event, {
                 pasteCode: (code: string) => {
-                    document.execCommand("insertHTML", false, code);
+                    insertPastedCode(vditor, code);
                 },
             });
         });

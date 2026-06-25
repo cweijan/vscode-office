@@ -7,7 +7,14 @@ import { expandMarker } from "../ir/expandMarker";
 import { processAfterRender, recordHistory as recordIrHistory } from "../ir/process";
 import { Constants } from "../constants";
 import { recordHistory as recordWysiwygHistory } from "../wysiwyg/afterRenderEvent";
-import { getEditorRange, preserveEditorScroll, setRangeByWbr, setSelectionFocus } from "../util/selection";
+import {
+    getEditorRange,
+    preserveEditorScroll,
+    scrollCaretIntoEditorView,
+    scrollElementIntoEditorView,
+    setRangeByWbr,
+    setSelectionFocus,
+} from "../util/selection";
 import { afterRenderEvent } from "../wysiwyg/afterRenderEvent";
 import {
     ensureCodeBlockChrome,
@@ -682,6 +689,15 @@ const focusEditorWithoutScroll = (editor: HTMLElement) => {
     editor.focus({ preventScroll: true });
 };
 
+const scrollEditorAfterBlockInsert = (vditor: IVditor, range: Range, scrollTarget?: HTMLElement) => {
+    requestAnimationFrame(() => {
+        if (scrollTarget) {
+            scrollElementIntoEditorView(vditor, scrollTarget);
+        }
+        scrollCaretIntoEditorView(vditor, range);
+    });
+};
+
 const focusCmViewWithoutScroll = (view: EditorView) => {
     view.contentDOM.focus({ preventScroll: true });
 };
@@ -808,6 +824,10 @@ const focusAdjacentEditorBlock = (
         const range = getEditorRange(vditor);
         setRangeByWbr(editor, range);
         setSelectionFocus(range);
+        const newBlock = position === "before"
+            ? blockElement.previousElementSibling
+            : blockElement.nextElementSibling;
+        scrollEditorAfterBlockInsert(vditor, range, newBlock instanceof HTMLElement ? newBlock : undefined);
     };
 
     if (direction === "up") {
@@ -900,6 +920,8 @@ const buildCodeMirrorNavigationKeymap = (vditor: IVditor, blockElement: HTMLElem
                 const range = getEditorRange(vditor);
                 setRangeByWbr(editor, range);
                 setSelectionFocus(range);
+                const newBlock = blockElement.nextElementSibling;
+                scrollEditorAfterBlockInsert(vditor, range, newBlock instanceof HTMLElement ? newBlock : undefined);
                 return true;
             },
         },

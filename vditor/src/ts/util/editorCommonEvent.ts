@@ -14,6 +14,7 @@ import { getEventName, isCtrl } from "./compatibility";
 import { shouldBlockMacOptionSymbol } from "./macOptionSymbol";
 import { copyTextCutBlock, removeTextCutBlock, resolveTextCutBlock } from "./cutEmptySelection";
 import { execAfterRender, paste } from "./fixBrowserBehavior";
+import { insertPastedCode } from "./processCode";
 import { getSelectText } from "./getSelectText";
 import { hasClosestByAttribute, hasClosestByMatchTag } from "./hasClosest";
 import { matchHotKey } from "./hotKey";
@@ -111,7 +112,7 @@ export const dropEvent = (vditor: IVditor, editorElement: HTMLElement) => {
                 // 外部文件拖入编辑器中或者编辑器内选中文字拖拽
                 paste(vditor, event, {
                     pasteCode: (code: string) => {
-                        document.execCommand("insertHTML", false, code);
+                        insertPastedCode(vditor, code);
                     },
                 });
             }

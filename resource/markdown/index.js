@@ -1,4 +1,4 @@
-import { imageParser, getToolbar, bindShorctut, createContextMenu, setAIAvailable } from "./util.js";
+import { imageParser, getToolbar, bindShortcut, createContextMenu, setAIAvailable } from "./util.js";
 import { mapVscodeLanguageToVditorLang } from "./lang.js";
 
 handler.on("open", async (md) => {
@@ -130,7 +130,7 @@ handler.on("open", async (md) => {
       }
     }
   })
-  bindShorctut(handler, editor);
+  bindShortcut(handler, editor);
   createContextMenu(editor)
   imageParser(viewAbsoluteLocal)
 }).emit("init")

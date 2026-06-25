@@ -270,7 +270,7 @@ const isInsideCodeMirrorTarget = (target) => {
     return !!node?.closest?.(".vditor-code-block--cm .cm-editor");
 };
 
-export const bindShorctut = (handler, editor) => {
+export const bindShortcut = (handler, editor) => {
     let _exec = document.execCommand.bind(document)
     document.execCommand = (cmd, ...args) => {
         if (cmd === 'delete') {

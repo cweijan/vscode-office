@@ -1605,6 +1605,15 @@ export const fixFirefoxArrowUpTable = (event: KeyboardEvent, blockElement: false
     return false;
 };
 
+const inlineHTMLTagInPlain = /<\/[a-zA-Z][\w:-]*>|<[a-zA-Z][\w:-]*(?:\s[^>]*)?\/?>/;
+
+const shouldPreferPlainTextPaste = (textPlain: string, textHTML: string): boolean => {
+    if (!textPlain.trim() || !textHTML.trim()) {
+        return false;
+    }
+    return inlineHTMLTagInPlain.test(textPlain);
+};
+
 const preparePastePlainText = (vditor: IVditor, text: string): string => {
     const trimmed = text.trim();
     if (!trimmed) {
@@ -1636,6 +1645,7 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
     let textHTML;
     let textPlain;
     let files;
+    let pastedFromMarkdown = false;
 
     if ("clipboardData" in event) {
         textHTML = event.clipboardData.getData("text/html");
@@ -1724,8 +1734,15 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
     }
     textHTML = Lute.Sanitize(textHTML);
 
+    let vscodeEditorData = "";
+    if ("clipboardData" in event && event.clipboardData.types.includes("vscode-editor-data")) {
+        vscodeEditorData = event.clipboardData.getData("vscode-editor-data");
+    } else if (event.dataTransfer?.types.includes("vscode-editor-data")) {
+        vscodeEditorData = event.dataTransfer.getData("vscode-editor-data");
+    }
+
     // process code
-    const code = processPasteCode(textHTML, textPlain, vditor.currentMode);
+    const code = processPasteCode(textHTML, textPlain, vditor.currentMode, vscodeEditorData);
     const codeElement = hasClosestByMatchTag(event.target, "CODE");
     if (codeElement) {
         // 粘贴在代码位置
@@ -1744,7 +1761,8 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
             processCodeRender(codeElement.parentElement.nextElementSibling as HTMLElement, vditor);
         }
     } else if (code) {
-        callback.pasteCode(code as any);
+        pastedFromMarkdown = true;
+        callback.pasteCode(code);
     } else {
         let preparedPlain = textPlain;
         if (textPlain.trim() !== "") {
@@ -1752,6 +1770,9 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
         }
         if (preparedPlain !== textPlain) {
             textPlain = preparedPlain;
+            textHTML = "";
+        }
+        if (shouldPreferPlainTextPaste(textPlain, textHTML)) {
             textHTML = "";
         }
         if (textHTML.trim() !== "") {
@@ -1801,6 +1822,7 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
                 }
             }
         } else if (textPlain.trim() !== "" && files.length === 0) {
+            pastedFromMarkdown = true;
             if (vditor.currentMode === "ir") {
                 renderers.Md2VditorIRDOM = { renderLinkDest };
                 vditor.lute.SetJSRenderers({ renderers });
@@ -1815,7 +1837,7 @@ export const paste = async (vditor: IVditor, event: (ClipboardEvent | DragEvent)
         }
     }
     const blockElement = hasClosestBlock(getEditorRange(vditor).startContainer);
-    if (blockElement) {
+    if (blockElement && !pastedFromMarkdown) {
         // https://github.com/Vanessa219/vditor/issues/591
         const range = getEditorRange(vditor);
         vditor[vditor.currentMode].element.querySelectorAll("wbr").forEach((wbr) => {
