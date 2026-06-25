@@ -37,6 +37,7 @@ import { moveDown, moveUp, genAPopover, genLinkRefPopover } from "./highlightToo
 import { nextIsCode } from "./inlineTag";
 import { removeHeading, setHeading } from "./setHeading";
 import { focusWysiwygCodeBlock, showCode } from "./showCode";
+import { enterInlineMathEdit } from "../math/inlineMathCodeMirror";
 
 export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
     // Chrome firefox 触发 compositionend 机制不一致 https://github.com/Vanessa219/vditor/issues/188
@@ -353,10 +354,13 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
                 // 不能返回，其前面为代码渲染块时需进行以下处理：修正光标位于 inline math/html 前，按下删除按钮 code 中内容会被删除
             }
 
-            // 修正光标位于 inline math/html, html-entity 前，按下删除按钮 code 中内容会被删除, 不能返回，还需要进行后续处理
+            // 修正光标位于 inline math/html, html-entity 前，按下删除按钮 code 中内容会被删除
+            // inline-math 现在可能包含 CodeMirror 宿主节点，不再依赖 first/lastElementChild 顺序。
             blockElement.querySelectorAll("span.vditor-wysiwyg__block[data-type='math-inline']").forEach((item) => {
-                (item.firstElementChild as HTMLElement).style.display = "inline";
-                (item.lastElementChild as HTMLElement).style.display = "none";
+                const codeEl = item.querySelector("code[data-type='math-inline']") as HTMLElement | null;
+                const previewEl = item.querySelector(".vditor-wysiwyg__preview") as HTMLElement | null;
+                if (codeEl) codeEl.style.display = "inline";
+                if (previewEl) previewEl.style.display = "none";
             });
             blockElement.querySelectorAll("span.vditor-wysiwyg__block[data-type='html-entity']").forEach((item) => {
                 (item.firstElementChild as HTMLElement).style.display = "inline";
@@ -382,6 +386,49 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
     }
 
     fixCursorDownInlineMath(range, event.key);
+
+    // Arrow navigation into inline math should enter CodeMirror editing.
+    // When Ctrl/Meta is held, do NOT auto-enter (users may be word-jumping / selecting).
+    if (range.toString() === "" && (event.key === "ArrowLeft" || event.key === "ArrowRight") && !isCtrl(event)) {
+        const currentInlineMath = hasClosestByAttribute(range.startContainer, "data-type", "math-inline") as HTMLElement | null;
+        if (currentInlineMath) {
+            // When moving left into an inline-math, caret should land at END; moving right should land at START.
+            enterInlineMathEdit(vditor, currentInlineMath, event.key === "ArrowRight");
+            event.preventDefault();
+            return true;
+        }
+
+        const tryEnter = (el: Node | null, focusAtStart: boolean) => {
+            const node = el instanceof HTMLElement ? el : (el as Node | null)?.parentElement;
+            const inlineMath = node?.nodeType === 1 && (node as HTMLElement).getAttribute?.("data-type") === "math-inline"
+                ? node as HTMLElement
+                : (node as HTMLElement | null)?.closest?.("[data-type='math-inline']") as HTMLElement | null;
+            if (inlineMath) {
+                enterInlineMathEdit(vditor, inlineMath, focusAtStart);
+                event.preventDefault();
+                return true;
+            }
+            return false;
+        };
+
+        // caret between child nodes: startContainer can be an element
+        if (startContainer.nodeType === 1) {
+            const el = startContainer as Element;
+            const next = el.childNodes[range.startOffset] ?? null;
+            const prev = range.startOffset > 0 ? el.childNodes[range.startOffset - 1] : null;
+            if (event.key === "ArrowRight" && tryEnter(next, true)) return true;
+            if (event.key === "ArrowLeft" && tryEnter(prev, false)) return true;
+        } else if (startContainer.nodeType === 3) {
+            // Only enter inline-math when caret is at the boundary of the text node.
+            const text = startContainer.textContent ?? "";
+            const atStart = range.startOffset === 0;
+            const atEnd = range.startOffset === text.length;
+            const next = startContainer.nextSibling;
+            const prev = startContainer.previousSibling;
+            if (event.key === "ArrowRight" && atEnd && tryEnter(next, true)) return true;
+            if (event.key === "ArrowLeft" && atStart && tryEnter(prev, false)) return true;
+        }
+    }
 
     if (event.key === "ArrowDown") {
         // 光标位于内联数学公式前，按下键无作用

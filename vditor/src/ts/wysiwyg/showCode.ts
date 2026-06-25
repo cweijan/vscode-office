@@ -1,13 +1,17 @@
 import {enterSpecialBlockEdit, focusCodeBlock, isSpecialPreviewBlock} from "../codeBlock/codeMirrorManager";
+import { enterInlineMathEdit } from "../math/inlineMathCodeMirror";
 import {setSelectionFocus} from "../util/selection";
 
 const INLINE_PREVIEW_TYPES = new Set(["math-inline", "html-inline", "html-entity"]);
 
 /** 行内 math/html：点击预览区展开源码 code 并聚焦 */
-const showInlineCode = (previewElement: HTMLElement, first = true) => {
+const showInlineCode = (previewElement: HTMLElement, vditor: IVditor, first = true) => {
     const blockElement = previewElement.closest(".vditor-wysiwyg__block") as HTMLElement;
     if (!blockElement || !INLINE_PREVIEW_TYPES.has(blockElement.getAttribute("data-type") ?? "")) {
         return false;
+    }
+    if (blockElement.getAttribute("data-type") === "math-inline") {
+        return enterInlineMathEdit(vditor, blockElement, first);
     }
 
     const previousElement = previewElement.previousElementSibling as HTMLElement;
@@ -53,7 +57,7 @@ export const showCode = (previewElement: HTMLElement, vditor: IVditor, first = t
         focusCodeBlock(blockElement, vditor, first);
         return;
     }
-    showInlineCode(previewElement, first);
+    showInlineCode(previewElement, vditor, first);
 };
 
 export const focusWysiwygCodeBlock = (blockElement: HTMLElement, vditor: IVditor, first = true) => {

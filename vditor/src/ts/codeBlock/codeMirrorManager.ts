@@ -20,6 +20,10 @@ import { mathRender } from "../markdown/mathRender";
 import { mermaidRender } from "../markdown/mermaidRender";
 import { plantumlRender } from "../markdown/plantumlRender";
 import {
+    deactivateInlineMathEditorsInScope,
+    flushInlineMathToSyncCode,
+} from "../math/inlineMathCodeMirror";
+import {
     flushFrontMatterYamlToSyncCode,
     setupFrontMatterYamlEditors,
 } from "./frontMatterEditor";
@@ -180,12 +184,15 @@ export const isCmCodeBlock = (blockElement: HTMLElement | null) => {
 /** @deprecated use isCmCodeBlock */
 export const isWysiwygCmCodeBlock = isCmCodeBlock;
 
+const isInsideAnyCodeMirrorEditor = (node: Element | null) =>
+    !!node?.closest(`.${CM_BLOCK_CLASS} .cm-editor, .vditor-math-inline--editing .cm-editor`);
+
 export const isInsideCodeMirror = (target: EventTarget | Node | null) => {
     if (!target) {
-        return !!document.activeElement?.closest(`.${CM_BLOCK_CLASS} .cm-editor`);
+        return isInsideAnyCodeMirrorEditor(document.activeElement);
     }
     const node = target instanceof Element ? target : (target as Node).parentElement;
-    return !!node?.closest(`.${CM_BLOCK_CLASS} .cm-editor`);
+    return isInsideAnyCodeMirrorEditor(node);
 };
 
 /** @deprecated use isInsideCodeMirror */
@@ -1048,6 +1055,7 @@ const collectCodeBlocksInScope = (vditor: IVditor, scope: HTMLElement) => {
 
 /** Spin 前仅卸载作用域内的 CodeMirror */
 export const deactivateCodeMirrorsInScope = (vditor: IVditor, scope: HTMLElement) => {
+    deactivateInlineMathEditorsInScope(scope);
     for (const blockElement of collectCodeBlocksInScope(vditor, scope)) {
         if (bindings.has(blockElement)) {
             destroyCodeMirror(blockElement);
@@ -1521,6 +1529,7 @@ export const flushCodeMirrorToSyncCode = (vditor: IVditor) => {
 /** 导出 Markdown 前同步 CM 状态；Lute 直接识别 CM DOM，无需再篡改 DOM */
 export const buildEditorHtmlForMarkdown = (vditor: IVditor) => {
     flushCodeMirrorToSyncCode(vditor);
+    flushInlineMathToSyncCode(vditor[vditor.currentMode].element);
     flushFrontMatterYamlToSyncCode(vditor);
     const editor = getModeEditor(vditor);
     if (!editor) {
@@ -1529,6 +1538,10 @@ export const buildEditorHtmlForMarkdown = (vditor: IVditor) => {
     const clone = editor.cloneNode(true) as HTMLElement;
     for (const el of clone.querySelectorAll(".vditor-cm-chrome, .cm-editor")) {
         el.remove();
+    }
+    for (const container of clone.querySelectorAll(".vditor-math-inline--editing")) {
+        container.classList.remove("vditor-math-inline--editing");
+        container.removeAttribute("contenteditable");
     }
     for (const block of clone.querySelectorAll("[data-type='code-block'], [data-type='math-block']")) {
         block.querySelectorAll(".vditor-wysiwyg__preview, .vditor-ir__preview").forEach((preview) => {

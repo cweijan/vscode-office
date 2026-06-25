@@ -31,6 +31,7 @@ import {
     isSpecialBlock,
     isSpecialPreviewBlock,
 } from "../codeBlock/codeMirrorManager";
+import { enterInlineMathEdit } from "../math/inlineMathCodeMirror";
 import { expandMarkerWithMathSync } from "./expandMarkerSync";
 import { linkClickEvent } from "../util/linkClick";
 import { highlightToolbarIR } from "./highlightToolbarIR";
@@ -219,6 +220,13 @@ class IR {
                     range.startContainer, "vditor-ir__preview");
             }
             if (previewElement) {
+                const inlineMath = previewElement.closest("[data-type='math-inline']") as HTMLElement | null;
+                if (inlineMath) {
+                    enterInlineMathEdit(vditor, inlineMath, true);
+                    highlightToolbarIR(vditor);
+                    clickToc(event, vditor);
+                    return;
+                }
                 const blockElement = previewElement.closest(
                     "[data-type='code-block'], [data-type='math-block']",
                 ) as HTMLElement;

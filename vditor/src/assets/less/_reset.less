@@ -281,6 +281,12 @@
       background-color: var(--mermaid-bg, var(--toolbar-background-color, #fff));
     }
 
+    // Inline math source code is an internal sync channel, should never show.
+    // Editing uses CodeMirror mounted on the sibling .vditor-math-inline__cm-host.
+    [data-type="math-inline"] > code[data-type="math-inline"] {
+      display: none !important;
+    }
+
     kbd {
       display: inline-block;
       padding: 3px 5px;

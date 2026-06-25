@@ -976,3 +976,71 @@
     background: var(--cm-selection-bg-focused) !important;
   }
 }
+
+// Inline math: left CodeMirror + right preview (no shared wrapper background)
+.vditor-math-inline__cm-host {
+  // Keep layout stable for inline math when not editing
+  display: none;
+}
+
+// Inline math: enter editing with only a caret-like editor, no chrome
+.vditor-math-inline--editing {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  gap: 0;
+  padding: 0 2px; // slight inline padding, feel like text caret zone
+
+  .vditor-math-inline__cm-host {
+    display: inline-block;
+    min-width: 0;
+    max-width: none;
+    border-radius: 0;
+    overflow: visible;
+
+    .cm-editor {
+      outline: none;
+      min-height: 1em;
+      border-radius: 0;
+      color: var(--cm-fg-color, var(--vscode-editor-foreground));
+    }
+
+    .cm-editor,
+    .cm-scroller {
+      background: var(--cm-bg-color, var(--code-bg-color, var(--second-bg-color))) !important;
+    }
+
+    .cm-scroller {
+      overflow: hidden;
+      // Inline math is single-line: avoid reserving gutter for scrollbars.
+      scrollbar-gutter: auto;
+      padding: 0 3px;
+      font-family: inherit !important;
+      font-size: inherit;
+      line-height: inherit;
+    }
+
+    .cm-content {
+      padding: 0;
+      caret-color: var(--cm-cursor-fg) !important;
+      white-space: pre;
+    }
+
+    .cm-line {
+      padding: 0;
+    }
+
+    // Single-line inline math: no distinct active-line highlight
+    .cm-activeLine,
+    .cm-activeLineGutter {
+      background: transparent !important;
+    }
+
+    .cm-editor.cm-focused .cm-activeLine,
+    .cm-editor.cm-focused .cm-activeLineGutter {
+      background: var(--cm-bg-color, var(--code-bg-color, var(--second-bg-color))) !important;
+    }
+  }
+
+  // Keep preview's original display so KaTeX/min-height doesn't affect line box unexpectedly.
+}
