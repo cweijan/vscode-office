@@ -13,7 +13,7 @@ export class Find extends MenuItem {
         const getOrCreateBar = () => {
             if (!findBar) {
                 findBar = new FindBar(vditor);
-                vditor.element.appendChild(findBar.element);
+                vditor.toolbar.element.appendChild(findBar.element);
             }
             return findBar;
         };

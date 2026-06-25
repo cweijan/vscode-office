@@ -51,6 +51,31 @@ export class FindBar {
         return null;
     }
 
+    private getScrollElement(): HTMLElement | null {
+        const contentEl = this.getContentEl();
+        if (!contentEl) return null;
+        if (contentEl.classList.contains("vditor-reset")) {
+            return contentEl;
+        }
+        return contentEl.querySelector(".vditor-reset") as HTMLElement | null;
+    }
+
+    private scrollMarkIntoView(mark: HTMLElement) {
+        const scrollEl = this.getScrollElement();
+        if (!scrollEl) {
+            mark.scrollIntoView({block: "nearest", inline: "nearest"});
+            return;
+        }
+        const scrollRect = scrollEl.getBoundingClientRect();
+        const markRect = mark.getBoundingClientRect();
+        const padding = 40;
+        if (markRect.top < scrollRect.top + padding) {
+            scrollEl.scrollTop += markRect.top - scrollRect.top - padding;
+        } else if (markRect.bottom > scrollRect.bottom - padding) {
+            scrollEl.scrollTop += markRect.bottom - scrollRect.bottom + padding;
+        }
+    }
+
     private search() {
         this.clearHighlights();
         const query = this.input.value.trim();
@@ -140,7 +165,7 @@ export class FindBar {
     private updateCurrent() {
         this.matches.forEach((m, i) => m.classList.toggle(CURRENT_CLASS, i === this.currentIndex));
         if (this.currentIndex >= 0 && this.matches[this.currentIndex]) {
-            this.matches[this.currentIndex].scrollIntoView({block: "center"});
+            this.scrollMarkIntoView(this.matches[this.currentIndex]);
         }
     }
 

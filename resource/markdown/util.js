@@ -81,11 +81,12 @@ export async function getToolbar(resPath, isDev = false, onSave = null) {
             }
         },
         {
-            tip: 'Export To Pdf',
+            name: 'save',
+            tip: 'Save',
             className: 'right',
-            icon: codicon('file-pdf'),
+            icon: codicon('save'),
             click() {
-                handler.emit("export")
+                onSave?.()
             }
         },
         'upload',
@@ -108,14 +109,6 @@ export async function getToolbar(resPath, isDev = false, onSave = null) {
         "undo",
         "redo",
         "|",
-        {
-            name: 'save',
-            tip: 'Save',
-            icon: codicon('save'),
-            click() {
-                onSave?.()
-            }
-        },
         "find",
         ...(isDev ? ["ai-settings"] : []),
         "settings",
@@ -268,12 +261,6 @@ export const createContextMenu = (editor) => {
             case 'paste':
                 if (document.getSelection()?.toString()) { document.execCommand('delete') }
                 vscodeEvent.emit('command', 'office.markdown.paste')
-                break
-            case 'exportPdf':
-                vscodeEvent.emit('export', { type: 'pdf' })
-                break
-            case 'exportPdfWithoutOutline':
-                vscodeEvent.emit('export', { type: 'pdf', withoutOutline: true })
                 break
             case 'exportDocx':
                 vscodeEvent.emit('export', { type: 'docx' })
