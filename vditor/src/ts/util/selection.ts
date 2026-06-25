@@ -617,7 +617,7 @@ const shouldSkipImpreciseClickTarget = (target: HTMLElement): boolean => {
     if (target.tagName === "INPUT" || target.tagName === "IMG" || target.tagName === "A") {
         return true;
     }
-    if (target.closest(".vditor-panel, .cm-editor, .vditor-wysiwyg__preview, table")) {
+    if (target.closest(".vditor-panel, .cm-editor, .vditor-wysiwyg__preview, .vditor-ir__preview, table")) {
         return true;
     }
     const blockElement = hasClosestBlock(target);

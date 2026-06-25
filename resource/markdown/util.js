@@ -61,7 +61,7 @@ function loadRes(url) {
 const isMac = navigator.userAgent.includes('Mac OS');
 const shortcutTip = isMac ? '⌘ ^ E' : 'Ctrl Alt E';
 
-export async function getToolbar(resPath, isDev = false, onSave = null) {
+export async function getToolbar(resPath, onSave = null) {
     const codicon = (name) => `<span class="codicon codicon-${name}" aria-hidden="true"></span>`;
     return [
         'outline',
@@ -110,7 +110,7 @@ export async function getToolbar(resPath, isDev = false, onSave = null) {
         "redo",
         "|",
         "find",
-        ...(isDev ? ["ai-settings"] : []),
+        "ai-settings",
         "settings",
         "help",
     ]

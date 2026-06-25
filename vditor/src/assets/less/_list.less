@@ -1,33 +1,31 @@
 .vditor-reset {
-  --list-marker-color: color-mix(in srgb, var(--front-color, #586069) 58%, transparent);
-  --list-marker-strong: color-mix(in srgb, var(--front-color, #586069) 72%, transparent);
   --list-indent: 1.625em;
-  --list-item-gap: 0.375em;
+  --list-item-gap: 0.3em;
+  --list-marker-color: color-mix(in srgb, var(--front-color, #586069) 42%, transparent);
 
   ul,
   ol {
-    margin: 8px 0 12px;
+    margin: 0.5em 0 1em;
     padding-left: var(--list-indent);
 
     ul,
     ol {
-      margin-top: var(--list-item-gap);
-      margin-bottom: var(--list-item-gap);
+      margin-top: 0.25em;
+      margin-bottom: 0.25em;
     }
   }
 
   > ul,
   > ol {
     &:first-child {
-      margin-top: 4px;
+      margin-top: 0.25em;
     }
   }
 
   li {
-    margin-top: 0;
-    margin-bottom: var(--list-item-gap);
-    line-height: 1.65;
+    line-height: var(--editor-line-height, 1.5);
     word-break: break-word;
+    margin-bottom: var(--list-item-gap);
 
     &:last-child {
       margin-bottom: 0;
@@ -35,50 +33,28 @@
 
     > ul,
     > ol {
-      margin-top: var(--list-item-gap);
+      margin-top: 0.25em;
     }
   }
 
-  ul:not(:has(> li.vditor-task)) > li::marker {
-    color: var(--list-marker-color);
-  }
-
-  ul:not(:has(> li.vditor-task)) {
-    ul > li::marker {
-      color: color-mix(in srgb, var(--list-marker-color) 88%, transparent);
-    }
-
-    ul ul > li::marker {
-      color: color-mix(in srgb, var(--list-marker-color) 76%, transparent);
-    }
-  }
-
+  ul:not(:has(> li.vditor-task)) > li::marker,
   ol:not(:has(> li.vditor-task)) > li::marker {
-    color: var(--list-marker-strong);
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
+    color: var(--list-marker-color);
   }
 
   ul:has(> li.vditor-task),
   ol:has(> li.vditor-task) {
     list-style: none;
-    padding-left: 0;
-    margin-left: 0;
   }
 
   li.vditor-task {
     list-style: none !important;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding-left: 0;
-    margin-left: 0;
 
     input[type="checkbox"] {
-      flex-shrink: 0;
-      width: 16px;
-      height: 16px;
-      margin: calc((1lh - 16px) / 2) 0 0;
+      margin: 0 0.2em 0.25em -1.6em;
+      vertical-align: middle;
+      width: 14px;
+      height: 14px;
       padding: 0;
       appearance: none;
       -webkit-appearance: none;
@@ -105,7 +81,7 @@
           left: 50%;
           top: 50%;
           width: 4px;
-          height: 8px;
+          height: 7px;
           border: solid #fff;
           border-width: 0 2px 2px 0;
           transform: translate(-50%, -58%) rotate(45deg);

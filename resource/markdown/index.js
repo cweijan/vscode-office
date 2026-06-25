@@ -29,7 +29,7 @@ handler.on("open", async (md) => {
     mermaidTheme,
     lang: mapVscodeLanguageToVditorLang(language),
     tab: '\t',
-    toolbar: await getToolbar(rootPath, isDev, () => handler.emit('doSave', editor?.getValue())),
+    toolbar: await getToolbar(rootPath, () => handler.emit('doSave', editor?.getValue())),
     onAboutOpen: () => handler.emit('openAbout'),
     onSponsorLogoClick: () => handler.emit('openSponsor'),
     onSponsorSiteClick: () => handler.emit('openExternal', 'https://database-client.com/'),

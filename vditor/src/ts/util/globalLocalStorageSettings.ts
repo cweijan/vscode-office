@@ -47,7 +47,7 @@ export const getGlobalLocalStorageSetting = <T extends GlobalLocalStorageSetting
 export const UI_FONT_SIZE_KEY = "uiFontSize";
 export const EDITOR_FONT_SIZE_KEY = "editorFontSize";
 export const UI_FONT_SIZE_DEFAULT = 13;
-export const EDITOR_FONT_SIZE_DEFAULT = 16;
+export const EDITOR_FONT_SIZE_DEFAULT = 13;
 export const FONT_SIZE_MIN = 10;
 export const FONT_SIZE_MAX = 24;
 

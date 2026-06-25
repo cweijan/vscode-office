@@ -14,7 +14,7 @@ import { hasClosestByClassName } from "../util/hasClosest";
 import { isDeleteInput, recordHistoryChange } from "../util/instantHistory";
 import { flushBufferedHistory, trackHistoryInputFromEvent } from "../util/historyInputBuffer";
 import {
-    getEditorRange, setRangeByWbr,
+    getEditorRange, preventImpreciseLineStartClick, setRangeByWbr,
     setSelectionFocus,
 } from "../util/selection";
 import { clickToc } from "../util/toc";
@@ -46,6 +46,7 @@ class IR {
     public hlToolbarTimeoutId: number;
     public composingLock: boolean = false;
     public preventInput: boolean;
+    private impreciseLineClickHandled = false;
 
     constructor(vditor: IVditor) {
         const divElement = document.createElement("div");
@@ -164,6 +165,20 @@ class IR {
                 flushBufferedHistory(vditor);
             }
         });
+
+        this.element.addEventListener("mousedown", (event: MouseEvent & { target: HTMLElement }) => {
+            if (isInsideCodeMirror(event.target) || isInsideCodeBlockChrome(event.target)) {
+                return;
+            }
+            this.impreciseLineClickHandled = preventImpreciseLineStartClick(event, this.element);
+        }, true);
+
+        this.element.addEventListener("mouseup", (event: MouseEvent) => {
+            if (this.impreciseLineClickHandled) {
+                event.preventDefault();
+                this.impreciseLineClickHandled = false;
+            }
+        }, true);
 
         this.element.addEventListener("click", (event: MouseEvent & { target: HTMLInputElement }) => {
             if (event.target.tagName === "INPUT") {
