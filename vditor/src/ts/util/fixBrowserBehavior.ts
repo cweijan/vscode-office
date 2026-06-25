@@ -75,11 +75,14 @@ export const fixCursorDownInlineMath = (range: Range, key: string) => {
             hasClosestByAttribute(range.startContainer, "data-type", "html-entity") ||
             hasClosestByAttribute(range.startContainer, "data-type", "html-inline");
         if (inlineElement) {
+            const isReadonlyHtmlInline = inlineElement.getAttribute("data-type") === "html-inline" &&
+                inlineElement.getAttribute("contenteditable") === "false";
+            const boundaryElement = isReadonlyHtmlInline ? inlineElement : inlineElement.parentElement;
             if (key === "ArrowDown") {
-                range.setStartAfter(inlineElement.parentElement);
+                range.setStartAfter(boundaryElement);
             }
             if (key === "ArrowUp") {
-                range.setStartBefore(inlineElement.parentElement);
+                range.setStartBefore(boundaryElement);
             }
         }
     }

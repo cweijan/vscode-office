@@ -34,6 +34,7 @@ import {
 } from "../codeBlock/codeMirrorManager";
 import { enterInlineMathEdit } from "../math/inlineMathCodeMirror";
 import { expandMarkerWithMathSync } from "./expandMarkerSync";
+import { handleHtmlEditorClick } from "../htmlInline/htmlInlineEditor";
 import { linkClickEvent } from "../util/linkClick";
 import { highlightToolbarIR } from "./highlightToolbarIR";
 import { input } from "./input";
@@ -191,6 +192,11 @@ class IR {
                 }
                 this.preventInput = true;
                 processAfterRender(vditor);
+                return;
+            }
+
+            if (handleHtmlEditorClick(vditor, event)) {
+                clickToc(event, vditor);
                 return;
             }
 

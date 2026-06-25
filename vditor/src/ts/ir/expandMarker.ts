@@ -60,6 +60,9 @@ export const expandMarker = (range: Range, root: HTMLElement) => {
     }
 
     if (nodeElement) {
+        if (nodeElement.getAttribute("contenteditable") === "false") {
+            return;
+        }
         nodeElement.classList.add("vditor-ir__node--expand");
         nodeElement.classList.remove("vditor-ir__node--hidden");
         // https://github.com/Vanessa219/vditor/issues/615 safari中光标位置跳动
@@ -68,6 +71,9 @@ export const expandMarker = (range: Range, root: HTMLElement) => {
 
     const nextNode = nextIsNode(range);
     if (nextNode) {
+        if (nextNode.getAttribute("contenteditable") === "false") {
+            return;
+        }
         nextNode.classList.add("vditor-ir__node--expand");
         nextNode.classList.remove("vditor-ir__node--hidden");
         return;
@@ -75,6 +81,9 @@ export const expandMarker = (range: Range, root: HTMLElement) => {
 
     const previousNode = previousIsNode(range);
     if (previousNode) {
+        if (previousNode.getAttribute("contenteditable") === "false") {
+            return;
+        }
         previousNode.classList.add("vditor-ir__node--expand");
         previousNode.classList.remove("vditor-ir__node--hidden");
         return;

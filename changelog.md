@@ -1,5 +1,18 @@
 # Change log
 
+# 4.0.6
+
+New:
+- Full support for Excel.
+- Support editing DOCX files.
+
+Markdown:
+- Support Wikilinks.
+- Support AI-powered polishing.
+- Support configuring editor typography.
+- Support previewing and editing inline HTML.
+- Support highlighting and autocompletion for latex formulas.
+
 # 4.0.5 2026-6-23
 
 Important: **Refactor Markdown editor**: beautified UI with modernized toolbar, in-page search (Ctrl/Cmd+F), and real-time code block editing

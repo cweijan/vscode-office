@@ -45,6 +45,7 @@ import { initBlockHandle } from "./blockHandle";
 import { linkClickEvent } from "../util/linkClick";
 import { initTableHandle } from "./tableHandle";
 import { expandMarkerWithMathSync } from "../ir/expandMarkerSync";
+import { handleHtmlEditorClick } from "../htmlInline/htmlInlineEditor";
 
 class WYSIWYG {
     public range: Range;
@@ -329,6 +330,11 @@ class WYSIWYG {
                 }
                 this.preventInput = true;
                 afterRenderEvent(vditor);
+                return;
+            }
+
+            if (handleHtmlEditorClick(vditor, event)) {
+                clickToc(event, vditor);
                 return;
             }
 

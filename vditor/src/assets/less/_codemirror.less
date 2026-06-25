@@ -73,13 +73,7 @@
   }
 
   .cm-content {
-    padding-top: 8px;
-    padding-bottom: 10px;
     caret-color: var(--cm-cursor-fg) !important;
-  }
-
-  .cm-line {
-    padding: 0 18px;
   }
 
   .cm-selectionBackground {
@@ -732,6 +726,67 @@
       color: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 55%, transparent);
       font-weight: 500;
     }
+  }
+}
+
+// CodeMirror 内间距：仅代码块 / 数学块 / 图表（mermaid、plantuml）编辑区
+[data-type="code-block"].vditor-code-block--cm .vditor-cm-host,
+[data-type="code-block"].vditor-code-block--cm .vditor-cm-preview-host,
+[data-type="math-block"].vditor-code-block--cm .vditor-cm-host,
+.vditor-ir__node.vditor-code-block--cm[data-type="code-block"] .vditor-cm-host,
+.vditor-ir__node.vditor-code-block--cm[data-type="code-block"] .vditor-cm-preview-host,
+.vditor-ir__node.vditor-code-block--cm[data-type="math-block"] .vditor-cm-host,
+.vditor-cm-block--split[data-type="code-block"] > pre.vditor-cm-host,
+.vditor-cm-block--split[data-type="math-block"] > pre.vditor-cm-host {
+  .cm-content {
+    padding-top: 8px;
+    padding-bottom: 10px;
+  }
+
+  .cm-line {
+    padding: 0 18px;
+  }
+}
+
+.vditor-html-inline-popover {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: min(360px, calc(100vh - 80px));
+  overflow: hidden;
+}
+
+.vditor-html-inline-popover__cm-host {
+  flex: 1 1 auto;
+  min-height: 96px;
+  max-height: min(280px, calc(100vh - 140px));
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 14%, transparent);
+  background: var(--cm-bg-color, var(--textarea-background-color, var(--panel-background-color)));
+
+  .cm-editor {
+    min-height: 96px;
+    max-height: min(280px, calc(100vh - 140px));
+    outline: none;
+  }
+
+  .cm-editor,
+  .cm-scroller {
+    background: var(--cm-bg-color, var(--textarea-background-color, var(--panel-background-color))) !important;
+  }
+
+  .cm-scroller {
+    min-height: 96px;
+    max-height: min(280px, calc(100vh - 140px));
+    overflow: auto;
+    font-family: var(--code-font-family, monospace);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .cm-content {
+    min-height: 96px;
   }
 }
 
