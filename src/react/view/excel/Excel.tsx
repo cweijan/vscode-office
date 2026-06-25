@@ -72,6 +72,7 @@ function ExcelViewer() {
     const readOnlyRef = useRef(false)
     const spreadSheetRef = useRef<Spreadsheet | null>(null)
     const csvEncodingRef = useRef<'utf8' | 'gbk'>('utf8')
+    const csvDelimiterRef = useRef(',')
     const initialFormattingRef = useRef('')
 
     useEffect(() => {
@@ -105,6 +106,7 @@ function ExcelViewer() {
         const ext = extRef.current.replace(/^\./, '').toLowerCase();
         const sheets = spreadSheet.getData();
         const csvEncoding = csvEncodingRef.current;
+        const csvDelimiter = csvDelimiterRef.current;
 
         if (ext !== 'xlsx' && ext !== 'xlsm' && hasFormattingChanged(initialFormattingRef.current, sheets)) {
             await new Promise<void>((resolve) => {
@@ -117,7 +119,7 @@ function ExcelViewer() {
                     getContainer: () => document.body,
                     onOk: async () => {
                         try {
-                            await export_xlsx(spreadSheet, 'xlsx', csvEncoding, { saveAs: true });
+                            await export_xlsx(spreadSheet, 'xlsx', csvEncoding, { saveAs: true }, csvDelimiter);
                         } catch (error) {
                             console.error(`Failed to save Excel file: ${(error as Error).message}`);
                             throw error;
@@ -132,7 +134,7 @@ function ExcelViewer() {
                                     void (async () => {
                                         dialog.destroy();
                                         try {
-                                            await export_xlsx(spreadSheet, extRef.current, csvEncoding);
+                                            await export_xlsx(spreadSheet, extRef.current, csvEncoding, undefined, csvDelimiter);
                                         } catch (error) {
                                             console.error(`Failed to save Excel file: ${(error as Error).message}`);
                                         }
@@ -151,7 +153,7 @@ function ExcelViewer() {
         }
 
         try {
-            await export_xlsx(spreadSheet, extRef.current, csvEncoding);
+            await export_xlsx(spreadSheet, extRef.current, csvEncoding, undefined, csvDelimiter);
             spreadSheet.setSaveEnabled(false);
         } catch (error) {
             console.error(`Failed to save Excel file: ${(error as Error).message}`);
@@ -163,7 +165,7 @@ function ExcelViewer() {
         if (!spreadSheet) return;
         setSaveAsVisible(false);
         try {
-            await exportSaveAs(spreadSheet, fmt, csvEncodingRef.current);
+            await exportSaveAs(spreadSheet, fmt, csvEncodingRef.current, csvDelimiterRef.current);
             if (!readOnlyRef.current) {
                 spreadSheet.setSaveEnabled(false);
             }
@@ -205,7 +207,10 @@ function ExcelViewer() {
             if (payload.ext?.match(/csv/i)) {
                 csvEncodingRef.current = detectCsvEncoding(buffer);
             }
-            const { sheets, maxLength, maxCols } = await loadSheets(buffer, payload.ext);
+            const { sheets, maxLength, maxCols, csvDelimiter } = await loadSheets(buffer, payload.ext);
+            if (csvDelimiter) {
+                csvDelimiterRef.current = csvDelimiter;
+            }
             const viewRowLen = Math.max(maxLength ?? 0, MIN_VIEW_ROWS);
             const viewColLen = Math.max(maxCols ?? 0, MIN_VIEW_COLS);
             container.innerHTML = '';

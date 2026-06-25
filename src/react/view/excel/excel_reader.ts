@@ -20,6 +20,8 @@ export interface ExcelData {
     sheets: SheetData[];
     maxCols: number;
     maxLength?: number;
+    /** Detected column delimiter when loading CSV/TSV */
+    csvDelimiter?: string;
 }
 
 const MIN_COL_WIDTH = 70;
@@ -347,6 +349,7 @@ const loadCsv = (buffer: ArrayBuffer): ExcelData => {
         return {
             maxCols,
             maxLength: rows.length,
+            csvDelimiter: schema.col,
             sheets: [{
                 name: 'Sheet1',
                 rows: { len: rows.length, ...processedRows },

@@ -193,6 +193,7 @@ export async function exportSaveAs(
     spreadSheet: Spreadsheet,
     targetExt: string,
     csvEncoding: CsvEncoding = 'utf8',
+    csvDelimiter: string = ',',
 ) {
     const ext = targetExt.replace('.', '').toLowerCase();
     const sheets = spreadSheet.getData();
@@ -211,7 +212,8 @@ export async function exportSaveAs(
         return;
     }
     if (ext === 'csv' || ext === 'tsv') {
-        const csvContent = XLSX.utils.sheet_to_csv(dataToSheetJs(sheets[0]), ext === 'tsv' ? { FS: '\t' } : undefined);
+        const fs = ext === 'tsv' ? '\t' : csvDelimiter;
+        const csvContent = XLSX.utils.sheet_to_csv(dataToSheetJs(sheets[0]), { FS: fs });
         const bytes = encodeCsvText(csvContent, csvEncoding);
         handler.emit('saveAs', { content: [...bytes], ext });
     }
@@ -222,6 +224,7 @@ export async function export_xlsx(
     extName: string,
     csvEncoding: CsvEncoding = 'utf8',
     options?: ExportOptions,
+    csvDelimiter: string = ',',
 ) {
     const ext = extName.replace('.', '').toLowerCase();
     const sheets = spreadSheet.getData();
@@ -235,7 +238,8 @@ export async function export_xlsx(
         return;
     }
     if (ext === 'csv' || ext === 'tsv') {
-        const csvContent = XLSX.utils.sheet_to_csv(dataToSheetJs(sheets[0]), ext === 'tsv' ? { FS: '\t' } : undefined);
+        const fs = ext === 'tsv' ? '\t' : csvDelimiter;
+        const csvContent = XLSX.utils.sheet_to_csv(dataToSheetJs(sheets[0]), { FS: fs });
         const bytes = encodeCsvText(csvContent, csvEncoding);
         handler.emit('save', [...bytes]);
     }
