@@ -37,6 +37,8 @@ html {
     --ctx-icon-copy-html: var(--vscode-symbolIcon-stringForeground, #ce9178);
     --ctx-icon-copy-plain: var(--vscode-charts-green, #89d185);
     --ctx-icon-paste: var(--vscode-charts-green, #89d185);
+    --ctx-icon-pdf: var(--vscode-charts-red, #e51400);
+    --ctx-icon-pdf-plain: var(--vscode-charts-red, #e51400);
     --ctx-icon-docx: var(--vscode-charts-blue, #3794ff);
     --ctx-icon-html: var(--vscode-symbolIcon-stringForeground, #ce9178);
     --ctx-icon-folder: var(--vscode-symbolIcon-folderForeground, #dcb67a);
@@ -132,6 +134,14 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
 
 .vditor-context-menu__item[data-action="paste"] .codicon {
     color: var(--ctx-icon-paste);
+}
+
+.vditor-context-menu__item[data-action="exportPdf"] .codicon {
+    color: var(--ctx-icon-pdf);
+}
+
+.vditor-context-menu__item[data-action="exportPdfWithoutOutline"] .codicon {
+    color: var(--ctx-icon-pdf-plain);
 }
 
 .vditor-context-menu__item[data-action="exportDocx"] .codicon {

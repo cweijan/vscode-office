@@ -73,16 +73,28 @@ export const FONT_FAMILY_OPTIONS = [
     { label: "Courier", value: "'Courier New', Courier, monospace" },
 ] as const;
 
-export const BOLD_COLOR_DEFAULT = "var(--front-color, #586069)";
+export const BOLD_COLOR_DEFAULT = "color-mix(in srgb, var(--link-color, #0550ae) 15%, var(--toolbar-icon-color, #586069))";
 
 export const BOLD_COLOR_OPTIONS = [
     { label: "Default", value: "inherit" },
-    { label: "Bold", value: BOLD_COLOR_DEFAULT },
     { label: "Accent", value: "var(--link-color, #0550ae)" },
     { label: "Red", value: "var(--error-color, #cf222e)" },
     { label: "Orange", value: "#bc4c00" },
     { label: "Purple", value: "#8250df" },
     { label: "Teal", value: "#1a7f64" },
+] as const;
+
+export const PAGE_WIDTH_KEY = "pageWidth";
+export const PAGE_WIDTH_DEFAULT = "100%";
+
+export const PAGE_WIDTH_OPTIONS = [
+    { label: "100%", value: "100%" },
+    { label: "A4 (210mm)", value: "210mm" },
+    { label: "A5 (148mm)", value: "148mm" },
+    { label: "B5 (176mm)", value: "176mm" },
+    { label: "Letter (8.5in)", value: "8.5in" },
+    { label: "768px", value: "768px" },
+    { label: "960px", value: "960px" },
 ] as const;
 
 export const IMAGE_MAX_WIDTH_KEY = "imageMaxWidth";
@@ -163,14 +175,22 @@ export const applyEditorSettings = (vditorElement: HTMLElement) => {
     const editorSize = getGlobalLocalStorageSetting<number>(EDITOR_FONT_SIZE_KEY);
     const lineHeight = getGlobalLocalStorageSetting<number>(LINE_HEIGHT_KEY);
     const fontFamily = getGlobalLocalStorageSetting<string>(FONT_FAMILY_KEY);
-    const boldColor = getGlobalLocalStorageSetting<string>(BOLD_COLOR_KEY, BOLD_COLOR_DEFAULT);
+    const boldColor = getGlobalLocalStorageSetting<string>(BOLD_COLOR_KEY);
+    const pageWidth = getGlobalLocalStorageSetting<string>(PAGE_WIDTH_KEY);
     const imgMaxWidth = getGlobalLocalStorageSetting<number>(IMAGE_MAX_WIDTH_KEY);
     const imgMaxHeight = getGlobalLocalStorageSetting<number>(IMAGE_MAX_HEIGHT_KEY);
     if (uiSize !== undefined) vditorElement.style.setProperty("--ui-font-size", `${uiSize}px`);
     if (editorSize !== undefined) vditorElement.style.setProperty("--editor-font-size", `${editorSize}px`);
     if (lineHeight !== undefined) vditorElement.style.setProperty("--editor-line-height", String(lineHeight));
     if (fontFamily !== undefined) vditorElement.style.setProperty("--editor-font-family", fontFamily);
-    if (boldColor !== undefined) vditorElement.style.setProperty("--bold-color", boldColor);
+    if (boldColor !== undefined && boldColor !== "inherit") {
+        vditorElement.style.setProperty("--bold-color", boldColor);
+    } else if (boldColor === "inherit") {
+        vditorElement.style.removeProperty("--bold-color");
+    }
+    if (pageWidth !== undefined && pageWidth !== PAGE_WIDTH_DEFAULT) {
+        vditorElement.style.setProperty("--vditor-page-width", pageWidth);
+    }
     if (imgMaxWidth !== undefined) vditorElement.style.setProperty("--vditor-image-max-width", `${imgMaxWidth}%`);
     if (imgMaxHeight !== undefined) vditorElement.style.setProperty("--vditor-image-max-height", `${imgMaxHeight}vh`);
 

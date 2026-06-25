@@ -130,4 +130,5 @@ window.VditorI18n = {
   'imageSize': 'Размер изображений',
   'imageMaxWidth': 'Макс. ширина',
   'imageMaxHeight': 'Макс. высота',
+  'pageWidth': 'Ширина страницы',
 }

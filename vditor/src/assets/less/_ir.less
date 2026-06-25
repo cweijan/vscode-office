@@ -6,14 +6,6 @@
   width: 100%;
 
   &__node {
-    &[data-type="code-block"]:before,
-    &[data-type="code-block"]:after,
-    &[data-type="math-block"]:before,
-    &[data-type="math-block"]:after {
-      content: ' ';
-      color: var(--second-color);
-    }
-
     &:not(.vditor-ir__node--expand) .vditor-ir__marker {
       padding: 0 !important;
     }
@@ -90,16 +82,6 @@
           height: auto;
           text-align: left;
         }
-      }
-
-      &[data-type="code-block"]:before,
-      &[data-type="code-block"]:after {
-        content: '```';
-      }
-
-      &[data-type="math-block"]:before,
-      &[data-type="math-block"]:after {
-        content: '$$';
       }
     }
 

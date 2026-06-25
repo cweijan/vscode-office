@@ -7,7 +7,7 @@ import { previewImage } from "../preview/image";
 import { setEditMode } from "../toolbar/EditMode";
 import { hidePanel } from "../toolbar/setToolbar";
 import { afterRenderEvent, handlerHistoryEvent } from "../wysiwyg/afterRenderEvent";
-import { hideLinkPopover } from "../wysiwyg/highlightToolbarWYSIWYG";
+import { exitLinkPopoverToElement, hideLinkPopover } from "../wysiwyg/highlightToolbarWYSIWYG";
 import { processKeydown } from "../wysiwyg/processKeydown";
 import { removeHeading, setHeading } from "../wysiwyg/setHeading";
 import { getEventName, isCtrl } from "./compatibility";
@@ -202,7 +202,12 @@ export const hotkeyEvent = (vditor: IVditor, editorElement: HTMLElement) => {
                 && (vditor.wysiwyg.popover.classList.contains("vditor-panel--link")
                     || vditor.wysiwyg.popover.classList.contains("vditor-panel--link-ref")
                     || vditor.wysiwyg.popover.classList.contains("vditor-panel--image"))) {
-                hideLinkPopover(vditor);
+                const sourceElement = (vditor.wysiwyg.popover as { _sourceElement?: HTMLElement })._sourceElement;
+                if (sourceElement) {
+                    exitLinkPopoverToElement(vditor, sourceElement);
+                } else {
+                    hideLinkPopover(vditor);
+                }
             } else if (vditor.options.esc && !event.isComposing) {
                 vditor.options.esc(getMarkdown(vditor));
             }

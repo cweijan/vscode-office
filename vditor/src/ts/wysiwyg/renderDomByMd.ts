@@ -1,4 +1,4 @@
-import {isCmCodeBlock, renderCodeBlocks, syncMathBlocksPreviewMode} from "../codeBlock/codeMirrorManager";
+import {isCmCodeBlock, renderCodeBlocks, syncMathBlocksDisplayMode} from "../codeBlock/codeMirrorManager";
 import {processCodeRender} from "../util/processCode";
 import {renderToc} from "../util/toc";
 import {afterRenderEvent} from "./afterRenderEvent";
@@ -18,7 +18,7 @@ export const renderDomByMd = (vditor: IVditor, md: string, options = {
         }
         processCodeRender(item, vditor);
     });
-    syncMathBlocksPreviewMode(editorElement);
+    syncMathBlocksDisplayMode(editorElement, vditor);
     editorElement.querySelectorAll(".vditor-wysiwyg__block[data-type='math-block'] .vditor-wysiwyg__preview").forEach(
         (preview: HTMLElement) => {
             if (preview.getAttribute("data-render") !== "1") {

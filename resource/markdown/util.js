@@ -262,6 +262,12 @@ export const createContextMenu = (editor) => {
                 if (document.getSelection()?.toString()) { document.execCommand('delete') }
                 vscodeEvent.emit('command', 'office.markdown.paste')
                 break
+            case 'exportPdf':
+                vscodeEvent.emit('export', { type: 'pdf' })
+                break
+            case 'exportPdfWithoutOutline':
+                vscodeEvent.emit('export', { type: 'pdf', withoutOutline: true })
+                break
             case 'exportDocx':
                 vscodeEvent.emit('export', { type: 'docx' })
                 break

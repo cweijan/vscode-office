@@ -7,11 +7,14 @@ import { log, formatMs, logPerf } from "../util/log";
 import { processCodeRender } from "../util/processCode";
 import {
     deactivateCodeMirrorsInScope,
+    autoFocusCreatedBlockAfterSpin,
+    focusCmBlockAtCursor,
+    focusEmptyMathBlockAfterSpin,
     isCmCodeBlock,
     renderCodeBlocksInScope,
-    syncMathBlocksPreviewMode,
+    syncMathBlocksDisplayMode,
 } from "../codeBlock/codeMirrorManager";
-import { setRangeByWbr } from "../util/selection";
+import { getEditorRange, setRangeByWbr } from "../util/selection";
 import { renderToc } from "../util/toc";
 import { afterRenderEvent } from "./afterRenderEvent";
 import { previoueIsEmptyA } from "./inlineTag";
@@ -235,6 +238,12 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
         // 设置光标
         setRangeByWbr(vditor.wysiwyg.element, range);
         renderCodeBlocksInScope(vditor, remountScope);
+        syncMathBlocksDisplayMode(remountScope, vditor);
+        const activeRange = getEditorRange(vditor);
+        if (!autoFocusCreatedBlockAfterSpin(vditor, vditor.wysiwyg.element, activeRange, oldHtml)) {
+            focusCmBlockAtCursor(vditor, vditor.wysiwyg.element);
+        }
+        focusEmptyMathBlockAfterSpin(vditor, vditor.wysiwyg.element, activeRange, oldHtml);
 
         remountScope.querySelectorAll(".vditor-wysiwyg__preview[data-render='2']")
             .forEach((item: HTMLElement) => {
@@ -243,7 +252,6 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
                 }
                 processCodeRender(item, vditor);
             });
-        syncMathBlocksPreviewMode(remountScope);
         postProcessMs = debug ? performance.now() - stepStart : 0;
     }
     stepStart = debug ? performance.now() : 0;

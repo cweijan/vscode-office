@@ -355,7 +355,8 @@ export const setSelectionByPosition = (start: number, end: number, editor: HTMLE
 };
 
 export const setRangeByWbr = (element: HTMLElement, range: Range) => {
-    const wbrElement = element.querySelector("wbr");
+    const wbrElements = element.querySelectorAll("wbr");
+    const wbrElement = wbrElements.length > 0 ? wbrElements[wbrElements.length - 1] as HTMLElement : null;
     if (!wbrElement) {
         return;
     }

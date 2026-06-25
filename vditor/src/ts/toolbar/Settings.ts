@@ -22,6 +22,8 @@ import {
     FONT_FAMILY_OPTIONS,
     BOLD_COLOR_KEY,
     BOLD_COLOR_OPTIONS,
+    PAGE_WIDTH_KEY,
+    PAGE_WIDTH_OPTIONS,
     IMAGE_MAX_WIDTH_KEY,
     IMAGE_MAX_HEIGHT_KEY,
     IMAGE_MAX_WIDTH_DEFAULT,
@@ -39,6 +41,7 @@ import {
 const DROPDOWN_OPTIONS_MAP: Record<string, readonly { label: string; value: string }[]> = {
     [FONT_FAMILY_KEY]: FONT_FAMILY_OPTIONS,
     [BOLD_COLOR_KEY]: BOLD_COLOR_OPTIONS,
+    [PAGE_WIDTH_KEY]: PAGE_WIDTH_OPTIONS,
 };
 
 export class Settings extends MenuItem {
@@ -106,7 +109,14 @@ export class Settings extends MenuItem {
             const label = option.textContent || "";
             setGlobalLocalStorageSetting(key, value);
             if (key === FONT_FAMILY_KEY) vditor.element.style.setProperty("--editor-font-family", value);
-            else if (key === BOLD_COLOR_KEY) vditor.element.style.setProperty("--bold-color", value);
+            else if (key === BOLD_COLOR_KEY) {
+                if (value === "inherit") vditor.element.style.removeProperty("--bold-color");
+                else vditor.element.style.setProperty("--bold-color", value);
+            }
+            else if (key === PAGE_WIDTH_KEY) {
+                if (value === "100%") vditor.element.style.removeProperty("--vditor-page-width");
+                else vditor.element.style.setProperty("--vditor-page-width", value);
+            }
             // update trigger label
             const trigger = panelElement.querySelector(`[data-dropdown-key="${key}"]`) as HTMLElement | null;
             if (trigger) trigger.querySelector(`.${SETTINGS_PANEL_CLASS}__dropdown-value`)!.textContent = label;
@@ -210,7 +220,7 @@ export class Settings extends MenuItem {
             // Reset settings
             if (event.target.closest("[data-reset-settings]")) {
                 resetGlobalSettings();
-                for (const prop of ["--ui-font-size", "--editor-font-size", "--editor-line-height", "--editor-font-family", "--bold-color", "--vditor-image-max-width", "--vditor-image-max-height"]) {
+                for (const prop of ["--ui-font-size", "--editor-font-size", "--editor-line-height", "--editor-font-family", "--bold-color", "--vditor-page-width", "--vditor-image-max-width", "--vditor-image-max-height"]) {
                     vditor.element.style.removeProperty(prop);
                 }
                 applyEditorSettings(vditor.element);

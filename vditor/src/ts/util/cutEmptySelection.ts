@@ -1,6 +1,6 @@
 import { Constants } from "../constants";
 import { isInsideCodeMirror } from "../codeBlock/codeMirrorManager";
-import { expandMarker } from "../ir/expandMarker";
+import { expandMarkerWithMathSync } from "../ir/expandMarkerSync";
 import { hasClosestByClassName } from "./hasClosest";
 import { recordHistoryChange, recordHistoryPosition } from "./instantHistory";
 import { getEditorRange, setRangeByWbr, setSelectionFocus } from "./selection";
@@ -186,21 +186,21 @@ export const removeTextCutBlock = (vditor: IVditor, blockElement: HTMLElement) =
         range.collapse(false);
         setSelectionFocus(range);
         if (vditor.currentMode === "ir") {
-            expandMarker(range, vditor);
+            expandMarkerWithMathSync(range, vditor);
         }
     } else if (nextElement) {
         range.selectNodeContents(nextElement);
         range.collapse(true);
         setSelectionFocus(range);
         if (vditor.currentMode === "ir") {
-            expandMarker(range, vditor);
+            expandMarkerWithMathSync(range, vditor);
         }
     } else if (fallbackElement) {
         range.selectNodeContents(fallbackElement);
         range.collapse(false);
         setSelectionFocus(range);
         if (vditor.currentMode === "ir") {
-            expandMarker(range, vditor);
+            expandMarkerWithMathSync(range, vditor);
         }
     } else {
         editor.insertAdjacentHTML("beforeend", `<p data-block="0">${Constants.ZWSP}<wbr></p>`);

@@ -19,15 +19,19 @@ import {
 } from "../util/selection";
 import { clickToc } from "../util/toc";
 import {
+    enterSpecialBlockEdit,
     focusCodeBlock,
     isCmCodeBlock,
     isInsideCodeBlockChrome,
     isInsideCodeMirror,
     getCodeMirrorSelectionTextForCopy,
     sanitizeCodeBlocksInCopyFragment,
+    isMathBlockElement,
+    isMathBlockEmpty,
     isSpecialBlock,
     isSpecialPreviewBlock,
 } from "../codeBlock/codeMirrorManager";
+import { expandMarkerWithMathSync } from "./expandMarkerSync";
 import { linkClickEvent } from "../util/linkClick";
 import { highlightToolbarIR } from "./highlightToolbarIR";
 import { input } from "./input";
@@ -178,6 +182,12 @@ class IR {
             const cmBlock = (event.target as HTMLElement).closest?.(
                 "[data-type='code-block'], [data-type='math-block']",
             ) as HTMLElement;
+            if (cmBlock && isMathBlockElement(cmBlock) && isMathBlockEmpty(cmBlock)) {
+                enterSpecialBlockEdit(vditor, cmBlock);
+                highlightToolbarIR(vditor);
+                clickToc(event, vditor);
+                return;
+            }
             if (isCmCodeBlock(cmBlock)) {
                 if (!isInsideCodeMirror(event.target) && !isInsideCodeBlockChrome(event.target)) {
                     highlightToolbarIR(vditor);
@@ -241,11 +251,11 @@ class IR {
             }
 
             if (range.toString() === "") {
-                expandMarker(range, vditor);
+                expandMarkerWithMathSync(range, vditor);
             } else {
                 // https://github.com/Vanessa219/vditor/pull/681 当点击选中区域时 eventTarget 与 range 不一致，需延迟等待 range 发生变化
                 setTimeout(() => {
-                    expandMarker(getEditorRange(vditor), vditor);
+                    expandMarkerWithMathSync(getEditorRange(vditor), vditor);
                 });
             }
             clickToc(event, vditor);
@@ -276,7 +286,7 @@ class IR {
                 // firefox headings https://github.com/Vanessa219/vditor/issues/211
                 if (isFirefox() && range.startContainer.textContent === "\n" && range.startOffset === 1) {
                     range.startContainer.textContent = "";
-                    expandMarker(range, vditor);
+                    expandMarkerWithMathSync(range, vditor);
                 }
                 // 数学公式前是空块，空块前是 table，在空块前删除，数学公式会多一个 br
                 this.element.querySelectorAll(".language-math").forEach((item) => {
@@ -289,10 +299,10 @@ class IR {
                 if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
                     processHint(vditor);
                 }
-                expandMarker(range, vditor);
+                expandMarkerWithMathSync(range, vditor);
             } else if (event.keyCode === 229 && event.code === "" && event.key === "Unidentified") {
                 // https://github.com/Vanessa219/vditor/issues/508 IR 删除到节点需展开
-                expandMarker(range, vditor);
+                expandMarkerWithMathSync(range, vditor);
             }
 
             const previewRenderElement = hasClosestByClassName(range.startContainer, "vditor-ir__preview");

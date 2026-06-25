@@ -1,5 +1,5 @@
 import { isInsideCodeMirror } from "../codeBlock/codeMirrorManager";
-import { expandMarker } from "../ir/expandMarker";
+import { expandMarkerWithMathSync } from "../ir/expandMarkerSync";
 import { highlightToolbarIR } from "../ir/highlightToolbarIR";
 import { processAfterRender } from "../ir/process";
 import { afterRenderEvent } from "../wysiwyg/afterRenderEvent";
@@ -153,7 +153,7 @@ const selectBlock = (range: Range, vditor: IVditor) => {
     range.selectNodeContents(blockElement as HTMLElement);
     setSelectionFocus(range);
     if (vditor.currentMode === "ir") {
-        expandMarker(range, vditor);
+        expandMarkerWithMathSync(range, vditor);
         highlightToolbarIR(vditor);
     } else if (vditor.currentMode === "wysiwyg") {
         highlightToolbarWYSIWYG(vditor);

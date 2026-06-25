@@ -34,7 +34,7 @@ import {matchHotKey} from "../util/hotKey";
 import {recordHistoryChange} from "../util/instantHistory";
 import {getEditorRange, getSelectPosition, setSelectionFocus} from "../util/selection";
 import {keydownToc} from "../util/toc";
-import {expandMarker} from "./expandMarker";
+import {expandMarkerWithMathSync} from "./expandMarkerSync";
 import {processAfterRender, processHeading} from "./process";
 
 export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
@@ -243,7 +243,7 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
                 } else {
                     range.selectNodeContents(prevBlock.querySelector(".vditor-ir__marker--pre code"));
                     range.collapse(false);
-                    expandMarker(range, vditor);
+                    expandMarkerWithMathSync(range, vditor);
                 }
                 if (blockElement.textContent.trim().replace(Constants.ZWSP, "") === "") {
                     // 当前块为空且不是最后一个时，需要删除

@@ -130,4 +130,5 @@ window.VditorI18n = {
   'imageSize': '이미지 크기',
   'imageMaxWidth': '최대 너비',
   'imageMaxHeight': '최대 높이',
+  'pageWidth': '페이지 너비',
 }

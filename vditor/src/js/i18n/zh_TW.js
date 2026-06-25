@@ -132,4 +132,5 @@ window.VditorI18n = {
   'imageSize': '圖片尺寸',
   'imageMaxWidth': '最大寬度',
   'imageMaxHeight': '最大高度',
+  'pageWidth': '頁面寬度',
 }

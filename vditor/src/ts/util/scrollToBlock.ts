@@ -1,5 +1,10 @@
 import { pinOutlineActive } from "../outline/updateOutlineActive";
 import { scrollOutlineTarget, OUTLINE_SCROLL_OFFSET } from "../markdown/outlineRender";
+import {
+    isMathBlockElement,
+    isMathBlockEmpty,
+    syncMathBlockDisplayMode,
+} from "../codeBlock/codeMirrorManager";
 
 const slugifyHeading = (text: string) =>
     text
@@ -95,5 +100,13 @@ export const scrollToBlock = (vditor: IVditor, fragment: string): boolean => {
     }
 
     scrollBlockIntoView(vditor, blockElement);
+
+    const mathBlock = isMathBlockElement(blockElement)
+        ? blockElement
+        : (blockElement.closest("[data-type='math-block']") as HTMLElement | null);
+    if (mathBlock && isMathBlockEmpty(mathBlock)) {
+        syncMathBlockDisplayMode(vditor, mathBlock, true);
+    }
+
     return true;
 };

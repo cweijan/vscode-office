@@ -110,6 +110,56 @@ export const syncMathBlocksPreviewMode = (root: ParentNode) => {
     }
 };
 
+const getMathBlockText = (blockElement: HTMLElement) => {
+    const binding = bindings.get(blockElement);
+    if (binding) {
+        return binding.view.state.doc.toString();
+    }
+    const parts = getBlockParts(blockElement);
+    return parts?.code.textContent ?? "";
+};
+
+export const isMathBlockEmpty = (blockElement: HTMLElement) => {
+    return getMathBlockText(blockElement).trim() === "";
+};
+
+/** 空数学块默认 CodeMirror；非空且未编辑时保持预览态 */
+export const syncMathBlockDisplayMode = (vditor: IVditor, blockElement: HTMLElement, focus = false) => {
+    const block = normalizeCmBlockElement(blockElement, getModeEditor(vditor)) || blockElement;
+    if (!isMathBlockElement(block)) {
+        return;
+    }
+    if (isMathBlockEmpty(block)) {
+        if (!block.classList.contains(CM_EDITING_CLASS)) {
+            enterSpecialBlockEdit(vditor, block, focus);
+        } else if (focus) {
+            focusCodeMirror(block, true, vditor);
+        }
+        return;
+    }
+    if (block.classList.contains(CM_EDITING_CLASS)) {
+        return;
+    }
+    ensureMathBlockPreviewMode(block);
+};
+
+export const syncMathBlocksDisplayMode = (root: ParentNode, vditor: IVditor) => {
+    for (const block of root.querySelectorAll("[data-type='math-block']")) {
+        syncMathBlockDisplayMode(vditor, block as HTMLElement);
+    }
+};
+
+/** IR 展开 marker 后：光标落在空数学块上时自动进入 CodeMirror */
+export const syncIrMathBlockAfterExpand = (vditor: IVditor, range: Range) => {
+    if (vditor.currentMode !== "ir") {
+        return;
+    }
+    const blockElement = getCmBlockFromNode(range.startContainer, vditor.ir.element);
+    if (blockElement && isMathBlockElement(blockElement)) {
+        syncMathBlockDisplayMode(vditor, blockElement, true);
+    }
+};
+
 export const isCmCodeBlock = (blockElement: HTMLElement | null) => {
     if (!blockElement) {
         return false;
@@ -427,19 +477,28 @@ const exitSpecialBlockEdit = (vditor: IVditor, blockElement: HTMLElement) => {
 };
 
 /** 数学公式 / Mermaid / PlantUML：CodeMirror 在上、预览在下，编辑时实时重绘 */
-export const enterSpecialBlockEdit = (vditor: IVditor, blockElement: HTMLElement) => {
-    if (!isSpecialBlock(blockElement) || blockElement.classList.contains(CM_EDITING_CLASS)) {
+export const enterSpecialBlockEdit = (vditor: IVditor, blockElement: HTMLElement, focus = true) => {
+    const block = normalizeCmBlockElement(blockElement, getModeEditor(vditor)) || blockElement;
+    if (!isSpecialBlock(block)) {
         return false;
     }
-    blockElement.classList.add(CM_EDITING_CLASS);
-    ensureSpecialSplitLayout(blockElement);
-    mountCodeMirror(blockElement, vditor, true);
-    const binding = bindings.get(blockElement);
-    const parts = getBlockParts(blockElement);
+    if (block.classList.contains(CM_EDITING_CLASS)) {
+        if (focus) {
+            focusCodeMirror(block, true, vditor);
+        }
+        return true;
+    }
+    block.classList.add(CM_EDITING_CLASS);
+    ensureSpecialSplitLayout(block);
+    mountCodeMirror(block, vditor, true);
+    const binding = bindings.get(block);
+    const parts = getBlockParts(block);
     if (binding && parts?.preview) {
         rerenderSpecialPreview(parts.preview, vditor, binding.view.state.doc.toString());
     }
-    focusCodeMirror(blockElement, true, vditor);
+    if (focus) {
+        focusCodeMirror(block, true, vditor);
+    }
     return true;
 };
 
@@ -635,6 +694,9 @@ const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding:
             }
             clearCmSelection(binding.view);
             if (isSpecialBlock(blockElement) && blockElement.classList.contains(CM_EDITING_CLASS)) {
+                if (isMathBlockElement(blockElement) && isMathBlockEmpty(blockElement)) {
+                    return;
+                }
                 exitSpecialBlockEdit(vditor, blockElement);
             } else {
                 flushCodeMirrorExternalUndo(vditor);
@@ -724,6 +786,7 @@ const focusAdjacentEditorBlock = (
         setSelectionFocus(range);
         if (vditor.currentMode === "ir") {
             expandMarker(range, vditor);
+            syncIrMathBlockAfterExpand(vditor, range);
         }
     };
 
@@ -778,6 +841,17 @@ const exitCodeMirrorToAdjacentBlock = (
 
 const buildCodeMirrorNavigationKeymap = (vditor: IVditor, blockElement: HTMLElement) =>
     Prec.high(keymap.of([
+        {
+            key: "Backspace",
+            run: (view) => {
+                const { from, to } = view.state.selection.main;
+                if (from !== to || from !== 0 || !isEmptyCmDoc(view)) {
+                    return false;
+                }
+                removeCmCodeBlock(vditor, blockElement);
+                return true;
+            },
+        },
         {
             key: "ArrowUp",
             run: (view) => {
@@ -881,6 +955,7 @@ export const removeCmCodeBlock = (vditor: IVditor, blockElement: HTMLElement) =>
             setSelectionFocus(range);
             if (vditor.currentMode === "ir") {
                 expandMarker(range, vditor);
+                syncIrMathBlockAfterExpand(vditor, range);
             }
         }
     } else if (nextElement) {
@@ -892,6 +967,7 @@ export const removeCmCodeBlock = (vditor: IVditor, blockElement: HTMLElement) =>
             setSelectionFocus(range);
             if (vditor.currentMode === "ir") {
                 expandMarker(range, vditor);
+                syncIrMathBlockAfterExpand(vditor, range);
             }
         }
     } else {
@@ -987,6 +1063,155 @@ export const renderCodeBlocksInScope = (vditor: IVditor, scope: HTMLElement) => 
         mountCodeMirror(blockElement, vditor);
     }
 };
+
+const getCmBlockFromNode = (node: Node | null, editorElement: HTMLElement): HTMLElement | null => {
+    let current: Node | null = node;
+    while (current && current !== editorElement) {
+        if (current instanceof HTMLElement) {
+            const block = normalizeCmBlockElement(current, editorElement);
+            if (block) {
+                return block;
+            }
+        }
+        current = current.parentElement;
+    }
+    return null;
+};
+
+/** Lute 会在内层 code 上也打 data-type="math-block"，需归一化到可挂载 CM 的外层块 */
+const normalizeCmBlockElement = (element: HTMLElement, editorElement: HTMLElement | null): HTMLElement | null => {
+    let block: HTMLElement | null = element;
+    while (block && block !== editorElement) {
+        const dataType = block.getAttribute("data-type");
+        if (dataType && CM_BLOCK_DATA_TYPES.has(dataType) && getBlockParts(block)) {
+            return block;
+        }
+        block = block.parentElement;
+    }
+    return null;
+};
+
+const stripHtmlForBlockTrigger = (html: string) =>
+    html.replace(/<wbr\s*\/?>/gi, "")
+        .replace(/\u200b/g, "")
+        .replace(/<[^>]+>/g, "")
+        .trim();
+
+/** 判断是否为输入 $$ 触发的数学块创建（第二枚 $ 刚输入） */
+export const isMathBlockCreateTrigger = (spinBeforeHtml: string) => {
+    const text = stripHtmlForBlockTrigger(spinBeforeHtml);
+    return text === "$$" || text === "$$\n";
+};
+
+const spinHtmlHadMathBlock = (html: string) => /data-type=["']math-block["']/.test(html);
+
+/** spin 后是否应对光标处的空数学块聚焦（新建块，或明确的 $$ 触发） */
+const shouldFocusNewEmptyMathBlock = (spinBeforeHtml: string, blockElement: HTMLElement | null) => {
+    if (!blockElement || !isMathBlockElement(blockElement) || !isMathBlockEmpty(blockElement)) {
+        return false;
+    }
+    if (isMathBlockCreateTrigger(spinBeforeHtml)) {
+        return true;
+    }
+    return !spinHtmlHadMathBlock(spinBeforeHtml);
+};
+
+const focusEmptyMathBlockAtCursor = (vditor: IVditor, blockElement: HTMLElement) => {
+    const editor = getModeEditor(vditor);
+    const apply = () => {
+        if (!blockElement.isConnected) {
+            return;
+        }
+        const block = normalizeCmBlockElement(blockElement, editor) || blockElement;
+        if (!isMathBlockElement(block) || !isMathBlockEmpty(block)) {
+            return;
+        }
+        if (!block.classList.contains(CM_EDITING_CLASS)) {
+            enterSpecialBlockEdit(vditor, block, true);
+            return;
+        }
+        focusCodeMirror(block, true, vditor);
+    };
+    apply();
+    window.setTimeout(apply, 0);
+};
+
+/** Spin 后：光标在新建/触发的空数学块内时聚焦 CodeMirror */
+export const focusEmptyMathBlockAfterSpin = (
+    vditor: IVditor,
+    editorElement: HTMLElement,
+    range: Range,
+    spinBeforeHtml: string,
+): boolean => {
+    const blockElement = getCmBlockFromRange(range, editorElement);
+    if (!shouldFocusNewEmptyMathBlock(spinBeforeHtml, blockElement)) {
+        return false;
+    }
+    focusEmptyMathBlockAtCursor(vditor, blockElement as HTMLElement);
+    return true;
+};
+
+/** 判断是否为输入 ``` 触发的代码块创建 */
+export const isCodeBlockCreateTrigger = (spinBeforeHtml: string) => {
+    const text = stripHtmlForBlockTrigger(spinBeforeHtml);
+    return text === "```" || /^```[\w-]*$/.test(text);
+};
+
+const getCmBlockFromRange = (range: Range, editorElement: HTMLElement): HTMLElement | null => {
+    let node: Node | null = range.startContainer;
+    if (node.nodeType === Node.TEXT_NODE) {
+        node = node.parentElement;
+    }
+    if (!(node instanceof HTMLElement)) {
+        return null;
+    }
+    return getCmBlockFromNode(node, editorElement);
+};
+
+/** Spin 后根据触发内容自动进入对应块的 CodeMirror（$$ / ```） */
+export const autoFocusCreatedBlockAfterSpin = (
+    vditor: IVditor,
+    editorElement: HTMLElement,
+    range: Range,
+    spinBeforeHtml: string,
+): boolean => {
+    const blockElement = getCmBlockFromRange(range, editorElement);
+    if (!blockElement) {
+        return false;
+    }
+    if (isMathBlockCreateTrigger(spinBeforeHtml) && isMathBlockElement(blockElement)) {
+        focusEmptyMathBlockAtCursor(vditor, blockElement);
+        return true;
+    }
+    if (isCodeBlockCreateTrigger(spinBeforeHtml) && blockElement.getAttribute("data-type") === "code-block") {
+        if (!bindings.has(blockElement)) {
+            mountCodeMirror(blockElement, vditor, true);
+        }
+        focusCodeMirror(blockElement, true, vditor);
+        return true;
+    }
+    return false;
+};
+
+/** @deprecated use autoFocusCreatedBlockAfterSpin */
+export const autoEnterCreatedMathBlock = (
+    vditor: IVditor,
+    editorElement: HTMLElement,
+    spinBeforeHtml: string,
+): boolean => {
+    return autoFocusCreatedBlockAfterSpin(vditor, editorElement, getEditorRange(vditor), spinBeforeHtml);
+};
+
+/** Spin 后若光标位于普通代码块内，自动挂载并聚焦 CodeMirror */
+export const focusCmBlockAtCursor = (vditor: IVditor, editorElement: HTMLElement) => {
+    const blockElement = getCmBlockFromRange(getEditorRange(vditor), editorElement);
+    if (!blockElement || isMathBlockElement(blockElement)) {
+        return;
+    }
+    focusCodeBlock(blockElement, vditor, true);
+};
+
+const isEmptyCmDoc = (view: EditorView) => view.state.doc.toString().trim() === "";
 
 /** undo/redo 等整页 DOM 替换后，清理残留 CM 挂载并重新初始化 */
 export const remountCodeMirrorsAfterDomReplace = (vditor: IVditor) => {
@@ -1093,7 +1318,7 @@ export const renderCodeBlocks = (vditor: IVditor) => {
     editor.querySelectorAll(getCodeBlockSelector(vditor.currentMode)).forEach((block) => {
         mountCodeMirror(block as HTMLElement, vditor);
     });
-    syncMathBlocksPreviewMode(editor);
+    syncMathBlocksDisplayMode(editor, vditor);
     setupFrontMatterYamlEditors(vditor);
 };
 

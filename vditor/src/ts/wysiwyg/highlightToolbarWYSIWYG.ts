@@ -22,7 +22,7 @@ import {
     isInsideCodeMirror,
     isSpecialBlock,
     CM_EDITING_CLASS,
-    syncMathBlocksPreviewMode,
+    syncMathBlocksDisplayMode,
     shouldShowLanguagePopover,
     updateCodeMirrorLanguage,
 } from "../codeBlock/codeMirrorManager";
@@ -45,6 +45,22 @@ import {updateTableHandle} from "./tableHandle";
 export const hideLinkPopover = (vditor: IVditor) => {
     clearTimeout(vditor.wysiwyg.hlToolbarTimeoutId);
     vditor.wysiwyg.popover.style.display = "none";
+    delete (vditor.wysiwyg.popover as { _sourceElement?: HTMLElement })._sourceElement;
+};
+
+/** 退出链接/图片编辑弹窗，光标回到元素后（与 Alt+Enter 一致） */
+export const exitLinkPopoverToElement = (vditor: IVditor, element: HTMLElement) => {
+    hideLinkPopover(vditor);
+    focusEditorWithoutScroll(vditor.wysiwyg.element);
+    const range = getEditorRange(vditor);
+    element.insertAdjacentHTML("afterend", Constants.ZWSP);
+    range.setStartAfter(element.nextSibling as Node);
+    range.collapse(true);
+    setSelectionFocus(range);
+};
+
+const focusEditorWithoutScroll = (editor: HTMLElement) => {
+    editor.focus({ preventScroll: true });
 };
 
 export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
@@ -238,7 +254,7 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
         }
         const blockType = blockRenderElement !== false ? (blockRenderElement.getAttribute("data-type") ?? "") : "";
         const isBlock = blockType.endsWith("-block");
-        syncMathBlocksPreviewMode(vditor.wysiwyg.element);
+        syncMathBlocksDisplayMode(vditor.wysiwyg.element, vditor);
         vditor.wysiwyg.element
             .querySelectorAll(".vditor-wysiwyg__preview")
             .forEach((itemElement) => {
@@ -572,7 +588,7 @@ const linkHotkey = (
         return;
     }
     if (event.key === "Escape") {
-        hideLinkPopover(vditor);
+        exitLinkPopoverToElement(vditor, element);
         event.preventDefault();
         event.stopPropagation();
         return;
@@ -589,17 +605,13 @@ const linkHotkey = (
         event.altKey &&
         event.key === "Enter"
     ) {
-        const range = getEditorRange(vditor);
-        // firefox 不会打断 link https://github.com/Vanessa219/vditor/issues/193
-        element.insertAdjacentHTML("afterend", Constants.ZWSP);
-        range.setStartAfter(element.nextSibling);
-        range.collapse(true);
-        setSelectionFocus(range);
+        exitLinkPopoverToElement(vditor, element);
         event.preventDefault();
     }
 };
 
 export const genAPopover = (vditor: IVditor, aElement: HTMLElement) => {
+    (vditor.wysiwyg.popover as { _sourceElement?: HTMLElement })._sourceElement = aElement;
     vditor.wysiwyg.popover.innerHTML = "";
 
     const updateText = () => {
@@ -841,30 +853,119 @@ const tryGetElement = (range: Range): HTMLElement => {
         || hasClosestByHeadings(typeElement) as HTMLElement
         ||  hasClosestByAttribute(typeElement, "data-block", "0") as HTMLElement
         ;
-}
+};
 
-export function moveDown(range: Range, vditor: IVditor) {
-    const element = tryGetElement(range);
-    const nextElement = element.nextElementSibling;
-    if (!nextElement || (!element.parentElement.isEqualNode(vditor.wysiwyg.element) && element.tagName !== "LI")) {
+const isSkippableEmptyParagraph = (element: HTMLElement | null) => {
+    return !!element
+        && element.tagName === "P"
+        && element.getAttribute("data-block") === "0"
+        && element.textContent.trim().replace(Constants.ZWSP, "") === "";
+};
+
+const skipEmptyParagraphs = (element: HTMLElement | null, direction: "up" | "down"): HTMLElement | null => {
+    let current = element;
+    while (current && isSkippableEmptyParagraph(current)) {
+        current = (direction === "up"
+            ? current.previousElementSibling
+            : current.nextElementSibling) as HTMLElement | null;
+    }
+    return current;
+};
+
+const cleanupEmptyList = (list: HTMLElement | null) => {
+    if (!list || (list.tagName !== "UL" && list.tagName !== "OL") || list.childElementCount > 0) {
         return;
     }
-    range.insertNode(document.createElement("wbr"));
-    nextElement.insertAdjacentElement("afterend", element);
+    const emptyAfter = list.nextElementSibling as HTMLElement | null;
+    const emptyBefore = list.previousElementSibling as HTMLElement | null;
+    list.remove();
+    if (emptyAfter && isSkippableEmptyParagraph(emptyAfter)) {
+        emptyAfter.remove();
+    }
+    if (emptyBefore && isSkippableEmptyParagraph(emptyBefore)) {
+        emptyBefore.remove();
+    }
+};
+
+const moveListItem = (li: HTMLElement, direction: "up" | "down") => {
+    const inlineSibling = (direction === "up"
+        ? li.previousElementSibling
+        : li.nextElementSibling) as HTMLElement | null;
+    if (inlineSibling?.tagName === "LI") {
+        if (direction === "up") {
+            inlineSibling.insertAdjacentElement("beforebegin", li);
+        } else {
+            inlineSibling.insertAdjacentElement("afterend", li);
+        }
+        return true;
+    }
+
+    const sourceList = li.parentElement as HTMLElement | null;
+    if (!sourceList || (sourceList.tagName !== "UL" && sourceList.tagName !== "OL")) {
+        return false;
+    }
+
+    const adjacentList = skipEmptyParagraphs(
+        (direction === "up"
+            ? sourceList.previousElementSibling
+            : sourceList.nextElementSibling) as HTMLElement | null,
+        direction,
+    );
+    if (!adjacentList || (adjacentList.tagName !== "UL" && adjacentList.tagName !== "OL")) {
+        return false;
+    }
+
+    if (direction === "up") {
+        adjacentList.appendChild(li);
+    } else {
+        adjacentList.insertBefore(li, adjacentList.firstChild);
+    }
+    cleanupEmptyList(sourceList);
+    return true;
+};
+
+const moveBlockSibling = (element: HTMLElement, direction: "up" | "down", editorElement: HTMLElement) => {
+    let sibling = (direction === "up"
+        ? element.previousElementSibling
+        : element.nextElementSibling) as HTMLElement | null;
+    sibling = skipEmptyParagraphs(sibling, direction);
+    if (!sibling) {
+        return false;
+    }
+    if (!element.parentElement?.isEqualNode(editorElement) && element.tagName !== "LI") {
+        return false;
+    }
+    if (direction === "up") {
+        sibling.insertAdjacentElement("beforebegin", element);
+    } else {
+        sibling.insertAdjacentElement("afterend", element);
+    }
+    return true;
+};
+
+const performBlockMove = (range: Range, vditor: IVditor, direction: "up" | "down") => {
+    const element = tryGetElement(range);
+    if (!element) {
+        return;
+    }
+    const wbr = document.createElement("wbr");
+    range.insertNode(wbr);
+    const moved = element.tagName === "LI"
+        ? moveListItem(element, direction)
+        : moveBlockSibling(element, direction, vditor.wysiwyg.element);
+    if (!moved) {
+        wbr.remove();
+        return;
+    }
     setRangeByWbr(vditor.wysiwyg.element, range);
     afterRenderEvent(vditor);
     highlightToolbarWYSIWYG(vditor);
+};
+
+export function moveDown(range: Range, vditor: IVditor) {
+    performBlockMove(range, vditor, "down");
 }
 
 export function moveUp(range: Range, vditor: IVditor) {
-    const element = tryGetElement(range);
-    const previousElement = element.previousElementSibling;
-    if (!previousElement || (!element.parentElement.isEqualNode(vditor.wysiwyg.element) && element.tagName !== "LI")) {
-        return;
-    }
-    range.insertNode(document.createElement("wbr"));
-    previousElement.insertAdjacentElement("beforebegin", element);
-    setRangeByWbr(vditor.wysiwyg.element, range);
-    afterRenderEvent(vditor);
-    highlightToolbarWYSIWYG(vditor);
+    performBlockMove(range, vditor, "up");
 }

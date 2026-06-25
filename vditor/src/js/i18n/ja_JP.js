@@ -130,4 +130,5 @@ window.VditorI18n = {
   'imageSize': '画像サイズ',
   'imageMaxWidth': '最大幅',
   'imageMaxHeight': '最大高さ',
+  'pageWidth': 'ページ幅',
 }

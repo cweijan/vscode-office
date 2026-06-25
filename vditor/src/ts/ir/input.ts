@@ -9,11 +9,14 @@ import {hasClosestByTag} from "../util/hasClosestByHeadings";
 import {log} from "../util/log";
 import {processCodeRender} from "../util/processCode";
 import {
-    deactivateAllCodeMirrors,
+    deactivateCodeMirrorsInScope,
+    autoFocusCreatedBlockAfterSpin,
+    focusCmBlockAtCursor,
+    focusEmptyMathBlockAfterSpin,
     isCmCodeBlock,
-    renderCodeBlocks,
+    renderCodeBlocksInScope,
 } from "../codeBlock/codeMirrorManager";
-import {getSelectPosition, setRangeByWbr} from "../util/selection";
+import {getEditorRange, getSelectPosition, preserveEditorScroll, setRangeByWbr} from "../util/selection";
 import {renderToc} from "../util/toc";
 import {processAfterRender} from "./process";
 import {getMarkdown} from "../markdown/getMarkdown";
@@ -89,14 +92,15 @@ export const input = (vditor: IVditor, range: Range, ignoreSpace = false, event?
         blockElement = vditor.ir.element;
     }
 
-    // document.exeComment insertHTML 会插入 wbr
-    if (!blockElement.querySelector("wbr")) {
-        const previewRenderElement = hasClosestByClassName(range.startContainer, "vditor-ir__preview");
-        if (previewRenderElement) {
-            previewRenderElement.previousElementSibling.insertAdjacentHTML("beforeend", "<wbr>");
-        } else {
-            range.insertNode(document.createElement("wbr"));
-        }
+    // 保存光标：清除残留 wbr，避免 setRangeByWbr 命中文档开头的旧标记
+    vditor.ir.element.querySelectorAll("wbr").forEach((wbr) => {
+        wbr.remove();
+    });
+    const previewRenderElement = hasClosestByClassName(range.startContainer, "vditor-ir__preview");
+    if (previewRenderElement) {
+        previewRenderElement.previousElementSibling.insertAdjacentHTML("beforeend", "<wbr>");
+    } else {
+        range.insertNode(document.createElement("wbr"));
     }
 
     // 清除浏览器自带的样式
@@ -175,67 +179,87 @@ export const input = (vditor: IVditor, range: Range, ignoreSpace = false, event?
     }
 
     log("SpinVditorIRDOM", html, "argument", vditor.options.debugger);
-    deactivateAllCodeMirrors(vditor);
+    const spinBeforeHtml = html;
+    const spinScope = isIRElement ? vditor.ir.element : blockElement;
+    deactivateCodeMirrorsInScope(vditor, spinScope);
     html = vditor.lute.SpinVditorIRDOM(html);
     log("SpinVditorIRDOM", html, "result", vditor.options.debugger);
 
-    if (isIRElement) {
-        blockElement.innerHTML = html;
-    } else {
-        blockElement.outerHTML = html;
+    preserveEditorScroll(vditor, () => {
+        if (isIRElement) {
+            blockElement.innerHTML = html;
+        } else {
+            blockElement.outerHTML = html;
 
-        // 更新正文中的 tip
-        if (footnoteElement) {
-            const footnoteItemElement = hasClosestByAttribute(vditor.ir.element.querySelector("wbr"),
-                "data-type", "footnotes-def");
-            if (footnoteItemElement) {
-                const footnoteItemText = footnoteItemElement.textContent;
-                const marker = footnoteItemText.substring(1, footnoteItemText.indexOf("]:"));
-                const footnoteRefElement = vditor.ir.element.querySelector(`sup[data-type="footnotes-ref"][data-footnotes-label="${marker}"]`);
-                if (footnoteRefElement) {
-                    footnoteRefElement.setAttribute("aria-label",
-                        footnoteItemText.substr(marker.length + 3).trim().substr(0, 24));
+            // 更新正文中的 tip
+            if (footnoteElement) {
+                const footnoteItemElement = hasClosestByAttribute(vditor.ir.element.querySelector("wbr"),
+                    "data-type", "footnotes-def");
+                if (footnoteItemElement) {
+                    const footnoteItemText = footnoteItemElement.textContent;
+                    const marker = footnoteItemText.substring(1, footnoteItemText.indexOf("]:"));
+                    const footnoteRefElement = vditor.ir.element.querySelector(`sup[data-type="footnotes-ref"][data-footnotes-label="${marker}"]`);
+                    if (footnoteRefElement) {
+                        footnoteRefElement.setAttribute("aria-label",
+                            footnoteItemText.substr(marker.length + 3).trim().substr(0, 24));
+                    }
                 }
             }
         }
-    }
 
-    //  linkref 合并及添加
-    let firstLinkRefDefElement: HTMLElement;
-    const allLinkRefDefsElement = vditor.ir.element.querySelectorAll("[data-type='link-ref-defs-block']");
-    allLinkRefDefsElement.forEach((item: HTMLElement, index) => {
-        if (index === 0) {
-            firstLinkRefDefElement = item;
-        } else {
-            firstLinkRefDefElement.insertAdjacentHTML("beforeend", item.innerHTML);
-            item.remove();
+        //  linkref 合并及添加
+        let firstLinkRefDefElement: HTMLElement;
+        const allLinkRefDefsElement = vditor.ir.element.querySelectorAll("[data-type='link-ref-defs-block']");
+        allLinkRefDefsElement.forEach((item: HTMLElement, index) => {
+            if (index === 0) {
+                firstLinkRefDefElement = item;
+            } else {
+                firstLinkRefDefElement.insertAdjacentHTML("beforeend", item.innerHTML);
+                item.remove();
+            }
+        });
+        if (allLinkRefDefsElement.length > 0) {
+            vditor.ir.element.insertAdjacentElement("beforeend", allLinkRefDefsElement[0]);
         }
-    });
-    if (allLinkRefDefsElement.length > 0) {
-        vditor.ir.element.insertAdjacentElement("beforeend", allLinkRefDefsElement[0]);
-    }
 
-    // 脚注合并后添加的末尾
-    let firstFootnoteElement: HTMLElement;
-    const allFootnoteElement = vditor.ir.element.querySelectorAll("[data-type='footnotes-block']");
-    allFootnoteElement.forEach((item: HTMLElement, index) => {
-        if (index === 0) {
-            firstFootnoteElement = item;
-        } else {
-            firstFootnoteElement.insertAdjacentHTML("beforeend", item.innerHTML);
-            item.remove();
+        // 脚注合并后添加的末尾
+        let firstFootnoteElement: HTMLElement;
+        const allFootnoteElement = vditor.ir.element.querySelectorAll("[data-type='footnotes-block']");
+        allFootnoteElement.forEach((item: HTMLElement, index) => {
+            if (index === 0) {
+                firstFootnoteElement = item;
+            } else {
+                firstFootnoteElement.insertAdjacentHTML("beforeend", item.innerHTML);
+                item.remove();
+            }
+        });
+        if (allFootnoteElement.length > 0) {
+            vditor.ir.element.insertAdjacentElement("beforeend", allFootnoteElement[0]);
         }
+
+        setRangeByWbr(vditor.ir.element, range);
     });
-    if (allFootnoteElement.length > 0) {
-        vditor.ir.element.insertAdjacentElement("beforeend", allFootnoteElement[0]);
+
+    let remountScope = spinScope;
+    if (!isIRElement) {
+        const wbrElement = vditor.ir.element.querySelector("wbr");
+        if (wbrElement) {
+            remountScope = hasClosestBlock(wbrElement) || vditor.ir.element;
+        }
     }
 
-    setRangeByWbr(vditor.ir.element, range);
-
-    renderCodeBlocks(vditor);
+    renderCodeBlocksInScope(vditor, remountScope);
+    const activeRange = getEditorRange(vditor);
+    if (!autoFocusCreatedBlockAfterSpin(vditor, vditor.ir.element, activeRange, spinBeforeHtml)) {
+        focusCmBlockAtCursor(vditor, vditor.ir.element);
+    }
+    focusEmptyMathBlockAfterSpin(vditor, vditor.ir.element, activeRange, spinBeforeHtml);
 
     vditor.ir.element.querySelectorAll(".vditor-ir__preview[data-render='2']").forEach((item: HTMLElement) => {
         if (isCmCodeBlock(item.parentElement as HTMLElement)) {
+            return;
+        }
+        if (!remountScope.contains(item)) {
             return;
         }
         processCodeRender(item, vditor);
