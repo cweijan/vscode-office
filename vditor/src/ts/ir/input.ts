@@ -21,6 +21,7 @@ import {expandMarker} from "./expandMarker";
 import {renderToc} from "../util/toc";
 import {processAfterRender} from "./process";
 import {getMarkdown} from "../markdown/getMarkdown";
+import {fireContentInput} from "../util/saveToolbarState";
 
 export const input = (vditor: IVditor, range: Range, ignoreSpace = false, event?: InputEvent) => {
     let blockElement = hasClosestBlock(range.startContainer);
@@ -61,9 +62,7 @@ export const input = (vditor: IVditor, range: Range, ignoreSpace = false, event?
         }
 
         if (startSpace) {
-            if (typeof vditor.options.input === "function") {
-                vditor.options.input(getMarkdown(vditor));
-            }
+            fireContentInput(vditor, getMarkdown(vditor));
             return;
         }
         if (endSpace) {
@@ -76,9 +75,7 @@ export const input = (vditor: IVditor, range: Range, ignoreSpace = false, event?
                     // FireFox https://github.com/Vanessa219/vditor/issues/239
                     previousNode.classList.remove("vditor-ir__node--expand");
                 }
-                if (typeof vditor.options.input === "function") {
-                    vditor.options.input(getMarkdown(vditor));
-                }
+                fireContentInput(vditor, getMarkdown(vditor));
                 return;
             }
         }

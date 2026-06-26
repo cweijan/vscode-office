@@ -41,6 +41,7 @@ import {
 } from "../codeBlock/codeMirrorManager";
 import { focusWysiwygCodeBlock, showCode } from "./showCode";
 import { getMarkdown } from "../markdown/getMarkdown";
+import { fireContentInput } from "../util/saveToolbarState";
 import { initBlockHandle } from "./blockHandle";
 import { linkClickEvent } from "../util/linkClick";
 import { initTableHandle } from "./tableHandle";
@@ -290,9 +291,7 @@ class WYSIWYG {
             if ((startSpace && blockElement.getAttribute("data-type") !== "code-block")
                 || endSpace || isHeadingMD(blockElement.innerHTML) ||
                 (isHrMD(blockElement.innerHTML) && blockElement.previousElementSibling)) {
-                if (typeof vditor.options.input === "function") {
-                    vditor.options.input(getMarkdown(vditor));
-                }
+                fireContentInput(vditor, getMarkdown(vditor));
                 if (shouldFlushHistory) {
                     flushBufferedHistory(vditor);
                 } else {

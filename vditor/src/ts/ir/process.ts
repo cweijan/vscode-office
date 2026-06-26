@@ -1,4 +1,5 @@
 import {getMarkdown} from "../markdown/getMarkdown";
+import {fireContentInput} from "../util/saveToolbarState";
 import {removeCurrentToolbar} from "../toolbar/setToolbar";
 import {accessLocalStorage} from "../util/compatibility";
 import {saveCacheFocus} from "../util/cacheFocus";
@@ -24,8 +25,8 @@ export const recordHistory = (vditor: IVditor, options = {
         return;
     }
     const text = getMarkdown(vditor);
-    if (typeof vditor.options.input === "function" && options.enableInput) {
-        vditor.options.input(text);
+    if (options.enableInput) {
+        fireContentInput(vditor, text);
     }
 
     if (vditor.options.counter.enable) {

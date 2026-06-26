@@ -29,7 +29,10 @@ handler.on("open", async (md) => {
     mermaidTheme,
     lang: mapVscodeLanguageToVditorLang(language),
     tab: '\t',
-    toolbar: await getToolbar(rootPath, () => handler.emit('doSave', editor?.getValue())),
+    toolbar: await getToolbar(rootPath, () => {
+      handler.emit('doSave', editor?.getValue());
+      editor?.markSaved();
+    }),
     onAboutOpen: () => handler.emit('openAbout'),
     onSponsorLogoClick: () => handler.emit('openSponsor'),
     onSponsorSiteClick: () => handler.emit('openExternal', 'https://database-client.com/'),
@@ -130,6 +133,7 @@ handler.on("open", async (md) => {
           return;
         }
         editor.setValue(content);
+        editor.markSaved();
       })
       handler.on("gotoBlock", (fragment) => {
         if (fragment) {

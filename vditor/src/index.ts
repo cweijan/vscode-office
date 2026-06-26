@@ -56,6 +56,7 @@ import {
     ViewerSettingsExport,
 } from "./ts/util/globalLocalStorageSettings";
 import {exportExportSettings, ExportThemeSettings} from "./ts/util/exportThemeSettings";
+import {isDocumentDirty, markDocumentSaved, updateSaveToolbarState} from "./ts/util/saveToolbarState";
 import {
     buildSettingsPanelHTML,
     refreshAISettingsToolbarPanel,
@@ -155,6 +156,16 @@ class Vditor {
     /** 获取 Markdown 内容 */
     public getValue() {
         return getMarkdown(this.vditor);
+    }
+
+    /** 标记当前内容已保存，并禁用工具栏保存按钮 */
+    public markSaved(markdown?: string) {
+        markDocumentSaved(this.vditor, markdown);
+    }
+
+    /** 当前文档相对上次保存是否有变更 */
+    public isDirty() {
+        return isDocumentDirty(this.vditor);
     }
 
     /** 获取编辑器当前编辑模式 */
@@ -358,6 +369,7 @@ class Vditor {
         if (clearStack) {
             this.clearStack();
         }
+        updateSaveToolbarState(this.vditor);
     }
 
     /** 清空 undo & redo 栈 */

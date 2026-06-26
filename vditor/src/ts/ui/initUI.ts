@@ -10,6 +10,7 @@ import { initMermaidTheme } from "./setMermaidTheme";
 import { resolveCodeMirrorTheme, setCodeTheme } from "./setCodeTheme";
 import { setTheme } from "./setTheme";
 import { applyEditorSettings } from "../util/globalLocalStorageSettings";
+import { initSaveToolbarState } from "../util/saveToolbarState";
 
 export const initUI = (vditor: IVditor) => {
   purgeLegacyDocumentStateKeys();
@@ -79,6 +80,7 @@ export const initUI = (vditor: IVditor) => {
 
   const initValue = afterRender(vditor);
   setEditMode(vditor, vditor.options.mode, initValue);
+  initSaveToolbarState(vditor, initValue);
 
   document.execCommand("DefaultParagraphSeparator", false, "p");
 
