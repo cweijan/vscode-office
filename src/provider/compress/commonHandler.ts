@@ -37,12 +37,11 @@ export function handleCommonEvent(uri: Uri, handler: Handler, options?: { skipOp
         if (shouldSkipFileChange(uri)) {
             return;
         }
+        readOnly = await isUriReadOnly(uri);
         if (isVirtualUri(uri)) {
-            readOnly = true;
             void emitVirtualOfficeOpen(handler, uri);
             return;
         }
-        readOnly = await isUriReadOnly(uri);
         await emitFileOfficeOpen(handler, uri, handler.panel.webview);
     }
     const events = handler

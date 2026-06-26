@@ -36,6 +36,7 @@ function bytesToBase64(data: Uint8Array): string {
 export async function emitVirtualOfficeOpen(handler: Handler, uri: Uri): Promise<void> {
     const now = Date.now();
     const ext = extname(uri.fsPath);
+    const readOnly = await isUriReadOnly(uri);
     try {
         const data = await readUriBytes(uri);
         const payload: Record<string, unknown> = {
@@ -44,7 +45,7 @@ export async function emitVirtualOfficeOpen(handler: Handler, uri: Uri): Promise
             fileName: basename(uri.fsPath),
             scheme: uri.scheme,
             documentCacheId: buildDocumentCacheId(uri),
-            readOnly: true,
+            readOnly,
             nonce: now,
         };
         if (ext.toLowerCase() === '.pdf') {
@@ -60,7 +61,7 @@ export async function emitVirtualOfficeOpen(handler: Handler, uri: Uri): Promise
             fileName: basename(uri.fsPath),
             scheme: uri.scheme,
             documentCacheId: buildDocumentCacheId(uri),
-            readOnly: true,
+            readOnly,
             error: error instanceof Error ? error.message : 'Failed to read file',
             nonce: now,
         });
