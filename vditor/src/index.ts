@@ -48,7 +48,7 @@ import {renderToc} from "./ts/util/toc";
 import {scrollToBlock as scrollToBlockUtil} from "./ts/util/scrollToBlock";
 import {WYSIWYG} from "./ts/wysiwyg/index";
 import {input} from "./ts/wysiwyg/input";
-import {renderDomByMd} from "./ts/wysiwyg/renderDomByMd";
+import {ensureEditorBoundaryParagraphs, renderDomByMd} from "./ts/wysiwyg/renderDomByMd";
 
 class Vditor {
     public static adapterRender = adapterRender;
@@ -323,6 +323,7 @@ class Vditor {
                 .forEach((item: HTMLElement) => {
                     processCodeRender(item, this.vditor);
                 });
+            ensureEditorBoundaryParagraphs(this.vditor.ir.element);
             processAfterRender(this.vditor, {
                 enableAddUndoStack: true,
                 enableHint: false,

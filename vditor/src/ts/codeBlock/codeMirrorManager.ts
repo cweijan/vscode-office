@@ -1925,7 +1925,7 @@ export const buildEditorHtmlForMarkdown = (vditor: IVditor) => {
         return "";
     }
     const clone = editor.cloneNode(true) as HTMLElement;
-    for (const el of clone.querySelectorAll(".vditor-cm-chrome, .cm-editor")) {
+    for (const el of clone.querySelectorAll(".vditor-cm-chrome, .cm-editor, .vditor-editor-boundary")) {
         el.remove();
     }
     for (const container of clone.querySelectorAll(".vditor-math-inline--editing")) {

@@ -18,6 +18,7 @@ import { getEditorRange, setRangeByWbr } from "../util/selection";
 import { expandMarker } from "../ir/expandMarker";
 import { renderToc } from "../util/toc";
 import { afterRenderEvent } from "./afterRenderEvent";
+import { ensureEditorBoundaryParagraphs } from "./renderDomByMd";
 import { previoueIsEmptyA } from "./inlineTag";
 
 export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
@@ -175,6 +176,7 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
 
         if (isWYSIWYGElement) {
             blockElement.innerHTML = html;
+            ensureEditorBoundaryParagraphs(blockElement);
         } else {
             // TODO 这里的判断条件是避免tab+其他字符会生成代码块的bug
             const isUnexceptCodeBlock = html.match(/vditor-wysiwyg__pre\b/) && !oldHtml.match(/```/);

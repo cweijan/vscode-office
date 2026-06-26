@@ -1,11 +1,17 @@
 @keyframes vditor-img-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .vditor {
   &-reset {
     padding: 0 5%;
+
     &--anchor {
       padding-left: 20px;
     }
@@ -27,7 +33,8 @@
     font-size: var(--editor-font-size);
     word-break: break-word;
 
-    strong, b {
+    strong,
+    b {
       color: var(--bold-color);
     }
 
@@ -58,7 +65,7 @@
       margin-bottom: 16px;
     }
 
-    li + li {
+    li+li {
       margin-top: 0;
     }
 
@@ -85,9 +92,9 @@
         min-width: 60px;
         min-height: 60px;
         background: linear-gradient(90deg,
-          var(--second-bg-color, #f0f0f0) 25%,
-          var(--border-color, #e0e0e0) 50%,
-          var(--second-bg-color, #f0f0f0) 75%);
+            var(--second-bg-color, #f0f0f0) 25%,
+            var(--border-color, #e0e0e0) 50%,
+            var(--second-bg-color, #f0f0f0) 75%);
         background-size: 200% 100%;
         animation: vditor-img-shimmer 1.4s ease infinite;
         border-radius: 4px;
@@ -158,16 +165,16 @@
       border-left: 5px solid var(--blockquote-border);
       margin: 0 0 16px 0;
 
-      & > :first-child {
+      &> :first-child {
         margin-top: 0;
       }
 
-      & > :last-child {
+      &> :last-child {
         margin-bottom: 0;
       }
     }
 
-    ins > iframe {
+    ins>iframe {
       border: 0;
     }
 
@@ -245,7 +252,7 @@
     pre {
       margin: 1em 0;
 
-      & > code {
+      &>code {
         margin: 0;
         font-size: 85%;
         padding: 0.5em;
@@ -283,7 +290,7 @@
 
     // Inline math source code is an internal sync channel, should never show.
     // Editing uses CodeMirror mounted on the sibling .vditor-math-inline__cm-host.
-    [data-type="math-inline"] > code[data-type="math-inline"] {
+    [data-type="math-inline"]>code[data-type="math-inline"] {
       display: none !important;
     }
 
@@ -370,11 +377,12 @@
       pointer-events: none;
       top: 0.5em;
       left: 0;
-      width: 3em; /* works for line-numbers below 1000 lines */
+      width: 3em;
+      /* works for line-numbers below 1000 lines */
       user-select: none;
       counter-reset: linenumber;
 
-      & > span {
+      &>span {
         pointer-events: none;
         display: block;
 
@@ -512,7 +520,7 @@
       padding-left: 1em;
     }
 
-    & > ul {
+    &>ul {
       padding-left: 0;
     }
 
@@ -520,7 +528,7 @@
       cursor: pointer;
     }
 
-    li > span > svg {
+    li>span>svg {
       width: 0;
       height: 0;
     }
@@ -585,7 +593,7 @@
       padding: 10px 8px 14px;
       .vditor-scrollbar(var(--outline-bg-color, var(--panel-background-color)));
 
-      & > ul {
+      &>ul {
         padding-left: 0;
         min-width: 100%;
         width: max-content;
@@ -603,23 +611,23 @@
       padding-left: 1em;
     }
 
-    li + li {
+    li+li {
       margin-top: 1px;
     }
 
-    &__content > ul > li > span > span {
+    &__content>ul>li>span>span {
       font-size: var(--ui-font-size, 14px);
     }
 
-    li li > span > span {
+    li li>span>span {
       font-size: calc(var(--ui-font-size, 14px) - 0.5px);
     }
 
-    li li li > span > span {
+    li li li>span>span {
       font-size: calc(var(--ui-font-size, 14px) - 1px);
     }
 
-    li > span {
+    li>span {
       display: flex;
       align-items: center;
       margin: 0 2px;
@@ -629,22 +637,22 @@
       color: var(--front-color, var(--textarea-text-color));
       transition: background-color 0.15s ease, color 0.15s ease;
 
-      & > svg,
-      & > .codicon {
+      &>svg,
+      &>.codicon {
         flex-shrink: 0;
         height: 12px;
         width: 12px;
         margin-right: 6px;
       }
 
-      & > .vditor-outline__placeholder {
+      &>.vditor-outline__placeholder {
         flex-shrink: 0;
         width: 12px;
         margin-right: 6px;
       }
 
-      & > svg:not(.vditor-outline__action),
-      & > .vditor-outline__placeholder {
+      &>svg:not(.vditor-outline__action),
+      &>.vditor-outline__placeholder {
         visibility: hidden;
       }
 
@@ -652,7 +660,7 @@
         background-color: var(--outline-hover-bg);
         color: var(--front-color, var(--textarea-text-color));
 
-        & > span {
+        &>span {
           color: inherit;
         }
       }
@@ -661,7 +669,7 @@
         background-color: var(--outline-active-bg);
         color: var(--outline-active-color, var(--front-color, var(--textarea-text-color)));
 
-        & > span {
+        &>span {
           color: inherit;
         }
 
@@ -671,7 +679,7 @@
         }
       }
 
-      & > span {
+      &>span {
         white-space: nowrap;
         line-height: 1.45;
       }
@@ -697,8 +705,20 @@
       }
     }
 
-    li > span:hover .vditor-outline__action {
+    li>span:hover .vditor-outline__action {
       opacity: 0.95;
     }
   }
+}
+
+.vditor-editor-boundary {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  font-size: 0;
+  line-height: 0;
 }

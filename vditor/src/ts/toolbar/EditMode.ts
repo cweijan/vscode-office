@@ -13,7 +13,7 @@ import {highlightToolbar} from "../util/highlightToolbar";
 import {log} from "../util/log";
 import {processCodeRender} from "../util/processCode";
 import {renderToc} from "../util/toc";
-import {renderDomByMd} from "../wysiwyg/renderDomByMd";
+import {ensureEditorBoundaryParagraphs, renderDomByMd} from "../wysiwyg/renderDomByMd";
 import {renderCodeBlocks} from "../codeBlock/codeMirrorManager";
 import {MenuItem} from "./MenuItem";
 import {refreshSettingsToolbarPanel} from "../ui/settingsPanel";
@@ -87,6 +87,7 @@ export const setEditMode = (
             processCodeRender(item, vditor);
         });
         renderCodeBlocks(vditor);
+        ensureEditorBoundaryParagraphs(vditor.ir.element);
         vditor.ir.element.querySelectorAll(".vditor-toc").forEach((item: HTMLElement) => {
             mathRender(item, {
                 cdn: vditor.options.cdn,
