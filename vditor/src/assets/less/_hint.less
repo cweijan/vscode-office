@@ -239,3 +239,117 @@
   }
 }
 
+.vditor-hint:has(.vditor-font-color-panel) {
+  padding: 8px;
+  margin-top: 6px;
+  border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 14%, transparent);
+  border-radius: 10px;
+  box-shadow:
+    0 6px 18px color-mix(in srgb, #000 16%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--toolbar-icon-color) 5%, transparent);
+  min-width: 220px;
+  max-width: 260px;
+  line-height: normal;
+}
+
+.vditor-font-color-panel {
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  &__swatch {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 18%, transparent);
+    border-radius: 4px;
+    cursor: pointer;
+    box-sizing: border-box;
+    background-color: transparent;
+
+    &:hover,
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--link-color, #4285f4) 35%, transparent);
+    }
+  }
+
+  &__custom {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+
+    &--disabled {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+  }
+
+  &__custom-label {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: var(--textarea-text-color);
+    white-space: nowrap;
+  }
+
+  &__picker {
+    flex: 1;
+    min-width: 0;
+    display: block;
+    width: auto;
+    height: 28px;
+    padding: 0;
+    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 18%, transparent);
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    box-sizing: border-box;
+
+    &::-webkit-color-swatch-wrapper {
+      padding: 2px;
+    }
+
+    &::-webkit-color-swatch {
+      border: none;
+      border-radius: 2px;
+    }
+  }
+
+  &__confirm {
+    flex-shrink: 0;
+    min-width: 52px;
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid var(--link-color, #4285f4);
+    border-radius: 4px;
+    background: var(--link-color, #4285f4);
+    color: #fff;
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--link-color, #4285f4) 35%, transparent);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+  }
+
+  &__picker:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+}
+

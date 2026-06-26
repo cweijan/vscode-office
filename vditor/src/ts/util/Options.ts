@@ -40,6 +40,7 @@ export class Options {
             "bold",
             "italic",
             "strike",
+            "font-color",
             "link",
             "|",
             "list",
@@ -150,6 +151,9 @@ export class Options {
             name: "strike",
             prefix: "~~",
             suffix: "~~",
+        }, {
+            icon: getToolbarCodicon("font-color"),
+            name: "font-color",
         }, {
             hotkey: "⌘U",
             icon: getToolbarCodicon("link"),

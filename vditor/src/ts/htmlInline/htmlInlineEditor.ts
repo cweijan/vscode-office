@@ -19,6 +19,7 @@ import {
 import { afterRenderEvent } from "../wysiwyg/afterRenderEvent";
 import { processAfterRender } from "../ir/process";
 import { telemetry } from "../util/telemetry";
+import { renderHtmlInlineFromMd } from "./renderHtmlInline";
 
 const HTML_EDITOR_POPOVER_CLASS = "vditor-popover--html-inline";
 const HTML_EDITOR_PANEL_CLASS = "vditor-panel--html-inline";
@@ -31,6 +32,32 @@ const decodeMdSourceAttr = (raw: string | null): string => {
         return "";
     }
     return raw.replaceAll(MD_SOURCE_ESC_NEWLINE, "\n");
+};
+
+const isSpanHtmlInlineSource = (source: string): boolean => {
+    const trimmed = source.trim();
+    if (!/^<span\b/i.test(trimmed)) {
+        return false;
+    }
+    const temp = document.createElement("div");
+    temp.innerHTML = trimmed;
+    return temp.childNodes.length === 1 && temp.firstElementChild?.tagName === "SPAN";
+};
+
+const extractSpanInnerText = (source: string): string => {
+    const temp = document.createElement("div");
+    temp.innerHTML = source.trim();
+    return temp.querySelector("span")?.textContent ?? "";
+};
+
+const clearSpanHtmlInline = (vditor: IVditor, target: HtmlEditTarget, mdSource: string) => {
+    const plainText = extractSpanInnerText(mdSource);
+    const element = target.focusElement;
+    const parent = element.parentElement;
+    const next = element.nextSibling;
+    element.replaceWith(document.createTextNode(plainText));
+    notifyAfterHtmlEditorChange(vditor);
+    closeHtmlEditorPopover(vditor, null, parent, next);
 };
 
 type HtmlEditTarget = {
@@ -230,21 +257,6 @@ const notifyAfterHtmlEditorChange = (vditor: IVditor) => {
         return;
     }
     afterRenderEvent(vditor);
-};
-
-const renderHtmlInlineFromMd = (vditor: IVditor, md: string): string => {
-    const trimmed = md.trim();
-    if (!trimmed) {
-        return "";
-    }
-    const wrapper = `${Constants.ZWSP}${trimmed}${Constants.ZWSP}`;
-    const html = vditor.currentMode === "ir"
-        ? vditor.lute.Md2VditorIRDOM(wrapper)
-        : vditor.lute.Md2VditorDOM(wrapper);
-    const temp = document.createElement("div");
-    temp.innerHTML = html;
-    const node = temp.querySelector('[data-type="html-inline"]') as HTMLElement | null;
-    return node?.outerHTML ?? "";
 };
 
 const renderHtmlBlockFromMd = (vditor: IVditor, md: string): string => {
@@ -460,12 +472,15 @@ export const showHtmlEditorPopover = (vditor: IVditor, target: HtmlEditTarget) =
     const actions = document.createElement("div");
     actions.className = "vditor-html-inline-popover__actions";
 
+    const actionsLeft = document.createElement("div");
+    actionsLeft.className = "vditor-html-inline-popover__actions-left";
+
+    const actionsRight = document.createElement("div");
+    actionsRight.className = "vditor-html-inline-popover__actions-right";
+
     const hint = document.createElement("span");
     hint.className = "vditor-html-inline-popover__hint";
     hint.textContent = formatAltEnterHotkeyTip();
-
-    const actionsButtons = document.createElement("div");
-    actionsButtons.className = "vditor-html-inline-popover__actions-buttons";
 
     const wrapButton = document.createElement("button");
     wrapButton.type = "button";
@@ -479,13 +494,12 @@ export const showHtmlEditorPopover = (vditor: IVditor, target: HtmlEditTarget) =
     saveButton.className = "vditor-html-inline-popover__button vditor-html-inline-popover__button--primary";
     saveButton.textContent = window.VditorI18n?.aiSave ?? "Save";
 
-    const cancelButton = document.createElement("button");
-    cancelButton.type = "button";
-    cancelButton.className = "vditor-html-inline-popover__button vditor-html-inline-popover__button--cancel";
-    cancelButton.textContent = window.VditorI18n?.aiCancel ?? "Cancel";
-
     const initialSource = target.getSource();
     const targetRef = target;
+
+    const dismiss = () => {
+        closeHtmlEditorPopover(vditor, targetRef.focusElement);
+    };
 
     const save = () => {
         const newMd = (activeHtmlEditorPopover?.view.state.doc.toString() ?? initialSource).trim();
@@ -505,23 +519,35 @@ export const showHtmlEditorPopover = (vditor: IVditor, target: HtmlEditTarget) =
         closeHtmlEditorPopover(vditor, focusElement);
     };
 
-    const cancel = () => {
-        closeHtmlEditorPopover(vditor, targetRef.focusElement);
-    };
-
     saveButton.addEventListener("click", save);
-    cancelButton.addEventListener("click", cancel);
     wrapButton.addEventListener("click", () => toggleHtmlEditorLineWrap(wrapButton));
 
-    actionsButtons.appendChild(wrapButton);
-    actionsButtons.appendChild(cancelButton);
-    actionsButtons.appendChild(saveButton);
-    actions.appendChild(hint);
-    actions.appendChild(actionsButtons);
+    actionsLeft.appendChild(hint);
+    actionsLeft.appendChild(wrapButton);
+
+    if (isSpanHtmlInlineSource(initialSource)) {
+        const clearLabel = window.VditorI18n?.["html-clear-format"] ?? "Clear";
+        const clearButton = document.createElement("button");
+        clearButton.type = "button";
+        clearButton.className = "vditor-html-inline-popover__button vditor-html-inline-popover__button--clear";
+        clearButton.setAttribute("aria-label", clearLabel);
+        clearButton.title = clearLabel;
+        clearButton.innerHTML = `<span class="vditor-html-inline-popover__button-icon">${codicon("eraser")}</span>`;
+        clearButton.addEventListener("click", () => {
+            vditor.undo.addToUndoStack(vditor);
+            telemetry(vditor, "markdown.html.clearSpan");
+            clearSpanHtmlInline(vditor, targetRef, initialSource);
+        });
+        actionsLeft.appendChild(clearButton);
+    }
+
+    actionsRight.appendChild(saveButton);
+    actions.appendChild(actionsLeft);
+    actions.appendChild(actionsRight);
     panel.appendChild(cmHost);
     panel.appendChild(actions);
     popover.appendChild(panel);
-    const view = mountHtmlEditorCodeMirror(cmHost, initialSource, save, cancel);
+    const view = mountHtmlEditorCodeMirror(cmHost, initialSource, save, dismiss);
     applyHtmlEditorLineWrap(wrapButton, readHtmlEditorLineWrapEnabled());
     scheduleHtmlEditorPopoverPosition(vditor, target.anchorElement);
     scheduleFocusHtmlEditorAtStart(view);

@@ -3,6 +3,8 @@ import {disableToolbar} from "../toolbar/setToolbar";
 import {enableToolbar} from "../toolbar/setToolbar";
 import {removeCurrentToolbar} from "../toolbar/setToolbar";
 import {setCurrentToolbar} from "../toolbar/setToolbar";
+import {hasTextSelection, isInsideFontColor} from "../util/applyFontColor";
+import {syncFontColorPanelEnabled} from "../ui/fontColorPanel";
 import {isCtrl, updateHotkeyTip, formatAltEnterHotkeyTip} from "../util/compatibility";
 import {
     hasClosestByAttribute,
@@ -155,6 +157,18 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
             setCurrentToolbar(vditor.toolbar.elements, ["strike"]);
         }
 
+        if (isInsideFontColor(typeElement)) {
+            setCurrentToolbar(vditor.toolbar.elements, ["font-color"]);
+        }
+
+        if (hasTextSelection(vditor)) {
+            enableToolbar(vditor.toolbar.elements, ["font-color"]);
+            syncFontColorPanelEnabled(vditor, true);
+        } else {
+            disableToolbar(vditor.toolbar.elements, ["font-color"]);
+            syncFontColorPanelEnabled(vditor, false);
+        }
+
         const aElement = hasClosestByMatchTag(typeElement, "A");
         if (aElement) {
             setCurrentToolbar(vditor.toolbar.elements, ["link"]);
@@ -174,6 +188,7 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
                     "bold",
                     "italic",
                     "strike",
+                    "font-color",
                     "line",
                     "quote",
                     "list",
@@ -192,6 +207,7 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
                     "bold",
                     "italic",
                     "strike",
+                    "font-color",
                     "line",
                     "quote",
                     "list",

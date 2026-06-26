@@ -1,5 +1,7 @@
 import {Constants} from "../constants";
 import {disableToolbar, enableToolbar, removeCurrentToolbar, setCurrentToolbar} from "../toolbar/setToolbar";
+import {hasTextSelection, isInsideFontColor} from "../util/applyFontColor";
+import {syncFontColorPanelEnabled} from "../ui/fontColorPanel";
 import {hasClosestByAttribute, hasClosestByMatchTag} from "../util/hasClosest";
 import {hasClosestByHeadings} from "../util/hasClosestByHeadings";
 import {getEditorRange, selectIsEditor} from "../util/selection";
@@ -57,6 +59,18 @@ export const highlightToolbarIR = (vditor: IVditor) => {
             setCurrentToolbar(vditor.toolbar.elements, ["strike"]);
         }
 
+        if (isInsideFontColor(typeElement)) {
+            setCurrentToolbar(vditor.toolbar.elements, ["font-color"]);
+        }
+
+        if (hasTextSelection(vditor)) {
+            enableToolbar(vditor.toolbar.elements, ["font-color"]);
+            syncFontColorPanelEnabled(vditor, true);
+        } else {
+            disableToolbar(vditor.toolbar.elements, ["font-color"]);
+            syncFontColorPanelEnabled(vditor, false);
+        }
+
         const aElement = hasClosestByAttribute(typeElement, "data-type", "a");
         if (aElement) {
             setCurrentToolbar(vditor.toolbar.elements, ["link"]);
@@ -78,14 +92,14 @@ export const highlightToolbarIR = (vditor: IVditor) => {
 
         const codeBlockElement = hasClosestByAttribute(typeElement, "data-type", "code-block");
         if (codeBlockElement) {
-            disableToolbar(vditor.toolbar.elements, ["headings", "bold", "italic", "strike", "line", "quote",
+            disableToolbar(vditor.toolbar.elements, ["headings", "bold", "italic", "strike", "font-color", "line", "quote",
                 "list", "ordered-list", "check", "code", "inline-code", "upload", "link", "table"]);
             setCurrentToolbar(vditor.toolbar.elements, ["code"]);
         }
 
         const codeElement = hasClosestByAttribute(typeElement, "data-type", "code");
         if (codeElement) {
-            disableToolbar(vditor.toolbar.elements, ["headings", "bold", "italic", "strike", "line", "quote",
+            disableToolbar(vditor.toolbar.elements, ["headings", "bold", "italic", "strike", "font-color", "line", "quote",
                 "list", "ordered-list", "check", "code", "upload", "link", "table"]);
             setCurrentToolbar(vditor.toolbar.elements, ["inline-code"]);
         }

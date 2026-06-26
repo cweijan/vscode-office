@@ -12,6 +12,7 @@ import {Headings} from "./Headings";
 import {Help} from "./Help";
 import {Indent} from "./Indent";
 import {Find} from "./Find";
+import {FontColor} from "./FontColor";
 import {Info} from "./Info";
 import {InsertAfter} from "./InsertAfter";
 import {InsertBefore} from "./InsertBefore";
@@ -133,6 +134,9 @@ export class Toolbar {
                 break;
             case "code-theme":
                 menuItemObj = new CodeTheme(vditor, menuItem);
+                break;
+            case "font-color":
+                menuItemObj = new FontColor(vditor, menuItem);
                 break;
             case "ai-settings":
                 menuItemObj = new AISettings(vditor, menuItem);

@@ -193,11 +193,22 @@
         padding-top: 2px;
       }
 
+      .vditor-html-inline-popover__actions-left,
+      .vditor-html-inline-popover__actions-right,
       .vditor-html-inline-popover__actions-buttons {
         display: flex;
         align-items: center;
         gap: 8px;
         flex-shrink: 0;
+      }
+
+      .vditor-html-inline-popover__actions-left {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .vditor-html-inline-popover__actions-right {
+        margin-left: auto;
       }
 
       .vditor-html-inline-popover__hint {
@@ -230,6 +241,30 @@
           background: transparent;
           border-color: color-mix(in srgb, var(--toolbar-icon-color) 20%, transparent);
           color: var(--textarea-text-color);
+
+          &:hover {
+            background: color-mix(in srgb, var(--toolbar-icon-color) 10%, transparent);
+          }
+        }
+
+        &--clear {
+          min-width: 28px;
+          padding: 5px 8px;
+          background: transparent;
+          border-color: color-mix(in srgb, var(--toolbar-icon-color) 20%, transparent);
+          color: var(--toolbar-icon-color);
+
+          .vditor-html-inline-popover__button-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+
+            .codicon {
+              font-size: 16px;
+              line-height: 1;
+            }
+          }
 
           &:hover {
             background: color-mix(in srgb, var(--toolbar-icon-color) 10%, transparent);

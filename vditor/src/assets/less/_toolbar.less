@@ -85,6 +85,10 @@
       }
     }
 
+    &__item:has([data-type="font-color"]) .vditor-tooltipped {
+      width: 34px;
+    }
+
     &__divider {
       float: left;
       height: calc(var(--toolbar-height) - (var(--toolbar-divider-margin-top) * 2));
@@ -96,6 +100,14 @@
       width: 100%;
       padding: 0 !important;
       height: 0 !important;
+    }
+
+    &.right {
+      margin-left: auto;
+    }
+
+    &.right ~ &.right {
+      margin-left: 0;
     }
   }
 

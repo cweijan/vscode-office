@@ -25,6 +25,10 @@ export async function getToolbar(resPath, onSave = null) {
             }
         },
         {
+            name: 'font-color',
+            className: 'right',
+        },
+        {
             name: 'save',
             tip: 'Save',
             className: 'right',

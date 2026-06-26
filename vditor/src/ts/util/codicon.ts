@@ -14,6 +14,7 @@ const TOOLBAR_CODICONS: Record<string, string> = {
     bold: "bold",
     italic: "italic",
     strike: "strikethrough",
+    "font-color": "symbol-color",
     link: "link",
     list: "list-unordered",
     "ordered-list": "list-ordered",
