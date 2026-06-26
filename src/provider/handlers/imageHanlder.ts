@@ -1,7 +1,7 @@
 import { Handler } from '@/common/handler';
 import { basename, extname } from 'path';
 import * as vscode from 'vscode';
-import { isVirtualUri, readUriBytes } from '@/provider/handlers/officeContent';
+import { bytesToPayloadBuffer, isVirtualUri, readUriBytes } from '@/provider/handlers/officeContent';
 
 const IMAGE_MIME: Record<string, string> = {
     '.jpg': 'image/jpeg',
@@ -26,16 +26,16 @@ function getImageMime(filePath: string): string {
     return IMAGE_MIME[ext] ?? 'application/octet-stream';
 }
 
-async function loadVirtualImage(uri: vscode.Uri): Promise<{ images: { src: string; title: string; ext: string }[]; current: number }> {
+async function loadVirtualImage(uri: vscode.Uri): Promise<{ images: { title: string; ext: string; mime: string; buffer: number[] }[]; current: number }> {
     const data = await readUriBytes(uri);
     const ext = extname(uri.fsPath).toLowerCase();
     const mime = getImageMime(uri.fsPath);
-    const base64 = Buffer.from(data).toString('base64');
     return {
         images: [{
-            src: `data:${mime};base64,${base64}`,
             title: basename(uri.fsPath),
             ext,
+            mime,
+            buffer: bytesToPayloadBuffer(data),
         }],
         current: 0,
     };

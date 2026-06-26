@@ -419,6 +419,9 @@
 						"filenamePattern": "*.tiff"
 					},
 					{
+						"filenamePattern": "*.tif"
+					},
+					{
 						"filenamePattern": "*.heif"
 					},
 					{
@@ -499,9 +502,6 @@
 					},
 					{
 						"filenamePattern": "*.pjp"
-					},
-					{
-						"filenamePattern": "*.tif"
 					},
 					{
 						"filenamePattern": "*.webp"

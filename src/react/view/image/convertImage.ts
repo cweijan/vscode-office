@@ -1,13 +1,21 @@
 import heic2any from 'heic2any';
 import * as UTIF from 'utif';
 
-const CONVERTIBLE_EXT = /\.(heic|heif|tiff?)$/i;
-
 export type ImageSource = {
-    src: string;
+    src?: string;
     title?: string;
     ext?: string;
+    mime?: string;
+    buffer?: number[];
 };
+
+function bufferToBlob(buffer: number[], mime: string): Blob {
+    const bytes = new Uint8Array(buffer.length);
+    for (let i = 0; i < buffer.length; i++) {
+        bytes[i] = buffer[i];
+    }
+    return new Blob([bytes], { type: mime });
+}
 
 function getPathname(src: string): string {
     try {
@@ -43,11 +51,16 @@ function getFormatHint(src: string, ext?: string): 'heic' | 'tiff' | null {
     return null;
 }
 
-export function needsConversion(src: string, ext?: string): boolean {
-    return getFormatHint(src, ext) !== null;
+export function needsConversion(image: ImageSource): boolean {
+    return getFormatHint(image.src ?? '', image.ext) !== null;
 }
 
-async function loadImageBlob(src: string, format: 'heic' | 'tiff'): Promise<Blob> {
+async function loadImageBlob(image: ImageSource, format: 'heic' | 'tiff'): Promise<Blob> {
+    if (image.buffer?.length) {
+        const mime = image.mime ?? (format === 'heic' ? 'image/heic' : 'image/tiff');
+        return bufferToBlob(image.buffer, mime);
+    }
+    const src = image.src ?? '';
     if (src.startsWith('data:')) {
         const response = await fetch(src);
         const blob = await response.blob();
@@ -92,16 +105,20 @@ async function convertTiff(blob: Blob): Promise<string> {
     return canvas.toDataURL('image/png');
 }
 
-export async function resolveImageSrc(src: string, ext?: string): Promise<string> {
-    const format = getFormatHint(src, ext);
-    if (!format) {
-        return src;
+export async function resolveImageSrc(image: ImageSource): Promise<string> {
+    const format = getFormatHint(image.src ?? '', image.ext);
+    if (format) {
+        const blob = await loadImageBlob(image, format);
+        if (format === 'heic') {
+            return convertHeic(blob);
+        }
+        return convertTiff(blob);
     }
-    const blob = await loadImageBlob(src, format);
-    if (format === 'heic') {
-        return convertHeic(blob);
+    if (image.buffer?.length) {
+        const mime = image.mime ?? 'application/octet-stream';
+        return URL.createObjectURL(bufferToBlob(image.buffer, mime));
     }
-    return convertTiff(blob);
+    return image.src ?? '';
 }
 
 export function revokeObjectUrl(url: string) {
