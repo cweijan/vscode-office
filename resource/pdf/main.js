@@ -442,15 +442,6 @@
     return null;
   }
 
-  function decodeBase64Pdf(base64) {
-    const binary = atob(base64);
-    const data = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-      data[i] = binary.charCodeAt(i);
-    }
-    return data;
-  }
-
   function openPdfDocument(payload) {
     if (!payload) {
       return;
@@ -459,9 +450,7 @@
       console.error(payload.error);
       return;
     }
-    const data = payload.bufferBase64
-      ? decodeBase64Pdf(payload.bufferBase64)
-      : toUint8Array(payload.buffer);
+    const data = toUint8Array(payload.buffer);
     if (data?.length) {
       PDFViewerApplication.open(data);
       return;

@@ -29,10 +29,6 @@ export function bytesToPayloadBuffer(data: Uint8Array): number[] {
     return buffer;
 }
 
-function bytesToBase64(data: Uint8Array): string {
-    return Buffer.from(data).toString('base64');
-}
-
 export async function emitVirtualOfficeOpen(handler: Handler, uri: Uri): Promise<void> {
     const now = Date.now();
     const ext = extname(uri.fsPath);
@@ -48,11 +44,7 @@ export async function emitVirtualOfficeOpen(handler: Handler, uri: Uri): Promise
             readOnly,
             nonce: now,
         };
-        if (ext.toLowerCase() === '.pdf') {
-            payload.bufferBase64 = bytesToBase64(data);
-        } else {
-            payload.buffer = bytesToPayloadBuffer(data);
-        }
+        payload.buffer = bytesToPayloadBuffer(data);
         handler.emit('open', payload);
     } catch (error) {
         handler.emit('open', {
