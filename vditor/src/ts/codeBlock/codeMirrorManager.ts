@@ -844,6 +844,19 @@ const cmDomEventHandlers = (vditor: IVditor, blockElement: HTMLElement, binding:
     },
 });
 
+const canFocusAdjacentEditorBlock = (
+    blockElement: HTMLElement,
+    direction: "up" | "down",
+): boolean => {
+    const adjacentElement = direction === "up"
+        ? blockElement.previousElementSibling as HTMLElement | null
+        : blockElement.nextElementSibling as HTMLElement | null;
+    if (!adjacentElement) {
+        return false;
+    }
+    return !adjacentElement.classList.contains("vditor-editor-boundary");
+};
+
 const focusAdjacentEditorBlock = (
     vditor: IVditor,
     blockElement: HTMLElement,
@@ -939,6 +952,9 @@ const buildCodeMirrorNavigationKeymap = (vditor: IVditor, blockElement: HTMLElem
                 if (line.number > 1) {
                     return false;
                 }
+                if (!canFocusAdjacentEditorBlock(blockElement, "up")) {
+                    return false;
+                }
                 exitCodeMirrorToAdjacentBlock(view, vditor, blockElement, "up");
                 return true;
             },
@@ -948,6 +964,9 @@ const buildCodeMirrorNavigationKeymap = (vditor: IVditor, blockElement: HTMLElem
             run: (view) => {
                 const line = view.state.doc.lineAt(view.state.selection.main.head);
                 if (line.number < view.state.doc.lines) {
+                    return false;
+                }
+                if (!canFocusAdjacentEditorBlock(blockElement, "down")) {
                     return false;
                 }
                 exitCodeMirrorToAdjacentBlock(view, vditor, blockElement, "down");

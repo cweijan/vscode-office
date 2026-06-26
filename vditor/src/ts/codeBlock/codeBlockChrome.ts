@@ -1,4 +1,4 @@
-import { updateHotkeyTip } from "../util/compatibility";
+import { isCtrl, updateHotkeyTip } from "../util/compatibility";
 import { CM_THEME_GROUPS } from "../ui/codeMirrorColorThemes";
 import {
     buildCmChromeThemePickerPanelHTML,
@@ -18,8 +18,8 @@ import {
 } from "./codeBlockLanguageHints";
 import { applyCodeBlockLanguageChange } from "./codeBlockLanguageInput";
 import {
-    focusCodeMirror,
     getCodeLanguageName,
+    getCodeMirrorView,
     isMathBlockElement,
     removeCmCodeBlock,
     resolveCmCodeBlock,
@@ -67,7 +67,16 @@ let openThemeChrome: ICodeBlockChrome | null = null;
 registerPopoverOutsideDismiss({
     isActive: () => !!openLangChrome,
     shouldIgnoreTarget: isInsideCmLangPopover,
-    dismiss: () => closeLangPanel(),
+    dismiss: () => {
+        if (!openLangChrome) {
+            return;
+        }
+        const block = openLangChrome.root.closest("[data-type='code-block']") as HTMLElement | null;
+        closeLangPanel();
+        if (block) {
+            restoreCodeMirrorFocusAfterLangPanel(block);
+        }
+    },
 });
 registerPopoverOutsideDismiss({
     isActive: () => !!openThemeChrome,
@@ -170,6 +179,33 @@ const closeLangPanel = () => {
     openLangChrome.langWrap.classList.remove("vditor-cm-chrome__lang--focused");
     openLangChrome.langActiveIndex = -1;
     openLangChrome = null;
+};
+
+const restoreCodeMirrorFocusAfterLangPanel = (blockElement: HTMLElement) => {
+    window.setTimeout(() => {
+        getCodeMirrorView(blockElement)?.contentDOM.focus({ preventScroll: true });
+    }, 0);
+};
+
+const closeLangPanelAndRestoreCodeMirrorFocus = (blockElement: HTMLElement) => {
+    closeLangPanel();
+    restoreCodeMirrorFocusAfterLangPanel(blockElement);
+};
+
+export const closeCodeBlockLangPanelAndFocusCodeMirror = (
+    vditor: IVditor,
+    blockElement?: HTMLElement | null,
+) => {
+    if (!openLangChrome) {
+        return false;
+    }
+    const block = resolveCmCodeBlock(vditor, blockElement);
+    if (!block) {
+        closeLangPanel();
+        return true;
+    }
+    closeLangPanelAndRestoreCodeMirrorFocus(block);
+    return true;
 };
 
 const refreshAllChromeThemePanels = (currentTheme: string) => {
@@ -351,7 +387,7 @@ const selectLanguage = (vditor: IVditor, blockElement: HTMLElement, chrome: ICod
     const languageName = toCodeBlockLanguageName(lang.trim());
     applyCodeBlockLanguageChange(vditor, blockElement, languageName);
     syncCodeBlockChromeLanguageLabel(blockElement, languageName);
-    closeLangPanel();
+    closeLangPanelAndRestoreCodeMirrorFocus(blockElement);
 };
 
 const bindLanguagePanel = (vditor: IVditor, blockElement: HTMLElement, chrome: ICodeBlockChrome) => {
@@ -376,7 +412,12 @@ const bindLanguagePanel = (vditor: IVditor, blockElement: HTMLElement, chrome: I
     chrome.langSearch.addEventListener("keydown", (event) => {
         event.stopPropagation();
         if (event.key === "Escape") {
-            closeLangPanel();
+            closeLangPanelAndRestoreCodeMirrorFocus(getBlock());
+            event.preventDefault();
+            return;
+        }
+        if (!isCtrl(event) && !event.shiftKey && event.altKey && event.key === "Enter") {
+            closeLangPanelAndRestoreCodeMirrorFocus(getBlock());
             event.preventDefault();
             return;
         }
@@ -657,6 +698,10 @@ export const focusCodeBlockChromeLanguage = (vditor: IVditor, blockElement?: HTM
     const chrome = chromeMap.get(block);
     if (!chrome || !chrome.editable || chrome.langReadonly) {
         return false;
+    }
+    if (chrome.langWrap.classList.contains("vditor-cm-chrome__lang--open")) {
+        closeLangPanelAndRestoreCodeMirrorFocus(block);
+        return true;
     }
     setLangPanelOpen(chrome, true);
     return true;

@@ -4,6 +4,7 @@ import {isCtrl} from "../util/compatibility";
 import {execAfterRender} from "../util/fixBrowserBehavior";
 import {hasClosestByAttribute, hasClosestByClassName} from "../util/hasClosest";
 import {processCodeRender} from "../util/processCode";
+import {closeCodeBlockLangPanelAndFocusCodeMirror} from "../codeBlock/codeBlockChrome";
 import {applyCodeBlockLanguageChange} from "../codeBlock/codeBlockLanguageInput";
 import {isCmCodeBlock, updateCodeMirrorLanguage} from "../codeBlock/codeMirrorManager";
 import {getCursorPosition, insertHTML, setSelectionFocus} from "../util/selection";
@@ -123,6 +124,7 @@ export class Hint {
             const codeBlockElement = cmLangSearch.closest("[data-type='code-block']") as HTMLElement;
             if (codeBlockElement) {
                 applyCodeBlockLanguageChange(vditor, codeBlockElement, lang);
+                closeCodeBlockLangPanelAndFocusCodeMirror(vditor, codeBlockElement);
             }
             this.recentLanguage = lang;
             return;
