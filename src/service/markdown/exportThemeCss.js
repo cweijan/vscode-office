@@ -198,6 +198,74 @@ body.vditor-export img {
 body.vditor-export .language-mermaid {
   background: var(--bg-color, #ffffff);
 }
+
+body.vditor-export .callout {
+  --callout-accent: var(--chart-blue, #0969da);
+  margin: 12px 0;
+  border-radius: 6px;
+  border-left: 4px solid var(--callout-accent);
+  background: color-mix(in srgb, var(--callout-accent) 10%, var(--panel-background-color, var(--bg-color, #fff)));
+  color: var(--front-color, #333333);
+  overflow: hidden;
+}
+
+body.vditor-export .callout[data-subtype="note" i],
+body.vditor-export .callout[data-subtype="abstract" i],
+body.vditor-export .callout[data-subtype="info" i],
+body.vditor-export .callout[data-subtype="todo" i] {
+  --callout-accent: var(--chart-blue, #0969da);
+}
+
+body.vditor-export .callout[data-subtype="tip" i],
+body.vditor-export .callout[data-subtype="hint" i] {
+  --callout-accent: var(--chart-green, #116329);
+}
+
+body.vditor-export .callout[data-subtype="important" i] {
+  --callout-accent: var(--chart-purple, #8250df);
+}
+
+body.vditor-export .callout[data-subtype="warning" i] {
+  --callout-accent: var(--chart-orange, #bc4c00);
+}
+
+body.vditor-export .callout[data-subtype="caution" i],
+body.vditor-export .callout[data-subtype="danger" i],
+body.vditor-export .callout[data-subtype="error" i],
+body.vditor-export .callout[data-subtype="bug" i],
+body.vditor-export .callout[data-subtype="fail" i] {
+  --callout-accent: var(--chart-red, #cf222e);
+}
+
+body.vditor-export .callout[data-subtype="question" i],
+body.vditor-export .callout[data-subtype="help" i],
+body.vditor-export .callout[data-subtype="faq" i] {
+  --callout-accent: var(--chart-yellow, #9a6700);
+}
+
+body.vditor-export .callout .callout-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px 0;
+  margin-bottom: 10px;
+  color: var(--callout-accent);
+}
+
+body.vditor-export .callout .callout-title {
+  font-weight: 700;
+  font-size: 0.95em;
+  color: var(--callout-accent);
+}
+
+body.vditor-export .callout .callout-content {
+  padding: 6px 14px 12px;
+  color: var(--front-color, #333333);
+}
+
+body.vditor-export.vditor-export--dark .callout {
+  background: color-mix(in srgb, var(--callout-accent) 16%, var(--panel-background-color, var(--bg-color, #24292e)));
+}
 `;
 
     return `\n<style id="vditor-export-theme">\n${css.trim()}\n</style>\n`;
