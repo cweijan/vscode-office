@@ -1,37 +1,174 @@
 .vditor-wysiwyg,
 .vditor-ir,
 .vditor-reset {
-  .vditor-callout__info {
+  .callout-accent-rules() {
+    --callout-accent: var(--chart-blue);
+
+    &[data-subtype="note" i],
+    &[data-subtype="abstract" i],
+    &[data-subtype="info" i],
+    &[data-subtype="todo" i] {
+      --callout-accent: var(--chart-blue);
+    }
+
+    &[data-subtype="tip" i],
+    &[data-subtype="hint" i] {
+      --callout-accent: var(--chart-green);
+    }
+
+    &[data-subtype="important" i] {
+      --callout-accent: var(--chart-purple);
+    }
+
+    &[data-subtype="warning" i] {
+      --callout-accent: var(--chart-orange);
+    }
+
+    &[data-subtype="caution" i],
+    &[data-subtype="danger" i],
+    &[data-subtype="error" i],
+    &[data-subtype="bug" i],
+    &[data-subtype="fail" i] {
+      --callout-accent: var(--chart-red);
+    }
+
+    &[data-subtype="question" i],
+    &[data-subtype="help" i],
+    &[data-subtype="faq" i] {
+      --callout-accent: var(--chart-yellow);
+    }
+  }
+
+  .callout-shell() {
+    margin: 12px 0;
+    border-radius: 6px;
+    border-left: 4px solid var(--callout-accent, var(--chart-blue));
+    background: color-mix(
+      in srgb,
+      var(--callout-accent, var(--chart-blue)) 10%,
+      var(--panel-background-color, var(--bg-color, #fff))
+    );
+    color: var(--front-color, inherit);
+    overflow: hidden;
+  }
+
+  .callout-header() {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 12px;
-    border-radius: 6px 6px 0 0;
-    background: color-mix(in srgb, var(--link-color, #4285f4) 12%, var(--second-bg-color, #f3f4f6));
-    color: var(--front-color, inherit);
+    padding: 12px 14px 0;
+    margin-bottom: 10px;
+    color: var(--callout-accent, var(--chart-blue));
     user-select: none;
   }
 
-  .vditor-callout__icon {
+  .callout-title-style() {
+    font-weight: 700;
+    font-size: 0.95em;
+    line-height: 1.35;
+    color: var(--callout-accent, var(--chart-blue));
+  }
+
+  .callout-icon-codicon(@glyph) {
     flex-shrink: 0;
-    font-size: 1.1em;
-    line-height: 1;
-  }
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    font-size: 0;
+    line-height: 0;
 
-  .vditor-callout__title {
-    font-weight: 600;
-  }
-
-  .vditor-callout__content {
-    padding: 8px 12px 12px;
-    border: 1px solid color-mix(in srgb, var(--border-color, #d0d7de) 80%, transparent);
-    border-top: none;
-    border-radius: 0 0 6px 6px;
-    background: color-mix(in srgb, var(--panel-background-color, #fff) 92%, var(--second-bg-color, #f6f8fa));
+    &::before {
+      font-family: "codicon";
+      font-size: 16px;
+      line-height: 1;
+      font-weight: normal;
+      content: @glyph;
+      color: var(--callout-accent, var(--chart-blue));
+    }
   }
 
   div[data-type="callout"] {
-    margin: 12px 0;
+    .callout-accent-rules();
+    .callout-shell();
+
+    .vditor-callout__info {
+      .callout-header();
+      background: transparent;
+    }
+
+    .vditor-callout__icon {
+      flex-shrink: 0;
+      font-size: 1.05em;
+      line-height: 1;
+      color: var(--callout-accent, var(--chart-blue));
+    }
+
+    .vditor-callout__title {
+      .callout-title-style();
+    }
+
+    .vditor-callout__content {
+      padding: 6px 14px 12px;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      color: var(--front-color, inherit);
+
+      > :first-child {
+        margin-top: 0;
+      }
+
+      > :last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    &[data-subtype="note" i] .vditor-callout__icon,
+    &[data-subtype="abstract" i] .vditor-callout__icon,
+    &[data-subtype="info" i] .vditor-callout__icon,
+    &[data-subtype="todo" i] .vditor-callout__icon {
+      .callout-icon-codicon("\ea74");
+    }
+
+    &[data-subtype="tip" i] .vditor-callout__icon,
+    &[data-subtype="hint" i] .vditor-callout__icon {
+      .callout-icon-codicon("\ea61");
+    }
+
+    &[data-subtype="important" i] .vditor-callout__icon {
+      .callout-icon-codicon("\eabf");
+    }
+
+    &[data-subtype="warning" i] .vditor-callout__icon {
+      .callout-icon-codicon("\ea6c");
+    }
+
+    &[data-subtype="caution" i] .vditor-callout__icon,
+    &[data-subtype="danger" i] .vditor-callout__icon,
+    &[data-subtype="error" i] .vditor-callout__icon,
+    &[data-subtype="bug" i] .vditor-callout__icon,
+    &[data-subtype="fail" i] .vditor-callout__icon {
+      .callout-icon-codicon("\ea82");
+    }
+
+    &[data-subtype="question" i] .vditor-callout__icon,
+    &[data-subtype="help" i] .vditor-callout__icon,
+    &[data-subtype="faq" i] .vditor-callout__icon {
+      .callout-icon-codicon("\ea74");
+    }
+  }
+
+  #vditor.vditor--dark & {
+    div[data-type="callout"],
+    .callout {
+      background: color-mix(
+        in srgb,
+        var(--callout-accent, var(--chart-blue)) 16%,
+        var(--panel-background-color, var(--bg-color, #24292e))
+      );
+    }
   }
 
   .vditor-wikilink,
@@ -172,22 +309,70 @@
   }
 
   .callout {
-    margin: 12px 0;
-    border-radius: 6px;
-    overflow: hidden;
-    border: 1px solid color-mix(in srgb, var(--border-color, #d0d7de) 80%, transparent);
+    .callout-accent-rules();
+    .callout-shell();
 
     .callout-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      background: color-mix(in srgb, var(--link-color, #4285f4) 12%, var(--second-bg-color, #f3f4f6));
-      font-weight: 600;
+      .callout-header();
+      background: transparent;
+    }
+
+    .callout-icon {
+      flex-shrink: 0;
+      font-size: 1.05em;
+      line-height: 1;
+      color: var(--callout-accent, var(--chart-blue));
+    }
+
+    .callout-title {
+      .callout-title-style();
     }
 
     .callout-content {
-      padding: 8px 12px 12px;
+      padding: 6px 14px 12px;
+      color: var(--front-color, inherit);
+
+      > :first-child {
+        margin-top: 0;
+      }
+
+      > :last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    &[data-subtype="note" i] .callout-icon,
+    &[data-subtype="abstract" i] .callout-icon,
+    &[data-subtype="info" i] .callout-icon,
+    &[data-subtype="todo" i] .callout-icon {
+      .callout-icon-codicon("\ea74");
+    }
+
+    &[data-subtype="tip" i] .callout-icon,
+    &[data-subtype="hint" i] .callout-icon {
+      .callout-icon-codicon("\ea61");
+    }
+
+    &[data-subtype="important" i] .callout-icon {
+      .callout-icon-codicon("\eabf");
+    }
+
+    &[data-subtype="warning" i] .callout-icon {
+      .callout-icon-codicon("\ea6c");
+    }
+
+    &[data-subtype="caution" i] .callout-icon,
+    &[data-subtype="danger" i] .callout-icon,
+    &[data-subtype="error" i] .callout-icon,
+    &[data-subtype="bug" i] .callout-icon,
+    &[data-subtype="fail" i] .callout-icon {
+      .callout-icon-codicon("\ea82");
+    }
+
+    &[data-subtype="question" i] .callout-icon,
+    &[data-subtype="help" i] .callout-icon,
+    &[data-subtype="faq" i] .callout-icon {
+      .callout-icon-codicon("\ea74");
     }
   }
 
