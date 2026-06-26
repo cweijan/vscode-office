@@ -134,4 +134,6 @@ window.VditorI18n = {
   'imageMaxWidth': '最大宽度',
   'imageMaxHeight': '最大高度',
   'pageWidth': '页面宽度',
+  'settingsReset': '重置',
+  'settingsEditFile': '编辑配置',
 }

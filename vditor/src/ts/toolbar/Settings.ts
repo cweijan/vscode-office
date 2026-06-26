@@ -222,6 +222,17 @@ export class Settings extends MenuItem {
                 return;
             }
 
+            // Edit settings file
+            if (event.target.closest("[data-edit-settings]")) {
+                const fn = vditor.options.onEditSettings;
+                if (typeof fn === "function") {
+                    fn();
+                }
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
             // Reset settings
             if (event.target.closest("[data-reset-settings]")) {
                 resetGlobalSettings();

@@ -477,9 +477,13 @@
     margin-top: 6px;
     display: flex;
     justify-content: center;
+    gap: 8px;
   }
 
-  &__reset-btn {
+  &__footer-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     font-size: 11px;
     color: color-mix(in srgb, var(--toolbar-icon-color) 60%, transparent);
     background: color-mix(in srgb, var(--toolbar-icon-color) 7%, transparent);
@@ -487,14 +491,40 @@
     border-radius: 5px;
     width: auto;
     text-align: center;
-    padding: 5px 20px;
+    padding: 5px 12px;
     cursor: pointer;
     transition: color 0.1s ease, background 0.1s ease, border-color 0.1s ease;
+    .codicon {
+      font-size: 12px;
+      transition: color 0.1s ease;
+    }
 
-    &:hover {
+    &--edit .codicon {
+      color: color-mix(in srgb, var(--settings-accent) 80%, transparent);
+    }
+
+    &--edit:hover {
+      color: var(--settings-accent);
+      background: color-mix(in srgb, var(--settings-accent) 10%, transparent);
+      border-color: color-mix(in srgb, var(--settings-accent) 25%, transparent);
+
+      .codicon {
+        color: var(--settings-accent);
+      }
+    }
+
+    &--reset .codicon {
+      color: color-mix(in srgb, var(--error-color, #cf222e) 75%, transparent);
+    }
+
+    &--reset:hover {
       color: var(--error-color, #cf222e);
       background: color-mix(in srgb, var(--error-color, #cf222e) 10%, transparent);
       border-color: color-mix(in srgb, var(--error-color, #cf222e) 25%, transparent);
+
+      .codicon {
+        color: var(--error-color, #cf222e);
+      }
     }
   }
 }

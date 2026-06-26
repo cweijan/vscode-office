@@ -16,6 +16,7 @@ import {
     registerMarkdownWebview,
     unregisterMarkdownWebview,
 } from '@/service/markdown/blockScroll';
+import { ViewerSettingsService } from '@/service/viewerSettingsService';
 import { fileTypeFromPath } from '@/service/officeViewType';
 
 function getRuntimePlatform(): string {
@@ -116,12 +117,14 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         handler.panel.onDidDispose(() => {
             unregisterMarkdownWebview(uri);
         });
-        handler.on("init", () => {
+        handler.on("init", async () => {
+            const viewerSettings = await ViewerSettingsService.loadForWebview();
             handler.emit("open", {
                 content, rootPath,
                 documentCacheId: `${uri.scheme}:${uri.toString()}`,
                 pendingFragment: consumePendingBlockScroll(uri),
                 config: this.getMarkdownWebviewConfig(config),
+                viewerSettings,
             })
             this.updateCount(content)
             this.countStatus.show()
@@ -269,6 +272,12 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             this.cancelAIPolish();
         }).on('telemetry', (payload: { event: string; properties?: Record<string, string | number | boolean> }) => {
             TelemetryService.get()?.trackEvent(payload.event, payload.properties);
+        }).on('syncViewerSettings', async (settings) => {
+            if (await ViewerSettingsService.exists()) {
+                await ViewerSettingsService.writeFromVditor(settings);
+            }
+        }).on('editViewerSettings', async (settings) => {
+            await ViewerSettingsService.createAndOpen(settings);
         })
 
         const basePath = Global.getConfig('workspacePathAsImageBasePath') ?

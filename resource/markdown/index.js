@@ -64,6 +64,12 @@ handler.on("open", async (md) => {
     changeEditMode(mode) {
       handler.emit('editMode', mode)
     },
+    onSettingsChange(settings) {
+      handler.emit('syncViewerSettings', settings)
+    },
+    onEditSettings() {
+      handler.emit('editViewerSettings', editor.exportViewerSettings())
+    },
     input(content) {
       handler.emit("save", content)
     },
@@ -103,6 +109,19 @@ handler.on("open", async (md) => {
       },
     },
     after() {
+      const { viewerSettings } = md;
+      if (viewerSettings?.enabled) {
+        editor.setViewerSettingsSyncEnabled(true);
+        if (viewerSettings.settings) {
+          editor.applyViewerSettings(viewerSettings.settings);
+        }
+      }
+      handler.on('viewerSettingsSync', ({ enabled }) => {
+        editor.setViewerSettingsSyncEnabled(!!enabled);
+      });
+      handler.on('viewerSettings', (settings) => {
+        editor.applyViewerSettings(settings);
+      });
       handler.on("update", content => {
         if (document.querySelector("[data-type='yaml-front-matter'].vditor-code-block--cm .cm-editor.cm-focused")) {
           return;

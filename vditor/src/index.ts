@@ -46,6 +46,20 @@ import {
 import {afterRenderEvent} from "./ts/wysiwyg/afterRenderEvent";
 import {renderToc} from "./ts/util/toc";
 import {scrollToBlock as scrollToBlockUtil} from "./ts/util/scrollToBlock";
+import {
+    applyEditorSettings,
+    enableViewerSettingsSync,
+    exportViewerSettings,
+    getGlobalLocalStorageSetting,
+    importViewerSettings,
+    setOnViewerSettingsChange,
+    ViewerSettingsExport,
+} from "./ts/util/globalLocalStorageSettings";
+import {
+    buildSettingsPanelHTML,
+    refreshAISettingsToolbarPanel,
+    refreshSettingsToolbarPanel,
+} from "./ts/ui/settingsPanel";
 import {WYSIWYG} from "./ts/wysiwyg/index";
 import {input} from "./ts/wysiwyg/input";
 import {ensureEditorBoundaryParagraphs, renderDomByMd} from "./ts/wysiwyg/renderDomByMd";
@@ -361,6 +375,37 @@ class Vditor {
         this.aiDialog?.setVSCodeModels(models);
     }
 
+    /** 启用或禁用配置文件同步 */
+    public setViewerSettingsSyncEnabled(enabled: boolean) {
+        enableViewerSettingsSync(enabled);
+    }
+
+    /** 导出当前全局设置（用于写入配置文件） */
+    public exportViewerSettings(): ViewerSettingsExport {
+        return exportViewerSettings();
+    }
+
+    /** 从配置文件导入并应用全局设置 */
+    public applyViewerSettings(data: ViewerSettingsExport) {
+        importViewerSettings(data);
+        applyEditorSettings(this.vditor.element);
+        const outlineWidth = getGlobalLocalStorageSetting<number>("outlineWidth");
+        if (outlineWidth && this.vditor.outline?.element) {
+            this.vditor.outline.element.style.width = `${outlineWidth}px`;
+        }
+        const outlineEnable = getGlobalLocalStorageSetting<boolean>("outlineEnable");
+        if (outlineEnable !== undefined) {
+            this.vditor.options.outline.enable = outlineEnable === true || outlineEnable === "true";
+        }
+        const settingsItem = this.vditor.toolbar.elements.settings;
+        const panelElement = settingsItem?.querySelector(".vditor-hint") as HTMLElement | null;
+        if (panelElement) {
+            panelElement.innerHTML = buildSettingsPanelHTML(this.vditor);
+        }
+        refreshSettingsToolbarPanel(this.vditor);
+        refreshAISettingsToolbarPanel(this.vditor);
+    }
+
     /** 打开 AI 润色弹窗，由外部（右键菜单等）调用 */
     public openAIPolishDialog() {
         if (!this.aiDialog) { return; }
@@ -458,6 +503,10 @@ class Vditor {
         this.vditor.wysiwyg = new WYSIWYG(this.vditor);
         this.vditor.ir = new IR(this.vditor);
         this.vditor.toolbar = new Toolbar(this.vditor);
+
+        if (typeof mergedOptions.onSettingsChange === "function") {
+            setOnViewerSettingsChange((settings) => mergedOptions.onSettingsChange?.(settings));
+        }
 
         if (mergedOptions.upload.url || mergedOptions.upload.handler) {
             this.vditor.upload = new Upload();

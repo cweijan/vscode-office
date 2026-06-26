@@ -134,4 +134,6 @@ window.VditorI18n = {
   'imageMaxWidth': 'Max Width',
   'imageMaxHeight': 'Max Height',
   'pageWidth': 'Page Width',
+  'settingsReset': 'Reset',
+  'settingsEditFile': 'Edit Config',
 }

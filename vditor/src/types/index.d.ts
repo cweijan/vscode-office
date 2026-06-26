@@ -465,6 +465,11 @@ interface IAIPolishOptions {
     customApiFormat?: "auto" | "openai" | "anthropic" | "gemini" | "ollama";
 }
 
+type ViewerSettingsExport = {
+    globalSettings: Record<string, boolean | number | string | undefined>;
+    aiPreferences: Record<string, string>;
+};
+
 interface IOptions {
     /** RTL */
     rtl?: boolean;
@@ -602,6 +607,12 @@ interface IOptions {
 
     /** 遥测事件回调；配置后 vditor 内部通过 telemetry() 上报 */
     onTelemetry?(event: string, properties?: Record<string, string | number | boolean>): void;
+
+    /** 全局设置变更后触发（仅在配置文件同步启用时） */
+    onSettingsChange?(settings: ViewerSettingsExport): void;
+
+    /** 点击编辑配置文件按钮时触发 */
+    onEditSettings?(): void;
 }
 
 interface IEChart {

@@ -44,3 +44,9 @@ export function notifyBlockScroll(uri: vscode.Uri, fragment: string): void {
         handler.emit('gotoBlock', fragment);
     }, 150);
 }
+
+export function broadcastToMarkdownWebviews(event: string, content?: unknown): void {
+    for (const handler of webviewHandlers.values()) {
+        handler.emit(event, content);
+    }
+}

@@ -3,6 +3,7 @@ import {
     getAIPrompts, setAIPrompts,
     getAIModels, setAIModels,
     AIPrompt, AIModel,
+    setAiPreference,
 } from "../util/globalLocalStorageSettings";
 import { AI_FORMAT_OPTIONS, nameFromUrl, getProviderIcon } from "./settingsPanel";
 import { accessLocalStorage } from "../util/compatibility";
@@ -10,7 +11,13 @@ import { telemetry } from "../util/telemetry";
 
 const ls = {
     get: (key: string) => accessLocalStorage() ? (localStorage.getItem(key) ?? "") : "",
-    set: (key: string, val: string) => { if (accessLocalStorage()) localStorage.setItem(key, val); },
+    set: (key: string, val: string) => {
+        if (key === AI_ENGINE_KEY || key === AI_SELECTED_MODEL_KEY || key === AI_SELECTED_PROMPT_KEY) {
+            setAiPreference(key, val || undefined);
+            return;
+        }
+        if (accessLocalStorage()) localStorage.setItem(key, val);
+    },
 };
 
 const buildHTML = (): string => {

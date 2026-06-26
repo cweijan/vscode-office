@@ -229,6 +229,20 @@ export const buildAIModelsHTML = () => {
     </div>`;
 };
 
+export const buildSettingsFooterHTML = () => {
+    const i18n = window.VditorI18n;
+    return `<div class="${SETTINGS_PANEL_CLASS}__footer">
+            <button type="button" class="${SETTINGS_PANEL_CLASS}__footer-btn ${SETTINGS_PANEL_CLASS}__footer-btn--edit" data-edit-settings title="${i18n.settingsEditFile ?? i18n.edit}">
+                <span class="codicon codicon-edit" aria-hidden="true"></span>
+                <span>${i18n.settingsEditFile ?? i18n.edit}</span>
+            </button>
+            <button type="button" class="${SETTINGS_PANEL_CLASS}__footer-btn ${SETTINGS_PANEL_CLASS}__footer-btn--reset" data-reset-settings title="${i18n.settingsReset ?? 'Reset'}">
+                <span class="codicon codicon-discard" aria-hidden="true"></span>
+                <span>${i18n.settingsReset ?? 'Reset'}</span>
+            </button>
+        </div>`;
+};
+
 export const buildSettingsPanelHTML = (vditor: IVditor) => {
     const i18n = window.VditorI18n;
     const uiSize = getGlobalLocalStorageSetting<number>(UI_FONT_SIZE_KEY, UI_FONT_SIZE_DEFAULT);
@@ -267,9 +281,7 @@ export const buildSettingsPanelHTML = (vditor: IVditor) => {
                 ${buildImageStepperHTML(IMAGE_MAX_HEIGHT_KEY, i18n.imageMaxHeight, imgMaxHeight, "vh")}
             </div>
         </div>
-        <div class="${SETTINGS_PANEL_CLASS}__footer">
-            <button type="button" class="${SETTINGS_PANEL_CLASS}__reset-btn" data-reset-settings>Reset to Defaults</button>
-        </div>
+        ${buildSettingsFooterHTML()}
     </div>`;
 };
 
@@ -280,6 +292,17 @@ export const refreshSettingsPanel = (panelElement: HTMLElement, vditor: IVditor)
         button.classList.toggle(`${SETTINGS_PANEL_CLASS}__segment--current`, isCurrent);
         button.setAttribute("aria-pressed", String(isCurrent));
     }
+};
+
+export const refreshAISettingsToolbarPanel = (vditor: IVditor) => {
+    const aiItem = vditor.toolbar.elements["ai-settings"];
+    if (!aiItem) return;
+    const panelElement = aiItem.querySelector(".vditor-hint") as HTMLElement | null;
+    if (!panelElement || panelElement.style.display !== "block") return;
+    const promptsEl = panelElement.querySelector("[data-ai-prompts]");
+    const modelsEl = panelElement.querySelector("[data-ai-models]");
+    if (promptsEl) promptsEl.outerHTML = buildAIPromptsHTML();
+    if (modelsEl) modelsEl.outerHTML = buildAIModelsHTML();
 };
 
 export const refreshSettingsToolbarPanel = (vditor: IVditor) => {

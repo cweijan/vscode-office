@@ -117,6 +117,111 @@ export const AI_CUSTOM_FORMAT_KEY = "aiCustomApiFormat";
 export const AI_SELECTED_MODEL_KEY = "aiSelectedModel";
 export const AI_SELECTED_PROMPT_KEY = "aiSelectedPrompt";
 
+const AI_PREFERENCE_KEYS = [
+    AI_ENGINE_KEY,
+    AI_SELECTED_MODEL_KEY,
+    AI_SELECTED_PROMPT_KEY,
+] as const;
+
+export type ViewerSettingsExport = {
+    globalSettings: GlobalLocalStorageSettings;
+    aiPreferences: Partial<Record<typeof AI_PREFERENCE_KEYS[number], string>>;
+};
+
+let settingsSyncEnabled = false;
+let suppressSettingsNotify = false;
+let onViewerSettingsChange: ((settings: ViewerSettingsExport) => void) | undefined;
+
+export const enableViewerSettingsSync = (enabled: boolean) => {
+    settingsSyncEnabled = enabled;
+};
+
+export const isViewerSettingsSyncEnabled = () => settingsSyncEnabled;
+
+export const setOnViewerSettingsChange = (
+    callback: ((settings: ViewerSettingsExport) => void) | undefined,
+) => {
+    onViewerSettingsChange = callback;
+};
+
+const readAiPreferences = (): ViewerSettingsExport["aiPreferences"] => {
+    if (!accessLocalStorage()) {
+        return {};
+    }
+    const prefs: ViewerSettingsExport["aiPreferences"] = {};
+    for (const key of AI_PREFERENCE_KEYS) {
+        const value = localStorage.getItem(key);
+        if (value) {
+            prefs[key] = value;
+        }
+    }
+    return prefs;
+};
+
+const writeAiPreferences = (prefs: ViewerSettingsExport["aiPreferences"] | undefined) => {
+    if (!accessLocalStorage() || !prefs) {
+        return;
+    }
+    for (const key of AI_PREFERENCE_KEYS) {
+        const value = prefs[key];
+        if (value) {
+            localStorage.setItem(key, value);
+        } else {
+            localStorage.removeItem(key);
+        }
+    }
+};
+
+export const exportViewerSettings = (): ViewerSettingsExport => ({
+    globalSettings: readGlobalSettings(),
+    aiPreferences: readAiPreferences(),
+});
+
+const notifyViewerSettingsChange = () => {
+    if (suppressSettingsNotify || !settingsSyncEnabled || !onViewerSettingsChange) {
+        return;
+    }
+    onViewerSettingsChange(exportViewerSettings());
+};
+
+export const setAiPreference = (key: string, value: string | undefined) => {
+    if (!accessLocalStorage()) {
+        return;
+    }
+    if (value) {
+        localStorage.setItem(key, value);
+    } else {
+        localStorage.removeItem(key);
+    }
+    notifyViewerSettingsChange();
+};
+
+const normalizeGlobalSettingsForStorage = (
+    globalSettings: GlobalLocalStorageSettings | Record<string, unknown> | undefined,
+): GlobalLocalStorageSettings => {
+    const normalized: GlobalLocalStorageSettings = { ...(globalSettings ?? {}) };
+    for (const key of [AI_PROMPTS_KEY, AI_MODELS_KEY]) {
+        const value = normalized[key];
+        if (value !== undefined && typeof value !== "string") {
+            normalized[key] = JSON.stringify(value);
+        }
+    }
+    return normalized;
+};
+
+export const importViewerSettings = (data: ViewerSettingsExport | null | undefined) => {
+    if (!data || typeof data !== "object") {
+        return;
+    }
+    suppressSettingsNotify = true;
+    try {
+        writeGlobalSettings(normalizeGlobalSettingsForStorage(data.globalSettings));
+        writeAiPreferences(data.aiPreferences);
+    } finally {
+        suppressSettingsNotify = false;
+    }
+};
+
 export interface AIPrompt {
     id: string;
     name: string;
@@ -201,9 +306,26 @@ export const applyEditorSettings = (vditorElement: HTMLElement) => {
 /** @deprecated use applyEditorSettings */
 export const applyFontSizes = applyEditorSettings;
 
+const PRESERVED_ON_RESET_KEYS = [AI_PROMPTS_KEY, AI_MODELS_KEY] as const;
+
 export const resetGlobalSettings = () => {
     if (!accessLocalStorage()) return;
-    try { localStorage.removeItem(GLOBAL_SETTINGS_STORAGE_KEY); } catch { /* ignore */ }
+    const settings = readGlobalSettings();
+    const preserved: GlobalLocalStorageSettings = {};
+    for (const key of PRESERVED_ON_RESET_KEYS) {
+        const value = settings[key];
+        if (value !== undefined) {
+            preserved[key] = value;
+        }
+    }
+    try {
+        if (Object.keys(preserved).length > 0) {
+            writeGlobalSettings(preserved);
+        } else {
+            localStorage.removeItem(GLOBAL_SETTINGS_STORAGE_KEY);
+        }
+    } catch { /* ignore */ }
+    notifyViewerSettingsChange();
 };
 
 export const setGlobalLocalStorageSetting = (
@@ -217,5 +339,6 @@ export const setGlobalLocalStorageSetting = (
         settings[key] = value;
     }
     writeGlobalSettings(settings);
+    notifyViewerSettingsChange();
 };
 
