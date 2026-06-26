@@ -102,6 +102,12 @@ export const isIdeCodeHtml = (html: string): boolean => {
 };
 
 const buildPasteMarkdown = (code: string, language: string): string => {
+    if (language === "math") {
+        if (/\n/.test(code)) {
+            return `\n$$\n${code}\n$$\n`;
+        }
+        return `$$\n${code}\n$$`;
+    }
     if (/\n/.test(code)) {
         const langLine = language ? language : "";
         return `\n\`\`\`${langLine}\n${code}\n\`\`\`\n`;

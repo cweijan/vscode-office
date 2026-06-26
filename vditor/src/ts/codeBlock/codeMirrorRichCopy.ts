@@ -1,4 +1,4 @@
-import {EditorView} from "@codemirror/view";
+import { EditorView } from "@codemirror/view";
 
 const escapeAttr = (value: string) => value.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 
@@ -158,7 +158,14 @@ const buildStyledHtmlForRange = (view: EditorView, from: number, to: number): st
     return lineHtml.join("<br>");
 };
 
+const SKIP_PRE_STYLE_LANGUAGES = ["markdown", "mermaid", "plantuml", "math", "latex"];
+
 const wrapCodeCopyHtml = (innerHtml: string, languageName: string, view: EditorView): string => {
+    const langClass = languageName ? ` class="language-${languageName}"` : "";
+    const lang = languageName.toLowerCase();
+    if (SKIP_PRE_STYLE_LANGUAGES.includes(lang)) {
+        return `<meta charset='utf-8'><pre><code${langClass}>${innerHtml}</code></pre>`;
+    }
     const editorStyle = window.getComputedStyle(view.dom);
     const contentStyle = window.getComputedStyle(view.contentDOM);
     const preParts: string[] = [
@@ -185,7 +192,6 @@ const wrapCodeCopyHtml = (innerHtml: string, languageName: string, view: EditorV
         preParts.push("padding: 8px 12px");
     }
     const preStyle = preParts.join("; ");
-    const langClass = languageName ? ` class="language-${languageName}"` : "";
     return `<meta charset='utf-8'><pre style="${escapeAttr(preStyle)}"><code${langClass}>${innerHtml}</code></pre>`;
 };
 
