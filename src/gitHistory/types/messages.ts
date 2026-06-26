@@ -12,7 +12,6 @@ export interface LoadRepoInfoPayload {
     readonly repo: string;
     readonly showRemoteBranches: boolean;
     readonly showStashes: boolean;
-    readonly invalidateCache?: boolean;
 }
 
 export interface LoadCommitsPayload {

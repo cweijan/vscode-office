@@ -111,7 +111,6 @@ export interface LoadRepositoryRequest {
     readonly repo: string;
     readonly showRemoteBranches: boolean;
     readonly showStashes: boolean;
-    readonly invalidateCache?: boolean;
     readonly branches: ReadonlyArray<string> | null;
     readonly maxCommits: number;
     readonly showTags: boolean;

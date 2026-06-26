@@ -193,7 +193,7 @@ export class MessageRouter {
     }
 
     private canReuseWarmup(payload: LoadRepositoryRequest, relPath?: string): boolean {
-        if (!this.warmupPromise || this.warmupRepo !== payload.repo || payload.invalidateCache) {
+        if (!this.warmupPromise || this.warmupRepo !== payload.repo) {
             return false;
         }
         if (payload.branches !== null && payload.branches.length > 0) {
@@ -215,9 +215,6 @@ export class MessageRouter {
         if (this.canReuseWarmup(payload, relPath)) {
             resultPromise = this.warmupPromise!;
         } else {
-            if (payload.invalidateCache) {
-                this.invalidateRepoCache(payload.repo);
-            }
             resultPromise = this.commitService.loadRepository(request);
         }
         this.warmupPromise = null;
@@ -245,9 +242,6 @@ export class MessageRouter {
     }
 
     private async onLoadRepoInfo(payload: LoadRepoInfoPayload): Promise<void> {
-        if (payload.invalidateCache) {
-            this.invalidateRepoCache(payload.repo);
-        }
         const refreshId = ++this.loadRepoInfoId;
         const info = await this.commitService.getRepoInfo(
             payload.repo,
@@ -268,7 +262,7 @@ export class MessageRouter {
         refreshKind: 'repoInfo' | 'repository' = 'repoInfo',
     ): Promise<void> {
         const [authors, remoteUrls] = await Promise.all([
-            this.commitService.getAuthorsCached(repo),
+            this.commitService.getAuthors(repo),
             this.gitActions.getRemoteWebUrls(repo, remotes),
         ]);
         const stale = refreshKind === 'repository'
@@ -323,16 +317,9 @@ export class MessageRouter {
         this.handler.emit('refresh', { repos: this.repoDiscovery.getRepos() });
     }
 
-    private invalidateRepoCache(repo: string): void {
-        this.commitService.invalidateRepoCache(repo);
-    }
-
     private async onFetch(repo: string): Promise<void> {
         TelemetryService.get()?.trackEvent('gitHistory.toolbar.fetch');
         const error = await this.gitActions.fetchFromRemotes(repo);
-        if (!error) {
-            this.invalidateRepoCache(repo);
-        }
         this.handler.emit('fetch', { error });
     }
 
@@ -351,7 +338,6 @@ export class MessageRouter {
                 return;
             }
         }
-        this.invalidateRepoCache(payload.repo);
         this.handler.emit('push', { error: null, cancelled: false });
     }
 
@@ -373,9 +359,6 @@ export class MessageRouter {
                 squash: payload.squash,
             },
         );
-        if (!error) {
-            this.invalidateRepoCache(payload.repo);
-        }
         this.handler.emit('quickSync', { error });
     }
 
@@ -389,9 +372,6 @@ export class MessageRouter {
         if (result.cancelled) {
             this.handler.emit('remoteActionResult', { error: null, cancelled: true, refresh: false });
             return;
-        }
-        if (!result.error) {
-            this.invalidateRepoCache(payload.repo);
         }
         this.handler.emit('remoteActionResult', {
             error: result.error,
@@ -418,9 +398,6 @@ export class MessageRouter {
         if (result.error) {
             this.handler.emit('gitActionResult', { error: result.error, refresh: false });
             return;
-        }
-        if (result.refresh && payload.action !== 'viewScm' && 'repo' in payload) {
-            this.invalidateRepoCache(payload.repo);
         }
         this.handler.emit('gitActionResult', result);
     }

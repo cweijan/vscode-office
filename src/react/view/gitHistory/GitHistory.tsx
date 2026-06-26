@@ -359,7 +359,6 @@ function GitHistoryView({
 
     const loadRepository = useCallback((
         targetRepo: string,
-        invalidateCache = false,
         branchFilter: string | null = selectedBranchRef.current,
         author?: string,
         search?: string,
@@ -372,7 +371,6 @@ function GitHistoryView({
             repo: targetRepo,
             showRemoteBranches,
             showStashes: true,
-            invalidateCache,
             branches: branchFilter ? [branchFilter] : null,
             maxCommits: maxCommitsRef.current,
             showTags: true,
@@ -586,7 +584,7 @@ function GitHistoryView({
             .on('refresh', (payload: { repos: string[] }) => {
                 setRepos(payload.repos);
                 if (repoRef.current) {
-                    loadRepositoryRef.current(repoRef.current, true);
+                    loadRepositoryRef.current(repoRef.current);
                 }
             })
             .on('repos', (payload: { repos: string[] }) => {
@@ -607,7 +605,7 @@ function GitHistoryView({
                     return;
                 }
                 if (repoRef.current) {
-                    loadRepositoryRef.current(repoRef.current, true);
+                    loadRepositoryRef.current(repoRef.current);
                 }
             })
             .on('push', (payload: { error: string | null; cancelled?: boolean }) => {
@@ -620,7 +618,7 @@ function GitHistoryView({
                     return;
                 }
                 if (repoRef.current) {
-                    loadRepositoryRef.current(repoRef.current, true);
+                    loadRepositoryRef.current(repoRef.current);
                 }
             })
             .on('quickSync', (payload: { error: string | null }) => {
@@ -630,7 +628,7 @@ function GitHistoryView({
                     return;
                 }
                 if (repoRef.current) {
-                    loadRepositoryRef.current(repoRef.current, true);
+                    loadRepositoryRef.current(repoRef.current);
                 }
             })
             .on('repoConfig', (payload: { remotes: GitRemoteDetail[] }) => {
@@ -644,7 +642,7 @@ function GitHistoryView({
                     return;
                 }
                 if (payload.refresh && repoRef.current) {
-                    loadRepositoryRef.current(repoRef.current, true);
+                    loadRepositoryRef.current(repoRef.current);
                     if (settingsOpenRef.current) {
                         setConfigLoading(true);
                         handler.emit('loadRepoConfig', { repo: repoRef.current });
@@ -700,7 +698,7 @@ function GitHistoryView({
                 }
                 if (result.refresh && repoRef.current) {
                     clearCommitList();
-                    loadRepositoryRef.current(repoRef.current, true);
+                    loadRepositoryRef.current(repoRef.current);
                 }
             })
             .emit('ready');
@@ -742,7 +740,7 @@ function GitHistoryView({
         }
         setPullDefaults(getPullDefaults(newRepo));
         clearCommitList();
-        loadRepository(newRepo, true);
+        loadRepository(newRepo);
     };
     handleRepoChangeRef.current = handleRepoChange;
 
