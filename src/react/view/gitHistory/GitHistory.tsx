@@ -901,7 +901,11 @@ function GitHistoryView({
                 message: 'Select repository',
                 variant: 'openRemote',
                 submitLabel: 'Open',
-                options: repos.map((r) => ({
+                options: [...repos].sort((a, b) => {
+                    if (a === repo) return -1;
+                    if (b === repo) return 1;
+                    return 0;
+                }).map((r) => ({
                     value: r,
                     label: repoDisplayName(r),
                 })),
@@ -1033,7 +1037,9 @@ function GitHistoryView({
 
     const handleToggleFind = useCallback(() => {
         setFindOpen((open) => {
-            if (open) {
+            if (!open) {
+                handler.emit('trackEvent', { event: 'gitHistory.toolbar.find' });
+            } else {
                 setFindMatchIndex(null);
             }
             return !open;
