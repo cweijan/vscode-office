@@ -10,7 +10,7 @@ export default class DropdownFontSize extends Dropdown {
       size: it,
     }));
     super(
-      '12',
+      '11',
       'auto',
       true,
       'bottom-left',

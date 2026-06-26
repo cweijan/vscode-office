@@ -16,7 +16,7 @@ function computeAutoRowHeights(data, ctx) {
   const { rows, cols, styles } = data;
   const defaultStyle = data.defaultStyle();
   const defaultFontName = (defaultStyle.font && defaultStyle.font.name) || 'sans-serif';
-  const defaultFontSizePt = (defaultStyle.font && defaultStyle.font.size) || 12;
+  const defaultFontSizePt = (defaultStyle.font && defaultStyle.font.size) || 11;
 
   rows.each((ri, row) => {
     if (!row || !row.cells) return;
@@ -171,7 +171,7 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
     if (!font.name) {
       font.name = (defaultStyle.font && defaultStyle.font.name) || 'Arial';
     }
-    font.size = getFontSizePxByPt(font.size || (defaultStyle.font && defaultStyle.font.size) || 12);
+    font.size = getFontSizePxByPt(font.size || (defaultStyle.font && defaultStyle.font.size) || 11);
     const hyperlink = data.getHyperlink(rindex, cindex);
     const drawStyle = {
       align: style.align,

@@ -105,7 +105,7 @@ const defaultSettings = {
     color: '#0a0a0a',
     font: {
       name: getDefaultFontName(),
-      size: 12,
+      size: 11,
       bold: false,
       italic: false,
     },

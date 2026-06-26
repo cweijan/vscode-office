@@ -11,7 +11,7 @@ const FORMULA_MIN_WIDTH = 300;
 const FORMULA_MIN_HEIGHT = 80;
 
 function buildEditorFontCss(font, defaultFontName = 'Arial') {
-  const sizePx = getFontSizePxByPt(font?.size ?? 12);
+  const sizePx = getFontSizePxByPt(font?.size ?? 11);
   const parts = [];
   if (font?.italic) parts.push('italic');
   if (font?.bold) parts.push('bold');
@@ -317,7 +317,7 @@ export default class Editor {
     const font = cellStyle.font;
     if (font) {
       const fontCss = buildEditorFontCss(font);
-      const lineHeight = `${getFontSizePxByPt(font.size ?? 12) + 2}px`;
+      const lineHeight = `${getFontSizePxByPt(font.size ?? 11) + 2}px`;
       textEl.css('font', fontCss);
       textEl.css('line-height', lineHeight);
       textlineEl.css('font', fontCss);
