@@ -1,5 +1,32 @@
 # Change log
 
+# 4.0.7 2026-6-26
+
+New:
+
+- Support editing Vditor configuration via a configuration file.
+- Markdown editor supports remote and web workspaces (vscode-vfs, vscode-remote).
+
+Update:
+
+- Beautify alert color.
+- Improve PDF loading performance.
+- Improve Git history view styling.
+- Improve TIFF/HEIC loading performance.
+- Change the default Excel font size to 11.
+- Remove Git history caching for more accurate data.
+
+Markdown:
+
+- Add AI polish usage tip in settings panel.
+- Fix CodeMirror font not syncing with typography settings.
+- Fix pasted math formula blocks being converted into code blocks.
+
+Fix:
+
+- Fix incorrect read-only mode detection.
+- Fix remote URL order in Git view with multiple repositories.
+
 # 4.0.6 2026-6-26
 
 New:
