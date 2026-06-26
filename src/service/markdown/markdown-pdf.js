@@ -10,6 +10,7 @@ const markdownItPlantuml = require("markdown-it-plantuml")
 const markdownItToc = require("markdown-it-toc-done-right")
 const markdownItAnchor = require("markdown-it-anchor")
 const { exportByType } = require('./html-export')
+const { buildExportThemeCss } = require('./exportThemeCss')
 
 async function convertMarkdown(inputMarkdownFile, config) {
 
@@ -17,7 +18,7 @@ async function convertMarkdown(inputMarkdownFile, config) {
   const uri = URI.file(inputMarkdownFile)
   const text = fs.readFileSync(inputMarkdownFile).toString()
   const content = convertMarkdownToHtml(inputMarkdownFile, type, text, config)
-  const html = mergeHtml(content, uri, type)
+  const html = mergeHtml(content, uri, type, config)
 
   // insert mermaid script
   const $ = require("cheerio").load(html);
@@ -133,13 +134,16 @@ function convertMarkdownToHtml(filename, type, text, config) {
 /*
  * make html
  */
-function mergeHtml(content, uri, type) {
+function mergeHtml(content, uri, type, config = {}) {
   try {
     const mustache = require("mustache")
     const title = path.basename(uri.fsPath)
-    const style = readStyles(type)
+    const style = readStyles(type, config)
     const templatePath = path.join(__dirname, "template", "template.html")
-    return mustache.render(readFile(templatePath), { title, style, content })
+    const bodyClass = config.exportTheme
+        ? ` class="vditor-export${config.exportTheme.isDark ? ' vditor-export--dark' : ''}"`
+        : ''
+    return mustache.render(readFile(templatePath), { title, style, content, bodyClass })
   } catch (error) {
     showErrorMessage("makeHtml()", error)
   }
@@ -232,13 +236,15 @@ function resolveCssUrls(css, basePath, type) {
   })
 }
 
-function readStyles(type) {
+function readStyles(type, config = {}) {
   try {
     const basePath = path.join(__dirname, "styles");
     const katexPath = path.resolve(__dirname, '..', "resource", 'markdown', 'dist', 'js', 'katex', 'katex.min.css');
     const files = ['arduino-light.css', 'markdown.css', 'markdown-pdf.css']
+    const exportThemeCss = buildExportThemeCss(config.exportTheme)
     return files.map(file => makeCss(path.join(basePath, file))).join("")
       + makeCss(katexPath, true, type)
+      + exportThemeCss
   } catch (error) {
     showErrorMessage("readStyles()", error)
   }

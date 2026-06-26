@@ -169,6 +169,13 @@ export const setAIAvailable = (available, editor) => {
     editor?.setCopilotAvailable?.(available);
 }
 
+const emitExport = (editor, payload) => {
+    vscodeEvent.emit('export', {
+        ...payload,
+        exportTheme: editor.exportExportSettings?.(),
+    })
+}
+
 export const createContextMenu = (editor) => {
     const menu = document.getElementById('context-menu')
 
@@ -213,16 +220,16 @@ export const createContextMenu = (editor) => {
                 vscodeEvent.emit('command', 'office.markdown.paste')
                 break
             case 'exportPdf':
-                vscodeEvent.emit('export', { type: 'pdf' })
+                emitExport(editor, { type: 'pdf' })
                 break
             case 'exportPdfWithoutOutline':
-                vscodeEvent.emit('export', { type: 'pdf', withoutOutline: true })
+                emitExport(editor, { type: 'pdf', withoutOutline: true })
                 break
             case 'exportDocx':
-                vscodeEvent.emit('export', { type: 'docx' })
+                emitExport(editor, { type: 'docx' })
                 break
             case 'exportHtml':
-                vscodeEvent.emit('export', { type: 'html' })
+                emitExport(editor, { type: 'html' })
                 break
             case 'showInFolder':
                 vscodeEvent.emit('showInFolder')

@@ -14,9 +14,28 @@ import { TelemetryService } from "./telemetryService";
 
 export type ExportType = 'pdf' | 'html' | 'docx';
 
+export interface ExportLayoutSettings {
+    fontSize: string;
+    fontFamily: string;
+    lineHeight: string;
+    pageWidth: string;
+    codeFontFamily: string;
+}
+
+export interface ExportThemeSettings {
+    editorTheme: string;
+    isDark: boolean;
+    codeMirrorTheme?: string;
+    mermaidTheme?: string;
+    globalSettings: Record<string, boolean | number | string | undefined>;
+    cssVariables: Record<string, string>;
+    layout: ExportLayoutSettings;
+}
+
 interface ExportOption {
     type?: ExportType;
     withoutOutline?: boolean;
+    exportTheme?: ExportThemeSettings;
 }
 
 export class MarkdownService {
@@ -49,6 +68,7 @@ export class MarkdownService {
             type,
             "styles": [],
             withoutOutline,
+            exportTheme: option.exportTheme,
             // chromium path
             "executablePath": this.getChromiumPath(),
             // puppeteer launch args (useful for Linux servers running as root)

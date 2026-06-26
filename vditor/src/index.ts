@@ -55,6 +55,7 @@ import {
     setOnViewerSettingsChange,
     ViewerSettingsExport,
 } from "./ts/util/globalLocalStorageSettings";
+import {exportExportSettings, ExportThemeSettings} from "./ts/util/exportThemeSettings";
 import {
     buildSettingsPanelHTML,
     refreshAISettingsToolbarPanel,
@@ -383,6 +384,11 @@ class Vditor {
     /** 导出当前全局设置（用于写入配置文件） */
     public exportViewerSettings(): ViewerSettingsExport {
         return exportViewerSettings();
+    }
+
+    /** 导出当前编辑器主题与排版设置（用于 PDF/HTML/DOCX 导出） */
+    public exportExportSettings(): ExportThemeSettings {
+        return exportExportSettings(this.vditor);
     }
 
     /** 从配置文件导入并应用全局设置 */
