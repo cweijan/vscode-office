@@ -3,10 +3,13 @@
 # 4.0.6
 
 New:
+
 - Full support for Excel.
 - Support editing DOCX files.
+- Support the web version of VS Code.
 
 Markdown:
+
 - Support Wikilinks.
 - Support AI-powered polishing.
 - Support configuring editor typography.
@@ -16,7 +19,6 @@ Markdown:
 # 4.0.5 2026-6-23
 
 Important: **Refactor Markdown editor**: beautified UI with modernized toolbar, in-page search (Ctrl/Cmd+F), and real-time code block editing
-
 
 Other:
 

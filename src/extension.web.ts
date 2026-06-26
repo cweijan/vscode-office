@@ -20,7 +20,7 @@ import { IconService } from './service/icon/iconService';
 
 export async function activate(context: vscode.ExtensionContext) {
 	setExtensionHostContext();
-	Global.init(context);
+	await Global.init(context);
 	TelemetryService.init(context);
 	await IconService.getInstance().init(context);
 	FileUtil.init(context);

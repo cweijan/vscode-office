@@ -18,7 +18,7 @@ import { activateGitHistory } from './gitHistory/provider';
 import { IconService } from './service/icon/iconService';
 
 export async function activate(context: vscode.ExtensionContext) {
-	Global.init(context);
+	await Global.init(context);
 	TelemetryService.init(context);
 	await IconService.getInstance().init(context);
 	activateHttp(context);

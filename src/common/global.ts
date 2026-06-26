@@ -15,9 +15,9 @@ export function i18n(key: string, ...args: string[]) {
 export class Global {
     public static context: ExtensionContext;
 
-    public static init(context: ExtensionContext) {
+    public static async init(context: ExtensionContext) {
         Global.context = context;
-        initI18n(context.extensionPath);
+        await initI18n(context);
     }
 
     /**

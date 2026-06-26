@@ -1,6 +1,5 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as vscode from 'vscode';
+import { ExtensionContext, env, workspace } from 'vscode';
+import { extensionResource, readExtensionText } from '../extensionResource';
 
 interface LanguagePack {
     [key: string]: string;
@@ -10,9 +9,10 @@ interface LocalizeOptions {
     locale?: string;
 }
 
+const DEFAULT_NLS_FILE = 'package.nls.json';
+
 class Localize {
     private readonly options: LocalizeOptions;
-    private extensionPath = '';
     private bundle: LanguagePack = {};
 
     constructor(options: LocalizeOptions = {}) {
@@ -24,9 +24,8 @@ class Localize {
         return this.format(message, args);
     }
 
-    init(extensionPath: string): void {
-        this.extensionPath = extensionPath;
-        this.bundle = this.resolveLanguagePack();
+    async init(context: ExtensionContext): Promise<void> {
+        this.bundle = await this.resolveLanguagePack(context);
     }
 
     private format(message: string, args: string[] = []): string {
@@ -39,41 +38,51 @@ class Localize {
         });
     }
 
-    private resolveLanguagePack(): LanguagePack {
-        const defaultResolvedLanguage = '.nls.json';
-        let resolvedLanguage = '';
-        const rootPath = this.extensionPath || process.cwd();
-        const file = path.join(rootPath, 'package');
+    private async nlsFileExists(context: ExtensionContext, fileName: string): Promise<boolean> {
+        try {
+            await workspace.fs.stat(extensionResource(context, fileName));
+            return true;
+        } catch {
+            return false;
+        }
+    }
 
-        if (!this.options.locale) {
-            resolvedLanguage = defaultResolvedLanguage;
-        } else {
+    private async readLanguagePack(context: ExtensionContext, fileName: string): Promise<LanguagePack> {
+        try {
+            const text = await readExtensionText(context, fileName);
+            return JSON.parse(text);
+        } catch {
+            return {};
+        }
+    }
+
+    private async resolveLanguagePack(context: ExtensionContext): Promise<LanguagePack> {
+        let resolvedFile = DEFAULT_NLS_FILE;
+
+        if (this.options.locale) {
             let locale = this.options.locale;
             while (locale) {
-                const candidate = '.nls.' + locale + '.json';
-                if (fs.existsSync(file + candidate)) {
-                    resolvedLanguage = candidate;
+                const candidate = `package.nls.${locale}.json`;
+                if (await this.nlsFileExists(context, candidate)) {
+                    resolvedFile = candidate;
                     break;
                 }
                 const index = locale.lastIndexOf('-');
                 if (index > 0) {
                     locale = locale.substring(0, index);
                 } else {
-                    resolvedLanguage = defaultResolvedLanguage;
-                    locale = '';
+                    resolvedFile = DEFAULT_NLS_FILE;
+                    break;
                 }
             }
         }
 
         let defaultLanguageBundle: LanguagePack = {};
-        if (resolvedLanguage !== defaultResolvedLanguage) {
-            defaultLanguageBundle = JSON.parse(fs.readFileSync(file + defaultResolvedLanguage, 'utf8'));
+        if (resolvedFile !== DEFAULT_NLS_FILE) {
+            defaultLanguageBundle = await this.readLanguagePack(context, DEFAULT_NLS_FILE);
         }
 
-        const languageFilePath = path.join(file + resolvedLanguage);
-        const resolvedLanguageBundle: LanguagePack = fs.existsSync(languageFilePath)
-            ? JSON.parse(fs.readFileSync(languageFilePath, 'utf8'))
-            : {};
+        const resolvedLanguageBundle = await this.readLanguagePack(context, resolvedFile);
 
         return {
             ...defaultLanguageBundle,
@@ -82,10 +91,10 @@ class Localize {
     }
 }
 
-const instance = new Localize({ locale: vscode.env.language });
+const instance = new Localize({ locale: env.language });
 
-export function initI18n(extensionPath: string): void {
-    instance.init(extensionPath);
+export async function initI18n(context: ExtensionContext): Promise<void> {
+    await instance.init(context);
 }
 
 export function localize(key: string, ...args: string[]): string {
