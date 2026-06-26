@@ -192,15 +192,19 @@ export const createContextMenu = (editor) => {
         const action = item.dataset.action
         switch (action) {
             case 'copy':
+                handler.emit('telemetry', { event: 'markdown.copy' })
                 document.execCommand('copy')
                 break
             case 'copyAsHtml':
+                handler.emit('telemetry', { event: 'markdown.copyAsHtml' })
                 copyHtml(getSelectedHtml() || editor.getHTML())
                 break
             case 'copyAsPlainText':
+                handler.emit('telemetry', { event: 'markdown.copyAsPlainText' })
                 copyPlainText(getSelectedPlainText() || htmlToPlainText(editor.getHTML()))
                 break
             case 'paste':
+                handler.emit('telemetry', { event: 'markdown.paste' })
                 if (document.getSelection()?.toString()) { document.execCommand('delete') }
                 vscodeEvent.emit('command', 'office.markdown.paste')
                 break

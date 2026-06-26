@@ -743,7 +743,7 @@
     min-height: 96px;
     max-height: min(280px, calc(100vh - 140px));
     overflow: auto;
-    font-family: var(--code-font-family, monospace);
+    font-family: var(--code-font-family);
     font-size: 12px;
     line-height: 1.5;
   }
@@ -852,8 +852,8 @@
 .vditor-cm-host .cm-editor .cm-scroller,
 .vditor-cm-host .cm-editor .cm-content,
 .vditor-cm-host .cm-editor .cm-line {
-  font-family: var(--vscode-editor-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace) !important;
-  font-size: var(--vscode-editor-font-size, 13px);
+  font-family: var(--code-font-family) !important;
+  font-size: var(--editor-font-size, var(--vscode-editor-font-size, 13px));
   font-weight: var(--vscode-editor-font-weight, normal);
   font-feature-settings: "liga" 0, "calt" 0;
   font-variant-ligatures: none;
@@ -869,7 +869,7 @@
 
   .cm-editor,
   .cm-editor .cm-scroller {
-    font-family: var(--vscode-editor-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace) !important;
+    font-family: var(--code-font-family) !important;
   }
 
   .cm-cursor,
@@ -892,7 +892,7 @@
   box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.2);
   border-radius: 3px;
   background: var(--vscode-editorSuggestWidget-background);
-  font-family: var(--vscode-editor-font-family);
+  font-family: var(--code-font-family);
   font-weight: var(--vscode-font-weight);
   font-size: var(--vscode-font-size);
   max-height: 20em;
@@ -940,9 +940,9 @@
 
   .cm-scroller {
     overflow: auto;
-    font-family: var(--vscode-editor-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace) !important;
-    font-size: var(--vscode-editor-font-size, 13px);
-    line-height: calc(var(--vscode-editor-font-size, 13px) * 1.5);
+    font-family: var(--code-font-family) !important;
+    font-size: var(--editor-font-size, var(--vscode-editor-font-size, 13px));
+    line-height: calc(var(--editor-font-size, var(--vscode-editor-font-size, 13px)) * 1.5);
     .vditor-cm-scrollbar(var(--cm-bg-color, var(--code-bg-color, var(--second-bg-color))));
   }
 
