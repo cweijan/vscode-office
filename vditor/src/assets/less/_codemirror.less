@@ -45,7 +45,7 @@
     outline: none;
     flex: 1 1 auto;
     min-height: 1.35em;
-    max-height: 500px;
+    max-height: none;
     border-radius: 0 0 6px 6px;
     overflow: hidden;
     color: var(--cm-fg-color, var(--vscode-editor-foreground));
@@ -58,7 +58,7 @@
 
   .cm-scroller {
     overflow: auto;
-    max-height: 400px;
+    max-height: var(--cm-block-max-height, 400px);
     scrollbar-gutter: stable;
     font-family: inherit;
     line-height: calc(var(--vscode-editor-font-size, 13px) * 1.35);
@@ -232,6 +232,7 @@
 
   .vditor-cm-chrome__delete,
   .vditor-cm-chrome__copy,
+  .vditor-cm-chrome__expand,
   .vditor-cm-chrome__theme-trigger {
     opacity: 0;
     visibility: hidden;
@@ -389,7 +390,8 @@
   pointer-events: auto;
 }
 
-.vditor-cm-chrome__theme-trigger {
+.vditor-cm-chrome__theme-trigger,
+.vditor-cm-chrome__expand {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -928,7 +930,7 @@
   .cm-editor {
     outline: none;
     min-height: 2em;
-    max-height: 400px;
+    max-height: var(--cm-block-max-height, 400px);
     border-radius: 6px;
     color: var(--cm-fg-color, var(--vscode-editor-foreground));
   }
@@ -1056,4 +1058,33 @@
   }
 
   // Keep preview's original display so KaTeX/min-height doesn't affect line box unexpectedly.
+}
+
+// Expandable code block: lift the height cap for a single block
+.vditor-cm-host--expanded .cm-editor,
+.vditor-cm-host--expanded .cm-scroller {
+  max-height: none;
+}
+
+// Expand/collapse toggle: base look + behaviour (incl. pointer-events:auto) are shared with
+// .vditor-cm-chrome__theme-trigger above. Here we add the icon, and the visibility: like the
+// other chrome buttons it appears on hover/focus, additionally gated to blocks that overflow.
+.vditor-cm-chrome__expand-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  color: var(--cm-fg-color, var(--toolbar-icon-color));
+
+  .codicon {
+    font-size: 16px;
+    line-height: 1;
+  }
+}
+
+.vditor-cm-host--has-overflow:hover .vditor-cm-chrome__expand,
+.vditor-cm-host--has-overflow:has(.cm-editor.cm-focused) .vditor-cm-chrome__expand {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }

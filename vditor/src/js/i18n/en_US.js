@@ -1,4 +1,7 @@
 window.VditorI18n = {
+  'codeBlockHeight': 'Code block height',
+  'expandCode': 'Expand',
+  'collapseCode': 'Collapse',
   'alignCenter': 'Center',
   'alignLeft': 'Left',
   'alignRight': 'Right',

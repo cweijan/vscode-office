@@ -27,6 +27,9 @@ import {
 
 const CHROME_CLASS = "vditor-cm-chrome";
 const LANG_SEARCH_CLASS = "vditor-cm-chrome__lang-search";
+const EXPANDED_CLASS = "vditor-cm-host--expanded";
+const HAS_OVERFLOW_CLASS = "vditor-cm-host--has-overflow";
+const OVERFLOW_THRESHOLD = 8;
 
 export const isInsideCodeBlockChrome = (target: EventTarget | Node | null) => {
     if (!target) {
@@ -58,6 +61,8 @@ interface ICodeBlockChrome {
     langReadonly: boolean;
     performCopy: () => Promise<boolean>;
     langActiveIndex: number;
+    expandBtn: HTMLButtonElement;
+    resizeObserver?: ResizeObserver;
 }
 
 const chromeMap = new WeakMap<HTMLElement, ICodeBlockChrome>();
@@ -525,12 +530,20 @@ const createChromeRoot = (editable: boolean) => {
         actions.appendChild(deleteBtn);
     }
 
+    const expandBtn = document.createElement("button");
+    expandBtn.type = "button";
+    expandBtn.className = "vditor-cm-chrome__expand";
+    expandBtn.setAttribute("aria-label", window.VditorI18n.expandCode || "Expand");
+    expandBtn.setAttribute("aria-expanded", "false");
+    expandBtn.innerHTML = `<span class="vditor-cm-chrome__expand-icon">${codicon("chevron-down")}</span>`;
+
     const copyBtn = document.createElement("button");
     copyBtn.type = "button";
     copyBtn.className = "vditor-cm-chrome__copy";
     copyBtn.setAttribute("aria-label", window.VditorI18n.copy || "Copy");
     copyBtn.innerHTML = `<span class="vditor-cm-chrome__copy-icon">${codicon("copy")}</span>`;
     actions.appendChild(copyBtn);
+    actions.appendChild(expandBtn);
 
     toolbar.appendChild(langWrap);
     toolbar.appendChild(actions);
@@ -546,6 +559,7 @@ const createChromeRoot = (editable: boolean) => {
         toolbar,
         deleteBtn,
         copyBtn,
+        expandBtn,
         langWrap,
         langTrigger,
         langLabel: langTrigger.querySelector(".vditor-cm-chrome__lang-label") as HTMLElement,
@@ -557,6 +571,51 @@ const createChromeRoot = (editable: boolean) => {
         themeTrigger,
         themePanel,
     };
+};
+
+const updateExpandButton = (chrome: ICodeBlockChrome, host: HTMLElement) => {
+    const expanded = host.classList.contains(EXPANDED_CLASS);
+    chrome.expandBtn.setAttribute(
+        "aria-label",
+        expanded ? (window.VditorI18n.collapseCode || "Collapse") : (window.VditorI18n.expandCode || "Expand"),
+    );
+    chrome.expandBtn.setAttribute("aria-expanded", String(expanded));
+    const icon = chrome.expandBtn.querySelector(".vditor-cm-chrome__expand-icon .codicon") as HTMLElement | null;
+    if (icon) {
+        icon.classList.toggle("codicon-chevron-down", !expanded);
+        icon.classList.toggle("codicon-chevron-up", expanded);
+    }
+};
+
+const recomputeExpandState = (chrome: ICodeBlockChrome, host: HTMLElement) => {
+    const scroller = host.querySelector(".cm-scroller") as HTMLElement | null;
+    const expanded = host.classList.contains(EXPANDED_CLASS);
+    const overflowing = !!scroller && scroller.scrollHeight - scroller.clientHeight > OVERFLOW_THRESHOLD;
+    host.classList.toggle(HAS_OVERFLOW_CLASS, expanded || overflowing);
+    updateExpandButton(chrome, host);
+};
+
+const setupExpandToggle = (chrome: ICodeBlockChrome, host: HTMLElement) => {
+    const btn = chrome.expandBtn;
+    if (btn.dataset.expandBound !== "true") {
+        btn.dataset.expandBound = "true";
+        btn.addEventListener("mousedown", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+        });
+        btn.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            host.classList.toggle(EXPANDED_CLASS);
+            recomputeExpandState(chrome, host);
+        });
+        const content = host.querySelector(".cm-content");
+        if (typeof ResizeObserver !== "undefined" && content) {
+            chrome.resizeObserver = new ResizeObserver(() => recomputeExpandState(chrome, host));
+            chrome.resizeObserver.observe(content);
+        }
+    }
+    recomputeExpandState(chrome, host);
 };
 
 export const ensurePreviewCodeBlockChrome = (
@@ -582,6 +641,7 @@ export const ensurePreviewCodeBlockChrome = (
     chromeMap.set(host, chrome);
     host.insertBefore(chrome.root, host.firstChild);
     bindCopyButton(chrome.copyBtn, () => chrome.performCopy());
+    setupExpandToggle(chrome, host);
     updateCodeBlockChromeLanguage(host, languageName);
 };
 
@@ -664,6 +724,7 @@ export const ensureCodeBlockChrome = (
             });
             bindThemePanel(vditor, chrome);
         }
+        setupExpandToggle(chrome, host);
     }
 
     chrome.performCopy = options.performCopy;
@@ -673,6 +734,7 @@ export const ensureCodeBlockChrome = (
     const codeElement = blockElement.querySelector("pre code") as HTMLElement;
     const languageName = isMathBlockElement(blockElement) ? "math" : (codeElement ? getCodeLanguageName(codeElement) : "");
     updateCodeBlockChromeLanguage(blockElement, languageName);
+    recomputeExpandState(chrome, host);
 };
 
 export const removeCodeBlockChrome = (target: HTMLElement) => {
@@ -686,6 +748,7 @@ export const removeCodeBlockChrome = (target: HTMLElement) => {
     if (openThemeChrome === chrome) {
         closeThemePanel();
     }
+    chrome.resizeObserver?.disconnect();
     chrome.root.remove();
     chromeMap.delete(target);
 };

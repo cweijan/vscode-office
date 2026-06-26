@@ -1,4 +1,7 @@
 window.VditorI18n = {
+  'codeBlockHeight': '코드 블록 높이',
+  'expandCode': '펼치기',
+  'collapseCode': '접기',
   'alignCenter': '가운데',
   'alignLeft': '왼쪽',
   'alignRight': '오른쪽',
