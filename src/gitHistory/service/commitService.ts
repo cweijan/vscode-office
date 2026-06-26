@@ -35,31 +35,8 @@ export class CommitService {
         '%H', '%P', '%aN', '%aE', '%at', '%cN', '%cE', '%ct', '%G?', '%GS', '%GK', '%B',
     ].join(GIT_LOG_SEPARATOR);
     private readonly gitFormatStash = `%H${GIT_LOG_SEPARATOR}%gD${GIT_LOG_SEPARATOR}%P${GIT_LOG_SEPARATOR}%aN${GIT_LOG_SEPARATOR}%aE${GIT_LOG_SEPARATOR}%at${GIT_LOG_SEPARATOR}%s`;
-    private readonly refCache = new Map<string, GitRefData>();
-    private readonly authorsCache = new Map<string, string[]>();
 
     constructor(private readonly executor: GitExecutor) { }
-
-    invalidateRepoCache(repo: string): void {
-        const prefix = `${repo}\0`;
-        for (const key of this.refCache.keys()) {
-            if (key.startsWith(prefix)) {
-                this.refCache.delete(key);
-            }
-        }
-        this.authorsCache.delete(repo);
-    }
-
-    getAuthorsCached(repo: string): Promise<string[]> {
-        const cached = this.authorsCache.get(repo);
-        if (cached) {
-            return Promise.resolve(cached);
-        }
-        return this.getAuthors(repo).then((authors) => {
-            this.authorsCache.set(repo, authors);
-            return authors;
-        });
-    }
 
     getRepoInfo(
         repo: string,
@@ -105,7 +82,7 @@ export class CommitService {
                 includeCommitsMentionedByReflogs, onlyFollowFirstParent, commitOrdering,
                 remotes, hideRemotes, stashes, author, searchValue, relPath
             ),
-            this.getRefsCached(repo, showRemoteBranches, hideRemotes).catch(
+            this.getRefs(repo, showRemoteBranches, hideRemotes).catch(
                 (errorMessage: string) => errorMessage
             ),
         ]).then(([rawCommits, refDataOrError]) =>
@@ -129,20 +106,16 @@ export class CommitService {
 
     loadRepository(request: LoadRepositoryRequest): Promise<LoadRepositoryResult> {
         const {
-            repo, showRemoteBranches, showStashes, hideRemotes = [], invalidateCache,
+            repo, showRemoteBranches, showStashes, hideRemotes = [],
             branches, maxCommits, showTags, includeCommitsMentionedByReflogs,
             onlyFollowFirstParent, commitOrdering, author, searchValue, relPath,
         } = request;
-
-        if (invalidateCache) {
-            this.invalidateRepoCache(repo);
-        }
 
         return Promise.all([
             this.getBranches(repo, showRemoteBranches, hideRemotes),
             this.getRemotes(repo),
             showStashes ? this.getStashes(repo) : Promise.resolve([] as GitStash[]),
-            this.getRefsCached(repo, showRemoteBranches, hideRemotes).catch(
+            this.getRefs(repo, showRemoteBranches, hideRemotes).catch(
                 (errorMessage: string) => errorMessage
             ),
         ]).then(([branchData, remotes, stashes, refDataOrError]) =>
@@ -431,30 +404,6 @@ export class CommitService {
         });
     }
 
-    private refCacheKey(
-        repo: string,
-        showRemoteBranches: boolean,
-        hideRemotes: ReadonlyArray<string>
-    ): string {
-        return `${repo}\0${showRemoteBranches}\0${hideRemotes.join('\0')}`;
-    }
-
-    private getRefsCached(
-        repo: string,
-        showRemoteBranches: boolean,
-        hideRemotes: ReadonlyArray<string>
-    ): Promise<GitRefData> {
-        const key = this.refCacheKey(repo, showRemoteBranches, hideRemotes);
-        const cached = this.refCache.get(key);
-        if (cached) {
-            return Promise.resolve(cached);
-        }
-        return this.getRefs(repo, showRemoteBranches, hideRemotes).then((data) => {
-            this.refCache.set(key, data);
-            return data;
-        });
-    }
-
     private getRefs(
         repo: string,
         showRemoteBranches: boolean,
@@ -529,7 +478,7 @@ export class CommitService {
         );
     }
 
-    private getAuthors(repo: string): Promise<string[]> {
+    getAuthors(repo: string): Promise<string[]> {
         return this.executor.spawn(
             ['shortlog', '-e', '-s', '-n', 'HEAD'],
             repo,
