@@ -171,6 +171,10 @@ export class AISettings extends MenuItem {
     private buildPanelHTML() {
         const i18n = window.VditorI18n;
         return `<div class="${SETTINGS_PANEL_CLASS}">
+            <div class="${SETTINGS_PANEL_CLASS}__ai-hint">
+                <span class="codicon codicon-info"></span>
+                <span>${i18n.aiHint ?? 'Right-click to use <b>AI Polish</b>'}</span>
+            </div>
             <div class="${SETTINGS_PANEL_CLASS}__section">
                 <div class="${SETTINGS_PANEL_CLASS}__title">${i18n.aiPrompts}</div>
                 ${buildAIPromptsHTML()}
