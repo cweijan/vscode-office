@@ -517,6 +517,18 @@
 					},
 					{
 						"filenamePattern": "file:/**/*.markdown"
+					},
+					{
+						"filenamePattern": "vscode-vfs:/**/*.md"
+					},
+					{
+						"filenamePattern": "vscode-vfs:/**/*.markdown"
+					},
+					{
+						"filenamePattern": "vscode-remote:/**/*.md"
+					},
+					{
+						"filenamePattern": "vscode-remote:/**/*.markdown"
 					}
 				]
 			},
