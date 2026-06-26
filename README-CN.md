@@ -61,6 +61,46 @@
 
 适用于 Visual Studio Code 的数据库客户端，支持 **MySQL/MariaDB、PostgreSQL、SQLite、Redis** 以及 **ElasticSearch** 等数据库的管理，且可作为一个 SSH 客户端，极大地提升您的生产力！[立刻安装](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2)。
 
+## 开发指南
+
+### 环境要求
+
+- [Node.js](https://nodejs.org/) 18+
+- [VS Code](https://code.visualstudio.com/) 1.64+
+
+### 快速开始
+
+```bash
+git clone https://github.com/cweijan/vscode-office.git
+cd vscode-office
+npm install
+```
+
+### 开发调试
+
+**桌面端扩展**（完整功能）：
+
+```bash
+npm run dev
+```
+
+在 VS Code 中按 `F5`，或在「运行和调试」中选择 **Extension**。
+
+**Web 端扩展**（浏览器中的 Markdown、HTML、YAML）：
+
+```bash
+npm run dev:web
+```
+
+在「运行和调试」中选择 **Extension (Web)**。
+
+### 构建与打包
+
+```bash
+npm run build    # 生产构建
+npm run package  # 生成 .vsix
+```
+
 ## 使用数据（Usage Data）
 
 Office Viewer 会收集**匿名使用数据**，用于了解各预览功能的使用情况，以便改进扩展。数据通过官方模块 [`@vscode/extension-telemetry`](https://www.npmjs.com/package/@vscode/extension-telemetry) 发送至 [Azure Application Insights](https://learn.microsoft.com/zh-cn/azure/azure-monitor/app/app-insights-overview)。
