@@ -1,8 +1,6 @@
 import {LanguageDescription} from "@codemirror/language";
 import { languages } from "@codemirror/language-data";
 
-import { Constants } from "../constants";
-
 interface CodeMirrorLanguageEntry {
     canonical: string;
     terms: string[];
@@ -355,16 +353,4 @@ export const matchCodeMirrorLanguages = (key: string, currentLanguage = ""): IHi
         }
     }
     return sortHintDataWithPinnedFirst(matchLangData);
-};
-
-/** 脑图、mermaid 等特殊预览代码块的语言补全 */
-export const matchPreviewCodeLanguages = (key: string): IHintData[] => {
-    const matchLangData: IHintData[] = [];
-    const lower = key.toLowerCase();
-    for (const keyName of Constants.CODE_LANGUAGES) {
-        if (keyName.indexOf(lower) > -1) {
-            matchLangData.push({ html: keyName, value: keyName });
-        }
-    }
-    return matchLangData;
 };

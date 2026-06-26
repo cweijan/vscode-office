@@ -1,5 +1,4 @@
 import {Constants} from "../constants";
-import {processAfterRender} from "../ir/process";
 import {code160to32} from "../util/code160to32";
 import {isCtrl} from "../util/compatibility";
 import {execAfterRender} from "../util/fixBrowserBehavior";
@@ -130,48 +129,6 @@ export class Hint {
         }
 
         const range: Range = window.getSelection().getRangeAt(0);
-
-        // 代码提示
-        if (vditor.currentMode === "ir") {
-            const preBeforeElement = hasClosestByAttribute(range.startContainer, "data-type", "code-block-info");
-            if (preBeforeElement) {
-                const lang = value.trimRight();
-                preBeforeElement.textContent = Constants.ZWSP + lang;
-                range.selectNodeContents(preBeforeElement);
-                range.collapse(false);
-                const codeBlockElement = preBeforeElement.parentElement as HTMLElement;
-                if (isCmCodeBlock(codeBlockElement)) {
-                    updateCodeMirrorLanguage(codeBlockElement, lang);
-                } else {
-                    preBeforeElement.parentElement.querySelectorAll("code").forEach((item) => {
-                        item.className = "language-" + lang;
-                    });
-                    processCodeRender(preBeforeElement.parentElement.querySelector(".vditor-ir__preview"), vditor);
-                }
-                processAfterRender(vditor);
-                this.recentLanguage = lang;
-                return;
-            }
-        }
-        if (vditor.currentMode === "wysiwyg" && range.startContainer.nodeType !== 3 ) {
-            const startContainer = range.startContainer as HTMLElement;
-            let inputElement: HTMLInputElement;
-            if (startContainer.classList.contains("vditor-input")) {
-                inputElement = startContainer as HTMLInputElement;
-            } else {
-                inputElement = startContainer.firstElementChild as HTMLInputElement;
-            }
-            if (inputElement && inputElement.classList.contains("vditor-input")) {
-                inputElement.value = value.trimRight();
-                range.selectNodeContents(inputElement);
-                range.collapse(false);
-                // {detail: 1}用于标识这个自定义事件是在编程语言选择后触发的
-                // 用于在鼠标选择语言后，自动聚焦到代码输入框
-                inputElement.dispatchEvent(new CustomEvent("input", {detail: 1}));
-                this.recentLanguage = value.trimRight();
-                return;
-            }
-        }
 
         range.setStart(range.startContainer, this.lastIndex);
         range.deleteContents();

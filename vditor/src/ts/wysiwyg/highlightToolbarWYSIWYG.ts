@@ -13,8 +13,6 @@ import {
     hasClosestByHeadings,
     hasClosestByTag,
 } from "../util/hasClosestByHeadings";
-import {processCodeRender} from "../util/processCode";
-import {matchPreviewCodeLanguages} from "../codeBlock/codeBlockLanguageHints";
 import {
     focusCodeMirror,
     isCmCodeBlock,
@@ -24,10 +22,8 @@ import {
     isSpecialBlock,
     CM_EDITING_CLASS,
     syncMathBlocksDisplayMode,
-    shouldShowLanguagePopover,
-    updateCodeMirrorLanguage,
 } from "../codeBlock/codeMirrorManager";
-import {showCodeBlockLanguagePopover, getModeEditorElement, getModePopover} from "../codeBlock/codeBlockLanguagePopover";
+import {getModeEditorElement, getModePopover} from "../codeBlock/codeBlockLanguagePopover";
 import {
     getEditorRange,
     selectIsEditor,
@@ -300,99 +296,7 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
                     previousElement.style.display = "none";
                 }
             });
-        if (blockRenderElement !== false && isBlock) {
-            if (blockRenderElement.getAttribute("data-type") === "code-block" &&
-                shouldShowLanguagePopover(blockRenderElement) &&
-                !isCmCodeBlock(blockRenderElement)) {
-                showCodeBlockLanguagePopover(vditor, blockRenderElement);
-            } else if (blockRenderElement.getAttribute("data-type") === "code-block" &&
-                !isCmCodeBlock(blockRenderElement)) {
-                vditor.wysiwyg.popover.innerHTML = "";
-                    const languageWrap = document.createElement("span");
-                languageWrap.setAttribute("aria-label", window.VditorI18n.language + "<" + updateHotkeyTip("⌥Enter") + ">");
-                languageWrap.className = "vditor-tooltipped vditor-tooltipped__n";
-                const language = document.createElement("input");
-                languageWrap.appendChild(language);
-
-                const codeElement = blockRenderElement.querySelector("pre code") as HTMLElement;
-
-                language.className = "vditor-input";
-                language.setAttribute("placeholder", window.VditorI18n.language);
-                language.value =
-                    codeElement.className.indexOf("language-") > -1
-                        ? codeElement.className.split("-")[1].split(" ")[0]
-                        : "";
-                language.oninput = (e: InputEvent) => {
-                    const lang = language.value.trim();
-                    if (lang !== "") {
-                        codeElement.className = `language-${lang}`;
-                        vditor.hint.recentLanguage = lang;
-                    } else {
-                        codeElement.className = "";
-                        vditor.hint.recentLanguage = "";
-                    }
-                    if (!isCmCodeBlock(blockRenderElement) &&
-                        blockRenderElement.lastElementChild.classList.contains("vditor-wysiwyg__preview")) {
-                        blockRenderElement.lastElementChild.innerHTML =
-                            blockRenderElement.firstElementChild.innerHTML;
-                        processCodeRender(blockRenderElement.lastElementChild as HTMLElement, vditor);
-                    }
-                    updateCodeMirrorLanguage(blockRenderElement, language.value.trim());
-                    afterRenderEvent(vditor);
-                    if (e.detail === 1 && isCmCodeBlock(blockRenderElement)) {
-                        focusCodeMirror(blockRenderElement, true, vditor);
-                    }
-                };
-                language.onkeydown = (event: KeyboardEvent) => {
-                    if (event.isComposing) {
-                        return;
-                    }
-                    if (removeBlockElement(vditor, event)) {
-                        return;
-                    }
-                    if (
-                        event.key === "Escape" &&
-                        vditor.hint.element.style.display === "block"
-                    ) {
-                        vditor.hint.element.style.display = "none";
-                        event.preventDefault();
-                        return;
-                    }
-                    vditor.hint.select(event, vditor);
-                    if (
-                        !isCtrl(event) &&
-                        !event.shiftKey &&
-                        event.key === "Enter"
-                    ) {
-                        if (isCmCodeBlock(blockRenderElement)) {
-                            focusCodeMirror(blockRenderElement, false, vditor);
-                        } else {
-                            range.setStart(codeElement.firstChild, 0);
-                            range.collapse(true);
-                            setSelectionFocus(range);
-                        }
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                };
-                language.onkeyup = (event: KeyboardEvent) => {
-                    if (
-                        event.isComposing ||
-                        event.key === "Enter" ||
-                        event.key === "ArrowUp" ||
-                        event.key === "Escape" ||
-                        event.key === "ArrowDown"
-                    ) {
-                        return;
-                    }
-                    const key = language.value.substring(0, language.selectionStart);
-                    vditor.hint.genHTML(matchPreviewCodeLanguages(key), key, vditor);
-                    event.preventDefault();
-                };
-                vditor.wysiwyg.popover.insertAdjacentElement("beforeend", languageWrap);
-                setPopoverPosition(vditor, blockRenderElement);
-            }
-        } else {
+        if (!(blockRenderElement !== false && isBlock)) {
             blockRenderElement = false;
         }
         if (headingElement) {
@@ -412,10 +316,7 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
             !headingElement &&
             !tocElement
         ) {
-            const cmBlock = hasClosestByAttribute(typeElement, "data-type", "code-block") as HTMLElement;
-            if (!(cmBlock && shouldShowLanguagePopover(cmBlock))) {
-                vditor.wysiwyg.popover.style.display = "none";
-            }
+            vditor.wysiwyg.popover.style.display = "none";
         }
 
         // 反斜杠特殊处理
@@ -427,11 +328,6 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
         const backslashElement = hasClosestByAttribute(range.startContainer, "data-type", "backslash");
         if (backslashElement) {
             backslashElement.querySelector("span").style.display = "inline";
-        }
-
-        const activeCmBlock = hasClosestByAttribute(typeElement, "data-type", "code-block") as HTMLElement;
-        if (activeCmBlock && shouldShowLanguagePopover(activeCmBlock) && !isCmCodeBlock(activeCmBlock)) {
-            showCodeBlockLanguagePopover(vditor, activeCmBlock);
         }
         } finally {
             updateActiveHeadingMarker(vditor);

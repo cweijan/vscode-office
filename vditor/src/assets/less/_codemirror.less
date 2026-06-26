@@ -692,43 +692,6 @@
   }
 }
 
-.vditor-popover--cm-lang {
-  padding: 0;
-  border: none;
-  background: transparent;
-  box-shadow: none;
-  pointer-events: none;
-
-  .vditor-tooltipped {
-    pointer-events: auto;
-  }
-
-  .vditor-cm-lang-input {
-    width: min(180px, calc(100vw - 48px));
-    height: 26px;
-    padding: 0 10px;
-    border: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 14%, transparent);
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--cm-bg-color, var(--panel-background-color)) 90%, transparent);
-    color: var(--cm-fg-color, var(--toolbar-icon-color));
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 26px;
-    outline: none;
-    box-shadow: 0 1px 4px color-mix(in srgb, var(--cm-fg-color, #000) 8%, transparent);
-
-    &:focus {
-      border-color: color-mix(in srgb, var(--cm-copy-color, var(--link-color)) 55%, transparent);
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--cm-copy-color, var(--link-color)) 22%, transparent);
-    }
-
-    &::placeholder {
-      color: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 55%, transparent);
-      font-weight: 500;
-    }
-  }
-}
-
 // CodeMirror 内间距：仅代码块 / 数学块 / 图表（mermaid、plantuml）编辑区
 [data-type="code-block"].vditor-code-block--cm .vditor-cm-host,
 [data-type="code-block"].vditor-code-block--cm .vditor-cm-preview-host,
@@ -818,6 +781,7 @@
     display: block !important;
     margin: 0 !important;
     border-radius: 6px 6px 0 0;
+    border-bottom: 1px solid var(--border-color, color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 14%, transparent));
 
     .vditor-cm-chrome {
       border-radius: 6px 6px 0 0;
@@ -859,6 +823,10 @@
   display: block;
   position: relative;
   margin-bottom: 1em;
+
+  > .vditor-ir__marker {
+    display: none !important;
+  }
 
   pre.vditor-cm-host {
     display: block !important;

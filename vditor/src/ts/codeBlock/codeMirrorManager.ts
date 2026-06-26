@@ -36,11 +36,6 @@ import {
 } from "./frontMatterEditor";
 
 export { focusCodeBlockChromeLanguage, isInsideCodeBlockChrome } from "./codeBlockChrome";
-export {
-    focusCodeBlockLanguageInput,
-    focusIrCodeBlockLanguageMarker,
-    showCodeBlockLanguagePopover,
-} from "./codeBlockLanguagePopover";
 
 const CM_HOST_CLASS = "vditor-cm-host";
 export const CM_BLOCK_CLASS = "vditor-code-block--cm";

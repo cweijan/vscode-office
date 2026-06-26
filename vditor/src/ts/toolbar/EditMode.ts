@@ -94,6 +94,7 @@ export const setEditMode = (
                 math: vditor.options.preview.math,
             });
         });
+        vditor.ir.popover.style.display = "none";
     } else if (type === "wysiwyg") {
         showToolbar(vditor.toolbar.elements, ["outdent", "indent", "outline", "insert-before", "insert-after"]);
         vditor.wysiwyg.element.parentElement.style.display = "block";

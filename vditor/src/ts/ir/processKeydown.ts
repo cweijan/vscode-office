@@ -7,10 +7,7 @@ import {
     isInsideCodeBlockChrome,
     isInsideCodeMirror,
 } from "../codeBlock/codeMirrorManager";
-import {
-    focusIrCodeBlockLanguageMarker,
-} from "../codeBlock/codeBlockLanguagePopover";
-import {hidePanel} from "../toolbar/setToolbar";
+import { focusCodeBlockChromeLanguage } from "../codeBlock/codeBlockChrome";
 import {isCtrl} from "../util/compatibility";
 import {
     fixBlockquote, fixCJKPosition,
@@ -58,7 +55,7 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
             return true;
         }
         if (!isCtrl(event) && !event.shiftKey && event.altKey && event.key === "Enter" && codeRenderElement) {
-            if (focusIrCodeBlockLanguageMarker(codeRenderElement, vditor)) {
+            if (focusCodeBlockChromeLanguage(vditor, codeRenderElement)) {
                 event.preventDefault();
                 return true;
             }
@@ -145,38 +142,6 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
             return true;
         }
     }
-    // 代码块语言
-    const preBeforeElement = hasClosestByAttribute(startContainer, "data-type", "code-block-info");
-    if (preBeforeElement) {
-        if (event.key === "Enter" || event.key === "Tab") {
-            const codeBlockElement = preBeforeElement.parentElement;
-            if (isCmCodeBlock(codeBlockElement)) {
-                focusCodeMirror(codeBlockElement, true, vditor);
-            } else {
-                range.selectNodeContents(preBeforeElement.nextElementSibling.firstChild);
-                range.collapse(true);
-            }
-            event.preventDefault();
-            hidePanel(vditor, ["hint"]);
-            return true;
-        }
-
-        if (event.key === "Backspace") {
-            const start = getSelectPosition(preBeforeElement, vditor.ir.element).start;
-            if (start === 1) { // 删除零宽空格
-                range.setStart(startContainer, 0);
-            }
-            if (start === 2) { // 删除时清空自动补全语言
-                vditor.hint.recentLanguage = "";
-            }
-        }
-        if (insertBeforeBlock(vditor, event, range, preBeforeElement, preBeforeElement.parentElement)) {
-            // 上无元素，按上或左将添加新块
-            hidePanel(vditor, ["hint"]);
-            return true;
-        }
-    }
-
     // table
     const cellElement = hasClosestByMatchTag(startContainer, "TD") ||
         hasClosestByMatchTag(startContainer, "TH");

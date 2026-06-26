@@ -1,6 +1,3 @@
-import {isCmCodeBlock} from "../codeBlock/codeMirrorManager";
-import {matchCodeMirrorLanguages, matchPreviewCodeLanguages} from "../codeBlock/codeBlockLanguageHints";
-import {Constants} from "../constants";
 import {getMarkdown} from "../markdown/getMarkdown";
 import {removeCurrentToolbar} from "../toolbar/setToolbar";
 import {accessLocalStorage} from "../util/compatibility";
@@ -8,7 +5,7 @@ import {saveCacheFocus} from "../util/cacheFocus";
 import {clearHistoryInputBuffer} from "../util/historyInputBufferState";
 import {listToggle} from "../util/fixBrowserBehavior";
 import {hasClosestBlock, hasClosestByAttribute, hasClosestByClassName, hasClosestByMatchTag} from "../util/hasClosest";
-import {getEditorRange, getSelectPosition, setRangeByWbr, setSelectionFocus} from "../util/selection";
+import {getEditorRange, setRangeByWbr, setSelectionFocus} from "../util/selection";
 import {getHistoryRecordWait} from "../util/historySchedule";
 import {renderToc} from "../util/toc";
 import {highlightToolbarIR} from "./highlightToolbarIR";
@@ -16,25 +13,6 @@ import {input} from "./input";
 
 export const processHint = (vditor: IVditor) => {
     vditor.hint.render(vditor);
-    const startContainer = getEditorRange(vditor).startContainer;
-    // 代码块语言提示
-    const preBeforeElement = hasClosestByAttribute(startContainer, "data-type", "code-block-info");
-    if (preBeforeElement) {
-        if (preBeforeElement.textContent.replace(Constants.ZWSP, "") === "" && vditor.hint.recentLanguage) {
-            preBeforeElement.textContent = Constants.ZWSP + vditor.hint.recentLanguage;
-            const range = getEditorRange(vditor);
-            range.selectNodeContents(preBeforeElement);
-        } else {
-            const key =
-                preBeforeElement.textContent.substring(0, getSelectPosition(preBeforeElement, vditor.ir.element).start)
-                    .replace(Constants.ZWSP, "");
-            const codeBlockElement = preBeforeElement.closest("[data-type='code-block']") as HTMLElement;
-            const matchLangData = isCmCodeBlock(codeBlockElement)
-                ? matchCodeMirrorLanguages(key)
-                : matchPreviewCodeLanguages(key);
-            vditor.hint.genHTML(matchLangData, key, vditor);
-        }
-    }
 };
 
 export const recordHistory = (vditor: IVditor, options = {

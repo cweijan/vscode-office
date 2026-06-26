@@ -1,5 +1,5 @@
 import { Constants } from "../constants";
-import { focusCodeBlockLanguageInput } from "../codeBlock/codeBlockLanguagePopover";
+import { focusCodeBlockChromeLanguage } from "../codeBlock/codeBlockChrome";
 import { tryFocusAdjacentCodeMirror } from "../codeBlock/codeMirrorNavigation";
 import {
     focusCodeMirror,
@@ -61,7 +61,7 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
             return true;
         }
         if (!isCtrl(event) && !event.shiftKey && event.altKey && event.key === "Enter" && codeRenderElement) {
-            if (focusCodeBlockLanguageInput(vditor)) {
+            if (focusCodeBlockChromeLanguage(vditor, codeRenderElement)) {
                 event.preventDefault();
                 return true;
             }
@@ -144,18 +144,10 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
             }
         }
 
-        // alt+enter: 代码块切换到语言 https://github.com/Vanessa219/vditor/issues/54
+        // alt+enter: 打开 CodeMirror chrome 语言选择
         if (!isCtrl(event) && !event.shiftKey && event.altKey && event.key === "Enter" &&
             codeRenderElement.getAttribute("data-type") === "code-block") {
-            if (isCmCodeBlock(codeRenderElement)) {
-                if (focusCodeBlockLanguageInput(vditor)) {
-                    event.preventDefault();
-                    return true;
-                }
-            } else {
-                const inputElemment = (vditor.wysiwyg.popover.querySelector(".vditor-input") as HTMLInputElement);
-                inputElemment.focus();
-                inputElemment.select();
+            if (focusCodeBlockChromeLanguage(vditor, codeRenderElement)) {
                 event.preventDefault();
                 return true;
             }
