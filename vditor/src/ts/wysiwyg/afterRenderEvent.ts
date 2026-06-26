@@ -1,5 +1,6 @@
 import { getMarkdown } from "../markdown/getMarkdown";
 import { saveCacheFocus } from "../util/cacheFocus";
+import { fireContentInput } from "../util/saveToolbarState";
 import { accessLocalStorage } from "../util/compatibility";
 import { clearHistoryInputBuffer } from "../util/historyInputBufferState";
 import { getHistoryRecordWait } from "../util/historySchedule";
@@ -45,8 +46,8 @@ export function recordHistory(vditor: IVditor, options = { enableAddUndoStack: t
     const getMarkdownMs = debug ? performance.now() - stepStart : 0;
 
     stepStart = debug ? performance.now() : 0;
-    if (typeof vditor.options.input === "function" && options.enableInput) {
-        vditor.options.input(text);
+    if (options.enableInput) {
+        fireContentInput(vditor, text);
     }
     const inputCallbackMs = debug ? performance.now() - stepStart : 0;
 
