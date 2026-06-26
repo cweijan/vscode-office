@@ -9,8 +9,14 @@ const markdownItMermaid = require("./ext/markdown-it-mermaid").default;
 const markdownItPlantuml = require("markdown-it-plantuml")
 const markdownItToc = require("markdown-it-toc-done-right")
 const markdownItAnchor = require("markdown-it-anchor")
+const markdownItObsidian = require("./ext/markdown-it-obsidian")
+const markdownItObsidianCallouts = require("markdown-it-obsidian-callouts")
+const markdownItMark = require("markdown-it-mark")
+const markdownItFrontMatterExport = require("./ext/markdown-it-front-matter")
 const { exportByType } = require('./html-export')
 const { buildExportThemeCss } = require('./exportThemeCss')
+const { buildHljsThemeCss } = require('./exportCodeTheme')
+const { buildMermaidExportConfig } = require('./exportMermaidTheme')
 
 async function convertMarkdown(inputMarkdownFile, config) {
 
@@ -24,9 +30,10 @@ async function convertMarkdown(inputMarkdownFile, config) {
   const $ = require("cheerio").load(html);
   const containsMermaid = $('.mermaid').length > 0;
   if (containsMermaid) {
+    const mermaidConfig = buildMermaidExportConfig(config.exportTheme)
     const mermaidScript = `
     <script src="${getMermaidScriptSrc(type)}"></script>
-    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script>mermaid.initialize(${JSON.stringify(mermaidConfig)});</script>
     `;
 
     $('body').append(mermaidScript);
@@ -48,7 +55,16 @@ function getMermaidScriptSrc(type) {
  */
 function addTocToContent(text, config) {
   const needOutline = !text.match(/\[toc\]/i) && !config.withoutOutline;
-  return needOutline ? `[toc]\n${text}` : text;
+  if (!needOutline) {
+    return text;
+  }
+  const toc = '[toc]\n';
+  const frontMatterMatch = text.match(/^---[\s\S]*?\n---\s*\n?/);
+  if (frontMatterMatch) {
+    const frontMatter = frontMatterMatch[0];
+    return frontMatter + toc + text.slice(frontMatter.length);
+  }
+  return toc + text;
 }
 
 /*
@@ -116,7 +132,11 @@ function convertMarkdownToHtml(filename, type, text, config) {
       }
     }
 
-    md.use(markdownItCheckbox)
+    md.use(markdownItFrontMatterExport)
+      .use(markdownItObsidian)
+      .use(markdownItObsidianCallouts)
+      .use(markdownItMark)
+      .use(markdownItCheckbox)
       .use(markdownItAnchor)
       .use(markdownItToc)
       .use(markdownItKatex)
@@ -240,9 +260,11 @@ function readStyles(type, config = {}) {
   try {
     const basePath = path.join(__dirname, "styles");
     const katexPath = path.resolve(__dirname, '..', "resource", 'markdown', 'dist', 'js', 'katex', 'katex.min.css');
-    const files = ['arduino-light.css', 'markdown.css', 'markdown-pdf.css']
+    const files = ['markdown.css', 'markdown-pdf.css']
+    const hljsThemeCss = buildHljsThemeCss(config.exportTheme)
     const exportThemeCss = buildExportThemeCss(config.exportTheme)
     return files.map(file => makeCss(path.join(basePath, file))).join("")
+      + hljsThemeCss
       + makeCss(katexPath, true, type)
       + exportThemeCss
   } catch (error) {

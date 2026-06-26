@@ -53,6 +53,7 @@ export const FONT_SIZE_MAX = 24;
 
 export const LINE_HEIGHT_KEY = "editorLineHeight";
 export const FONT_FAMILY_KEY = "editorFontFamily";
+export const CODE_FONT_FAMILY_KEY = "codeFontFamily";
 export const BOLD_COLOR_KEY = "boldColor";
 export const HTML_EDITOR_LINE_WRAP_KEY = "htmlEditorLineWrap";
 
@@ -69,9 +70,6 @@ export const FONT_FAMILY_OPTIONS = [
     { label: "Charter", value: "Charter, 'Bitstream Charter', 'Sitka Text', serif" },
     { label: "Slab Serif", value: "Rockwell, Georgia, serif" },
     { label: "Narrow", value: "'Arial Narrow', 'Liberation Sans Narrow', sans-serif" },
-    { label: "Mono", value: "Menlo, Monaco, Consolas, 'Liberation Mono', monospace" },
-    { label: "JetBrains Mono", value: "'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace" },
-    { label: "Courier", value: "'Courier New', Courier, monospace" },
 ] as const;
 
 export const BOLD_COLOR_DEFAULT = "color-mix(in srgb, var(--link-color, #0550ae) 15%, var(--toolbar-icon-color, #586069))";
@@ -282,6 +280,7 @@ export const applyEditorSettings = (vditorElement: HTMLElement) => {
     const editorSize = getGlobalLocalStorageSetting<number>(EDITOR_FONT_SIZE_KEY);
     const lineHeight = getGlobalLocalStorageSetting<number>(LINE_HEIGHT_KEY);
     const fontFamily = getGlobalLocalStorageSetting<string>(FONT_FAMILY_KEY);
+    const codeFontFamily = getGlobalLocalStorageSetting<string>(CODE_FONT_FAMILY_KEY);
     const boldColor = getGlobalLocalStorageSetting<string>(BOLD_COLOR_KEY);
     const pageWidth = getGlobalLocalStorageSetting<string>(PAGE_WIDTH_KEY);
     const imgMaxWidth = getGlobalLocalStorageSetting<number>(IMAGE_MAX_WIDTH_KEY);
@@ -290,6 +289,11 @@ export const applyEditorSettings = (vditorElement: HTMLElement) => {
     if (editorSize !== undefined) vditorElement.style.setProperty("--editor-font-size", `${editorSize}px`);
     if (lineHeight !== undefined) vditorElement.style.setProperty("--editor-line-height", String(lineHeight));
     if (fontFamily !== undefined) vditorElement.style.setProperty("--editor-font-family", fontFamily);
+    if (codeFontFamily !== undefined && codeFontFamily !== "inherit") {
+        vditorElement.style.setProperty("--code-font-family", codeFontFamily);
+    } else if (codeFontFamily === "inherit") {
+        vditorElement.style.removeProperty("--code-font-family");
+    }
     if (boldColor !== undefined && boldColor !== "inherit") {
         vditorElement.style.setProperty("--bold-color", boldColor);
     } else if (boldColor === "inherit") {

@@ -22,6 +22,24 @@ export interface ExportLayoutSettings {
     codeFontFamily: string;
 }
 
+export interface CodeThemeColors {
+    bg: string;
+    fg: string;
+    comment: string;
+    keyword: string;
+    string: string;
+    number: string;
+    atom: string;
+    property: string;
+    attribute: string;
+    variable: string;
+    def: string;
+    bracket: string;
+    tag: string;
+    link: string;
+    error: string;
+}
+
 export interface ExportThemeSettings {
     editorTheme: string;
     isDark: boolean;
@@ -30,11 +48,14 @@ export interface ExportThemeSettings {
     globalSettings: Record<string, boolean | number | string | undefined>;
     cssVariables: Record<string, string>;
     layout: ExportLayoutSettings;
+    codeThemeColors?: CodeThemeColors;
 }
 
 interface ExportOption {
     type?: ExportType;
     withoutOutline?: boolean;
+    printBackground?: boolean;
+    format?: string;
     exportTheme?: ExportThemeSettings;
 }
 
@@ -76,8 +97,8 @@ export class MarkdownService {
             // Set `true` to convert `\n` in paragraphs into `<br>`.
             "breaks": false,
             // pdf print option
-            "printBackground": true,
-            format: "A4",
+            "printBackground": option.printBackground ?? true,
+            format: option.format ?? "A4",
             margin: { top }
         };
     }

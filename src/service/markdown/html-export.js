@@ -3,6 +3,7 @@ const os = require("os")
 const path = require("path")
 const { pathToFileURL } = require("url")
 const { createOutline } = require("./outline")
+const { buildDocxDocumentOptions } = require('./docxDocumentOptions')
 const isDev = process.argv.indexOf('--type=extensionHost') >= 0;
 
 export async function exportHtml(exportFilePath, data) {
@@ -13,7 +14,8 @@ export async function exportHtml(exportFilePath, data) {
 export async function exportDocx(exportFilePath, data, config) {
     console.log("[pretty-md-pdf] Exported to file: " + exportFilePath)
     const html = await replaceDynamicContentWithImages(data, config, exportFilePath)
-    const exportTask = await require("vscode-html-to-docx")(html, '', {}, '');
+    const documentOptions = buildDocxDocumentOptions(config.exportTheme)
+    const exportTask = await require("vscode-html-to-docx")(html, '', documentOptions, '');
     const buffer = Buffer.from(await exportTask.arrayBuffer());
     fs.writeFileSync(exportFilePath, buffer)
 }
@@ -85,7 +87,11 @@ export async function exportByType(filePath, data, type, config) {
 
         let pdfBytes
         try {
-            pdfBytes = await createOutline(pdf, data)
+            if (!config.withoutOutline) {
+                pdfBytes = await createOutline(pdf, data)
+            } else {
+                pdfBytes = Buffer.from(pdf)
+            }
         } catch (error) {
             showErrorMessage("createOutline()", error)
             pdfBytes = Buffer.from(pdf)

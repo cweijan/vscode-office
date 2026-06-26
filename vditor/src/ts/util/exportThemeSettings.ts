@@ -3,6 +3,7 @@ import {
     EDITOR_FONT_SIZE_DEFAULT,
     EDITOR_FONT_SIZE_KEY,
     FONT_FAMILY_KEY,
+    CODE_FONT_FAMILY_KEY,
     getGlobalLocalStorageSetting,
     LINE_HEIGHT_DEFAULT,
     LINE_HEIGHT_KEY,
@@ -38,7 +39,40 @@ const EXPORT_CSS_VARS = [
     "--vditor-page-width",
     "--vditor-image-max-width",
     "--vditor-image-max-height",
+    "--cm-bg-color",
+    "--cm-fg-color",
+    "--cm-syntax-comment",
+    "--cm-syntax-keyword",
+    "--cm-syntax-string",
+    "--cm-syntax-number",
+    "--cm-syntax-atom",
+    "--cm-syntax-property",
+    "--cm-syntax-attribute",
+    "--cm-syntax-variable",
+    "--cm-syntax-def",
+    "--cm-syntax-bracket",
+    "--cm-syntax-tag",
+    "--cm-syntax-link",
+    "--cm-syntax-error",
 ] as const;
+
+export type CodeThemeColors = {
+    bg: string;
+    fg: string;
+    comment: string;
+    keyword: string;
+    string: string;
+    number: string;
+    atom: string;
+    property: string;
+    attribute: string;
+    variable: string;
+    def: string;
+    bracket: string;
+    tag: string;
+    link: string;
+    error: string;
+};
 
 export type ExportLayoutSettings = {
     fontSize: string;
@@ -56,6 +90,7 @@ export type ExportThemeSettings = {
     globalSettings: Record<string, boolean | number | string | undefined>;
     cssVariables: Record<string, string>;
     layout: ExportLayoutSettings;
+    codeThemeColors?: CodeThemeColors;
 };
 
 const resolveContentElement = (vditor: IVditor): HTMLElement => {
@@ -124,10 +159,12 @@ const collectLayoutSettings = (vditor: IVditor): ExportLayoutSettings => {
         contentStyle,
     );
 
-    const codeFontFamilyRaw = readCssVar(root, "--code-font-family");
+    const storedCodeFontFamily = globalSettings[CODE_FONT_FAMILY_KEY] ?? getGlobalLocalStorageSetting<string>(CODE_FONT_FAMILY_KEY);
+    const codeFontFamilyRaw = (typeof storedCodeFontFamily === "string" ? storedCodeFontFamily : undefined)
+        ?? readCssVar(root, "--code-font-family");
     const codeFontFamily = codeFontFamilyRaw && codeFontFamilyRaw !== "inherit"
         ? codeFontFamilyRaw
-        : fontFamily;
+        : (readCssVar(root, "--vscode-editor-font-family") || "mononoki, Consolas, \"Liberation Mono\", Menlo, Courier, monospace");
 
     return {fontSize, fontFamily, lineHeight, pageWidth, codeFontFamily};
 };
@@ -146,6 +183,71 @@ const collectCssVariables = (element: HTMLElement): Record<string, string> => {
     return vars;
 };
 
+const collectCodeThemeColors = (vditor: IVditor): CodeThemeColors => {
+    const root = vditor.element;
+    const probe = document.createElement("div");
+    probe.className = "vditor-cm-host";
+    probe.setAttribute("aria-hidden", "true");
+    probe.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;visibility:hidden;pointer-events:none;";
+
+    const cmEditor = document.createElement("div");
+    cmEditor.className = "cm-editor";
+    const cmContent = document.createElement("div");
+    cmContent.className = "cm-content";
+
+    const tokenClasses = [
+        "cm-comment",
+        "cm-keyword",
+        "cm-string",
+        "cm-number",
+        "cm-atom",
+        "cm-property",
+        "cm-attribute",
+        "cm-variable",
+        "cm-def",
+        "cm-bracket",
+        "cm-tag",
+        "cm-link",
+        "cm-error",
+    ] as const;
+
+    const spans: Record<string, HTMLSpanElement> = {};
+    for (const className of tokenClasses) {
+        const span = document.createElement("span");
+        span.className = className;
+        span.textContent = "x";
+        cmContent.appendChild(span);
+        spans[className] = span;
+    }
+
+    cmEditor.appendChild(cmContent);
+    probe.appendChild(cmEditor);
+    root.appendChild(probe);
+
+    const readColor = (className: string) => getComputedStyle(spans[className]).color;
+
+    const colors: CodeThemeColors = {
+        bg: readCssVar(root, "--cm-bg-color") || readCssVar(root, "--code-bg-color") || "#f6f8fa",
+        fg: readCssVar(root, "--cm-fg-color") || readCssVar(root, "--code-fg-color") || readColor("cm-variable"),
+        comment: readColor("cm-comment"),
+        keyword: readColor("cm-keyword"),
+        string: readColor("cm-string"),
+        number: readColor("cm-number"),
+        atom: readColor("cm-atom"),
+        property: readColor("cm-property"),
+        attribute: readColor("cm-attribute"),
+        variable: readColor("cm-variable"),
+        def: readColor("cm-def"),
+        bracket: readColor("cm-bracket"),
+        tag: readColor("cm-tag"),
+        link: readColor("cm-link"),
+        error: readColor("cm-error"),
+    };
+
+    probe.remove();
+    return colors;
+};
+
 export const exportExportSettings = (vditor: IVditor): ExportThemeSettings => ({
     editorTheme: vditor.options.editorTheme || "Auto",
     isDark: vditor.element.classList.contains("vditor--dark"),
@@ -154,4 +256,5 @@ export const exportExportSettings = (vditor: IVditor): ExportThemeSettings => ({
     globalSettings: exportViewerSettings().globalSettings,
     cssVariables: collectCssVariables(vditor.element),
     layout: collectLayoutSettings(vditor),
+    codeThemeColors: collectCodeThemeColors(vditor),
 });

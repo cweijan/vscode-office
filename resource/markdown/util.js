@@ -1,3 +1,5 @@
+import { openPdfExportDialog } from './pdfExportDialog.js'
+
 function loadRes(url) {
     return fetch(url).then(r => r.text())
 }
@@ -67,6 +69,23 @@ export async function getToolbar(resPath, onSave = null) {
 
 const hideContextMenu = (menu) => {
     menu.hidden = true
+    for (const panel of menu.querySelectorAll('.vditor-context-menu__submenu-panel--left')) {
+        panel.classList.remove('vditor-context-menu__submenu-panel--left')
+    }
+}
+
+const positionSubmenuPanel = (submenu) => {
+    const panel = submenu.querySelector('.vditor-context-menu__submenu-panel')
+    if (!panel) return
+    panel.classList.remove('vditor-context-menu__submenu-panel--left')
+    const prevDisplay = panel.style.display
+    panel.style.display = 'flex'
+    panel.style.flexDirection = 'column'
+    const rect = panel.getBoundingClientRect()
+    if (rect.right > window.innerWidth - 4) {
+        panel.classList.add('vditor-context-menu__submenu-panel--left')
+    }
+    panel.style.display = prevDisplay
 }
 
 const showContextMenu = (menu, clientX, clientY) => {
@@ -196,6 +215,9 @@ export const createContextMenu = (editor) => {
         e.stopPropagation()
         showContextMenu(menu, e.clientX, e.clientY)
     }
+    for (const submenu of menu.querySelectorAll('.vditor-context-menu__submenu')) {
+        submenu.addEventListener('mouseenter', () => positionSubmenuPanel(submenu))
+    }
     menu.addEventListener('click', e => {
         const item = e.target.closest('[data-action]')
         if (!item || (item.classList.contains('vditor-context-menu__item--desktop-only') && document.body.classList.contains('is-web'))) return
@@ -220,10 +242,11 @@ export const createContextMenu = (editor) => {
                 vscodeEvent.emit('command', 'office.markdown.paste')
                 break
             case 'exportPdf':
-                emitExport(editor, { type: 'pdf' })
-                break
-            case 'exportPdfWithoutOutline':
-                emitExport(editor, { type: 'pdf', withoutOutline: true })
+                handler.emit('telemetry', { event: 'markdown.exportPdfDialog' })
+                openPdfExportDialog().then(pdfOptions => {
+                    if (!pdfOptions) return
+                    emitExport(editor, { type: 'pdf', ...pdfOptions })
+                })
                 break
             case 'exportDocx':
                 emitExport(editor, { type: 'docx' })

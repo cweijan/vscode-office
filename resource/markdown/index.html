@@ -31,29 +31,36 @@
                 </span>
                 <span class="vditor-context-menu__label">Copy</span>
             </button>
-            <button class="vditor-context-menu__item" type="button" data-action="copyAsHtml" role="menuitem">
-                <span class="vditor-context-menu__icon" aria-hidden="true">
-                    <span class="codicon codicon-code"></span>
-                </span>
-                <span class="vditor-context-menu__label">Copy as HTML</span>
-            </button>
-            <button class="vditor-context-menu__item" type="button" data-action="copyAsPlainText" role="menuitem">
-                <span class="vditor-context-menu__icon" aria-hidden="true">
-                    <span class="codicon codicon-symbol-string"></span>
-                </span>
-                <span class="vditor-context-menu__label">Copy as Plain Text</span>
-            </button>
+            <div class="vditor-context-menu__submenu">
+                <button class="vditor-context-menu__item vditor-context-menu__item--has-submenu" type="button"
+                    role="menuitem" aria-haspopup="true" aria-expanded="false">
+                    <span class="vditor-context-menu__icon" aria-hidden="true">
+                        <span class="codicon codicon-copy"></span>
+                    </span>
+                    <span class="vditor-context-menu__label">Copy as</span>
+                    <span class="vditor-context-menu__chevron codicon codicon-chevron-right" aria-hidden="true"></span>
+                </button>
+                <div class="vditor-context-menu__submenu-panel" role="menu">
+                    <button class="vditor-context-menu__item" type="button" data-action="copyAsHtml" role="menuitem">
+                        <span class="vditor-context-menu__icon" aria-hidden="true">
+                            <span class="codicon codicon-code"></span>
+                        </span>
+                        <span class="vditor-context-menu__label">HTML</span>
+                    </button>
+                    <button class="vditor-context-menu__item" type="button" data-action="copyAsPlainText"
+                        role="menuitem">
+                        <span class="vditor-context-menu__icon" aria-hidden="true">
+                            <span class="codicon codicon-symbol-string"></span>
+                        </span>
+                        <span class="vditor-context-menu__label">Plain Text</span>
+                    </button>
+                </div>
+            </div>
             <button class="vditor-context-menu__item" type="button" data-action="paste" role="menuitem">
                 <span class="vditor-context-menu__icon" aria-hidden="true">
                     <span class="codicon codicon-clippy"></span>
                 </span>
                 <span class="vditor-context-menu__label">Paste</span>
-            </button>
-            <button class="vditor-context-menu__item" type="button" data-action="insertImage" role="menuitem">
-                <span class="vditor-context-menu__icon" aria-hidden="true">
-                    <span class="codicon codicon-file-media"></span>
-                </span>
-                <span class="vditor-context-menu__label">Insert Image</span>
             </button>
         </div>
         <div class="vditor-context-menu__separator" role="separator"></div>
@@ -64,13 +71,6 @@
                     <span class="codicon codicon-file-pdf"></span>
                 </span>
                 <span class="vditor-context-menu__label">Export PDF</span>
-            </button>
-            <button class="vditor-context-menu__item vditor-context-menu__item--desktop-only" type="button"
-                data-action="exportPdfWithoutOutline" role="menuitem">
-                <span class="vditor-context-menu__icon" aria-hidden="true">
-                    <span class="codicon codicon-file-pdf"></span>
-                </span>
-                <span class="vditor-context-menu__label">Export PDF (Without Outline)</span>
             </button>
             <button class="vditor-context-menu__item vditor-context-menu__item--desktop-only" type="button"
                 data-action="exportDocx" role="menuitem">
@@ -89,6 +89,12 @@
         </div>
         <div class="vditor-context-menu__separator" role="separator"></div>
         <div class="vditor-context-menu__group" role="group">
+            <button class="vditor-context-menu__item" type="button" data-action="insertImage" role="menuitem">
+                <span class="vditor-context-menu__icon" aria-hidden="true">
+                    <span class="codicon codicon-file-media"></span>
+                </span>
+                <span class="vditor-context-menu__label">Insert Image</span>
+            </button>
             <button class="vditor-context-menu__item vditor-context-menu__item--desktop-only" type="button"
                 data-action="showInFolder" role="menuitem">
                 <span class="vditor-context-menu__icon" aria-hidden="true">
@@ -96,6 +102,62 @@
                 </span>
                 <span class="vditor-context-menu__label">Show in Folder</span>
             </button>
+        </div>
+    </div>
+
+    <!-- PDF Export Dialog -->
+    <div class="vditor-pdf-export-overlay" id="pdf-export-dialog" role="presentation" hidden>
+        <div class="vditor-pdf-export-dialog" role="dialog" aria-modal="true" aria-labelledby="pdf-export-title">
+            <div class="vditor-pdf-export-dialog__header">
+                <span class="codicon codicon-file-pdf vditor-pdf-export-dialog__icon" aria-hidden="true"></span>
+                <h2 class="vditor-pdf-export-dialog__title" id="pdf-export-title">Export PDF</h2>
+            </div>
+            <div class="vditor-pdf-export-dialog__body">
+                <div class="vditor-pdf-export-row">
+                    <div class="vditor-pdf-export-row__text">
+                        <span class="vditor-pdf-export-row__label">Table of Contents</span>
+                        <span class="vditor-pdf-export-row__hint">Include outline and PDF bookmarks</span>
+                    </div>
+                    <label class="vditor-pdf-export-toggle" aria-checked="true">
+                        <input type="checkbox" data-pdf-option="outline" checked>
+                        <span class="vditor-pdf-export-toggle__track" aria-hidden="true">
+                            <span class="vditor-pdf-export-toggle__thumb"></span>
+                        </span>
+                    </label>
+                </div>
+                <div class="vditor-pdf-export-row">
+                    <div class="vditor-pdf-export-row__text">
+                        <span class="vditor-pdf-export-row__label">Background</span>
+                        <span class="vditor-pdf-export-row__hint">Print editor background colors</span>
+                    </div>
+                    <label class="vditor-pdf-export-toggle" aria-checked="true">
+                        <input type="checkbox" data-pdf-option="background" checked>
+                        <span class="vditor-pdf-export-toggle__track" aria-hidden="true">
+                            <span class="vditor-pdf-export-toggle__thumb"></span>
+                        </span>
+                    </label>
+                </div>
+                <div class="vditor-pdf-export-row vditor-pdf-export-row--select">
+                    <div class="vditor-pdf-export-row__text">
+                        <span class="vditor-pdf-export-row__label">Page Size</span>
+                    </div>
+                    <div class="vditor-pdf-export-select-wrap">
+                        <select class="vditor-pdf-export-select" data-pdf-option="format" aria-label="Page size">
+                            <option value="A4">A4</option>
+                            <option value="Letter">Letter</option>
+                            <option value="Legal">Legal</option>
+                            <option value="A3">A3</option>
+                            <option value="A5">A5</option>
+                            <option value="Tabloid">Tabloid</option>
+                        </select>
+                        <span class="codicon codicon-chevron-down vditor-pdf-export-select__chevron" aria-hidden="true"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="vditor-pdf-export-dialog__footer">
+                <button class="vditor-pdf-export-btn vditor-pdf-export-btn--cancel" type="button" data-pdf-action="cancel">Cancel</button>
+                <button class="vditor-pdf-export-btn vditor-pdf-export-btn--primary" type="button" data-pdf-action="export">Export</button>
+            </div>
         </div>
     </div>
 

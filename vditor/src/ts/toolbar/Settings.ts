@@ -20,6 +20,7 @@ import {
     LINE_HEIGHT_MAX,
     FONT_FAMILY_KEY,
     FONT_FAMILY_OPTIONS,
+    CODE_FONT_FAMILY_KEY,
     BOLD_COLOR_KEY,
     BOLD_COLOR_OPTIONS,
     PAGE_WIDTH_KEY,
@@ -37,12 +38,22 @@ import {
     resetGlobalSettings,
     applyEditorSettings,
 } from "../util/globalLocalStorageSettings";
+import {getCodeFontFamilyOptions} from "../util/fontFamilyOptions";
 import { telemetry } from "../util/telemetry";
 
-const DROPDOWN_OPTIONS_MAP: Record<string, readonly { label: string; value: string }[]> = {
-    [FONT_FAMILY_KEY]: FONT_FAMILY_OPTIONS,
-    [BOLD_COLOR_KEY]: BOLD_COLOR_OPTIONS,
-    [PAGE_WIDTH_KEY]: PAGE_WIDTH_OPTIONS,
+const getDropdownOptions = (key: string): readonly { label: string; value: string }[] | undefined => {
+    switch (key) {
+        case FONT_FAMILY_KEY:
+            return FONT_FAMILY_OPTIONS;
+        case CODE_FONT_FAMILY_KEY:
+            return getCodeFontFamilyOptions();
+        case BOLD_COLOR_KEY:
+            return BOLD_COLOR_OPTIONS;
+        case PAGE_WIDTH_KEY:
+            return PAGE_WIDTH_OPTIONS;
+        default:
+            return undefined;
+    }
 };
 
 export class Settings extends MenuItem {
@@ -74,7 +85,7 @@ export class Settings extends MenuItem {
         };
 
         const openFloatingMenu = (trigger: HTMLElement, key: string) => {
-            const options = DROPDOWN_OPTIONS_MAP[key];
+            const options = getDropdownOptions(key);
             if (!options) return;
             const currentValue = getGlobalLocalStorageSetting<string>(key, options[0].value) ?? options[0].value;
 
@@ -110,6 +121,10 @@ export class Settings extends MenuItem {
             const label = option.textContent || "";
             setGlobalLocalStorageSetting(key, value);
             if (key === FONT_FAMILY_KEY) vditor.element.style.setProperty("--editor-font-family", value);
+            else if (key === CODE_FONT_FAMILY_KEY) {
+                if (value === "inherit") vditor.element.style.removeProperty("--code-font-family");
+                else vditor.element.style.setProperty("--code-font-family", value);
+            }
             else if (key === BOLD_COLOR_KEY) {
                 if (value === "inherit") vditor.element.style.removeProperty("--bold-color");
                 else vditor.element.style.setProperty("--bold-color", value);
@@ -236,7 +251,7 @@ export class Settings extends MenuItem {
             // Reset settings
             if (event.target.closest("[data-reset-settings]")) {
                 resetGlobalSettings();
-                for (const prop of ["--ui-font-size", "--editor-font-size", "--editor-line-height", "--editor-font-family", "--bold-color", "--vditor-page-width", "--vditor-image-max-width", "--vditor-image-max-height"]) {
+                for (const prop of ["--ui-font-size", "--editor-font-size", "--editor-line-height", "--editor-font-family", "--code-font-family", "--bold-color", "--vditor-page-width", "--vditor-image-max-width", "--vditor-image-max-height"]) {
                     vditor.element.style.removeProperty(prop);
                 }
                 applyEditorSettings(vditor.element);
