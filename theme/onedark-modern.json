@@ -41,7 +41,7 @@
     "checkbox.border": "#404754",
     "checkbox.foreground": "#abb2bf",
     "debugIcon.breakpointForeground": "#e06c75",
-    "debugToolBar.background": "#2c313c",
+    "debugToolBar.background": "#282c34",
     "descriptionForeground": "#6f7784",
     "diffEditor.border": "#3e4452",
     "diffEditor.insertedLineBackground": "#00809b22",
@@ -392,7 +392,6 @@
     "welcomePage.tileBackground": "#21252b",
     "welcomePage.tileBorder": "#3e4452",
     "welcomePage.tileHoverBackground": "#2c313c",
-    "widget.border": "#3e4452",
     "widget.shadow": "#00000066"
   },
   "semanticTokenColors": {
