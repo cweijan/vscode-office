@@ -48,10 +48,6 @@
 	"activationEvents": [
 		"onStartupFinished"
 	],
-	"extensionKind": [
-		"ui",
-		"workspace"
-	],
 	"main": "./out/extension.js",
 	"browser": "./out/extension.web.js",
 	"contributes": {
