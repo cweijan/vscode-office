@@ -98,6 +98,17 @@ export const PAGE_WIDTH_OPTIONS = [
     { label: "960px", value: "960px" },
 ] as const;
 
+export const CODE_BLOCK_MAX_HEIGHT_KEY = "codeBlockMaxHeight";
+export const CODE_BLOCK_MAX_HEIGHT_DEFAULT = "400px";
+
+export const CODE_BLOCK_MAX_HEIGHT_OPTIONS = [
+    { label: "Compact (300px)", value: "300px" },
+    { label: "Default (400px)", value: "400px" },
+    { label: "Tall (600px)", value: "600px" },
+    { label: "Taller (800px)", value: "800px" },
+    { label: "Unlimited", value: "none" },
+] as const;
+
 export const IMAGE_MAX_WIDTH_KEY = "imageMaxWidth";
 export const IMAGE_MAX_HEIGHT_KEY = "imageMaxHeight";
 export const IMAGE_MAX_WIDTH_DEFAULT = 100;
@@ -300,6 +311,12 @@ export const applyEditorSettings = (vditorElement: HTMLElement) => {
     }
     if (imgMaxWidth !== undefined) vditorElement.style.setProperty("--vditor-image-max-width", `${imgMaxWidth}%`);
     if (imgMaxHeight !== undefined) vditorElement.style.setProperty("--vditor-image-max-height", `${imgMaxHeight}vh`);
+    const codeBlockMaxHeight = getGlobalLocalStorageSetting<string>(CODE_BLOCK_MAX_HEIGHT_KEY);
+    if (codeBlockMaxHeight !== undefined && codeBlockMaxHeight !== CODE_BLOCK_MAX_HEIGHT_DEFAULT) {
+        vditorElement.style.setProperty("--cm-block-max-height", codeBlockMaxHeight);
+    } else {
+        vditorElement.style.removeProperty("--cm-block-max-height");
+    }
 
 };
 
