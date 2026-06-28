@@ -81,6 +81,8 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             enableScripts: true,
             localResourceRoots: [
                 ...getExtensionResourceRoots(this.context),
+                folderPath,
+                ...(vscode.workspace.workspaceFolders?.map(folder => folder.uri) ?? []),
                 vscode.Uri.file("/"),
                 ...this.getFolders(),
             ],
