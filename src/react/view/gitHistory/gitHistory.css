@@ -825,13 +825,19 @@
 }
 
 .col-author {
-    width: 120px;
+    width: 100px;
     flex-shrink: 0;
 }
 
 .col-hash {
     width: 70px;
     flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+    .col-hash {
+        display: none;
+    }
 }
 
 @media (max-width: 700px) {
@@ -842,10 +848,6 @@
     .col-author {
         width: 70px;
     }
-
-    .col-hash {
-        width: 60px;
-    }
 }
 
 @media (max-width: 480px) {
@@ -855,10 +857,6 @@
 
     .col-author {
         width: 70px;
-    }
-
-    .col-hash {
-        width: 52px;
     }
 }
 
@@ -1346,11 +1344,36 @@
 }
 
 .git-graph-cdv-file-name {
-    flex: 1;
+    flex: 0 1 auto;
     min-width: 0;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.git-graph-cdv-file-badge {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 14px;
+    height: 14px;
+    padding: 0 4px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.git-graph-cdv-file-badge-renamed {
+    color: var(--git-graph-status-renamed);
+    background: color-mix(in srgb, var(--git-graph-status-renamed) 16%, transparent);
+}
+
+.git-graph-cdv-file-action-spacer {
+    flex: 1 1 auto;
+    min-width: 6px;
 }
 
 .git-graph-cdv-file-actions {
@@ -1387,6 +1410,7 @@
     flex-shrink: 0;
     display: inline-flex;
     gap: 4px;
+    margin-left: 3px;
     font-size: 12px;
     line-height: 16px;
     opacity: 0.9;

@@ -41,16 +41,18 @@ interface CommitDetailFileViewProps {
 }
 
 function FileStats({ change }: { change: GitFileChange }) {
-    if (change.additions === null && change.deletions === null) {
+    const additions = change.additions ?? 0;
+    const deletions = change.deletions ?? 0;
+    if (additions <= 0 && deletions <= 0) {
         return null;
     }
     return (
         <span className="git-graph-cdv-file-stats">
-            {change.additions !== null && (
-                <span className="git-graph-status-added">+{change.additions}</span>
+            {additions > 0 && (
+                <span className="git-graph-status-added">+{additions}</span>
             )}
-            {change.deletions !== null && (
-                <span className="git-graph-status-deleted">-{change.deletions}</span>
+            {deletions > 0 && (
+                <span className="git-graph-status-deleted">-{deletions}</span>
             )}
         </span>
     );
@@ -80,6 +82,7 @@ function FileChangeRow({
     onContextMenu: (event: MouseEvent, change: GitFileChange) => void;
 }) {
     const statusClass = FILE_CHANGE_STATUS_CLASS[change.type] ?? '';
+    const isRenamed = change.type === 'R';
     const isCurrent = Boolean(
         relPath && fileTouchesPath(relPath, change.oldFilePath, change.newFilePath),
     );
@@ -114,6 +117,13 @@ function FileChangeRow({
                 className="git-graph-cdv-file-icon"
             />
             <span className="git-graph-cdv-file-name" title={title}>{label}</span>
+            {isRenamed && (
+                <span className="git-graph-cdv-file-badge git-graph-cdv-file-badge-renamed" aria-label="Renamed">
+                    R
+                </span>
+            )}
+            <FileStats change={change} />
+            <span className="git-graph-cdv-file-action-spacer" aria-hidden />
             <span className="git-graph-cdv-file-actions">
                 {showRevision && (
                     <button
@@ -144,7 +154,6 @@ function FileChangeRow({
                     </button>
                 )}
             </span>
-            <FileStats change={change} />
         </div>
     );
 }
