@@ -52,6 +52,13 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     private aiAbortController: AbortController | null = null;
     private aiCancellationSource: vscode.CancellationTokenSource | null = null;
 
+    private getMarkdownTelemetryProps(configuration = vscode.workspace.getConfiguration("vscode-office")) {
+        return {
+            editorTheme: String(configuration.get<string>("editorTheme", "Auto")),
+            codeTheme: String(configuration.get<string>("codeMirrorTheme", "Auto")),
+        };
+    }
+
     constructor(
         private context: vscode.ExtensionContext, private options: MarkdownEditorProviderOptions = {}
     ) {
@@ -125,7 +132,11 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             ],
         }
         const handler = Handler.bind(webviewPanel, uri);
-        TelemetryService.get()?.trackViewOpen('markdown', fileTypeFromPath(uri.fsPath));
+        TelemetryService.get()?.trackViewOpen(
+            'markdown',
+            fileTypeFromPath(uri.fsPath),
+            this.getMarkdownTelemetryProps(),
+        );
         void this.handleMarkdown(document, handler, folderPath);
         handler.on('developerTool', () => vscode.commands.executeCommand('workbench.action.toggleDevTools'))
     }
@@ -309,7 +320,13 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         }).on('aiPolishCancel', () => {
             this.cancelAIPolish();
         }).on('telemetry', (payload: { event: string; properties?: Record<string, string | number | boolean> }) => {
-            TelemetryService.get()?.trackEvent(payload.event, payload.properties);
+            const properties = {
+                ...this.getMarkdownTelemetryProps(),
+                ...Object.fromEntries(
+                    Object.entries(payload.properties ?? {}).map(([key, value]) => [key, String(value)]),
+                ),
+            };
+            TelemetryService.get()?.trackEvent(payload.event, properties);
         }).on('syncViewerSettings', async (settings) => {
             if (await ViewerSettingsService.exists()) {
                 await ViewerSettingsService.writeFromVditor(settings);

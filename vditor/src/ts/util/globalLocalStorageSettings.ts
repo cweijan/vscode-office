@@ -55,6 +55,7 @@ export const LINE_HEIGHT_KEY = "editorLineHeight";
 export const FONT_FAMILY_KEY = "editorFontFamily";
 export const BOLD_COLOR_KEY = "boldColor";
 export const HTML_EDITOR_LINE_WRAP_KEY = "htmlEditorLineWrap";
+export const LAST_NON_AUTO_EDITOR_THEME_KEY = "lastNonAutoEditorTheme";
 
 export const LINE_HEIGHT_MIN = 1.0;
 export const LINE_HEIGHT_MAX = 3.0;
@@ -387,4 +388,3 @@ export const setGlobalLocalStorageSetting = (
     writeGlobalSettings(settings);
     notifyViewerSettingsChange();
 };
-
