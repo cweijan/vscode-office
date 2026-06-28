@@ -27,8 +27,23 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 	public openCustomDocument(uri: vscode.Uri, openContext: vscode.CustomDocumentOpenContext, token: vscode.CancellationToken): vscode.CustomDocument | Thenable<vscode.CustomDocument> {
 		return { uri, dispose: (): void => { } };
 	}
-	public resolveCustomEditor(document: vscode.CustomDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): void | Thenable<void> {
+	public async resolveCustomEditor(document: vscode.CustomDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): Promise<void> {
 		const uri = document.uri;
+		const suffix = getFileSuffix(uri.fsPath);
+		const isDocx = ['.docx', '.dotx'].includes(suffix);
+		if (isDocx) {
+			const disableDocxDiffHistoryPreview = vscode.workspace.getConfiguration('vscode-office').get<boolean>('disableDocxDiffHistoryPreview', true);
+			if (disableDocxDiffHistoryPreview) {
+				const isDiff = ['git', 'gitlens', 'gitlens-git', 'vscode-local-history', 'review'].includes(uri.scheme);
+				if (isDiff) {
+					// Delay to let VS Code finish setting up the diff tab
+					setTimeout(() => {
+						vscode.commands.executeCommand('workbench.action.reopenTextEditor');
+					}, 300);
+					return;
+				}
+			}
+		}
 		const webview = webviewPanel.webview;
 		const folderPath = vscode.Uri.joinPath(uri, '..');
 		webview.options = {
@@ -39,7 +54,6 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 		const handler = Handler.bind(webviewPanel, uri);
 
 		let route: string;
-		const suffix = getFileSuffix(uri.fsPath);
 		const isSvg = /\.svg$/i.test(suffix);
 		handleCommonEvent(uri, handler, isSvg ? { skipOpen: true } : undefined);
 		if (isSvg) {

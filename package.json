@@ -760,6 +760,17 @@
 				}
 			},
 			{
+				"title": "Git",
+				"order": 4,
+				"properties": {
+					"vscode-office.disableDocxDiffHistoryPreview": {
+						"type": "boolean",
+						"default": true,
+						"description": "Disable the custom office viewer for DOCX Git diff/history views to use VS Code's default diff editor."
+					}
+				}
+			},
+			{
 				"title": "Telemetry",
 				"order": 99,
 				"properties": {
