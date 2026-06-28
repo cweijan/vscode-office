@@ -22,7 +22,6 @@
 	"exclude": [
 		"src/react",
 		"node_modules",
-		".vscode-test",
-		"vditor"
+		".vscode-test"
 	]
 }
