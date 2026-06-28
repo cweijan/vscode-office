@@ -1357,6 +1357,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    margin-left: 3px;
     min-width: 14px;
     height: 14px;
     padding: 0 4px;
@@ -1366,7 +1367,12 @@
     line-height: 1;
 }
 
-.git-graph-cdv-file-badge-renamed {
+.git-graph-cdv-file-badge-a {
+    color: var(--git-graph-status-added);
+    background: color-mix(in srgb, var(--git-graph-status-added) 16%, transparent);
+}
+
+.git-graph-cdv-file-badge-r {
     color: var(--git-graph-status-renamed);
     background: color-mix(in srgb, var(--git-graph-status-renamed) 16%, transparent);
 }

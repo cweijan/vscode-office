@@ -29,6 +29,11 @@ import {
 
 export type FileChangeActionPayload = Record<string, unknown> & { action: string };
 
+const FILE_CHANGE_BADGE_LABEL: Record<string, string> = {
+    A: 'A',
+    R: 'R',
+};
+
 interface CommitDetailFileViewProps {
     repo: string;
     commitHash: string;
@@ -82,7 +87,7 @@ function FileChangeRow({
     onContextMenu: (event: MouseEvent, change: GitFileChange) => void;
 }) {
     const statusClass = FILE_CHANGE_STATUS_CLASS[change.type] ?? '';
-    const isRenamed = change.type === 'R';
+    const badgeLabel = FILE_CHANGE_BADGE_LABEL[change.type];
     const isCurrent = Boolean(
         relPath && fileTouchesPath(relPath, change.oldFilePath, change.newFilePath),
     );
@@ -117,9 +122,9 @@ function FileChangeRow({
                 className="git-graph-cdv-file-icon"
             />
             <span className="git-graph-cdv-file-name" title={title}>{label}</span>
-            {isRenamed && (
-                <span className="git-graph-cdv-file-badge git-graph-cdv-file-badge-renamed" aria-label="Renamed">
-                    R
+            {badgeLabel && (
+                <span className={`git-graph-cdv-file-badge git-graph-cdv-file-badge-${change.type.toLowerCase()}`} aria-label={`Status ${badgeLabel}`}>
+                    {badgeLabel}
                 </span>
             )}
             <FileStats change={change} />
