@@ -78,7 +78,6 @@ interface ICodeBlockChrome {
     langPanel: HTMLElement;
     langSearch: HTMLInputElement;
     langList: HTMLElement;
-    langChevron: HTMLElement;
     themeWrap?: HTMLElement;
     themeTrigger?: HTMLButtonElement;
     themePanel?: HTMLElement;
@@ -194,17 +193,11 @@ const bindChromeEventIsolation = (root: HTMLElement) => {
     }
 };
 
-const updateLangChevron = (chevron: HTMLElement, open: boolean) => {
-    chevron.classList.remove("codicon-chevron-up", "codicon-chevron-down");
-    chevron.classList.add(open ? "codicon-chevron-down" : "codicon-chevron-up");
-};
-
 const closeLangPanel = () => {
     if (!openLangChrome) {
         return;
     }
     openLangChrome.langSearch.blur();
-    updateLangChevron(openLangChrome.langChevron, false);
     openLangChrome.langWrap.classList.remove("vditor-cm-chrome__lang--open");
     openLangChrome.langWrap.classList.remove("vditor-cm-chrome__lang--focused");
     openLangChrome.langActiveIndex = -1;
@@ -323,7 +316,6 @@ const setLangPanelOpen = (chrome: ICodeBlockChrome, open: boolean) => {
             closeLangPanel();
         }
         chrome.langWrap.classList.add("vditor-cm-chrome__lang--open");
-        updateLangChevron(chrome.langChevron, true);
         openLangChrome = chrome;
         chrome.langSearch.value = "";
         chrome.langActiveIndex = -1;
@@ -501,11 +493,8 @@ const createChromeRoot = (editable: boolean) => {
         "aria-label",
         (window.VditorI18n.language || "Language") + "<" + updateHotkeyTip("⌥Enter") + ">",
     );
-    langTrigger.innerHTML =
-        `<span class="vditor-cm-chrome__lang-label"></span>` +
-        `<span class="vditor-cm-chrome__lang-chevron">${codicon("chevron-up")}</span>`;
+    langTrigger.innerHTML = `<span class="vditor-cm-chrome__lang-label"></span>`;
     langWrap.appendChild(langTrigger);
-    const langChevron = langTrigger.querySelector(".vditor-cm-chrome__lang-chevron .codicon") as HTMLElement;
 
     const langPanel = document.createElement("div");
     langPanel.className = "vditor-cm-chrome__lang-panel";
@@ -591,7 +580,6 @@ const createChromeRoot = (editable: boolean) => {
         langPanel,
         langSearch,
         langList,
-        langChevron,
         themeWrap,
         themeTrigger,
         themePanel,

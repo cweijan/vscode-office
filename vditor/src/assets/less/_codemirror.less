@@ -363,11 +363,7 @@
   }
 
   &--done {
-    background: color-mix(in srgb, var(--cm-copy-done-color, var(--link-color)) 12%, var(--cm-lang-trigger-bg, var(--second-bg-color, var(--dropdown-hover-background, var(--toolbar-background-color)))));
-
-    .vditor-cm-chrome__copy-icon .codicon {
-      color: var(--cm-copy-done-color, var(--link-color));
-    }
+    background: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 12%, var(--cm-lang-trigger-bg, var(--second-bg-color, var(--dropdown-hover-background, var(--toolbar-background-color)))));
   }
 }
 
@@ -376,7 +372,7 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  color: var(--cm-copy-color, var(--link-color));
+  color: inherit;
 
   .codicon {
     font-size: 16px;
@@ -554,29 +550,6 @@
   white-space: nowrap;
 }
 
-.vditor-cm-chrome__lang-chevron {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  margin-left: 2px;
-  opacity: 0.72;
-  color: var(--cm-fg-color, var(--toolbar-icon-color));
-
-  .codicon {
-    font-size: 16px;
-    line-height: 1;
-    color: inherit;
-  }
-}
-
-.vditor-cm-chrome__lang-trigger:hover:not(:disabled) .vditor-cm-chrome__lang-chevron {
-  opacity: 1;
-  color: var(--cm-copy-color, var(--link-color));
-}
-
 .vditor-cm-chrome__lang-panel {
   display: none;
   position: absolute;
@@ -689,10 +662,6 @@
   .vditor-cm-chrome__lang-trigger {
     cursor: default;
     pointer-events: none;
-  }
-
-  .vditor-cm-chrome__lang-chevron {
-    display: none;
   }
 }
 
