@@ -13,15 +13,17 @@ interface GraphSvgProps {
     commits: ReadonlyArray<GitCommitInput>;
     commitHead: string | null;
     rowHeight: number;
-    selectedIndex: number | null;
+    selectedIndices: ReadonlySet<number>;
+    focusIndex: number | null;
     graphConfig: GraphConfig;
     linearFileHistory?: boolean;
     onSelect: (index: number, event?: MouseEvent) => void;
 }
 
 export default function GraphSvg({
-    commits, commitHead, rowHeight, selectedIndex, graphConfig, linearFileHistory = false, onSelect,
+    commits, commitHead, rowHeight, selectedIndices, focusIndex, graphConfig, linearFileHistory = false, onSelect,
 }: GraphSvgProps) {
+    const multiSelect = selectedIndices.size > 1;
     const layout: GraphLayout = useMemo(
         () => computeGraphLayout(commits, commitHead, rowHeight, graphConfig, false, linearFileHistory),
         [commits, commitHead, rowHeight, graphConfig, linearFileHistory],
@@ -47,7 +49,16 @@ export default function GraphSvg({
                     strokeDasharray={path.dashed ? '4 2' : undefined}
                 />
             ))}
-            {layout.vertices.map((v) => (
+            {layout.vertices.map((v) => {
+                const isSelected = selectedIndices.has(v.id);
+                const dotClass = [
+                    'git-graph-vertex-dot',
+                    v.isCurrent ? 'current' : '',
+                    isSelected && !multiSelect ? 'active' : '',
+                    isSelected && multiSelect ? 'multi-active' : '',
+                    isSelected && multiSelect && focusIndex === v.id ? 'selection-focus' : '',
+                ].filter(Boolean).join(' ');
+                return (
                 <g key={v.id} onClick={(e) => onSelect(v.id, e)} className="git-graph-vertex">
                     {v.isStash && !v.isCurrent && (
                         <circle
@@ -61,7 +72,7 @@ export default function GraphSvg({
                         />
                     )}
                     <circle
-                        className={`git-graph-vertex-dot${v.isCurrent ? ' current' : ''}${selectedIndex === v.id ? ' active' : ''}`}
+                        className={dotClass}
                         cx={v.cx}
                         cy={v.cy}
                         r={v.isCurrent ? 6 : 4}
@@ -70,7 +81,8 @@ export default function GraphSvg({
                         strokeWidth={v.isCurrent ? 2.5 : 0}
                     />
                 </g>
-            ))}
+                );
+            })}
         </svg>
     );
 }

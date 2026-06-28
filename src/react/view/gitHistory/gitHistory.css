@@ -684,6 +684,7 @@
 .git-graph-table-body {
     display: flex;
     flex-direction: column;
+    user-select: none;
 }
 
 .git-graph-row {
@@ -693,6 +694,7 @@
     cursor: pointer;
     transition: background 0.1s;
     color: var(--git-graph-fg);
+    user-select: none;
 }
 
 .git-graph-row:hover {
@@ -704,12 +706,101 @@
     color: var(--git-graph-selected-fg);
 }
 
-.git-graph-row.find-match:not(.selected) {
+.git-graph-row.multi-selected {
+    background: color-mix(in srgb, var(--git-graph-selected-bg) 55%, var(--git-graph-bg));
+    color: var(--git-graph-fg);
+}
+
+.git-graph-row.multi-selected.selection-focus {
+    background: color-mix(in srgb, var(--git-graph-selected-bg) 78%, var(--git-graph-bg));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--git-graph-selected-bg) 70%, transparent);
+}
+
+.git-graph-row.multi-selected .git-graph-muted,
+.git-graph-row.multi-selected .git-graph-hash {
+    color: var(--git-graph-muted);
+}
+
+.git-graph-row.multi-selected.selection-focus .git-graph-muted,
+.git-graph-row.multi-selected.selection-focus .git-graph-hash {
+    color: var(--git-graph-fg);
+}
+
+.git-graph-vertex-dot.multi-active {
+    stroke: var(--git-graph-selected-bg);
+    stroke-width: 2px;
+    fill: var(--git-graph-bg);
+}
+
+.git-graph-vertex-dot.selection-focus {
+    stroke-width: 3px;
+}
+
+.git-graph-selection-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 6px 12px;
+    border-top: 1px solid var(--git-graph-border);
+    background: color-mix(in srgb, var(--git-graph-toolbar-bg) 88%, var(--git-graph-bg));
+    flex-shrink: 0;
+}
+
+.git-graph-selection-bar-count {
+    font-size: 12px;
+    color: var(--git-graph-muted);
+    white-space: nowrap;
+}
+
+.git-graph-selection-bar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.git-graph-selection-bar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 24px;
+    padding: 0 8px;
+    border: 1px solid var(--git-graph-border);
+    border-radius: 4px;
+    background: var(--git-graph-input-bg);
+    color: var(--git-graph-fg);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.git-graph-selection-bar-btn:hover {
+    background: var(--git-graph-hover);
+}
+
+.git-graph-selection-bar-btn-danger {
+    color: var(--vscode-errorForeground, #f14c4c);
+    border-color: color-mix(in srgb, var(--vscode-errorForeground, #f14c4c) 35%, var(--git-graph-border));
+}
+
+.git-graph-selection-bar-btn-ghost {
+    background: transparent;
+    border-color: transparent;
+    color: var(--git-graph-muted);
+}
+
+.git-graph-row.find-match:not(.selected):not(.multi-selected) {
     background: color-mix(in srgb, var(--git-graph-accent) 18%, var(--git-graph-bg));
 }
 
 .git-graph-row.find-match.selected {
     outline: 1px solid color-mix(in srgb, var(--git-graph-accent) 55%, transparent);
+    outline-offset: -1px;
+}
+
+.git-graph-row.find-match.multi-selected {
+    outline: 1px solid color-mix(in srgb, var(--git-graph-accent) 40%, transparent);
     outline-offset: -1px;
 }
 
@@ -1973,6 +2064,7 @@ body.git-graph-dialog-open {
     font-size: 13px;
     line-height: 1.55;
     color: var(--git-graph-muted);
+    white-space: pre-wrap;
 }
 
 .git-graph-dialog-field {

@@ -14,6 +14,7 @@ import FindWidget from './components/FindWidget';
 import SettingsWidget from './components/SettingsWidget';
 import CommitTable from './components/CommitTable';
 import type { RefContextType } from './components/CommitTable';
+import SelectionActionBar from './components/SelectionActionBar';
 import { UNCOMMITTED } from './graph/layoutEngine';
 import CommitDetailPopup from './components/CommitDetailPopup';
 import { anchorFromElement, anchorFromMouseEvent, type PopupAnchor } from './util/commitDetailPopup';
@@ -21,6 +22,7 @@ import { ContextMenu, useContextMenu } from './components/ContextMenu';
 import {
     buildBranchContextMenu,
     buildCommitContextMenu,
+    buildMultiCommitContextMenu,
     buildFileChangeContextMenu,
     buildRemoteBranchContextMenu,
     buildStashContextMenu,
@@ -35,6 +37,18 @@ import {
 import { themeStyle, useGitHistoryTheme, GitHistoryColorModeProvider } from './theme/gitHistoryTheme';
 import { loadGitHistoryState, saveGitHistoryState, getPullDefaults, savePullDefaults, getFileHistorySplitLayout, saveFileHistorySplitLayout, getColorMode, saveColorMode, type GitPullDefaults, type FileHistorySplitLayout, type GitHistoryColorMode } from './util/gitHistoryState';
 import { getRelativeRepoPath, repoDisplayName } from './util/repoPath';
+import {
+    buildBatchActionMessage,
+    buildCherryPickAction,
+    buildRevertAction,
+    computeRangeSelection,
+    formatCommitHashes,
+    formatCommitMessages,
+    isSelectableCommit,
+    sortCommitsByListOrder,
+    sortCommitsForCherryPick,
+    sortCommitsForRevert,
+} from './util/commitSelection';
 import { getConfigs } from '../../util/vscodeConfig';
 import type {
     GitCommit, GitCommitData, GitCommitDetails, GitCommitRemote, GitFileChange,
@@ -122,7 +136,8 @@ function GitHistoryView({
     const [commits, setCommits] = useState<GitCommit[]>([]);
     const [branchHead, setBranchHead] = useState<string | null>(null);
     const [commitHead, setCommitHead] = useState<string | null>(null);
-    const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+    const [selectedIndices, setSelectedIndices] = useState<Set<number>>(() => new Set());
+    const [focusIndex, setFocusIndex] = useState<number | null>(null);
     const [detailAnchor, setDetailAnchor] = useState<PopupAnchor | null>(null);
     const [filterCurrentFile, setFilterCurrentFile] = useState(false);
     const [commitDetails, setCommitDetails] = useState<GitCommitDetails | null>(null);
@@ -159,6 +174,7 @@ function GitHistoryView({
     const [toolbarPromptAnchor, setToolbarPromptAnchor] = useState<PopupAnchor | null>(null);
     const [remoteForm, setRemoteForm] = useState<{ mode: 'add' | 'edit'; remote?: GitRemoteDetail } | null>(null);
     const [remoteDeleteName, setRemoteDeleteName] = useState<string | null>(null);
+    const [batchConfirm, setBatchConfirm] = useState<{ kind: 'cherryPick' | 'revert'; commits: GitCommit[] } | null>(null);
     const contentRef = useRef<HTMLDivElement>(null);
     const viewRef = useRef<HTMLDivElement>(null);
     const settingsOpenRef = useRef(settingsOpen);
@@ -168,6 +184,17 @@ function GitHistoryView({
     const menuMetaRef = useRef<Record<string, MenuPayloadMeta>>({});
     const pendingQuickSyncCommitMessageRef = useRef(QUICK_SYNC_DEFAULT_MESSAGE());
     const pendingOpenRemoteRepoRef = useRef<string | null>(null);
+    const selectionAnchorRef = useRef<number | null>(null);
+    const selectedIndicesRef = useRef(selectedIndices);
+    const batchQueueRef = useRef<GitActionRequest[]>([]);
+    const batchModeRef = useRef<'cherryPick' | 'revert' | null>(null);
+    selectedIndicesRef.current = selectedIndices;
+
+    const clearSelection = useCallback(() => {
+        setSelectedIndices(new Set());
+        setFocusIndex(null);
+        selectionAnchorRef.current = null;
+    }, []);
 
     const executeGitAction = useCallback((action: GitActionRequest) => {
         pendingGitActionRef.current = action;
@@ -215,7 +242,21 @@ function GitHistoryView({
         showMenu(prepared.items, prepared.metaById, event.clientX, event.clientY);
     }, [showMenu]);
 
-    const handleRowContextMenu = useCallback((event: MouseEvent, commit: GitCommit) => {
+    const handleRowContextMenu = useCallback((event: MouseEvent, commit: GitCommit, index: number) => {
+        const currentSelection = selectedIndicesRef.current;
+        if (currentSelection.size >= 2 && currentSelection.has(index)) {
+            openContextMenu(event, buildMultiCommitContextMenu(currentSelection.size));
+            return;
+        }
+        if (!currentSelection.has(index)) {
+            setSelectedIndices(new Set([index]));
+            setFocusIndex(index);
+            selectionAnchorRef.current = index;
+            setDetailAnchor(null);
+            setCommitDetails(null);
+            setDetailsError(null);
+            setDetailsLoading(false);
+        }
         openContextMenu(event, buildCommitContextMenu(commit, menuContext));
     }, [menuContext, openContextMenu]);
 
@@ -252,22 +293,95 @@ function GitHistoryView({
     }, [menuContext, openContextMenu]);
 
     const handleFileContextMenu = useCallback((event: MouseEvent, change: GitFileChange) => {
-        if (selectedIndex === null) return;
-        const commit = commits[selectedIndex];
+        if (focusIndex === null || selectedIndices.size !== 1 || !selectedIndices.has(focusIndex)) return;
+        const commit = commits[focusIndex];
         if (!commit) return;
         openContextMenu(
             event,
             buildFileChangeContextMenu(change, commit.hash, commit.parents.length > 0, menuContext),
         );
-    }, [commits, selectedIndex, menuContext, openContextMenu]);
+    }, [commits, focusIndex, selectedIndices, menuContext, openContextMenu]);
+
+    const copySelectedCommits = useCallback((mode: 'hashes' | 'messages') => {
+        const selected = sortCommitsByListOrder(commits, selectedIndicesRef.current);
+        if (selected.length === 0) {
+            return;
+        }
+        const text = mode === 'hashes'
+            ? formatCommitHashes(selected)
+            : formatCommitMessages(selected);
+        executeGitAction({ action: 'copyToClipboard', text });
+    }, [commits, executeGitAction]);
+
+    const requestBatchConfirm = useCallback((kind: 'cherryPick' | 'revert') => {
+        const selected = kind === 'cherryPick'
+            ? sortCommitsForCherryPick(commits, selectedIndicesRef.current)
+            : sortCommitsForRevert(commits, selectedIndicesRef.current);
+        if (selected.length < 2) {
+            return;
+        }
+        setBatchConfirm({ kind, commits: selected });
+    }, [commits]);
+
+    const runNextBatchAction = useCallback(() => {
+        const next = batchQueueRef.current.shift();
+        if (!next) {
+            batchModeRef.current = null;
+            setIsExecutingAction(false);
+            clearSelection();
+            if (repoRef.current) {
+                loadRepositoryRef.current(repoRef.current);
+            }
+            return;
+        }
+        pendingGitActionRef.current = next;
+        setIsExecutingAction(true);
+        handler.emit('gitAction', next);
+    }, [clearSelection]);
+
+    const startBatchExecution = useCallback((kind: 'cherryPick' | 'revert', selected: GitCommit[]) => {
+        batchQueueRef.current = selected.map((commit) => (
+            kind === 'cherryPick'
+                ? buildCherryPickAction(commit, repo) as GitActionRequest
+                : buildRevertAction(commit, repo) as GitActionRequest
+        ));
+        batchModeRef.current = kind;
+        runNextBatchAction();
+    }, [repo, runNextBatchAction]);
+
+    const handleMultiSelectAction = useCallback((id: string) => {
+        switch (id) {
+            case 'copySelectedHashes':
+                copySelectedCommits('hashes');
+                break;
+            case 'copySelectedMessages':
+                copySelectedCommits('messages');
+                break;
+            case 'cherryPickSelected':
+                requestBatchConfirm('cherryPick');
+                break;
+            case 'revertSelected':
+                requestBatchConfirm('revert');
+                break;
+            default:
+                break;
+        }
+    }, [copySelectedCommits, requestBatchConfirm]);
 
     const handleContextMenuSelect = useCallback((id: string, position: { x: number; y: number }) => {
+        if (id === 'copySelectedHashes'
+            || id === 'copySelectedMessages'
+            || id === 'cherryPickSelected'
+            || id === 'revertSelected') {
+            handleMultiSelectAction(id);
+            return;
+        }
         promptAnchorRef.current = position;
         const meta = menuMetaRef.current[id];
         const ctx = menuContextRef.current;
         if (!meta || !ctx) return;
         runContextMenuAction(id, meta, ctx);
-    }, []);
+    }, [handleMultiSelectAction]);
 
     const initialized = useRef(false);
     const repoRef = useRef(repo);
@@ -276,6 +390,7 @@ function GitHistoryView({
     const searchValueRef = useRef('');
     const pendingCommitHashRef = useRef<string | null>(null);
     const pendingGitActionRef = useRef<GitActionRequest | null>(null);
+    const loadRepositoryRef = useRef<(targetRepo: string) => void>(() => {});
     const commitsRef = useRef(commits);
     const branchesRef = useRef(branches);
     const stashesRef = useRef(stashes);
@@ -330,22 +445,22 @@ function GitHistoryView({
 
     const clearCommitList = useCallback(() => {
         setCommits([]);
-        setSelectedIndex(null);
+        clearSelection();
         setDetailAnchor(null);
         setCommitDetails(null);
         setDetailsError(null);
         setMoreAvailable(false);
         loadingMoreRef.current = false;
         resetMaxCommits();
-    }, [resetMaxCommits]);
+    }, [clearSelection, resetMaxCommits]);
 
     const closeCommitDetails = useCallback(() => {
-        setSelectedIndex(null);
+        clearSelection();
         setDetailAnchor(null);
         setCommitDetails(null);
         setDetailsError(null);
         setDetailsLoading(false);
-    }, []);
+    }, [clearSelection]);
 
     const updateDetailAnchorFromRow = useCallback((index: number) => {
         requestAnimationFrame(() => {
@@ -437,7 +552,6 @@ function GitHistoryView({
         });
     }, []);
 
-    const loadRepositoryRef = useRef(loadRepository);
     const loadCommitsRef = useRef(loadCommits);
     const requestCommitDetailsRef = useRef(requestCommitDetails);
     const openRemoteForRepoRef = useRef<(targetRepo: string, urls: ReadonlyArray<{ name: string; url: string }>) => void>(() => {});
@@ -469,7 +583,9 @@ function GitHistoryView({
                 }
             }
             if (index >= 0) {
-                setSelectedIndex(index);
+                setSelectedIndices(new Set([index]));
+                selectionAnchorRef.current = index;
+                setFocusIndex(index);
                 updateDetailAnchorFromRow(index);
                 requestAnimationFrame(() => {
                     requestCommitDetailsRef.current(repoRef.current, data.commits[index]);
@@ -671,6 +787,18 @@ function GitHistoryView({
                 setError(message);
             })
             .on('gitActionResult', (result: { error: string | null; refresh: boolean }) => {
+                if (batchModeRef.current) {
+                    pendingGitActionRef.current = null;
+                    if (result.error) {
+                        batchQueueRef.current = [];
+                        batchModeRef.current = null;
+                        setIsExecutingAction(false);
+                        setError(result.error);
+                        return;
+                    }
+                    runNextBatchAction();
+                    return;
+                }
                 completeExecution();
                 setIsExecutingAction(false);
                 const pendingAction = pendingGitActionRef.current;
@@ -717,12 +845,15 @@ function GitHistoryView({
         if (initialRepo) {
             loadRepositoryRef.current(initialRepo);
         }
-    }, [applyCommitsData]);
+    }, [applyCommitsData, runNextBatchAction]);
 
     useEffect(() => {
         if (!repo) return;
-        const selectedCommitHash = selectedIndex !== null && commits[selectedIndex]
-            ? commits[selectedIndex].hash
+        const selectedCommitHash = focusIndex !== null
+            && selectedIndices.size === 1
+            && selectedIndices.has(focusIndex)
+            && commits[focusIndex]
+            ? commits[focusIndex].hash
             : null;
         saveGitHistoryState({
             repo,
@@ -732,7 +863,7 @@ function GitHistoryView({
             selectedCommitHash,
             filePath,
         });
-    }, [repo, selectedBranch, selectedAuthor, searchValue, selectedIndex, commits, filePath]);
+    }, [repo, selectedBranch, selectedAuthor, searchValue, focusIndex, selectedIndices, commits, filePath]);
 
     const handleRepoChange = (newRepo: string) => {
         setRepo(newRepo);
@@ -756,16 +887,56 @@ function GitHistoryView({
     handleRepoChangeRef.current = handleRepoChange;
 
     const handleSelectCommit = (index: number, event?: MouseEvent) => {
-        if (selectedIndex === index) {
+        const commit = commits[index];
+        if (!isSelectableCommit(commit)) {
+            return;
+        }
+
+        const multiModifier = Boolean(event && (event.metaKey || event.ctrlKey));
+        const rangeModifier = Boolean(event && event.shiftKey);
+
+        if (rangeModifier && selectionAnchorRef.current !== null) {
+            const range = computeRangeSelection(selectionAnchorRef.current, index, commits);
+            setSelectedIndices(range);
+            setFocusIndex(index);
+            setDetailAnchor(null);
+            setCommitDetails(null);
+            setDetailsError(null);
+            setDetailsLoading(false);
+            return;
+        }
+
+        if (multiModifier) {
+            setSelectedIndices((previous) => {
+                const next = new Set(previous);
+                if (next.has(index)) {
+                    next.delete(index);
+                } else {
+                    next.add(index);
+                }
+                return next;
+            });
+            selectionAnchorRef.current = index;
+            setFocusIndex(index);
+            setDetailAnchor(null);
+            setCommitDetails(null);
+            setDetailsError(null);
+            setDetailsLoading(false);
+            return;
+        }
+
+        if (selectedIndices.size === 1 && selectedIndices.has(index) && focusIndex === index) {
             closeCommitDetails();
             return;
         }
+
+        setSelectedIndices(new Set([index]));
+        selectionAnchorRef.current = index;
+        setFocusIndex(index);
         const anchor: PopupAnchor = event
             ? { x: event.clientX, y: event.clientY }
             : { x: window.innerWidth / 2, y: window.innerHeight / 3 };
         setDetailAnchor(anchor);
-        setSelectedIndex(index);
-        const commit = commits[index];
         requestCommitDetails(repo, commit);
     };
 
@@ -1054,26 +1225,29 @@ function GitHistoryView({
     }, []);
 
     const navigateCommitDetails = useCallback((direction: -1 | 1) => {
-        if (!repo || selectedIndex === null || !detailAnchor) {
+        if (!repo || focusIndex === null || selectedIndices.size !== 1 || !detailAnchor) {
             return false;
         }
-        const nextIndex = selectedIndex + direction;
+        const nextIndex = focusIndex + direction;
         if (nextIndex < 0 || nextIndex >= commits.length) {
             return false;
         }
         const nextCommit = commits[nextIndex];
-        if (!nextCommit) {
+        if (!isSelectableCommit(nextCommit)) {
             return false;
         }
 
-        setSelectedIndex(nextIndex);
+        setSelectedIndices(new Set([nextIndex]));
+        selectionAnchorRef.current = nextIndex;
+        setFocusIndex(nextIndex);
         scrollToCommitIndex(nextIndex);
         updateDetailAnchorFromRow(nextIndex);
         requestCommitDetails(repo, nextCommit);
         return true;
     }, [
         repo,
-        selectedIndex,
+        focusIndex,
+        selectedIndices.size,
         detailAnchor,
         commits,
         scrollToCommitIndex,
@@ -1108,12 +1282,14 @@ function GitHistoryView({
                 return;
             }
             if (
-                selectedIndex !== null
+                focusIndex !== null
+                && selectedIndices.size === 1
                 && detailAnchor
                 && !menu
                 && !toolbarPrompt
                 && !remoteForm
                 && !remoteDeleteName
+                && !batchConfirm
                 && !findOpen
                 && !settingsOpen
                 && (e.key === 'ArrowUp' || e.key === 'ArrowDown')
@@ -1131,7 +1307,7 @@ function GitHistoryView({
                 e.preventDefault();
                 return;
             }
-            if (toolbarPrompt || remoteForm || remoteDeleteName) {
+            if (toolbarPrompt || remoteForm || remoteDeleteName || batchConfirm) {
                 return;
             }
             if (findOpen) {
@@ -1145,7 +1321,16 @@ function GitHistoryView({
                 e.preventDefault();
                 return;
             }
-            if (selectedIndex !== null && detailAnchor) {
+            if (selectedIndices.size >= 2) {
+                clearSelection();
+                setDetailAnchor(null);
+                setCommitDetails(null);
+                setDetailsError(null);
+                setDetailsLoading(false);
+                e.preventDefault();
+                return;
+            }
+            if (focusIndex !== null && detailAnchor) {
                 closeCommitDetails();
                 e.preventDefault();
             }
@@ -1157,13 +1342,16 @@ function GitHistoryView({
         toolbarPrompt,
         remoteForm,
         remoteDeleteName,
+        batchConfirm,
         findOpen,
         settingsOpen,
-        selectedIndex,
+        focusIndex,
+        selectedIndices.size,
         detailAnchor,
         navigateCommitDetails,
         closeMenu,
         closeCommitDetails,
+        clearSelection,
     ]);
 
     useEffect(() => {
@@ -1413,7 +1601,8 @@ function GitHistoryView({
                                 commits={commits}
                                 branchHead={branchHead}
                                 commitHead={commitHead}
-                                selectedIndex={selectedIndex}
+                                selectedIndices={selectedIndices}
+                                focusIndex={focusIndex}
                                 findMatchIndex={findMatchIndex}
                                 rowHeight={ROW_HEIGHT}
                                 graphConfig={graphConfig}
@@ -1424,6 +1613,20 @@ function GitHistoryView({
                             />
                         )}
                     </div>
+                    <SelectionActionBar
+                        count={selectedIndices.size}
+                        onCopyHashes={() => handleMultiSelectAction('copySelectedHashes')}
+                        onCopyMessages={() => handleMultiSelectAction('copySelectedMessages')}
+                        onCherryPick={() => handleMultiSelectAction('cherryPickSelected')}
+                        onRevert={() => handleMultiSelectAction('revertSelected')}
+                        onClear={() => {
+                            clearSelection();
+                            setDetailAnchor(null);
+                            setCommitDetails(null);
+                            setDetailsError(null);
+                            setDetailsLoading(false);
+                        }}
+                    />
                     <GitHistoryBottomBar commitCount={countRealCommits(commits)} />
                 </div>
                 <SettingsWidget
@@ -1488,14 +1691,39 @@ function GitHistoryView({
                     onSubmit={handleRemoteDeleteConfirm}
                 />
             )}
-            {selectedIndex !== null && detailAnchor && commits[selectedIndex] && (
+            {batchConfirm && (
+                <ActionDialog
+                    step={{
+                        kind: 'confirm',
+                        id: 'confirm',
+                        title: batchConfirm.kind === 'cherryPick' ? 'Cherry Pick Commits' : 'Revert Commits',
+                        message: buildBatchActionMessage(batchConfirm.commits, batchConfirm.kind),
+                        confirmLabel: batchConfirm.kind === 'cherryPick' ? 'Cherry Pick' : 'Revert',
+                        danger: batchConfirm.kind === 'revert',
+                    }}
+                    onCancel={() => setBatchConfirm(null)}
+                    onSubmit={() => {
+                        const pending = batchConfirm;
+                        setBatchConfirm(null);
+                        if (pending) {
+                            startBatchExecution(pending.kind, pending.commits);
+                        }
+                    }}
+                    isExecuting={isExecutingAction}
+                />
+            )}
+            {focusIndex !== null
+                && selectedIndices.size === 1
+                && selectedIndices.has(focusIndex)
+                && detailAnchor
+                && commits[focusIndex] && (
                 <CommitDetailPopup
                     anchor={detailAnchor}
                     containerRef={viewRef}
                     repo={repo}
-                    commit={commits[selectedIndex]}
-                    commitHash={commits[selectedIndex].hash}
-                    hasParents={commits[selectedIndex].parents.length > 0}
+                    commit={commits[focusIndex]}
+                    commitHash={commits[focusIndex].hash}
+                    hasParents={commits[focusIndex].parents.length > 0}
                     details={commitDetails}
                     loading={detailsLoading}
                     error={detailsError}

@@ -21,7 +21,8 @@ interface CommitTableProps {
     commits: GitCommit[];
     branchHead: string | null;
     commitHead: string | null;
-    selectedIndex: number | null;
+    selectedIndices: ReadonlySet<number>;
+    focusIndex: number | null;
     findMatchIndex: number | null;
     rowHeight: number;
     graphConfig: GraphConfig;
@@ -206,9 +207,10 @@ function CommitHeadDot({
 }
 
 export default function CommitTable({
-    commits, branchHead, commitHead, selectedIndex, findMatchIndex, rowHeight, graphConfig,
+    commits, branchHead, commitHead, selectedIndices, focusIndex, findMatchIndex, rowHeight, graphConfig,
     fileHistoryMode = false, onSelect, onRowContextMenu, onRefContextMenu,
 }: CommitTableProps) {
+    const multiSelect = selectedIndices.size > 1;
     return (
         <div className="git-graph-table-wrapper">
             <div className="git-graph-graph-col">
@@ -217,7 +219,8 @@ export default function CommitTable({
                     commits={commits}
                     commitHead={commitHead}
                     rowHeight={rowHeight}
-                    selectedIndex={selectedIndex}
+                    selectedIndices={selectedIndices}
+                    focusIndex={focusIndex}
                     graphConfig={graphConfig}
                     linearFileHistory={fileHistoryMode}
                     onSelect={onSelect}
@@ -231,12 +234,28 @@ export default function CommitTable({
                     <span className="col-hash">Hash</span>
                 </div>
                 <div className="git-graph-table-body">
-                    {commits.map((commit, index) => (
+                    {commits.map((commit, index) => {
+                        const isSelected = selectedIndices.has(index);
+                        const rowClass = [
+                            'git-graph-row',
+                            isSelected && multiSelect ? 'multi-selected' : '',
+                            isSelected && !multiSelect ? 'selected' : '',
+                            isSelected && multiSelect && focusIndex === index ? 'selection-focus' : '',
+                            findMatchIndex === index ? 'find-match' : '',
+                            commitHead !== null && commit.hash === commitHead ? 'current-head' : '',
+                            commit.hash === UNCOMMITTED ? 'uncommitted' : '',
+                        ].filter(Boolean).join(' ');
+                        return (
                         <div
                             key={commit.hash + index}
                             data-commit-index={index}
-                            className={`git-graph-row${selectedIndex === index ? ' selected' : ''}${findMatchIndex === index ? ' find-match' : ''}${commitHead !== null && commit.hash === commitHead ? ' current-head' : ''}${commit.hash === UNCOMMITTED ? ' uncommitted' : ''}`}
+                            className={rowClass}
                             style={{ height: rowHeight }}
+                            onMouseDown={(e) => {
+                                if (e.shiftKey || e.metaKey || e.ctrlKey) {
+                                    e.preventDefault();
+                                }
+                            }}
                             onClick={(e) => onSelect(index, e)}
                             onContextMenu={(e) => onRowContextMenu(e, commit, index)}
                         >
@@ -264,7 +283,8 @@ export default function CommitTable({
                                 <code className="git-graph-hash">{abbrevHash(commit.hash)}</code>
                             </span>
                         </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         </div>
