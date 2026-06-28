@@ -1,6 +1,6 @@
 import { spawn } from 'child_process';
-import { basename, dirname, extname, relative } from 'path';
-import { Uri, workspace, type Webview } from 'vscode';
+import { basename, dirname, extname, isAbsolute, relative } from 'path';
+import { extensions, Uri, workspace, type Webview } from 'vscode';
 import { Handler } from '@/common/handler';
 import { isUriReadOnly } from '@/common/fileReadOnly';
 import { isWebExtensionHost } from '@/common/extensionHost';
@@ -18,6 +18,65 @@ interface GitUriQuery {
     path: string;
     ref: string;
     submoduleOf?: string;
+}
+
+interface GitRepository {
+    rootUri: Uri;
+}
+
+interface GitApi {
+    repositories: ReadonlyArray<GitRepository>;
+    getRepository(uri: Uri): GitRepository | null;
+    getRepositoryRoot(uri: Uri): Promise<Uri | null>;
+}
+
+interface GitExtensionExports {
+    getAPI(version: 1): GitApi;
+}
+
+async function getGitApi(): Promise<GitApi | null> {
+    const extension = extensions.getExtension<GitExtensionExports>('vscode.git');
+    if (!extension) {
+        return null;
+    }
+    if (!extension.isActive) {
+        try {
+            await extension.activate();
+        } catch {
+            return null;
+        }
+    }
+    return extension.exports?.getAPI(1) ?? null;
+}
+
+async function findRepoRoot(gitUri: Uri, gitPath: string, filePath: string): Promise<string> {
+    const api = await getGitApi();
+    if (api) {
+        const repo = api.getRepository(gitUri);
+        if (repo?.rootUri.scheme === 'file') {
+            return repo.rootUri.fsPath;
+        }
+        const rootUri = await api.getRepositoryRoot(gitUri);
+        if (rootUri?.scheme === 'file') {
+            return rootUri.fsPath;
+        }
+        for (const candidate of api.repositories) {
+            if (candidate.rootUri.scheme !== 'file') {
+                continue;
+            }
+            const repoRelative = relative(candidate.rootUri.fsPath, filePath);
+            if (repoRelative && !repoRelative.startsWith('..') && !isAbsolute(repoRelative)) {
+                return candidate.rootUri.fsPath;
+            }
+        }
+    }
+    return findRepoRootFromDisk(gitPath, filePath);
+}
+
+async function findRepoRootFromDisk(gitPath: string, filePath: string): Promise<string> {
+    const cwd = dirname(filePath);
+    const root = await spawnGitBinary(gitPath, cwd, ['rev-parse', '--show-toplevel']);
+    return new TextDecoder().decode(root).trim();
 }
 
 function spawnGitBinary(gitPath: string, cwd: string, args: string[]): Promise<Uint8Array> {
@@ -39,14 +98,20 @@ function spawnGitBinary(gitPath: string, cwd: string, args: string[]): Promise<U
     });
 }
 
-async function findRepoRoot(gitPath: string, filePath: string): Promise<string> {
-    const cwd = dirname(filePath);
-    const root = await spawnGitBinary(gitPath, cwd, ['rev-parse', '--show-toplevel']);
-    return new TextDecoder().decode(root).trim();
-}
-
 function resolveGitPath(): string {
     return workspace.getConfiguration('git').get<string>('path') ?? 'git.exe';
+}
+
+/** ref 末尾单独的 ^ 与后面的 :path 拼接时，部分环境下解析会失败，^1 语义等价于 ^ */
+function normalizeGitRef(ref: string): string {
+    return ref.endsWith('^') ? `${ref}1` : ref;
+}
+
+function buildGitObjectSpec(ref: string, relativePath: string): string {
+    if (!ref) {
+        return `:${relativePath}`;
+    }
+    return `${normalizeGitRef(ref)}:${relativePath}`;
 }
 
 /** git scheme 经 VS Code FS 会走 --textconv，Windows 上二进制会被当文本处理 */
@@ -56,10 +121,9 @@ async function readGitUriBytes(uri: Uri): Promise<Uint8Array> {
         return workspace.fs.readFile(uri);
     }
     const gitPath = resolveGitPath();
-    const repoRoot = await findRepoRoot(gitPath, filePath);
+    const repoRoot = await findRepoRoot(uri, gitPath, filePath);
     const relativePath = relative(repoRoot, filePath).replace(/\\/g, '/');
-    const objectSpec = ref ? `${ref}:${relativePath}` : `:${relativePath}`;
-    return spawnGitBinary(gitPath, repoRoot, ['show', objectSpec]);
+    return spawnGitBinary(gitPath, repoRoot, ['show', buildGitObjectSpec(ref, relativePath)]);
 }
 
 export async function readUriBytes(uri: Uri): Promise<Uint8Array> {
