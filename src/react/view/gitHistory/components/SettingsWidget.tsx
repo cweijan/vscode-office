@@ -18,6 +18,7 @@ interface SettingsWidgetProps {
     canQuickSync: boolean;
     syncing: boolean;
     fetching: boolean;
+    pulling: boolean;
     pushing: boolean;
     onQuickSync: () => void;
 }
@@ -25,7 +26,7 @@ interface SettingsWidgetProps {
 export default function SettingsWidget({
     open, repo, remotes, loading, pullDefaults, fileHistorySplitLayout, onClose,
     onPullDefaultsChange, onFileHistorySplitLayoutChange, onAddRemote, onEditRemote, onDeleteRemote,
-    canQuickSync, syncing, fetching, pushing, onQuickSync,
+    canQuickSync, syncing, fetching, pulling, pushing, onQuickSync,
 }: SettingsWidgetProps) {
     const [localPull, setLocalPull] = useState(pullDefaults);
     const [localSplitLayout, setLocalSplitLayout] = useState(fileHistorySplitLayout);
@@ -163,7 +164,7 @@ export default function SettingsWidget({
                                     type="button"
                                     className={`git-graph-settings-btn sync${syncing ? ' running' : ''}`}
                                     onClick={onQuickSync}
-                                    disabled={!canQuickSync || syncing || fetching || pushing}
+                                    disabled={!canQuickSync || syncing || fetching || pulling || pushing}
                                 >
                                     <span className="codicon codicon-sync" aria-hidden />
                                     {syncing ? 'Syncing...' : 'Quick Sync'}

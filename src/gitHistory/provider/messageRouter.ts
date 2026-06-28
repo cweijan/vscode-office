@@ -67,6 +67,14 @@ export class MessageRouter {
             .on('refresh', this.wrapHandler(() => this.onRefresh()))
             .on('fetch', this.wrapHandler((content) =>
                 this.onFetch((content as { repo: string }).repo)))
+            .on('pull', this.wrapHandler((content) =>
+                this.onPull(content as {
+                    repo: string;
+                    branch: string;
+                    remote: string;
+                    noFastForward?: boolean;
+                    squash?: boolean;
+                })))
             .on('push', this.wrapHandler((content) =>
                 this.onPush(content as { repo: string; branch: string; remote: string; remotes?: string[]; force?: boolean })))
             .on('quickSync', this.wrapHandler((content) =>
@@ -321,6 +329,26 @@ export class MessageRouter {
         TelemetryService.get()?.trackEvent('gitHistory.toolbar.fetch');
         const error = await this.gitActions.fetchFromRemotes(repo);
         this.handler.emit('fetch', { error });
+    }
+
+    private async onPull(payload: {
+        repo: string;
+        branch: string;
+        remote: string;
+        noFastForward?: boolean;
+        squash?: boolean;
+    }): Promise<void> {
+        TelemetryService.get()?.trackEvent('gitHistory.toolbar.pull');
+        const error = await this.gitActions.pullCurrentBranch(
+            payload.repo,
+            payload.branch,
+            payload.remote,
+            {
+                noFastForward: payload.noFastForward,
+                squash: payload.squash,
+            },
+        );
+        this.handler.emit('pull', { error });
     }
 
     private async onPush(payload: { repo: string; branch: string; remote: string; remotes?: string[]; force?: boolean }): Promise<void> {

@@ -1,6 +1,6 @@
 import type { MouseEvent } from 'react';
 import VscodeDropdown from './VscodeDropdown';
-import { FetchIcon, PushIcon, RefreshIcon, RemoteIcon, FindIcon, SettingsIcon, ThemeToggleIcon, ExpandLayoutIcon } from './ToolbarIcons';
+import { FetchIcon, PullIcon, PushIcon, RefreshIcon, RemoteIcon, FindIcon, SettingsIcon, ThemeToggleIcon, ExpandLayoutIcon } from './ToolbarIcons';
 
 interface ToolbarProps {
     repos: string[];
@@ -12,8 +12,10 @@ interface ToolbarProps {
     searchValue: string;
     refreshing: boolean;
     fetching: boolean;
+    pulling: boolean;
     pushing: boolean;
     syncing: boolean;
+    canPull: boolean;
     canPush: boolean;
     hasRemoteUrl: boolean;
     findActive: boolean;
@@ -26,6 +28,7 @@ interface ToolbarProps {
     onSearchChange: (value: string) => void;
     onSearch: () => void;
     onFetch: () => void;
+    onPull: (event: MouseEvent<HTMLButtonElement>) => void;
     onPush: (event: MouseEvent<HTMLButtonElement>) => void;
     onOpenRemote: (event: MouseEvent<HTMLButtonElement>) => void;
     onToggleFind: () => void;
@@ -42,18 +45,20 @@ function repoLabel(path: string): string {
 
 export default function Toolbar({
     repos, repo, branches, selectedBranch, authors, selectedAuthor,
-    searchValue, refreshing, fetching, pushing, syncing, canPush, hasRemoteUrl,
+    searchValue, refreshing, fetching, pulling, pushing, syncing, canPull, canPush, hasRemoteUrl,
     findActive, settingsActive, splitView, adaptiveColorMode,
     onRepoChange, onBranchChange, onAuthorChange,
     onSearchChange, onSearch,
-    onFetch, onPush, onOpenRemote, onToggleFind, onRefresh, onToggleSettings, onExpandLayout, onToggleColorMode,
+    onFetch, onPull, onPush, onOpenRemote, onToggleFind, onRefresh, onToggleSettings, onExpandLayout, onToggleColorMode,
 }: ToolbarProps) {
     const showRepo = repos.length > 1;
     const remoteOpClass = fetching
         ? ' git-graph-toolbar--fetching'
-        : pushing
-            ? ' git-graph-toolbar--pushing'
-            : '';
+        : pulling
+            ? ' git-graph-toolbar--pulling'
+            : pushing
+                ? ' git-graph-toolbar--pushing'
+                : '';
 
     return (
         <div className={`git-graph-toolbar${showRepo ? '' : ' single-repo'}${remoteOpClass}`}>
@@ -104,22 +109,28 @@ export default function Toolbar({
                     disabled={refreshing}
                     className={refreshing ? ' spinning' : ''}
                 />
-                <FetchIcon
-                    title="Fetch from remote(s)"
-                    onClick={onFetch}
-                    disabled={fetching || pushing || syncing || !repo}
-                    className={fetching ? 'running' : undefined}
+                <PullIcon
+                    title="Pull current branch from remote"
+                    onClick={onPull}
+                    disabled={pulling || pushing || syncing || fetching || !canPull}
+                    className={pulling ? 'running' : undefined}
                 />
                 <PushIcon
                     title="Push current branch to remote"
                     onClick={onPush}
-                    disabled={pushing || syncing || fetching || !canPush}
+                    disabled={pushing || syncing || fetching || pulling || !canPush}
                     className={pushing ? 'running' : undefined}
                 />
                 <RemoteIcon
                     title={hasRemoteUrl ? 'Open remote repository' : 'No remote URL configured'}
                     onClick={onOpenRemote}
                     disabled={!repo || !hasRemoteUrl}
+                />
+                <FetchIcon
+                    title="Fetch from remote(s)"
+                    onClick={onFetch}
+                    disabled={fetching || pushing || syncing || pulling || !repo}
+                    className={fetching ? 'running' : undefined}
                 />
             </div>
 

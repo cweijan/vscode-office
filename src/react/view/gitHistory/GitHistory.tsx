@@ -131,6 +131,7 @@ function GitHistoryView({
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [fetching, setFetching] = useState(false);
+    const [pulling, setPulling] = useState(false);
     const [pushing, setPushing] = useState(false);
     const [syncing, setSyncing] = useState(false);
     const [hasRemoteUrl, setHasRemoteUrl] = useState(false);
@@ -154,7 +155,7 @@ function GitHistoryView({
         getFileHistorySplitLayout(),
     );
     const [toolbarPrompt, setToolbarPrompt] = useState<PromptStep | null>(null);
-    const [toolbarPromptKind, setToolbarPromptKind] = useState<'push' | 'openRemote' | 'quickSyncConfirm' | 'quickSync' | null>(null);
+    const [toolbarPromptKind, setToolbarPromptKind] = useState<'push' | 'pull' | 'openRemote' | 'quickSyncConfirm' | 'quickSync' | null>(null);
     const [toolbarPromptAnchor, setToolbarPromptAnchor] = useState<PopupAnchor | null>(null);
     const [remoteForm, setRemoteForm] = useState<{ mode: 'add' | 'edit'; remote?: GitRemoteDetail } | null>(null);
     const [remoteDeleteName, setRemoteDeleteName] = useState<string | null>(null);
@@ -608,6 +609,16 @@ function GitHistoryView({
                     loadRepositoryRef.current(repoRef.current);
                 }
             })
+            .on('pull', (payload: { error: string | null }) => {
+                setPulling(false);
+                if (payload.error) {
+                    setError(payload.error);
+                    return;
+                }
+                if (repoRef.current) {
+                    loadRepositoryRef.current(repoRef.current);
+                }
+            })
             .on('push', (payload: { error: string | null; cancelled?: boolean }) => {
                 setPushing(false);
                 if (payload.cancelled) {
@@ -773,6 +784,43 @@ function GitHistoryView({
         setFetching(true);
         setError(null);
         handler.emit('fetch', { repo });
+    };
+
+    const runPull = (remote: string) => {
+        if (!repo || !branchHead) {
+            return;
+        }
+        setPulling(true);
+        setError(null);
+        handler.emit('pull', {
+            repo,
+            branch: branchHead,
+            remote,
+            noFastForward: pullDefaults.noFastForward,
+            squash: pullDefaults.squash,
+        });
+    };
+
+    const handlePull = (event: MouseEvent<HTMLButtonElement>) => {
+        if (!repo || !branchHead) return;
+        if (remotes.length === 0) {
+            setError($t('git.noRemotes'));
+            return;
+        }
+        if (remotes.length === 1) {
+            runPull(remotes[0]);
+            return;
+        }
+        setToolbarPromptAnchor(anchorFromMouseEvent(event, true, true));
+        setToolbarPromptKind('pull');
+        setToolbarPrompt({
+            kind: 'pick',
+            id: 'remote',
+            title: 'Pull Branch',
+            message: `Pull "${branchHead}" from remote`,
+            submitLabel: 'Pull',
+            options: remotes.map((remote) => ({ value: remote, label: remote })),
+        });
     };
 
     const handlePush = (event: MouseEvent<HTMLButtonElement>) => {
@@ -962,6 +1010,10 @@ function GitHistoryView({
                 return;
             }
             runQuickSync(value, pendingQuickSyncCommitMessageRef.current);
+            return;
+        }
+        if (kind === 'pull' && typeof value === 'string') {
+            runPull(value);
             return;
         }
         if (kind === 'push' && repo && branchHead && typeof value !== 'string') {
@@ -1305,8 +1357,10 @@ function GitHistoryView({
                 searchValue={searchValue}
                 refreshing={refreshing}
                 fetching={fetching}
+                pulling={pulling}
                 pushing={pushing}
                 syncing={syncing}
+                canPull={Boolean(repo && branchHead && !branchHead.startsWith('(HEAD detached') && remotes.length > 0)}
                 canPush={Boolean(repo && branchHead && !branchHead.startsWith('(HEAD detached') && remotes.length > 0)}
                 hasRemoteUrl={hasRemoteUrl || repos.length > 1}
                 findActive={findOpen}
@@ -1326,6 +1380,7 @@ function GitHistoryView({
                 onSearchChange={setSearchValue}
                 onSearch={handleSearch}
                 onFetch={handleFetch}
+                onPull={handlePull}
                 onPush={handlePush}
                 onOpenRemote={handleOpenRemote}
                 onToggleFind={handleToggleFind}
@@ -1387,6 +1442,7 @@ function GitHistoryView({
                     canQuickSync={Boolean(repo && branchHead && !branchHead.startsWith('(HEAD detached'))}
                     syncing={syncing}
                     fetching={fetching}
+                    pulling={pulling}
                     pushing={pushing}
                     onQuickSync={handleQuickSync}
                 />
@@ -1404,7 +1460,7 @@ function GitHistoryView({
             {toolbarPrompt && (
                 <ActionDialog
                     step={toolbarPrompt}
-                    anchored={toolbarPromptKind === 'push' || toolbarPromptKind === 'openRemote'}
+                    anchored={toolbarPromptKind === 'push' || toolbarPromptKind === 'pull' || toolbarPromptKind === 'openRemote'}
                     anchor={toolbarPromptAnchor}
                     onCancel={handleToolbarPromptCancel}
                     onSubmit={handleToolbarPromptSubmit}
