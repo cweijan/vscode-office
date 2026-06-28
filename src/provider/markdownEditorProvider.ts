@@ -12,6 +12,7 @@ import { TelemetryService } from '@/service/telemetryService';
 import { openWikiLink } from '@/service/markdown/wikilink';
 import { streamCustomAI } from '@/service/ai/customAIClient';
 import {
+    broadcastToMarkdownWebviews,
     consumePendingBlockScroll,
     registerMarkdownWebview,
     unregisterMarkdownWebview,
@@ -31,6 +32,15 @@ export interface MarkdownEditorProviderOptions {
     isWeb?: boolean;
 }
 
+const MARKDOWN_SYNC_CONFIG_KEYS = [
+    'editMode',
+    'editorTheme',
+    'codeMirrorTheme',
+    'mermaidTheme',
+] as const;
+
+type MarkdownSyncConfigKey = typeof MARKDOWN_SYNC_CONFIG_KEYS[number];
+
 /**
  * support view and edit office files.
  */
@@ -47,7 +57,33 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     ) {
         this.countStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
         this.purgeLegacyGlobalState();
+        MarkdownEditorProvider.registerConfigSync(this.context);
     }
+
+    static registerConfigSync(context: vscode.ExtensionContext): void {
+        if (MarkdownEditorProvider.configSyncRegistered) {
+            return;
+        }
+        MarkdownEditorProvider.configSyncRegistered = true;
+        context.subscriptions.push(
+            vscode.workspace.onDidChangeConfiguration((event) => {
+                const config = vscode.workspace.getConfiguration('vscode-office');
+                const patch: Partial<Record<MarkdownSyncConfigKey, unknown>> = {};
+                let changed = false;
+                for (const key of MARKDOWN_SYNC_CONFIG_KEYS) {
+                    if (event.affectsConfiguration(`vscode-office.${key}`)) {
+                        patch[key] = config.get(key);
+                        changed = true;
+                    }
+                }
+                if (changed) {
+                    broadcastToMarkdownWebviews('markdownConfig', patch);
+                }
+            }),
+        );
+    }
+
+    private static configSyncRegistered = false;
 
     private purgeLegacyGlobalState() {
         if (MarkdownEditorProvider.legacyGlobalStatePurged) {
@@ -401,7 +437,10 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     private getMarkdownWebviewConfig(configuration: vscode.WorkspaceConfiguration) {
         const markdownConfiguration = vscode.workspace.getConfiguration("markdown");
         return {
-            ...configuration,
+            editMode: configuration.get<string>("editMode", "wysiwyg"),
+            editorTheme: configuration.get<string>("editorTheme", "Auto"),
+            codeMirrorTheme: configuration.get<string>("codeMirrorTheme", "Auto"),
+            mermaidTheme: configuration.get<string>("mermaidTheme", "Auto"),
             markdown: {
                 math: {
                     macros: markdownConfiguration.get<Record<string, string>>("math.macros", {}),

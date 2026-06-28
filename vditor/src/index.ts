@@ -26,6 +26,8 @@ import { AIResultPanel } from "./ts/ui/aiResultPanel";
 import { initUI } from "./ts/ui/initUI";
 import { setCodeTheme } from "./ts/ui/setCodeTheme";
 import { setEditorTheme as applyEditorTheme } from "./ts/ui/setEditorTheme";
+import { applyMermaidTheme } from "./ts/ui/setMermaidTheme";
+import { setEditMode } from "./ts/toolbar/EditMode";
 import { setTheme } from "./ts/ui/setTheme";
 import { Undo } from "./ts/undo/index";
 import { Upload } from "./ts/upload/index";
@@ -150,6 +152,19 @@ class Vditor {
     /** 设置 Markdown 编辑器主题（bundled in index.css） */
     public setEditorTheme(editorTheme: string) {
         applyEditorTheme(this.vditor, editorTheme, false);
+    }
+
+    /** 设置 Mermaid 主题（不触发 changeMermaidTheme 回调） */
+    public setMermaidTheme(mermaidTheme: string) {
+        applyMermaidTheme(this.vditor, mermaidTheme, false);
+    }
+
+    /** 切换编辑模式（不触发 changeEditMode 回调） */
+    public switchEditMode(mode: "wysiwyg" | "ir") {
+        if (this.vditor.currentMode === mode) {
+            return;
+        }
+        setEditMode(this.vditor, mode, this.getValue());
     }
 
     /** 获取 Markdown 内容 */

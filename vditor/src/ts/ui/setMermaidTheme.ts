@@ -36,7 +36,7 @@ export const setMermaidThemeAttr = (theme: string, root?: HTMLElement) => {
     document.documentElement.setAttribute(MERMAID_THEME_ATTR, resolved);
 };
 
-export const applyMermaidTheme = (vditor: IVditor, theme: string) => {
+export const applyMermaidTheme = (vditor: IVditor, theme: string, notify = true) => {
     const resolved = normalizeMermaidThemeId(theme);
     vditor.options.mermaidTheme = resolved;
     setMermaidThemeAttr(resolved, vditor.element);
@@ -47,7 +47,7 @@ export const applyMermaidTheme = (vditor: IVditor, theme: string) => {
         panel.setAttribute("data-mermaid-theme", resolved);
     }
     refreshMermaidTheme(vditor.element, vditor.options.cdn, vditor);
-    if (vditor.options.changeMermaidTheme) {
+    if (notify && vditor.options.changeMermaidTheme) {
         vditor.options.changeMermaidTheme(resolved);
     }
     return resolved;
