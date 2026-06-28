@@ -1,11 +1,10 @@
-import { imageParser, getToolbar, bindShortcut, createContextMenu, setAIAvailable } from "./util.js";
+import { getToolbar, bindShortcut, createContextMenu, setAIAvailable } from "./util.js";
 import { mapVscodeLanguageToVditorLang } from "./lang.js";
 
 handler.on("open", async (md) => {
   const { content, rootPath, documentCacheId, pendingFragment, config } = md;
   const {
-    language, isWeb, isDev,
-    markdown, viewAbsoluteLocal,
+    language, isWeb, isDev, markdown,
     editMode, editorTheme, codeMirrorTheme, mermaidTheme
   } = config;
   if (isWeb) {
@@ -158,5 +157,4 @@ handler.on("open", async (md) => {
   })
   bindShortcut(handler, editor);
   createContextMenu(editor)
-  imageParser(viewAbsoluteLocal)
 }).emit("init")

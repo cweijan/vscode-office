@@ -18,6 +18,7 @@ import {
 } from '@/service/markdown/blockScroll';
 import { ViewerSettingsService } from '@/service/viewerSettingsService';
 import { fileTypeFromPath } from '@/service/officeViewType';
+import { parseWebviewResourceUri } from '@/common/webviewUri';
 
 function getRuntimePlatform(): string {
     if (typeof process !== 'undefined' && process.platform) {
@@ -144,10 +145,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                 await openWikiLink(uri, linkUri);
                 return;
             }
-            const resReg = /https:\/\/file.*\.net/i;
-            if (linkUri.match(resReg)) {
-                const localPath = linkUri.replace(resReg, '')
-                vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(localPath));
+            const localUri = parseWebviewResourceUri(linkUri);
+            if (localUri) {
+                vscode.commands.executeCommand('vscode.open', localUri);
             } else {
                 vscode.env.openExternal(vscode.Uri.parse(linkUri));
             }

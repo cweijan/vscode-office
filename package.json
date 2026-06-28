@@ -576,11 +576,6 @@
 				"title": "Markdown",
 				"order": 1,
 				"properties": {
-					"vscode-office.viewAbsoluteLocal": {
-						"type": "boolean",
-						"default": false,
-						"description": "Support view absolute path image from markdown viewer."
-					},
 					"vscode-office.editorTheme": {
 						"type": "string",
 						"enum": [
