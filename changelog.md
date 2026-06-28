@@ -1,5 +1,29 @@
 # Change log
 
+# 4.0.8
+
+Markdown editor:
+
+- Add image preview.
+- Beautify CodeMirror toolbar.
+- Support saving links with spaces.
+- Fix Wikilinks in remote environment.
+- Sync settings to other editors after modification.
+- Fix relative links and images in remote environment.
+- Support expandable code blocks with configurable height.
+
+
+Git History:
+
+- Improve Git view and Git history view styling.
+- Support double-click to quick push in Git view.
+- Git history view supports pull and batch operations.
+
+Fix:
+
+- Fix class file decompilation failure.
+- Prevent file cache generation after each view.
+
 # 4.0.7 2026-6-26
 
 New:
