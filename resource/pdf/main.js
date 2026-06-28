@@ -455,9 +455,7 @@
       PDFViewerApplication.open(data);
       return;
     }
-    if (payload.path) {
-      PDFViewerApplication.open(payload.path);
-    }
+    console.error('Empty PDF content');
   }
 
   window.addEventListener('load', function () {
