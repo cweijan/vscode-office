@@ -29,7 +29,32 @@ const CHROME_CLASS = "vditor-cm-chrome";
 const LANG_SEARCH_CLASS = "vditor-cm-chrome__lang-search";
 const EXPANDED_CLASS = "vditor-cm-host--expanded";
 const HAS_OVERFLOW_CLASS = "vditor-cm-host--has-overflow";
-const OVERFLOW_THRESHOLD = 8;
+const OVERFLOW_THRESHOLD = 16;
+
+const parseMaxHeightPx = (value: string): number => {
+    if (!value || value === "none") {
+        return Number.POSITIVE_INFINITY;
+    }
+    const px = Number.parseFloat(value);
+    return Number.isFinite(px) ? px : Number.POSITIVE_INFINITY;
+};
+
+const isCodeBlockOverflowing = (host: HTMLElement): boolean => {
+    const scroller = host.querySelector(".cm-scroller") as HTMLElement | null;
+    if (!scroller) {
+        return false;
+    }
+    const maxHeight = parseMaxHeightPx(getComputedStyle(scroller).maxHeight);
+    if (!Number.isFinite(maxHeight)) {
+        return false;
+    }
+    const content = host.querySelector(".cm-content") as HTMLElement | null;
+    const contentHeight = content?.scrollHeight ?? scroller.scrollHeight;
+    if (contentHeight > maxHeight + OVERFLOW_THRESHOLD) {
+        return true;
+    }
+    return scroller.scrollHeight - scroller.clientHeight > OVERFLOW_THRESHOLD;
+};
 
 export const isInsideCodeBlockChrome = (target: EventTarget | Node | null) => {
     if (!target) {
@@ -588,10 +613,11 @@ const updateExpandButton = (chrome: ICodeBlockChrome, host: HTMLElement) => {
 };
 
 const recomputeExpandState = (chrome: ICodeBlockChrome, host: HTMLElement) => {
-    const scroller = host.querySelector(".cm-scroller") as HTMLElement | null;
     const expanded = host.classList.contains(EXPANDED_CLASS);
-    const overflowing = !!scroller && scroller.scrollHeight - scroller.clientHeight > OVERFLOW_THRESHOLD;
-    host.classList.toggle(HAS_OVERFLOW_CLASS, expanded || overflowing);
+    const overflowing = isCodeBlockOverflowing(host);
+    const showExpand = expanded || overflowing;
+    host.classList.toggle(HAS_OVERFLOW_CLASS, showExpand);
+    chrome.expandBtn.hidden = !showExpand;
     updateExpandButton(chrome, host);
 };
 
@@ -610,9 +636,15 @@ const setupExpandToggle = (chrome: ICodeBlockChrome, host: HTMLElement) => {
             recomputeExpandState(chrome, host);
         });
         const content = host.querySelector(".cm-content");
-        if (typeof ResizeObserver !== "undefined" && content) {
+        const scroller = host.querySelector(".cm-scroller");
+        if (typeof ResizeObserver !== "undefined") {
             chrome.resizeObserver = new ResizeObserver(() => recomputeExpandState(chrome, host));
-            chrome.resizeObserver.observe(content);
+            if (content) {
+                chrome.resizeObserver.observe(content);
+            }
+            if (scroller) {
+                chrome.resizeObserver.observe(scroller);
+            }
         }
     }
     recomputeExpandState(chrome, host);
@@ -627,6 +659,7 @@ export const ensurePreviewCodeBlockChrome = (
         const chrome = chromeMap.get(host)!;
         chrome.performCopy = performCopy;
         updateCodeBlockChromeLanguage(host, languageName);
+        recomputeExpandState(chrome, host);
         return;
     }
 
