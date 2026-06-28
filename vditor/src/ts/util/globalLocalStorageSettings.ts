@@ -74,7 +74,7 @@ export const FONT_FAMILY_OPTIONS = [
     { label: "Courier", value: "'Courier New', Courier, monospace" },
 ] as const;
 
-export const BOLD_COLOR_DEFAULT = "color-mix(in srgb, var(--link-color, #0550ae) 15%, var(--toolbar-icon-color, #586069))";
+export const BOLD_COLOR_DEFAULT = "color-mix(in srgb, var(--link-color, #4a78c8) 50%, var(--front-color, #586069))";
 export const BOLD_COLOR_DEFAULT_OPTION = "default";
 export const BOLD_COLOR_PLAIN = "plain";
 
