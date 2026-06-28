@@ -9,6 +9,8 @@ window.VditorI18n = {
   'bold': '太く',
   'check': 'チェックリスト',
   'close': '閉じる',
+  'imageOpen': '開く',
+  'imagePreview': '画像プレビュー',
   'code': 'コードブロック挿入',
   'code-theme': 'CodeMirror テーマを変更',
   'code-theme-section-system': 'システム',

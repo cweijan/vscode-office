@@ -298,7 +298,7 @@ const hasOpenEditorOverlay = (vditor: IVditor) => {
     if (aiOverlay && !aiOverlay.hidden) {
         return true;
     }
-    if (document.querySelector(".vditor-confirm-overlay") || document.querySelector(".vditor-img")) {
+    if (document.querySelector(".vditor-confirm-overlay") || document.querySelector(".vditor-img-overlay")) {
         return true;
     }
     const findBar = root.querySelector<HTMLElement>(".vditor-find-bar");

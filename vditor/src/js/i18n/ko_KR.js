@@ -9,6 +9,8 @@ window.VditorI18n = {
   'bold': '굵게',
   'check': '체크박스',
   'close': '닫기',
+  'imageOpen': '열기',
+  'imagePreview': '이미지 미리보기',
   'code': '코드블럭삽입',
   'code-theme': 'CodeMirror 테마 변경',
   'code-theme-section-system': '시스템',

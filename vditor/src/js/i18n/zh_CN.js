@@ -9,6 +9,8 @@ window.VditorI18n = {
   'bold': '粗体',
   'check': '任务列表',
   'close': '关闭',
+  'imageOpen': '打开',
+  'imagePreview': '图片预览',
   'code': '代码块',
   'code-theme': 'CodeMirror 主题',
   'code-theme-section-system': '系统',

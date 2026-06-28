@@ -9,6 +9,8 @@ window.VditorI18n = {
   'bold': 'Полужирный текст',
   'check': 'Список задач',
   'close': 'Закрыть',
+  'imageOpen': 'Открыть',
+  'imagePreview': 'Просмотр изображения',
   'code': 'Блок кода',
   'code-theme': 'Изменить тему CodeMirror',
   'code-theme-section-system': 'Системная',

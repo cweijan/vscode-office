@@ -9,6 +9,8 @@ window.VditorI18n = {
   'bold': 'Bold',
   'check': 'Task List',
   'close': 'Close',
+  'imageOpen': 'Open',
+  'imagePreview': 'Image preview',
   'code': 'Code Block',
   'code-theme': 'CodeMirror Theme',
   'code-theme-section-system': 'System',
