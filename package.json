@@ -524,19 +524,6 @@
 				]
 			},
 			{
-				"viewType": "cweijan.markdownPreview",
-				"displayName": "Markdown Preview",
-				"priority": "option",
-				"selector": [
-					{
-						"filenamePattern": "*.md"
-					},
-					{
-						"filenamePattern": "*.markdown"
-					}
-				]
-			},
-			{
 				"viewType": "cweijan.htmlViewer",
 				"displayName": "Html Viewer",
 				"priority": "option",
