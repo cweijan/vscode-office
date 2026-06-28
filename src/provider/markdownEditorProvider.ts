@@ -162,9 +162,36 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         });
 
         let lastManualSaveTime: number;
+        let documentSyncTimer: ReturnType<typeof setTimeout> | undefined;
+        let pendingDocumentSync: string | undefined;
+        const flushDocumentSync = async () => {
+            if (documentSyncTimer) {
+                clearTimeout(documentSyncTimer);
+                documentSyncTimer = undefined;
+            }
+            if (pendingDocumentSync === undefined) {
+                return;
+            }
+            const nextContent = pendingDocumentSync;
+            pendingDocumentSync = undefined;
+            content = nextContent;
+            await this.updateTextDocument(document, nextContent);
+        };
+        const scheduleDocumentSync = (newContent: string) => {
+            pendingDocumentSync = newContent;
+            content = newContent;
+            this.updateCount(content);
+            if (documentSyncTimer) {
+                clearTimeout(documentSyncTimer);
+            }
+            // Debounce to avoid triggering VS Code built-in mermaid-markdown-features
+            // re-parsing on every keystroke (ANTLR token recognition errors in console).
+            documentSyncTimer = setTimeout(() => void flushDocumentSync(), 400);
+        };
         const config = vscode.workspace.getConfiguration("vscode-office");
         registerMarkdownWebview(uri, handler);
         handler.panel.onDidDispose(() => {
+            void flushDocumentSync();
             unregisterMarkdownWebview(uri);
         });
         handler.on("init", async () => {
@@ -268,13 +295,13 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             }
         }).on("save", (newContent) => {
             if (lastManualSaveTime && Date.now() - lastManualSaveTime < 800) return;
-            content = newContent
-            this.updateTextDocument(document, newContent)
-            this.updateCount(content)
-        }).on("doSave", async (content) => {
+            scheduleDocumentSync(newContent);
+        }).on("doSave", async (saveContent) => {
             lastManualSaveTime = Date.now();
-            await this.updateTextDocument(document, content)
-            this.updateCount(content)
+            pendingDocumentSync = saveContent;
+            content = saveContent;
+            await flushDocumentSync();
+            this.updateCount(content);
             vscode.commands.executeCommand('workbench.action.files.save');
         }).on("export", (option) => {
             vscode.commands.executeCommand('workbench.action.files.save');
@@ -473,9 +500,13 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         this.countStatus.text = i18n('ext.markdown.statusBar', String(content.split(/\r\n|\r|\n/).length), String(content.length))
     }
 
-    private updateTextDocument(document: vscode.TextDocument, content: any) {
+    private updateTextDocument(document: vscode.TextDocument, content: string) {
+        const normalized = content.replace(/\r/g, '');
+        if (document.getText().replace(/\r/g, '') === normalized) {
+            return Promise.resolve(true);
+        }
         const edit = new vscode.WorkspaceEdit();
-        edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), content);
+        edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), normalized);
         return vscode.workspace.applyEdit(edit);
     }
 

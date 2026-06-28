@@ -48,6 +48,7 @@ import {
 import { afterRenderEvent } from "./ts/wysiwyg/afterRenderEvent";
 import { renderToc } from "./ts/util/toc";
 import { scrollToBlock as scrollToBlockUtil } from "./ts/util/scrollToBlock";
+import { isDocumentDirty, markDocumentSaved, updateSaveToolbarState } from "./ts/util/saveToolbarState";
 import {
     applyEditorSettings,
     enableViewerSettingsSync,
