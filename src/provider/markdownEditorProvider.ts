@@ -183,7 +183,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             }
             const localUri = parseWebviewResourceUri(linkUri);
             if (localUri) {
-                vscode.commands.executeCommand('vscode.open', localUri);
+                vscode.commands.executeCommand('vscode.open', localUri, { preview: false });
             } else {
                 vscode.env.openExternal(vscode.Uri.parse(linkUri));
             }
