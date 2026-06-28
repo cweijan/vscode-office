@@ -137,4 +137,12 @@ window.VditorI18n = {
   'imageMaxWidth': '최대 너비',
   'imageMaxHeight': '최대 높이',
   'pageWidth': '페이지 너비',
+  'boldColor': '굵은 글씨 색',
+  'boldColorDefault': '기본',
+  'boldColorPlain': '본문색',
+  'boldColorAccent': '강조색',
+  'boldColorRed': '빨강',
+  'boldColorOrange': '주황',
+  'boldColorPurple': '보라',
+  'boldColorTeal': '청록',
 }

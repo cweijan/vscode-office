@@ -75,15 +75,48 @@ export const FONT_FAMILY_OPTIONS = [
 ] as const;
 
 export const BOLD_COLOR_DEFAULT = "color-mix(in srgb, var(--link-color, #0550ae) 15%, var(--toolbar-icon-color, #586069))";
+export const BOLD_COLOR_DEFAULT_OPTION = "default";
+export const BOLD_COLOR_PLAIN = "plain";
 
-export const BOLD_COLOR_OPTIONS = [
-    { label: "Default", value: "inherit" },
-    { label: "Accent", value: "var(--link-color, #0550ae)" },
-    { label: "Red", value: "var(--error-color, #cf222e)" },
-    { label: "Orange", value: "#bc4c00" },
-    { label: "Purple", value: "#8250df" },
-    { label: "Teal", value: "#1a7f64" },
+const BOLD_COLOR_ACCENT_OPTIONS = [
+    { i18nKey: "boldColorAccent", value: "var(--link-color, #0550ae)" },
+    { i18nKey: "boldColorRed", value: "var(--error-color, #cf222e)" },
+    { i18nKey: "boldColorOrange", value: "#bc4c00" },
+    { i18nKey: "boldColorPurple", value: "#8250df" },
+    { i18nKey: "boldColorTeal", value: "#1a7f64" },
 ] as const;
+
+export const normalizeBoldColorValue = (value: string | undefined): string => {
+    if (!value || value === "inherit") {
+        return BOLD_COLOR_DEFAULT_OPTION;
+    }
+    return value;
+};
+
+export const getBoldColorOptions = (): { label: string; value: string }[] => {
+    const i18n = window.VditorI18n;
+    return [
+        { label: i18n.boldColorDefault ?? "Default", value: BOLD_COLOR_DEFAULT_OPTION },
+        { label: i18n.boldColorPlain ?? "Plain", value: BOLD_COLOR_PLAIN },
+        ...BOLD_COLOR_ACCENT_OPTIONS.map((option) => ({
+            label: i18n[option.i18nKey] ?? option.i18nKey,
+            value: option.value,
+        })),
+    ];
+};
+
+export const applyBoldColorSetting = (vditorElement: HTMLElement, value: string | undefined) => {
+    const normalized = normalizeBoldColorValue(value);
+    if (normalized === BOLD_COLOR_DEFAULT_OPTION) {
+        vditorElement.style.removeProperty("--bold-color");
+        return;
+    }
+    if (normalized === BOLD_COLOR_PLAIN) {
+        vditorElement.style.setProperty("--bold-color", "var(--textarea-text-color, inherit)");
+        return;
+    }
+    vditorElement.style.setProperty("--bold-color", normalized);
+};
 
 export const PAGE_WIDTH_KEY = "pageWidth";
 export const PAGE_WIDTH_DEFAULT = "100%";
@@ -301,11 +334,7 @@ export const applyEditorSettings = (vditorElement: HTMLElement) => {
     if (editorSize !== undefined) vditorElement.style.setProperty("--editor-font-size", `${editorSize}px`);
     if (lineHeight !== undefined) vditorElement.style.setProperty("--editor-line-height", String(lineHeight));
     if (fontFamily !== undefined) vditorElement.style.setProperty("--editor-font-family", fontFamily);
-    if (boldColor !== undefined && boldColor !== "inherit") {
-        vditorElement.style.setProperty("--bold-color", boldColor);
-    } else if (boldColor === "inherit") {
-        vditorElement.style.removeProperty("--bold-color");
-    }
+    applyBoldColorSetting(vditorElement, boldColor);
     if (pageWidth !== undefined && pageWidth !== PAGE_WIDTH_DEFAULT) {
         vditorElement.style.setProperty("--vditor-page-width", pageWidth);
     }

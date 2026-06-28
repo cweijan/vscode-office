@@ -137,4 +137,12 @@ window.VditorI18n = {
   'imageMaxWidth': 'Макс. ширина',
   'imageMaxHeight': 'Макс. высота',
   'pageWidth': 'Ширина страницы',
+  'boldColor': 'Цвет жирного',
+  'boldColorDefault': 'По умолчанию',
+  'boldColorPlain': 'Основной текст',
+  'boldColorAccent': 'Акцент',
+  'boldColorRed': 'Красный',
+  'boldColorOrange': 'Оранжевый',
+  'boldColorPurple': 'Фиолетовый',
+  'boldColorTeal': 'Бирюзовый',
 }

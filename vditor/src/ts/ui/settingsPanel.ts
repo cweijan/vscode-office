@@ -10,7 +10,8 @@ import {
     FONT_FAMILY_KEY,
     FONT_FAMILY_OPTIONS,
     BOLD_COLOR_KEY,
-    BOLD_COLOR_OPTIONS,
+    getBoldColorOptions,
+    normalizeBoldColorValue,
     PAGE_WIDTH_KEY,
     PAGE_WIDTH_DEFAULT,
     PAGE_WIDTH_OPTIONS,
@@ -252,7 +253,7 @@ export const buildSettingsPanelHTML = (vditor: IVditor) => {
     const editorSize = getGlobalLocalStorageSetting<number>(EDITOR_FONT_SIZE_KEY, EDITOR_FONT_SIZE_DEFAULT);
     const lineHeight = getGlobalLocalStorageSetting<number>(LINE_HEIGHT_KEY, LINE_HEIGHT_DEFAULT);
     const fontFamily = getGlobalLocalStorageSetting<string>(FONT_FAMILY_KEY, FONT_FAMILY_OPTIONS[0].value);
-    const boldColor = getGlobalLocalStorageSetting<string>(BOLD_COLOR_KEY, BOLD_COLOR_OPTIONS[0].value);
+    const boldColor = normalizeBoldColorValue(getGlobalLocalStorageSetting<string>(BOLD_COLOR_KEY));
     const pageWidth = getGlobalLocalStorageSetting<string>(PAGE_WIDTH_KEY, PAGE_WIDTH_DEFAULT) ?? PAGE_WIDTH_DEFAULT;
     const imgMaxWidth = getGlobalLocalStorageSetting<number>(IMAGE_MAX_WIDTH_KEY, IMAGE_MAX_WIDTH_DEFAULT);
     const imgMaxHeight = getGlobalLocalStorageSetting<number>(IMAGE_MAX_HEIGHT_KEY, IMAGE_MAX_HEIGHT_DEFAULT);
@@ -273,7 +274,7 @@ export const buildSettingsPanelHTML = (vditor: IVditor) => {
             <div class="${SETTINGS_PANEL_CLASS}__title">Typography</div>
             <div class="${SETTINGS_PANEL_CLASS}__group">
                 ${buildDropdownHTML(FONT_FAMILY_KEY, "Font", FONT_FAMILY_OPTIONS, fontFamily)}
-                ${buildDropdownHTML(BOLD_COLOR_KEY, "Bold", BOLD_COLOR_OPTIONS, boldColor)}
+                ${buildDropdownHTML(BOLD_COLOR_KEY, i18n.boldColor ?? "Bold Color", getBoldColorOptions(), boldColor)}
                 ${buildDropdownHTML(PAGE_WIDTH_KEY, i18n.pageWidth, PAGE_WIDTH_OPTIONS, pageWidth)}
                 ${buildDropdownHTML(CODE_BLOCK_MAX_HEIGHT_KEY, i18n.codeBlockHeight, CODE_BLOCK_MAX_HEIGHT_OPTIONS, codeBlockMaxHeight)}
                 ${buildLineHeightStepperHTML(lineHeight)}

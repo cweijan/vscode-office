@@ -137,4 +137,12 @@ window.VditorI18n = {
   'imageMaxWidth': '最大幅',
   'imageMaxHeight': '最大高さ',
   'pageWidth': 'ページ幅',
+  'boldColor': '太字の色',
+  'boldColorDefault': 'デフォルト',
+  'boldColorPlain': '本文色',
+  'boldColorAccent': 'アクセント',
+  'boldColorRed': '赤',
+  'boldColorOrange': 'オレンジ',
+  'boldColorPurple': '紫',
+  'boldColorTeal': 'ティール',
 }

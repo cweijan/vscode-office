@@ -21,7 +21,9 @@ import {
     FONT_FAMILY_KEY,
     FONT_FAMILY_OPTIONS,
     BOLD_COLOR_KEY,
-    BOLD_COLOR_OPTIONS,
+    getBoldColorOptions,
+    applyBoldColorSetting,
+    normalizeBoldColorValue,
     PAGE_WIDTH_KEY,
     PAGE_WIDTH_OPTIONS,
     IMAGE_MAX_WIDTH_KEY,
@@ -42,11 +44,16 @@ import {
 } from "../util/globalLocalStorageSettings";
 import { telemetry } from "../util/telemetry";
 
-const DROPDOWN_OPTIONS_MAP: Record<string, readonly { label: string; value: string }[]> = {
+const DROPDOWN_OPTIONS_MAP: Record<string, readonly { label: string; value: string }[] | (() => { label: string; value: string }[])> = {
     [FONT_FAMILY_KEY]: FONT_FAMILY_OPTIONS,
-    [BOLD_COLOR_KEY]: BOLD_COLOR_OPTIONS,
+    [BOLD_COLOR_KEY]: getBoldColorOptions,
     [PAGE_WIDTH_KEY]: PAGE_WIDTH_OPTIONS,
     [CODE_BLOCK_MAX_HEIGHT_KEY]: CODE_BLOCK_MAX_HEIGHT_OPTIONS,
+};
+
+const resolveDropdownOptions = (key: string) => {
+    const options = DROPDOWN_OPTIONS_MAP[key];
+    return typeof options === "function" ? options() : options;
 };
 
 export class Settings extends MenuItem {
@@ -78,9 +85,11 @@ export class Settings extends MenuItem {
         };
 
         const openFloatingMenu = (trigger: HTMLElement, key: string) => {
-            const options = DROPDOWN_OPTIONS_MAP[key];
+            const options = resolveDropdownOptions(key);
             if (!options) return;
-            const currentValue = getGlobalLocalStorageSetting<string>(key, options[0].value) ?? options[0].value;
+            const currentValue = key === BOLD_COLOR_KEY
+                ? normalizeBoldColorValue(getGlobalLocalStorageSetting<string>(key))
+                : (getGlobalLocalStorageSetting<string>(key, options[0].value) ?? options[0].value);
 
             floatingMenu.innerHTML = options.map(o =>
                 `<button type="button" class="${SETTINGS_PANEL_CLASS}__dropdown-option${o.value === currentValue ? ` ${SETTINGS_PANEL_CLASS}__dropdown-option--current` : ""}" data-value="${o.value}" data-dropdown-key="${key}">${o.label}</button>`
@@ -115,8 +124,7 @@ export class Settings extends MenuItem {
             setGlobalLocalStorageSetting(key, value);
             if (key === FONT_FAMILY_KEY) vditor.element.style.setProperty("--editor-font-family", value);
             else if (key === BOLD_COLOR_KEY) {
-                if (value === "inherit") vditor.element.style.removeProperty("--bold-color");
-                else vditor.element.style.setProperty("--bold-color", value);
+                applyBoldColorSetting(vditor.element, value);
             }
             else if (key === PAGE_WIDTH_KEY) {
                 if (value === "100%") vditor.element.style.removeProperty("--vditor-page-width");

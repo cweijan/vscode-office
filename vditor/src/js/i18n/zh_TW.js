@@ -139,4 +139,12 @@ window.VditorI18n = {
   'imageMaxWidth': '最大寬度',
   'imageMaxHeight': '最大高度',
   'pageWidth': '頁面寬度',
+  'boldColor': '粗體顏色',
+  'boldColorDefault': '預設',
+  'boldColorPlain': '正文色',
+  'boldColorAccent': '強調色',
+  'boldColorRed': '紅色',
+  'boldColorOrange': '橙色',
+  'boldColorPurple': '紫色',
+  'boldColorTeal': '青色',
 }
