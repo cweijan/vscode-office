@@ -10,6 +10,19 @@ import { resolveExcelCellColor } from '../../theme';
 const FORMULA_MIN_WIDTH = 300;
 const FORMULA_MIN_HEIGHT = 80;
 
+// area is border-box (width/height = cell dimensions), border 2px each side → content = cellHeight - 4
+function applyVerticalCenter(editor, fontSizePt) {
+  const { textEl, areaOffset } = editor;
+  if (!areaOffset) return;
+  const { height } = areaOffset;
+  const sizePx = getFontSizePxByPt(fontSizePt ?? 11);
+  const lineH = sizePx + 2;
+  textEl.css('line-height', `${lineH}px`);
+  const paddingTop = Math.max(0, Math.round((height - 4 - lineH) / 2));
+  textEl.css('padding-top', `${paddingTop}px`);
+  textEl.css('height', `${height - 4 - paddingTop}px`);
+}
+
 function buildEditorFontCss(font, defaultFontName = 'Arial') {
   const sizePx = getFontSizePxByPt(font?.size ?? 11);
   const parts = [];
@@ -265,9 +278,9 @@ export default class Editor {
         elOffset.left = freeze.w;
       }
       el.offset(elOffset);
-      // TODO: Width and height
-      areaEl.offset({ left: left - elOffset.left - 0.8, top: top - elOffset.top - 0.8 });
-      textEl.offset({ width: width - 9 + 0.8 - 12, height: height - 3 + 0.8 - 5 });
+      areaEl.offset({ left: left - elOffset.left, top: top - elOffset.top, width, height });
+      textEl.offset({ width: width - 20, height: height - 4 });
+      applyVerticalCenter(this, 11);
       const sOffset = { left: 0 };
       sOffset[suggestPosition] = height;
       suggest.setOffset(sOffset);
@@ -319,9 +332,9 @@ export default class Editor {
       const fontCss = buildEditorFontCss(font);
       const lineHeight = `${getFontSizePxByPt(font.size ?? 11) + 2}px`;
       textEl.css('font', fontCss);
-      textEl.css('line-height', lineHeight);
       textlineEl.css('font', fontCss);
       textlineEl.css('line-height', lineHeight);
+      applyVerticalCenter(this, font.size ?? 11);
     }
     const color = resolveExcelCellColor(cellStyle.color);
     textEl.css('color', color);
