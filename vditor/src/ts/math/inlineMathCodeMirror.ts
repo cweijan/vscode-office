@@ -221,7 +221,7 @@ export const enterInlineMathEdit = (vditor: IVditor, fromEl: HTMLElement, focusA
         previewTimer: 0,
     };
 
-    const latexSupport = latex({ enableAutocomplete: true });
+    const latexSupport = latex({ enableAutocomplete: true, enableLinting: false });
 
     const view = new EditorView({
         doc: getCodeText(codeEl),
