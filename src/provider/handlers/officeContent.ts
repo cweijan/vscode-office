@@ -1,6 +1,6 @@
 import { spawn } from 'child_process';
 import { basename, dirname, extname, isAbsolute, relative } from 'path';
-import { extensions, Uri, workspace } from 'vscode';
+import { extensions, Uri, workspace, type Webview } from 'vscode';
 import { Handler } from '@/common/handler';
 import { isUriReadOnly } from '@/common/fileReadOnly';
 import { isWebExtensionHost } from '@/common/extensionHost';
@@ -152,7 +152,7 @@ export function bytesToPayloadBuffer(data: Uint8Array): number[] {
     return buffer;
 }
 
-export async function emitOfficeOpen(handler: Handler, uri: Uri): Promise<void> {
+export async function emitVirtualOfficeOpen(handler: Handler, uri: Uri): Promise<void> {
     const now = Date.now();
     const ext = extname(uri.fsPath);
     const readOnly = await isUriReadOnly(uri);
@@ -181,4 +181,16 @@ export async function emitOfficeOpen(handler: Handler, uri: Uri): Promise<void> 
             nonce: now,
         });
     }
+}
+
+export async function emitFileOfficeOpen(handler: Handler, uri: Uri, webview: Webview): Promise<void> {
+    const now = Date.now();
+    const readOnly = await isUriReadOnly(uri);
+    handler.emit('open', {
+        ext: extname(uri.fsPath),
+        path: webview.asWebviewUri(uri).toString(),
+        fileName: basename(uri.fsPath),
+        documentCacheId: buildDocumentCacheId(uri),
+        readOnly,
+    });
 }
