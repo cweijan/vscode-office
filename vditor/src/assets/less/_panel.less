@@ -193,6 +193,88 @@
         padding-top: 2px;
       }
 
+      .vditor-html-inline-popover__span-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .vditor-html-inline-popover__color-control {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        position: relative;
+
+        &--locked {
+          cursor: pointer;
+
+          .vditor-html-inline-popover__color-label {
+            opacity: 0.5;
+          }
+
+          .vditor-html-inline-popover__color-input,
+          .vditor-html-inline-popover__size-input {
+            cursor: not-allowed;
+            opacity: 0.45;
+          }
+        }
+      }
+
+      .vditor-html-inline-popover__color-label {
+        font-size: 11px;
+        color: var(--textarea-text-color);
+        opacity: 0.72;
+        white-space: nowrap;
+      }
+
+      .vditor-html-inline-popover__color-input {
+        width: 32px;
+        height: 24px;
+        padding: 0;
+        border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 18%, transparent);
+        border-radius: 5px;
+        background: transparent;
+        cursor: pointer;
+        box-sizing: border-box;
+
+        &::-webkit-color-swatch-wrapper {
+          padding: 2px;
+        }
+
+        &::-webkit-color-swatch {
+          border: none;
+          border-radius: 3px;
+        }
+
+        &:disabled {
+          pointer-events: none;
+        }
+      }
+
+      .vditor-html-inline-popover__size-input {
+        width: 56px;
+        height: 24px;
+        padding: 0 6px;
+        border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 18%, transparent);
+        border-radius: 5px;
+        background: transparent;
+        color: var(--textarea-text-color);
+        font-size: 12px;
+        line-height: 24px;
+        box-sizing: border-box;
+
+        &:focus {
+          outline: none;
+          border-color: color-mix(in srgb, var(--link-color, #4285f4) 40%, transparent);
+        }
+
+        &:disabled {
+          pointer-events: none;
+        }
+      }
+
       .vditor-html-inline-popover__actions-left,
       .vditor-html-inline-popover__actions-right,
       .vditor-html-inline-popover__actions-buttons {

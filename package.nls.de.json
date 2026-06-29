@@ -1,6 +1,8 @@
 {
 	"ext.common.yes": "JA",
 	"ext.common.no": "NEIN",
+	"ext.common.open": "Öffnen",
+	"ext.common.showInFolder": "Im Ordner anzeigen",
 	"ext.compress.startExtract": "Entpacken wird gestartet...",
 	"ext.compress.extractSuccess": "Entpacken erfolgreich!",
 	"ext.compress.wrongPassword": "Falsches Passwort",

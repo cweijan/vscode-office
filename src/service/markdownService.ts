@@ -1,4 +1,4 @@
-import { adjustImgPath } from "@/common/fileUtil";
+import { adjustImgPath, FileUtil } from "@/common/fileUtil";
 import { Output } from "@/common/Output";
 import { spawn } from 'child_process';
 import chromeFinder from 'chrome-finder';
@@ -76,7 +76,8 @@ export class MarkdownService {
                 vscode.window.showInformationMessage(i18n('ext.markdown.exportStart', type))
             }
             await convertMd({ markdownFilePath: uri.fsPath, config: this.getConfig(option) })
-            vscode.window.showInformationMessage(i18n('ext.markdown.exportSuccess', type))
+            const outputUri = vscode.Uri.file(join(dirname(uri.fsPath), `${parse(uri.fsPath).name}.${type}`));
+            FileUtil.genFileSuccess(i18n('ext.markdown.exportSuccess', type), outputUri);
         } catch (error) {
             Output.log(error)
         }

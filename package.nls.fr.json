@@ -1,6 +1,8 @@
 {
 	"ext.common.yes": "OUI",
 	"ext.common.no": "NON",
+	"ext.common.open": "Ouvrir",
+	"ext.common.showInFolder": "Afficher dans le dossier",
 	"ext.compress.startExtract": "Extraction en cours...",
 	"ext.compress.extractSuccess": "Extraction réussie !",
 	"ext.compress.wrongPassword": "Mot de passe incorrect",

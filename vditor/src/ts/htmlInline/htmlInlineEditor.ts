@@ -26,6 +26,9 @@ const HTML_EDITOR_PANEL_CLASS = "vditor-panel--html-inline";
 const POPOVER_INSET = 8;
 const VIEWPORT_MARGIN = 12;
 const MD_SOURCE_ESC_NEWLINE = "_esc_newline_";
+const FALLBACK_FONT_COLOR = "#000000";
+const FALLBACK_BACKGROUND_COLOR = "#fff2cc";
+const FALLBACK_FONT_SIZE = 16;
 
 const decodeMdSourceAttr = (raw: string | null): string => {
     if (!raw) {
@@ -48,6 +51,65 @@ const extractSpanInnerText = (source: string): string => {
     const temp = document.createElement("div");
     temp.innerHTML = source.trim();
     return temp.querySelector("span")?.textContent ?? "";
+};
+
+const readSpanStyleColor = (
+    source: string,
+    property: "color" | "backgroundColor",
+): string | null => {
+    const temp = document.createElement("div");
+    temp.innerHTML = source.trim();
+    const span = temp.querySelector("span");
+    if (!span) {
+        return null;
+    }
+    const raw = span.style[property]?.trim();
+    return /^#([0-9a-fA-F]{6})$/.test(raw) ? raw.toLowerCase() : null;
+};
+
+const readSpanStyleFontSize = (source: string): number | null => {
+    const temp = document.createElement("div");
+    temp.innerHTML = source.trim();
+    const span = temp.querySelector("span");
+    if (!span) {
+        return null;
+    }
+    const raw = span.style.fontSize?.trim();
+    if (!raw) {
+        return null;
+    }
+    const match = raw.match(/^(\d+(?:\.\d+)?)px$/i);
+    if (!match) {
+        return null;
+    }
+    const value = Number(match[1]);
+    return Number.isFinite(value) ? value : null;
+};
+
+const updateSpanStyleColor = (
+    source: string,
+    property: "color" | "backgroundColor",
+    value: string,
+): string => {
+    const temp = document.createElement("div");
+    temp.innerHTML = source.trim();
+    const span = temp.querySelector("span");
+    if (!span) {
+        return source;
+    }
+    span.style[property] = value;
+    return span.outerHTML;
+};
+
+const updateSpanStyleFontSize = (source: string, value: number): string => {
+    const temp = document.createElement("div");
+    temp.innerHTML = source.trim();
+    const span = temp.querySelector("span");
+    if (!span) {
+        return source;
+    }
+    span.style.fontSize = `${value}px`;
+    return span.outerHTML;
 };
 
 const clearSpanHtmlInline = (vditor: IVditor, target: HtmlEditTarget, mdSource: string) => {
@@ -444,6 +506,37 @@ const applyHtmlEditorLineWrap = (wrapButton: HTMLButtonElement, enabled: boolean
     wrapButton.setAttribute("aria-pressed", String(enabled));
 };
 
+const updateHtmlEditorSource = (nextSource: string) => {
+    const binding = activeHtmlEditorPopover;
+    if (!binding) {
+        return;
+    }
+    const view = binding.view;
+    view.dispatch({
+        changes: {
+            from: 0,
+            to: view.state.doc.length,
+            insert: nextSource,
+        },
+    });
+};
+
+const bindLockedPopoverControl = (
+    vditor: IVditor,
+    control: HTMLElement,
+    feature: "html-inline-font-color" | "html-inline-background-color" | "html-inline-font-size",
+) => {
+    control.classList.add("vditor-pro-locked", "vditor-html-inline-popover__color-control--locked");
+    control.insertAdjacentHTML("beforeend",
+        `<span class="vditor-pro-locked__badge" aria-hidden="true">PRO</span>`);
+    control.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        telemetry(vditor, "markdown.proRequired", { feature });
+        vditor.options.onRequirePro?.(feature);
+    });
+};
+
 const toggleHtmlEditorLineWrap = (wrapButton: HTMLButtonElement) => {
     const binding = activeHtmlEditorPopover;
     if (!binding) {
@@ -494,6 +587,9 @@ export const showHtmlEditorPopover = (vditor: IVditor, target: HtmlEditTarget) =
     saveButton.className = "vditor-html-inline-popover__button vditor-html-inline-popover__button--primary";
     saveButton.textContent = window.VditorI18n?.aiSave ?? "Save";
 
+    const spanColorControls = document.createElement("div");
+    spanColorControls.className = "vditor-html-inline-popover__span-controls";
+
     const initialSource = target.getSource();
     const targetRef = target;
 
@@ -526,6 +622,81 @@ export const showHtmlEditorPopover = (vditor: IVditor, target: HtmlEditTarget) =
     actionsLeft.appendChild(wrapButton);
 
     if (isSpanHtmlInlineSource(initialSource)) {
+        const fontColorLabel = document.createElement("label");
+        fontColorLabel.className = "vditor-html-inline-popover__color-control";
+        fontColorLabel.innerHTML = `<span class="vditor-html-inline-popover__color-label">${window.VditorI18n?.["font-color"] || "Font color"}</span>`;
+        const fontColorInput = document.createElement("input");
+        fontColorInput.type = "color";
+        fontColorInput.className = "vditor-html-inline-popover__color-input";
+        fontColorInput.value = readSpanStyleColor(initialSource, "color") ?? FALLBACK_FONT_COLOR;
+        if (!vditor.options.isPro) {
+            fontColorInput.disabled = true;
+            bindLockedPopoverControl(vditor, fontColorLabel, "html-inline-font-color");
+        } else {
+            fontColorInput.addEventListener("input", () => {
+                updateHtmlEditorSource(updateSpanStyleColor(
+                    activeHtmlEditorPopover?.view.state.doc.toString() ?? initialSource,
+                    "color",
+                    fontColorInput.value,
+                ));
+            });
+        }
+        fontColorLabel.appendChild(fontColorInput);
+
+        const backgroundColorLabel = document.createElement("label");
+        backgroundColorLabel.className = "vditor-html-inline-popover__color-control";
+        backgroundColorLabel.innerHTML = `<span class="vditor-html-inline-popover__color-label">${window.VditorI18n?.["background-color"] || "Background color"}</span>`;
+        const backgroundColorInput = document.createElement("input");
+        backgroundColorInput.type = "color";
+        backgroundColorInput.className = "vditor-html-inline-popover__color-input";
+        backgroundColorInput.value = readSpanStyleColor(initialSource, "backgroundColor") ?? FALLBACK_BACKGROUND_COLOR;
+        if (!vditor.options.isPro) {
+            backgroundColorInput.disabled = true;
+            bindLockedPopoverControl(vditor, backgroundColorLabel, "html-inline-background-color");
+        } else {
+            backgroundColorInput.addEventListener("input", () => {
+                updateHtmlEditorSource(updateSpanStyleColor(
+                    activeHtmlEditorPopover?.view.state.doc.toString() ?? initialSource,
+                    "backgroundColor",
+                    backgroundColorInput.value,
+                ));
+            });
+        }
+        backgroundColorLabel.appendChild(backgroundColorInput);
+
+        const fontSizeLabel = document.createElement("label");
+        fontSizeLabel.className = "vditor-html-inline-popover__color-control";
+        fontSizeLabel.innerHTML = `<span class="vditor-html-inline-popover__color-label">${window.VditorI18n?.["font-size"] || "Font size"}</span>`;
+        const fontSizeInput = document.createElement("input");
+        fontSizeInput.type = "number";
+        fontSizeInput.className = "vditor-html-inline-popover__size-input";
+        fontSizeInput.min = "8";
+        fontSizeInput.max = "96";
+        fontSizeInput.step = "1";
+        fontSizeInput.value = String(readSpanStyleFontSize(initialSource) ?? FALLBACK_FONT_SIZE);
+        if (!vditor.options.isPro) {
+            fontSizeInput.disabled = true;
+            bindLockedPopoverControl(vditor, fontSizeLabel, "html-inline-font-size");
+        } else {
+            fontSizeInput.addEventListener("input", () => {
+                const nextValue = Number(fontSizeInput.value);
+                if (!Number.isFinite(nextValue) || nextValue < 8 || nextValue > 96) {
+                    return;
+                }
+                updateHtmlEditorSource(updateSpanStyleFontSize(
+                    activeHtmlEditorPopover?.view.state.doc.toString() ?? initialSource,
+                    nextValue,
+                ));
+            });
+        }
+        fontSizeLabel.appendChild(fontSizeInput);
+
+        spanColorControls.appendChild(fontColorLabel);
+        spanColorControls.appendChild(backgroundColorLabel);
+        spanColorControls.appendChild(fontSizeLabel);
+    }
+
+    if (isSpanHtmlInlineSource(initialSource)) {
         const clearLabel = window.VditorI18n?.["html-clear-format"] ?? "Clear";
         const clearButton = document.createElement("button");
         clearButton.type = "button";
@@ -545,6 +716,9 @@ export const showHtmlEditorPopover = (vditor: IVditor, target: HtmlEditTarget) =
     actions.appendChild(actionsLeft);
     actions.appendChild(actionsRight);
     panel.appendChild(cmHost);
+    if (spanColorControls.childElementCount > 0) {
+        panel.appendChild(spanColorControls);
+    }
     panel.appendChild(actions);
     popover.appendChild(panel);
     const view = mountHtmlEditorCodeMirror(cmHost, initialSource, save, dismiss);

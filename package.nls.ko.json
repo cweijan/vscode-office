@@ -1,6 +1,8 @@
 {
 	"ext.common.yes": "예",
 	"ext.common.no": "아니오",
+	"ext.common.open": "열기",
+	"ext.common.showInFolder": "폴더에서 표시",
 	"ext.compress.startExtract": "압축 해제를 시작합니다...",
 	"ext.compress.extractSuccess": "압축 해제 성공!",
 	"ext.compress.wrongPassword": "잘못된 비밀번호",

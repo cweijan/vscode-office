@@ -1,6 +1,8 @@
 {
 	"ext.common.yes": "YES",
 	"ext.common.no": "NO",
+	"ext.common.open": "Open",
+	"ext.common.showInFolder": "Show in Folder",
 	"ext.compress.startExtract": "Start extracting...",
 	"ext.compress.extractSuccess": "Extract success!",
 	"ext.compress.wrongPassword": "Wrong password",

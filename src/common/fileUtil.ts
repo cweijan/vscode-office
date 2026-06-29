@@ -1,7 +1,7 @@
 import { dirname, parse } from 'path';
 import * as vscode from 'vscode';
 import { ensureParentDirectory } from './workspaceFs';
-import { Global } from './global';
+import { Global, i18n } from './global';
 
 export async function writeFile(path: string, buffer: Uint8Array) {
     const uri = vscode.Uri.file(path);
@@ -49,6 +49,29 @@ export class FileUtil {
     public static init(context: vscode.ExtensionContext) {
         this.context = context;
     }
+
+    public static genFileSuccess(message: string, uri: vscode.Uri | string) {
+        if (typeof uri === 'string') uri = vscode.Uri.file(uri);
+        const openLabel = i18n('ext.common.open');
+        const openDirectoryLabel = i18n('ext.common.showInFolder');
+        vscode.window.showInformationMessage(message, openLabel, openDirectoryLabel).then(action => {
+            switch (action) {
+                case openLabel: {
+                    const ext = uri.fsPath.toLowerCase();
+                    if (ext.endsWith('.xlsx') &&
+                        vscode.extensions.getExtension('cweijan.vscode-office') == null) {
+                        return vscode.env.openExternal(uri);
+                    }
+                    vscode.commands.executeCommand('vscode.open', uri);
+                    break;
+                }
+                case openDirectoryLabel:
+                    vscode.commands.executeCommand('revealFileInOS', uri);
+                    break;
+            }
+        });
+    }
+
     public static async getLastPath(key: string | string[], path = '') {
         // 获取已经保存的路径
         let basePath: string;

@@ -1,6 +1,8 @@
 {
 	"ext.common.yes": "是",
 	"ext.common.no": "否",
+	"ext.common.open": "開啟",
+	"ext.common.showInFolder": "在資料夾中顯示",
 	"ext.compress.startExtract": "開始解壓...",
 	"ext.compress.extractSuccess": "解壓成功！",
 	"ext.compress.wrongPassword": "密碼錯誤",

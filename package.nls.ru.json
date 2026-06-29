@@ -1,6 +1,8 @@
 {
 	"ext.common.yes": "ДА",
 	"ext.common.no": "НЕТ",
+	"ext.common.open": "Открыть",
+	"ext.common.showInFolder": "Показать в папке",
 	"ext.compress.startExtract": "Начало распаковки...",
 	"ext.compress.extractSuccess": "Распаковка выполнена успешно!",
 	"ext.compress.wrongPassword": "Неверный пароль",
