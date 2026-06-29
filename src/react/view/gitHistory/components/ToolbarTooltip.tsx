@@ -10,7 +10,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
-const SHOW_DELAY_MS = 500;
+const SHOW_DELAY_MS = 250;
 
 interface ToolbarTooltipProps {
     content?: ReactNode;

@@ -38,6 +38,11 @@
     --git-graph-toolbar-btn-remote: var(--vscode-gitDecoration-modifiedResourceForeground, #e2c08d);
     --git-graph-toolbar-btn-sync: var(--vscode-terminal-ansiCyan, #0598bc);
     --git-graph-reset-option-accent: var(--vscode-terminal-ansiYellow, #d7ba7d);
+    --git-graph-primary-btn-bg: #007aff;
+    --git-graph-primary-btn-bg-hover: #0066d6;
+    --git-graph-primary-btn-fg: #fff;
+    --git-graph-secondary-btn-bg: color-mix(in srgb, var(--git-graph-fg) 10%, transparent);
+    --git-graph-secondary-btn-bg-hover: color-mix(in srgb, var(--git-graph-fg) 16%, transparent);
 
     display: flex;
     flex-direction: column;
@@ -309,8 +314,8 @@
     position: fixed;
     z-index: 10000;
     max-width: min(320px, calc(100vw - 16px));
-    padding: 3px 8px;
-    border-radius: 3px;
+    padding: 6px 10px;
+    border-radius: 8px;
     border: 1px solid var(--vscode-editorHoverWidget-border, var(--vscode-widget-border, rgba(128, 128, 128, 0.35)));
     background: var(--vscode-editorHoverWidget-background, var(--vscode-editorWidget-background, #252526));
     color: var(--vscode-editorHoverWidget-foreground, var(--vscode-foreground, #cccccc));
@@ -2192,19 +2197,18 @@ body.git-graph-dialog-open {
     min-width: 72px;
     height: 28px;
     padding: 0 14px;
-    border: 1px solid color-mix(in srgb, var(--git-graph-border) 80%, transparent);
+    border: none;
     border-radius: 7px;
-    color: var(--vscode-button-secondaryForeground, var(--git-graph-fg));
-    background: color-mix(in srgb, var(--git-graph-fg) 6%, transparent);
+    color: inherit;
+    background: var(--git-graph-secondary-btn-bg);
     font-size: 12px;
     font-family: inherit;
     cursor: pointer;
-    transition: background 0.1s, border-color 0.1s;
+    transition: background 0.1s;
 }
 
 .git-graph-dialog-btn:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--git-graph-fg) 10%, transparent);
-    border-color: color-mix(in srgb, var(--git-graph-border) 100%, transparent);
+    background: var(--git-graph-secondary-btn-bg-hover);
 }
 
 .git-graph-dialog-btn:disabled {
@@ -2215,9 +2219,9 @@ body.git-graph-dialog-open {
 .git-graph-dialog-btn.primary,
 .git-graph-create-branch-btn.primary,
 .git-graph-anchored-dialog-btn.primary {
-    --git-graph-btn-accent: var(--vscode-terminal-ansiBlue, #3794ff);
+    --git-graph-btn-accent: var(--git-graph-primary-btn-bg);
     border-color: var(--git-graph-btn-accent);
-    color: color-mix(in srgb, #ffffff 92%, var(--git-graph-btn-accent));
+    color: var(--git-graph-primary-btn-fg);
     background: var(--git-graph-btn-accent);
     font-weight: 500;
 }
@@ -2225,8 +2229,14 @@ body.git-graph-dialog-open {
 .git-graph-dialog-btn.primary:hover:not(:disabled),
 .git-graph-create-branch-btn.primary:hover:not(:disabled),
 .git-graph-anchored-dialog-btn.primary:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--git-graph-btn-accent) 85%, #000);
-    border-color: color-mix(in srgb, var(--git-graph-btn-accent) 85%, #000);
+    background: var(--git-graph-primary-btn-bg-hover);
+    border-color: var(--git-graph-primary-btn-bg-hover);
+}
+
+.git-graph-dialog-btn.primary:focus-visible,
+.git-graph-create-branch-btn.primary:focus-visible,
+.git-graph-anchored-dialog-btn.primary:focus-visible {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--git-graph-primary-btn-bg) 35%, transparent);
 }
 
 .git-graph-dialog-btn.primary:disabled,
@@ -2476,20 +2486,19 @@ body.git-graph-dialog-open {
     height: 28px;
     padding: 0 14px;
     margin: 0;
-    border: 1px solid color-mix(in srgb, var(--git-graph-border) 80%, transparent);
+    border: none;
     border-radius: 7px;
     font: inherit;
     font-size: 12px;
     cursor: pointer;
-    color: var(--vscode-button-secondaryForeground, var(--git-graph-fg));
-    background: color-mix(in srgb, var(--git-graph-fg) 6%, transparent);
-    transition: background 0.1s, border-color 0.1s;
+    color: inherit;
+    background: var(--git-graph-secondary-btn-bg);
+    transition: background 0.1s;
 }
 
 .git-graph-create-branch-btn:hover:not(:disabled),
 .git-graph-anchored-dialog-btn:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--git-graph-fg) 12%, transparent);
-    border-color: color-mix(in srgb, var(--git-graph-border) 100%, transparent);
+    background: var(--git-graph-secondary-btn-bg-hover);
 }
 
 .git-graph-anchored-dialog-option-list {
