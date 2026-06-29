@@ -48,13 +48,19 @@ export interface ExportConfig {
     printBackground?: boolean;
     format?: string;
     useProExport?: boolean;
+    /** When Pro: apply full editor theme. When false: Pro styles with Light page background and body text. */
+    useExportTheme?: boolean;
     exportTheme?: ExportThemeSettings;
     executablePath?: string;
     puppeteerArgs?: string[];
     breaks?: boolean;
     margin?: ExportMargin;
     debug?: boolean;
+    /** Set by export pipeline when [toc] is auto-inserted for PDF. */
+    autoInsertedToc?: boolean;
 }
+
+export type { ExportStyleMode } from './styleLoader';
 
 export interface ExportMarkdownRequest {
     markdownFilePath: string;

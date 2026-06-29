@@ -3,7 +3,7 @@ import os from 'os';
 import path from 'path';
 import puppeteer from 'puppeteer-core';
 import { pathToFileURL } from 'url';
-import { createOutline } from '../pdf/outline';
+import { createOutline, injectHeadingLinksFromToc } from '../pdf/outline';
 import { writeHtmlFile } from './writeHtml';
 import { logExportError, logExportInfo } from '../log';
 import { pathExists } from '../paths';
@@ -17,7 +17,9 @@ export async function exportPdfFromHtml(markdownFilePath: string, html: string, 
     const tmpDir = process.platform === 'linux' ? originPath.dir : (isDev ? originPath.dir : os.tmpdir());
     const tmpHtmlPath = path.resolve(tmpDir, `${originPath.name}_tmp.html`);
 
-    writeHtmlFile(tmpHtmlPath, html);
+    const htmlForPdf = config.autoInsertedToc ? injectHeadingLinksFromToc(html) : html;
+
+    writeHtmlFile(tmpHtmlPath, htmlForPdf);
     if (!pathExists(tmpHtmlPath)) {
         throw new Error(`Temporary HTML file not found: ${tmpHtmlPath}`);
     }
@@ -40,7 +42,7 @@ export async function exportPdfFromHtml(markdownFilePath: string, html: string, 
         const fileUrl = pathToFileURL(tmpHtmlPath).href;
         await page.goto(fileUrl, { waitUntil: 'load', timeout: 60000 }).catch(async error => {
             logExportError('page.goto()', error);
-            await page.setContent(html, { waitUntil: 'load', timeout: 60000 });
+            await page.setContent(htmlForPdf, { waitUntil: 'load', timeout: 60000 });
         });
 
         const margin = config.margin || {};
@@ -61,7 +63,7 @@ export async function exportPdfFromHtml(markdownFilePath: string, html: string, 
         let pdfBytes: Uint8Array;
         try {
             pdfBytes = !config.withoutOutline
-                ? await createOutline(pdf, html)
+                ? await createOutline(pdf, htmlForPdf)
                 : Buffer.from(pdf);
         } catch (error) {
             logExportError('createOutline()', error);

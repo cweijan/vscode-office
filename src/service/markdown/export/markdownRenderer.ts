@@ -15,23 +15,34 @@ import { convertImagePath } from './paths';
 import { logExportError, logExportInfo } from './log';
 import type { ExportConfig, ExportType } from './types';
 
-export function injectPdfTableOfContents(markdown: string, config: ExportConfig): string {
+export interface RenderMarkdownResult {
+    html: string;
+    autoInsertedToc: boolean;
+}
+
+export function injectPdfTableOfContents(markdown: string, config: ExportConfig): { markdown: string; autoInsertedToc: boolean } {
     const needOutline = !markdown.match(/\[toc\]/i) && !config.withoutOutline;
     if (!needOutline) {
-        return markdown;
+        return { markdown, autoInsertedToc: false };
     }
     const toc = '[toc]\n';
     const frontMatterMatch = markdown.match(/^---[\s\S]*?\n---\s*\n?/);
     if (frontMatterMatch) {
-        return frontMatterMatch[0] + toc + markdown.slice(frontMatterMatch[0].length);
+        return {
+            markdown: frontMatterMatch[0] + toc + markdown.slice(frontMatterMatch[0].length),
+            autoInsertedToc: true,
+        };
     }
-    return toc + markdown;
+    return { markdown: toc + markdown, autoInsertedToc: true };
 }
 
-export function renderMarkdownToHtml(markdownFilePath: string, type: ExportType, markdown: string, config: ExportConfig): string {
+export function renderMarkdownToHtml(markdownFilePath: string, type: ExportType, markdown: string, config: ExportConfig): RenderMarkdownResult {
+    let autoInsertedToc = false;
     let source = markdown;
     if (type === 'pdf') {
-        source = injectPdfTableOfContents(source, config);
+        const injected = injectPdfTableOfContents(source, config);
+        source = injected.markdown;
+        autoInsertedToc = injected.autoInsertedToc;
     }
 
     try {
@@ -94,9 +105,9 @@ export function renderMarkdownToHtml(markdownFilePath: string, type: ExportType,
             .use(markdownItPlantuml)
             .use(markdownItMermaid);
 
-        return md.render(source);
+        return { html: md.render(source), autoInsertedToc };
     } catch (error) {
         logExportError('renderMarkdownToHtml()', error);
-        return '';
+        return { html: '', autoInsertedToc: false };
     }
 }

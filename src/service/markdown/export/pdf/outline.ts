@@ -1,3 +1,73 @@
+import { load as loadCheerio, type Cheerio, type CheerioAPI } from 'cheerio';
+
+const PDF_OUTLINE_ANCHOR_STYLE = `<style id="pdf-outline-anchor-style">
+a.pdf-outline-anchor {
+    display: inline-block;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0.01;
+    color: inherit !important;
+    text-decoration: none !important;
+    user-select: none;
+}
+</style>`;
+
+/** When TOC is auto-inserted and hidden on print, inject tiny (not hidden) anchor links at body end so PDF destinations exist. */
+export function injectHeadingLinksFromToc(html: string): string {
+    const $ = loadCheerio(html);
+    const tocItems = $('.table-of-contents>ol>li');
+    if (tocItems.length === 0) {
+        return html;
+    }
+
+    const hrefs = new Set<string>();
+    collectTocHrefs(tocItems, $, hrefs);
+    appendOutlineAnchorsToBody($, hrefs);
+    return $.html();
+}
+
+function collectTocHrefs(items: Cheerio<any>, $: CheerioAPI, hrefs: Set<string>): void {
+    for (let index = 0; index < items.length; index++) {
+        const li = $(items[index]);
+        const anchor = li.children('a').first();
+        if (anchor.length > 0) {
+            const href = anchor.attr('href') || '';
+            if (href.startsWith('#')) {
+                hrefs.add(href);
+            }
+        }
+
+        const children = li.children('ol').children('li');
+        if (children.length > 0) {
+            collectTocHrefs(children, $, hrefs);
+        }
+    }
+}
+
+function appendOutlineAnchorsToBody($: CheerioAPI, hrefs: Set<string>): void {
+    if (hrefs.size === 0) {
+        return;
+    }
+    const body = $('body').first();
+    if (!body.length) {
+        return;
+    }
+
+    if (!$('style#pdf-outline-anchor-style').length) {
+        body.append(PDF_OUTLINE_ANCHOR_STYLE);
+    }
+
+    if ($('#pdf-outline-anchors').length) {
+        return;
+    }
+
+    const links = Array.from(hrefs)
+        .map(href => `<a class="pdf-outline-anchor" href="${href}" aria-hidden="true">.</a>`)
+        .join('');
+    body.append(`<div id="pdf-outline-anchors" aria-hidden="true">${links}</div>`);
+}
+
 export const createOutline = async (pdf, html) => {
 
     const { PDFDocument } = require("pdf-lib");

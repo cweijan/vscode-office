@@ -6,10 +6,20 @@ import { exportDocument } from './exporters';
 import { buildHtmlDocumentFromUri } from './htmlDocument';
 import { renderMarkdownToHtml } from './markdownRenderer';
 import { resolveMermaidScriptUrl } from './paths';
-import { usesProTheme } from './styleLoader';
+import { usesProExport, resolveExportStyleMode } from './styleLoader';
 import { buildMermaidExportConfig } from './theme/mermaidTheme';
 import { logExportInfo } from './log';
 import type { ExportConfig } from './types';
+
+function resolveMermaidTheme(config: ExportConfig) {
+    if (!config.exportTheme) {
+        return config.exportTheme;
+    }
+    if (resolveExportStyleMode(config) === 'pro-theme') {
+        return config.exportTheme;
+    }
+    return { ...config.exportTheme, isDark: false };
+}
 
 function appendMermaidBootstrap(html: string, config: ExportConfig): string {
     const $ = loadCheerio(html);
@@ -17,10 +27,11 @@ function appendMermaidBootstrap(html: string, config: ExportConfig): string {
         return html;
     }
 
-    const mermaidScript = usesProTheme(config)
+    const mermaidTheme = resolveMermaidTheme(config);
+    const mermaidScript = usesProExport(config)
         ? `
     <script src="${resolveMermaidScriptUrl(config.type)}"></script>
-    <script>mermaid.initialize(${JSON.stringify(buildMermaidExportConfig(config.exportTheme))});</script>
+    <script>mermaid.initialize(${JSON.stringify(buildMermaidExportConfig(mermaidTheme))});</script>
     `
         : `
     <script src="${resolveMermaidScriptUrl(config.type)}"></script>
@@ -35,12 +46,12 @@ export async function runExportPipeline(markdownFilePath: string, config: Export
     const resolvedPath = path.resolve(markdownFilePath);
     const uri = Uri.file(resolvedPath);
     const markdown = readFileSync(resolvedPath).toString();
-    const content = renderMarkdownToHtml(resolvedPath, config.type, markdown, config);
+    const { html: content, autoInsertedToc } = renderMarkdownToHtml(resolvedPath, config.type, markdown, config);
     const html = appendMermaidBootstrap(
-        buildHtmlDocumentFromUri(content, uri, config.type, config),
+        buildHtmlDocumentFromUri(content, uri, config.type, config, { autoInsertedToc }),
         config,
     );
-    return exportDocument(resolvedPath, html, config);
+    return exportDocument(resolvedPath, html, { ...config, autoInsertedToc });
 }
 
 export async function exportMarkdownFile(markdownFilePath: string, config: ExportConfig): Promise<void> {
