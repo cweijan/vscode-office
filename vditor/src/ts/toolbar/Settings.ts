@@ -59,6 +59,44 @@ const resolveDropdownOptions = (key: string) => {
     return typeof options === "function" ? options() : options;
 };
 
+const getDropdownCurrentValue = (key: string, fallbackValue: string) => {
+    if (key === BOLD_COLOR_KEY) {
+        return normalizeBoldColorValue(getGlobalLocalStorageSetting<string>(key));
+    }
+    if (key === CODE_BLOCK_MAX_HEIGHT_KEY) {
+        return getGlobalLocalStorageSetting<string>(key, CODE_BLOCK_MAX_HEIGHT_DEFAULT) ?? CODE_BLOCK_MAX_HEIGHT_DEFAULT;
+    }
+    return getGlobalLocalStorageSetting<string>(key, fallbackValue) ?? fallbackValue;
+};
+
+const parsePxValue = (value: string): number | undefined => {
+    const match = value.trim().match(/^(\d+(?:\.\d+)?)px$/i);
+    if (!match) {
+        return undefined;
+    }
+    const parsed = Number(match[1]);
+    return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+const resolveCurrentFontSize = (vditor: IVditor, isUI: boolean, fallback: number): number => {
+    const key = isUI ? UI_FONT_SIZE_KEY : EDITOR_FONT_SIZE_KEY;
+    const stored = getGlobalLocalStorageSetting<number>(key);
+    if (stored !== undefined) {
+        return stored;
+    }
+
+    if (isUI) {
+        return parsePxValue(getComputedStyle(vditor.element).getPropertyValue("--ui-font-size")) ?? fallback;
+    }
+
+    const content = vditor.element.querySelector<HTMLElement>(".vditor-ir")
+        || vditor.element.querySelector<HTMLElement>(".vditor-wysiwyg")
+        || vditor.element;
+    return parsePxValue(getComputedStyle(vditor.element).getPropertyValue("--editor-font-size"))
+        ?? parsePxValue(getComputedStyle(content).fontSize)
+        ?? fallback;
+};
+
 export class Settings extends MenuItem {
     public element: HTMLElement;
 
@@ -90,9 +128,7 @@ export class Settings extends MenuItem {
         const openFloatingMenu = (trigger: HTMLElement, key: string) => {
             const options = resolveDropdownOptions(key);
             if (!options) return;
-            const currentValue = key === BOLD_COLOR_KEY
-                ? normalizeBoldColorValue(getGlobalLocalStorageSetting<string>(key))
-                : (getGlobalLocalStorageSetting<string>(key, options[0].value) ?? options[0].value);
+            const currentValue = getDropdownCurrentValue(key, options[0].value);
 
             floatingMenu.innerHTML = options.map(o =>
                 `<button type="button" class="${SETTINGS_PANEL_CLASS}__dropdown-option${o.value === currentValue ? ` ${SETTINGS_PANEL_CLASS}__dropdown-option--current` : ""}" data-value="${o.value}" data-dropdown-key="${key}">${o.label}</button>`
@@ -124,7 +160,10 @@ export class Settings extends MenuItem {
             const key = option.getAttribute("data-dropdown-key") || "";
             const value = option.getAttribute("data-value") || "";
             const label = option.textContent || "";
-            setGlobalLocalStorageSetting(key, value);
+            const storedValue = key === CODE_BLOCK_MAX_HEIGHT_KEY && value === CODE_BLOCK_MAX_HEIGHT_DEFAULT
+                ? undefined
+                : value;
+            setGlobalLocalStorageSetting(key, storedValue);
             if (key === FONT_FAMILY_KEY) vditor.element.style.setProperty("--editor-font-family", value);
             else if (key === CODE_FONT_FAMILY_KEY) {
                 if (value === "inherit") vditor.element.style.removeProperty("--code-font-family");
@@ -177,7 +216,7 @@ export class Settings extends MenuItem {
                 const key = row.getAttribute("data-font-key") || "";
                 const isUI = key === UI_FONT_SIZE_KEY;
                 const defaultVal = isUI ? UI_FONT_SIZE_DEFAULT : EDITOR_FONT_SIZE_DEFAULT;
-                const current = getGlobalLocalStorageSetting<number>(key, defaultVal) ?? defaultVal;
+                const current = resolveCurrentFontSize(vditor, isUI, defaultVal);
                 const step = parseInt(stepBtn.getAttribute("data-step") || "0", 10);
                 const next = Math.min(FONT_SIZE_MAX, Math.max(FONT_SIZE_MIN, current + step));
                 setGlobalLocalStorageSetting(key, next);
