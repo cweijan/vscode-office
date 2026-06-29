@@ -8,8 +8,13 @@ const removeLockedDecorations = (root) => {
 };
 
 const hideToolbarEntry = (root, type) => {
-  const button = root?.querySelector?.(`.vditor-toolbar [data-type="${type}"]`);
-  button?.closest('.vditor-toolbar__item')?.remove();
+  const item = root?.querySelector?.(`.vditor-toolbar [data-type="${type}"]`)?.closest('.vditor-toolbar__item');
+  if (item) item.hidden = true;
+};
+
+const showToolbarEntry = (root, type) => {
+  const item = root?.querySelector?.(`.vditor-toolbar [data-type="${type}"]`)?.closest('.vditor-toolbar__item');
+  if (item) item.hidden = false;
 };
 
 const applyProState = (editor, isPro) => {
@@ -28,6 +33,9 @@ const applyProState = (editor, isPro) => {
     removeLockedDecorations(document);
     hideToolbarEntry(document, 'pro-upgrade');
     hideToolbarEntry(document, 'help');
+  } else {
+    showToolbarEntry(document, 'pro-upgrade');
+    showToolbarEntry(document, 'help');
   }
 
   refreshExportDialogProState();
@@ -177,6 +185,17 @@ handler.on("open", async (md) => {
       });
       handler.on('markdownProStatus', ({ isPro }) => {
         applyProState(editor, !!isPro);
+        if (!isPro) {
+          // Clear badge dismissed state so the dot reappears
+          localStorage.removeItem('office.pro.badgeDismissed');
+          // Re-inject badge dot into DOM if button is visible and dot was removed
+          const btn = document.querySelector('.vditor-toolbar [data-type="pro-upgrade"]');
+          if (btn && !btn.querySelector('.vditor-pro-badge')) {
+            const dot = document.createElement('span');
+            dot.className = 'vditor-pro-badge';
+            btn.appendChild(dot);
+          }
+        }
       });
       handler.on("update", content => {
         if (document.querySelector("[data-type='yaml-front-matter'].vditor-code-block--cm .cm-editor.cm-focused")) {

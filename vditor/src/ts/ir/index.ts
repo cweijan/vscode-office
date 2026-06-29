@@ -2,7 +2,6 @@ import { Constants } from "../constants";
 import { isCtrl, isFirefox } from "../util/compatibility";
 import {
     bindImageLoadingState,
-    bindImageResizeHover,
     blurEvent,
     copyEvent, cutEvent, dblclickEvent,
     dropEvent,
@@ -76,7 +75,6 @@ class IR {
         copyEvent(vditor, this.element, this.copy);
         cutEvent(vditor, this.element, this.copy);
         bindImageLoadingState(this.element);
-        bindImageResizeHover(vditor, this.element);
     }
 
     private copy(event: ClipboardEvent, vditor: IVditor) {

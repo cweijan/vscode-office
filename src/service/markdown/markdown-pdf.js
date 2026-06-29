@@ -264,10 +264,28 @@ function isProExport(config = {}) {
   return config.useProExport === true && !!config.exportTheme
 }
 
+function resolveStylesBasePath() {
+  const candidates = [
+    path.join(__dirname, "styles"),
+    path.join(__dirname, "..", "styles"),
+  ]
+  for (const candidate of candidates) {
+    if (isExistsPath(path.join(candidate, "arduino-light.css"))) {
+      return candidate
+    }
+  }
+  return path.join(__dirname, "styles")
+}
+
 function readLegacyStyles(type) {
-  const basePath = path.join(__dirname, "styles");
+  const basePath = resolveStylesBasePath()
   const katexPath = path.resolve(__dirname, '..', "resource", 'markdown', 'dist', 'js', 'katex', 'katex.min.css');
-  const files = ['arduino-light.css', 'markdown.css', 'markdown-pdf.css']
+  const files = [
+    'arduino-light.css',
+    'markdown-export-legacy.css',
+    'markdown-obsidian-export-legacy.css',
+    'markdown-pdf-export-legacy.css',
+  ]
   return files.map(file => makeCss(path.join(basePath, file))).join("")
     + makeCss(katexPath, true, type)
 }
@@ -277,7 +295,7 @@ function readStyles(type, config = {}) {
     if (!isProExport(config)) {
       return readLegacyStyles(type)
     }
-    const basePath = path.join(__dirname, "styles");
+    const basePath = resolveStylesBasePath()
     const katexPath = path.resolve(__dirname, '..', "resource", 'markdown', 'dist', 'js', 'katex', 'katex.min.css');
     const files = ['markdown.css', 'markdown-pdf.css']
     const hljsThemeCss = buildHljsThemeCss(config.exportTheme)

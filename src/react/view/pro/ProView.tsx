@@ -169,11 +169,14 @@ export default function ProView() {
             </div>
 
             {/* Dev-only: clear license button */}
-            {isDev && (
+            {isDev && !!currentKey && (
                 <button
                     className="pro-dev-clear"
                     title="[Dev] Clear license key"
-                    onClick={() => handler.emit('proClearKey')}
+                    onClick={() => {
+                        handler.emit('proClearKey');
+                        localStorage.removeItem('office.pro.badgeDismissed');
+                    }}
                 >
                     {codicon('trash')} Clear License
                 </button>
