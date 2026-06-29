@@ -1,4 +1,4 @@
-import { openPdfExportDialog } from './pdfExportDialog.js'
+import { openExportDialog } from './exportDialog.js'
 
 function loadRes(url) {
     return fetch(url).then(r => r.text())
@@ -26,7 +26,7 @@ function makeProUpgradeBtn() {
     };
 }
 
-export async function getToolbar(resPath, onSave = null, isPro = false) {
+export async function getToolbar(resPath, onSave = null, isPro = false, onExport = null) {
     const codicon = (name) => `<span class="codicon codicon-${name}" aria-hidden="true"></span>`;
     const toolbar = [
         'outline',
@@ -58,7 +58,15 @@ export async function getToolbar(resPath, onSave = null, isPro = false) {
         "link",
         "|",
         'font-color',
-        'upload',
+        'background-color',
+        {
+            name: 'export',
+            tip: 'Export',
+            icon: codicon('arrow-down'),
+            click() {
+                onExport?.()
+            }
+        },
         ...(isPro ? [] : [makeProUpgradeBtn()]),
         "|",
         'editor-theme-label',
@@ -75,6 +83,7 @@ export async function getToolbar(resPath, onSave = null, isPro = false) {
         "line",
         "code",
         "inline-code",
+        'upload',
         "|",
         "undo",
         "redo",
@@ -208,6 +217,18 @@ export const setAIAvailable = (available, editor) => {
     editor?.setCopilotAvailable?.(available);
 }
 
+export const openToolbarExport = (editor) => {
+    openExportForEditor(editor, 'toolbar')
+}
+
+const openExportForEditor = (editor, source) => {
+    handler.emit('telemetry', { event: 'markdown.exportDialog', properties: { source } })
+    openExportDialog().then(options => {
+        if (!options) return
+        emitExport(editor, options)
+    })
+}
+
 const emitExport = (editor, payload) => {
     vscodeEvent.emit('export', {
         ...payload,
@@ -261,18 +282,8 @@ export const createContextMenu = (editor) => {
                 if (document.getSelection()?.toString()) { document.execCommand('delete') }
                 vscodeEvent.emit('command', 'office.markdown.paste')
                 break
-            case 'exportPdf':
-                handler.emit('telemetry', { event: 'markdown.exportPdfDialog' })
-                openPdfExportDialog().then(pdfOptions => {
-                    if (!pdfOptions) return
-                    emitExport(editor, { type: 'pdf', ...pdfOptions })
-                })
-                break
-            case 'exportDocx':
-                emitExport(editor, { type: 'docx' })
-                break
-            case 'exportHtml':
-                emitExport(editor, { type: 'html' })
+            case 'export':
+                openExportForEditor(editor, 'contextMenu')
                 break
             case 'showInFolder':
                 vscodeEvent.emit('showInFolder')

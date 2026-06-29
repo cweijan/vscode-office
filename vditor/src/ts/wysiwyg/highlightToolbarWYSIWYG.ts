@@ -3,7 +3,8 @@ import {disableToolbar} from "../toolbar/setToolbar";
 import {enableToolbar} from "../toolbar/setToolbar";
 import {removeCurrentToolbar} from "../toolbar/setToolbar";
 import {setCurrentToolbar} from "../toolbar/setToolbar";
-import {hasTextSelection, isInsideFontColor} from "../util/applyFontColor";
+import {hasTextSelection, isInsideBackgroundColor, isInsideFontColor} from "../util/applyFontColor";
+import {syncBackgroundColorPanelEnabled} from "../ui/backgroundColorPanel";
 import {syncFontColorPanelEnabled} from "../ui/fontColorPanel";
 import {isCtrl, updateHotkeyTip, formatAltEnterHotkeyTip} from "../util/compatibility";
 import {
@@ -161,13 +162,18 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
         if (isInsideFontColor(typeElement)) {
             setCurrentToolbar(vditor.toolbar.elements, ["font-color"]);
         }
+        if (isInsideBackgroundColor(typeElement)) {
+            setCurrentToolbar(vditor.toolbar.elements, ["background-color"]);
+        }
 
         if (hasTextSelection(vditor)) {
-            enableToolbar(vditor.toolbar.elements, ["font-color"]);
+            enableToolbar(vditor.toolbar.elements, ["font-color", "background-color"]);
             syncFontColorPanelEnabled(vditor, true);
+            syncBackgroundColorPanelEnabled(vditor, true);
         } else {
-            disableToolbar(vditor.toolbar.elements, ["font-color"]);
+            disableToolbar(vditor.toolbar.elements, ["font-color", "background-color"]);
             syncFontColorPanelEnabled(vditor, false);
+            syncBackgroundColorPanelEnabled(vditor, false);
         }
 
         const aElement = hasClosestByMatchTag(typeElement, "A");
@@ -190,6 +196,7 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
                     "italic",
                     "strike",
                     "font-color",
+                    "background-color",
                     "line",
                     "quote",
                     "list",
@@ -209,6 +216,7 @@ export const highlightToolbarWYSIWYG = (vditor: IVditor) => {
                     "italic",
                     "strike",
                     "font-color",
+                    "background-color",
                     "line",
                     "quote",
                     "list",

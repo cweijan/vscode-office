@@ -563,6 +563,9 @@ interface IOptions {
     /** 代码块主题修改后触发 */
     changeCodeTheme?(value: string): void;
 
+    /** 当前用户是否为 Pro */
+    isPro?: boolean;
+
     /** 编辑器主题修改后触发 */
     changeEditorTheme?(value: string): void;
 
@@ -615,6 +618,9 @@ interface IOptions {
 
     /** 点击编辑配置文件按钮时触发 */
     onEditSettings?(): void;
+
+    /** 非 Pro 点击受限功能时触发 */
+    onRequirePro?(feature: string): void;
 }
 
 interface IEChart {

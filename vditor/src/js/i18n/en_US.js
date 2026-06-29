@@ -92,6 +92,8 @@ window.VditorI18n = {
   'strike': 'Strike',
   'font-color': 'Font color',
   'font-color-custom': 'Custom',
+  'background-color': 'Background color',
+  'background-color-custom': 'Custom',
   'html-clear-format': 'Clear',
   'table': 'Table',
   'textIsNotEmpty': 'text(no empty)',

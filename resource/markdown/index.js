@@ -1,4 +1,4 @@
-import { getToolbar, bindShortcut, createContextMenu, setAIAvailable } from "./util.js";
+import { getToolbar, bindShortcut, createContextMenu, setAIAvailable, openToolbarExport } from "./util.js";
 import { mapVscodeLanguageToVditorLang } from "./lang.js";
 
 handler.on("open", async (md) => {
@@ -26,12 +26,16 @@ handler.on("open", async (md) => {
     editorTheme,
     codeMirrorTheme,
     mermaidTheme,
+    isPro,
+    onRequirePro() {
+      handler.emit('openProPanel')
+    },
     lang: mapVscodeLanguageToVditorLang(language),
     tab: '\t',
     toolbar: await getToolbar(rootPath, () => {
       handler.emit('doSave', editor?.getValue());
       editor?.markSaved();
-    }, isPro),
+    }, isPro, () => openToolbarExport(editor)),
     onAboutOpen: () => handler.emit('openAbout'),
     onSponsorLogoClick: () => handler.emit('openSponsor'),
     onSponsorSiteClick: () => handler.emit('openExternal', 'https://database-client.com/'),

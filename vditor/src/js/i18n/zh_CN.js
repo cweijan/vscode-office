@@ -92,6 +92,8 @@ window.VditorI18n = {
   'strike': '删除线',
   'font-color': '字体颜色',
   'font-color-custom': '自定义',
+  'background-color': '背景颜色',
+  'background-color-custom': '自定义',
   'html-clear-format': '清除',
   'table': '表格',
   'textIsNotEmpty': '文本（不能为空）',

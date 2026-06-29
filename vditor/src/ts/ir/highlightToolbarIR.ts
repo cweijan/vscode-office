@@ -1,6 +1,7 @@
 import {Constants} from "../constants";
 import {disableToolbar, enableToolbar, removeCurrentToolbar, setCurrentToolbar} from "../toolbar/setToolbar";
-import {hasTextSelection, isInsideFontColor} from "../util/applyFontColor";
+import {hasTextSelection, isInsideBackgroundColor, isInsideFontColor} from "../util/applyFontColor";
+import {syncBackgroundColorPanelEnabled} from "../ui/backgroundColorPanel";
 import {syncFontColorPanelEnabled} from "../ui/fontColorPanel";
 import {hasClosestByAttribute, hasClosestByMatchTag} from "../util/hasClosest";
 import {hasClosestByHeadings} from "../util/hasClosestByHeadings";
@@ -62,13 +63,18 @@ export const highlightToolbarIR = (vditor: IVditor) => {
         if (isInsideFontColor(typeElement)) {
             setCurrentToolbar(vditor.toolbar.elements, ["font-color"]);
         }
+        if (isInsideBackgroundColor(typeElement)) {
+            setCurrentToolbar(vditor.toolbar.elements, ["background-color"]);
+        }
 
         if (hasTextSelection(vditor)) {
-            enableToolbar(vditor.toolbar.elements, ["font-color"]);
+            enableToolbar(vditor.toolbar.elements, ["font-color", "background-color"]);
             syncFontColorPanelEnabled(vditor, true);
+            syncBackgroundColorPanelEnabled(vditor, true);
         } else {
-            disableToolbar(vditor.toolbar.elements, ["font-color"]);
+            disableToolbar(vditor.toolbar.elements, ["font-color", "background-color"]);
             syncFontColorPanelEnabled(vditor, false);
+            syncBackgroundColorPanelEnabled(vditor, false);
         }
 
         const aElement = hasClosestByAttribute(typeElement, "data-type", "a");
@@ -92,14 +98,14 @@ export const highlightToolbarIR = (vditor: IVditor) => {
 
         const codeBlockElement = hasClosestByAttribute(typeElement, "data-type", "code-block");
         if (codeBlockElement) {
-            disableToolbar(vditor.toolbar.elements, ["headings", "bold", "italic", "strike", "font-color", "line", "quote",
+            disableToolbar(vditor.toolbar.elements, ["headings", "bold", "italic", "strike", "font-color", "background-color", "line", "quote",
                 "list", "ordered-list", "check", "code", "inline-code", "upload", "link", "table"]);
             setCurrentToolbar(vditor.toolbar.elements, ["code"]);
         }
 
         const codeElement = hasClosestByAttribute(typeElement, "data-type", "code");
         if (codeElement) {
-            disableToolbar(vditor.toolbar.elements, ["headings", "bold", "italic", "strike", "font-color", "line", "quote",
+            disableToolbar(vditor.toolbar.elements, ["headings", "bold", "italic", "strike", "font-color", "background-color", "line", "quote",
                 "list", "ordered-list", "check", "code", "upload", "link", "table"]);
             setCurrentToolbar(vditor.toolbar.elements, ["inline-code"]);
         }

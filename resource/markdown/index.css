@@ -135,8 +135,8 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     color: var(--ctx-icon-paste);
 }
 
-.vditor-context-menu__item[data-action="exportPdf"] .codicon {
-    color: var(--ctx-icon-pdf);
+.vditor-context-menu__item[data-action="export"] .codicon {
+    color: var(--vscode-textLink-foreground, #3794ff);
 }
 
 .vditor-context-menu__item[data-action="exportDocx"] .codicon {
@@ -269,7 +269,7 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     text-decoration: underline;
 }
 
-/* PDF Export Dialog — Apple-style sheet */
+/* Export Dialog — Apple-style sheet */
 .vditor-pdf-export-overlay {
     position: fixed;
     inset: 0;
@@ -332,8 +332,12 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
 
 .vditor-pdf-export-dialog__icon {
     font-size: 20px;
-    color: var(--ctx-icon-pdf, #e51400);
+    color: var(--vscode-textLink-foreground, #3794ff);
     flex-shrink: 0;
+}
+
+.vditor-pdf-export-dialog__section[hidden] {
+    display: none !important;
 }
 
 .vditor-pdf-export-dialog__title {
@@ -532,4 +536,100 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     background: #e5484d;
     border: 1.5px solid var(--vscode-editor-background, #1e1e1e);
     pointer-events: none;
+}
+
+.vditor-toolbar .vditor-pro-locked {
+    position: relative;
+}
+
+.vditor-toolbar .vditor-pro-locked::before,
+.vditor-toolbar .vditor-pro-locked::after {
+    display: none !important;
+}
+
+.vditor-pro-locked__badge {
+    position: absolute;
+    top: 2px;
+    right: -2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 12px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #ffb347, #ff7a18);
+    color: #fff;
+    font-size: 8px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    pointer-events: none;
+    box-sizing: border-box;
+    opacity: 0;
+    transform: translateY(-2px) scale(0.96);
+    transition:
+        opacity 0.16s ease,
+        transform 0.16s ease;
+}
+
+.vditor-pro-locked__tooltip {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: max-content;
+    max-width: min(220px, calc(100vw - 24px));
+    padding: 8px 10px;
+    border: 1px solid color-mix(in srgb, var(--front-color, #24292e) 14%, transparent);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--panel-background-color, #fff) 96%, var(--front-color, #24292e));
+    box-shadow:
+        0 12px 30px color-mix(in srgb, var(--front-color, #24292e) 18%, transparent),
+        0 2px 8px color-mix(in srgb, var(--front-color, #24292e) 10%, transparent);
+    color: var(--front-color, #24292e);
+    transform: translateX(-50%) translateY(-4px) scale(0.96);
+    transform-origin: top center;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        opacity 0.16s ease,
+        transform 0.16s ease;
+    z-index: 1000000;
+    white-space: nowrap;
+}
+
+.vditor-pro-locked__tooltip::before {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    background: inherit;
+    border-top: 1px solid color-mix(in srgb, var(--front-color, #24292e) 14%, transparent);
+    border-left: 1px solid color-mix(in srgb, var(--front-color, #24292e) 14%, transparent);
+    transform: translateX(-50%) rotate(45deg);
+}
+
+.vditor-pro-locked__tooltip-text {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.vditor-toolbar .vditor-pro-locked:hover .vditor-pro-locked__badge,
+.vditor-toolbar .vditor-pro-locked:focus .vditor-pro-locked__badge,
+.vditor-toolbar .vditor-pro-locked:focus-visible .vditor-pro-locked__badge {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.vditor-toolbar .vditor-pro-locked:hover .vditor-pro-locked__tooltip,
+.vditor-toolbar .vditor-pro-locked:focus .vditor-pro-locked__tooltip,
+.vditor-toolbar .vditor-pro-locked:focus-visible .vditor-pro-locked__tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
 }

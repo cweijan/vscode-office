@@ -10,6 +10,7 @@ let toolbar = [
   'italic',
   'strike',
   'font-color',
+  'background-color',
   'link',
   '|',
   'editor-theme-label',

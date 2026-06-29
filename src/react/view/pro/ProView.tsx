@@ -67,6 +67,8 @@ export default function ProView() {
         <span className={`codicon codicon-${name}`} aria-hidden />
     );
 
+    const logoSrc = (getConfigs() as any)?.logoUri as string | undefined;
+
     return (
         <div className="pro-page office-viewer-themed">
             <div className="pro-page-inner">
@@ -79,8 +81,8 @@ export default function ProView() {
                         improving compatibility, and shipping new features.
                     </p>
                     <p>
-                        To sustain ongoing development, I've moved a small set of advanced features to a Pro license.
-                        Everything that was free before remains free and open source. The Pro features are new
+                        To sustain ongoing development, I've added some new Pro features.&nbsp;
+                        <strong>Everything that was free before remains free and open source.</strong> The Pro features are new
                         additions on top of the free core.
                     </p>
                     <p>— Weijan Chen</p>
@@ -89,7 +91,10 @@ export default function ProView() {
                 {/* Plans */}
                 <div className="pro-plans">
                     <div className="pro-plan-card">
-                        <div className="pro-plan-title">Standard License</div>
+                        <div className="pro-plan-title">
+                            {logoSrc && <img src={logoSrc} className="pro-card-logo" alt="" />}
+                            Standard License
+                        </div>
                         <div className="pro-plan-desc">Everything you need to preview and edit office files in VS Code.</div>
                         <div className="pro-plan-price">$0</div>
                         <div className="pro-plan-price-sub">Open source, free forever.</div>
@@ -108,7 +113,10 @@ export default function ProView() {
                     </div>
 
                     <div className="pro-plan-card pro-plan-card--pro">
-                        <div className="pro-plan-title pro-plan-title--pro">Lifetime License</div>
+                        <div className="pro-plan-title pro-plan-title--pro">
+                            {logoSrc && <img src={logoSrc} className="pro-card-logo" alt="" />}
+                            Lifetime License
+                        </div>
                         <div className="pro-plan-desc">Unlock customization and beautiful exports. Pay once, use forever.</div>
                         <div className="pro-plan-price">$28</div>
                         <div className="pro-plan-price-sub">One-time payment, no renewal fees.</div>

@@ -65,26 +65,11 @@
         </div>
         <div class="vditor-context-menu__separator" role="separator"></div>
         <div class="vditor-context-menu__group" role="group">
-            <button class="vditor-context-menu__item vditor-context-menu__item--desktop-only" type="button"
-                data-action="exportPdf" role="menuitem">
+            <button class="vditor-context-menu__item" type="button" data-action="export" role="menuitem">
                 <span class="vditor-context-menu__icon" aria-hidden="true">
-                    <span class="codicon codicon-file-pdf"></span>
+                    <span class="codicon codicon-arrow-down"></span>
                 </span>
-                <span class="vditor-context-menu__label">Export PDF</span>
-            </button>
-            <button class="vditor-context-menu__item vditor-context-menu__item--desktop-only" type="button"
-                data-action="exportDocx" role="menuitem">
-                <span class="vditor-context-menu__icon" aria-hidden="true">
-                    <span class="codicon codicon-file-text"></span>
-                </span>
-                <span class="vditor-context-menu__label">Export Docx</span>
-            </button>
-            <button class="vditor-context-menu__item vditor-context-menu__item--desktop-only" type="button"
-                data-action="exportHtml" role="menuitem">
-                <span class="vditor-context-menu__icon" aria-hidden="true">
-                    <span class="codicon codicon-code"></span>
-                </span>
-                <span class="vditor-context-menu__label">Export HTML</span>
+                <span class="vditor-context-menu__label">Export</span>
             </button>
         </div>
         <div class="vditor-context-menu__separator" role="separator"></div>
@@ -105,58 +90,73 @@
         </div>
     </div>
 
-    <!-- PDF Export Dialog -->
-    <div class="vditor-pdf-export-overlay" id="pdf-export-dialog" role="presentation" hidden>
-        <div class="vditor-pdf-export-dialog" role="dialog" aria-modal="true" aria-labelledby="pdf-export-title">
+    <!-- Export Dialog -->
+    <div class="vditor-pdf-export-overlay" id="export-dialog" role="presentation" hidden>
+        <div class="vditor-pdf-export-dialog" role="dialog" aria-modal="true" aria-labelledby="export-dialog-title">
             <div class="vditor-pdf-export-dialog__header">
-                <span class="codicon codicon-file-pdf vditor-pdf-export-dialog__icon" aria-hidden="true"></span>
-                <h2 class="vditor-pdf-export-dialog__title" id="pdf-export-title">Export PDF</h2>
+                <span class="codicon codicon-arrow-down vditor-pdf-export-dialog__icon" aria-hidden="true"></span>
+                <h2 class="vditor-pdf-export-dialog__title" id="export-dialog-title">Export</h2>
             </div>
             <div class="vditor-pdf-export-dialog__body">
-                <div class="vditor-pdf-export-row">
-                    <div class="vditor-pdf-export-row__text">
-                        <span class="vditor-pdf-export-row__label">Table of Contents</span>
-                        <span class="vditor-pdf-export-row__hint">Include outline and PDF bookmarks</span>
-                    </div>
-                    <label class="vditor-pdf-export-toggle" aria-checked="true">
-                        <input type="checkbox" data-pdf-option="outline" checked>
-                        <span class="vditor-pdf-export-toggle__track" aria-hidden="true">
-                            <span class="vditor-pdf-export-toggle__thumb"></span>
-                        </span>
-                    </label>
-                </div>
-                <div class="vditor-pdf-export-row">
-                    <div class="vditor-pdf-export-row__text">
-                        <span class="vditor-pdf-export-row__label">Background</span>
-                        <span class="vditor-pdf-export-row__hint">Print editor background colors</span>
-                    </div>
-                    <label class="vditor-pdf-export-toggle" aria-checked="true">
-                        <input type="checkbox" data-pdf-option="background" checked>
-                        <span class="vditor-pdf-export-toggle__track" aria-hidden="true">
-                            <span class="vditor-pdf-export-toggle__thumb"></span>
-                        </span>
-                    </label>
-                </div>
                 <div class="vditor-pdf-export-row vditor-pdf-export-row--select">
                     <div class="vditor-pdf-export-row__text">
-                        <span class="vditor-pdf-export-row__label">Page Size</span>
+                        <span class="vditor-pdf-export-row__label">Format</span>
                     </div>
                     <div class="vditor-pdf-export-select-wrap">
-                        <select class="vditor-pdf-export-select" data-pdf-option="format" aria-label="Page size">
-                            <option value="A4">A4</option>
-                            <option value="Letter">Letter</option>
-                            <option value="Legal">Legal</option>
-                            <option value="A3">A3</option>
-                            <option value="A5">A5</option>
-                            <option value="Tabloid">Tabloid</option>
+                        <select class="vditor-pdf-export-select" data-export-option="type" aria-label="Export format">
+                            <option value="pdf">PDF</option>
+                            <option value="docx">Word (DOCX)</option>
+                            <option value="html">HTML</option>
                         </select>
                         <span class="codicon codicon-chevron-down vditor-pdf-export-select__chevron" aria-hidden="true"></span>
                     </div>
                 </div>
+                <div class="vditor-pdf-export-dialog__section" data-export-section="pdf">
+                    <div class="vditor-pdf-export-row">
+                        <div class="vditor-pdf-export-row__text">
+                            <span class="vditor-pdf-export-row__label">Table of Contents</span>
+                            <span class="vditor-pdf-export-row__hint">Include outline and PDF bookmarks</span>
+                        </div>
+                        <label class="vditor-pdf-export-toggle" aria-checked="true">
+                            <input type="checkbox" data-export-option="outline" checked>
+                            <span class="vditor-pdf-export-toggle__track" aria-hidden="true">
+                                <span class="vditor-pdf-export-toggle__thumb"></span>
+                            </span>
+                        </label>
+                    </div>
+                    <div class="vditor-pdf-export-row">
+                        <div class="vditor-pdf-export-row__text">
+                            <span class="vditor-pdf-export-row__label">Background</span>
+                            <span class="vditor-pdf-export-row__hint">Print editor background colors</span>
+                        </div>
+                        <label class="vditor-pdf-export-toggle" aria-checked="true">
+                            <input type="checkbox" data-export-option="background" checked>
+                            <span class="vditor-pdf-export-toggle__track" aria-hidden="true">
+                                <span class="vditor-pdf-export-toggle__thumb"></span>
+                            </span>
+                        </label>
+                    </div>
+                    <div class="vditor-pdf-export-row vditor-pdf-export-row--select">
+                        <div class="vditor-pdf-export-row__text">
+                            <span class="vditor-pdf-export-row__label">Page Size</span>
+                        </div>
+                        <div class="vditor-pdf-export-select-wrap">
+                            <select class="vditor-pdf-export-select" data-export-option="pageFormat" aria-label="Page size">
+                                <option value="A4">A4</option>
+                                <option value="Letter">Letter</option>
+                                <option value="Legal">Legal</option>
+                                <option value="A3">A3</option>
+                                <option value="A5">A5</option>
+                                <option value="Tabloid">Tabloid</option>
+                            </select>
+                            <span class="codicon codicon-chevron-down vditor-pdf-export-select__chevron" aria-hidden="true"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="vditor-pdf-export-dialog__footer">
-                <button class="vditor-pdf-export-btn vditor-pdf-export-btn--cancel" type="button" data-pdf-action="cancel">Cancel</button>
-                <button class="vditor-pdf-export-btn vditor-pdf-export-btn--primary" type="button" data-pdf-action="export">Export</button>
+                <button class="vditor-pdf-export-btn vditor-pdf-export-btn--cancel" type="button" data-export-action="cancel">Cancel</button>
+                <button class="vditor-pdf-export-btn vditor-pdf-export-btn--primary" type="button" data-export-action="export">Export</button>
             </div>
         </div>
     </div>

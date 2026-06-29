@@ -1,5 +1,6 @@
 import {Constants} from "../constants";
 import {renderHtmlInlineFromMd} from "../htmlInline/renderHtmlInline";
+import {isValidBackgroundColor} from "../ui/backgroundColorPanel";
 import {processAfterRender} from "../ir/process";
 import {isValidFontColor} from "../ui/fontColorPanel";
 import {afterRenderEvent} from "../wysiwyg/afterRenderEvent";
@@ -52,6 +53,26 @@ export const isInsideFontColor = (element: HTMLElement): boolean => {
     return false;
 };
 
+const hasBackgroundColorInMdSource = (mdSource: string): boolean => /background-color\s*:/i.test(mdSource);
+
+export const isInsideBackgroundColor = (element: HTMLElement): boolean => {
+    let node: HTMLElement | null = element;
+    while (node && !node.classList.contains("vditor-reset")) {
+        if (node.getAttribute("data-type") === "html-inline") {
+            const mdSource = node.getAttribute("data-md-source") || "";
+            if (hasBackgroundColorInMdSource(mdSource)) {
+                return true;
+            }
+            const display = node.querySelector(".vditor-html-inline__display");
+            if (display && /<span[^>]*style\s*=\s*["'][^"']*background-color/i.test(display.innerHTML)) {
+                return true;
+            }
+        }
+        node = node.parentElement;
+    }
+    return false;
+};
+
 export const applyFontColor = (vditor: IVditor, color: string): boolean => {
     if (!isValidFontColor(color)) {
         return false;
@@ -64,6 +85,42 @@ export const applyFontColor = (vditor: IVditor, color: string): boolean => {
     }
 
     const mdSource = `<span style="color: ${color};">${Lute.EscapeHTMLStr(selectedText)}</span>`;
+    const inlineHtml = renderHtmlInlineFromMd(vditor, mdSource);
+    if (!inlineHtml) {
+        return false;
+    }
+
+    vditor[vditor.currentMode].preventInput = true;
+    range.deleteContents();
+
+    const pasteTemplate = document.createElement("template");
+    pasteTemplate.innerHTML = inlineHtml;
+    range.insertNode(pasteTemplate.content.cloneNode(true));
+    range.collapse(false);
+    setSelectionFocus(range);
+    setRangeByWbr(vditor[vditor.currentMode].element, range);
+
+    if (vditor.currentMode === "wysiwyg") {
+        afterRenderEvent(vditor);
+    } else if (vditor.currentMode === "ir") {
+        processAfterRender(vditor);
+    }
+
+    return true;
+};
+
+export const applyBackgroundColor = (vditor: IVditor, color: string): boolean => {
+    if (!isValidBackgroundColor(color)) {
+        return false;
+    }
+
+    const range = getEditorRange(vditor);
+    const selectedText = getSelectionTextForFontColor(range, vditor);
+    if (!selectedText) {
+        return false;
+    }
+
+    const mdSource = `<span style="background-color: ${color};">${Lute.EscapeHTMLStr(selectedText)}</span>`;
     const inlineHtml = renderHtmlInlineFromMd(vditor, mdSource);
     if (!inlineHtml) {
         return false;

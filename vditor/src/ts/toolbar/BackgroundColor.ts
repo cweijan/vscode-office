@@ -1,25 +1,25 @@
-import {buildFontColorPanelHTML, isValidFontColor, syncFontColorCustomControls} from "../ui/fontColorPanel";
-import {applyFontColor, hasTextSelection} from "../util/applyFontColor";
+import {buildBackgroundColorPanelHTML, isValidBackgroundColor, syncBackgroundColorCustomControls} from "../ui/backgroundColorPanel";
+import {applyBackgroundColor, hasTextSelection} from "../util/applyFontColor";
 import {getEventName} from "../util/compatibility";
 import {telemetry, telemetryToolbar} from "../util/telemetry";
 import {MenuItem} from "./MenuItem";
 import {hidePanel, toggleSubMenu} from "./setToolbar";
 
-const applyCustomFontColor = (
+const applyCustomBackgroundColor = (
     vditor: IVditor,
     panelElement: HTMLElement,
     color: string,
 ): boolean => {
-    if (!isValidFontColor(color) || !applyFontColor(vditor, color)) {
+    if (!isValidBackgroundColor(color) || !applyBackgroundColor(vditor, color)) {
         return false;
     }
-    telemetry(vditor, "markdown.fontColor.apply", { color, source: "custom" });
+    telemetry(vditor, "markdown.backgroundColor.apply", { color, source: "custom" });
     panelElement.style.display = "none";
     hidePanel(vditor, ["subToolbar"]);
     return true;
 };
 
-export class FontColor extends MenuItem {
+export class BackgroundColor extends MenuItem {
     public element: HTMLElement;
 
     constructor(vditor: IVditor, menuItem: IMenuItem) {
@@ -28,7 +28,7 @@ export class FontColor extends MenuItem {
         const actionBtn = this.element.children[0] as HTMLElement;
         const panelElement = document.createElement("div");
         panelElement.className = `vditor-hint${menuItem.level === 2 ? "" : " vditor-panel--arrow"}`;
-        panelElement.innerHTML = buildFontColorPanelHTML();
+        panelElement.innerHTML = buildBackgroundColorPanelHTML();
         this.element.appendChild(panelElement);
 
         if (!vditor.options.isPro) {
@@ -36,7 +36,7 @@ export class FontColor extends MenuItem {
             actionBtn.insertAdjacentHTML("beforeend",
                 `<span class="vditor-pro-locked__badge" aria-hidden="true">PRO</span>`
                 + `<span class="vditor-pro-locked__tooltip" aria-hidden="true">`
-                + `<span class="vditor-pro-locked__tooltip-text">Set font color</span>`
+                + `<span class="vditor-pro-locked__tooltip-text">Set background color</span>`
                 + `</span>`);
         }
 
@@ -44,8 +44,8 @@ export class FontColor extends MenuItem {
             if (!vditor.options.isPro) {
                 event.preventDefault();
                 event.stopPropagation();
-                telemetry(vditor, "markdown.proRequired", { feature: "font-color" });
-                vditor.options.onRequirePro?.("font-color");
+                telemetry(vditor, "markdown.proRequired", { feature: "background-color" });
+                vditor.options.onRequirePro?.("background-color");
                 return;
             }
             if (!hasTextSelection(vditor)) {
@@ -55,8 +55,8 @@ export class FontColor extends MenuItem {
             }
             const willOpen = panelElement.style.display !== "block";
             if (willOpen) {
-                telemetryToolbar(vditor, "font-color");
-                syncFontColorCustomControls(panelElement, true);
+                telemetryToolbar(vditor, "background-color");
+                syncBackgroundColorCustomControls(panelElement, true);
             }
         }, true);
 
@@ -64,8 +64,8 @@ export class FontColor extends MenuItem {
             const swatch = event.target.closest("button[data-color]") as HTMLElement | null;
             if (swatch) {
                 const color = swatch.getAttribute("data-color") || "";
-                if (applyFontColor(vditor, color)) {
-                    telemetry(vditor, "markdown.fontColor.apply", { color, source: "palette" });
+                if (applyBackgroundColor(vditor, color)) {
+                    telemetry(vditor, "markdown.backgroundColor.apply", { color, source: "palette" });
                     panelElement.style.display = "none";
                     hidePanel(vditor, ["subToolbar"]);
                 }
@@ -83,7 +83,7 @@ export class FontColor extends MenuItem {
                 }
                 const colorInput = panelElement.querySelector("[data-custom-color]") as HTMLInputElement | null;
                 if (colorInput) {
-                    applyCustomFontColor(vditor, panelElement, colorInput.value);
+                    applyCustomBackgroundColor(vditor, panelElement, colorInput.value);
                 }
                 event.preventDefault();
                 event.stopPropagation();
@@ -91,6 +91,6 @@ export class FontColor extends MenuItem {
         });
 
         toggleSubMenu(vditor, panelElement, actionBtn, menuItem.level);
-        syncFontColorCustomControls(panelElement, hasTextSelection(vditor));
+        syncBackgroundColorCustomControls(panelElement, hasTextSelection(vditor));
     }
 }

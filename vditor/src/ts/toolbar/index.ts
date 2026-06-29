@@ -1,4 +1,5 @@
 import {getEventName} from "../util/compatibility";
+import {BackgroundColor} from "./BackgroundColor";
 import {Br} from "./Br";
 import {CodeTheme} from "./CodeTheme";
 import {Counter} from "./Counter";
@@ -137,6 +138,9 @@ export class Toolbar {
                 break;
             case "font-color":
                 menuItemObj = new FontColor(vditor, menuItem);
+                break;
+            case "background-color":
+                menuItemObj = new BackgroundColor(vditor, menuItem);
                 break;
             case "ai-settings":
                 menuItemObj = new AISettings(vditor, menuItem);

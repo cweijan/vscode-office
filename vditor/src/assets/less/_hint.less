@@ -239,7 +239,8 @@
   }
 }
 
-.vditor-hint:has(.vditor-font-color-panel) {
+.vditor-hint:has(.vditor-font-color-panel),
+.vditor-hint:has(.vditor-background-color-panel) {
   padding: 8px;
   margin-top: 6px;
   border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 14%, transparent);
@@ -252,7 +253,8 @@
   line-height: normal;
 }
 
-.vditor-font-color-panel {
+.vditor-font-color-panel,
+.vditor-background-color-panel {
   &__grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -352,4 +354,3 @@
     opacity: 0.45;
   }
 }
-

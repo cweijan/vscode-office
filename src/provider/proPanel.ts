@@ -3,7 +3,8 @@ import { getExtensionResourceRoots } from '../common/extensionResource';
 import { ReactApp } from '../common/reactApp';
 
 const VIEW_TYPE = 'office.proPanel';
-const API_HOST = 'https://api.office-viewer.app';
+// const API_HOST = 'https://api.office-viewer.app';
+const API_HOST = 'http://localhost:92';
 const STATE_KEY = 'office.pro.licenseKey';
 
 export class ProPanel {
@@ -28,7 +29,10 @@ export class ProPanel {
 
         this.panel.iconPath = vscode.Uri.joinPath(context.extensionUri, 'image', 'logo.png');
 
-        await ReactApp.view(this.panel.webview, { route: 'pro', isDev: ReactApp.IS_DEV } as any);
+        const logoUri = this.panel.webview.asWebviewUri(
+            vscode.Uri.joinPath(context.extensionUri, 'image', 'logo.png')
+        ).toString();
+        await ReactApp.view(this.panel.webview, { route: 'pro', isDev: ReactApp.IS_DEV, logoUri } as any);
 
         this.panel.onDidDispose(() => {
             this.panel = undefined;
