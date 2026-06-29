@@ -80,11 +80,12 @@ const buildLineHeightStepperHTML = (value: number) =>
     </div>`;
 
 const buildDropdownHTML = (key: string, label: string, options: readonly { label: string; value: string }[], currentValue: string) => {
-    const current = options.find(o => o.value === currentValue) ?? options[0];
+    const current = options.find(o => o.value === currentValue);
+    const displayLabel = current?.label ?? currentValue;
     return `<div class="${SETTINGS_PANEL_CLASS}__dropdown-row">
         <span class="${SETTINGS_PANEL_CLASS}__dropdown-label">${label}</span>
         <button type="button" class="${SETTINGS_PANEL_CLASS}__dropdown-trigger" data-dropdown-trigger data-dropdown-key="${key}">
-            <span class="${SETTINGS_PANEL_CLASS}__dropdown-value">${current.label}</span>
+            <span class="${SETTINGS_PANEL_CLASS}__dropdown-value">${displayLabel}</span>
             <span class="codicon codicon-chevron-down ${SETTINGS_PANEL_CLASS}__dropdown-chevron" aria-hidden="true"></span>
         </button>
     </div>`;

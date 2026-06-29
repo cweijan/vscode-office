@@ -137,10 +137,10 @@ export const CODE_BLOCK_MAX_HEIGHT_KEY = "codeBlockMaxHeight";
 export const CODE_BLOCK_MAX_HEIGHT_DEFAULT = "400px";
 
 export const CODE_BLOCK_MAX_HEIGHT_OPTIONS = [
-    { label: "Compact (300px)", value: "300px" },
-    { label: "Default (400px)", value: "400px" },
-    { label: "Tall (600px)", value: "600px" },
-    { label: "Taller (800px)", value: "800px" },
+    { label: "300px", value: "300px" },
+    { label: "Default", value: "400px" },
+    { label: "600px", value: "600px" },
+    { label: "800px", value: "800px" },
     { label: "Unlimited", value: "none" },
 ] as const;
 

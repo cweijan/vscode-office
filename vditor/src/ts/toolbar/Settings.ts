@@ -115,14 +115,12 @@ export class Settings extends MenuItem {
         floatingMenu.hidden = true;
         document.body.appendChild(floatingMenu);
 
-        let activeDropdownKey = "";
         let activeTrigger: HTMLElement | null = null;
 
         const closeFloatingMenu = () => {
             floatingMenu.hidden = true;
             activeTrigger?.classList.remove(`${SETTINGS_PANEL_CLASS}__dropdown-trigger--open`);
             activeTrigger = null;
-            activeDropdownKey = "";
         };
 
         const openFloatingMenu = (trigger: HTMLElement, key: string) => {
@@ -140,14 +138,16 @@ export class Settings extends MenuItem {
             floatingMenu.style.left = `${rect.left}px`;
             floatingMenu.style.minWidth = `${rect.width}px`;
 
-            activeDropdownKey = key;
             activeTrigger = trigger;
             trigger.classList.add(`${SETTINGS_PANEL_CLASS}__dropdown-trigger--open`);
         };
 
         // Close floating menu on outside click
         const onDocumentClick = (e: MouseEvent) => {
-            if (!floatingMenu.hidden && !floatingMenu.contains(e.target as Node) && e.target !== activeTrigger) {
+            const target = e.target as Node;
+            if (!floatingMenu.hidden
+                && !floatingMenu.contains(target)
+                && !activeTrigger?.contains(target)) {
                 closeFloatingMenu();
             }
         };
@@ -249,7 +249,8 @@ export class Settings extends MenuItem {
             const dropdownTrigger = event.target.closest(`[data-dropdown-trigger]`) as HTMLElement | null;
             if (dropdownTrigger) {
                 const key = dropdownTrigger.getAttribute("data-dropdown-key") || "";
-                if (activeDropdownKey === key) {
+                const isSameDropdownOpen = activeTrigger === dropdownTrigger && !floatingMenu.hidden;
+                if (isSameDropdownOpen) {
                     closeFloatingMenu();
                 } else {
                     closeFloatingMenu();

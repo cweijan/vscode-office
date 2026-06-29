@@ -1,5 +1,5 @@
 window.VditorI18n = {
-  'codeBlockHeight': 'Высота блока кода',
+  'codeBlockHeight': 'Максимальная высота',
   'expandCode': 'Развернуть',
   'collapseCode': 'Свернуть',
   'alignCenter': 'Выровнять по центру',

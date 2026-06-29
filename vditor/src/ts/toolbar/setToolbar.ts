@@ -6,6 +6,17 @@ import {
     registerPopoverOutsideDismiss,
 } from "../ui/chromePopoverDismiss";
 import {getEventName} from "../util/compatibility";
+import {
+    bindSettingsHintPosition,
+    isSettingsHintPanel,
+} from "../ui/settingsHintPosition";
+
+let settingsHintPositionCleanup: (() => void) | undefined;
+
+const clearSettingsHintPosition = () => {
+    settingsHintPositionCleanup?.();
+    settingsHintPositionCleanup = undefined;
+};
 
 const hasOpenToolbarSubPanel = (vditor: IVditor) => {
     for (const panel of vditor.toolbar.element.querySelectorAll(".vditor-hint")) {
@@ -119,6 +130,7 @@ export const hidePanel = (vditor: IVditor, panels: string[], exceptElement?: HTM
             }
             item.style.display = "none";
         });
+        clearSettingsHintPosition();
     }
     if (panels.includes("hint")) {
         vditor.hint.element.style.display = "none";
@@ -140,13 +152,21 @@ export const toggleSubMenu = (vditor: IVditor, panelElement: HTMLElement, action
         });
         if (panelElement.style.display === "block") {
             panelElement.style.display = "none";
+            clearSettingsHintPosition();
         } else {
             hidePanel(vditor, ["subToolbar", "hint", "popover"], actionBtn.parentElement.parentElement);
             if (!actionBtn.classList.contains("vditor-tooltipped")) {
                 actionBtn.classList.add("vditor-hint--current");
             }
             panelElement.style.display = "block";
-            if (vditor.toolbar.element.getBoundingClientRect().right - actionBtn.getBoundingClientRect().right < 250) {
+            if (isSettingsHintPanel(panelElement)) {
+                panelElement.classList.remove("vditor-panel--left");
+                clearSettingsHintPosition();
+                settingsHintPositionCleanup = bindSettingsHintPosition(
+                    panelElement,
+                    actionBtn as HTMLElement,
+                );
+            } else if (vditor.toolbar.element.getBoundingClientRect().right - actionBtn.getBoundingClientRect().right < 250) {
                 panelElement.classList.add("vditor-panel--left");
             } else {
                 panelElement.classList.remove("vditor-panel--left");
