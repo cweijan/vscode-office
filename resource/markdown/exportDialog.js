@@ -132,7 +132,13 @@ const applyWebFormatOptions = (overlay) => {
     }
 }
 
-const resolveInitialFormat = (prefs) => {
+const resolveInitialFormat = (prefs, presetFormat) => {
+    if (presetFormat) {
+        if (isWebExport() && (presetFormat === 'pdf' || presetFormat === 'docx')) {
+            return 'html'
+        }
+        return presetFormat
+    }
     if (isWebExport()) {
         if (prefs.type === 'pdf' || prefs.type === 'docx') {
             return 'html'
@@ -168,9 +174,10 @@ const matchFontFamilyValue = (value) => {
 
 /**
  * @param {object | null | undefined} editor
+ * @param {{ initialFormat?: string }} [options]
  * @returns {Promise<{ type: string, withoutOutline?: boolean, printBackground?: boolean, format?: string, proSettings?: object } | null>}
  */
-export const openExportDialog = (editor) => {
+export const openExportDialog = (editor, options = {}) => {
     const overlay = document.getElementById('export-dialog')
     if (!overlay) return Promise.resolve(null)
 
@@ -189,7 +196,7 @@ export const openExportDialog = (editor) => {
     populateFontSizeSelect(fontSizeSelect)
     applyWebFormatOptions(overlay)
 
-    const initialType = resolveInitialFormat(prefs)
+    const initialType = resolveInitialFormat(prefs, options.initialFormat)
     setFormat(overlay, initialType)
     setToggle(outlineInput, prefs.withOutline)
     setToggle(themeInput, isProUser() ? prefs.useTheme : false)

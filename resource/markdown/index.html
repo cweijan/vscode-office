@@ -65,11 +65,25 @@
         </div>
         <div class="vditor-context-menu__separator" role="separator"></div>
         <div class="vditor-context-menu__group" role="group">
-            <button class="vditor-context-menu__item" type="button" data-action="export" role="menuitem">
+            <button class="vditor-context-menu__item vditor-context-menu__item--desktop-only" type="button"
+                data-action="exportPdf" role="menuitem">
                 <span class="vditor-context-menu__icon" aria-hidden="true">
-                    <span class="codicon codicon-arrow-down"></span>
+                    <span class="codicon codicon-file-pdf"></span>
                 </span>
-                <span class="vditor-context-menu__label">Export</span>
+                <span class="vditor-context-menu__label">Export PDF</span>
+            </button>
+            <button class="vditor-context-menu__item vditor-context-menu__item--desktop-only" type="button"
+                data-action="exportDocx" role="menuitem">
+                <span class="vditor-context-menu__icon" aria-hidden="true">
+                    <span class="codicon codicon-file-text"></span>
+                </span>
+                <span class="vditor-context-menu__label">Export Docx</span>
+            </button>
+            <button class="vditor-context-menu__item" type="button" data-action="exportHtml" role="menuitem">
+                <span class="vditor-context-menu__icon" aria-hidden="true">
+                    <span class="codicon codicon-code"></span>
+                </span>
+                <span class="vditor-context-menu__label">Export HTML</span>
             </button>
         </div>
         <div class="vditor-context-menu__separator" role="separator"></div>

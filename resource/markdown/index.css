@@ -135,8 +135,8 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     color: var(--ctx-icon-paste);
 }
 
-.vditor-context-menu__item[data-action="export"] .codicon {
-    color: var(--vscode-textLink-foreground, #3794ff);
+.vditor-context-menu__item[data-action="exportPdf"] .codicon {
+    color: var(--ctx-icon-pdf);
 }
 
 .vditor-context-menu__item[data-action="exportDocx"] .codicon {

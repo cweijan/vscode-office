@@ -221,9 +221,12 @@ export const openToolbarExport = (editor) => {
     openExportForEditor(editor, 'toolbar')
 }
 
-const openExportForEditor = (editor, source) => {
-    handler.emit('telemetry', { event: 'markdown.exportDialog', properties: { source } })
-    openExportDialog(editor).then(options => {
+const openExportForEditor = (editor, source, initialFormat) => {
+    handler.emit('telemetry', {
+        event: 'markdown.exportDialog',
+        properties: { source, format: initialFormat },
+    })
+    openExportDialog(editor, { initialFormat }).then(options => {
         if (!options) return
         emitExport(editor, options)
     })
@@ -300,8 +303,14 @@ export const createContextMenu = (editor) => {
                 if (document.getSelection()?.toString()) { document.execCommand('delete') }
                 vscodeEvent.emit('command', 'office.markdown.paste')
                 break
-            case 'export':
-                openExportForEditor(editor, 'contextMenu')
+            case 'exportPdf':
+                openExportForEditor(editor, 'contextMenu', 'pdf')
+                break
+            case 'exportDocx':
+                openExportForEditor(editor, 'contextMenu', 'docx')
+                break
+            case 'exportHtml':
+                openExportForEditor(editor, 'contextMenu', 'html')
                 break
             case 'showInFolder':
                 vscodeEvent.emit('showInFolder')
