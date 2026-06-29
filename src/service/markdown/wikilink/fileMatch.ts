@@ -1,4 +1,5 @@
 import { basename, extname } from 'path';
+import * as vscode from 'vscode';
 import { MARKDOWN_EXTENSIONS } from './constants';
 import { normalizePage } from './parse';
 
@@ -30,6 +31,25 @@ export function pickBestPath(paths: string[], page: string): string | null {
         }
         if (fullPath.length < bestLength) {
             best = fullPath;
+            bestLength = fullPath.length;
+        }
+    }
+
+    return best;
+}
+
+/** 多个命中时取路径最短（最接近笔记库根），保留原始 URI scheme（Remote SSH 等） */
+export function pickBestUri(uris: vscode.Uri[], page: string): vscode.Uri | null {
+    let best: vscode.Uri | null = null;
+    let bestLength = Number.MAX_SAFE_INTEGER;
+
+    for (const uri of uris) {
+        const fullPath = uri.fsPath;
+        if (!matchesWikiPage(fullPath, page)) {
+            continue;
+        }
+        if (fullPath.length < bestLength) {
+            best = uri;
             bestLength = fullPath.length;
         }
     }

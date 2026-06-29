@@ -485,7 +485,7 @@
     align-items: center;
     gap: 4px;
     font-size: 11px;
-    color: color-mix(in srgb, var(--toolbar-icon-color) 60%, transparent);
+    color: var(--textarea-text-color, var(--toolbar-icon-color));
     background: color-mix(in srgb, var(--toolbar-icon-color) 7%, transparent);
     border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 12%, transparent);
     border-radius: 5px;
@@ -494,36 +494,43 @@
     padding: 5px 12px;
     cursor: pointer;
     transition: color 0.1s ease, background 0.1s ease, border-color 0.1s ease;
+
+    > span:not(.codicon) {
+      color: var(--textarea-text-color, var(--toolbar-icon-color));
+    }
+
     .codicon {
       font-size: 12px;
       transition: color 0.1s ease;
     }
 
-    &--edit .codicon {
-      color: color-mix(in srgb, var(--settings-accent) 80%, transparent);
-    }
-
-    &--edit:hover {
-      color: var(--settings-accent);
-      background: color-mix(in srgb, var(--settings-accent) 10%, transparent);
-      border-color: color-mix(in srgb, var(--settings-accent) 25%, transparent);
-
+    &--edit {
       .codicon {
-        color: var(--settings-accent);
+        color: color-mix(in srgb, var(--settings-accent) 80%, transparent);
+      }
+
+      &:hover {
+        background: color-mix(in srgb, var(--settings-accent) 10%, transparent);
+        border-color: color-mix(in srgb, var(--settings-accent) 25%, transparent);
+
+        .codicon {
+          color: var(--settings-accent);
+        }
       }
     }
 
-    &--reset .codicon {
-      color: color-mix(in srgb, var(--error-color, #cf222e) 75%, transparent);
-    }
-
-    &--reset:hover {
-      color: var(--error-color, #cf222e);
-      background: color-mix(in srgb, var(--error-color, #cf222e) 10%, transparent);
-      border-color: color-mix(in srgb, var(--error-color, #cf222e) 25%, transparent);
-
+    &--reset {
       .codicon {
-        color: var(--error-color, #cf222e);
+        color: color-mix(in srgb, var(--error-color, #cf222e) 75%, transparent);
+      }
+
+      &:hover {
+        background: color-mix(in srgb, var(--error-color, #cf222e) 10%, transparent);
+        border-color: color-mix(in srgb, var(--error-color, #cf222e) 25%, transparent);
+
+        .codicon {
+          color: var(--error-color, #cf222e);
+        }
       }
     }
   }

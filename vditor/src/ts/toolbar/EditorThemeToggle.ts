@@ -1,5 +1,5 @@
-import {EDITOR_THEME_TOGGLE_NAMES} from "../ui/editorThemeCatalog";
 import {registerThemeToggleCallback} from "../ui/editorThemeToggle";
+import {resolveEditorTheme} from "../ui/setEditorTheme";
 import {setEditorTheme} from "../ui/setEditorTheme";
 import {getEventName} from "../util/compatibility";
 import {MenuItem} from "./MenuItem";
@@ -17,10 +17,9 @@ export class EditorThemeToggle extends MenuItem {
         btn.addEventListener(getEventName(), (event) => {
             event.preventDefault();
             const theme = btn.dataset.theme || "Auto";
-            if (!EDITOR_THEME_TOGGLE_NAMES.includes(theme)) {
-                return;
-            }
-            const nextTheme = theme === "Light" ? "Auto" : "Light";
+            const nextTheme = theme === "Auto"
+                ? resolveEditorTheme(vditor.options.lastNonAutoEditorTheme || "Light")
+                : "Auto";
             setEditorTheme(vditor, nextTheme, true, "toggle");
         });
 
@@ -28,25 +27,13 @@ export class EditorThemeToggle extends MenuItem {
     }
 
     private update(btn: HTMLElement, theme: string) {
-        const supported = EDITOR_THEME_TOGGLE_NAMES.includes(theme);
         btn.dataset.theme = theme;
-
-        if (!supported) {
-            btn.innerHTML = SUN_ICON;
-            btn.setAttribute("disabled", "disabled");
-            btn.classList.add("vditor-menu--disabled");
-            const title = theme;
-            btn.setAttribute("aria-label", title);
-            return;
-        }
-
-        btn.removeAttribute("disabled");
-        btn.classList.remove("vditor-menu--disabled");
-        const isLight = theme === "Light";
-        btn.innerHTML = isLight ? MOON_ICON : SUN_ICON;
-        const title = isLight
-            ? (window.VditorI18n?.["editor-theme-toggle-to-auto"] || "Switch to Auto")
-            : (window.VditorI18n?.["editor-theme-toggle-to-light"] || "Switch to Light");
+        const isAuto = theme === "Auto";
+        btn.innerHTML = isAuto ? SUN_ICON : MOON_ICON;
+        const title = isAuto
+            ? (window.VditorI18n?.["editor-theme-toggle-to-light"] || "Switch to Light")
+            : (window.VditorI18n?.["editor-theme-toggle-to-auto"] || "Switch to Auto");
         btn.setAttribute("aria-label", title);
+        btn.setAttribute("title", title);
     }
 }

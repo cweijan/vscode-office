@@ -3,7 +3,7 @@ import { basename, join, parse } from 'path';
 import { Handler } from "@/common/handler";
 import { isUriReadOnly } from '@/common/fileReadOnly';
 import { Uri, workspace } from 'vscode';
-import { emitFileOfficeOpen, emitVirtualOfficeOpen, isVirtualUri } from '@/provider/handlers/officeContent';
+import { emitOfficeOpen } from '@/provider/handlers/officeContent';
 import { TelemetryService } from '@/service/telemetryService';
 
 const fileSaveTimes: Record<string, number> = {};
@@ -38,11 +38,7 @@ export function handleCommonEvent(uri: Uri, handler: Handler, options?: { skipOp
             return;
         }
         readOnly = await isUriReadOnly(uri);
-        if (isVirtualUri(uri)) {
-            void emitVirtualOfficeOpen(handler, uri);
-            return;
-        }
-        await emitFileOfficeOpen(handler, uri, handler.panel.webview);
+        await emitOfficeOpen(handler, uri);
     }
     const events = handler
         .on("editInVSCode", (full: boolean) => {

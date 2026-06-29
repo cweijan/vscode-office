@@ -97,6 +97,8 @@ html[data-editor-theme="Auto"],
 }
 
 #vditor[data-editor-theme="Auto"].vditor--dark {
+    --bold-color: color-mix(in srgb, var(--link-color) 50%, var(--front-color));
+
     /* IR Syntax */
     --ir-heading-color: var(--vscode-symbolIcon-keywordForeground, #c586c0);
     --ir-title-color: var(--vscode-descriptionForeground);

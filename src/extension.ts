@@ -16,9 +16,11 @@ import { activateYaml } from './provider/yaml';
 import { activateXml } from './provider/xml';
 import { activateGitHistory } from './gitHistory/provider';
 import { IconService } from './service/icon/iconService';
+import { autoClearCacheStorage } from './service/autoClearCacheStorage';
 
 export async function activate(context: vscode.ExtensionContext) {
 	await Global.init(context);
+	autoClearCacheStorage(context);
 	TelemetryService.init(context);
 	await IconService.getInstance().init(context);
 	activateHttp(context);
@@ -38,7 +40,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('office.csv.switch', (uri) => { switchCsvEditor(uri) }),
 		vscode.commands.registerCommand('office.markdown.paste', () => { markdownService.loadClipboardImage() }),
 		vscode.commands.registerCommand('office.html.preview', uri => HtmlService.previewHtml(uri, context)),
-		vscode.workspace.registerTextDocumentContentProvider('decompile_java', new JavaDecompilerProvider()),
+		vscode.workspace.registerTextDocumentContentProvider('decompile_java', new JavaDecompilerProvider(context)),
 		vscode.window.registerCustomEditorProvider("cweijan.markdownViewer", markdownEditorProvider, viewOption),
 		vscode.window.registerCustomEditorProvider("cweijan.markdownPreview", markdownEditorProvider, viewOption),
 		archiveViewerInstance.bindCustomEditor(viewOption),

@@ -8,6 +8,11 @@ import {resolveMermaidTheme} from "./setMermaidTheme";
 import {updateEditorThemeToggle} from "./editorThemeToggle";
 import {initMobileOutlineMenu, prepareEditorThemeMobileOutline} from "./mobileOutlineMenu";
 import {telemetry} from "../util/telemetry";
+import {
+    getGlobalLocalStorageSetting,
+    LAST_NON_AUTO_EDITOR_THEME_KEY,
+    setGlobalLocalStorageSetting,
+} from "../util/globalLocalStorageSettings";
 
 const LEGACY_THEME_LINK_ID = "vditor-editor-theme-css";
 
@@ -65,6 +70,10 @@ export const setEditorTheme = (
         return;
     }
     const previous = resolveEditorTheme(vditor.options.editorTheme);
+    if (resolved !== "Auto") {
+        vditor.options.lastNonAutoEditorTheme = resolved;
+        setGlobalLocalStorageSetting(LAST_NON_AUTO_EDITOR_THEME_KEY, resolved);
+    }
 
     applyEditorThemeAttribute(vditor, resolved);
     vditor.options.editorTheme = resolved;
@@ -89,6 +98,10 @@ export const setEditorTheme = (
 };
 
 export const initEditorTheme = (vditor: IVditor) => {
+    const storedLastTheme = resolveEditorTheme(
+        getGlobalLocalStorageSetting<string>(LAST_NON_AUTO_EDITOR_THEME_KEY, "Light") ?? "Light",
+    );
+    vditor.options.lastNonAutoEditorTheme = storedLastTheme === "Auto" ? "Light" : storedLastTheme;
     const theme = resolveEditorTheme(vditor.options.editorTheme);
     setEditorTheme(vditor, theme, false);
     initMobileOutlineMenu(vditor);

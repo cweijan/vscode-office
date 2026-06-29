@@ -1,11 +1,12 @@
 import type { MouseEvent } from 'react';
 import { MoonOutlined, SunOutlined } from '@ant-design/icons';
+import ToolbarTooltip from './ToolbarTooltip';
 
 interface CodiconButtonProps {
     icon: string;
     title?: string;
     className?: string;
-    variant?: 'fetch' | 'push' | 'remote' | 'sync';
+    variant?: 'fetch' | 'pull' | 'push' | 'remote' | 'sync';
     onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
     disabled?: boolean;
 }
@@ -13,21 +14,25 @@ interface CodiconButtonProps {
 function CodiconButton({ icon, title, className, variant, onClick, disabled }: CodiconButtonProps) {
     const variantClass = variant ? ` git-graph-toolbar-btn-${variant}` : '';
     return (
-        <button
-            type="button"
-            className={`git-graph-icon-btn${variantClass}${className ? ` ${className}` : ''}`}
-            title={title}
-            aria-label={title}
-            onClick={onClick}
-            disabled={disabled}
-        >
-            <span className={`codicon codicon-${icon}`} aria-hidden />
-        </button>
+        <ToolbarTooltip content={title}>
+            <button
+                type="button"
+                className={`git-graph-icon-btn${variantClass}${className ? ` ${className}` : ''}`}
+                onClick={onClick}
+                disabled={disabled}
+            >
+                <span className={`codicon codicon-${icon}`} aria-hidden />
+            </button>
+        </ToolbarTooltip>
     );
 }
 
 export function FetchIcon(props: Omit<CodiconButtonProps, 'icon' | 'variant'>) {
     return <CodiconButton icon="repo-fetch" variant="fetch" {...props} />;
+}
+
+export function PullIcon(props: Omit<CodiconButtonProps, 'icon' | 'variant'>) {
+    return <CodiconButton icon="repo-pull" variant="pull" {...props} />;
 }
 
 export function PushIcon(props: Omit<CodiconButtonProps, 'icon' | 'variant'>) {
@@ -65,15 +70,16 @@ export function ThemeToggleIcon({
     adaptive: boolean;
     onClick: () => void;
 }) {
+    const label = adaptive ? '切换亮色' : '切换暗色（跟随 VS Code 主题）';
     return (
-        <button
-            type="button"
-            className="git-graph-icon-btn git-graph-theme-toggle"
-            title={adaptive ? '切换亮色' : '切换暗色（跟随 VS Code 主题）'}
-            aria-label={adaptive ? 'Switch to light mode' : 'Switch to adaptive dark mode'}
-            onClick={onClick}
-        >
-            {adaptive ? <SunOutlined /> : <MoonOutlined />}
-        </button>
+        <ToolbarTooltip content={label}>
+            <button
+                type="button"
+                className="git-graph-icon-btn git-graph-theme-toggle"
+                onClick={onClick}
+            >
+                {adaptive ? <SunOutlined /> : <MoonOutlined />}
+            </button>
+        </ToolbarTooltip>
     );
 }

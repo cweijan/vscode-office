@@ -27,6 +27,34 @@ import {
 
 const CHROME_CLASS = "vditor-cm-chrome";
 const LANG_SEARCH_CLASS = "vditor-cm-chrome__lang-search";
+const EXPANDED_CLASS = "vditor-cm-host--expanded";
+const HAS_OVERFLOW_CLASS = "vditor-cm-host--has-overflow";
+const OVERFLOW_THRESHOLD = 16;
+
+const parseMaxHeightPx = (value: string): number => {
+    if (!value || value === "none") {
+        return Number.POSITIVE_INFINITY;
+    }
+    const px = Number.parseFloat(value);
+    return Number.isFinite(px) ? px : Number.POSITIVE_INFINITY;
+};
+
+const isCodeBlockOverflowing = (host: HTMLElement): boolean => {
+    const scroller = host.querySelector(".cm-scroller") as HTMLElement | null;
+    if (!scroller) {
+        return false;
+    }
+    const maxHeight = parseMaxHeightPx(getComputedStyle(scroller).maxHeight);
+    if (!Number.isFinite(maxHeight)) {
+        return false;
+    }
+    const content = host.querySelector(".cm-content") as HTMLElement | null;
+    const contentHeight = content?.scrollHeight ?? scroller.scrollHeight;
+    if (contentHeight > maxHeight + OVERFLOW_THRESHOLD) {
+        return true;
+    }
+    return scroller.scrollHeight - scroller.clientHeight > OVERFLOW_THRESHOLD;
+};
 
 export const isInsideCodeBlockChrome = (target: EventTarget | Node | null) => {
     if (!target) {
@@ -50,7 +78,6 @@ interface ICodeBlockChrome {
     langPanel: HTMLElement;
     langSearch: HTMLInputElement;
     langList: HTMLElement;
-    langChevron: HTMLElement;
     themeWrap?: HTMLElement;
     themeTrigger?: HTMLButtonElement;
     themePanel?: HTMLElement;
@@ -58,6 +85,8 @@ interface ICodeBlockChrome {
     langReadonly: boolean;
     performCopy: () => Promise<boolean>;
     langActiveIndex: number;
+    expandBtn: HTMLButtonElement;
+    resizeObserver?: ResizeObserver;
 }
 
 const chromeMap = new WeakMap<HTMLElement, ICodeBlockChrome>();
@@ -164,17 +193,11 @@ const bindChromeEventIsolation = (root: HTMLElement) => {
     }
 };
 
-const updateLangChevron = (chevron: HTMLElement, open: boolean) => {
-    chevron.classList.remove("codicon-chevron-up", "codicon-chevron-down");
-    chevron.classList.add(open ? "codicon-chevron-down" : "codicon-chevron-up");
-};
-
 const closeLangPanel = () => {
     if (!openLangChrome) {
         return;
     }
     openLangChrome.langSearch.blur();
-    updateLangChevron(openLangChrome.langChevron, false);
     openLangChrome.langWrap.classList.remove("vditor-cm-chrome__lang--open");
     openLangChrome.langWrap.classList.remove("vditor-cm-chrome__lang--focused");
     openLangChrome.langActiveIndex = -1;
@@ -293,7 +316,6 @@ const setLangPanelOpen = (chrome: ICodeBlockChrome, open: boolean) => {
             closeLangPanel();
         }
         chrome.langWrap.classList.add("vditor-cm-chrome__lang--open");
-        updateLangChevron(chrome.langChevron, true);
         openLangChrome = chrome;
         chrome.langSearch.value = "";
         chrome.langActiveIndex = -1;
@@ -471,11 +493,8 @@ const createChromeRoot = (editable: boolean) => {
         "aria-label",
         (window.VditorI18n.language || "Language") + "<" + updateHotkeyTip("⌥Enter") + ">",
     );
-    langTrigger.innerHTML =
-        `<span class="vditor-cm-chrome__lang-label"></span>` +
-        `<span class="vditor-cm-chrome__lang-chevron">${codicon("chevron-up")}</span>`;
+    langTrigger.innerHTML = `<span class="vditor-cm-chrome__lang-label"></span>`;
     langWrap.appendChild(langTrigger);
-    const langChevron = langTrigger.querySelector(".vditor-cm-chrome__lang-chevron .codicon") as HTMLElement;
 
     const langPanel = document.createElement("div");
     langPanel.className = "vditor-cm-chrome__lang-panel";
@@ -525,12 +544,20 @@ const createChromeRoot = (editable: boolean) => {
         actions.appendChild(deleteBtn);
     }
 
+    const expandBtn = document.createElement("button");
+    expandBtn.type = "button";
+    expandBtn.className = "vditor-cm-chrome__expand";
+    expandBtn.setAttribute("aria-label", window.VditorI18n.expandCode || "Expand");
+    expandBtn.setAttribute("aria-expanded", "false");
+    expandBtn.innerHTML = `<span class="vditor-cm-chrome__expand-icon">${codicon("chevron-down")}</span>`;
+
     const copyBtn = document.createElement("button");
     copyBtn.type = "button";
     copyBtn.className = "vditor-cm-chrome__copy";
     copyBtn.setAttribute("aria-label", window.VditorI18n.copy || "Copy");
     copyBtn.innerHTML = `<span class="vditor-cm-chrome__copy-icon">${codicon("copy")}</span>`;
     actions.appendChild(copyBtn);
+    actions.appendChild(expandBtn);
 
     toolbar.appendChild(langWrap);
     toolbar.appendChild(actions);
@@ -546,17 +573,69 @@ const createChromeRoot = (editable: boolean) => {
         toolbar,
         deleteBtn,
         copyBtn,
+        expandBtn,
         langWrap,
         langTrigger,
         langLabel: langTrigger.querySelector(".vditor-cm-chrome__lang-label") as HTMLElement,
         langPanel,
         langSearch,
         langList,
-        langChevron,
         themeWrap,
         themeTrigger,
         themePanel,
     };
+};
+
+const updateExpandButton = (chrome: ICodeBlockChrome, host: HTMLElement) => {
+    const expanded = host.classList.contains(EXPANDED_CLASS);
+    chrome.expandBtn.setAttribute(
+        "aria-label",
+        expanded ? (window.VditorI18n.collapseCode || "Collapse") : (window.VditorI18n.expandCode || "Expand"),
+    );
+    chrome.expandBtn.setAttribute("aria-expanded", String(expanded));
+    const icon = chrome.expandBtn.querySelector(".vditor-cm-chrome__expand-icon .codicon") as HTMLElement | null;
+    if (icon) {
+        icon.classList.toggle("codicon-chevron-down", !expanded);
+        icon.classList.toggle("codicon-chevron-up", expanded);
+    }
+};
+
+const recomputeExpandState = (chrome: ICodeBlockChrome, host: HTMLElement) => {
+    const expanded = host.classList.contains(EXPANDED_CLASS);
+    const overflowing = isCodeBlockOverflowing(host);
+    const showExpand = expanded || overflowing;
+    host.classList.toggle(HAS_OVERFLOW_CLASS, showExpand);
+    chrome.expandBtn.hidden = !showExpand;
+    updateExpandButton(chrome, host);
+};
+
+const setupExpandToggle = (chrome: ICodeBlockChrome, host: HTMLElement) => {
+    const btn = chrome.expandBtn;
+    if (btn.dataset.expandBound !== "true") {
+        btn.dataset.expandBound = "true";
+        btn.addEventListener("mousedown", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+        });
+        btn.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            host.classList.toggle(EXPANDED_CLASS);
+            recomputeExpandState(chrome, host);
+        });
+        const content = host.querySelector(".cm-content");
+        const scroller = host.querySelector(".cm-scroller");
+        if (typeof ResizeObserver !== "undefined") {
+            chrome.resizeObserver = new ResizeObserver(() => recomputeExpandState(chrome, host));
+            if (content) {
+                chrome.resizeObserver.observe(content);
+            }
+            if (scroller) {
+                chrome.resizeObserver.observe(scroller);
+            }
+        }
+    }
+    recomputeExpandState(chrome, host);
 };
 
 export const ensurePreviewCodeBlockChrome = (
@@ -568,6 +647,7 @@ export const ensurePreviewCodeBlockChrome = (
         const chrome = chromeMap.get(host)!;
         chrome.performCopy = performCopy;
         updateCodeBlockChromeLanguage(host, languageName);
+        recomputeExpandState(chrome, host);
         return;
     }
 
@@ -582,6 +662,7 @@ export const ensurePreviewCodeBlockChrome = (
     chromeMap.set(host, chrome);
     host.insertBefore(chrome.root, host.firstChild);
     bindCopyButton(chrome.copyBtn, () => chrome.performCopy());
+    setupExpandToggle(chrome, host);
     updateCodeBlockChromeLanguage(host, languageName);
 };
 
@@ -664,6 +745,7 @@ export const ensureCodeBlockChrome = (
             });
             bindThemePanel(vditor, chrome);
         }
+        setupExpandToggle(chrome, host);
     }
 
     chrome.performCopy = options.performCopy;
@@ -673,6 +755,7 @@ export const ensureCodeBlockChrome = (
     const codeElement = blockElement.querySelector("pre code") as HTMLElement;
     const languageName = isMathBlockElement(blockElement) ? "math" : (codeElement ? getCodeLanguageName(codeElement) : "");
     updateCodeBlockChromeLanguage(blockElement, languageName);
+    recomputeExpandState(chrome, host);
 };
 
 export const removeCodeBlockChrome = (target: HTMLElement) => {
@@ -686,6 +769,7 @@ export const removeCodeBlockChrome = (target: HTMLElement) => {
     if (openThemeChrome === chrome) {
         closeThemePanel();
     }
+    chrome.resizeObserver?.disconnect();
     chrome.root.remove();
     chromeMap.delete(target);
 };

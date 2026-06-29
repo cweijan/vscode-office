@@ -36,7 +36,7 @@ export class Headings extends MenuItem {
             }
             actionBtn.blur();
             if (actionBtn.classList.contains("vditor-menu--current")) {
-                telemetryToolbar(vditor, "headings", { op: "remove" });
+                telemetryToolbar(vditor, "headings.remove");
                 if (vditor.currentMode === "wysiwyg") {
                     removeHeading(vditor);
                     afterRenderEvent(vditor);
@@ -45,7 +45,7 @@ export class Headings extends MenuItem {
                 }
                 actionBtn.classList.remove("vditor-menu--current");
             } else {
-                telemetryToolbar(vditor, "headings", { op: "open" });
+                telemetryToolbar(vditor, "headings.open");
                 hidePanel(vditor, ["subToolbar"]);
                 panelElement.style.display = "block";
             }
@@ -55,7 +55,7 @@ export class Headings extends MenuItem {
             panelElement.children.item(i).addEventListener(getEventName(), (event: Event) => {
                 event.preventDefault();
                 const tag = (event.target as HTMLElement).getAttribute("data-tag") || "";
-                telemetryToolbar(vditor, "headings", { level: tag });
+                telemetryToolbar(vditor, "headings.set", { level: tag });
                 if (vditor.currentMode === "wysiwyg") {
                     setHeading(vditor, tag);
                     afterRenderEvent(vditor);

@@ -1,5 +1,6 @@
 export interface OfficeOpenPayload {
     path?: string;
+    fileName?: string;
     buffer?: number[];
     error?: string;
 }
@@ -19,15 +20,5 @@ export function arrayBufferFromPayload(payload: OfficeOpenPayload): ArrayBuffer 
 }
 
 export async function loadOfficeBuffer(payload: OfficeOpenPayload): Promise<ArrayBuffer> {
-    if (payload.buffer) {
-        return arrayBufferFromPayload(payload);
-    }
-    if (!payload.path) {
-        throw new Error(payload.error ?? 'No file path');
-    }
-    const response = await fetch(payload.path);
-    if (!response.ok) {
-        throw new Error(`Failed to fetch (${response.status})`);
-    }
-    return response.arrayBuffer();
+    return arrayBufferFromPayload(payload);
 }

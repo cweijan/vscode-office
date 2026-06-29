@@ -45,6 +45,8 @@ Shortcuts: Based on [shortcut.md](shortcut.md), plus:
 - Move list down: `Ctrl Alt J` / `⌘ ^ J`
 - Edit in VS Code: `Ctrl Alt E` / `⌘ ^ E`
 
+Long code blocks are capped (default 400px) with an **expand/collapse** button to view them in full. Change the default height via the editor toolbar's ⚙ Settings → *Code block height* (down to compact, up to unlimited).
+
 ## Other features
 
 - HTML: live preview while editing; press `Ctrl+Shift+V` to open the live view

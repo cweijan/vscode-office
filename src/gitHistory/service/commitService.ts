@@ -710,7 +710,15 @@ function generateFileChanges(
     const fileLookup: Record<string, number> = {};
 
     for (const record of nameStatus) {
-        fileLookup[record.newFilePath] = fileChanges.length;
+        const idx = fileChanges.length;
+        fileLookup[record.newFilePath] = idx;
+        if (record.type === 'R') {
+            fileLookup[record.oldFilePath] = idx;
+            fileLookup[`${record.oldFilePath} => ${record.newFilePath}`] = idx;
+            for (const alias of buildRenamePathAliases(record.oldFilePath, record.newFilePath)) {
+                fileLookup[alias] = idx;
+            }
+        }
         fileChanges.push({
             oldFilePath: record.oldFilePath,
             newFilePath: record.newFilePath,
@@ -732,4 +740,40 @@ function generateFileChanges(
     }
 
     return fileChanges;
+}
+
+function buildRenamePathAliases(oldFilePath: string, newFilePath: string): string[] {
+    const aliases: string[] = [];
+    const oldParts = oldFilePath.split('/');
+    const newParts = newFilePath.split('/');
+    let prefixLength = 0;
+    while (
+        prefixLength < oldParts.length
+        && prefixLength < newParts.length
+        && oldParts[prefixLength] === newParts[prefixLength]
+    ) {
+        prefixLength++;
+    }
+
+    let suffixLength = 0;
+    while (
+        suffixLength < oldParts.length - prefixLength
+        && suffixLength < newParts.length - prefixLength
+        && oldParts[oldParts.length - 1 - suffixLength] === newParts[newParts.length - 1 - suffixLength]
+    ) {
+        suffixLength++;
+    }
+
+    const prefix = oldParts.slice(0, prefixLength).join('/');
+    const suffix = suffixLength > 0 ? oldParts.slice(oldParts.length - suffixLength).join('/') : '';
+    const oldMiddle = oldParts.slice(prefixLength, oldParts.length - suffixLength).join('/');
+    const newMiddle = newParts.slice(prefixLength, newParts.length - suffixLength).join('/');
+    if (oldMiddle && newMiddle) {
+        aliases.push([
+            prefix,
+            `{${oldMiddle} => ${newMiddle}}`,
+            suffix,
+        ].filter(Boolean).join('/'));
+    }
+    return aliases;
 }

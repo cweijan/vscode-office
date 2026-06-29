@@ -7,7 +7,9 @@
 
   pre.vditor-reset {
     // 首块与编辑器顶部保持间距（标题除外，沿用全局 24px）
-    > :first-child {
+    // boundary 哨兵不占空间但可能是 first-child，需用相邻兄弟选择器兜底
+    > :first-child:not(.vditor-editor-boundary),
+    > .vditor-editor-boundary:first-child + * {
       margin-top: 18px;
     }
 
@@ -16,7 +18,13 @@
     > h3:first-child,
     > h4:first-child,
     > h5:first-child,
-    > h6:first-child {
+    > h6:first-child,
+    > .vditor-editor-boundary:first-child + h1,
+    > .vditor-editor-boundary:first-child + h2,
+    > .vditor-editor-boundary:first-child + h3,
+    > .vditor-editor-boundary:first-child + h4,
+    > .vditor-editor-boundary:first-child + h5,
+    > .vditor-editor-boundary:first-child + h6 {
       margin-top: 24px;
     }
   }
