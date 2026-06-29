@@ -1,79 +1,181 @@
 @import '../common/viewerTheme.css';
 
+/* ── Shell ───────────────────────────────────────────── */
 .pro-page {
-    min-height: 100vh;
+    height: 100vh;
     width: 100%;
-    padding: 32px 24px 64px;
-    background: var(--viewer-bg);
-    color: var(--viewer-fg);
+    display: flex;
+    flex-direction: column;
     box-sizing: border-box;
+    color: var(--viewer-fg);
     font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--vscode-scrollbarSlider-background) transparent;
+
+    /* Subtle radial glow at top */
+    background:
+        radial-gradient(ellipse 70% 35% at 50% 0%,
+            color-mix(in srgb, var(--vscode-textLink-foreground, #6c63ff) 12%, transparent),
+            transparent),
+        var(--viewer-bg);
+}
+.pro-page::-webkit-scrollbar { width: 10px; }
+.pro-page::-webkit-scrollbar-track { background: transparent; }
+.pro-page::-webkit-scrollbar-thumb {
+    background-color: var(--vscode-scrollbarSlider-background);
+    border-radius: 4px;
+}
+.pro-page::-webkit-scrollbar-thumb:hover {
+    background-color: var(--vscode-scrollbarSlider-hoverBackground);
 }
 
 .pro-page-inner {
-    max-width: 760px;
+    flex: 1;
+    max-width: 720px;
+    width: 100%;
     margin: 0 auto;
+    padding: 40px 24px 48px;
+    box-sizing: border-box;
 }
 
-/* Author letter */
+/* ── Letter ──────────────────────────────────────────── */
 .pro-letter {
     border: 1px solid var(--viewer-border);
-    border-radius: 10px;
-    padding: 24px 28px;
+    border-radius: 12px;
+    padding: 22px 26px;
     margin-bottom: 32px;
-    background: color-mix(in srgb, var(--viewer-sider-bg) 60%, var(--viewer-bg));
-    line-height: 1.7;
-    font-size: 13.5px;
+    background: color-mix(in srgb, var(--viewer-sider-bg) 55%, var(--viewer-bg));
+    line-height: 1.75;
+    font-size: 13px;
 }
 
 .pro-letter p {
-    margin: 0 0 12px;
+    margin: 0 0 10px;
     color: var(--viewer-fg);
 }
 
 .pro-letter p:last-child {
     margin-bottom: 0;
     color: var(--viewer-muted);
-    font-size: 13px;
+    font-size: 12.5px;
 }
 
-/* Plans */
+/* ── Plans ───────────────────────────────────────────── */
 .pro-plans {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 28px;
     margin-bottom: 32px;
+    align-items: stretch;
 }
 
 .pro-plan-card {
     border: 1px solid var(--viewer-border);
-    border-radius: 10px;
-    padding: 20px 20px 20px;
-    background: var(--viewer-bg);
+    border-radius: 14px;
+    padding: 24px;
+    background: color-mix(in srgb, var(--viewer-sider-bg) 40%, var(--viewer-bg));
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--viewer-fg) 4%, transparent);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: default;
+}
+.pro-plan-card:hover {
+    transform: scale(1.025);
+    box-shadow: 0 8px 28px color-mix(in srgb, var(--viewer-fg) 10%, transparent);
+}
+.pro-plan-card--pro:hover {
+    box-shadow:
+        0 8px 28px color-mix(in srgb, var(--viewer-fg) 8%, transparent),
+        0 0 0 1px color-mix(in srgb, var(--vscode-textLink-foreground, #6c63ff) 35%, transparent),
+        0 8px 32px color-mix(in srgb, var(--vscode-textLink-foreground, #6c63ff) 18%, transparent);
 }
 
 .pro-plan-card--pro {
-    border-color: var(--vscode-textLink-foreground, #6c63ff);
-    background: color-mix(in srgb, var(--vscode-textLink-foreground, #6c63ff) 5%, var(--viewer-bg));
+    position: relative;
+    border-color: color-mix(in srgb, var(--vscode-textLink-foreground, #6c63ff) 50%, transparent);
+    background: color-mix(in srgb, var(--vscode-textLink-foreground, #6c63ff) 6%, var(--viewer-bg));
+    box-shadow:
+        0 2px 8px color-mix(in srgb, var(--viewer-fg) 4%, transparent),
+        0 0 0 1px color-mix(in srgb, var(--vscode-textLink-foreground, #6c63ff) 25%, transparent),
+        0 4px 24px color-mix(in srgb, var(--vscode-textLink-foreground, #6c63ff) 12%, transparent);
 }
 
+
 .pro-plan-title {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
-    margin: 0 0 4px;
+    margin: 0 0 6px;
+    color: var(--viewer-fg);
+}
+
+.pro-plan-title--pro {
+    color: var(--vscode-textLink-foreground, #6c63ff);
+}
+
+.pro-plan-desc {
+    font-size: 12px;
+    color: var(--viewer-muted);
+    margin: 0 0 14px;
+    line-height: 1.5;
 }
 
 .pro-plan-price {
-    font-size: 26px;
+    font-size: 40px;
     font-weight: 800;
-    margin: 8px 0 4px;
+    margin: 0 0 2px;
     color: var(--viewer-fg);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
 }
 
 .pro-plan-price-sub {
     font-size: 12px;
     color: var(--viewer-muted);
-    margin: 0 0 16px;
+    margin: 0 0 18px;
+    font-weight: 600;
+}
+
+.pro-plan-btn {
+    display: block;
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 9px 0;
+    border-radius: 8px;
+    border: 1.5px solid color-mix(in srgb, var(--vscode-textLink-foreground, #6c63ff) 60%, transparent);
+    background: transparent;
+    color: var(--vscode-textLink-foreground, #6c63ff);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+    text-align: center;
+}
+.pro-plan-btn:hover {
+    background: color-mix(in srgb, var(--vscode-textLink-foreground, #6c63ff) 10%, transparent);
+}
+
+.pro-plan-btn--primary {
+    border: none;
+    background: linear-gradient(90deg,
+        var(--vscode-textLink-foreground, #6c63ff),
+        color-mix(in srgb, var(--vscode-textLink-foreground, #6c63ff) 65%, #00bfff));
+    color: #fff;
+    box-shadow: 0 2px 12px color-mix(in srgb, var(--vscode-textLink-foreground, #6c63ff) 35%, transparent);
+}
+.pro-plan-btn--primary:hover { opacity: 0.88; background: linear-gradient(90deg,
+    var(--vscode-textLink-foreground, #6c63ff),
+    color-mix(in srgb, var(--vscode-textLink-foreground, #6c63ff) 65%, #00bfff)); }
+
+.pro-plan-divider {
+    height: 1px;
+    background: var(--viewer-border);
+    margin-bottom: 16px;
+    opacity: 0.6;
 }
 
 .pro-plan-features {
@@ -82,7 +184,7 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 9px;
 }
 
 .pro-plan-features li {
@@ -90,126 +192,209 @@
     color: var(--viewer-fg);
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
 }
 
 .pro-plan-features li .codicon {
     font-size: 14px;
     flex-shrink: 0;
+    color: var(--vscode-testing-iconPassed, #3fb950);
+}
+
+.pro-plan-features li .codicon-verified {
     color: var(--vscode-textLink-foreground, #6c63ff);
 }
 
 .pro-plan-features li.muted {
     color: var(--viewer-muted);
 }
+.pro-plan-features li.muted .codicon {
+    opacity: 0.5;
+}
+.pro-plan-features li.bold { font-weight: 600; }
 
-.pro-plan-features li.bold {
+/* ── Activate trigger & badge (inside Pro card) ──────── */
+.pro-active-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 12px;
     font-weight: 600;
+    color: var(--vscode-testing-iconPassed, #3fb950);
+    background: color-mix(in srgb, var(--vscode-testing-iconPassed, #3fb950) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--vscode-testing-iconPassed, #3fb950) 25%, transparent);
+    padding: 6px 0;
+    border-radius: 8px;
+    width: 100%;
 }
 
-.pro-plan-btn {
-    display: block;
+.pro-activate-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     width: 100%;
-    margin-top: 20px;
-    padding: 8px 0;
-    border-radius: 6px;
-    border: 1px solid var(--vscode-textLink-foreground, #6c63ff);
-    background: var(--vscode-textLink-foreground, #6c63ff);
-    color: #fff;
-    font-size: 13px;
+    padding: 7px 0;
+    border-radius: 8px;
+    border: 1.5px solid color-mix(in srgb, var(--vscode-textLink-foreground, #6c63ff) 55%, transparent);
+    background: color-mix(in srgb, var(--vscode-textLink-foreground, #6c63ff) 8%, transparent);
+    color: var(--vscode-textLink-foreground, #6c63ff);
+    font-size: 12.5px;
     font-weight: 600;
     cursor: pointer;
-    transition: opacity 0.15s;
-    text-align: center;
+    transition: background 0.15s, border-color 0.15s;
 }
-
-.pro-plan-btn:hover {
-    opacity: 0.88;
-}
-
-.pro-plan-btn--free {
-    background: transparent;
-    color: var(--vscode-textLink-foreground, #6c63ff);
-}
-
-/* License input section */
-.pro-activate {
-    border: 1px solid var(--viewer-border);
-    border-radius: 10px;
-    padding: 20px 24px;
-    background: color-mix(in srgb, var(--viewer-sider-bg) 60%, var(--viewer-bg));
-}
-
-.pro-activate h3 {
-    margin: 0 0 12px;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.pro-activate-row {
-    display: flex;
-    gap: 8px;
-}
-
-.pro-activate-input {
-    flex: 1;
-    padding: 6px 10px;
-    border-radius: 5px;
-    border: 1px solid var(--viewer-border);
-    background: var(--vscode-input-background, var(--viewer-bg));
-    color: var(--viewer-fg);
-    font-family: var(--vscode-editor-font-family, monospace);
-    font-size: 13px;
-    outline: none;
-    min-width: 0;
-}
-
-.pro-activate-input:focus {
+.pro-activate-trigger:hover {
+    background: color-mix(in srgb, var(--vscode-textLink-foreground, #6c63ff) 16%, transparent);
     border-color: var(--vscode-textLink-foreground, #6c63ff);
 }
 
-.pro-activate-btn {
-    padding: 6px 16px;
-    border-radius: 5px;
+/* ── Modal ───────────────────────────────────────────── */
+.pro-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(2px);
+}
+
+.pro-modal {
+    width: 420px;
+    max-width: calc(100vw - 48px);
+    background: var(--viewer-bg);
+    border: 1px solid var(--viewer-border);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+    animation: modal-in 0.18s ease;
+}
+
+@keyframes modal-in {
+    from { opacity: 0; transform: scale(0.95) translateY(8px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.pro-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.pro-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--viewer-fg);
+}
+
+.pro-modal-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--viewer-muted);
+    padding: 2px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s;
+}
+.pro-modal-close:hover { color: var(--viewer-fg); }
+
+.pro-modal-desc {
+    font-size: 12.5px;
+    color: var(--viewer-muted);
+    margin: 0 0 16px;
+    line-height: 1.6;
+}
+
+.pro-modal-row {
+    display: flex;
+    gap: 0;
+    margin-bottom: 12px;
+}
+
+.pro-modal-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 13px;
+    border-radius: 8px;
+    border: 1px solid var(--viewer-border);
+    background: var(--vscode-input-background, var(--viewer-bg));
+    color: var(--viewer-fg);
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.04em;
+}
+.pro-modal-input::placeholder { color: var(--viewer-muted); opacity: 0.45; }
+.pro-modal-input:focus {
+    border-color: var(--vscode-textLink-foreground, #6c63ff);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--vscode-textLink-foreground, #6c63ff) 14%, transparent);
+}
+
+.pro-modal-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+.pro-modal-status--success {
+    color: var(--vscode-testing-iconPassed, #3fb950);
+    background: color-mix(in srgb, var(--vscode-testing-iconPassed, #3fb950) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--vscode-testing-iconPassed, #3fb950) 25%, transparent);
+}
+.pro-modal-status--error {
+    color: var(--vscode-testing-iconFailed, #f85149);
+    background: color-mix(in srgb, var(--vscode-testing-iconFailed, #f85149) 9%, transparent);
+    border: 1px solid color-mix(in srgb, var(--vscode-testing-iconFailed, #f85149) 22%, transparent);
+}
+
+.pro-modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.pro-modal-btn-cancel {
+    padding: 7px 16px;
+    border-radius: 7px;
+    border: 1px solid var(--viewer-border);
+    background: transparent;
+    color: var(--viewer-fg);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.pro-modal-btn-cancel:hover {
+    background: color-mix(in srgb, var(--viewer-fg) 8%, transparent);
+}
+
+.pro-modal-btn-confirm {
+    padding: 7px 20px;
+    border-radius: 7px;
     border: none;
     background: var(--vscode-textLink-foreground, #6c63ff);
     color: #fff;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    white-space: nowrap;
     transition: opacity 0.15s;
-    flex-shrink: 0;
 }
-
-.pro-activate-btn:hover { opacity: 0.88; }
-.pro-activate-btn:disabled { opacity: 0.5; cursor: default; }
-
-.pro-activate-status {
-    margin-top: 10px;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.pro-activate-status--success { color: var(--vscode-testing-iconPassed, #4caf50); }
-.pro-activate-status--error { color: var(--vscode-testing-iconFailed, #f44336); }
-
-.pro-current-key {
-    margin-top: 10px;
-    font-size: 12px;
-    color: var(--viewer-muted);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.pro-current-key code {
-    font-family: var(--vscode-editor-font-family, monospace);
-    color: var(--viewer-fg);
-}
+.pro-modal-btn-confirm:hover { opacity: 0.85; }
+.pro-modal-btn-confirm:disabled { opacity: 0.38; cursor: default; }
 
 @media (max-width: 520px) {
     .pro-plans { grid-template-columns: 1fr; }
+    .pro-plan-card--pro { margin-top: 20px; }
 }

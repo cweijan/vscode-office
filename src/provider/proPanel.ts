@@ -26,6 +26,8 @@ export class ProPanel {
             }
         );
 
+        this.panel.iconPath = vscode.Uri.joinPath(context.extensionUri, 'image', 'logo.png');
+
         await ReactApp.view(this.panel.webview, { route: 'pro' });
 
         this.panel.onDidDispose(() => {
