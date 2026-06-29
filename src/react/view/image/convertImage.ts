@@ -70,7 +70,11 @@ async function loadImageBlob(image: ImageSource, format: 'heic' | 'tiff'): Promi
         const mime = format === 'heic' ? 'image/heic' : 'image/tiff';
         return new Blob([await blob.arrayBuffer()], { type: mime });
     }
-    throw new Error('Missing image buffer');
+    const response = await fetch(src);
+    if (!response.ok) {
+        throw new Error(`Failed to load image: ${response.status}`);
+    }
+    return response.blob();
 }
 
 async function convertHeic(blob: Blob): Promise<string> {
@@ -114,7 +118,7 @@ export async function resolveImageSrc(image: ImageSource): Promise<string> {
         const mime = image.mime ?? 'application/octet-stream';
         return URL.createObjectURL(bufferToBlob(image.buffer, mime));
     }
-    throw new Error('Missing image buffer');
+    return image.src ?? '';
 }
 
 export function revokeObjectUrl(url: string) {
