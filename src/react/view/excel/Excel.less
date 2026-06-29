@@ -432,27 +432,6 @@ body:has(.excel-app) .ant-message:has(.excel-save-success-message) {
         }
     }
 
-    .excel-readonly-banner {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 999;
-        padding: 4px 12px;
-        font-size: 12px;
-        text-align: center;
-        color: #5c4b00;
-        background: #fff8e1;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-        pointer-events: none;
-    }
-
-    body.office-dark & .excel-readonly-banner {
-        color: #e8d48b;
-        background: rgba(92, 75, 0, 0.35);
-        border-bottom-color: rgba(255, 255, 255, 0.08);
-    }
-
     .excel-footer-actions {
         position: fixed;
         right: 12px;
@@ -473,6 +452,94 @@ body:has(.excel-app) .ant-message:has(.excel-save-success-message) {
             bottom: auto;
             padding: 0;
         }
+    }
+
+    .excel-readonly-status {
+        flex-shrink: 0;
+        height: 24px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 8px;
+        color: #6b5300;
+        background: rgba(255, 248, 225, 0.94);
+        border: 1px solid rgba(120, 92, 0, 0.22);
+        border-radius: 6px;
+        font-size: 12px;
+        line-height: 1;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+    }
+
+    body.office-dark & .excel-readonly-status {
+        color: #e8d48b;
+        background: rgba(92, 75, 0, 0.45);
+        border-color: rgba(232, 212, 139, 0.20);
+    }
+
+    &.parquet-mode {
+        --excel-footer-reserve: 740px;
+    }
+
+    .parquet-pagination {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        height: 30px;
+        padding: 4px 8px;
+        color: var(--excel-fg);
+        background: var(--excel-widget-bg, rgba(255, 255, 255, 0.94));
+        border: 1px solid var(--excel-border, rgba(0, 0, 0, 0.12));
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        white-space: nowrap;
+    }
+
+    .parquet-readonly-status {
+        flex-shrink: 0;
+        margin-right: 4px;
+        padding-right: 10px;
+        color: #6b5300;
+        border-right: 1px solid rgba(120, 92, 0, 0.22);
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1;
+    }
+
+    body.office-dark & .parquet-readonly-status {
+        color: #e8d48b;
+        border-right-color: rgba(232, 212, 139, 0.20);
+    }
+
+    .parquet-pagination-label,
+    .parquet-pagination-total,
+    .parquet-pagination-rows {
+        font-size: 12px;
+        line-height: 1;
+    }
+
+    .parquet-pagination-rows {
+        color: var(--excel-header-fg);
+    }
+
+    .parquet-page-input {
+        width: 54px;
+        height: 22px;
+        padding: 0 6px;
+        color: var(--excel-fg);
+        background: var(--excel-input-bg, #fff);
+        border: 1px solid var(--excel-input-border, rgba(0, 0, 0, 0.16));
+        border-radius: 4px;
+        text-align: right;
+        font-size: 12px;
+    }
+
+    .parquet-page-size {
+        height: 22px;
+        color: var(--excel-fg);
+        background: var(--excel-input-bg, #fff);
+        border: 1px solid var(--excel-input-border, rgba(0, 0, 0, 0.16));
+        border-radius: 4px;
+        font-size: 12px;
     }
 
     --excel-footer-reserve: 270px;

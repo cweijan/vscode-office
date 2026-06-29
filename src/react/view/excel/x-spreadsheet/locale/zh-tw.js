@@ -131,7 +131,7 @@ export default {
   viewer: {
     saveSuccess: '儲存成功',
     protectedCell: '受保護的儲存格不支援此功能',
-    readonlyBanner: '唯讀模式 — 可瀏覽與尋找，請使用「另存新檔」儲存變更',
+    readonlyBanner: '唯讀',
     formatCannotPreserveTitle: '格式將無法保留',
     formatCannotPreserveContent: '{} 格式不支援儲存樣式、合併儲存格、公式等豐富格式內容。是否另存為 xlsx？',
     saveAsXlsx: '另存為 xlsx',
@@ -147,6 +147,12 @@ export default {
     exportOdsDesc: '相容 LibreOffice / WPS',
     switchToLightMode: '切換至淺色模式',
     switchToDarkMode: '切換至深色模式',
+    parquetPagination: 'Parquet 分頁',
+    parquetPreviousPage: '上一頁',
+    parquetNextPage: '下一頁',
+    parquetPage: '第',
+    parquetRowsPerPage: '每頁列數',
+    parquetRows: '共 {} 列',
   },
   findReplace: {
     title: '尋找',

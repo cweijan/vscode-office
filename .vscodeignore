@@ -13,10 +13,12 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
+*.parquet
 node_modules/
 vditor/
 build.js
 public/
+output/
 lib.js
 vite/
 backlog.md

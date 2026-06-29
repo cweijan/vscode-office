@@ -32,6 +32,7 @@ export interface Options {
     showGrid?: boolean;
     showContextmenu?: boolean;
     showBottomBar?: boolean;
+    allowSaveAs?: boolean;
     extendToolbar?: {
         left?: ExtendToolbarOption[];
         right?: ExtendToolbarOption[];
@@ -557,4 +558,4 @@ if (window) {
 
 export default Spreadsheet;
 export { spreadsheet };
-export type { FindMatch, FindOptions } from '../excel_find'; 
+export type { FindMatch, FindOptions } from '../excel_find';

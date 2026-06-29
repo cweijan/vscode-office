@@ -9,6 +9,7 @@ import { isVirtualUri, readUriText } from './handlers/officeContent';
 import { handleCommonEvent } from './compress/commonHandler';
 import { TelemetryService } from '@/service/telemetryService';
 import { extensionResource, getExtensionResourceRoots, readExtensionText } from '@/common/extensionResource';
+import { handleParquetEvent } from './parquet/parquetHandler';
 
 /**
  * support view office files
@@ -42,7 +43,12 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 		let route: string;
 		const suffix = getFileSuffix(uri.fsPath);
 		const isSvg = /\.svg$/i.test(suffix);
-		handleCommonEvent(uri, handler, isSvg ? { skipOpen: true } : undefined);
+		const isParquet = suffix === '.parquet';
+		if (isParquet) {
+			handleParquetEvent(uri, handler);
+		} else {
+			handleCommonEvent(uri, handler, isSvg ? { skipOpen: true } : undefined);
+		}
 		if (isSvg) {
 			route = 'svg';
 			handleSvg(handler, uri);
@@ -57,6 +63,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 			case '.csv':
 			case '.tsv':
 			case '.ods':
+			case '.parquet':
 				route = 'excel';
 				break;
 			case '.docx':

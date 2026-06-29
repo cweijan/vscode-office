@@ -785,6 +785,7 @@ function toolbarChange(type, value) {
   const { data, toolbar, editor } = this;
   if (type === 'save') {
     if (data.settings.mode === 'read') {
+      if (data.settings.allowSaveAs === false) return;
       this.trigger('save-as');
       return;
     }
@@ -792,6 +793,7 @@ function toolbarChange(type, value) {
     return;
   }
   if (type === 'save-as') {
+    if (data.settings.allowSaveAs === false) return;
     this.trigger('save-as');
     return;
   }

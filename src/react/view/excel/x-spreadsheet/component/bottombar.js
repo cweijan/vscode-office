@@ -86,7 +86,12 @@ export default class Bottombar {
 
   bindTabItem(item, options) {
     item.on('mousedown', (evt) => {
-      if (options.mode === 'read' || evt.button !== 0) return;
+      if (evt.button !== 0) return;
+      if (options.mode === 'read') {
+        evt.preventDefault();
+        this.clickSwap2(item);
+        return;
+      }
       const fromIndex = this.items.findIndex(it => it === item);
       if (fromIndex < 0) return;
       const startX = evt.clientX;

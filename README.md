@@ -6,7 +6,7 @@ English | [简体中文](README-CN.md) | [繁體中文](README-TW.md)
 
 This extension lets you preview and edit common office and design files directly in VS Code.
 
-- Excel: `.xls`, `.xlsx`, `.xlsm`, `.csv`, `.ods`
+- Excel/Data: `.xls`, `.xlsx`, `.xlsm`, `.csv`, `.ods`, `.parquet`
 - Word: `.docx`, `.dotx`
 - PowerPoint: `.pptx`, `.pptm`
 - PDF & eBook: `.pdf`, `.epub`
@@ -53,7 +53,7 @@ Long code blocks are capped (default 400px) with an **expand/collapse** button t
 - Git History: browse commit graph, view file history, compare revisions, and perform common Git operations from the Source Control view or file context menu
 - YAML: document outline and anchor navigation (Go to Definition for alias references)
 - Icon theme: includes a subset of [Material Icon Theme](https://github.com/PKief/vscode-material-icon-theme) icons, plus **Office Material Icon Theme** and **One Dark Modern** color themes
-- Excel: preview and save `.xlsx`, `.xls`, `.xlsm`, `.csv`, and `.ods` files (saving `.xlsx` may lose formatting; `.csv` does not support GBK-encoded Chinese)
+- Excel: preview and save `.xlsx`, `.xls`, `.xlsm`, `.csv`, and `.ods` files; preview `.parquet` files in read-only paged mode (saving `.xlsx` may lose formatting; `.csv` does not support GBK-encoded Chinese)
 - HTTP: send requests from `.http` and `.rest` files (integrated from [REST Client](https://github.com/Huachao/vscode-restclient) with fixes for local request issues); press `Ctrl+Enter` / `⌘ Enter` to send
 - Java: decompile and view `.class` files
 
@@ -138,6 +138,7 @@ If you build and publish this extension yourself, see [docs/telemetry.md](docs/t
 - XLSX rendering:
   - [SheetJS/sheetjs](https://github.com/SheetJS/sheetjs): XLSX parsing
   - [myliang/x-spreadsheet](https://github.com/myliang/x-spreadsheet): XLSX rendering
+- Parquet parsing: [hyparam/hyparquet](https://github.com/hyparam/hyparquet)
 - EPUB: [futurepress/epub.js](https://github.com/futurepress/epub.js)
 - PSD: [ag-psd](https://github.com/Agamnentzar/ag-psd)
 - XMind: [mind-elixir](https://github.com/ssshooter/mind-elixir-core), [@mind-elixir/import-xmind](https://github.com/ssshooter/mind-elixir-core)

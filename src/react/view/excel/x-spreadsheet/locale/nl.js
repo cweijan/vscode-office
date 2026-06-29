@@ -73,7 +73,7 @@ export default {
   viewer: {
     saveSuccess: 'Opgeslagen',
     protectedCell: 'Beschermde cellen ondersteunen deze functie niet',
-    readonlyBanner: 'Alleen-lezen — bladeren en zoeken; gebruik Opslaan als om wijzigingen op te slaan',
+    readonlyBanner: 'Alleen-lezen',
     formatCannotPreserveTitle: 'Opmaak kan niet behouden blijven',
     formatCannotPreserveContent: '{} kan stijlen, samenvoegingen, formules enz. niet behouden. Opslaan als xlsx?',
     saveAsXlsx: 'Opslaan als xlsx',

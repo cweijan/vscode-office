@@ -1,4 +1,4 @@
-import { MoonOutlined, SunOutlined } from "@ant-design/icons";
+import { LeftOutlined, MoonOutlined, RightOutlined, SunOutlined } from "@ant-design/icons";
 import { App, Button, Modal, Radio, Spin } from "antd";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { handler, loadDarkMode, applyDarkMode } from "../../util/vscode.ts";
@@ -19,6 +19,15 @@ initExcelLocale();
 type ExcelViewState = { ri: number; ci: number; sheetIndex: number };
 
 const EXCEL_VIEW_STATE_SUFFIX = '-excel-view';
+const DEFAULT_PARQUET_PAGE_SIZE = 10000;
+const PARQUET_PAGE_SIZE_OPTIONS = [1000, 10000, 50000];
+
+interface ParquetPageState {
+    pageIndex: number;
+    pageSize: number;
+    totalRows: number;
+    totalPages: number;
+}
 
 function getViewStateKey(documentCacheId: string): string {
     return `${documentCacheId}${EXCEL_VIEW_STATE_SUFFIX}`;
@@ -67,9 +76,16 @@ function ExcelViewer() {
     const [loadError, setLoadError] = useState<string | null>(null)
     const [saveAsVisible, setSaveAsVisible] = useState(false)
     const [saveAsFormat, setSaveAsFormat] = useState('xlsx')
+    const [parquetMode, setParquetMode] = useState(false)
+    const [parquetLoading, setParquetLoading] = useState(false)
+    const [parquetPage, setParquetPage] = useState<ParquetPageState | null>(null)
+    const [parquetPageInput, setParquetPageInput] = useState('1')
     const extRef = useRef('')
     const documentCacheIdRef = useRef('')
     const readOnlyRef = useRef(false)
+    const parquetModeRef = useRef(false)
+    const parquetRequestIdRef = useRef(0)
+    const requestParquetPageRef = useRef<(pageIndex: number, pageSize?: number) => void>(() => { })
     const spreadSheetRef = useRef<Spreadsheet | null>(null)
     const csvEncodingRef = useRef<'utf8' | 'gbk'>('utf8')
     const csvDelimiterRef = useRef(',')
@@ -92,10 +108,12 @@ function ExcelViewer() {
     }, [dark])
 
     const handleSaveAs = useCallback(() => {
+        if (parquetModeRef.current) return;
         setSaveAsVisible(true);
     }, []);
 
     const handleSave = useCallback(async () => {
+        if (parquetModeRef.current) return;
         const spreadSheet = spreadSheetRef.current;
         if (!spreadSheet) return;
         if (readOnlyRef.current) {
@@ -161,6 +179,7 @@ function ExcelViewer() {
     }, [modal, handleSaveAs]);
 
     const confirmSaveAs = useCallback(async (fmt: string) => {
+        if (parquetModeRef.current) return;
         const spreadSheet = spreadSheetRef.current;
         if (!spreadSheet) return;
         setSaveAsVisible(false);
@@ -174,10 +193,27 @@ function ExcelViewer() {
         }
     }, []);
 
+    const requestParquetPage = useCallback((pageIndex: number, pageSize?: number) => {
+        const requestId = parquetRequestIdRef.current + 1;
+        parquetRequestIdRef.current = requestId;
+        setParquetLoading(true);
+        setLoading(true);
+        setLoadError(null);
+        handler.emit('parquetLoadPage', {
+            requestId,
+            pageIndex,
+            pageSize: pageSize ?? parquetPage?.pageSize ?? DEFAULT_PARQUET_PAGE_SIZE,
+        });
+    }, [parquetPage?.pageSize]);
+    requestParquetPageRef.current = requestParquetPage;
+
     useEffect(() => {
         const onKeyDown = (e: KeyboardEvent) => {
             if ((e.ctrlKey || e.metaKey) && e.code === 'KeyS') {
                 e.preventDefault();
+                if (parquetModeRef.current) {
+                    return;
+                }
                 if (readOnlyRef.current) {
                     void handleSaveAs();
                 } else {
@@ -201,22 +237,27 @@ function ExcelViewer() {
 
     useEffect(() => {
         const container = document.getElementById('container');
+        if (!container) {
+            setLoadError('Spreadsheet container not found');
+            setLoading(false);
+            return;
+        }
 
-        const initSpreadsheet = async (buffer: ArrayBuffer, payload: any) => {
-            const fileReadOnly = payload.readOnly === true;
-            if (payload.ext?.match(/csv/i)) {
-                csvEncodingRef.current = detectCsvEncoding(buffer);
-            }
-            const { sheets, maxLength, maxCols, csvDelimiter } = await loadSheets(buffer, payload.ext);
-            if (csvDelimiter) {
-                csvDelimiterRef.current = csvDelimiter;
-            }
+        const createSpreadsheet = (
+            sheets: any[],
+            maxLength: number,
+            maxCols: number,
+            fileReadOnly: boolean,
+            allowSaveAs = true,
+            restoreState = true,
+        ) => {
             const viewRowLen = Math.max(maxLength ?? 0, MIN_VIEW_ROWS);
             const viewColLen = Math.max(maxCols ?? 0, MIN_VIEW_COLS);
             container.innerHTML = '';
             const spreadSheet = new Spreadsheet(container, {
                 mode: fileReadOnly ? 'read' : 'edit',
                 showToolbar: true,
+                allowSaveAs,
                 row: { len: viewRowLen, height: 30 },
                 col: { len: viewColLen },
                 view: { height: () => window.innerHeight - 2 },
@@ -227,7 +268,9 @@ function ExcelViewer() {
             if (!fileReadOnly) {
                 spreadSheet.on('save', () => void handleSave());
             }
-            spreadSheet.on('save-as', () => { void handleSaveAs(); });
+            if (allowSaveAs) {
+                spreadSheet.on('save-as', () => { void handleSaveAs(); });
+            }
             spreadSheet.on('find', () => { setFindPanel('find'); });
             const persistView = () => {
                 saveViewState(documentCacheIdRef.current, spreadSheet.getSelection());
@@ -254,7 +297,7 @@ function ExcelViewer() {
                     handler.emit('change');
                 }
             });
-            const savedView = loadViewState(documentCacheIdRef.current);
+            const savedView = restoreState ? loadViewState(documentCacheIdRef.current) : null;
             if (savedView) {
                 requestAnimationFrame(() => {
                     requestAnimationFrame(() => { restoreViewState(spreadSheet, savedView); });
@@ -263,9 +306,63 @@ function ExcelViewer() {
             initialFormattingRef.current = buildFormattingSnapshot(spreadSheet.getData());
         };
 
+        const initSpreadsheet = async (buffer: ArrayBuffer, payload: any) => {
+            const fileReadOnly = payload.readOnly === true;
+            if (payload.ext?.match(/csv/i)) {
+                csvEncodingRef.current = detectCsvEncoding(buffer);
+            }
+            const { sheets, maxLength, maxCols, csvDelimiter } = await loadSheets(buffer, payload.ext);
+            if (csvDelimiter) {
+                csvDelimiterRef.current = csvDelimiter;
+            }
+            createSpreadsheet(sheets, maxLength ?? 0, maxCols ?? 0, fileReadOnly);
+        };
+
+        const loadParquetPage = (payload: any) => {
+            const pageSheet = payload.sheet;
+            const schemaSheet = payload.schemaSheet;
+            const sheets = schemaSheet ? [pageSheet, schemaSheet] : [pageSheet];
+            const maxLength = Math.max(pageSheet?.rows?.len ?? 0, schemaSheet?.rows?.len ?? 0);
+            const maxCols = Math.max(pageSheet?.cols?.len ?? 0, schemaSheet?.cols?.len ?? 0);
+            if (!spreadSheetRef.current || !parquetModeRef.current) {
+                createSpreadsheet(sheets, maxLength, maxCols, true, false, false);
+            } else {
+                spreadSheetRef.current.loadData(sheets);
+                setLoading(false);
+            }
+            initialFormattingRef.current = '';
+            setParquetPage({
+                pageIndex: payload.pageIndex,
+                pageSize: payload.pageSize,
+                totalRows: payload.totalRows,
+                totalPages: payload.totalPages,
+            });
+            setParquetPageInput(String((payload.pageIndex ?? 0) + 1));
+            setParquetLoading(false);
+        };
+
         handler.on("open", (payload) => {
             extRef.current = payload.ext ?? '';
             documentCacheIdRef.current = payload.documentCacheId ?? '';
+            const isParquet = payload.parquet === true || String(payload.ext ?? '').toLowerCase() === '.parquet';
+            parquetModeRef.current = isParquet;
+            setParquetMode(isParquet);
+            setLoadError(null);
+            setFindPanel(null);
+            setParquetPage(null);
+            setParquetPageInput('1');
+            setParquetLoading(false);
+            setLoading(true);
+            if (isParquet) {
+                readOnlyRef.current = true;
+                setReadOnly(true);
+                spreadSheetRef.current = null;
+                if (container) {
+                    container.innerHTML = '';
+                }
+                requestParquetPageRef.current(0, payload.pageSize ?? DEFAULT_PARQUET_PAGE_SIZE);
+                return;
+            }
             const fileReadOnly = payload.readOnly === true;
             readOnlyRef.current = fileReadOnly;
             setReadOnly(fileReadOnly);
@@ -284,6 +381,22 @@ function ExcelViewer() {
                 setLoadError(msg);
                 setLoading(false);
             });
+        }).on("parquetPageLoaded", (payload) => {
+            if (payload.requestId !== parquetRequestIdRef.current) return;
+            try {
+                loadParquetPage(payload);
+            } catch (error) {
+                const msg = (error as Error).message || String(error);
+                console.error(`Failed to render Parquet page: ${msg}`, error);
+                setLoadError(msg);
+                setParquetLoading(false);
+                setLoading(false);
+            }
+        }).on("parquetLoadError", (payload) => {
+            if (payload.requestId !== parquetRequestIdRef.current) return;
+            setLoadError(payload.message || 'Failed to load Parquet file');
+            setParquetLoading(false);
+            setLoading(false);
         }).on("saveDone", () => {
         }).emit("init")
 
@@ -300,8 +413,22 @@ function ExcelViewer() {
         };
     }, [message, handleSave, handleSaveAs])
 
+    const commitParquetPageInput = () => {
+        if (!parquetPage) return;
+        const pageNumber = Number(parquetPageInput);
+        if (!Number.isFinite(pageNumber)) {
+            setParquetPageInput(String(parquetPage.pageIndex + 1));
+            return;
+        }
+        const nextPageIndex = Math.min(Math.max(0, Math.floor(pageNumber) - 1), parquetPage.totalPages - 1);
+        setParquetPageInput(String(nextPageIndex + 1));
+        if (nextPageIndex !== parquetPage.pageIndex) {
+            requestParquetPage(nextPageIndex, parquetPage.pageSize);
+        }
+    };
+
     return (
-        <div className='excel-viewer'>
+        <div className={`excel-viewer${parquetMode ? ' parquet-mode' : ''}`}>
             <Spin spinning={loading} fullscreen={true} />
             {loadError && !loading && (
                 <div className="excel-load-error">
@@ -314,11 +441,6 @@ function ExcelViewer() {
                         <h2 className="excel-load-error-title">Failed to open file</h2>
                         <span className="excel-load-error-message">{loadError}</span>
                     </div>
-                </div>
-            )}
-            {readOnly && !loading && !loadError && (
-                <div className="excel-readonly-banner">
-                    {t('viewer.readonlyBanner')}
                 </div>
             )}
             {findPanel && !loading && !loadError && (
@@ -375,6 +497,61 @@ function ExcelViewer() {
             </Modal>
             <div id='container'></div>
             <div className="excel-footer-actions">
+                {parquetMode && parquetPage && !loadError && (
+                    <div className="parquet-pagination" aria-label={t('viewer.parquetPagination')}>
+                        <span className="parquet-readonly-status">
+                            Parquet · {t('viewer.readonlyBanner')}
+                        </span>
+                        <Button
+                            size="small"
+                            title={t('viewer.parquetPreviousPage')}
+                            icon={<LeftOutlined />}
+                            disabled={parquetLoading || parquetPage.pageIndex <= 0}
+                            onClick={() => requestParquetPage(parquetPage.pageIndex - 1, parquetPage.pageSize)}
+                        />
+                        <span className="parquet-pagination-label">{t('viewer.parquetPage')}</span>
+                        <input
+                            className="parquet-page-input"
+                            value={parquetPageInput}
+                            disabled={parquetLoading}
+                            inputMode="numeric"
+                            onChange={event => setParquetPageInput(event.target.value)}
+                            onBlur={commitParquetPageInput}
+                            onKeyDown={event => {
+                                if (event.key === 'Enter') {
+                                    event.currentTarget.blur();
+                                }
+                            }}
+                        />
+                        <span className="parquet-pagination-total">/ {parquetPage.totalPages}</span>
+                        <Button
+                            size="small"
+                            title={t('viewer.parquetNextPage')}
+                            icon={<RightOutlined />}
+                            disabled={parquetLoading || parquetPage.pageIndex >= parquetPage.totalPages - 1}
+                            onClick={() => requestParquetPage(parquetPage.pageIndex + 1, parquetPage.pageSize)}
+                        />
+                        <select
+                            className="parquet-page-size"
+                            value={parquetPage.pageSize}
+                            disabled={parquetLoading}
+                            title={t('viewer.parquetRowsPerPage')}
+                            onChange={event => requestParquetPage(0, Number(event.target.value))}
+                        >
+                            {PARQUET_PAGE_SIZE_OPTIONS.map(size => (
+                                <option key={size} value={size}>{size.toLocaleString()}</option>
+                            ))}
+                        </select>
+                        <span className="parquet-pagination-rows">
+                            {t('viewer.parquetRows', parquetPage.totalRows.toLocaleString())}
+                        </span>
+                    </div>
+                )}
+                {readOnly && !parquetMode && !loading && !loadError && (
+                    <span className="excel-readonly-status">
+                        {t('viewer.readonlyBanner')}
+                    </span>
+                )}
                 <button
                     type="button"
                     className="dark-mode-toggle"

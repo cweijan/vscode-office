@@ -131,7 +131,7 @@ export default {
   viewer: {
     saveSuccess: 'Save done',
     protectedCell: 'Protected cells do not support this function',
-    readonlyBanner: 'Read-only — browse and find; use Save As to save changes',
+    readonlyBanner: 'Read-only',
     formatCannotPreserveTitle: 'Formatting cannot be preserved',
     formatCannotPreserveContent: '{} cannot preserve styles, merges, formulas, etc. Save as xlsx instead?',
     saveAsXlsx: 'Save as xlsx',
@@ -147,6 +147,12 @@ export default {
     exportOdsDesc: 'Compatible with LibreOffice / WPS',
     switchToLightMode: 'Switch to light mode',
     switchToDarkMode: 'Switch to dark mode',
+    parquetPagination: 'Parquet pagination',
+    parquetPreviousPage: 'Previous page',
+    parquetNextPage: 'Next page',
+    parquetPage: 'Page',
+    parquetRowsPerPage: 'Rows per page',
+    parquetRows: '{} rows',
   },
   findReplace: {
     title: 'Find',

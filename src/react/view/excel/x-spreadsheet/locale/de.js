@@ -73,7 +73,7 @@ export default {
   viewer: {
     saveSuccess: 'Gespeichert',
     protectedCell: 'Geschützte Zellen unterstützen diese Funktion nicht',
-    readonlyBanner: 'Schreibgeschützt — durchsuchen und suchen; zum Speichern „Speichern unter“ verwenden',
+    readonlyBanner: 'Schreibgeschützt',
     formatCannotPreserveTitle: 'Formatierung kann nicht beibehalten werden',
     formatCannotPreserveContent: '{} kann Stile, Zusammenführungen, Formeln usw. nicht beibehalten. Als xlsx speichern?',
     saveAsXlsx: 'Als xlsx speichern',

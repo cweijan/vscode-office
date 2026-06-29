@@ -131,7 +131,7 @@ export default {
   viewer: {
     saveSuccess: '保存成功',
     protectedCell: '被保护单元格不支持此功能',
-    readonlyBanner: '只读模式 — 可浏览与查找，请使用「另存为」保存更改',
+    readonlyBanner: '只读',
     formatCannotPreserveTitle: '格式将无法保存',
     formatCannotPreserveContent: '{} 格式不支持保存样式、合并单元格、公式等富格式内容。是否另存为 xlsx？',
     saveAsXlsx: '另存为 xlsx',
@@ -147,6 +147,12 @@ export default {
     exportOdsDesc: '兼容 LibreOffice / WPS',
     switchToLightMode: '切换到浅色模式',
     switchToDarkMode: '切换到深色模式',
+    parquetPagination: 'Parquet 分页',
+    parquetPreviousPage: '上一页',
+    parquetNextPage: '下一页',
+    parquetPage: '第',
+    parquetRowsPerPage: '每页行数',
+    parquetRows: '共 {} 行',
   },
   findReplace: {
     title: '查找',
