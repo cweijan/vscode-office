@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { handler, loadDarkMode, applyDarkMode } from "../../util/vscode.ts";
 import { loadOfficeBuffer } from "../../util/loadOfficeContent.ts";
 import SponsorBar from '../components/SponsorBar';
+import { getConfigs } from '../../util/vscodeConfig';
 import './Excel.less';
 import { MIN_VIEW_COLS, MIN_VIEW_ROWS } from "./excel_meta.ts";
 import { detectCsvEncoding } from "./csvEncoding.ts";
@@ -301,7 +302,7 @@ function ExcelViewer() {
     }, [message, handleSave, handleSaveAs])
 
     return (
-        <div className='excel-viewer'>
+        <div className={`excel-viewer${getConfigs()?.sponsorBaseUrl ? '' : ' excel-viewer--no-sponsor'}`}>
             <Spin spinning={loading} fullscreen={true} />
             {loadError && !loading && (
                 <div className="excel-load-error">
@@ -383,7 +384,7 @@ function ExcelViewer() {
                 >
                     {dark ? <SunOutlined /> : <MoonOutlined />}
                 </button>
-                {!loading && <SponsorBar placement="right" />}
+                {!loading && getConfigs()?.sponsorBaseUrl && <SponsorBar placement="right" />}
             </div>
         </div>
     )

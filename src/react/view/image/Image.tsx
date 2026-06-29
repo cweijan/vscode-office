@@ -5,6 +5,7 @@ import { handler } from '../../util/vscode';
 import { type ImageSource, needsConversion, resolveImageSrc, revokeObjectUrl } from './convertImage';
 import './Image.less';
 import SponsorBar from '../components/SponsorBar';
+import { getConfigs } from '../../util/vscodeConfig';
 
 type WheelMode = 'navigate' | 'zoom';
 
@@ -129,8 +130,10 @@ export default function Image() {
         thumbnail: image.src
     }));
 
+    const hasSponsor = !!getConfigs()?.sponsorBaseUrl;
+
     return (
-        <div className="image-viewer">
+        <div className={`image-viewer${hasSponsor ? '' : ' image-viewer--no-sponsor'}`}>
             {loading && <div className="image-viewer__loading">Converting image…</div>}
             <div className="image-wheel-toolbar" role="toolbar" aria-label="Wheel mode">
                 <button
@@ -163,7 +166,7 @@ export default function Image() {
                     if (title) handler.emit('slideTitle', title);
                 }}
             />
-            <SponsorBar placement="center" />
+            {hasSponsor && <SponsorBar placement="center" />}
         </div>
     );
 };

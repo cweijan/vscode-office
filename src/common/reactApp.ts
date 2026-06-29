@@ -24,7 +24,8 @@ export class ReactApp {
     public static async view(webview: vscode.Webview, option: ViewOption) {
         const html = await this.readContent();
         const iconConfig = IconService.getInstance().getWebviewConfig(this.context, webview);
-        const sponsorBaseUrl = webview.asWebviewUri(
+        const isPro = !!this.context.globalState.get<string>('office.pro.licenseKey');
+        const sponsorBaseUrl = isPro ? undefined : webview.asWebviewUri(
             extensionResource(this.context, 'resource', 'sponsor')
         ).toString();
         webview.html = this.buildPath(html, webview)

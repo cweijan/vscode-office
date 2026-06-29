@@ -426,9 +426,10 @@ function SvgViewerInner() {
                     </div>
                 </div>
             )}
-            <footer className="svg-viewer__sponsor-footer">
-                <SponsorBar placement="center" />
-            </footer>
+            {getConfigs()?.sponsorBaseUrl
+                ? <footer className="svg-viewer__sponsor-footer"><SponsorBar placement="center" /></footer>
+                : <div style={{ height: 16 }} />
+            }
         </div>
     );
 }

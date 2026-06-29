@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { handler, vscodeApi } from "../../util/vscode";
 import { loadOfficeBuffer } from "../../util/loadOfficeContent";
 import SponsorBar from "../components/SponsorBar";
+import { getConfigs } from "../../util/vscodeConfig";
 import "./Word.css";
 
 type WordColorMode = "light" | "adaptive";
@@ -172,9 +173,11 @@ export default function Word() {
                         }}
                         onSave={emitSave}
                     />
-                    <footer className="word-sponsor-footer">
-                        <SponsorBar placement="right" />
-                    </footer>
+                    {getConfigs()?.sponsorBaseUrl && (
+                        <footer className="word-sponsor-footer">
+                            <SponsorBar placement="right" />
+                        </footer>
+                    )}
                 </>
             )}
         </div>

@@ -477,6 +477,10 @@ body:has(.excel-app) .ant-message:has(.excel-save-success-message) {
 
     --excel-footer-reserve: 270px;
 
+    &.excel-viewer--no-sponsor {
+        --excel-footer-reserve: 80px;
+    }
+
     --excel-selection: rgb(33, 186, 69);
     --excel-selection-fill: rgba(33, 186, 69, 0.1);
 
@@ -504,6 +508,9 @@ body:has(.excel-app) .ant-message:has(.excel-save-success-message) {
 
     .x-spreadsheet-bottombar {
         overflow: visible;
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
 
         .x-spreadsheet-menu {
             flex: 1;
