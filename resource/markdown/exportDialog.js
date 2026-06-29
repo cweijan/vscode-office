@@ -33,7 +33,6 @@ const loadPrefs = () => {
             if (parsed.printBackground != null && parsed.useTheme == null) {
                 parsed.useTheme = parsed.printBackground
             }
-            delete parsed.type
             return { ...DEFAULT_PREFS, ...parsed }
         }
         const legacyRaw = localStorage.getItem('vscode-office.pdfExportPrefs')
@@ -133,6 +132,16 @@ const applyWebFormatOptions = (overlay) => {
     }
 }
 
+const resolveInitialFormat = (prefs) => {
+    if (isWebExport()) {
+        if (prefs.type === 'pdf' || prefs.type === 'docx') {
+            return 'html'
+        }
+        return prefs.type || 'html'
+    }
+    return prefs.type || DEFAULT_PREFS.type
+}
+
 const applyProLock = (overlay) => {
     const proBody = overlay.querySelector('[data-export-pro-body]')
     if (!proBody) return
@@ -180,7 +189,7 @@ export const openExportDialog = (editor) => {
     populateFontSizeSelect(fontSizeSelect)
     applyWebFormatOptions(overlay)
 
-    const initialType = isWebExport() ? 'html' : DEFAULT_PREFS.type
+    const initialType = resolveInitialFormat(prefs)
     setFormat(overlay, initialType)
     setToggle(outlineInput, prefs.withOutline)
     setToggle(themeInput, isProUser() ? prefs.useTheme : false)
@@ -240,6 +249,7 @@ export const openExportDialog = (editor) => {
         const onExport = () => {
             const type = readFormat(overlay)
             const next = {
+                type,
                 withOutline: readToggle(outlineInput),
                 useTheme: readToggle(themeInput),
                 pageFormat: pageFormatSelect?.value || DEFAULT_PREFS.pageFormat,

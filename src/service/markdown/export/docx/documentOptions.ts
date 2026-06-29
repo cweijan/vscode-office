@@ -1,4 +1,5 @@
-const { resolveLayout } = require('./exportThemeCss');
+import { resolveLayout } from '../theme/exportThemeCss';
+import type { ExportThemeSettings } from '../types';
 
 const GENERIC_FAMILIES = new Set([
     'inherit',
@@ -178,7 +179,7 @@ function buildDocxDocumentOptions(exportTheme) {
     };
 }
 
-module.exports = {
+export {
     resolveWordFont,
     resolveDocxFontSize,
     buildDocxDocumentOptions,

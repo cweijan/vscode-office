@@ -1,3 +1,5 @@
+import type { ExportThemeSettings } from '../types';
+
 const CUSTOM_MERMAID_THEMES = {
     Ocean: {
         background: '#f3fbff',
@@ -373,7 +375,7 @@ function buildMermaidExportConfig(exportTheme) {
     return { ...MERMAID_BASE_CONFIG, ...buildAutoMermaidThemeConfig(exportTheme), startOnLoad: true };
 }
 
-module.exports = {
+export {
     buildMermaidExportConfig,
     resolveMermaidExportBackground,
 };

@@ -8,48 +8,16 @@ import { homedir } from 'os';
 import path, { dirname, extname, isAbsolute, join, parse } from 'path';
 import * as vscode from 'vscode';
 import { Holder } from './markdown/holder';
-import { convertMd } from "./markdown/markdown-pdf";
+import { exportMarkdownFile } from './markdown/export';
+import type {
+    CodeThemeColors,
+    ExportConfig,
+    ExportLayoutSettings,
+    ExportThemeSettings,
+    ExportType,
+} from './markdown/export';
 import { Global, i18n } from "@/common/global";
 import { TelemetryService } from "./telemetryService";
-
-export type ExportType = 'pdf' | 'html' | 'docx';
-
-export interface ExportLayoutSettings {
-    fontSize: string;
-    fontFamily: string;
-    lineHeight: string;
-    pageWidth: string;
-    codeFontFamily: string;
-}
-
-export interface CodeThemeColors {
-    bg: string;
-    fg: string;
-    comment: string;
-    keyword: string;
-    string: string;
-    number: string;
-    atom: string;
-    property: string;
-    attribute: string;
-    variable: string;
-    def: string;
-    bracket: string;
-    tag: string;
-    link: string;
-    error: string;
-}
-
-export interface ExportThemeSettings {
-    editorTheme: string;
-    isDark: boolean;
-    codeMirrorTheme?: string;
-    mermaidTheme?: string;
-    globalSettings: Record<string, boolean | number | string | undefined>;
-    cssVariables: Record<string, string>;
-    layout: ExportLayoutSettings;
-    codeThemeColors?: CodeThemeColors;
-}
 
 interface ExportOption {
     type?: ExportType;
@@ -59,6 +27,8 @@ interface ExportOption {
     useProExport?: boolean;
     exportTheme?: ExportThemeSettings;
 }
+
+export type { ExportType, ExportLayoutSettings, CodeThemeColors, ExportThemeSettings };
 
 export class MarkdownService {
 
@@ -76,7 +46,7 @@ export class MarkdownService {
             if (type != 'html') { // html导出速度快, 无需等待
                 vscode.window.showInformationMessage(i18n('ext.markdown.exportStart', type))
             }
-            await convertMd({ markdownFilePath: uri.fsPath, config: this.getConfig(option) })
+            await exportMarkdownFile(uri.fsPath, this.getConfig(option))
             const outputUri = vscode.Uri.file(join(dirname(uri.fsPath), `${parse(uri.fsPath).name}.${type}`));
             FileUtil.genFileSuccess(i18n('ext.markdown.exportSuccess', type), outputUri);
         } catch (error) {
@@ -84,25 +54,20 @@ export class MarkdownService {
         }
     }
 
-    public getConfig(option: ExportOption) {
+    public getConfig(option: ExportOption): ExportConfig {
         const top = Global.getConfig("pdfMarginTop")
         const { type = 'pdf', withoutOutline = false, useProExport = false } = option;
         return {
             type,
-            "styles": [],
             withoutOutline,
             useProExport,
             exportTheme: useProExport ? option.exportTheme : undefined,
-            // chromium path
-            "executablePath": this.getChromiumPath(),
-            // puppeteer launch args (useful for Linux servers running as root)
-            "puppeteerArgs": this.getPuppeteerArgs(),
-            // Set `true` to convert `\n` in paragraphs into `<br>`.
-            "breaks": false,
-            // pdf print option
-            "printBackground": option.printBackground ?? true,
+            executablePath: this.getChromiumPath(),
+            puppeteerArgs: this.getPuppeteerArgs(),
+            breaks: false,
+            printBackground: option.printBackground ?? true,
             format: option.format ?? "A4",
-            margin: { top }
+            margin: { top },
         };
     }
 

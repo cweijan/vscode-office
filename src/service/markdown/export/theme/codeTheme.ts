@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 const CM_THEME_FILES = {
     Auto: 'Auto.css',
@@ -194,7 +194,7 @@ function buildHljsThemeCss(exportTheme) {
     return `\n<style id="vditor-export-hljs-theme">\n${css.trim()}\n</style>\n`;
 }
 
-module.exports = {
+export {
     buildHljsThemeCss,
     resolveCodeThemeColors,
 };

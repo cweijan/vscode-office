@@ -1,11 +1,7 @@
-/**
- * Convert vditor export theme settings to CSS for exported HTML/PDF/DOCX.
- * @param {import('./exportThemeCss').ExportThemeSettings | null | undefined} exportTheme
- * @returns {string}
- */
-const { resolveMermaidExportBackground } = require('./exportMermaidTheme');
+import { resolveMermaidExportBackground } from './mermaidTheme';
+import type { ExportThemeSettings } from '../types';
 
-function resolveLayout(exportTheme) {
+function resolveLayout(exportTheme: ExportThemeSettings | null | undefined) {
     const layout = exportTheme.layout || {};
     const globalSettings = exportTheme.globalSettings || {};
     const vars = exportTheme.cssVariables || {};
@@ -42,7 +38,7 @@ function resolveLayout(exportTheme) {
     return { fontSize, fontFamily, lineHeight, pageWidth, codeFontFamily };
 }
 
-function buildExportThemeCss(exportTheme) {
+function buildExportThemeCss(exportTheme: ExportThemeSettings | null | undefined): string {
     if (!exportTheme || typeof exportTheme !== 'object') {
         return '';
     }
@@ -483,7 +479,7 @@ body.vditor-export .vditor-properties__empty {
     return `\n<style id="vditor-export-theme">\n${css.trim()}\n</style>\n`;
 }
 
-module.exports = {
+export {
     buildExportThemeCss,
     resolveLayout,
 };

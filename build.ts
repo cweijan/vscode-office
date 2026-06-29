@@ -54,11 +54,14 @@ function createNodeShimPlugin() {
         setup(build) {
             build.onResolve({ filter: /^path$/ }, () => ({ path: resolve(shimDir, 'path.ts') }));
             build.onResolve({ filter: /^node:path$/ }, () => ({ path: resolve(shimDir, 'path.ts') }));
+            build.onResolve({ filter: /markdown[\\/]export(\/index)?(\.ts)?$/ }, () => ({
+                path: resolve(shimDir, 'markdown-export.ts'),
+            }));
             build.onResolve({ filter: /markdown[\\/]markdown-pdf(\.js)?$/ }, () => ({
-                path: resolve(shimDir, 'markdown-pdf.ts'),
+                path: resolve(shimDir, 'markdown-export.ts'),
             }));
             build.onResolve({ filter: /markdown[\\/]html-export\.js$/ }, () => ({
-                path: resolve(shimDir, 'markdown-pdf.ts'),
+                path: resolve(shimDir, 'markdown-export.ts'),
             }));
             for (const [moduleName, stubFile] of Object.entries(packageStubs)) {
                 build.onResolve({ filter: new RegExp(`^${moduleName}$`) }, () => ({
