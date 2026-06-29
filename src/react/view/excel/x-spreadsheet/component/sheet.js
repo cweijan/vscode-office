@@ -662,7 +662,7 @@ function editorSetOffset() {
 }
 
 function editorSet() {
-  const { editor, data } = this;
+  const { editor, data, selector } = this;
   if (data.settings.mode === 'read') return;
   const { ri, ci } = data.selector;
   if (!data.canEditCell(ri, ci)) return;
@@ -673,6 +673,7 @@ function editorSet() {
     data.getSelectedCellStyle(),
   );
   clearClipboard.call(this);
+  selector.hideArea();
 }
 
 function verticalScrollbarMove(distance) {
@@ -1042,6 +1043,7 @@ function sheetInitEvents() {
 
   bind(window, 'copy', (evt) => {
     if (!this.focusing) return;
+    if (this.editor.cell !== null) return;
     copy.call(this, evt);
     evt.preventDefault();
   });

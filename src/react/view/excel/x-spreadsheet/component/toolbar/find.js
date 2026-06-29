@@ -9,6 +9,9 @@ export default class Find extends Item {
   element() {
     return super.element()
       .child(new Icon('find'))
-      .on('click', () => this.change('find', true));
+      .on('click', () => {
+        this.trackTelemetry();
+        this.change('find', true);
+      });
   }
 }

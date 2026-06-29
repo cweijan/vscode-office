@@ -10,7 +10,9 @@ export default class ToggleItem extends Item {
   }
 
   click() {
-    this.change(this.tag, this.toggle());
+    const next = this.toggle();
+    this.trackTelemetry({ active: next });
+    this.change(this.tag, next);
   }
 
   setState(active) {

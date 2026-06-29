@@ -136,7 +136,7 @@ export class Options {
             icon: getToolbarCodicon("headings"),
             name: "headings",
         }, {
-            hotkey: "⌘K",
+            hotkey: "⌘B",
             icon: getToolbarCodicon("bold"),
             name: "bold",
             prefix: "**",
@@ -160,7 +160,7 @@ export class Options {
             icon: getToolbarCodicon("background-color"),
             name: "background-color",
         }, {
-            hotkey: "⌘U",
+            hotkey: "⌘K",
             icon: getToolbarCodicon("link"),
             name: "link",
             prefix: "[",

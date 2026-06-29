@@ -14,7 +14,17 @@ function decodeAuthority(authority: string): string {
  * VS Code transforms URIs via `webview.asWebviewUri` into:
  * `https://${scheme}+${encodedAuthority}.vscode-resource.vscode-cdn.net/${path}`
  */
+const LEGACY_WEBVIEW_RESOURCE_REG = /https:\/\/file.*\.net/i;
+
 export function parseWebviewResourceUri(linkUri: string): vscode.Uri | undefined {
+    if (LEGACY_WEBVIEW_RESOURCE_REG.test(linkUri)) {
+        try {
+            return vscode.Uri.parse(linkUri.replace(LEGACY_WEBVIEW_RESOURCE_REG, ''));
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     let parsed: vscode.Uri;
     try {
         parsed = vscode.Uri.parse(linkUri);

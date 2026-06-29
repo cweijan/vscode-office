@@ -69,6 +69,15 @@
     color: var(--callout-accent, var(--chart-blue));
   }
 
+  .callout-icon-glyph(@glyph) {
+    font-family: "codicon";
+    font-size: 16px;
+    line-height: 1;
+    font-weight: normal;
+    content: @glyph;
+    color: var(--callout-accent, var(--chart-blue));
+  }
+
   .callout-icon-codicon(@glyph) {
     flex-shrink: 0;
     display: inline-flex;
@@ -80,12 +89,43 @@
     line-height: 0;
 
     &::before {
-      font-family: "codicon";
-      font-size: 16px;
-      line-height: 1;
-      font-weight: normal;
-      content: @glyph;
-      color: var(--callout-accent, var(--chart-blue));
+      .callout-icon-glyph(@glyph);
+    }
+  }
+
+  .callout-builtin-icon-glyphs(@target) {
+    &[data-subtype="note" i] .@{target},
+    &[data-subtype="abstract" i] .@{target},
+    &[data-subtype="info" i] .@{target},
+    &[data-subtype="todo" i] .@{target} {
+      .callout-icon-codicon("\ea74");
+    }
+
+    &[data-subtype="tip" i] .@{target},
+    &[data-subtype="hint" i] .@{target} {
+      .callout-icon-codicon("\ea61");
+    }
+
+    &[data-subtype="important" i] .@{target} {
+      .callout-icon-codicon("\eabf");
+    }
+
+    &[data-subtype="warning" i] .@{target} {
+      .callout-icon-codicon("\ea6c");
+    }
+
+    &[data-subtype="caution" i] .@{target},
+    &[data-subtype="danger" i] .@{target},
+    &[data-subtype="error" i] .@{target},
+    &[data-subtype="bug" i] .@{target},
+    &[data-subtype="fail" i] .@{target} {
+      .callout-icon-codicon("\ea82");
+    }
+
+    &[data-subtype="question" i] .@{target},
+    &[data-subtype="help" i] .@{target},
+    &[data-subtype="faq" i] .@{target} {
+      .callout-icon-codicon("\ea74");
     }
   }
 
@@ -125,38 +165,95 @@
       }
     }
 
-    &[data-subtype="note" i] .vditor-callout__icon,
-    &[data-subtype="abstract" i] .vditor-callout__icon,
-    &[data-subtype="info" i] .vditor-callout__icon,
-    &[data-subtype="todo" i] .vditor-callout__icon {
-      .callout-icon-codicon("\ea74");
-    }
+    .callout-builtin-icon-glyphs(vditor-callout__icon);
 
-    &[data-subtype="tip" i] .vditor-callout__icon,
-    &[data-subtype="hint" i] .vditor-callout__icon {
-      .callout-icon-codicon("\ea61");
-    }
+    // IR mode stores title/icon on data attributes instead of vditor-callout__* nodes.
+    &:not(:has(.vditor-callout__info)) {
+      display: grid;
+      grid-template-columns: 16px 1fr;
+      grid-template-areas:
+        "icon title"
+        "content content";
+      column-gap: 8px;
+      padding: 12px 14px;
 
-    &[data-subtype="important" i] .vditor-callout__icon {
-      .callout-icon-codicon("\eabf");
-    }
+      &::before {
+        grid-area: icon;
+        align-self: start;
+        margin-top: 1px;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        font-size: 1.05em;
+        line-height: 1;
+        content: attr(data-callout-icon);
+        color: var(--callout-accent, var(--chart-blue));
+      }
 
-    &[data-subtype="warning" i] .vditor-callout__icon {
-      .callout-icon-codicon("\ea6c");
-    }
+      &::after {
+        grid-area: title;
+        content: attr(data-callout-title, attr(data-subtype));
+        .callout-title-style();
+        margin-bottom: 10px;
+        user-select: none;
+      }
 
-    &[data-subtype="caution" i] .vditor-callout__icon,
-    &[data-subtype="danger" i] .vditor-callout__icon,
-    &[data-subtype="error" i] .vditor-callout__icon,
-    &[data-subtype="bug" i] .vditor-callout__icon,
-    &[data-subtype="fail" i] .vditor-callout__icon {
-      .callout-icon-codicon("\ea82");
-    }
+      > * {
+        grid-area: content;
+        color: var(--front-color, inherit);
+        padding-top: 6px;
+        margin-top: 0;
+        margin-bottom: 0;
 
-    &[data-subtype="question" i] .vditor-callout__icon,
-    &[data-subtype="help" i] .vditor-callout__icon,
-    &[data-subtype="faq" i] .vditor-callout__icon {
-      .callout-icon-codicon("\ea74");
+        &:last-child {
+          padding-bottom: 0;
+        }
+      }
+
+      blockquote {
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: transparent;
+        color: inherit;
+      }
+
+      &[data-subtype="note" i]::before,
+      &[data-subtype="abstract" i]::before,
+      &[data-subtype="info" i]::before,
+      &[data-subtype="todo" i]::before {
+        .callout-icon-glyph("\ea74");
+      }
+
+      &[data-subtype="tip" i]::before,
+      &[data-subtype="hint" i]::before {
+        .callout-icon-glyph("\ea61");
+      }
+
+      &[data-subtype="important" i]::before {
+        .callout-icon-glyph("\eabf");
+      }
+
+      &[data-subtype="warning" i]::before {
+        .callout-icon-glyph("\ea6c");
+      }
+
+      &[data-subtype="caution" i]::before,
+      &[data-subtype="danger" i]::before,
+      &[data-subtype="error" i]::before,
+      &[data-subtype="bug" i]::before,
+      &[data-subtype="fail" i]::before {
+        .callout-icon-glyph("\ea82");
+      }
+
+      &[data-subtype="question" i]::before,
+      &[data-subtype="help" i]::before,
+      &[data-subtype="faq" i]::before {
+        .callout-icon-glyph("\ea74");
+      }
     }
   }
 

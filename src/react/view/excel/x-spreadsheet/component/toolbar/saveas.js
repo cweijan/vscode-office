@@ -11,6 +11,7 @@ export default class SaveAs extends Item {
     return super.element()
       .child(new Icon('save-as'))
       .on('click', () => {
+        this.trackTelemetry();
         this.change('save-as');
       });
   }

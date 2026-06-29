@@ -127,10 +127,16 @@ function ExcelViewer() {
                         }
                     },
                     onCancel: () => { },
-                    footer: (_, { OkBtn, CancelBtn }) => (
+                    footer: () => (
                         <>
-                            <CancelBtn />
                             <Button
+                                style={{ padding: '3px 12px', height: 'auto' }}
+                                onClick={() => dialog.destroy()}
+                            >
+                                {t('button.cancel')}
+                            </Button>
+                            <Button
+                                style={{ padding: '3px 12px', height: 'auto' }}
                                 onClick={() => {
                                     void (async () => {
                                         dialog.destroy();
@@ -144,7 +150,23 @@ function ExcelViewer() {
                             >
                                 {t('viewer.saveAsOriginal')}
                             </Button>
-                            <OkBtn />
+                            <Button
+                                type="primary"
+                                style={{ padding: '3px 12px', height: 'auto' }}
+                                onClick={() => {
+                                    handler.emit('telemetry', { event: 'excel.saveAs', properties: { format: 'xlsx' } });
+                                    void (async () => {
+                                        try {
+                                            dialog.destroy();
+                                            await export_xlsx(spreadSheet, 'xlsx', csvEncoding, { saveAs: true }, csvDelimiter);
+                                        } catch (error) {
+                                            console.error(`Failed to save Excel file: ${(error as Error).message}`);
+                                        }
+                                    })();
+                                }}
+                            >
+                                {t('viewer.saveAsXlsx')}
+                            </Button>
                         </>
                     ),
                     afterClose: () => resolve(),
@@ -165,6 +187,7 @@ function ExcelViewer() {
         const spreadSheet = spreadSheetRef.current;
         if (!spreadSheet) return;
         setSaveAsVisible(false);
+        handler.emit('telemetry', { event: 'excel.saveAs', properties: { format: fmt } });
         try {
             await exportSaveAs(spreadSheet, fmt, csvEncodingRef.current, csvDelimiterRef.current);
             if (!readOnlyRef.current) {
@@ -340,10 +363,10 @@ function ExcelViewer() {
                 title={t('button.saveAs')}
                 onCancel={() => setSaveAsVisible(false)}
                 footer={[
-                    <Button key="cancel" onClick={() => setSaveAsVisible(false)}>
+                    <Button key="cancel" onClick={() => setSaveAsVisible(false)} style={{ padding: '3px 12px', height: 'auto' }}>
                         {t('button.cancel')}
                     </Button>,
-                    <Button key="ok" type="primary" onClick={() => void confirmSaveAs(saveAsFormat)}>
+                    <Button key="ok" type="primary" onClick={() => void confirmSaveAs(saveAsFormat)} style={{ padding: '3px 12px', height: 'auto' }}>
                         {t('button.save')}
                     </Button>,
                 ]}

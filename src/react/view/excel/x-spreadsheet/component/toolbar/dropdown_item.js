@@ -10,7 +10,11 @@ export default class DropdownItem extends Item {
   element() {
     const { tag } = this;
     this.dd = this.dropdown();
-    this.dd.change = it => this.change(tag, this.getValue(it));
+    this.dd.change = (it) => {
+      const value = this.getValue(it);
+      this.trackTelemetry({ value });
+      this.change(tag, value);
+    };
     return super.element().child(
       this.dd,
     );
