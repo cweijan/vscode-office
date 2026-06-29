@@ -691,8 +691,8 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     border-radius: 10px;
     background: color-mix(in srgb, var(--panel-background-color, #fff) 96%, var(--front-color, #24292e));
     box-shadow:
-        0 12px 30px color-mix(in srgb, var(--front-color, #24292e) 18%, transparent),
-        0 2px 8px color-mix(in srgb, var(--front-color, #24292e) 10%, transparent);
+        0 8px 20px color-mix(in srgb, var(--front-color, #24292e) 10%, transparent),
+        0 2px 6px color-mix(in srgb, var(--front-color, #24292e) 6%, transparent);
     color: var(--front-color, #24292e);
     transform: translateX(-50%) translateY(-4px) scale(0.96);
     transform-origin: top center;
@@ -710,17 +710,16 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     position: absolute;
     bottom: 100%;
     left: 50%;
-    width: 10px;
-    height: 10px;
-    background: inherit;
-    border-top: 1px solid color-mix(in srgb, var(--front-color, #24292e) 14%, transparent);
-    border-left: 1px solid color-mix(in srgb, var(--front-color, #24292e) 14%, transparent);
-    transform: translateX(-50%) rotate(45deg);
+    width: 0;
+    height: 0;
+    background: none;
+    border: 5px solid transparent;
+    border-bottom-color: color-mix(in srgb, var(--front-color, #24292e) 14%, transparent);
+    transform: translateX(-50%);
 }
 
 .vditor-pro-locked__tooltip-text {
     font-size: 12px;
-    font-weight: 600;
     line-height: 1.2;
 }
 
@@ -784,4 +783,27 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
 .vditor-link-popover__field.vditor-pro-locked .vditor-pro-locked__badge {
     top: -4px;
     right: -4px;
+}
+
+.vditor--dark .vditor-pro-locked__tooltip {
+    box-shadow:
+        0 6px 14px color-mix(in srgb, var(--front-color, #d1d5da) 6%, transparent),
+        0 1px 4px color-mix(in srgb, var(--front-color, #d1d5da) 4%, transparent);
+}
+
+/* override vditor-tooltipped to match pro tooltip style */
+.vditor-toolbar__item .vditor-tooltipped::after {
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--panel-background-color, #fff) 96%, var(--front-color, #24292e));
+    color: var(--front-color, #24292e);
+    border: 1px solid color-mix(in srgb, var(--front-color, #24292e) 14%, transparent);
+    box-shadow:
+        0 8px 20px color-mix(in srgb, var(--front-color, #24292e) 10%, transparent),
+        0 2px 6px color-mix(in srgb, var(--front-color, #24292e) 6%, transparent);
+}
+
+.vditor--dark .vditor-toolbar__item .vditor-tooltipped::after {
+    box-shadow:
+        0 6px 14px color-mix(in srgb, var(--front-color, #d1d5da) 6%, transparent),
+        0 1px 4px color-mix(in srgb, var(--front-color, #d1d5da) 4%, transparent);
 }
