@@ -1,17 +1,16 @@
 # Change log
 
-# 4.0.8
+# 4.0.8 2026-6-29
 
 Markdown editor:
 
+Update:
 - Add image preview.
 - Beautify CodeMirror toolbar.
-- Support saving links with spaces.
-- Fix Wikilinks in remote environment.
+- Disable latex syntax validation.
+- Remember last selected theme preference.
 - Sync settings to other editors after modification.
-- Fix relative links and images in remote environment.
 - Support expandable code blocks with configurable height.
-
 
 Git History:
 
@@ -21,8 +20,14 @@ Git History:
 
 Fix:
 
+- Support saving links with spaces.
 - Fix class file decompilation failure.
+- Fix Wikilinks in remote environment.
+- Preserve bold text color in light theme.
 - Prevent file cache generation after each view.
+- Fix relative links and images in remote environment.
+- Fix markdown editor loading issue for Russian locale.
+- Fix the missing margin for the first child element at the top of the page.
 
 # 4.0.7 2026-6-26
 
