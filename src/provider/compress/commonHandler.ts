@@ -111,6 +111,12 @@ export function handleCommonEvent(uri: Uri, handler: Handler, options?: { skipOp
                 vscode.env.openExternal(vscode.Uri.parse(url));
             }
         })
+        .on('telemetry', (payload: { event: string; properties?: Record<string, string | number | boolean> }) => {
+            const properties = Object.fromEntries(
+                Object.entries(payload.properties ?? {}).map(([key, value]) => [key, String(value)]),
+            );
+            TelemetryService.get()?.trackEvent(payload.event, properties);
+        })
         .on('dispose', () => {
             delete fileSaveTimes[uri.toString()];
         })

@@ -15,8 +15,17 @@ body:has(.excel-app) .ant-message:has(.excel-save-success-message) {
     transform: translateX(-50%) !important;
 }
 
+body:has(.excel-app) {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
 .excel-viewer {
+    width: 100vw;
+    height: 100vh;
     min-height: 100vh;
+    overflow: hidden;
     background-color: white;
     font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
     font-size: var(--vscode-font-size, 13px);
