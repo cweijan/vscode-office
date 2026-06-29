@@ -1,6 +1,100 @@
 import { resolveMermaidExportBackground } from './mermaidTheme';
 import type { ExportThemeSettings } from '../types';
 
+export type ExportThemeCssMode = 'full' | 'light-body';
+
+/** Vditor Light theme variables (subset). Used when Pro export disables theme. */
+const LIGHT_THEME_VARS: Record<string, string> = {
+    // Surface
+    '--bg-color': '#ffffff',
+    '--front-color': '#333333',
+    '--second-bg-color': '#f8f9fa',
+    '--second-color': '#767676',
+
+    // Border & Divider
+    '--hr-bg': '#dce0e4',
+    '--border-color': '#dce0e4',
+
+    // Link & State
+    '--link-color': 'var(--list-hover-color)',
+    '--wikilink-color': '#7b68ee',
+    '--list-hover-color': '#0451a5',
+    '--dropdown-hover-background': '#e8eef3',
+    '--error-color': '#e51400',
+
+    // Blockquote
+    '--blockquote-color': 'var(--front-color)',
+    '--blockquote-border': 'var(--border-color)',
+    '--blockquote-bg': 'transparent',
+
+    // Table
+    '--table-border': 'var(--border-color)',
+    '--table-row-border': 'var(--border-color)',
+    '--table-header-bg': '#e8ecf0',
+    '--table-body-bg': '#ffffff',
+    '--table-axis-color': '#aeb6bf',
+
+    // Inline Code
+    '--code-bg-color': '#f0f2f5',
+    '--code-fg-color': 'var(--front-color)',
+
+    // Toolbar & Panel
+    '--toolbar-background-color': '#f5f6f7',
+    '--toolbar-icon-color': 'var(--front-color)',
+    '--toolbar-icon-hover-color': 'var(--list-hover-color)',
+    '--panel-background-color': 'var(--bg-color)',
+    '--panel-shadow': '0 2px 8px rgba(51, 51, 51, 0.12)',
+    '--textarea-background-color': 'var(--bg-color)',
+    '--textarea-text-color': 'var(--front-color)',
+    '--count-background-color': 'rgba(51, 51, 51, 0.08)',
+
+    // Outline
+    '--outline-bg-color': '#fafbfc',
+    '--outline-hover-bg': '#f0f2f5',
+    '--outline-active-bg': '#e8ecf0',
+
+    // CodeMirror
+    '--cm-bg-color': 'var(--code-bg-color)',
+    '--cm-fg-color': 'var(--front-color)',
+    '--cm-lang-trigger-bg': 'var(--second-bg-color)',
+    '--cm-active-line-bg': '#e5e7e9',
+    '--cm-active-line-gutter-fg': 'var(--cm-line-number-active-fg)',
+    '--cm-fold-fg': 'var(--list-hover-color)',
+    '--cm-fold-fg-hover': 'var(--front-color)',
+    '--cm-fold-bg': '#d4dfeb',
+    '--cm-cursor-fg': 'var(--front-color)',
+    '--cm-line-number-fg': 'rgba(51, 51, 51, 0.55)',
+    '--cm-line-number-active-fg': 'var(--front-color)',
+    '--cm-selection-bg': 'rgba(4, 81, 165, 0.32)',
+    '--cm-selection-bg-focused': 'rgba(4, 81, 165, 0.42)',
+    '--cm-selection-bg-inactive': 'rgba(4, 81, 165, 0.24)',
+    '--cm-selection-highlight-bg': 'rgba(4, 81, 165, 0.18)',
+
+    // Embed & Link Card
+    '--linkcard-bg': 'var(--second-bg-color)',
+    '--linkcard-title-color': 'var(--front-color)',
+    '--linkcard-abstract-color': 'var(--second-color)',
+    '--linkcard-site-color': 'var(--link-color)',
+    '--linkcard-icon-color': 'var(--toolbar-icon-color)',
+    '--linkcard-shadow': 'var(--panel-shadow)',
+    '--linkcard-shadow-hover': '0 0 3px rgba(51, 51, 51, 0.13), 0 3px 6px rgba(51, 51, 51, 0.26)',
+    '--linkcard-image-bg': 'var(--second-color)',
+    '--linenumber-fg': 'rgba(51, 51, 51, 0.38)',
+
+    // Accent palette (charts7)
+    '--chart-red': '#cf222e',
+    '--chart-blue': '#0969da',
+    '--chart-yellow': '#9a6700',
+    '--chart-orange': '#bc4c00',
+    '--chart-green': '#116329',
+    '--chart-purple': '#8250df',
+    '--chart-foreground': '#24292f',
+
+    // Scrollbar
+    '--scrollbar-thumb': 'rgba(51, 51, 51, 0.30)',
+    '--scrollbar-thumb-hover': 'rgba(51, 51, 51, 0.44)',
+};
+
 function resolveLayout(exportTheme: ExportThemeSettings | null | undefined) {
     const layout = exportTheme.layout || {};
     const globalSettings = exportTheme.globalSettings || {};
@@ -38,12 +132,17 @@ function resolveLayout(exportTheme: ExportThemeSettings | null | undefined) {
     return { fontSize, fontFamily, lineHeight, pageWidth, codeFontFamily };
 }
 
-function buildExportThemeCss(exportTheme: ExportThemeSettings | null | undefined): string {
+function buildExportThemeCss(
+    exportTheme: ExportThemeSettings | null | undefined,
+    themeMode: ExportThemeCssMode = 'full',
+): string {
     if (!exportTheme || typeof exportTheme !== 'object') {
         return '';
     }
 
-    const vars = { ...(exportTheme.cssVariables || {}) };
+    const vars = themeMode === 'light-body'
+        ? { ...LIGHT_THEME_VARS }
+        : { ...(exportTheme.cssVariables || {}) };
     const { fontSize, fontFamily, lineHeight, pageWidth, codeFontFamily } = resolveLayout(exportTheme);
 
     vars['--editor-font-size'] = fontSize;
@@ -69,8 +168,10 @@ function buildExportThemeCss(exportTheme: ExportThemeSettings | null | undefined
 
     const imageMaxWidth = vars['--vditor-image-max-width'] || '100%';
     const imageMaxHeight = vars['--vditor-image-max-height'] || 'none';
-    const mermaidBg = resolveMermaidExportBackground(exportTheme);
-    const darkClass = exportTheme.isDark ? '.vditor-export--dark' : '';
+    const mermaidBg = resolveMermaidExportBackground(
+        themeMode === 'light-body' ? { ...exportTheme, isDark: false } : exportTheme,
+    );
+    const darkClass = themeMode === 'full' && exportTheme.isDark ? '.vditor-export--dark' : '';
 
     const css = `
 :root {
@@ -482,4 +583,5 @@ body.vditor-export .vditor-properties__empty {
 export {
     buildExportThemeCss,
     resolveLayout,
+    LIGHT_THEME_VARS,
 };

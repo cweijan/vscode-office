@@ -14,6 +14,21 @@ const PRINT_TOC_HIDE_STYLE = `<style>
 }
 </style>`;
 
+function buildHtmlTopMarginStyle(type: ExportType, config: ExportConfig): string {
+    if (type !== 'html') {
+        return '';
+    }
+    const top = config.margin?.top;
+    if (top == null || top < 0) {
+        return '';
+    }
+    return `<style>
+body {
+    padding-top: ${top}px;
+}
+</style>`;
+}
+
 export function buildHtmlDocument(
     content: string,
     markdownFilePath: string,
@@ -27,6 +42,7 @@ export function buildHtmlDocument(
         if (options?.autoInsertedToc) {
             style += PRINT_TOC_HIDE_STYLE;
         }
+        style += buildHtmlTopMarginStyle(type, config);
         const templatePath = resolveExportTemplatePath();
         const bodyClass = resolveBodyExportClass(config);
         return mustache.render(readTextFile(templatePath), { title, style, content, bodyClass });

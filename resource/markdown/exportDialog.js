@@ -4,6 +4,7 @@ const DEFAULT_PREFS = {
     type: 'pdf',
     withOutline: true,
     useTheme: true,
+    marginTop: 25,
     pageFormat: 'A4',
     fontFamily: 'inherit',
     fontSize: 13,
@@ -65,6 +66,12 @@ const parseFontSize = (value) => {
     return Number.isFinite(parsed) ? parsed : DEFAULT_PREFS.fontSize
 }
 
+const parseMarginTop = (value) => {
+    if (value == null || value === '') return DEFAULT_PREFS.marginTop
+    const parsed = parseInt(String(value), 10)
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : DEFAULT_PREFS.marginTop
+}
+
 const resolveEditorDefaults = (editor) => {
     const layout = editor?.exportExportSettings?.()?.layout
     return {
@@ -93,8 +100,10 @@ const setFormat = (overlay, type) => {
 }
 
 const syncSections = (overlay, type) => {
+    const marginSection = overlay.querySelector('[data-export-section="margin"]')
     const pdfSection = overlay.querySelector('[data-export-section="pdf"]')
     const pageSizeRow = overlay.querySelector('[data-export-section="pdf-page-size"]')
+    if (marginSection) marginSection.hidden = type !== 'pdf' && type !== 'html'
     if (pdfSection) pdfSection.hidden = type !== 'pdf'
     if (pageSizeRow) pageSizeRow.hidden = type !== 'pdf'
 }
@@ -156,6 +165,15 @@ const applyProLock = (overlay) => {
     for (const control of proBody.querySelectorAll('select, input')) {
         control.disabled = locked
     }
+    const beautifyIndicator = proBody.querySelector('[data-export-beautify-indicator]')
+    if (beautifyIndicator) {
+        const enabled = isProUser()
+        beautifyIndicator.classList.toggle('vditor-export-beautify-indicator--disabled', !enabled)
+        const label = beautifyIndicator.querySelector('[data-export-beautify-label]')
+        if (label) {
+            label.textContent = enabled ? 'Enabled' : 'Disabled'
+        }
+    }
 }
 
 export const refreshExportDialogProState = () => {
@@ -185,6 +203,7 @@ export const openExportDialog = (editor, options = {}) => {
     const editorDefaults = resolveEditorDefaults(editor)
     const outlineInput = overlay.querySelector('[data-export-option="outline"]')
     const themeInput = overlay.querySelector('[data-export-option="useTheme"]')
+    const marginTopInput = overlay.querySelector('[data-export-option="marginTop"]')
     const pageFormatSelect = overlay.querySelector('[data-export-option="pageFormat"]')
     const fontFamilySelect = overlay.querySelector('[data-export-option="fontFamily"]')
     const fontSizeSelect = overlay.querySelector('[data-export-option="fontSize"]')
@@ -200,6 +219,7 @@ export const openExportDialog = (editor, options = {}) => {
     setFormat(overlay, initialType)
     setToggle(outlineInput, prefs.withOutline)
     setToggle(themeInput, isProUser() ? prefs.useTheme : false)
+    if (marginTopInput) marginTopInput.value = String(prefs.marginTop ?? DEFAULT_PREFS.marginTop)
     if (pageFormatSelect) pageFormatSelect.value = prefs.pageFormat
     if (fontFamilySelect) {
         fontFamilySelect.value = matchFontFamilyValue(prefs.fontFamily || editorDefaults.fontFamily)
@@ -259,6 +279,7 @@ export const openExportDialog = (editor, options = {}) => {
                 type,
                 withOutline: readToggle(outlineInput),
                 useTheme: readToggle(themeInput),
+                marginTop: parseMarginTop(marginTopInput?.value),
                 pageFormat: pageFormatSelect?.value || DEFAULT_PREFS.pageFormat,
                 fontFamily: fontFamilySelect?.value || DEFAULT_PREFS.fontFamily,
                 fontSize: parseFontSize(fontSizeSelect?.value),
@@ -273,11 +294,16 @@ export const openExportDialog = (editor, options = {}) => {
                 if (proSettings) {
                     payload.proSettings = proSettings
                 }
-                payload.printBackground = next.useTheme
+                payload.useExportTheme = next.useTheme
+                payload.printBackground = true
             } else {
+                payload.useExportTheme = false
                 payload.printBackground = true
             }
 
+            if (type === 'pdf' || type === 'html') {
+                payload.margin = { top: next.marginTop }
+            }
             if (type === 'pdf') {
                 payload.withoutOutline = !next.withOutline
                 if (isProUser()) {

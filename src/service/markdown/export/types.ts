@@ -60,8 +60,6 @@ export interface ExportConfig {
     autoInsertedToc?: boolean;
 }
 
-export type { ExportStyleMode } from './styleLoader';
-
 export interface ExportMarkdownRequest {
     markdownFilePath: string;
     config: ExportConfig;

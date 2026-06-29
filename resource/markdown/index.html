@@ -129,6 +129,17 @@
                         </label>
                     </div>
                 </div>
+                <div class="vditor-pdf-export-dialog__section" data-export-section="margin">
+                    <div class="vditor-pdf-export-row vditor-pdf-export-row--select">
+                        <div class="vditor-pdf-export-row__text">
+                            <span class="vditor-pdf-export-row__label">Top Margin</span>
+                            <span class="vditor-pdf-export-row__hint">Top margin in pixels</span>
+                        </div>
+                        <div class="vditor-pdf-export-select-wrap vditor-pdf-export-select-wrap--fixed">
+                            <input class="vditor-pdf-export-select vditor-pdf-export-select--number" type="number" min="0" step="1" data-export-option="marginTop" aria-label="Top margin">
+                        </div>
+                    </div>
+                </div>
                 <div class="vditor-pdf-export-dialog__section" data-export-section="pdf">
                     <div class="vditor-pdf-export-row">
                         <div class="vditor-pdf-export-row__text">
@@ -150,6 +161,16 @@
                     <div class="vditor-export-pro-body" data-export-pro-body>
                         <div class="vditor-pdf-export-row">
                             <div class="vditor-pdf-export-row__text">
+                                <span class="vditor-pdf-export-row__label">Beautify Export</span>
+                                <span class="vditor-pdf-export-row__hint">Enhanced export layout and styling</span>
+                            </div>
+                            <span class="vditor-export-beautify-indicator" data-export-beautify-indicator>
+                                <span class="codicon codicon-check" aria-hidden="true"></span>
+                                <span data-export-beautify-label>Enabled</span>
+                            </span>
+                        </div>
+                        <div class="vditor-pdf-export-row">
+                            <div class="vditor-pdf-export-row__text">
                                 <span class="vditor-pdf-export-row__label">Theme</span>
                                 <span class="vditor-pdf-export-row__hint">Apply editor theme colors</span>
                             </div>
@@ -164,7 +185,7 @@
                             <div class="vditor-pdf-export-row__text">
                                 <span class="vditor-pdf-export-row__label">Page Size</span>
                             </div>
-                            <div class="vditor-pdf-export-select-wrap">
+                            <div class="vditor-pdf-export-select-wrap vditor-pdf-export-select-wrap--fixed">
                                 <select class="vditor-pdf-export-select" data-export-option="pageFormat" aria-label="Page size">
                                     <option value="A4">A4</option>
                                     <option value="Letter">Letter</option>
@@ -176,22 +197,20 @@
                                 <span class="codicon codicon-chevron-down vditor-pdf-export-select__chevron" aria-hidden="true"></span>
                             </div>
                         </div>
-                        <div class="vditor-pdf-export-row vditor-pdf-export-row--select">
-                            <div class="vditor-pdf-export-row__text">
+                        <div class="vditor-pdf-export-row vditor-pdf-export-row--select vditor-pdf-export-row--split">
+                            <div class="vditor-pdf-export-row-half">
                                 <span class="vditor-pdf-export-row__label">Font</span>
+                                <div class="vditor-pdf-export-select-wrap">
+                                    <select class="vditor-pdf-export-select" data-export-option="fontFamily" aria-label="Font family"></select>
+                                    <span class="codicon codicon-chevron-down vditor-pdf-export-select__chevron" aria-hidden="true"></span>
+                                </div>
                             </div>
-                            <div class="vditor-pdf-export-select-wrap">
-                                <select class="vditor-pdf-export-select" data-export-option="fontFamily" aria-label="Font family"></select>
-                                <span class="codicon codicon-chevron-down vditor-pdf-export-select__chevron" aria-hidden="true"></span>
-                            </div>
-                        </div>
-                        <div class="vditor-pdf-export-row vditor-pdf-export-row--select">
-                            <div class="vditor-pdf-export-row__text">
+                            <div class="vditor-pdf-export-row-half vditor-pdf-export-row-half--font-size">
                                 <span class="vditor-pdf-export-row__label">Font Size</span>
-                            </div>
-                            <div class="vditor-pdf-export-select-wrap">
-                                <select class="vditor-pdf-export-select" data-export-option="fontSize" aria-label="Font size"></select>
-                                <span class="codicon codicon-chevron-down vditor-pdf-export-select__chevron" aria-hidden="true"></span>
+                                <div class="vditor-pdf-export-select-wrap vditor-pdf-export-select-wrap--fixed">
+                                    <select class="vditor-pdf-export-select" data-export-option="fontSize" aria-label="Font size"></select>
+                                    <span class="codicon codicon-chevron-down vditor-pdf-export-select__chevron" aria-hidden="true"></span>
+                                </div>
                             </div>
                         </div>
                     </div>

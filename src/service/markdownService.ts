@@ -25,7 +25,9 @@ interface ExportOption {
     printBackground?: boolean;
     format?: string;
     useProExport?: boolean;
+    useExportTheme?: boolean;
     exportTheme?: ExportThemeSettings;
+    margin?: { top?: number };
 }
 
 export type { ExportType, ExportLayoutSettings, CodeThemeColors, ExportThemeSettings };
@@ -55,19 +57,19 @@ export class MarkdownService {
     }
 
     public getConfig(option: ExportOption): ExportConfig {
-        const top = Global.getConfig("pdfMarginTop")
-        const { type = 'pdf', withoutOutline = false, useProExport = false } = option;
+        const { type = 'pdf', withoutOutline = false, useProExport = false, useExportTheme = false } = option;
         return {
             type,
             withoutOutline,
             useProExport,
+            useExportTheme: useProExport ? useExportTheme : false,
             exportTheme: useProExport ? option.exportTheme : undefined,
             executablePath: this.getChromiumPath(),
             puppeteerArgs: this.getPuppeteerArgs(),
             breaks: false,
             printBackground: option.printBackground ?? true,
             format: option.format ?? "A4",
-            margin: { top },
+            margin: { top: option.margin?.top ?? 25 },
         };
     }
 

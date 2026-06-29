@@ -320,6 +320,8 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     color: var(--front-color, #ccc);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
     animation: pdf-export-dialog-in 0.28s cubic-bezier(0.34, 1.2, 0.64, 1);
+    --vditor-export-control-width: 120px;
+    --vditor-export-number-width: 72px;
 }
 
 .vditor-pdf-export-dialog__header {
@@ -426,6 +428,28 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     position: relative;
 }
 
+.vditor-export-beautify-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #34c759;
+    background: color-mix(in srgb, #34c759 14%, transparent);
+}
+
+.vditor-export-beautify-indicator .codicon {
+    font-size: 14px;
+}
+
+.vditor-export-beautify-indicator--disabled {
+    color: color-mix(in srgb, var(--front-color, #ccc) 55%, transparent);
+    background: color-mix(in srgb, var(--front-color, #ccc) 10%, transparent);
+}
+
 .vditor-export-pro--locked {
     cursor: pointer;
 }
@@ -469,6 +493,35 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
 .vditor-pdf-export-row--select {
     padding-top: 8px;
     padding-bottom: 10px;
+}
+
+.vditor-pdf-export-row--split {
+    gap: 12px;
+    justify-content: flex-start;
+}
+
+.vditor-pdf-export-row-half:first-child {
+    flex: 1;
+    min-width: 0;
+}
+
+.vditor-pdf-export-row-half--font-size {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+.vditor-pdf-export-row-half .vditor-pdf-export-row__label {
+    flex-shrink: 0;
+}
+
+.vditor-pdf-export-row-half:first-child .vditor-pdf-export-select-wrap {
+    flex: 1;
+    min-width: 0;
+}
+
+.vditor-pdf-export-row-half:first-child .vditor-pdf-export-select {
+    min-width: 0;
+    width: 100%;
 }
 
 .vditor-pdf-export-row__text {
@@ -545,6 +598,41 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
 .vditor-pdf-export-select-wrap {
     position: relative;
     flex-shrink: 0;
+}
+
+.vditor-pdf-export-select-wrap--fixed {
+    width: var(--vditor-export-control-width);
+    flex: 0 0 var(--vditor-export-control-width);
+}
+
+.vditor-pdf-export-select-wrap--fixed .vditor-pdf-export-select {
+    width: 100%;
+    min-width: 0;
+}
+
+.vditor-pdf-export-select-wrap--fixed .vditor-pdf-export-select--number {
+    width: var(--vditor-export-number-width, 72px);
+    min-width: 0;
+    margin-left: auto;
+}
+
+.vditor-pdf-export-select--number {
+    padding-right: 12px;
+    -moz-appearance: textfield;
+}
+
+.vditor-pdf-export-select--number::-webkit-outer-spin-button,
+.vditor-pdf-export-select--number::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.vditor-pdf-export-row-half {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
 }
 
 .vditor-pdf-export-select {
