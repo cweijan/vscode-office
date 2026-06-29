@@ -1,9 +1,9 @@
-import {IVditor} from "../../types";
+import { IVditor } from "../../types";
 import {
+    CODE_FONT_FAMILY_KEY,
     EDITOR_FONT_SIZE_DEFAULT,
     EDITOR_FONT_SIZE_KEY,
     FONT_FAMILY_KEY,
-    CODE_FONT_FAMILY_KEY,
     getGlobalLocalStorageSetting,
     LINE_HEIGHT_DEFAULT,
     LINE_HEIGHT_KEY,
@@ -143,7 +143,7 @@ const collectLayoutSettings = (vditor: IVditor): ExportLayoutSettings => {
     const storedFontFamily = globalSettings[FONT_FAMILY_KEY] ?? getGlobalLocalStorageSetting<string>(FONT_FAMILY_KEY);
     const fontFamily = resolveFontFamily(
         (typeof storedFontFamily === "string" ? storedFontFamily : undefined)
-            ?? readCssVar(root, "--editor-font-family"),
+        ?? readCssVar(root, "--editor-font-family"),
         contentStyle,
     );
 
@@ -166,7 +166,7 @@ const collectLayoutSettings = (vditor: IVditor): ExportLayoutSettings => {
         ? codeFontFamilyRaw
         : (readCssVar(root, "--vscode-editor-font-family") || "mononoki, Consolas, \"Liberation Mono\", Menlo, Courier, monospace");
 
-    return {fontSize, fontFamily, lineHeight, pageWidth, codeFontFamily};
+    return { fontSize, fontFamily, lineHeight, pageWidth, codeFontFamily };
 };
 
 const collectCssVariables = (element: HTMLElement): Record<string, string> => {
