@@ -195,6 +195,10 @@
 		],
 		"commands": [
 			{
+				"command": "office.pro.activate",
+				"title": "Office Viewer: Activate License"
+			},
+			{
 				"command": "vscode-office.save-response-body",
 				"title": "Save Response",
 				"icon": "$(save)",

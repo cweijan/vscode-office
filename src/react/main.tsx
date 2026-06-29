@@ -20,6 +20,7 @@ const IcnsViewer = lazy(() => import('./view/icns/IcnsViewer.tsx'))
 const PsdViewer = lazy(() => import('./view/psd/PsdViewer.tsx'))
 const XmindViewer = lazy(() => import('./view/xmind/XmindViewer.tsx'))
 const WebUnsupported = lazy(() => import('./view/WebUnsupported.tsx'))
+const ProView = lazy(() => import('./view/pro/ProView.tsx'))
 
 document.getElementById('_defaultStyles')?.parentNode?.removeChild(document.getElementById('_defaultStyles'))
 const configs = getConfigs();
@@ -58,6 +59,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           return <GitHistory />
         case 'webUnsupported':
           return <WebUnsupported />
+        case 'pro':
+          return <ProView />
         default:
           return <>{$t('common.officeViewer')}</>
       }

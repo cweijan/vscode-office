@@ -1,0 +1,215 @@
+@import '../common/viewerTheme.css';
+
+.pro-page {
+    min-height: 100vh;
+    width: 100%;
+    padding: 32px 24px 64px;
+    background: var(--viewer-bg);
+    color: var(--viewer-fg);
+    box-sizing: border-box;
+    font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+}
+
+.pro-page-inner {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+/* Author letter */
+.pro-letter {
+    border: 1px solid var(--viewer-border);
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin-bottom: 32px;
+    background: color-mix(in srgb, var(--viewer-sider-bg) 60%, var(--viewer-bg));
+    line-height: 1.7;
+    font-size: 13.5px;
+}
+
+.pro-letter p {
+    margin: 0 0 12px;
+    color: var(--viewer-fg);
+}
+
+.pro-letter p:last-child {
+    margin-bottom: 0;
+    color: var(--viewer-muted);
+    font-size: 13px;
+}
+
+/* Plans */
+.pro-plans {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.pro-plan-card {
+    border: 1px solid var(--viewer-border);
+    border-radius: 10px;
+    padding: 20px 20px 20px;
+    background: var(--viewer-bg);
+}
+
+.pro-plan-card--pro {
+    border-color: var(--vscode-textLink-foreground, #6c63ff);
+    background: color-mix(in srgb, var(--vscode-textLink-foreground, #6c63ff) 5%, var(--viewer-bg));
+}
+
+.pro-plan-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0 0 4px;
+}
+
+.pro-plan-price {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 8px 0 4px;
+    color: var(--viewer-fg);
+}
+
+.pro-plan-price-sub {
+    font-size: 12px;
+    color: var(--viewer-muted);
+    margin: 0 0 16px;
+}
+
+.pro-plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.pro-plan-features li {
+    font-size: 13px;
+    color: var(--viewer-fg);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.pro-plan-features li .codicon {
+    font-size: 14px;
+    flex-shrink: 0;
+    color: var(--vscode-textLink-foreground, #6c63ff);
+}
+
+.pro-plan-features li.muted {
+    color: var(--viewer-muted);
+}
+
+.pro-plan-features li.bold {
+    font-weight: 600;
+}
+
+.pro-plan-btn {
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+    padding: 8px 0;
+    border-radius: 6px;
+    border: 1px solid var(--vscode-textLink-foreground, #6c63ff);
+    background: var(--vscode-textLink-foreground, #6c63ff);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    text-align: center;
+}
+
+.pro-plan-btn:hover {
+    opacity: 0.88;
+}
+
+.pro-plan-btn--free {
+    background: transparent;
+    color: var(--vscode-textLink-foreground, #6c63ff);
+}
+
+/* License input section */
+.pro-activate {
+    border: 1px solid var(--viewer-border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    background: color-mix(in srgb, var(--viewer-sider-bg) 60%, var(--viewer-bg));
+}
+
+.pro-activate h3 {
+    margin: 0 0 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.pro-activate-row {
+    display: flex;
+    gap: 8px;
+}
+
+.pro-activate-input {
+    flex: 1;
+    padding: 6px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--viewer-border);
+    background: var(--vscode-input-background, var(--viewer-bg));
+    color: var(--viewer-fg);
+    font-family: var(--vscode-editor-font-family, monospace);
+    font-size: 13px;
+    outline: none;
+    min-width: 0;
+}
+
+.pro-activate-input:focus {
+    border-color: var(--vscode-textLink-foreground, #6c63ff);
+}
+
+.pro-activate-btn {
+    padding: 6px 16px;
+    border-radius: 5px;
+    border: none;
+    background: var(--vscode-textLink-foreground, #6c63ff);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s;
+    flex-shrink: 0;
+}
+
+.pro-activate-btn:hover { opacity: 0.88; }
+.pro-activate-btn:disabled { opacity: 0.5; cursor: default; }
+
+.pro-activate-status {
+    margin-top: 10px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pro-activate-status--success { color: var(--vscode-testing-iconPassed, #4caf50); }
+.pro-activate-status--error { color: var(--vscode-testing-iconFailed, #f44336); }
+
+.pro-current-key {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--viewer-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pro-current-key code {
+    font-family: var(--vscode-editor-font-family, monospace);
+    color: var(--viewer-fg);
+}
+
+@media (max-width: 520px) {
+    .pro-plans { grid-template-columns: 1fr; }
+}

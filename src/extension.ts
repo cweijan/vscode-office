@@ -15,6 +15,7 @@ import { activateHttp } from './provider/http';
 import { activateYaml } from './provider/yaml';
 import { activateXml } from './provider/xml';
 import { activateGitHistory } from './gitHistory/provider';
+import { ProPanel } from './provider/proPanel';
 import { IconService } from './service/icon/iconService';
 import { autoClearCacheStorage } from './service/autoClearCacheStorage';
 
@@ -36,6 +37,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	const classViewerInstance = new ClassViewerProvider(context);
 	const markdownEditorProvider = new MarkdownEditorProvider(context)
 	context.subscriptions.push(
+		vscode.commands.registerCommand('office.pro.activate', () => ProPanel.createOrShow(context)),
 		vscode.commands.registerCommand('office.markdown.switch', (uri) => { markdownService.switchEditor(uri) }),
 		vscode.commands.registerCommand('office.csv.switch', (uri) => { switchCsvEditor(uri) }),
 		vscode.commands.registerCommand('office.markdown.paste', () => { markdownService.loadClipboardImage() }),
