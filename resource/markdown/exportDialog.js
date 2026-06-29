@@ -255,7 +255,9 @@ export const openExportDialog = (editor, options = {}) => {
         const onCancel = () => finish(null)
 
         const onTypeChange = () => {
-            syncSections(overlay, readFormat(overlay))
+            const type = readFormat(overlay)
+            syncSections(overlay, type)
+            savePrefs({ ...loadPrefs(), type })
         }
 
         const onProBodyClick = (e) => {

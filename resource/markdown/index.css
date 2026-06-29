@@ -269,7 +269,15 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     text-decoration: underline;
 }
 
-/* Export Dialog — Apple-style sheet */
+/* Export Dialog */
+html[data-editor-theme] {
+    --vditor-toolbar-border-bottom: 1px solid var(--border-color);
+}
+
+html[data-editor-theme]:not([data-editor-theme="Auto"]) {
+    --vditor-input-border: 1px solid var(--border-color);
+}
+
 .vditor-pdf-export-overlay {
     position: fixed;
     inset: 0;
@@ -279,7 +287,7 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     justify-content: center;
     padding: min(16vh, 96px) 24px 24px;
     box-sizing: border-box;
-    background: rgba(0, 0, 0, 0.35);
+    background: color-mix(in srgb, var(--front-color) 35%, transparent);
     backdrop-filter: blur(12px) saturate(140%);
     -webkit-backdrop-filter: blur(12px) saturate(140%);
     animation: pdf-export-overlay-in 0.22s ease;
@@ -308,17 +316,14 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
 .vditor-pdf-export-dialog {
     width: 100%;
     max-width: 440px;
-    background: color-mix(in srgb, var(--second-bg-color, #2d2d2d) 88%, transparent);
-    border: 1px solid color-mix(in srgb, var(--border-color, #555) 70%, transparent);
+    background: var(--panel-background-color);
+    border: var(--vditor-toolbar-border-bottom, 1px solid var(--border-color));
     border-radius: 14px;
-    box-shadow:
-        0 0 0 0.5px color-mix(in srgb, #fff 8%, transparent),
-        0 24px 48px rgba(0, 0, 0, 0.38),
-        0 8px 16px rgba(0, 0, 0, 0.18);
+    box-shadow: var(--panel-shadow);
     overflow: hidden;
     font-size: 13px;
-    color: var(--front-color, #ccc);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+    color: var(--front-color);
+    font-family: inherit;
     animation: pdf-export-dialog-in 0.28s cubic-bezier(0.34, 1.2, 0.64, 1);
     --vditor-export-control-width: 120px;
     --vditor-export-number-width: 72px;
@@ -329,12 +334,12 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     align-items: center;
     gap: 10px;
     padding: 16px 22px 12px;
-    border-bottom: 1px solid color-mix(in srgb, var(--border-color, #555) 55%, transparent);
+    border-bottom: var(--vditor-toolbar-border-bottom, 1px solid var(--border-color));
 }
 
 .vditor-pdf-export-dialog__icon {
     font-size: 20px;
-    color: var(--vscode-textLink-foreground, #3794ff);
+    color: var(--list-hover-color);
     flex-shrink: 0;
 }
 
@@ -381,8 +386,8 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     display: block;
     padding: 6px 10px;
     border-radius: 8px;
-    border: 1px solid color-mix(in srgb, var(--border-color, #555) 80%, transparent);
-    background: color-mix(in srgb, var(--front-color, #ccc) 6%, var(--second-bg-color, #2d2d2d));
+    border: var(--vditor-input-border, var(--vditor-toolbar-border-bottom, 1px solid var(--border-color)));
+    background: var(--toolbar-background-color);
     font-size: 13px;
     font-weight: 500;
     text-align: center;
@@ -390,13 +395,13 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
 }
 
 .vditor-export-format-option input:checked + .vditor-export-format-option__label {
-    border-color: color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 70%, transparent);
-    background: color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 14%, var(--second-bg-color, #2d2d2d));
-    color: var(--vscode-textLink-foreground, #3794ff);
+    border-color: var(--list-hover-color);
+    background: color-mix(in srgb, var(--list-hover-color) 14%, var(--second-bg-color));
+    color: var(--list-hover-color);
 }
 
 .vditor-export-format-option input:focus-visible + .vditor-export-format-option__label {
-    outline: 2px solid color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 55%, transparent);
+    outline: 2px solid color-mix(in srgb, var(--list-hover-color) 55%, transparent);
     outline-offset: 2px;
 }
 
@@ -406,7 +411,7 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
 
 .vditor-export-pro-section {
     margin-top: 2px;
-    border-top: 1px solid color-mix(in srgb, var(--border-color, #555) 55%, transparent);
+    border-top: var(--vditor-toolbar-border-bottom, 1px solid var(--border-color));
 }
 
 .vditor-export-pro-header {
@@ -421,7 +426,7 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: color-mix(in srgb, var(--front-color, #ccc) 70%, transparent);
+    color: var(--second-color);
 }
 
 .vditor-export-pro-body {
@@ -437,8 +442,8 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     border-radius: 999px;
     font-size: 12px;
     font-weight: 500;
-    color: #34c759;
-    background: color-mix(in srgb, #34c759 14%, transparent);
+    color: var(--chart-green);
+    background: color-mix(in srgb, var(--chart-green) 14%, transparent);
 }
 
 .vditor-export-beautify-indicator .codicon {
@@ -446,8 +451,8 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
 }
 
 .vditor-export-beautify-indicator--disabled {
-    color: color-mix(in srgb, var(--front-color, #ccc) 55%, transparent);
-    background: color-mix(in srgb, var(--front-color, #ccc) 10%, transparent);
+    color: var(--second-color);
+    background: var(--count-background-color);
 }
 
 .vditor-export-pro--locked {
@@ -460,7 +465,7 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     inset: 0;
     z-index: 1;
     border-radius: 0 0 8px 8px;
-    background: color-mix(in srgb, var(--second-bg-color, #2d2d2d) 35%, transparent);
+    background: color-mix(in srgb, var(--panel-background-color) 65%, transparent);
     pointer-events: auto;
 }
 
@@ -541,7 +546,7 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
 .vditor-pdf-export-row__hint {
     font-size: 11px;
     line-height: 1.35;
-    color: color-mix(in srgb, var(--front-color, #ccc) 55%, transparent);
+    color: var(--second-color);
 }
 
 .vditor-pdf-export-toggle {
@@ -640,10 +645,10 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     -webkit-appearance: none;
     min-width: 120px;
     padding: 6px 32px 6px 12px;
-    border: 1px solid color-mix(in srgb, var(--border-color, #555) 80%, transparent);
+    border: var(--vditor-input-border, var(--vditor-toolbar-border-bottom, 1px solid var(--border-color)));
     border-radius: 8px;
-    background: color-mix(in srgb, var(--front-color, #ccc) 6%, var(--second-bg-color, #2d2d2d));
-    color: inherit;
+    background: var(--textarea-background-color);
+    color: var(--textarea-text-color);
     font: inherit;
     font-size: 13px;
     cursor: pointer;
@@ -653,7 +658,7 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
 
 .vditor-pdf-export-select:hover,
 .vditor-pdf-export-select:focus {
-    border-color: color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 65%, transparent);
+    border-color: var(--list-hover-color);
 }
 
 .vditor-pdf-export-select__chevron {
@@ -664,6 +669,7 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     font-size: 12px;
     pointer-events: none;
     opacity: 0.55;
+    color: var(--toolbar-icon-color);
 }
 
 .vditor-pdf-export-dialog__footer {
@@ -671,7 +677,7 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
     justify-content: flex-end;
     gap: 8px;
     padding: 12px 22px 14px;
-    border-top: 1px solid color-mix(in srgb, var(--border-color, #555) 55%, transparent);
+    border-top: var(--vditor-toolbar-border-bottom, 1px solid var(--border-color));
 }
 
 .vditor-pdf-export-btn {

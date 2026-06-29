@@ -1,5 +1,13 @@
 // VS Code integration: bridge theme tokens and layout overrides via CSS variables.
 
+html[data-editor-theme] {
+  --vditor-toolbar-border-bottom: 1px solid var(--border-color);
+}
+
+html[data-editor-theme]:not([data-editor-theme="Auto"]) {
+  --vditor-input-border: 1px solid var(--border-color);
+}
+
 #vditor[data-editor-theme]:not([data-editor-theme="Auto"]) {
   --table-border: var(--border-color);
   --table-row-border: var(--border-color);
