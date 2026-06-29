@@ -21,7 +21,7 @@ export async function getToolbar(resPath, onSave = null) {
             name: 'edit-in-vscode',
             tip: `Edit In VSCode (${shortcutTip})`,
             className: 'right',
-            icon: await loadRes(`${resPath}/vscode.svg`),
+            icon: codicon('edit'),
             click() {
                 handler.emit("editInVSCode", true)
             }
@@ -267,29 +267,6 @@ export const createContextMenu = (editor) => {
     })
 }
 
-export const imageParser = (viewAbsoluteLocal) => {
-    if (!viewAbsoluteLocal) return;
-    var observer = new MutationObserver(mutationList => {
-        for (var mutation of mutationList) {
-            for (var node of mutation.addedNodes) {
-                if (!node.querySelector) continue;
-                const imgs = node.querySelectorAll('img')
-                for (const img of imgs) {
-                    const url = img.src;
-                    if (url.startsWith("http")) { continue; }
-                    if (url.startsWith("vscode-webview-resource") || url.includes("file:///")) {
-                        img.src = `https://file+.vscode-resource.vscode-cdn.net/${url.split("file:///")[1]}`
-                    }
-                }
-            }
-        }
-    });
-    observer.observe(document, {
-        childList: true,
-        subtree: true
-    });
-}
-
 function matchShortcut(hotkey, event) {
 
     const matchAlt = hotkey.match(/!/) != null == event.altKey
@@ -331,11 +308,9 @@ export const bindShortcut = (handler, editor) => {
         if (isCompose(e)) {
             switch (e.code) {
                 case 'KeyS':
-                    if (editor.isDirty?.()) {
-                        handler.emit('telemetry', { event: 'markdown.save', properties: { source: 'shortcut' } });
-                        vscodeEvent.emit("doSave", editor.getValue());
-                        editor.markSaved();
-                    }
+                    handler.emit('telemetry', { event: 'markdown.save', properties: { source: 'shortcut' } });
+                    vscodeEvent.emit("doSave", editor.getValue());
+                    editor.markSaved();
                     e.stopPropagation();
                     e.preventDefault();
                     break;

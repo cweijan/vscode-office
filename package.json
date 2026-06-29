@@ -2,7 +2,7 @@
 	"name": "vscode-office",
 	"displayName": "Office Viewer",
 	"description": "View word, excel, powerpoint files and using WYSIWYG editor for markdown.",
-	"version": "4.0.6",
+	"version": "4.0.8",
 	"publisher": "cweijan",
 	"icon": "image/logo.png",
 	"engines": {
@@ -48,10 +48,6 @@
 	"activationEvents": [
 		"onStartupFinished"
 	],
-	"extensionKind": [
-		"ui",
-		"workspace"
-	],
 	"main": "./out/extension.js",
 	"browser": "./out/extension.web.js",
 	"contributes": {
@@ -60,11 +56,6 @@
 				"label": "One Dark Modern",
 				"uiTheme": "vs-dark",
 				"path": "./theme/onedark-modern.json"
-			},
-			{
-				"label": "One Dark Modern Classic",
-				"uiTheme": "vs-dark",
-				"path": "./theme/onedark-modern-classic.json"
 			}
 		],
 		"iconThemes": [
@@ -533,19 +524,6 @@
 				]
 			},
 			{
-				"viewType": "cweijan.markdownPreview",
-				"displayName": "Markdown Preview",
-				"priority": "option",
-				"selector": [
-					{
-						"filenamePattern": "*.md"
-					},
-					{
-						"filenamePattern": "*.markdown"
-					}
-				]
-			},
-			{
 				"viewType": "cweijan.htmlViewer",
 				"displayName": "Html Viewer",
 				"priority": "option",
@@ -576,11 +554,6 @@
 				"title": "Markdown",
 				"order": 1,
 				"properties": {
-					"vscode-office.viewAbsoluteLocal": {
-						"type": "boolean",
-						"default": false,
-						"description": "Support view absolute path image from markdown viewer."
-					},
 					"vscode-office.editorTheme": {
 						"type": "string",
 						"enum": [

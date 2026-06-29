@@ -40,7 +40,7 @@ export class TelemetryService {
         return workspace.getConfiguration('vscode-office').get<boolean>('enableTelemetry', true);
     }
 
-    trackViewOpen(viewType: string, fileType?: string): void {
+    trackViewOpen(viewType: string, fileType?: string, properties?: Record<string, string>): void {
         if (!this.enabled()) {
             return;
         }
@@ -54,6 +54,7 @@ export class TelemetryService {
         this.reporter!.sendTelemetryEvent('view.open', {
             viewType,
             ...(fileType ? { fileType } : {}),
+            ...properties,
         });
     }
 

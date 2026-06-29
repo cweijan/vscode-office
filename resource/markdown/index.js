@@ -1,11 +1,10 @@
-import { imageParser, getToolbar, bindShortcut, createContextMenu, setAIAvailable } from "./util.js";
+import { getToolbar, bindShortcut, createContextMenu, setAIAvailable } from "./util.js";
 import { mapVscodeLanguageToVditorLang } from "./lang.js";
 
 handler.on("open", async (md) => {
   const { content, rootPath, documentCacheId, pendingFragment, config } = md;
   const {
-    language, isWeb, isDev,
-    markdown, viewAbsoluteLocal,
+    language, isWeb, isDev, markdown,
     editMode, editorTheme, codeMirrorTheme, mermaidTheme
   } = config;
   if (isWeb) {
@@ -125,6 +124,20 @@ handler.on("open", async (md) => {
       handler.on('viewerSettings', (settings) => {
         editor.applyViewerSettings(settings);
       });
+      handler.on('markdownConfig', (update) => {
+        if (update.editorTheme !== undefined) {
+          editor.setEditorTheme(update.editorTheme);
+        }
+        if (update.codeMirrorTheme !== undefined) {
+          Vditor.setCodeTheme(update.codeMirrorTheme, editor.vditor?.element);
+        }
+        if (update.mermaidTheme !== undefined) {
+          editor.setMermaidTheme(update.mermaidTheme);
+        }
+        if (update.editMode !== undefined) {
+          editor.switchEditMode(update.editMode);
+        }
+      });
       handler.on("update", content => {
         if (document.querySelector("[data-type='yaml-front-matter'].vditor-code-block--cm .cm-editor.cm-focused")) {
           return;
@@ -158,5 +171,4 @@ handler.on("open", async (md) => {
   })
   bindShortcut(handler, editor);
   createContextMenu(editor)
-  imageParser(viewAbsoluteLocal)
 }).emit("init")

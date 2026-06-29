@@ -60,6 +60,16 @@ export function buildCommitContextMenu(commit: GitCommit, ctx: MenuContext): Con
     })) as ContextMenuItem[];
 }
 
+export function buildMultiCommitContextMenu(count: number): ContextMenuItem[] {
+    const suffix = count > 1 ? ` (${count})` : '';
+    return [
+        { id: 'copySelectedHashes', label: `${$t('git.copyCommitHash')}${suffix}` },
+        { id: 'copySelectedMessages', label: `${$t('git.copyCommitMessage')}${suffix}` },
+        { id: 'cherryPickSelected', label: `Cherry Pick${suffix}`, separatorBefore: true },
+        { id: 'revertSelected', label: `Revert${suffix}` },
+    ];
+}
+
 export function buildBranchContextMenu(
     branchName: string,
     commitHash: string,

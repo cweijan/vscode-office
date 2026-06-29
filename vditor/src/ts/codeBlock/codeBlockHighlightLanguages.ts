@@ -67,7 +67,7 @@ const plantumlLanguageSupport = new LanguageSupport(plantumlLanguage);
 
 const STATIC_LANGUAGE_SUPPORTS: Record<string, () => LanguageSupport> = {
     // Use codemirror-lang-latex for both highlight + completions (via language data).
-    latex: () => latex({ enableAutocomplete: true }),
+    latex: () => latex({ enableAutocomplete: true, enableLinting: false }),
     mermaid: getMermaidLanguageSupport,
     plantuml: () => plantumlLanguageSupport,
 };

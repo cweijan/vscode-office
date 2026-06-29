@@ -37,6 +37,10 @@ const CONTEXT_MENU_ICONS: Record<string, string> = {
     copyRelPath: 'copy',
     copyAbsPath: 'copy',
     viewDiffWorking: 'diff-single',
+    copySelectedHashes: 'git-commit',
+    copySelectedMessages: 'copy',
+    cherryPickSelected: 'git-compare',
+    revertSelected: 'discard',
 };
 
 type IconColor = 'danger' | 'push' | 'pull' | 'create' | 'merge' | 'warning';
@@ -48,6 +52,7 @@ const CONTEXT_MENU_ICON_COLORS: Record<string, IconColor> = {
     dropStash: 'danger',
     resetUncommittedHard: 'danger',
     revert: 'danger',
+    revertSelected: 'danger',
     cleanUntracked: 'danger',
     pushBranch: 'push',
     pushTag: 'push',
@@ -62,6 +67,7 @@ const CONTEXT_MENU_ICON_COLORS: Record<string, IconColor> = {
     mergeBranch: 'merge',
     mergeRemote: 'merge',
     cherryPick: 'merge',
+    cherryPickSelected: 'merge',
     reset: 'warning',
     resetUncommittedMixed: 'warning',
 };

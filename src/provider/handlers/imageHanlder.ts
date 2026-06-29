@@ -41,12 +41,12 @@ async function loadVirtualImage(uri: vscode.Uri): Promise<{ images: { title: str
     };
 }
 
-async function loadFolderImages(uri: vscode.Uri, webview: vscode.Webview) {
+async function loadFolderImages(uri: vscode.Uri) {
     const folderPath = vscode.Uri.joinPath(uri, '..');
     const entries = await vscode.workspace.fs.readDirectory(folderPath);
     let current = 0;
     const currentFile = basename(uri.fsPath);
-    const images: { src: string; title: string }[] = [];
+    const images: { title: string; ext: string; mime: string; buffer: number[] }[] = [];
     let index = 0;
     for (const [name, fileType] of entries) {
         if (fileType !== vscode.FileType.File || !isImage(name)) {
@@ -56,8 +56,14 @@ async function loadFolderImages(uri: vscode.Uri, webview: vscode.Webview) {
             current = index;
         }
         const resUri = vscode.Uri.joinPath(folderPath, name);
-        const resource = webview.asWebviewUri(resUri).with({ query: `nonce=${Date.now().toString()}` }).toString();
-        images.push({ src: resource, title: name });
+        const data = await readUriBytes(resUri);
+        const ext = extname(name).toLowerCase();
+        images.push({
+            title: name,
+            ext,
+            mime: getImageMime(name),
+            buffer: bytesToPayloadBuffer(data),
+        });
         index++;
     }
     return { images, current };
@@ -67,12 +73,12 @@ export function isImage(fileName: string) {
     return /\.(jpg|png|gif|apng|bmp|ico|cur|jpeg|pjpeg|pjp|tif|tiff|heic|heif|webp)$/i.test(fileName);
 }
 
-export function handleImage(handler: Handler, uri: vscode.Uri, webview: vscode.Webview) {
+export function handleImage(handler: Handler, uri: vscode.Uri) {
     const sendImageList = async () => {
         try {
             const images = isVirtualUri(uri)
                 ? await loadVirtualImage(uri)
-                : await loadFolderImages(uri, webview);
+                : await loadFolderImages(uri);
             handler.emit('images', images);
         } catch (error) {
             handler.emit('images', {

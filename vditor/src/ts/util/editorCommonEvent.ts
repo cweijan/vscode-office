@@ -67,7 +67,11 @@ export const focusEvent = (vditor: IVditor, editorElement: HTMLElement) => {
 export const dblclickEvent = (vditor: IVditor, editorElement: HTMLElement) => {
     editorElement.addEventListener("dblclick", (event: MouseEvent & { target: HTMLElement }) => {
         if (event.target.tagName === "IMG" && !isPlantumlRenderImage(event.target)) {
-            previewImage(event.target as HTMLImageElement, vditor.options.lang, vditor.options.theme);
+            previewImage(event.target as HTMLImageElement, {
+                vditor,
+                lang: vditor.options.lang,
+                theme: vditor.options.theme,
+            });
         }
     });
 };

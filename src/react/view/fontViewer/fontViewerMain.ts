@@ -9,15 +9,10 @@ export interface FontInfo {
 }
 
 async function loadFontAsBuffer(source: string | OfficeOpenPayload): Promise<ArrayBuffer> {
-    const path = typeof source === 'string' ? source : source.path ?? '';
-    let fontBuffer: Promise<ArrayBuffer>;
-    if (typeof source !== 'string' && source.buffer) {
-        fontBuffer = Promise.resolve(arrayBufferFromPayload(source));
-    } else if (typeof source === 'string') {
-        fontBuffer = fetch(source).then(f => f.arrayBuffer());
-    } else {
-        fontBuffer = fetch(path).then(f => f.arrayBuffer());
-    }
+    const path = typeof source === 'string' ? source : (source.fileName ?? source.path ?? '');
+    const fontBuffer = typeof source === 'string'
+        ? fetch(source).then(f => f.arrayBuffer())
+        : Promise.resolve(arrayBufferFromPayload(source));
     if (path.includes('woff2')) {
         const loadScript = (src) => new Promise((onload) => document.documentElement.append(
             Object.assign(document.createElement('script'), { src, onload })

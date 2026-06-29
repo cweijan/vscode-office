@@ -36,8 +36,10 @@ export const formatLinkDisplayText = (url: string): string => {
     return display.replace(/\/+$/, "");
 };
 
+import {formatMarkdownLinkDest} from "./linkDest";
+
 export const toMarkdownLink = (text: string, href: string): string => {
-    return `[${text}](${normalizePasteUrl(href)})`;
+    return `[${text}](${formatMarkdownLinkDest(normalizePasteUrl(href))})`;
 };
 
 export const linkifyPastePlainText = (text: string, linkText?: string): string => {

@@ -27,6 +27,28 @@ export class GitActions {
         }
     }
 
+    async pullCurrentBranch(
+        repo: string,
+        branch: string,
+        remote: string,
+        options?: { noFastForward?: boolean; squash?: boolean },
+    ): Promise<string | null> {
+        try {
+            const pullArgs = ['pull'];
+            if (options?.noFastForward) {
+                pullArgs.push('--no-ff');
+            }
+            if (options?.squash) {
+                pullArgs.push('--squash');
+            }
+            pullArgs.push(remote, branch);
+            await this.executor.spawn(pullArgs, repo, () => null);
+            return null;
+        } catch (e) {
+            return e instanceof Error ? e.message : String(e);
+        }
+    }
+
     async pushCurrentBranch(
         repo: string,
         branch: string,

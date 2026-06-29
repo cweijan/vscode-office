@@ -1,0 +1,163 @@
+.vditor-img-overlay {
+  --img-preview-accent: #0a84ff;
+  --img-preview-toolbar-bg: rgba(255, 255, 255, 0.72);
+  --img-preview-toolbar-border: rgba(0, 0, 0, 0.08);
+  --img-preview-toolbar-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+  --img-preview-btn-color: rgba(0, 0, 0, 0.72);
+  --img-preview-btn-hover: rgba(0, 0, 0, 0.06);
+  --img-preview-backdrop: rgba(0, 0, 0, 0.55);
+
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  opacity: 0;
+  transition: opacity 0.22s cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  &--dark {
+    --img-preview-accent: #409cff;
+    --img-preview-toolbar-bg: rgba(44, 44, 46, 0.78);
+    --img-preview-toolbar-border: rgba(255, 255, 255, 0.12);
+    --img-preview-toolbar-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.24);
+    --img-preview-btn-color: rgba(255, 255, 255, 0.88);
+    --img-preview-btn-hover: rgba(255, 255, 255, 0.1);
+    --img-preview-backdrop: rgba(0, 0, 0, 0.72);
+  }
+
+  &--visible {
+    opacity: 1;
+
+    .vditor-img-overlay__image {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .vditor-img-overlay__toolbar {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  &--closing {
+    opacity: 0;
+    pointer-events: none;
+
+    .vditor-img-overlay__image {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+
+    .vditor-img-overlay__toolbar {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+
+  &__backdrop {
+    position: absolute;
+    inset: 0;
+    background: var(--img-preview-backdrop);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+  }
+
+  &__stage {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: min(92vw, 1200px);
+    height: min(82vh, 900px);
+    padding: 56px 24px 24px;
+    box-sizing: border-box;
+  }
+
+  &__image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+    opacity: 0;
+    transform: scale(0.94);
+    transition: opacity 0.28s cubic-bezier(0.25, 0.1, 0.25, 1),
+      transform 0.28s cubic-bezier(0.25, 0.1, 0.25, 1);
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  &__chrome {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    padding: 16px 20px 0;
+    pointer-events: none;
+  }
+
+  &__toolbar {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    background: var(--img-preview-toolbar-bg);
+    border: 1px solid var(--img-preview-toolbar-border);
+    box-shadow: var(--img-preview-toolbar-shadow);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    pointer-events: auto;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 0.24s cubic-bezier(0.25, 0.1, 0.25, 1) 0.04s,
+      transform 0.24s cubic-bezier(0.25, 0.1, 0.25, 1) 0.04s;
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--img-preview-btn-color);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
+
+    .codicon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      line-height: 14px;
+    }
+
+    &:hover {
+      background: var(--img-preview-btn-hover);
+    }
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &--primary {
+      color: #fff;
+      background: var(--img-preview-accent);
+
+      &:hover {
+        background: color-mix(in srgb, var(--img-preview-accent) 88%, #fff);
+      }
+    }
+  }
+}

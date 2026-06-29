@@ -109,6 +109,7 @@ export class ViewerSettingsService {
 
     static async writeFromVditor(settings: VditorViewerSettings): Promise<void> {
         await this.writePayload(serializeViewerSettingsForFile(settings));
+        broadcastToMarkdownWebviews('viewerSettings', settings);
     }
 
     static async writePayload(payload: ViewerSettingsPayload): Promise<void> {

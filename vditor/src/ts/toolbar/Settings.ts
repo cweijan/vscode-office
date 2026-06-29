@@ -22,7 +22,9 @@ import {
     FONT_FAMILY_OPTIONS,
     CODE_FONT_FAMILY_KEY,
     BOLD_COLOR_KEY,
-    BOLD_COLOR_OPTIONS,
+    getBoldColorOptions,
+    applyBoldColorSetting,
+    normalizeBoldColorValue,
     PAGE_WIDTH_KEY,
     PAGE_WIDTH_OPTIONS,
     IMAGE_MAX_WIDTH_KEY,
@@ -33,6 +35,9 @@ import {
     IMAGE_MAX_WIDTH_MAX,
     IMAGE_MAX_HEIGHT_MIN,
     IMAGE_MAX_HEIGHT_MAX,
+    CODE_BLOCK_MAX_HEIGHT_KEY,
+    CODE_BLOCK_MAX_HEIGHT_DEFAULT,
+    CODE_BLOCK_MAX_HEIGHT_OPTIONS,
     getGlobalLocalStorageSetting,
     setGlobalLocalStorageSetting,
     resetGlobalSettings,
@@ -41,19 +46,17 @@ import {
 import {getCodeFontFamilyOptions} from "../util/fontFamilyOptions";
 import { telemetry } from "../util/telemetry";
 
-const getDropdownOptions = (key: string): readonly { label: string; value: string }[] | undefined => {
-    switch (key) {
-        case FONT_FAMILY_KEY:
-            return FONT_FAMILY_OPTIONS;
-        case CODE_FONT_FAMILY_KEY:
-            return getCodeFontFamilyOptions();
-        case BOLD_COLOR_KEY:
-            return BOLD_COLOR_OPTIONS;
-        case PAGE_WIDTH_KEY:
-            return PAGE_WIDTH_OPTIONS;
-        default:
-            return undefined;
-    }
+const DROPDOWN_OPTIONS_MAP: Record<string, readonly { label: string; value: string }[] | (() => { label: string; value: string }[])> = {
+    [FONT_FAMILY_KEY]: FONT_FAMILY_OPTIONS,
+    [CODE_FONT_FAMILY_KEY]: getCodeFontFamilyOptions,
+    [BOLD_COLOR_KEY]: getBoldColorOptions,
+    [PAGE_WIDTH_KEY]: PAGE_WIDTH_OPTIONS,
+    [CODE_BLOCK_MAX_HEIGHT_KEY]: CODE_BLOCK_MAX_HEIGHT_OPTIONS,
+};
+
+const resolveDropdownOptions = (key: string) => {
+    const options = DROPDOWN_OPTIONS_MAP[key];
+    return typeof options === "function" ? options() : options;
 };
 
 export class Settings extends MenuItem {
@@ -85,9 +88,11 @@ export class Settings extends MenuItem {
         };
 
         const openFloatingMenu = (trigger: HTMLElement, key: string) => {
-            const options = getDropdownOptions(key);
+            const options = resolveDropdownOptions(key);
             if (!options) return;
-            const currentValue = getGlobalLocalStorageSetting<string>(key, options[0].value) ?? options[0].value;
+            const currentValue = key === BOLD_COLOR_KEY
+                ? normalizeBoldColorValue(getGlobalLocalStorageSetting<string>(key))
+                : (getGlobalLocalStorageSetting<string>(key, options[0].value) ?? options[0].value);
 
             floatingMenu.innerHTML = options.map(o =>
                 `<button type="button" class="${SETTINGS_PANEL_CLASS}__dropdown-option${o.value === currentValue ? ` ${SETTINGS_PANEL_CLASS}__dropdown-option--current` : ""}" data-value="${o.value}" data-dropdown-key="${key}">${o.label}</button>`
@@ -126,12 +131,15 @@ export class Settings extends MenuItem {
                 else vditor.element.style.setProperty("--code-font-family", value);
             }
             else if (key === BOLD_COLOR_KEY) {
-                if (value === "inherit") vditor.element.style.removeProperty("--bold-color");
-                else vditor.element.style.setProperty("--bold-color", value);
+                applyBoldColorSetting(vditor.element, value);
             }
             else if (key === PAGE_WIDTH_KEY) {
                 if (value === "100%") vditor.element.style.removeProperty("--vditor-page-width");
                 else vditor.element.style.setProperty("--vditor-page-width", value);
+            }
+            else if (key === CODE_BLOCK_MAX_HEIGHT_KEY) {
+                if (value === CODE_BLOCK_MAX_HEIGHT_DEFAULT) vditor.element.style.removeProperty("--cm-block-max-height");
+                else vditor.element.style.setProperty("--cm-block-max-height", value);
             }
             // update trigger label
             const trigger = panelElement.querySelector(`[data-dropdown-key="${key}"]`) as HTMLElement | null;

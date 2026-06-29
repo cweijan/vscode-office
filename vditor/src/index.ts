@@ -1,51 +1,54 @@
 import "./assets/less/index.less";
 import * as adapterRender from "./ts/markdown/adapterRender";
-import {codeRender} from "./ts/markdown/codeRender";
-import {codeMirrorPreviewRender} from "./ts/codeBlock/codeMirrorPreviewRender";
-import {mathRender} from "./ts/markdown/mathRender";
-import {mermaidRender} from "./ts/markdown/mermaidRender";
-import {outlineRender} from "./ts/markdown/outlineRender";
-import {plantumlRender} from "./ts/markdown/plantumlRender";
-import {previewImage} from "./ts/preview/image";
-import {Constants, VDITOR_VERSION} from "./ts/constants";
-import {Hint} from "./ts/hint/index";
-import {IR} from "./ts/ir/index";
-import {input as irInput} from "./ts/ir/input";
-import {processAfterRender} from "./ts/ir/process";
-import {getHTML} from "./ts/markdown/getHTML";
-import {getMarkdown} from "./ts/markdown/getMarkdown";
-import {setLute} from "./ts/markdown/setLute";
-import {Outline} from "./ts/outline/index";
-import {Tip} from "./ts/tip/index";
-import {Toolbar} from "./ts/toolbar/index";
-import {disableToolbar, hidePanel} from "./ts/toolbar/setToolbar";
-import {enableToolbar} from "./ts/toolbar/setToolbar";
-import {AIDialog} from "./ts/ui/aiDialog";
-import {telemetry} from "./ts/util/telemetry";
-import {AIResultPanel} from "./ts/ui/aiResultPanel";
-import {initUI} from "./ts/ui/initUI";
-import {setCodeTheme} from "./ts/ui/setCodeTheme";
-import {setEditorTheme as applyEditorTheme} from "./ts/ui/setEditorTheme";
-import {setTheme} from "./ts/ui/setTheme";
-import {Undo} from "./ts/undo/index";
-import {Upload} from "./ts/upload/index";
-import {addScript} from "./ts/util/addScript";
-import {clearCacheFocus, restoreCacheFocus} from "./ts/util/cacheFocus";
-import {accessLocalStorage} from "./ts/util/compatibility";
-import {clearDocumentScroll, restoreDocumentScroll} from "./ts/util/documentState";
-import {getSelectText} from "./ts/util/getSelectText";
-import {Options} from "./ts/util/Options";
-import {processCodeRender} from "./ts/util/processCode";
-import {getCursorPosition, getEditorRange} from "./ts/util/selection";
+import { codeRender } from "./ts/markdown/codeRender";
+import { codeMirrorPreviewRender } from "./ts/codeBlock/codeMirrorPreviewRender";
+import { mathRender } from "./ts/markdown/mathRender";
+import { mermaidRender } from "./ts/markdown/mermaidRender";
+import { outlineRender } from "./ts/markdown/outlineRender";
+import { plantumlRender } from "./ts/markdown/plantumlRender";
+import { previewImage } from "./ts/preview/image";
+import { Constants, VDITOR_VERSION } from "./ts/constants";
+import { Hint } from "./ts/hint/index";
+import { IR } from "./ts/ir/index";
+import { input as irInput } from "./ts/ir/input";
+import { processAfterRender } from "./ts/ir/process";
+import { getHTML } from "./ts/markdown/getHTML";
+import { getMarkdown } from "./ts/markdown/getMarkdown";
+import { setLute } from "./ts/markdown/setLute";
+import { Outline } from "./ts/outline/index";
+import { Tip } from "./ts/tip/index";
+import { Toolbar } from "./ts/toolbar/index";
+import { disableToolbar, hidePanel } from "./ts/toolbar/setToolbar";
+import { enableToolbar } from "./ts/toolbar/setToolbar";
+import { AIDialog } from "./ts/ui/aiDialog";
+import { telemetry } from "./ts/util/telemetry";
+import { AIResultPanel } from "./ts/ui/aiResultPanel";
+import { initUI } from "./ts/ui/initUI";
+import { setCodeTheme } from "./ts/ui/setCodeTheme";
+import { setEditorTheme as applyEditorTheme } from "./ts/ui/setEditorTheme";
+import { applyMermaidTheme } from "./ts/ui/setMermaidTheme";
+import { setEditMode } from "./ts/toolbar/EditMode";
+import { setTheme } from "./ts/ui/setTheme";
+import { Undo } from "./ts/undo/index";
+import { Upload } from "./ts/upload/index";
+import { addScript } from "./ts/util/addScript";
+import { clearCacheFocus, restoreCacheFocus } from "./ts/util/cacheFocus";
+import { accessLocalStorage } from "./ts/util/compatibility";
+import { clearDocumentScroll, restoreDocumentScroll } from "./ts/util/documentState";
+import { getSelectText } from "./ts/util/getSelectText";
+import { Options } from "./ts/util/Options";
+import { processCodeRender } from "./ts/util/processCode";
+import { getCursorPosition, getEditorRange } from "./ts/util/selection";
 import {
     captureEditorSelection,
     hideFrozenSelection,
     restoreEditorSelection,
     showFrozenSelection,
 } from "./ts/util/frozenSelection";
-import {afterRenderEvent} from "./ts/wysiwyg/afterRenderEvent";
-import {renderToc} from "./ts/util/toc";
-import {scrollToBlock as scrollToBlockUtil} from "./ts/util/scrollToBlock";
+import { afterRenderEvent } from "./ts/wysiwyg/afterRenderEvent";
+import { renderToc } from "./ts/util/toc";
+import { scrollToBlock as scrollToBlockUtil } from "./ts/util/scrollToBlock";
+import { isDocumentDirty, markDocumentSaved, updateSaveToolbarState } from "./ts/util/saveToolbarState";
 import {
     applyEditorSettings,
     enableViewerSettingsSync,
@@ -55,16 +58,15 @@ import {
     setOnViewerSettingsChange,
     ViewerSettingsExport,
 } from "./ts/util/globalLocalStorageSettings";
-import {exportExportSettings, ExportThemeSettings} from "./ts/util/exportThemeSettings";
-import {isDocumentDirty, markDocumentSaved, updateSaveToolbarState} from "./ts/util/saveToolbarState";
+import { exportExportSettings, ExportThemeSettings } from "./ts/util/exportThemeSettings";
 import {
     buildSettingsPanelHTML,
     refreshAISettingsToolbarPanel,
     refreshSettingsToolbarPanel,
 } from "./ts/ui/settingsPanel";
-import {WYSIWYG} from "./ts/wysiwyg/index";
-import {input} from "./ts/wysiwyg/input";
-import {ensureEditorBoundaryParagraphs, renderDomByMd} from "./ts/wysiwyg/renderDomByMd";
+import { WYSIWYG } from "./ts/wysiwyg/index";
+import { input } from "./ts/wysiwyg/input";
+import { ensureEditorBoundaryParagraphs, renderDomByMd } from "./ts/wysiwyg/renderDomByMd";
 
 class Vditor {
     public static adapterRender = adapterRender;
@@ -101,7 +103,7 @@ class Vditor {
                     },
                 };
             } else if (!options.cache) {
-                options.cache = {id: `vditor${id}`};
+                options.cache = { id: `vditor${id}` };
             } else if (!options.cache.id) {
                 options.cache.id = `vditor${id}`;
             }
@@ -151,6 +153,19 @@ class Vditor {
     /** 设置 Markdown 编辑器主题（bundled in index.css） */
     public setEditorTheme(editorTheme: string) {
         applyEditorTheme(this.vditor, editorTheme, false);
+    }
+
+    /** 设置 Mermaid 主题（不触发 changeMermaidTheme 回调） */
+    public setMermaidTheme(mermaidTheme: string) {
+        applyMermaidTheme(this.vditor, mermaidTheme, false);
+    }
+
+    /** 切换编辑模式（不触发 changeEditMode 回调） */
+    public switchEditMode(mode: "wysiwyg" | "ir") {
+        if (this.vditor.currentMode === mode) {
+            return;
+        }
+        setEditMode(this.vditor, mode, this.getValue());
     }
 
     /** 获取 Markdown 内容 */

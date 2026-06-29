@@ -142,6 +142,61 @@ function renderAnchoredFormFields(
     );
 }
 
+function renderPushRemoteCheckboxList(
+    remoteFields: FormField[],
+    otherFields: FormField[],
+    formValues: Record<string, string>,
+    onFormValuesChange: (values: Record<string, string>) => void,
+    onSubmit: (values: Record<string, string>) => void,
+    isExecuting: boolean,
+) {
+    const submitWithRemote = (fieldId: string) => {
+        if (isExecuting) {
+            return;
+        }
+        const newValues = { ...formValues };
+        for (const field of remoteFields) {
+            newValues[field.id] = field.id === fieldId ? 'yes' : 'no';
+        }
+        onSubmit(newValues);
+    };
+
+    return (
+        <>
+            <div className="git-graph-anchored-dialog-option-list accent-mode accent-push">
+                {remoteFields.map((field) => (
+                    <label
+                        key={field.id}
+                        className={`git-graph-anchored-dialog-option git-graph-anchored-dialog-option--checkbox${formValues[field.id] === 'yes' ? ' selected' : ''}`}
+                        onDoubleClick={(e) => {
+                            e.preventDefault();
+                            submitWithRemote(field.id);
+                        }}
+                    >
+                        <input
+                            type="checkbox"
+                            className="git-graph-anchored-dialog-option-check"
+                            checked={formValues[field.id] === 'yes'}
+                            onChange={(e) => {
+                                onFormValuesChange({
+                                    ...formValues,
+                                    [field.id]: e.target.checked ? 'yes' : 'no',
+                                });
+                            }}
+                        />
+                        <span className="git-graph-anchored-dialog-option-label">{field.label}</span>
+                    </label>
+                ))}
+            </div>
+            {otherFields.length > 0 && (
+                <div style={{ borderTop: '1px solid var(--git-graph-border, rgba(128,128,128,0.2))', marginTop: 6, paddingTop: 6 }}>
+                    {renderAnchoredCheckboxList(otherFields, formValues, onFormValuesChange)}
+                </div>
+            )}
+        </>
+    );
+}
+
 function renderAnchoredCheckboxList(
     fields: FormField[],
     formValues: Record<string, string>,
@@ -486,30 +541,13 @@ export default function ActionDialog({
                 message = step.message ?? step.title;
                 const remoteFields = step.fields.filter((f) => f.id.startsWith('remote_'));
                 const otherFields = step.fields.filter((f) => !f.id.startsWith('remote_'));
-                body = (
-                    <>
-                        <div className="git-graph-anchored-dialog-option-list accent-mode accent-push">
-                            {remoteFields.map((field) => (
-                                <label
-                                    key={field.id}
-                                    className={`git-graph-anchored-dialog-option git-graph-anchored-dialog-option--checkbox${formValues[field.id] === 'yes' ? ' selected' : ''}`}
-                                >
-                                    <input
-                                        type="checkbox"
-                                        className="git-graph-anchored-dialog-option-check"
-                                        checked={formValues[field.id] === 'yes'}
-                                        onChange={(e) => setFormValues((prev) => ({ ...prev, [field.id]: e.target.checked ? 'yes' : 'no' }))}
-                                    />
-                                    <span className="git-graph-anchored-dialog-option-label">{field.label}</span>
-                                </label>
-                            ))}
-                        </div>
-                        {otherFields.length > 0 && (
-                            <div style={{ borderTop: '1px solid var(--git-graph-border, rgba(128,128,128,0.2))', marginTop: 6, paddingTop: 6 }}>
-                                {renderAnchoredCheckboxList(otherFields, formValues, setFormValues)}
-                            </div>
-                        )}
-                    </>
+                body = renderPushRemoteCheckboxList(
+                    remoteFields,
+                    otherFields,
+                    formValues,
+                    setFormValues,
+                    onSubmit,
+                    isExecuting,
                 );
             } else {
                 if (step.message) {

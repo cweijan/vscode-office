@@ -1,12 +1,12 @@
-import { join, relative } from 'path';
+import { relative } from 'path';
 import * as vscode from 'vscode';
 import { FIND_FILES_EXCLUDE, FIND_FILES_LIMIT } from './constants';
 import { directFileNames, recursiveFindPatterns } from './pagePattern';
 
 /** 直接路径探测：祖先目录 + 文件名，走 fs.stat，避免索引查询 */
-export async function statMarkdownAt(baseDir: string, page: string): Promise<vscode.Uri | null> {
+export async function statMarkdownAt(baseDir: vscode.Uri, page: string): Promise<vscode.Uri | null> {
     for (const fileName of directFileNames(page)) {
-        const fileUri = vscode.Uri.file(join(baseDir, fileName));
+        const fileUri = vscode.Uri.joinPath(baseDir, fileName);
         try {
             const stat = await vscode.workspace.fs.stat(fileUri);
             if (stat.type === vscode.FileType.File) {

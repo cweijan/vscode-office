@@ -45,7 +45,7 @@
     outline: none;
     flex: 1 1 auto;
     min-height: 1.35em;
-    max-height: 500px;
+    max-height: none;
     border-radius: 0 0 6px 6px;
     overflow: hidden;
     color: var(--cm-fg-color, var(--vscode-editor-foreground));
@@ -58,7 +58,7 @@
 
   .cm-scroller {
     overflow: auto;
-    max-height: 400px;
+    max-height: var(--cm-block-max-height, 400px);
     scrollbar-gutter: stable;
     font-family: inherit;
     line-height: calc(var(--vscode-editor-font-size, 13px) * 1.35);
@@ -232,6 +232,7 @@
 
   .vditor-cm-chrome__delete,
   .vditor-cm-chrome__copy,
+  .vditor-cm-chrome__expand,
   .vditor-cm-chrome__theme-trigger {
     opacity: 0;
     visibility: hidden;
@@ -362,11 +363,7 @@
   }
 
   &--done {
-    background: color-mix(in srgb, var(--cm-copy-done-color, var(--link-color)) 12%, var(--cm-lang-trigger-bg, var(--second-bg-color, var(--dropdown-hover-background, var(--toolbar-background-color)))));
-
-    .vditor-cm-chrome__copy-icon .codicon {
-      color: var(--cm-copy-done-color, var(--link-color));
-    }
+    background: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 12%, var(--cm-lang-trigger-bg, var(--second-bg-color, var(--dropdown-hover-background, var(--toolbar-background-color)))));
   }
 }
 
@@ -375,7 +372,7 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  color: var(--cm-copy-color, var(--link-color));
+  color: inherit;
 
   .codicon {
     font-size: 16px;
@@ -389,7 +386,8 @@
   pointer-events: auto;
 }
 
-.vditor-cm-chrome__theme-trigger {
+.vditor-cm-chrome__theme-trigger,
+.vditor-cm-chrome__expand {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -409,6 +407,14 @@
     background: color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 10%, var(--cm-lang-trigger-bg, var(--second-bg-color, var(--dropdown-hover-background, var(--toolbar-background-color)))));
     color: var(--cm-copy-color, var(--link-color));
   }
+}
+
+.vditor-cm-chrome__expand {
+  display: none;
+}
+
+.vditor-cm-host--has-overflow .vditor-cm-chrome__expand:not([hidden]) {
+  display: inline-flex;
 }
 
 .vditor-cm-chrome__theme-icon {
@@ -544,29 +550,6 @@
   white-space: nowrap;
 }
 
-.vditor-cm-chrome__lang-chevron {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  margin-left: 2px;
-  opacity: 0.72;
-  color: var(--cm-fg-color, var(--toolbar-icon-color));
-
-  .codicon {
-    font-size: 16px;
-    line-height: 1;
-    color: inherit;
-  }
-}
-
-.vditor-cm-chrome__lang-trigger:hover:not(:disabled) .vditor-cm-chrome__lang-chevron {
-  opacity: 1;
-  color: var(--cm-copy-color, var(--link-color));
-}
-
 .vditor-cm-chrome__lang-panel {
   display: none;
   position: absolute;
@@ -679,10 +662,6 @@
   .vditor-cm-chrome__lang-trigger {
     cursor: default;
     pointer-events: none;
-  }
-
-  .vditor-cm-chrome__lang-chevron {
-    display: none;
   }
 }
 
@@ -928,7 +907,7 @@
   .cm-editor {
     outline: none;
     min-height: 2em;
-    max-height: 400px;
+    max-height: var(--cm-block-max-height, 400px);
     border-radius: 6px;
     color: var(--cm-fg-color, var(--vscode-editor-foreground));
   }
@@ -1056,4 +1035,33 @@
   }
 
   // Keep preview's original display so KaTeX/min-height doesn't affect line box unexpectedly.
+}
+
+// Expandable code block: lift the height cap for a single block
+.vditor-cm-host--expanded .cm-editor,
+.vditor-cm-host--expanded .cm-scroller {
+  max-height: none;
+}
+
+// Expand/collapse toggle: base look + behaviour (incl. pointer-events:auto) are shared with
+// .vditor-cm-chrome__theme-trigger above. Here we add the icon, and the visibility: like the
+// other chrome buttons it appears on hover/focus, additionally gated to blocks that overflow.
+.vditor-cm-chrome__expand-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  color: var(--cm-fg-color, var(--toolbar-icon-color));
+
+  .codicon {
+    font-size: 16px;
+    line-height: 1;
+  }
+}
+
+.vditor-cm-host--has-overflow:hover .vditor-cm-chrome__expand,
+.vditor-cm-host--has-overflow:has(.cm-editor.cm-focused) .vditor-cm-chrome__expand {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }

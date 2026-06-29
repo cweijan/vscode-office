@@ -90,6 +90,7 @@ export class Options {
         value: "",
         width: "auto",
         editorTheme: "Auto",
+        lastNonAutoEditorTheme: "Light",
         mermaidTheme: "Auto",
         onSponsorLogoClick: undefined,
         onSponsorSiteClick: undefined,

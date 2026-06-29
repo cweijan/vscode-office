@@ -1,9 +1,8 @@
-import { dirname } from 'path';
 import * as vscode from 'vscode';
-import { pickBestPath } from './fileMatch';
+import { pickBestUri } from './fileMatch';
 import { findMarkdownInScope, findMarkdownRecursive, statMarkdownAt } from './fileSearch';
 import { normalizePage } from './parse';
-import { buildSearchRoots } from './searchRoots';
+import { buildSearchRootUris } from './searchRoots';
 
 export async function resolveWikiLinkFile(
     currentUri: vscode.Uri,
@@ -15,10 +14,10 @@ export async function resolveWikiLinkFile(
     }
 
     const workspaceFolder = vscode.workspace.getWorkspaceFolder(currentUri);
-    const workspacePath = workspaceFolder?.uri.fsPath;
-    const roots = buildSearchRoots(dirname(currentUri.fsPath), workspacePath);
+    const workspaceUri = workspaceFolder?.uri;
+    const roots = buildSearchRootUris(currentUri, workspaceUri);
 
-    // 1. 祖先目录直接 stat（最快，桌面 / Web 均可用）
+    // 1. 祖先目录直接 stat（最快，桌面 / Web / Remote 均可用）
     for (const root of roots) {
         const found = await statMarkdownAt(root, normalized);
         if (found) {
@@ -26,24 +25,25 @@ export async function resolveWikiLinkFile(
         }
     }
 
-    if (!workspaceFolder || !workspacePath) {
+    if (!workspaceFolder || !workspaceUri) {
         return null;
     }
 
+    const workspacePath = workspaceUri.fsPath;
+
     // 2. 各祖先目录内 findFiles 精确匹配（处理 stat 权限等边缘情况）
     for (const root of roots) {
-        if (!root.startsWith(workspacePath)) {
+        if (!root.fsPath.startsWith(workspacePath)) {
             continue;
         }
-        const scoped = await findMarkdownInScope(workspaceFolder, root, normalized);
-        const best = pickBestPath(scoped.map((uri) => uri.fsPath), normalized);
+        const scoped = await findMarkdownInScope(workspaceFolder, root.fsPath, normalized);
+        const best = pickBestUri(scoped, normalized);
         if (best) {
-            return vscode.Uri.file(best);
+            return best;
         }
     }
 
     // 3. 工作区递归 ** 匹配（笔记库根不在工作区根时兜底）
     const recursiveHits = await findMarkdownRecursive(workspaceFolder, workspacePath, normalized);
-    const best = pickBestPath(recursiveHits.map((uri) => uri.fsPath), normalized);
-    return best ? vscode.Uri.file(best) : null;
+    return pickBestUri(recursiveHits, normalized);
 }

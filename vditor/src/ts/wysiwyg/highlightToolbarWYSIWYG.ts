@@ -41,6 +41,7 @@ import {codicon} from "../util/codicon";
 import {updateBlockHandle} from "./blockHandle";
 import {updateTableHandle} from "./tableHandle";
 import {resolveAdjacentElementFromRange} from "../util/rangeAdjacentElement";
+import {normalizeLinkDestInput} from "../util/linkDest";
 
 export const hideLinkPopover = (vditor: IVditor) => {
     if (vditor.currentMode === "wysiwyg" || vditor.currentMode === "ir") {
@@ -578,7 +579,7 @@ export const genAPopover = (vditor: IVditor, aElement: HTMLElement) => {
     };
 
     const updateHref = () => {
-        aElement.setAttribute("href", hrefInput.value);
+        aElement.setAttribute("href", normalizeLinkDestInput(hrefInput.value));
         afterRenderEvent(vditor);
     };
 
@@ -704,7 +705,7 @@ export const genImagePopoverForElement = (vditor: IVditor, imgElement: HTMLImage
     };
 
     const updateSrc = () => {
-        imgElement.setAttribute("src", srcInput.value);
+        imgElement.setAttribute("src", normalizeLinkDestInput(srcInput.value));
         afterRenderEvent(vditor);
     };
 

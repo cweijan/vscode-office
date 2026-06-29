@@ -46,7 +46,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 			route = 'svg';
 			handleSvg(handler, uri);
 		} else if (isImage(suffix)) {
-			handleImage(handler, uri, webview);
+			handleImage(handler, uri);
 			route = 'image';
 		}
 		switch (suffix) {
