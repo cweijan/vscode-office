@@ -12,11 +12,23 @@ const stripIrOutlineMarkers = (element: HTMLElement) => {
     return clone;
 };
 
+const escapeOutlineCodeHTML = (element: HTMLElement) => {
+    element.querySelectorAll("code").forEach((codeElement) => {
+        codeElement.innerHTML = codeElement.innerHTML.replace(/&/g, "&amp;");
+    });
+    return element;
+};
+
 const getOutlineHeadingHTML = (item: HTMLElement, vditor?: IVditor) => {
+    const clone = vditor?.currentMode === "ir" ? stripIrOutlineMarkers(item) : item.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll("wbr").forEach((node) => {
+        node.remove();
+    });
+    escapeOutlineCodeHTML(clone);
     if (vditor?.currentMode === "ir") {
-        return stripIrOutlineMarkers(item).outerHTML;
+        return clone.outerHTML;
     }
-    return item.outerHTML.replace("<wbr>", "");
+    return clone.outerHTML;
 };
 
 export const OUTLINE_SCROLL_OFFSET = 15;

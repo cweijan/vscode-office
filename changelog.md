@@ -1,5 +1,13 @@
 # Change log
 
+# 4.0.9 2026-6-29
+
+Update:
+
+- Restore missing HTML viewer previewer registration.
+- Fix outline loading failure caused by special headings (code blocks, line breaks).
+- Improve file loading performance by streaming via webview URI instead of message buffer transfer.
+
 # 4.0.8 2026-6-29
 
 Markdown editor:

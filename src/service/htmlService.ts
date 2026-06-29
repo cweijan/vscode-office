@@ -1,7 +1,7 @@
 import { basename } from "path";
 import { Uri, ViewColumn, window, workspace, type ExtensionContext } from "vscode";
 import { Util } from "../common/util";
-import { extensionResource } from "../common/extensionResource";
+import { extensionResource, getExtensionResourceRoots } from "../common/extensionResource";
 import { readUriText } from "../common/workspaceFs";
 import { fileTypeFromPath } from "@/service/officeViewType";
 import { TelemetryService } from "@/service/telemetryService";
@@ -23,7 +23,11 @@ export class HtmlService {
         const webviewPanel = window.createWebviewPanel(
             "office-viewer.viewHtml", basename(uri.fsPath),
             { viewColumn: ViewColumn.Two, preserveFocus: true },
-            { retainContextWhenHidden: true, enableScripts: true }
+            {
+                retainContextWhenHidden: true,
+                enableScripts: true,
+                localResourceRoots: [...getExtensionResourceRoots(context), folderUri],
+            }
         )
 
         const render = async () => {
