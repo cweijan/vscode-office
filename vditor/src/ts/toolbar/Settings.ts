@@ -20,6 +20,7 @@ import {
     LINE_HEIGHT_MAX,
     FONT_FAMILY_KEY,
     FONT_FAMILY_OPTIONS,
+    CODE_FONT_FAMILY_KEY,
     BOLD_COLOR_KEY,
     getBoldColorOptions,
     applyBoldColorSetting,
@@ -42,10 +43,12 @@ import {
     resetGlobalSettings,
     applyEditorSettings,
 } from "../util/globalLocalStorageSettings";
+import {getCodeFontFamilyOptions} from "../util/fontFamilyOptions";
 import { telemetry } from "../util/telemetry";
 
 const DROPDOWN_OPTIONS_MAP: Record<string, readonly { label: string; value: string }[] | (() => { label: string; value: string }[])> = {
     [FONT_FAMILY_KEY]: FONT_FAMILY_OPTIONS,
+    [CODE_FONT_FAMILY_KEY]: getCodeFontFamilyOptions,
     [BOLD_COLOR_KEY]: getBoldColorOptions,
     [PAGE_WIDTH_KEY]: PAGE_WIDTH_OPTIONS,
     [CODE_BLOCK_MAX_HEIGHT_KEY]: CODE_BLOCK_MAX_HEIGHT_OPTIONS,
@@ -123,6 +126,10 @@ export class Settings extends MenuItem {
             const label = option.textContent || "";
             setGlobalLocalStorageSetting(key, value);
             if (key === FONT_FAMILY_KEY) vditor.element.style.setProperty("--editor-font-family", value);
+            else if (key === CODE_FONT_FAMILY_KEY) {
+                if (value === "inherit") vditor.element.style.removeProperty("--code-font-family");
+                else vditor.element.style.setProperty("--code-font-family", value);
+            }
             else if (key === BOLD_COLOR_KEY) {
                 applyBoldColorSetting(vditor.element, value);
             }
@@ -252,7 +259,7 @@ export class Settings extends MenuItem {
             // Reset settings
             if (event.target.closest("[data-reset-settings]")) {
                 resetGlobalSettings();
-                for (const prop of ["--ui-font-size", "--editor-font-size", "--editor-line-height", "--editor-font-family", "--bold-color", "--vditor-page-width", "--vditor-image-max-width", "--vditor-image-max-height"]) {
+                for (const prop of ["--ui-font-size", "--editor-font-size", "--editor-line-height", "--editor-font-family", "--code-font-family", "--bold-color", "--vditor-page-width", "--vditor-image-max-width", "--vditor-image-max-height"]) {
                     vditor.element.style.removeProperty(prop);
                 }
                 applyEditorSettings(vditor.element);
