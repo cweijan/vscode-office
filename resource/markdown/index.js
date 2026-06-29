@@ -4,7 +4,7 @@ import { mapVscodeLanguageToVditorLang } from "./lang.js";
 handler.on("open", async (md) => {
   const { content, rootPath, documentCacheId, pendingFragment, config } = md;
   const {
-    language, isWeb, isDev, markdown,
+    language, isWeb, isDev, isPro, markdown,
     editMode, editorTheme, codeMirrorTheme, mermaidTheme
   } = config;
   if (isWeb) {
@@ -31,7 +31,7 @@ handler.on("open", async (md) => {
     toolbar: await getToolbar(rootPath, () => {
       handler.emit('doSave', editor?.getValue());
       editor?.markSaved();
-    }),
+    }, isPro),
     onAboutOpen: () => handler.emit('openAbout'),
     onSponsorLogoClick: () => handler.emit('openSponsor'),
     onSponsorSiteClick: () => handler.emit('openExternal', 'https://database-client.com/'),

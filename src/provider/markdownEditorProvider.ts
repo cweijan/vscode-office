@@ -20,6 +20,7 @@ import {
 import { ViewerSettingsService } from '@/service/viewerSettingsService';
 import { fileTypeFromPath } from '@/service/officeViewType';
 import { parseWebviewResourceUri } from '@/common/webviewUri';
+import { ProPanel } from './proPanel';
 
 function getRuntimePlatform(): string {
     if (typeof process !== 'undefined' && process.platform) {
@@ -308,6 +309,8 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             new MarkdownService(this.context).exportMarkdown(uri, option)
         }).on('developerTool', () => {
             vscode.commands.executeCommand('workbench.action.toggleDevTools')
+        }).on('openProPanel', () => {
+            ProPanel.createOrShow(this.context);
         }).on('openAbout', () => {
             TelemetryService.get()?.trackMarkdownSponsorOpen();
         }).on('openSponsor', () => {
@@ -493,6 +496,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             language: vscode.env.language,
             isWeb: this.options.isWeb,
             isDev: this.context.extensionMode === vscode.ExtensionMode.Development,
+            isPro: !!ProPanel.getLicenseKey(this.context),
         };
     }
 

@@ -28,7 +28,7 @@ export class ProPanel {
 
         this.panel.iconPath = vscode.Uri.joinPath(context.extensionUri, 'image', 'logo.png');
 
-        await ReactApp.view(this.panel.webview, { route: 'pro' });
+        await ReactApp.view(this.panel.webview, { route: 'pro', isDev: ReactApp.IS_DEV } as any);
 
         this.panel.onDidDispose(() => {
             this.panel = undefined;
@@ -43,6 +43,11 @@ export class ProPanel {
                 }
                 case 'proActivate': {
                     await this.handleActivate(context, msg.content as string);
+                    break;
+                }
+                case 'proClearKey': {
+                    await context.globalState.update(STATE_KEY, undefined);
+                    this.panel?.webview.postMessage({ type: 'proCurrentKey', content: null });
                     break;
                 }
                 case 'openLink': {

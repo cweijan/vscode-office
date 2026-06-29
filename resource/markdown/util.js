@@ -7,17 +7,31 @@ function loadRes(url) {
 const isMac = navigator.userAgent.includes('Mac OS');
 const shortcutTip = isMac ? '⌘ ^ E' : 'Ctrl Alt E';
 
-export async function getToolbar(resPath, onSave = null) {
+const PRO_BADGE_KEY = 'office.pro.badgeDismissed';
+
+function makeProUpgradeBtn() {
+    const dismissed = localStorage.getItem(PRO_BADGE_KEY) === '1';
+    return {
+        name: 'pro-upgrade',
+        tip: 'Upgrade to Pro',
+        className: 'right',
+        icon: `<span class="codicon codicon-mail" aria-hidden="true"></span>${dismissed ? '' : '<span class="vditor-pro-badge"></span>'}`,
+        click() {
+            handler.emit('openProPanel');
+            localStorage.setItem(PRO_BADGE_KEY, '1');
+            // Remove badge dot from DOM without re-rendering
+            const btn = document.querySelector('.vditor-toolbar [data-type="pro-upgrade"]');
+            if (btn) btn.querySelector('.vditor-pro-badge')?.remove();
+        },
+    };
+}
+
+export async function getToolbar(resPath, onSave = null, isPro = false) {
     const codicon = (name) => `<span class="codicon codicon-${name}" aria-hidden="true"></span>`;
-    return [
+    const toolbar = [
         'outline',
-        "headings",
-        "bold",
-        "italic",
-        "strike",
-        "link",
         "|",
-        {
+         {
             name: 'edit-in-vscode',
             tip: `Edit In VSCode (${shortcutTip})`,
             className: 'right',
@@ -25,10 +39,6 @@ export async function getToolbar(resPath, onSave = null) {
             click() {
                 handler.emit("editInVSCode", true)
             }
-        },
-        {
-            name: 'font-color',
-            className: 'right',
         },
         {
             name: 'save',
@@ -40,7 +50,16 @@ export async function getToolbar(resPath, onSave = null) {
                 onSave?.()
             }
         },
+        "|",
+        "headings",
+        "bold",
+        "italic",
+        "strike",
+        "link",
+        "|",
+        'font-color',
         'upload',
+        ...(isPro ? [] : [makeProUpgradeBtn()]),
         "|",
         'editor-theme-label',
         "editor-theme",
@@ -63,8 +82,9 @@ export async function getToolbar(resPath, onSave = null) {
         "find",
         "ai-settings",
         "settings",
-        "help",
+        ...(isPro ? [] : ["help"]),
     ]
+    return toolbar
 }
 
 const hideContextMenu = (menu) => {

@@ -516,3 +516,20 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
 .vditor-pdf-export-btn--primary:focus-visible {
     box-shadow: 0 0 0 3px color-mix(in srgb, #007aff 35%, transparent);
 }
+
+/* Pro upgrade toolbar button badge */
+[data-type="pro-upgrade"] {
+    position: relative;
+}
+
+.vditor-pro-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #e5484d;
+    border: 1.5px solid var(--vscode-editor-background, #1e1e1e);
+    pointer-events: none;
+}

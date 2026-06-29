@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { handler } from '../../util/vscode';
+import { getConfigs } from '../../util/vscodeConfig';
 import './ProView.css';
 
 const FREE_FEATURES = [
@@ -26,6 +27,7 @@ export default function ProView() {
     const [status, setStatus] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
     const [currentKey, setCurrentKey] = useState<string | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
+    const isDev = !!(getConfigs() as any)?.isDev;
 
     useEffect(() => {
         handler.on('proActivateResult', (result: { success: boolean; key?: string; error?: string }) => {
@@ -132,6 +134,17 @@ export default function ProView() {
                 </div>
 
             </div>
+
+            {/* Dev-only: clear license button */}
+            {isDev && (
+                <button
+                    className="pro-dev-clear"
+                    title="[Dev] Clear license key"
+                    onClick={() => handler.emit('proClearKey')}
+                >
+                    {codicon('trash')} Clear License
+                </button>
+            )}
 
             {/* Modal */}
             {modalOpen && (

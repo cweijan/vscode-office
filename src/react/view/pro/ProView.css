@@ -398,3 +398,28 @@
     .pro-plans { grid-template-columns: 1fr; }
     .pro-plan-card--pro { margin-top: 20px; }
 }
+
+/* ── Dev-only floating button ─────────────────────────── */
+.pro-dev-clear {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(229, 72, 77, 0.5);
+    background: rgba(229, 72, 77, 0.1);
+    color: #e5484d;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0.75;
+    transition: opacity 0.15s, background 0.15s;
+}
+.pro-dev-clear:hover {
+    opacity: 1;
+    background: rgba(229, 72, 77, 0.18);
+}
