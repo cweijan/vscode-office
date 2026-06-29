@@ -8,8 +8,8 @@ import {updateActiveHeadingMarker} from "../util/updateActiveHeadingMarker";
 
 export const highlightToolbarIR = (vditor: IVditor) => {
     clearTimeout(vditor[vditor.currentMode].hlToolbarTimeoutId);
-    vditor[vditor.currentMode].hlToolbarTimeoutId = window.setTimeout(() => {
-        try {
+    vditor[vditor.currentMode].hlToolbarTimeoutId = 0;
+    try {
         if (vditor[vditor.currentMode].element.getAttribute("contenteditable") === "false") {
             return;
         }
@@ -99,8 +99,7 @@ export const highlightToolbarIR = (vditor: IVditor) => {
         if (vditor.ir.popover) {
             vditor.ir.popover.style.display = "none";
         }
-        } finally {
-            updateActiveHeadingMarker(vditor);
-        }
-    }, 200);
+    } finally {
+        updateActiveHeadingMarker(vditor);
+    }
 };

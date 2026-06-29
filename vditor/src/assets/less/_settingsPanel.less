@@ -5,6 +5,11 @@
 
 .vditor-settings-panel {
   --settings-accent: var(--list-hover-color, var(--link-color, #4285f4));
+  --vditor-popover-primary-btn-bg: #007aff;
+  --vditor-popover-primary-btn-bg-hover: #0066d6;
+  --vditor-popover-primary-btn-fg: #fff;
+  --vditor-popover-secondary-btn-bg: color-mix(in srgb, var(--textarea-text-color) 10%, transparent);
+  --vditor-popover-secondary-btn-bg-hover: color-mix(in srgb, var(--textarea-text-color) 16%, transparent);
 
   width: min(300px, calc(100vw - 32px));
   padding: 12px;
@@ -432,23 +437,29 @@
 
   &__ai-prompt-add-actions {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     justify-content: flex-end;
   }
 
   &__ai-prompt-btn {
-    padding: 3px 12px;
+    padding: 5px 14px;
     font-size: 12px;
-    border-radius: 5px;
-    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 20%, transparent);
-    background: var(--settings-accent);
-    color: #fff;
+    border-radius: 7px;
+    border: none;
+    background: var(--vditor-popover-primary-btn-bg);
+    color: var(--vditor-popover-primary-btn-fg);
     cursor: pointer;
-    transition: opacity 0.1s;
-    &:hover { opacity: 0.85; }
+    font-weight: 500;
+    transition: background 0.12s ease, opacity 0.12s ease, box-shadow 0.12s ease;
+    &:hover { background: var(--vditor-popover-primary-btn-bg-hover); }
+    &:focus-visible {
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--vditor-popover-primary-btn-bg) 35%, transparent);
+    }
     &--cancel {
-      background: transparent;
-      color: var(--toolbar-icon-color);
+      background: var(--vditor-popover-secondary-btn-bg);
+      color: inherit;
+      font-weight: 400;
+      &:hover { background: var(--vditor-popover-secondary-btn-bg-hover); }
     }
   }
 
@@ -484,16 +495,16 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 11px;
-    color: var(--textarea-text-color, var(--toolbar-icon-color));
-    background: color-mix(in srgb, var(--toolbar-icon-color) 7%, transparent);
-    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 12%, transparent);
-    border-radius: 5px;
+    font-size: 12px;
+    color: inherit;
+    background: var(--vditor-popover-secondary-btn-bg);
+    border: none;
+    border-radius: 7px;
     width: auto;
     text-align: center;
-    padding: 5px 12px;
+    padding: 6px 16px;
     cursor: pointer;
-    transition: color 0.1s ease, background 0.1s ease, border-color 0.1s ease;
+    transition: color 0.1s ease, background 0.1s ease, box-shadow 0.12s ease;
 
     > span:not(.codicon) {
       color: var(--textarea-text-color, var(--toolbar-icon-color));
@@ -510,8 +521,7 @@
       }
 
       &:hover {
-        background: color-mix(in srgb, var(--settings-accent) 10%, transparent);
-        border-color: color-mix(in srgb, var(--settings-accent) 25%, transparent);
+        background: var(--vditor-popover-secondary-btn-bg-hover);
 
         .codicon {
           color: var(--settings-accent);
@@ -520,17 +530,26 @@
     }
 
     &--reset {
+      background: var(--error-color, #cf222e);
+
+      > span:not(.codicon) {
+        color: #fff;
+      }
+
       .codicon {
-        color: color-mix(in srgb, var(--error-color, #cf222e) 75%, transparent);
+        color: #fff;
       }
 
       &:hover {
-        background: color-mix(in srgb, var(--error-color, #cf222e) 10%, transparent);
-        border-color: color-mix(in srgb, var(--error-color, #cf222e) 25%, transparent);
+        background: color-mix(in srgb, var(--error-color, #cf222e) 85%, #000);
 
         .codicon {
-          color: var(--error-color, #cf222e);
+          color: #fff;
         }
+      }
+
+      &:focus-visible {
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--error-color, #cf222e) 35%, transparent);
       }
     }
   }

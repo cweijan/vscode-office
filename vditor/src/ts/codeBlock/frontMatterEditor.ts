@@ -78,6 +78,20 @@ const detachPopoverReposition = () => {
 
 const getPopoverContainer = (editorElement: HTMLElement) => editorElement.parentElement as HTMLElement;
 
+const isAnchorVisible = (editorElement: HTMLElement, anchorElement: HTMLElement) => {
+    const anchorRect = anchorElement.getClientRects()[0] || anchorElement.getBoundingClientRect();
+    const editorRect = editorElement.getBoundingClientRect();
+    const viewportTop = Math.max(0, editorRect.top);
+    const viewportBottom = Math.min(window.innerHeight, editorRect.bottom);
+    const viewportLeft = Math.max(0, editorRect.left);
+    const viewportRight = Math.min(window.innerWidth, editorRect.right);
+
+    return anchorRect.bottom > viewportTop &&
+        anchorRect.top < viewportBottom &&
+        anchorRect.right > viewportLeft &&
+        anchorRect.left < viewportRight;
+};
+
 const clampFrontMatterPopoverPosition = (vditor: IVditor, anchorElement: HTMLElement) => {
     const popover = getModePopover(vditor);
     const editorElement = getModeEditorElement(vditor);
@@ -125,6 +139,7 @@ const clampFrontMatterPopoverPosition = (vditor: IVditor, anchorElement: HTMLEle
         viewportLeft = Math.max(containerRect.left + VIEWPORT_MARGIN, maxLeft);
     }
 
+    popover.style.position = "absolute";
     popover.style.top = `${Math.round(viewportTop - containerRect.top)}px`;
     popover.style.left = `${Math.round(viewportLeft - containerRect.left)}px`;
 };
@@ -135,6 +150,11 @@ const attachPopoverReposition = (vditor: IVditor, anchorElement: HTMLElement) =>
     positionVditor = vditor;
     scrollRepositionHandler = () => {
         if (positionAnchor?.isConnected && positionVditor) {
+            const editorElement = getModeEditorElement(positionVditor);
+            if (!editorElement || !isAnchorVisible(editorElement, positionAnchor)) {
+                hideFrontMatterEditorPopover(positionVditor);
+                return;
+            }
             clampFrontMatterPopoverPosition(positionVditor, positionAnchor);
         }
     };
@@ -159,6 +179,7 @@ const hideFrontMatterEditorPopover = (vditor: IVditor) => {
     }
     detachPopoverReposition();
     destroyFrontMatterCodeMirror();
+    popover.style.position = "";
     popover.style.display = "none";
     popover.classList.remove(FRONT_MATTER_POPOVER_CLASS, FRONT_MATTER_PANEL_CLASS);
     popover.innerHTML = "";

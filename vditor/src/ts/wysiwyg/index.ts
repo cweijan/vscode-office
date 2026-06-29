@@ -28,7 +28,15 @@ import {
 } from "../util/selection";
 import { clickToc, renderToc } from "../util/toc";
 import { afterRenderEvent } from "./afterRenderEvent";
-import { genAPopover, genImagePopover, genLinkRefPopover, highlightToolbarWYSIWYG } from "./highlightToolbarWYSIWYG";
+import {
+    genAPopover,
+    genImagePopover,
+    genLinkRefPopover,
+    getPopoverSourceElement,
+    highlightToolbarWYSIWYG,
+    isElementVisibleInEditorViewport,
+    repositionEditPopover,
+} from "./highlightToolbarWYSIWYG";
 import { getRenderElementNextNode, modifyPre } from "./inlineTag";
 import { input } from "./input";
 import {
@@ -91,6 +99,14 @@ class WYSIWYG {
 
     public unbindListener() {
         window.removeEventListener("scroll", this.scrollListener);
+    }
+
+    private isAbsoluteEditPopover() {
+        return this.popover.classList.contains("vditor-panel--link")
+            || this.popover.classList.contains("vditor-panel--link-ref")
+            || this.popover.classList.contains("vditor-panel--image")
+            || this.popover.classList.contains("vditor-panel--html-inline")
+            || this.popover.classList.contains("vditor-panel--front-matter");
     }
 
     private copy(event: ClipboardEvent, vditor: IVditor) {
@@ -161,6 +177,17 @@ class WYSIWYG {
             if (this.popover.style.display !== "block") {
                 return;
             }
+            if (this.isAbsoluteEditPopover()) {
+                const sourceElement = getPopoverSourceElement(vditor);
+                if (sourceElement && !isElementVisibleInEditorViewport(this.element, sourceElement)) {
+                    hidePanel(vditor, ["popover"]);
+                    return;
+                }
+                if (sourceElement) {
+                    repositionEditPopover(vditor, sourceElement);
+                }
+                return;
+            }
             const top = parseInt(this.popover.getAttribute("data-top"), 10);
             if (vditor.options.height !== "auto") {
                 if (vditor.options.toolbarConfig.pin && vditor.toolbar.element.getBoundingClientRect().top === 0) {
@@ -177,6 +204,17 @@ class WYSIWYG {
         this.element.addEventListener("scroll", () => {
             hidePanel(vditor, ["hint"]);
             if (this.popover.style.display !== "block") {
+                return;
+            }
+            if (this.isAbsoluteEditPopover()) {
+                const sourceElement = getPopoverSourceElement(vditor);
+                if (sourceElement && !isElementVisibleInEditorViewport(this.element, sourceElement)) {
+                    hidePanel(vditor, ["popover"]);
+                    return;
+                }
+                if (sourceElement) {
+                    repositionEditPopover(vditor, sourceElement);
+                }
                 return;
             }
             const top = parseInt(this.popover.getAttribute("data-top"), 10) - vditor.wysiwyg.element.scrollTop;
