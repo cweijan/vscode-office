@@ -4,10 +4,10 @@ import { getConfigs } from '../../util/vscodeConfig';
 import './ProView.css';
 
 const FREE_FEATURES = [
-    'Word, Excel, PowerPoint preview',
-    'PDF & eBook viewer',
+    'Word & Excel editor',
     'WYSIWYG Markdown editor',
-    'Archive browser (zip, rar, 7z…)',
+    'PowerPoint, PDF & eBook viewer',
+    'Archive explorer (zip, rar, 7z…)',
     'Design file viewer (PSD, SVG, HEIC…)',
     'Git history browser',
 ];
@@ -15,9 +15,9 @@ const FREE_FEATURES = [
 const PRO_FEATURES = [
     { text: 'Everything in Free', bold: false, muted: true },
     { text: 'Remove Sponsor banner from viewer', bold: true },
+    { text: 'Adjust image width & height', bold: true },
     { text: 'Custom font color & background color', bold: true },
     { text: 'Beautiful PDF / DOCX / HTML export', bold: true },
-    { text: 'Professional export templates', bold: true },
     { text: 'Lifetime license — pay once, use forever', bold: false },
 ];
 
@@ -27,7 +27,10 @@ export default function ProView() {
     const [status, setStatus] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
     const [currentKey, setCurrentKey] = useState<string | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
+    const [activationSucceeded, setActivationSucceeded] = useState(false);
     const isDev = !!(getConfigs() as any)?.isDev;
+    const language = String((getConfigs() as any)?.language || '').toLowerCase();
+    const isChinese = language.startsWith('zh');
 
     useEffect(() => {
         handler.on('proActivateResult', (result: { success: boolean; key?: string; error?: string }) => {
@@ -36,8 +39,10 @@ export default function ProView() {
                 setStatus({ type: 'success', msg: 'License activated successfully!' });
                 setCurrentKey(result.key ?? null);
                 setLicenseKey('');
+                setActivationSucceeded(true);
             } else {
                 setStatus({ type: 'error', msg: result.error ?? 'Invalid license key.' });
+                setActivationSucceeded(false);
             }
         });
         handler.on('proCurrentKey', (key: string | null) => setCurrentKey(key));
@@ -54,6 +59,7 @@ export default function ProView() {
 
     function openModal() {
         setStatus(null);
+        setActivationSucceeded(false);
         setModalOpen(true);
     }
 
@@ -61,6 +67,7 @@ export default function ProView() {
         setModalOpen(false);
         setStatus(null);
         setLicenseKey('');
+        setActivationSucceeded(false);
     }
 
     const codicon = (name: string) => (
@@ -75,17 +82,35 @@ export default function ProView() {
 
                 {/* Author letter */}
                 <div className="pro-letter">
-                    <p>Hi there,</p>
-                    <p>
-                        I'm the author of Office Viewer. I've recently resumed active maintenance — fixing bugs,
-                        improving compatibility, and shipping new features.
-                    </p>
-                    <p>
-                        To sustain ongoing development, I've added some new Pro features.&nbsp;
-                        <strong>Everything that was free before remains free and open source.</strong> The Pro features are new
-                        additions on top of the free core.
-                    </p>
-                    <p>— Weijan Chen</p>
+                    {isChinese ? (
+                        <>
+                            <p>你好，</p>
+                            <p>
+                                我是 Office Viewer 的开发者。最近我重新恢复对这个项目的持续维护，
+                                包括修复问题、提升兼容性，以及持续加入一些新功能。
+                            </p>
+                            <p>
+                                为了支持后续开发，我增加了一些新的 Pro 功能。
+                                <strong> 之前免费的功能依然保持免费，并且继续开源。</strong>
+                                Pro 功能是在原有免费能力之上的新增扩展。
+                            </p>
+                            <p>— Weijan Chen</p>
+                        </>
+                    ) : (
+                        <>
+                            <p>Hi there,</p>
+                            <p>
+                                I'm the developer of Office Viewer. I've recently resumed active maintenance — fixing bugs,
+                                improving compatibility, and shipping new features.
+                            </p>
+                            <p>
+                                To sustain ongoing development, I've added some new Pro features.&nbsp;
+                                <strong>Everything that was free before remains free and open source.</strong> The Pro features are new
+                                additions on top of the free core.
+                            </p>
+                            <p>— Weijan Chen</p>
+                        </>
+                    )}
                 </div>
 
                 {/* Plans */}
@@ -181,7 +206,7 @@ export default function ProView() {
                             </div>
                         )}
                         <div className="pro-modal-actions">
-                            <button className="pro-modal-btn-cancel" onClick={closeModal}>Cancel</button>
+                            <button className="pro-modal-btn-cancel" onClick={closeModal}>{activationSucceeded ? 'Close' : 'Cancel'}</button>
                             <button
                                 className="pro-modal-btn-confirm"
                                 onClick={activate}

@@ -1,5 +1,37 @@
 import { getToolbar, bindShortcut, createContextMenu, setAIAvailable, openToolbarExport } from "./util.js";
 import { mapVscodeLanguageToVditorLang } from "./lang.js";
+import { refreshExportDialogProState } from "./exportDialog.js";
+
+const removeLockedDecorations = (root) => {
+  root?.querySelectorAll?.('.vditor-pro-locked__badge, .vditor-pro-locked__tooltip').forEach((node) => node.remove());
+  root?.querySelectorAll?.('.vditor-pro-locked').forEach((node) => node.classList.remove('vditor-pro-locked'));
+};
+
+const hideToolbarEntry = (root, type) => {
+  const button = root?.querySelector?.(`.vditor-toolbar [data-type="${type}"]`);
+  button?.closest('.vditor-toolbar__item')?.remove();
+};
+
+const applyProState = (editor, isPro) => {
+  document.body.classList.toggle('is-pro', !!isPro);
+  if (!editor?.vditor?.options) {
+    refreshExportDialogProState();
+    return;
+  }
+
+  editor.vditor.options.isPro = !!isPro;
+  if (editor.options) {
+    editor.options.isPro = !!isPro;
+  }
+
+  if (isPro) {
+    removeLockedDecorations(document);
+    hideToolbarEntry(document, 'pro-upgrade');
+    hideToolbarEntry(document, 'help');
+  }
+
+  refreshExportDialogProState();
+};
 
 handler.on("open", async (md) => {
   const { content, rootPath, documentCacheId, pendingFragment, config } = md;
@@ -10,6 +42,7 @@ handler.on("open", async (md) => {
   if (isWeb) {
     document.body.classList.add('is-web')
   }
+  applyProState(null, isPro)
   const editor = new Vditor('vditor', {
     value: content,
     cdn: rootPath,
@@ -141,6 +174,9 @@ handler.on("open", async (md) => {
         if (update.editMode !== undefined) {
           editor.switchEditMode(update.editMode);
         }
+      });
+      handler.on('markdownProStatus', ({ isPro }) => {
+        applyProState(editor, !!isPro);
       });
       handler.on("update", content => {
         if (document.querySelector("[data-type='yaml-front-matter'].vditor-code-block--cm .cm-editor.cm-focused")) {

@@ -98,17 +98,21 @@
                 <h2 class="vditor-pdf-export-dialog__title" id="export-dialog-title">Export</h2>
             </div>
             <div class="vditor-pdf-export-dialog__body">
-                <div class="vditor-pdf-export-row vditor-pdf-export-row--select">
-                    <div class="vditor-pdf-export-row__text">
-                        <span class="vditor-pdf-export-row__label">Format</span>
-                    </div>
-                    <div class="vditor-pdf-export-select-wrap">
-                        <select class="vditor-pdf-export-select" data-export-option="type" aria-label="Export format">
-                            <option value="pdf">PDF</option>
-                            <option value="docx">Word (DOCX)</option>
-                            <option value="html">HTML</option>
-                        </select>
-                        <span class="codicon codicon-chevron-down vditor-pdf-export-select__chevron" aria-hidden="true"></span>
+                <div class="vditor-pdf-export-row vditor-pdf-export-row--format">
+                    <span class="vditor-pdf-export-row__label">Format</span>
+                    <div class="vditor-export-format-group" role="radiogroup" aria-label="Export format">
+                        <label class="vditor-export-format-option">
+                            <input type="radio" name="export-format" value="pdf" data-export-option="type" checked>
+                            <span class="vditor-export-format-option__label">PDF</span>
+                        </label>
+                        <label class="vditor-export-format-option">
+                            <input type="radio" name="export-format" value="docx" data-export-option="type">
+                            <span class="vditor-export-format-option__label">DOCX</span>
+                        </label>
+                        <label class="vditor-export-format-option">
+                            <input type="radio" name="export-format" value="html" data-export-option="type">
+                            <span class="vditor-export-format-option__label">HTML</span>
+                        </label>
                     </div>
                 </div>
                 <div class="vditor-pdf-export-dialog__section" data-export-section="pdf">
@@ -124,32 +128,57 @@
                             </span>
                         </label>
                     </div>
-                    <div class="vditor-pdf-export-row">
-                        <div class="vditor-pdf-export-row__text">
-                            <span class="vditor-pdf-export-row__label">Background</span>
-                            <span class="vditor-pdf-export-row__hint">Print editor background colors</span>
-                        </div>
-                        <label class="vditor-pdf-export-toggle" aria-checked="true">
-                            <input type="checkbox" data-export-option="background" checked>
-                            <span class="vditor-pdf-export-toggle__track" aria-hidden="true">
-                                <span class="vditor-pdf-export-toggle__thumb"></span>
-                            </span>
-                        </label>
+                </div>
+                <div class="vditor-pdf-export-dialog__section vditor-export-pro-section" data-export-section="pro">
+                    <div class="vditor-export-pro-header">
+                        <span class="vditor-export-pro-header__title">Pro Features</span>
                     </div>
-                    <div class="vditor-pdf-export-row vditor-pdf-export-row--select">
-                        <div class="vditor-pdf-export-row__text">
-                            <span class="vditor-pdf-export-row__label">Page Size</span>
+                    <div class="vditor-export-pro-body" data-export-pro-body>
+                        <div class="vditor-pdf-export-row">
+                            <div class="vditor-pdf-export-row__text">
+                                <span class="vditor-pdf-export-row__label">Theme</span>
+                                <span class="vditor-pdf-export-row__hint">Apply editor theme colors</span>
+                            </div>
+                            <label class="vditor-pdf-export-toggle" aria-checked="true">
+                                <input type="checkbox" data-export-option="useTheme" checked>
+                                <span class="vditor-pdf-export-toggle__track" aria-hidden="true">
+                                    <span class="vditor-pdf-export-toggle__thumb"></span>
+                                </span>
+                            </label>
                         </div>
-                        <div class="vditor-pdf-export-select-wrap">
-                            <select class="vditor-pdf-export-select" data-export-option="pageFormat" aria-label="Page size">
-                                <option value="A4">A4</option>
-                                <option value="Letter">Letter</option>
-                                <option value="Legal">Legal</option>
-                                <option value="A3">A3</option>
-                                <option value="A5">A5</option>
-                                <option value="Tabloid">Tabloid</option>
-                            </select>
-                            <span class="codicon codicon-chevron-down vditor-pdf-export-select__chevron" aria-hidden="true"></span>
+                        <div class="vditor-pdf-export-row vditor-pdf-export-row--select" data-export-section="pdf-page-size">
+                            <div class="vditor-pdf-export-row__text">
+                                <span class="vditor-pdf-export-row__label">Page Size</span>
+                            </div>
+                            <div class="vditor-pdf-export-select-wrap">
+                                <select class="vditor-pdf-export-select" data-export-option="pageFormat" aria-label="Page size">
+                                    <option value="A4">A4</option>
+                                    <option value="Letter">Letter</option>
+                                    <option value="Legal">Legal</option>
+                                    <option value="A3">A3</option>
+                                    <option value="A5">A5</option>
+                                    <option value="Tabloid">Tabloid</option>
+                                </select>
+                                <span class="codicon codicon-chevron-down vditor-pdf-export-select__chevron" aria-hidden="true"></span>
+                            </div>
+                        </div>
+                        <div class="vditor-pdf-export-row vditor-pdf-export-row--select">
+                            <div class="vditor-pdf-export-row__text">
+                                <span class="vditor-pdf-export-row__label">Font</span>
+                            </div>
+                            <div class="vditor-pdf-export-select-wrap">
+                                <select class="vditor-pdf-export-select" data-export-option="fontFamily" aria-label="Font family"></select>
+                                <span class="codicon codicon-chevron-down vditor-pdf-export-select__chevron" aria-hidden="true"></span>
+                            </div>
+                        </div>
+                        <div class="vditor-pdf-export-row vditor-pdf-export-row--select">
+                            <div class="vditor-pdf-export-row__text">
+                                <span class="vditor-pdf-export-row__label">Font Size</span>
+                            </div>
+                            <div class="vditor-pdf-export-select-wrap">
+                                <select class="vditor-pdf-export-select" data-export-option="fontSize" aria-label="Font size"></select>
+                                <span class="codicon codicon-chevron-down vditor-pdf-export-select__chevron" aria-hidden="true"></span>
+                            </div>
                         </div>
                     </div>
                 </div>

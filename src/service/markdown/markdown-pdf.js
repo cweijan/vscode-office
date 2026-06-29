@@ -30,10 +30,14 @@ async function convertMarkdown(inputMarkdownFile, config) {
   const $ = require("cheerio").load(html);
   const containsMermaid = $('.mermaid').length > 0;
   if (containsMermaid) {
-    const mermaidConfig = buildMermaidExportConfig(config.exportTheme)
-    const mermaidScript = `
+    const mermaidScript = isProExport(config)
+      ? `
     <script src="${getMermaidScriptSrc(type)}"></script>
-    <script>mermaid.initialize(${JSON.stringify(mermaidConfig)});</script>
+    <script>mermaid.initialize(${JSON.stringify(buildMermaidExportConfig(config.exportTheme))});</script>
+    `
+      : `
+    <script src="${getMermaidScriptSrc(type)}"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
     `;
 
     $('body').append(mermaidScript);
@@ -160,7 +164,7 @@ function mergeHtml(content, uri, type, config = {}) {
     const title = path.basename(uri.fsPath)
     const style = readStyles(type, config)
     const templatePath = path.join(__dirname, "template", "template.html")
-    const bodyClass = config.exportTheme
+    const bodyClass = isProExport(config)
         ? ` class="vditor-export${config.exportTheme.isDark ? ' vditor-export--dark' : ''}"`
         : ''
     return mustache.render(readFile(templatePath), { title, style, content, bodyClass })
@@ -256,8 +260,23 @@ function resolveCssUrls(css, basePath, type) {
   })
 }
 
+function isProExport(config = {}) {
+  return config.useProExport === true && !!config.exportTheme
+}
+
+function readLegacyStyles(type) {
+  const basePath = path.join(__dirname, "styles");
+  const katexPath = path.resolve(__dirname, '..', "resource", 'markdown', 'dist', 'js', 'katex', 'katex.min.css');
+  const files = ['arduino-light.css', 'markdown.css', 'markdown-pdf.css']
+  return files.map(file => makeCss(path.join(basePath, file))).join("")
+    + makeCss(katexPath, true, type)
+}
+
 function readStyles(type, config = {}) {
   try {
+    if (!isProExport(config)) {
+      return readLegacyStyles(type)
+    }
     const basePath = path.join(__dirname, "styles");
     const katexPath = path.resolve(__dirname, '..', "resource", 'markdown', 'dist', 'js', 'katex', 'katex.min.css');
     const files = ['markdown.css', 'markdown-pdf.css']

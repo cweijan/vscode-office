@@ -223,17 +223,35 @@ export const openToolbarExport = (editor) => {
 
 const openExportForEditor = (editor, source) => {
     handler.emit('telemetry', { event: 'markdown.exportDialog', properties: { source } })
-    openExportDialog().then(options => {
+    openExportDialog(editor).then(options => {
         if (!options) return
         emitExport(editor, options)
     })
 }
 
+const applyProExportSettings = (exportTheme, proSettings) => {
+    if (!exportTheme || !proSettings) return exportTheme
+    const layout = { ...(exportTheme.layout || {}) }
+    if (proSettings.fontFamily && proSettings.fontFamily !== 'inherit') {
+        layout.fontFamily = proSettings.fontFamily
+    }
+    if (proSettings.fontSize) {
+        layout.fontSize = `${proSettings.fontSize}px`
+    }
+    return { ...exportTheme, layout }
+}
+
 const emitExport = (editor, payload) => {
-    vscodeEvent.emit('export', {
-        ...payload,
-        exportTheme: editor.exportExportSettings?.(),
-    })
+    const { proSettings, useProExport, ...rest } = payload
+    const exportPayload = { ...rest, useProExport: !!useProExport }
+    if (useProExport) {
+        let exportTheme = editor.exportExportSettings?.()
+        if (proSettings) {
+            exportTheme = applyProExportSettings(exportTheme, proSettings)
+        }
+        exportPayload.exportTheme = exportTheme
+    }
+    vscodeEvent.emit('export', exportPayload)
 }
 
 export const createContextMenu = (editor) => {

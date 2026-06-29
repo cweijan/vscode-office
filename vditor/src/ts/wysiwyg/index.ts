@@ -3,6 +3,7 @@ import { hidePanel } from "../toolbar/setToolbar";
 import { isCtrl, isFirefox } from "../util/compatibility";
 import {
     bindImageLoadingState,
+    bindImageResizeHover,
     blurEvent,
     copyEvent, cutEvent, dblclickEvent,
     dropEvent,
@@ -87,6 +88,7 @@ class WYSIWYG {
         copyEvent(vditor, this.element, this.copy);
         cutEvent(vditor, this.element, this.copy);
         bindImageLoadingState(this.element);
+        bindImageResizeHover(vditor, this.element);
     }
 
     public unbindListener() {

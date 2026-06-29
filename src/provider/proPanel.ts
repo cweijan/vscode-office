@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { getExtensionResourceRoots } from '../common/extensionResource';
 import { ReactApp } from '../common/reactApp';
+import { broadcastToMarkdownWebviews } from '@/service/markdown/blockScroll';
 
 const VIEW_TYPE = 'office.proPanel';
 // const API_HOST = 'https://api.office-viewer.app';
@@ -9,6 +10,9 @@ const STATE_KEY = 'office.pro.licenseKey';
 
 export class ProPanel {
     private static panel: vscode.WebviewPanel | undefined;
+    private static emitLicenseState(isPro: boolean) {
+        broadcastToMarkdownWebviews('markdownProStatus', { isPro });
+    }
 
     public static async createOrShow(context: vscode.ExtensionContext) {
         if (this.panel) {
@@ -52,6 +56,7 @@ export class ProPanel {
                 case 'proClearKey': {
                     await context.globalState.update(STATE_KEY, undefined);
                     this.panel?.webview.postMessage({ type: 'proCurrentKey', content: null });
+                    this.emitLicenseState(false);
                     break;
                 }
                 case 'openLink': {
@@ -74,7 +79,9 @@ export class ProPanel {
                 const data = json?.data ?? json;
                 if (data?.licenseKey) {
                     await context.globalState.update(STATE_KEY, key);
+                    this.panel?.webview.postMessage({ type: 'proCurrentKey', content: key });
                     this.panel?.webview.postMessage({ type: 'proActivateResult', content: { success: true, key } });
+                    this.emitLicenseState(true);
                     return;
                 }
             }

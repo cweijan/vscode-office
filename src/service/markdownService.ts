@@ -56,6 +56,7 @@ interface ExportOption {
     withoutOutline?: boolean;
     printBackground?: boolean;
     format?: string;
+    useProExport?: boolean;
     exportTheme?: ExportThemeSettings;
 }
 
@@ -85,12 +86,13 @@ export class MarkdownService {
 
     public getConfig(option: ExportOption) {
         const top = Global.getConfig("pdfMarginTop")
-        const { type = 'pdf', withoutOutline = false } = option;
+        const { type = 'pdf', withoutOutline = false, useProExport = false } = option;
         return {
             type,
             "styles": [],
             withoutOutline,
-            exportTheme: option.exportTheme,
+            useProExport,
+            exportTheme: useProExport ? option.exportTheme : undefined,
             // chromium path
             "executablePath": this.getChromiumPath(),
             // puppeteer launch args (useful for Linux servers running as root)

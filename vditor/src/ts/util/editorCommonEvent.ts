@@ -23,6 +23,10 @@ import { saveCacheFocus } from "./cacheFocus";
 import { clearActiveHeadingMarker } from "./updateActiveHeadingMarker";
 import { handleAutoSymbolPair } from "./autoSymbol";
 import { handleVscodeShortcut } from "./vscodeShortcut";
+import { telemetry } from "./telemetry";
+import { codicon } from "./codicon";
+
+const IMAGE_RESIZE_MIN_DIMENSION = 24;
 
 const markImageLoading = (img: HTMLImageElement) => {
     if (img.complete && img.naturalWidth > 0) {
@@ -53,6 +57,238 @@ export const bindImageLoadingState = (editorElement: HTMLElement) => {
         }
     });
     observer.observe(editorElement, { childList: true, subtree: true });
+};
+
+const resolveEditableHoverImage = (vditor: IVditor, target: EventTarget | null): HTMLImageElement | null => {
+    const element = target instanceof Element ? target : target instanceof Node ? target.parentElement : null;
+    if (!element) {
+        return null;
+    }
+    const img = element.closest("img") as HTMLImageElement | null;
+    if (!img || isPlantumlRenderImage(img)) {
+        return null;
+    }
+    if (vditor.currentMode === "wysiwyg" && img.parentElement?.classList.contains("vditor-wysiwyg__preview")) {
+        return null;
+    }
+    return img;
+};
+
+export const bindImageResizeHover = (vditor: IVditor, editorElement: HTMLElement) => {
+    const hoverButton = document.createElement("button");
+    hoverButton.type = "button";
+    hoverButton.className = "vditor-image-resize-hover";
+    hoverButton.setAttribute("aria-label", "Adjust image size");
+    hoverButton.innerHTML = `<span class="vditor-image-resize-hover__icon">${codicon("screen-full")}</span><span class="vditor-image-resize-hover__text">Size</span>`;
+
+    const panel = document.createElement("div");
+    panel.className = "vditor-image-resize-panel";
+
+    const widthControl = document.createElement("label");
+    widthControl.className = "vditor-image-resize-panel__field";
+    widthControl.innerHTML = `<span class="vditor-image-resize-panel__label">W</span>`;
+    const widthInput = document.createElement("input");
+    widthInput.type = "number";
+    widthInput.min = String(IMAGE_RESIZE_MIN_DIMENSION);
+    widthInput.step = "1";
+    widthInput.className = "vditor-image-resize-panel__input";
+    widthInput.placeholder = "px";
+    widthInput.setAttribute("aria-label", "Image width");
+    widthControl.appendChild(widthInput);
+
+    const heightControl = document.createElement("label");
+    heightControl.className = "vditor-image-resize-panel__field";
+    heightControl.innerHTML = `<span class="vditor-image-resize-panel__label">H</span>`;
+    const heightInput = document.createElement("input");
+    heightInput.type = "number";
+    heightInput.min = String(IMAGE_RESIZE_MIN_DIMENSION);
+    heightInput.step = "1";
+    heightInput.className = "vditor-image-resize-panel__input";
+    heightInput.placeholder = "px";
+    heightInput.setAttribute("aria-label", "Image height");
+    heightControl.appendChild(heightInput);
+
+    panel.append(widthControl, heightControl);
+    document.body.append(hoverButton, panel);
+
+    if (!vditor.options.isPro) {
+        hoverButton.classList.add("vditor-pro-locked");
+        hoverButton.insertAdjacentHTML("beforeend",
+            `<span class="vditor-pro-locked__badge" aria-hidden="true">PRO</span>`);
+    }
+
+    let activeImage: HTMLImageElement | null = null;
+    let panelOpen = false;
+    let hideTimer = 0;
+
+    const clearHideTimer = () => {
+        if (hideTimer) {
+            window.clearTimeout(hideTimer);
+            hideTimer = 0;
+        }
+    };
+
+    const hidePanel = () => {
+        panelOpen = false;
+        panel.classList.remove("vditor-image-resize-panel--visible");
+    };
+
+    const hideHover = () => {
+        clearHideTimer();
+        hidePanel();
+        hoverButton.classList.remove("vditor-image-resize-hover--visible");
+        activeImage = null;
+    };
+
+    const scheduleHide = () => {
+        clearHideTimer();
+        hideTimer = window.setTimeout(() => {
+            if (!hoverButton.matches(":hover") && !panel.matches(":hover")) {
+                hideHover();
+            }
+        }, 80);
+    };
+
+    const getRenderedDimensions = (img: HTMLImageElement) => {
+        const rect = img.getBoundingClientRect();
+        const width = Math.max(IMAGE_RESIZE_MIN_DIMENSION, Math.round(rect.width || img.width || img.naturalWidth || IMAGE_RESIZE_MIN_DIMENSION));
+        const height = Math.max(IMAGE_RESIZE_MIN_DIMENSION, Math.round(rect.height || img.height || img.naturalHeight || IMAGE_RESIZE_MIN_DIMENSION));
+        return { width, height };
+    };
+
+    const syncInputs = () => {
+        if (!activeImage) {
+            widthInput.value = "";
+            heightInput.value = "";
+            return;
+        }
+        const { width, height } = getRenderedDimensions(activeImage);
+        widthInput.value = String(width);
+        heightInput.value = String(height);
+    };
+
+    const positionElements = () => {
+        if (!activeImage || !activeImage.isConnected) {
+            hideHover();
+            return;
+        }
+        const rect = activeImage.getBoundingClientRect();
+        const buttonTop = Math.max(12, rect.top + 8);
+        const buttonLeft = Math.max(12, rect.right - 84);
+        hoverButton.style.top = `${buttonTop}px`;
+        hoverButton.style.left = `${buttonLeft}px`;
+
+        if (!panelOpen) {
+            return;
+        }
+        const panelTop = Math.min(window.innerHeight - 56, buttonTop + 38);
+        const panelLeft = Math.min(window.innerWidth - 156, Math.max(12, rect.right - 156));
+        panel.style.top = `${panelTop}px`;
+        panel.style.left = `${panelLeft}px`;
+    };
+
+    const showForImage = (img: HTMLImageElement) => {
+        activeImage = img;
+        syncInputs();
+        hoverButton.classList.add("vditor-image-resize-hover--visible");
+        positionElements();
+    };
+
+    const updateDimension = (attribute: "width" | "height", rawValue: string) => {
+        if (!activeImage) {
+            return;
+        }
+        const value = rawValue.trim();
+        if (value === "") {
+            activeImage.removeAttribute(attribute);
+        } else {
+            const nextValue = Number(value);
+            if (!Number.isFinite(nextValue)) {
+                return;
+            }
+            activeImage.setAttribute(attribute, String(Math.max(
+                IMAGE_RESIZE_MIN_DIMENSION,
+                Math.round(nextValue),
+            )));
+        }
+        afterRenderEvent(vditor);
+        syncInputs();
+        positionElements();
+    };
+
+    widthInput.addEventListener("input", () => updateDimension("width", widthInput.value));
+    heightInput.addEventListener("input", () => updateDimension("height", heightInput.value));
+
+    hoverButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!activeImage) {
+            return;
+        }
+        if (!vditor.options.isPro) {
+            telemetry(vditor, "markdown.proRequired", { feature: "image-resize" });
+            vditor.options.onRequirePro?.("image-resize");
+            return;
+        }
+        panelOpen = !panelOpen;
+        panel.classList.toggle("vditor-image-resize-panel--visible", panelOpen);
+        if (panelOpen) {
+            syncInputs();
+            positionElements();
+            widthInput.focus();
+            widthInput.select();
+        }
+    });
+
+    editorElement.addEventListener("mouseover", (event) => {
+        const img = resolveEditableHoverImage(vditor, event.target);
+        if (!img) {
+            return;
+        }
+        clearHideTimer();
+        showForImage(img);
+    });
+
+    editorElement.addEventListener("mousemove", () => {
+        if (activeImage) {
+            positionElements();
+        }
+    });
+
+    editorElement.addEventListener("mouseleave", (event: MouseEvent) => {
+        const related = event.relatedTarget as HTMLElement | null;
+        if (related?.closest(".vditor-image-resize-hover") || related?.closest(".vditor-image-resize-panel")) {
+            return;
+        }
+        scheduleHide();
+    });
+
+    hoverButton.addEventListener("mouseleave", scheduleHide);
+    panel.addEventListener("mouseleave", scheduleHide);
+    hoverButton.addEventListener("mouseenter", clearHideTimer);
+    panel.addEventListener("mouseenter", clearHideTimer);
+
+    document.addEventListener("mousedown", (event) => {
+        const target = event.target as HTMLElement | null;
+        if (target?.closest(".vditor-image-resize-hover") || target?.closest(".vditor-image-resize-panel")) {
+            return;
+        }
+        if (activeImage && target && (target === activeImage || activeImage.contains(target))) {
+            return;
+        }
+        hideHover();
+    });
+
+    window.addEventListener("scroll", () => {
+        if (activeImage) {
+            positionElements();
+        }
+    }, true);
+    window.addEventListener("resize", () => {
+        if (activeImage) {
+            positionElements();
+        }
+    });
 };
 
 export const focusEvent = (vditor: IVditor, editorElement: HTMLElement) => {
