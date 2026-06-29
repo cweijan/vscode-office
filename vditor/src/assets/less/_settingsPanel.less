@@ -3,7 +3,7 @@
   max-width: min(300px, calc(100vw - 32px));
   padding: 6px 0;
   margin-top: 6px;
-  border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 12%, transparent);
+  border: none;
   border-radius: 12px;
   box-shadow:
     0 8px 24px color-mix(in srgb, #000 14%, transparent),
@@ -262,19 +262,10 @@
     color: var(--textarea-text-color);
     -webkit-text-fill-color: var(--textarea-text-color);
     background: var(--settings-fill-elevated);
-    border: 0.5px solid color-mix(in srgb, var(--toolbar-icon-color) 14%, transparent);
     border-radius: var(--settings-radius-control);
     padding: 5px 8px;
-    outline: none;
     box-sizing: border-box;
-    transition:
-      border-color 0.2s var(--settings-ease),
-      box-shadow 0.2s var(--settings-ease);
-
-    &:focus {
-      border-color: color-mix(in srgb, var(--settings-accent) 55%, transparent);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--settings-accent) 18%, transparent);
-    }
+    .vditor-popover-field();
   }
 
   &__dropdown-row {
@@ -504,20 +495,11 @@
     box-sizing: border-box;
     padding: 8px 10px;
     font-size: 13px;
-    border: 0.5px solid color-mix(in srgb, var(--toolbar-icon-color) 14%, transparent);
     border-radius: var(--settings-radius-control);
     background: var(--settings-fill-elevated);
     color: var(--toolbar-icon-color);
-    outline: none;
     font-family: inherit;
-    transition:
-      border-color 0.2s var(--settings-ease),
-      box-shadow 0.2s var(--settings-ease);
-
-    &:focus {
-      border-color: color-mix(in srgb, var(--settings-accent) 55%, transparent);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--settings-accent) 18%, transparent);
-    }
+    .vditor-popover-field();
   }
 
   &__ai-prompt-textarea {

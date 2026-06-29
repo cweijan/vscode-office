@@ -115,9 +115,7 @@ export const showToolbar = (toolbar: { [key: string]: HTMLElement }, names: stri
         if (!toolbar[name]) {
             return;
         }
-        if (toolbar[name]) {
-            toolbar[name].style.display = "block";
-        }
+        toolbar[name].style.removeProperty("display");
     });
 };
 

@@ -5,7 +5,7 @@
   align-items: flex-start;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.15s ease-in-out;
+  transition: opacity 0.18s var(--vditor-popover-ease, ease-in-out);
 
   &--visible {
     opacity: 1;
@@ -20,19 +20,22 @@
     height: 20px;
     padding: 0;
     border: none;
-    border-radius: 4px;
-    background: transparent;
+    border-radius: var(--vditor-popover-radius, 6px);
+    background: color-mix(in srgb, var(--toolbar-icon-color) 4%, transparent);
     color: var(--toolbar-icon-color);
     cursor: grab;
-    transition: @transition;
+    transition:
+      background-color 0.18s var(--vditor-popover-ease, ease-in-out),
+      color 0.18s var(--vditor-popover-ease, ease-in-out);
 
     &:hover {
-      background: color-mix(in srgb, var(--toolbar-icon-color) 12%, transparent);
+      background: color-mix(in srgb, var(--toolbar-icon-color) 10%, transparent);
       color: var(--toolbar-icon-hover-color);
     }
 
     &:active {
       cursor: grabbing;
+      background: color-mix(in srgb, var(--toolbar-icon-color) 14%, transparent);
     }
   }
 
@@ -40,7 +43,7 @@
     width: 8px;
     height: 14px;
     display: block;
-    opacity: 0.72;
+    opacity: 0.88;
   }
 
   &__drop-line {
@@ -49,6 +52,7 @@
     height: 2px;
     border-radius: 1px;
     background: var(--list-hover-color, @blurColor);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--list-hover-color, @blurColor) 18%, transparent);
     pointer-events: none;
   }
 
