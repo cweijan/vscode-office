@@ -1,5 +1,6 @@
-import {buildFontColorPanelHTML, isValidFontColor, syncFontColorCustomControls} from "../ui/fontColorPanel";
-import {applyFontColor, hasTextSelection} from "../util/applyFontColor";
+import {buildFontColorPanelHTML, isValidFontColor, syncFontColorCustomControls, updateFontColorInput, updateFontColorPreview, updateFontColorPreviewText} from "../ui/fontColorPanel";
+import {applyFontColor, getSelectionTextForFontColor, hasTextSelection} from "../util/applyFontColor";
+import {getEditorRange} from "../util/selection";
 import {getEventName} from "../util/compatibility";
 import {telemetry, telemetryToolbar} from "../util/telemetry";
 import {MenuItem} from "./MenuItem";
@@ -17,6 +18,11 @@ const applyCustomFontColor = (
     panelElement.style.display = "none";
     hidePanel(vditor, ["subToolbar"]);
     return true;
+};
+
+const syncPreviewText = (vditor: IVditor, panelElement: HTMLElement) => {
+    const selectedText = getSelectionTextForFontColor(getEditorRange(vditor), vditor).replace(/\s+/g, " ").trim();
+    updateFontColorPreviewText(panelElement, selectedText);
 };
 
 export class FontColor extends MenuItem {
@@ -57,6 +63,7 @@ export class FontColor extends MenuItem {
             if (willOpen) {
                 telemetryToolbar(vditor, "font-color");
                 syncFontColorCustomControls(panelElement, true);
+                syncPreviewText(vditor, panelElement);
             }
         }, true);
 
@@ -64,10 +71,8 @@ export class FontColor extends MenuItem {
             const swatch = event.target.closest("button[data-color]") as HTMLElement | null;
             if (swatch) {
                 const color = swatch.getAttribute("data-color") || "";
-                if (applyFontColor(vditor, color)) {
-                    telemetry(vditor, "markdown.fontColor.apply", { color, source: "palette" });
-                    panelElement.style.display = "none";
-                    hidePanel(vditor, ["subToolbar"]);
+                if (isValidFontColor(color)) {
+                    updateFontColorInput(panelElement, color);
                 }
                 event.preventDefault();
                 event.stopPropagation();
@@ -89,6 +94,15 @@ export class FontColor extends MenuItem {
                 event.stopPropagation();
             }
         });
+
+        const colorInput = panelElement.querySelector("[data-custom-color]") as HTMLInputElement | null;
+        if (colorInput) {
+            syncPreviewText(vditor, panelElement);
+            updateFontColorPreview(panelElement, colorInput.value);
+            colorInput.addEventListener("input", () => {
+                updateFontColorPreview(panelElement, colorInput.value);
+            });
+        }
 
         toggleSubMenu(vditor, panelElement, actionBtn, menuItem.level);
         syncFontColorCustomControls(panelElement, hasTextSelection(vditor));

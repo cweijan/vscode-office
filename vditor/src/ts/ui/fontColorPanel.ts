@@ -1,4 +1,5 @@
 export const FONT_COLOR_PANEL_CLASS = "vditor-font-color-panel";
+const FONT_COLOR_PREVIEW_TEXT = "Preview";
 
 export const FONT_COLOR_PALETTE: string[] = [
     "#000000", "#434343", "#666666", "#999999", "#b7b7b7", "#cccccc", "#ffffff",
@@ -31,6 +32,31 @@ export const syncFontColorCustomControls = (root: ParentNode, enabled: boolean) 
     }
 };
 
+export const updateFontColorPreview = (root: ParentNode, color: string) => {
+    const preview = root.querySelector("[data-custom-preview]") as HTMLElement | null;
+    if (!preview || !isValidFontColor(color)) {
+        return;
+    }
+    preview.style.color = color;
+};
+
+export const updateFontColorPreviewText = (root: ParentNode, text: string) => {
+    const preview = root.querySelector("[data-custom-preview]") as HTMLElement | null;
+    if (!preview) {
+        return;
+    }
+    preview.textContent = text || FONT_COLOR_PREVIEW_TEXT;
+};
+
+export const updateFontColorInput = (root: ParentNode, color: string) => {
+    const colorInput = root.querySelector("[data-custom-color]") as HTMLInputElement | null;
+    if (!colorInput || !isValidFontColor(color)) {
+        return;
+    }
+    colorInput.value = color;
+    updateFontColorPreview(root, color);
+};
+
 export const syncFontColorPanelEnabled = (vditor: IVditor, enabled: boolean) => {
     const toolbarItem = vditor.toolbar?.elements?.["font-color"];
     if (!toolbarItem) {
@@ -45,9 +71,10 @@ export const buildFontColorPanelHTML = (): string => {
             + `style="background-color:${color}" aria-label="${color}" title="${color}"></button>`;
     }).join("");
 
-    const customLabel = window.VditorI18n["font-color-custom"] || "Custom";
+    const customLabel = "Color";
     const confirmLabel = window.VditorI18n.confirm || "Confirm";
     return `<div class="${FONT_COLOR_PANEL_CLASS}" role="listbox" aria-label="${window.VditorI18n["font-color"] || "Font color"}">`
+        + `<div class="${FONT_COLOR_PANEL_CLASS}__preview" data-custom-preview aria-hidden="true">${FONT_COLOR_PREVIEW_TEXT}</div>`
         + `<div class="${FONT_COLOR_PANEL_CLASS}__grid">${swatches}</div>`
         + `<div class="${FONT_COLOR_PANEL_CLASS}__custom">`
         + `<span class="${FONT_COLOR_PANEL_CLASS}__custom-label">${customLabel}</span>`

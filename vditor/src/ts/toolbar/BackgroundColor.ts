@@ -1,5 +1,6 @@
-import {buildBackgroundColorPanelHTML, isValidBackgroundColor, syncBackgroundColorCustomControls} from "../ui/backgroundColorPanel";
-import {applyBackgroundColor, hasTextSelection} from "../util/applyFontColor";
+import {buildBackgroundColorPanelHTML, isValidBackgroundColor, syncBackgroundColorCustomControls, updateBackgroundColorInput, updateBackgroundColorPreview, updateBackgroundColorPreviewText} from "../ui/backgroundColorPanel";
+import {applyBackgroundColor, getSelectionTextForFontColor, hasTextSelection} from "../util/applyFontColor";
+import {getEditorRange} from "../util/selection";
 import {getEventName} from "../util/compatibility";
 import {telemetry, telemetryToolbar} from "../util/telemetry";
 import {MenuItem} from "./MenuItem";
@@ -17,6 +18,11 @@ const applyCustomBackgroundColor = (
     panelElement.style.display = "none";
     hidePanel(vditor, ["subToolbar"]);
     return true;
+};
+
+const syncPreviewText = (vditor: IVditor, panelElement: HTMLElement) => {
+    const selectedText = getSelectionTextForFontColor(getEditorRange(vditor), vditor).replace(/\s+/g, " ").trim();
+    updateBackgroundColorPreviewText(panelElement, selectedText);
 };
 
 export class BackgroundColor extends MenuItem {
@@ -57,6 +63,7 @@ export class BackgroundColor extends MenuItem {
             if (willOpen) {
                 telemetryToolbar(vditor, "background-color");
                 syncBackgroundColorCustomControls(panelElement, true);
+                syncPreviewText(vditor, panelElement);
             }
         }, true);
 
@@ -64,10 +71,8 @@ export class BackgroundColor extends MenuItem {
             const swatch = event.target.closest("button[data-color]") as HTMLElement | null;
             if (swatch) {
                 const color = swatch.getAttribute("data-color") || "";
-                if (applyBackgroundColor(vditor, color)) {
-                    telemetry(vditor, "markdown.backgroundColor.apply", { color, source: "palette" });
-                    panelElement.style.display = "none";
-                    hidePanel(vditor, ["subToolbar"]);
+                if (isValidBackgroundColor(color)) {
+                    updateBackgroundColorInput(panelElement, color);
                 }
                 event.preventDefault();
                 event.stopPropagation();
@@ -89,6 +94,15 @@ export class BackgroundColor extends MenuItem {
                 event.stopPropagation();
             }
         });
+
+        const colorInput = panelElement.querySelector("[data-custom-color]") as HTMLInputElement | null;
+        if (colorInput) {
+            syncPreviewText(vditor, panelElement);
+            updateBackgroundColorPreview(panelElement, colorInput.value);
+            colorInput.addEventListener("input", () => {
+                updateBackgroundColorPreview(panelElement, colorInput.value);
+            });
+        }
 
         toggleSubMenu(vditor, panelElement, actionBtn, menuItem.level);
         syncBackgroundColorCustomControls(panelElement, hasTextSelection(vditor));

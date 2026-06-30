@@ -1,6 +1,18 @@
 import {FONT_COLOR_PALETTE, isValidFontColor} from "./fontColorPanel";
 
 export const BACKGROUND_COLOR_PANEL_CLASS = "vditor-background-color-panel";
+const BACKGROUND_COLOR_PREVIEW_TEXT = "Preview";
+
+const getPreviewForegroundColor = (color: string): string => {
+    const normalized = color.length === 4
+        ? `#${color[1]}${color[1]}${color[2]}${color[2]}${color[3]}${color[3]}`
+        : color;
+    const red = Number.parseInt(normalized.slice(1, 3), 16);
+    const green = Number.parseInt(normalized.slice(3, 5), 16);
+    const blue = Number.parseInt(normalized.slice(5, 7), 16);
+    const luminance = (red * 299 + green * 587 + blue * 114) / 1000;
+    return luminance >= 160 ? "#111111" : "#ffffff";
+};
 
 export const syncBackgroundColorCustomControls = (root: ParentNode, enabled: boolean) => {
     const panel = root.querySelector(`.${BACKGROUND_COLOR_PANEL_CLASS}`);
@@ -21,6 +33,32 @@ export const syncBackgroundColorCustomControls = (root: ParentNode, enabled: boo
     }
 };
 
+export const updateBackgroundColorPreview = (root: ParentNode, color: string) => {
+    const preview = root.querySelector("[data-custom-preview]") as HTMLElement | null;
+    if (!preview || !isValidFontColor(color)) {
+        return;
+    }
+    preview.style.backgroundColor = color;
+    preview.style.color = getPreviewForegroundColor(color);
+};
+
+export const updateBackgroundColorPreviewText = (root: ParentNode, text: string) => {
+    const preview = root.querySelector("[data-custom-preview]") as HTMLElement | null;
+    if (!preview) {
+        return;
+    }
+    preview.textContent = text || BACKGROUND_COLOR_PREVIEW_TEXT;
+};
+
+export const updateBackgroundColorInput = (root: ParentNode, color: string) => {
+    const colorInput = root.querySelector("[data-custom-color]") as HTMLInputElement | null;
+    if (!colorInput || !isValidFontColor(color)) {
+        return;
+    }
+    colorInput.value = color;
+    updateBackgroundColorPreview(root, color);
+};
+
 export const syncBackgroundColorPanelEnabled = (vditor: IVditor, enabled: boolean) => {
     const toolbarItem = vditor.toolbar?.elements?.["background-color"];
     if (!toolbarItem) {
@@ -35,9 +73,10 @@ export const buildBackgroundColorPanelHTML = (): string => {
             + `style="background-color:${color}" aria-label="${color}" title="${color}"></button>`;
     }).join("");
 
-    const customLabel = window.VditorI18n["background-color-custom"] || "Custom";
+    const customLabel = "Color";
     const confirmLabel = window.VditorI18n.confirm || "Confirm";
     return `<div class="${BACKGROUND_COLOR_PANEL_CLASS}" role="listbox" aria-label="${window.VditorI18n["background-color"] || "Background color"}">`
+        + `<div class="${BACKGROUND_COLOR_PANEL_CLASS}__preview" data-custom-preview aria-hidden="true">${BACKGROUND_COLOR_PREVIEW_TEXT}</div>`
         + `<div class="${BACKGROUND_COLOR_PANEL_CLASS}__grid">${swatches}</div>`
         + `<div class="${BACKGROUND_COLOR_PANEL_CLASS}__custom">`
         + `<span class="${BACKGROUND_COLOR_PANEL_CLASS}__custom-label">${customLabel}</span>`
