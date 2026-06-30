@@ -4,8 +4,7 @@ import { ReactApp } from '../common/reactApp';
 import { broadcastToMarkdownWebviews } from '@/service/markdown/blockScroll';
 
 const VIEW_TYPE = 'office.proPanel';
-// const API_HOST = 'https://api.office-viewer.app';
-const API_HOST = 'http://localhost:92';
+const API_HOST = 'https://api.office-viewer.app';
 const STATE_KEY = 'office.pro.licenseKey';
 
 export class ProPanel {
