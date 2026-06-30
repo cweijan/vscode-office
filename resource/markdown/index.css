@@ -414,8 +414,36 @@ html[data-editor-theme]:not([data-editor-theme="Auto"]) {
 }
 
 .vditor-export-pro-section {
-    margin-top: 2px;
-    border-top: var(--vditor-toolbar-border-bottom, 1px solid var(--border-color));
+    margin: 10px 14px 6px;
+    border: 1px solid color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 42%, transparent);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 7%, var(--panel-background-color));
+    box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 10%, transparent),
+        0 4px 14px color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 10%, transparent);
+}
+
+.vditor-export-pro-section .vditor-export-pro-header {
+    padding-top: 12px;
+}
+
+.vditor-export-pro-section .vditor-export-pro-header__title {
+    color: var(--vscode-textLink-foreground, #3794ff);
+}
+
+.vditor-export-pro-section .vditor-export-pro-header__title::after {
+    content: "PRO";
+    margin-left: 8px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    vertical-align: 1px;
+    color: #fff;
+    background: linear-gradient(90deg,
+        var(--vscode-textLink-foreground, #3794ff),
+        color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 65%, #00bfff));
 }
 
 .vditor-export-pro-header {
@@ -468,13 +496,13 @@ html[data-editor-theme]:not([data-editor-theme="Auto"]) {
     position: absolute;
     inset: 0;
     z-index: 1;
-    border-radius: 0 0 8px 8px;
-    background: color-mix(in srgb, var(--panel-background-color) 65%, transparent);
+    border-radius: 0 0 10px 10px;
+    background: color-mix(in srgb, var(--panel-background-color) 28%, transparent);
     pointer-events: auto;
 }
 
 .vditor-export-pro--locked .vditor-pdf-export-row {
-    opacity: 0.72;
+    opacity: 0.78;
 }
 
 .vditor-pdf-export-dialog__title {
