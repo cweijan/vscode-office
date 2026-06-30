@@ -10,6 +10,7 @@ import {
     isActiveTagRef,
 } from '../util/refHighlight';
 import { getBranchLabels } from '../util/branchLabels';
+import { formatCommitDate } from '../util/formatCommitDate';
 import { getVertexColour } from '../util/graphColours';
 import GraphSvg from './GraphSvg';
 import { BranchRefIcon, StashRefIcon, TagRefIcon } from './RefIcons';
@@ -39,10 +40,6 @@ interface CommitTableProps {
         refName: string,
         remote?: GitCommitRemote,
     ) => void;
-}
-
-function formatDate(timestamp: number): string {
-    return new Date(timestamp * 1000).toLocaleString();
 }
 
 function abbrevHash(hash: string): string {
@@ -283,13 +280,13 @@ export default function CommitTable({
                                 <Text ellipsis className={`git-graph-message${commit.hash === UNCOMMITTED ? ' git-graph-message-uncommitted' : ''}`}>{commit.message}</Text>
                             </span>
                             <span className="col-date">
-                                <Text ellipsis className="git-graph-muted">{formatDate(commit.date)}</Text>
+                                <Text ellipsis className="git-graph-muted">{formatCommitDate(commit.date)}</Text>
                             </span>
                             <span className="col-author">
                                 <Text ellipsis className="git-graph-muted">{commit.author}</Text>
                             </span>
                             <span className="col-hash">
-                                <code className="git-graph-hash">{abbrevHash(commit.hash)}</code>
+                                <Text ellipsis className="git-graph-hash">{abbrevHash(commit.hash)}</Text>
                             </span>
                         </div>
                         );

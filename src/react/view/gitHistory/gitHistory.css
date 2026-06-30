@@ -674,10 +674,14 @@
 .git-graph-commits-col {
     flex: 1;
     min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(200px, 1fr) minmax(0, max-content) minmax(0, max-content) minmax(0, max-content);
 }
 
 .git-graph-table-header {
-    display: flex;
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
     align-items: center;
     height: 28px;
     padding: 0 8px;
@@ -692,13 +696,14 @@
 }
 
 .git-graph-table-body {
-    display: flex;
-    flex-direction: column;
+    display: contents;
     user-select: none;
 }
 
 .git-graph-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
     align-items: center;
     padding: 0 8px;
     cursor: pointer;
@@ -726,12 +731,18 @@
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--git-graph-selected-bg) 70%, transparent);
 }
 
-.git-graph-row.multi-selected .git-graph-muted,
+.git-graph-row.multi-selected .git-graph-muted {
+    color: var(--git-graph-muted);
+}
+
 .git-graph-row.multi-selected .git-graph-hash {
     color: var(--git-graph-muted);
 }
 
-.git-graph-row.multi-selected.selection-focus .git-graph-muted,
+.git-graph-row.multi-selected.selection-focus .git-graph-muted {
+    color: var(--git-graph-fg);
+}
+
 .git-graph-row.multi-selected.selection-focus .git-graph-hash {
     color: var(--git-graph-fg);
 }
@@ -821,8 +832,7 @@
 }
 
 .col-desc {
-    flex: 1;
-    min-width: 200px;
+    min-width: 0;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -830,43 +840,50 @@
 }
 
 .col-date {
-    width: 150px;
-    flex-shrink: 0;
+    min-width: 0;
+    overflow: hidden;
+    padding-left: 24px;
 }
 
 .col-author {
-    width: 100px;
-    flex-shrink: 0;
+    min-width: 0;
+    overflow: hidden;
+    padding-left: 28px;
+    max-width: 120px;
 }
 
 .col-hash {
-    width: 70px;
-    flex-shrink: 0;
+    min-width: 0;
+    overflow: hidden;
+    padding-left: 28px;
+    padding-right: 4px;
 }
 
 @media (max-width: 900px) {
+    .git-graph-commits-col {
+        grid-template-columns: minmax(200px, 1fr) minmax(0, max-content) minmax(0, max-content) 0;
+    }
+
     .col-hash {
         display: none;
     }
-}
-
-@media (max-width: 700px) {
-    .col-date {
-        width: 130px;
-    }
 
     .col-author {
-        width: 70px;
+        padding-right: 24px;
     }
 }
 
 @media (max-width: 480px) {
+    .git-graph-commits-col {
+        grid-template-columns: minmax(200px, 1fr) 0 minmax(0, max-content) 0;
+    }
+
     .col-date {
         display: none;
     }
 
     .col-author {
-        width: 70px;
+        padding-right: 24px;
     }
 }
 
@@ -885,12 +902,8 @@
 }
 
 .git-graph-hash {
-    font-size: 11px;
-    font-family: var(--vscode-editor-font-family, var(--vscode-font-family, monospace));
-    background: var(--git-graph-code-bg);
-    color: var(--git-graph-fg);
-    padding: 1px 4px;
-    border-radius: 3px;
+    color: var(--git-graph-fg) !important;
+    font-size: 12px;
 }
 
 .git-graph-ref {
