@@ -17,6 +17,7 @@ function makeProUpgradeBtn() {
         className: 'right',
         icon: `<span class="codicon codicon-mail" aria-hidden="true"></span>${dismissed ? '' : '<span class="vditor-pro-badge"></span>'}`,
         click() {
+            handler.emit('telemetry', { event: 'markdown.toolbar.pro-letter-click' });
             handler.emit('openProPanel');
             localStorage.setItem(PRO_BADGE_KEY, '1');
             // Remove badge dot from DOM without re-rendering
