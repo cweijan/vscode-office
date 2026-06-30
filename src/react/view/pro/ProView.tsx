@@ -14,7 +14,7 @@ const FREE_FEATURES = [
 ];
 
 const PRO_FEATURES = [
-    { text: 'Everything in Free', bold: false, muted: true },
+    { text: 'Everything in Free', bold: false, greenIcon: true },
     { text: 'Remove Sponsor Element', bold: true },
     { text: 'Beautiful PDF / HTML Export', bold: true },
     { text: 'Adjust Image Width & Height', bold: true },
@@ -163,7 +163,7 @@ export default function ProView() {
                         <div className="pro-plan-divider" />
                         <ul className="pro-plan-features">
                             {PRO_FEATURES.map(f => (
-                                <li key={f.text} className={[f.muted ? 'muted' : '', f.bold ? 'bold' : ''].join(' ').trim()}>
+                                <li key={f.text} className={[f.bold ? 'bold' : '', f.greenIcon ? 'icon-green' : ''].join(' ').trim()}>
                                     {codicon('verified')}<span className="pro-plan-feature-text">{f.text}</span>
                                 </li>
                             ))}

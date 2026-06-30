@@ -30,8 +30,9 @@
     box-sizing: border-box;
     color: var(--viewer-fg);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", sans-serif;
-    font-size: 13px;
+    font-size: 12.5px;
     overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: var(--vscode-scrollbarSlider-background) transparent;
     background:
@@ -54,12 +55,18 @@
 }
 
 .pro-page-inner {
-    flex: 1;
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    justify-content: safe center;
+    min-height: 100%;
     max-width: 760px;
     width: 100%;
     margin: 0 auto;
     padding: 48px 28px 56px;
     box-sizing: border-box;
+    min-height: 0;
 }
 
 /* ── Letter ──────────────────────────────────────────── */
@@ -67,14 +74,14 @@
     position: relative;
     border: 1px solid color-mix(in srgb, var(--viewer-border) 70%, transparent);
     border-radius: var(--pro-radius-lg);
-    padding: 28px 32px;
+    padding: 22px 26px;
     margin-bottom: 36px;
     background: color-mix(in srgb, var(--viewer-sider-bg) 50%, var(--viewer-bg));
     backdrop-filter: blur(20px) saturate(160%);
     -webkit-backdrop-filter: blur(20px) saturate(160%);
     box-shadow: var(--pro-shadow-sm);
-    line-height: 1.72;
-    font-size: 13.5px;
+    line-height: 1.65;
+    font-size: 14px;
     letter-spacing: -0.01em;
 }
 
@@ -82,8 +89,8 @@
     content: "";
     position: absolute;
     top: 0;
-    left: 32px;
-    right: 32px;
+    left: 26px;
+    right: 26px;
     height: 1px;
     background: linear-gradient(90deg,
         transparent,
@@ -93,7 +100,7 @@
 }
 
 .pro-letter p {
-    margin: 0 0 12px;
+    margin: 0 0 10px;
     color: color-mix(in srgb, var(--viewer-fg) 92%, transparent);
 }
 
@@ -102,7 +109,7 @@
     font-weight: 600;
     letter-spacing: -0.02em;
     color: var(--viewer-fg) !important;
-    margin-bottom: 14px !important;
+    margin-bottom: 10px !important;
 }
 
 .pro-letter strong {
@@ -111,7 +118,7 @@
 }
 
 .pro-letter-signature {
-    margin: 10px 0 0 !important;
+    margin: 6px 0 0 !important;
     padding-top: 0;
     color: var(--viewer-muted) !important;
     font-size: 12px;
@@ -126,23 +133,24 @@
     gap: 20px;
     margin-bottom: 32px;
     align-items: stretch;
+    min-width: 0;
 }
 
 .pro-plan-card {
     position: relative;
     border: 1px solid color-mix(in srgb, var(--viewer-border) 75%, transparent);
     border-radius: var(--pro-radius-xl);
-    padding: 26px 24px 22px;
+    padding: 22px 20px 30px;
     background: color-mix(in srgb, var(--viewer-sider-bg) 35%, var(--viewer-bg));
     display: flex;
     flex-direction: column;
     box-shadow: var(--pro-shadow-sm);
     transition:
-        transform 0.32s var(--pro-ease),
         box-shadow 0.32s var(--pro-ease),
         border-color 0.32s var(--pro-ease);
     cursor: default;
     overflow: hidden;
+    min-width: 0;
 }
 
 .pro-plan-card::after {
@@ -155,7 +163,6 @@
 }
 
 .pro-plan-card:hover {
-    transform: translateY(-3px);
     box-shadow: var(--pro-shadow-md);
     border-color: color-mix(in srgb, var(--viewer-border) 100%, transparent);
 }
@@ -173,7 +180,6 @@
 }
 
 .pro-plan-card--pro:hover {
-    transform: translateY(-4px);
     box-shadow:
         var(--pro-shadow-lg),
         0 0 0 1px color-mix(in srgb, var(--pro-card-accent) 35%, transparent),
@@ -182,11 +188,11 @@
 
 .pro-plan-card--pro .pro-plan-badge {
     position: absolute;
-    top: 18px;
-    right: 18px;
-    padding: 4px 10px;
+    top: 16px;
+    right: 16px;
+    padding: 4px 9px;
     border-radius: 100px;
-    font-size: 10.5px;
+    font-size: 10px;
     font-weight: 600;
     letter-spacing: 0.03em;
     text-transform: uppercase;
@@ -200,8 +206,8 @@
 .pro-plan-title {
     display: flex;
     align-items: center;
-    gap: 9px;
-    font-size: 15px;
+    gap: 8px;
+    font-size: 14px;
     font-weight: 600;
     letter-spacing: -0.02em;
     margin: 0 0 5px;
@@ -209,8 +215,8 @@
 }
 
 .pro-card-logo {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     border-radius: 6px;
     flex-shrink: 0;
     pointer-events: none;
@@ -220,24 +226,24 @@
 
 .pro-plan-title--pro {
     color: var(--pro-card-accent, var(--vscode-textLink-foreground, #6c63ff));
-    padding-right: 88px;
+    padding-right: 72px;
 }
 
 .pro-plan-desc {
-    font-size: 12px;
+    font-size: 11.5px;
     color: var(--viewer-muted);
-    margin: 0 0 18px;
-    line-height: 1.55;
+    margin: 0 0 14px;
+    line-height: 1.5;
     letter-spacing: -0.005em;
 }
 
 .pro-plan-price {
     display: flex;
     align-items: baseline;
-    gap: 8px;
-    font-size: 44px;
+    gap: 6px;
+    font-size: 32px;
     font-weight: 700;
-    margin: 0 0 3px;
+    margin: 0 0 2px;
     color: var(--viewer-fg);
     letter-spacing: -0.04em;
     line-height: 1;
@@ -246,16 +252,16 @@
 }
 
 .pro-plan-price-alipay {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 400;
     color: var(--viewer-muted);
     letter-spacing: -0.01em;
 }
 
 .pro-plan-price-sub {
-    font-size: 11.5px;
+    font-size: 11px;
     color: var(--viewer-muted);
-    margin: 0 0 20px;
+    margin: 0 0 16px;
     font-weight: 500;
     letter-spacing: -0.01em;
 }
@@ -263,8 +269,8 @@
 .pro-plan-btn {
     display: block;
     width: 100%;
-    margin-bottom: 12px;
-    padding: 10px 0;
+    margin-bottom: 10px;
+    padding: 9px 0;
     border-radius: var(--pro-radius-sm);
     border: none;
     background: color-mix(in srgb, var(--viewer-fg) 8%, transparent);
@@ -302,32 +308,31 @@
 .pro-plan-divider {
     height: 1px;
     background: color-mix(in srgb, var(--viewer-border) 80%, transparent);
-    margin: 8px 0 16px;
+    margin: 6px 0 14px;
 }
 
 .pro-plan-features {
     list-style: none;
     padding: 0;
     margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 10px;
 }
 
 .pro-plan-features li {
-    font-size: 12.5px;
+    font-size: 11px;
     color: color-mix(in srgb, var(--viewer-fg) 90%, transparent);
     display: flex;
-    align-items: center;
-    gap: 10px;
+    align-items: flex-start;
+    gap: 7px;
     min-width: 0;
     letter-spacing: -0.01em;
+    line-height: 1.4;
 }
 
 .pro-plan-feature-text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
     min-width: 0;
 }
 
@@ -335,9 +340,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
     flex-shrink: 0;
     border-radius: 50%;
     color: #34c759;
@@ -347,6 +352,11 @@
 .pro-plan-card--pro .pro-plan-features li .codicon-verified {
     color: var(--pro-card-accent);
     background: color-mix(in srgb, var(--pro-card-accent) 14%, transparent);
+}
+
+.pro-plan-card--pro .pro-plan-features li.icon-green .codicon-verified {
+    color: #34c759;
+    background: color-mix(in srgb, #34c759 14%, transparent);
 }
 
 .pro-plan-features li.muted {
@@ -364,8 +374,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    font-size: 12px;
+    gap: 5px;
+    font-size: 11px;
     font-weight: 600;
     letter-spacing: -0.01em;
     color: #34c759;
@@ -374,7 +384,7 @@
     padding: 8px 0;
     border-radius: var(--pro-radius-sm);
     width: 100%;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 .pro-active-badge .codicon {
@@ -385,15 +395,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 5px;
     width: 100%;
-    padding: 10px 0;
+    padding: 8px 0;
     margin-bottom: 8px;
     border-radius: var(--pro-radius-sm);
     border: none;
     background: color-mix(in srgb, var(--pro-card-accent) 16%, var(--viewer-sider-bg));
     color: color-mix(in srgb, var(--pro-card-accent) 88%, var(--viewer-fg));
-    font-size: 12.5px;
+    font-size: 11.5px;
     font-weight: 600;
     letter-spacing: -0.01em;
     cursor: pointer;
@@ -618,19 +628,22 @@
     transform: none;
 }
 
-@media (max-width: 560px) {
+@media (max-height: 540px) {
     .pro-page-inner {
-        padding: 32px 18px 40px;
+        justify-content: flex-start;
     }
-    .pro-letter {
-        padding: 22px 20px;
+}
+
+@media (max-width: 680px) {
+    .pro-page-inner {
+        justify-content: flex-start;
     }
     .pro-plans {
         grid-template-columns: 1fr;
         gap: 16px;
     }
-    .pro-plan-card--pro {
-        margin-top: 4px;
+    .pro-plan-features {
+        grid-template-columns: 1fr;
     }
     .pro-plan-title--pro {
         padding-right: 0;
@@ -639,7 +652,13 @@
     .pro-plan-card--pro .pro-plan-badge {
         position: static;
         align-self: flex-start;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
+    }
+}
+
+@media (max-width: 560px) {
+    .pro-page-inner {
+        padding: 32px 18px 40px;
     }
 }
 
