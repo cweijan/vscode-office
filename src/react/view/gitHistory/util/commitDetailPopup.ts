@@ -12,6 +12,8 @@ export interface ViewportBounds {
     height: number;
 }
 
+export type AnchoredDialogPositionVariant = 'default' | 'merge';
+
 export const COMMIT_DETAIL_POPUP_WIDTH = 400;
 const POPUP_MARGIN = 10;
 const MAX_COMMIT_DETAIL_HEIGHT = 600;
@@ -42,9 +44,12 @@ export function computeAnchoredDialogPosition(
     width: number,
     height: number,
     bounds?: ViewportBounds,
+    variant: AnchoredDialogPositionVariant = 'default',
 ): { left: number; top: number } {
     const viewport = bounds ?? getViewportBounds();
-    const rawTop = anchor.repoToolbar && anchor.y < 120 ? anchor.y + 8 : anchor.y - 90;
+    const rawTop = variant === 'merge'
+        ? (anchor.repoToolbar && anchor.y < 120 ? anchor.y + 4 : anchor.y - 150)
+        : (anchor.repoToolbar && anchor.y < 120 ? anchor.y + 8 : anchor.y - 90);
     const maxTop = Math.max(POPUP_MARGIN, viewport.height - height - POPUP_MARGIN);
     const top = Math.min(Math.max(rawTop, POPUP_MARGIN), maxTop);
     const maxLeft = Math.max(POPUP_MARGIN, viewport.width - width - POPUP_MARGIN);

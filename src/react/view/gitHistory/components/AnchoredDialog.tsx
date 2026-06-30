@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Spin } from 'antd';
-import type { PopupAnchor } from '../util/commitDetailPopup';
+import type { AnchoredDialogPositionVariant, PopupAnchor } from '../util/commitDetailPopup';
 import { useAnchoredDialogPosition } from '../hooks/useAnchoredDialogPosition';
 
 interface AnchoredDialogProps {
@@ -8,6 +8,7 @@ interface AnchoredDialogProps {
     ariaLabel: string;
     repositionDeps?: unknown[];
     centerOffsetY?: number;
+    positionVariant?: AnchoredDialogPositionVariant;
     compact?: boolean;
     children: ReactNode;
 }
@@ -17,10 +18,11 @@ export function AnchoredDialog({
     ariaLabel,
     repositionDeps = [],
     centerOffsetY = 0,
+    positionVariant = 'default',
     compact = false,
     children,
 }: AnchoredDialogProps) {
-    const dialogRef = useAnchoredDialogPosition(anchor, repositionDeps, centerOffsetY);
+    const dialogRef = useAnchoredDialogPosition(anchor, repositionDeps, centerOffsetY, positionVariant);
 
     return (
         <div

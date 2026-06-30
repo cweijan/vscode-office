@@ -1,13 +1,17 @@
-import type { MouseEvent, ReactNode } from 'react';
+import { useMemo } from 'react';
+import type { MouseEvent, ReactNode, CSSProperties } from 'react';
 import { Typography } from 'antd';
 import type { GitCommit, GitCommitRemote } from '../types';
 import type { GraphConfig } from '../graph/layoutEngine';
+import { computeGraphLayout } from '../graph/layoutEngine';
 import {
     getCheckedOutBranchLabel,
     isActiveBranchRef,
     isActiveTagRef,
 } from '../util/refHighlight';
 import { getBranchLabels } from '../util/branchLabels';
+import { formatCommitDate } from '../util/formatCommitDate';
+import { getVertexColour } from '../util/graphColours';
 import GraphSvg from './GraphSvg';
 import { BranchRefIcon, StashRefIcon, TagRefIcon } from './RefIcons';
 
@@ -36,10 +40,6 @@ interface CommitTableProps {
         refName: string,
         remote?: GitCommitRemote,
     ) => void;
-}
-
-function formatDate(timestamp: number): string {
-    return new Date(timestamp * 1000).toLocaleString();
 }
 
 function abbrevHash(hash: string): string {
@@ -188,15 +188,15 @@ function RefTags({
 }
 
 function CommitHeadDot({
-    commit,
     branchHead,
     commitHead,
+    commitHash,
 }: {
-    commit: GitCommit;
     branchHead: string | null;
     commitHead: string | null;
+    commitHash: string;
 }) {
-    if (commitHead === null || commit.hash !== commitHead) {
+    if (commitHead === null || commitHash !== commitHead) {
         return null;
     }
     const checkedOutBranch = getCheckedOutBranchLabel(branchHead);
@@ -211,18 +211,19 @@ export default function CommitTable({
     fileHistoryMode = false, onSelect, onRowContextMenu, onRefContextMenu,
 }: CommitTableProps) {
     const multiSelect = selectedIndices.size > 1;
+    const layout = useMemo(
+        () => computeGraphLayout(commits, commitHead, rowHeight, graphConfig, false, fileHistoryMode),
+        [commits, commitHead, rowHeight, graphConfig, fileHistoryMode],
+    );
+
     return (
         <div className="git-graph-table-wrapper">
             <div className="git-graph-graph-col">
                 <div className="git-graph-graph-header">Graph</div>
                 <GraphSvg
-                    commits={commits}
-                    commitHead={commitHead}
-                    rowHeight={rowHeight}
+                    layout={layout}
                     selectedIndices={selectedIndices}
                     focusIndex={focusIndex}
-                    graphConfig={graphConfig}
-                    linearFileHistory={fileHistoryMode}
                     onSelect={onSelect}
                 />
             </div>
@@ -245,12 +246,17 @@ export default function CommitTable({
                             commitHead !== null && commit.hash === commitHead ? 'current-head' : '',
                             commit.hash === UNCOMMITTED ? 'uncommitted' : '',
                         ].filter(Boolean).join(' ');
+                        const rowStyle = {
+                            height: rowHeight,
+                            '--git-graph-color': getVertexColour(layout.vertexColors, graphConfig.colours, index),
+                        } as CSSProperties;
                         return (
                         <div
                             key={commit.hash + index}
                             data-commit-index={index}
+                            data-color={layout.vertexColors[index] ?? 0}
                             className={rowClass}
-                            style={{ height: rowHeight }}
+                            style={rowStyle}
                             onMouseDown={(e) => {
                                 if (e.shiftKey || e.metaKey || e.ctrlKey) {
                                     e.preventDefault();
@@ -261,9 +267,9 @@ export default function CommitTable({
                         >
                             <span className="col-desc">
                                 <CommitHeadDot
-                                    commit={commit}
                                     branchHead={branchHead}
                                     commitHead={commitHead}
+                                    commitHash={commit.hash}
                                 />
                                 <RefTags
                                     commit={commit}
@@ -274,13 +280,13 @@ export default function CommitTable({
                                 <Text ellipsis className={`git-graph-message${commit.hash === UNCOMMITTED ? ' git-graph-message-uncommitted' : ''}`}>{commit.message}</Text>
                             </span>
                             <span className="col-date">
-                                <Text ellipsis className="git-graph-muted">{formatDate(commit.date)}</Text>
+                                <Text ellipsis className="git-graph-muted">{formatCommitDate(commit.date)}</Text>
                             </span>
                             <span className="col-author">
                                 <Text ellipsis className="git-graph-muted">{commit.author}</Text>
                             </span>
                             <span className="col-hash">
-                                <code className="git-graph-hash">{abbrevHash(commit.hash)}</code>
+                                <Text ellipsis className="git-graph-hash">{abbrevHash(commit.hash)}</Text>
                             </span>
                         </div>
                         );

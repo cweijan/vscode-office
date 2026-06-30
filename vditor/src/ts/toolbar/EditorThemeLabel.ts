@@ -1,6 +1,6 @@
 import {openEditorThemePanel} from "../ui/editorThemeToolbar";
 import {getEventName} from "../util/compatibility";
-import {telemetryToolbar} from "../util/telemetry";
+import {telemetryToolbarClickOnly} from "../util/telemetry";
 import {MenuItem} from "./MenuItem";
 
 export class EditorThemeLabel extends MenuItem {
@@ -23,7 +23,7 @@ export class EditorThemeLabel extends MenuItem {
             const willOpen = panelHost?.style.display !== "block";
             openEditorThemePanel(vditor, actionBtn);
             if (willOpen) {
-                telemetryToolbar(vditor, "editor-theme-label");
+                telemetryToolbarClickOnly(vditor, event, "editor-theme-label");
             }
         });
     }

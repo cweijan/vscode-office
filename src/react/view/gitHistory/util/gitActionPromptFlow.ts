@@ -153,9 +153,10 @@ export function getPromptSteps(
                 fields: [
                     {
                         type: 'checkbox',
-                        id: 'createNewCommit',
-                        label: $t('git.createNewCommit'),
-                        defaultValue: true,
+                        id: 'noCommit',
+                        label: $t('git.noCommit'),
+                        defaultValue: false,
+                        info: $t('git.noCommitMergeInfo'),
                     },
                     {
                         type: 'checkbox',
@@ -166,10 +167,9 @@ export function getPromptSteps(
                     },
                     {
                         type: 'checkbox',
-                        id: 'noCommit',
-                        label: $t('git.noCommit'),
-                        defaultValue: false,
-                        info: $t('git.noCommitMergeInfo'),
+                        id: 'createNewCommit',
+                        label: $t('git.createNewCommit'),
+                        defaultValue: true,
                     },
                 ],
             }];
@@ -193,17 +193,17 @@ export function getPromptSteps(
             fields.push(
                 {
                     type: 'checkbox',
-                    id: 'recordOrigin',
-                    label: $t('git.recordOrigin'),
-                    defaultValue: false,
-                    info: $t('git.recordOriginInfo'),
-                },
-                {
-                    type: 'checkbox',
                     id: 'noCommit',
                     label: $t('git.noCommit'),
                     defaultValue: false,
                     info: $t('git.noCommitCherryInfo'),
+                },
+                {
+                    type: 'checkbox',
+                    id: 'recordOrigin',
+                    label: $t('git.recordOrigin'),
+                    defaultValue: false,
+                    info: $t('git.recordOriginInfo'),
                 },
             );
             return [{

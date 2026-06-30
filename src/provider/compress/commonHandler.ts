@@ -81,6 +81,7 @@ export function handleCommonEvent(uri: Uri, handler: Handler, options?: { skipOp
                 xls: { label: 'Excel 97-2003 Workbook', exts: ['xls'] },
                 ods: { label: 'OpenDocument Spreadsheet', exts: ['ods'] },
                 csv: { label: 'CSV (Comma delimited)', exts: ['csv'] },
+                parquet: { label: 'Apache Parquet', exts: ['parquet'] },
                 docx: { label: 'Word Document', exts: ['docx'] },
                 dotx: { label: 'Word Template', exts: ['dotx'] },
             };

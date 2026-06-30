@@ -15,11 +15,14 @@ const SHOW_DELAY_MS = 250;
 interface ToolbarTooltipProps {
     content?: ReactNode;
     children: ReactElement;
+    wrap?: boolean;
+    pinOnClick?: boolean;
 }
 
-export default function ToolbarTooltip({ content, children }: ToolbarTooltipProps) {
+export default function ToolbarTooltip({ content, children, wrap = false, pinOnClick = false }: ToolbarTooltipProps) {
     const [visible, setVisible] = useState(false);
     const [positioned, setPositioned] = useState(false);
+    const [pinned, setPinned] = useState(false);
     const [position, setPosition] = useState({ top: 0, left: 0 });
     const anchorRef = useRef<HTMLSpanElement | null>(null);
     const tooltipRef = useRef<HTMLDivElement | null>(null);
@@ -32,11 +35,17 @@ export default function ToolbarTooltip({ content, children }: ToolbarTooltipProp
         }
     }, []);
 
-    const hide = useCallback(() => {
+    const hide = useCallback((force = false) => {
+        if (pinned && !force) {
+            return;
+        }
         clearShowTimer();
         setVisible(false);
         setPositioned(false);
-    }, [clearShowTimer]);
+        if (force) {
+            setPinned(false);
+        }
+    }, [clearShowTimer, pinned]);
 
     const updatePosition = useCallback(() => {
         const anchor = anchorRef.current;
@@ -89,6 +98,21 @@ export default function ToolbarTooltip({ content, children }: ToolbarTooltipProp
         };
     }, [visible, hide, updatePosition]);
 
+    useEffect(() => {
+        if (!pinned) {
+            return;
+        }
+        const onPointerDown = (event: PointerEvent) => {
+            const target = event.target as Node;
+            if (anchorRef.current?.contains(target) || tooltipRef.current?.contains(target)) {
+                return;
+            }
+            hide(true);
+        };
+        document.addEventListener('pointerdown', onPointerDown, true);
+        return () => document.removeEventListener('pointerdown', onPointerDown, true);
+    }, [pinned, hide]);
+
     useEffect(() => () => clearShowTimer(), [clearShowTimer]);
 
     const ariaLabel = typeof content === 'string' ? content : undefined;
@@ -99,8 +123,31 @@ export default function ToolbarTooltip({ content, children }: ToolbarTooltipProp
                 ref={anchorRef}
                 className="git-graph-toolbar-tooltip-anchor"
                 onMouseEnter={show}
-                onMouseLeave={hide}
-                onMouseDown={hide}
+                onMouseLeave={() => hide()}
+                onMouseDown={(event) => {
+                    if (pinOnClick) {
+                        event.stopPropagation();
+                        return;
+                    }
+                    hide();
+                }}
+                onClick={(event) => {
+                    if (!pinOnClick) {
+                        return;
+                    }
+                    event.stopPropagation();
+                    setPinned((prev) => {
+                        if (prev) {
+                            clearShowTimer();
+                            setVisible(false);
+                            setPositioned(false);
+                            return false;
+                        }
+                        clearShowTimer();
+                        setVisible(true);
+                        return true;
+                    });
+                }}
             >
                 {cloneElement(children, {
                     ...(ariaLabel ? { 'aria-label': ariaLabel } : {}),
@@ -110,7 +157,7 @@ export default function ToolbarTooltip({ content, children }: ToolbarTooltipProp
             {visible && content && createPortal(
                 <div
                     ref={tooltipRef}
-                    className={`git-graph-toolbar-tooltip${positioned ? ' is-visible' : ''}`}
+                    className={`git-graph-toolbar-tooltip${wrap ? ' wrap' : ''}${positioned ? ' is-visible' : ''}`}
                     role="tooltip"
                     style={{ top: position.top, left: position.left }}
                 >

@@ -19,6 +19,7 @@ const Epub = lazy(() => import('./view/epub/Epub.tsx'))
 const IcnsViewer = lazy(() => import('./view/icns/IcnsViewer.tsx'))
 const PsdViewer = lazy(() => import('./view/psd/PsdViewer.tsx'))
 const XmindViewer = lazy(() => import('./view/xmind/XmindViewer.tsx'))
+const Parquet = lazy(() => import('./view/parquet/Parquet.tsx'))
 const WebUnsupported = lazy(() => import('./view/WebUnsupported.tsx'))
 const ProView = lazy(() => import('./view/pro/ProView.tsx'))
 
@@ -55,6 +56,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           return <PsdViewer />
         case 'xmind':
           return <XmindViewer />
+        case 'parquet':
+          return <Parquet />
         case 'gitHistory':
           return <GitHistory />
         case 'webUnsupported':

@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from 'react';
 import {
+    type AnchoredDialogPositionVariant,
     computeAnchoredDialogPosition,
     type PopupAnchor,
 } from '../util/commitDetailPopup';
@@ -8,6 +9,7 @@ export function useAnchoredDialogPosition(
     anchor: PopupAnchor | null | undefined,
     repositionDeps: unknown[] = [],
     centerOffsetY = 0,
+    variant: AnchoredDialogPositionVariant = 'default',
 ) {
     const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -25,11 +27,11 @@ export function useAnchoredDialogPosition(
         }
         dialog.style.transform = 'none';
         const { width, height } = dialog.getBoundingClientRect();
-        const { left, top } = computeAnchoredDialogPosition(anchor, width, height);
+        const { left, top } = computeAnchoredDialogPosition(anchor, width, height, undefined, variant);
         dialog.style.left = `${left}px`;
         dialog.style.top = `${top}px`;
         dialog.style.visibility = 'visible';
-    }, [anchor, centerOffsetY, ...repositionDeps]);
+    }, [anchor, centerOffsetY, variant, ...repositionDeps]);
 
     return dialogRef;
 }
