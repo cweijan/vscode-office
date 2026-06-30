@@ -912,7 +912,7 @@
 }
 
 .git-graph-ref.active.git-graph-ref-head {
-    border-color: var(--git-graph-ref-head);
+    border-color: var(--git-graph-color, var(--git-graph-ref-head));
 }
 
 .git-graph-ref.active.git-graph-ref-tag {
@@ -929,7 +929,7 @@
 }
 
 .git-graph-ref.active.git-graph-ref-head .git-graph-ref-name {
-    color: var(--git-graph-ref-head);
+    color: var(--git-graph-color, var(--git-graph-ref-head));
     font-weight: 700;
 }
 
@@ -965,15 +965,11 @@
 }
 
 .git-graph-ref-head .git-graph-ref-icon {
-    background-color: var(--git-graph-ref-head);
-}
-
-.git-graph-ref-tag .git-graph-ref-icon {
-    background-color: var(--git-graph-ref-tag);
+    background-color: var(--git-graph-color, var(--git-graph-ref-head));
 }
 
 .git-graph-ref-remote .git-graph-ref-icon {
-    background-color: var(--git-graph-ref-remote);
+    background-color: var(--git-graph-color, var(--git-graph-ref-remote));
 }
 
 .git-graph-ref-stash .git-graph-ref-icon {
@@ -996,7 +992,7 @@
 }
 
 .git-graph-row.selected .git-graph-ref.active.git-graph-ref-head .git-graph-ref-name {
-    color: var(--git-graph-ref-head);
+    color: var(--git-graph-color, var(--git-graph-ref-head));
     font-weight: 700;
 }
 
@@ -1015,7 +1011,7 @@
 }
 
 .git-graph-row.selected .git-graph-ref.active.git-graph-ref-head {
-    border-color: var(--git-graph-ref-head);
+    border-color: var(--git-graph-color, var(--git-graph-ref-head));
 }
 
 .git-graph-row.selected .git-graph-ref.active.git-graph-ref-tag {
@@ -1027,7 +1023,7 @@
 }
 
 .git-graph-row.selected .git-graph-ref-head .git-graph-ref-icon {
-    background-color: var(--git-graph-ref-head);
+    background-color: var(--git-graph-color, var(--git-graph-ref-head));
     color: var(--git-graph-bg);
 }
 
@@ -1037,7 +1033,7 @@
 }
 
 .git-graph-row.selected .git-graph-ref-remote .git-graph-ref-icon {
-    background-color: var(--git-graph-ref-remote);
+    background-color: var(--git-graph-color, var(--git-graph-ref-remote));
     color: var(--git-graph-bg);
 }
 
@@ -1049,7 +1045,7 @@
 .git-graph-commit-head-dot {
     width: 9px;
     height: 9px;
-    border: 2.5px solid var(--git-graph-accent);
+    border: 2.5px solid var(--git-graph-color, var(--git-graph-accent));
     display: inline-block;
     border-radius: 50%;
     margin-right: 6px;

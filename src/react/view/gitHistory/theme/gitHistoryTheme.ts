@@ -29,8 +29,8 @@ export function useGitHistoryColorMode(): GitHistoryColorMode {
 }
 
 const GRAPH_COLOUR_VARS = [
-    '--vscode-gitDecoration-modifiedResourceForeground',
     '--vscode-textLink-foreground',
+    '--vscode-gitDecoration-modifiedResourceForeground',
     '--vscode-gitDecoration-addedResourceForeground',
     '--vscode-gitDecoration-renamedResourceForeground',
     '--vscode-terminal-ansiMagenta',
@@ -42,7 +42,7 @@ const GRAPH_COLOUR_VARS = [
 ] as const;
 
 const GRAPH_COLOUR_FALLBACKS = [
-    '#e2c08d', '#3794ff', '#73c991', '#73c991', '#bc05bc',
+    '#3794ff', '#e2c08d', '#73c991', '#73c991', '#bc05bc',
     '#c74e39', '#0598bc', '#73c991', '#cdcd22', '#e51400',
 ];
 
