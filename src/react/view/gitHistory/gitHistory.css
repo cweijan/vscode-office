@@ -333,6 +333,11 @@
     opacity: 1;
 }
 
+.git-graph-toolbar-tooltip.wrap {
+    white-space: normal;
+    max-width: min(280px, calc(100vw - 16px));
+}
+
 .vscode-input {
     width: 100%;
     height: 26px;
@@ -2423,7 +2428,7 @@ body.git-graph-dialog-open {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 5px 3px;
+    padding: 4px 2px;
     cursor: pointer;
     user-select: none;
     font-size: 13px;
@@ -2436,11 +2441,46 @@ body.git-graph-dialog-open {
     cursor: pointer;
 }
 
+.git-graph-anchored-dialog-checkbox-list--styled .git-graph-anchored-dialog-checkbox-input {
+    appearance: none;
+    -webkit-appearance: none;
+    box-sizing: border-box;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid color-mix(in srgb, var(--git-graph-border) 90%, transparent);
+    border-radius: 4px;
+    background: var(--vscode-input-background, color-mix(in srgb, var(--git-graph-fg) 6%, transparent));
+    flex-shrink: 0;
+    position: relative;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.git-graph-anchored-dialog-checkbox-list--styled .git-graph-anchored-dialog-checkbox-input:checked {
+    background: var(--git-graph-primary-btn-bg);
+    border-color: var(--git-graph-primary-btn-bg);
+}
+
+.git-graph-anchored-dialog-checkbox-list--styled .git-graph-anchored-dialog-checkbox-input:checked::after {
+    content: '';
+    position: absolute;
+    left: 4.5px;
+    top: 1.5px;
+    width: 4px;
+    height: 8px;
+    border: solid var(--git-graph-primary-btn-fg, #fff);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.git-graph-anchored-dialog-checkbox-list--styled .git-graph-anchored-dialog-checkbox-input:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--git-graph-accent) 25%, transparent);
+}
+
 .git-graph-anchored-dialog-info {
     display: inline-flex;
     align-items: center;
     opacity: 0.65;
-    cursor: help;
 }
 
 .git-graph-anchored-dialog-info .codicon {

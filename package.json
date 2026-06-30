@@ -233,8 +233,8 @@
 			},
 			{
 				"command": "office.gitHistory.viewFileHistory",
-				"title": "View File History",
-				"icon": "$(history)",
+				"title": "Git: View File History",
+				"icon": "$(git-commit)",
 				"enablement": "!office.extensionHost.web"
 			}
 		],
