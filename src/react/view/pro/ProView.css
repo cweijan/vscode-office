@@ -232,6 +232,9 @@
 }
 
 .pro-plan-price {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
     font-size: 44px;
     font-weight: 700;
     margin: 0 0 3px;
@@ -240,6 +243,13 @@
     line-height: 1;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
     font-variant-numeric: tabular-nums;
+}
+
+.pro-plan-price-alipay {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--viewer-muted);
+    letter-spacing: -0.01em;
 }
 
 .pro-plan-price-sub {

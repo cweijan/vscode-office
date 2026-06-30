@@ -145,7 +145,10 @@ export default function ProView() {
                             Lifetime License
                         </div>
                         <div className="pro-plan-desc">Unlock customization and beautiful exports. Pay once, use forever.</div>
-                        <div className="pro-plan-price">$28</div>
+                        <div className="pro-plan-price">
+                            $28
+                            <span className="pro-plan-price-alipay">(支付宝 ¥142)</span>
+                        </div>
                         <div className="pro-plan-price-sub">One-time payment, no renewal fees.</div>
                         <button
                             className="pro-plan-btn pro-plan-btn--primary"
