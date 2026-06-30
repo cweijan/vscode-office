@@ -44,8 +44,16 @@ import {updateTableHandle} from "./tableHandle";
 import {resolveAdjacentElementFromRange} from "../util/rangeAdjacentElement";
 import {normalizeLinkDestInput} from "../util/linkDest";
 import {telemetry} from "../util/telemetry";
-
-const IMAGE_RESIZE_MIN_DIMENSION = 24;
+import {
+    applyImageDimensionChange,
+    ensureImageHtmlBlockMarked,
+    findImageHtmlBlock,
+    getImageDisplayDimensions,
+    isImageAspectRatioLocked,
+    setImageAspectRatioLocked,
+    syncImageHtmlBlockIfWrapped,
+    syncLockedImageDimensions,
+} from "../util/imageHtmlBlock";
 
 export const hideLinkPopover = (vditor: IVditor) => {
     if (vditor.currentMode === "wysiwyg" || vditor.currentMode === "ir") {
@@ -103,6 +111,65 @@ const createLinkPopoverExitHint = () => {
     hint.className = "vditor-link-popover__hint";
     hint.textContent = formatAltEnterHotkeyTip();
     return hint;
+};
+
+const createImageSizeField = (
+    label: string,
+    ariaLabel: string,
+    onInput: (value: string) => void,
+    onKeydown: (event: KeyboardEvent) => void,
+) => {
+    const field = document.createElement("div");
+    field.className = "vditor-link-popover__field vditor-link-popover__field--size";
+
+    const stepper = document.createElement("span");
+    stepper.className = "vditor-link-popover__size-stepper";
+
+    const prefix = document.createElement("span");
+    prefix.className = "vditor-link-popover__size-prefix";
+    prefix.textContent = label;
+    prefix.setAttribute("aria-hidden", "true");
+
+    const decreaseButton = document.createElement("button");
+    decreaseButton.type = "button";
+    decreaseButton.className = "vditor-link-popover__size-step";
+    decreaseButton.setAttribute("aria-label", `${ariaLabel} -1`);
+    decreaseButton.innerHTML = `<span class="vditor-link-popover__size-step-icon">${codicon("remove")}</span>`;
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.step = "1";
+    input.className = "vditor-link-popover__size-input";
+    input.placeholder = "px";
+    input.setAttribute("aria-label", ariaLabel);
+    input.oninput = () => {
+        onInput(input.value);
+    };
+    input.onkeydown = onKeydown;
+
+    const increaseButton = document.createElement("button");
+    increaseButton.type = "button";
+    increaseButton.className = "vditor-link-popover__size-step";
+    increaseButton.setAttribute("aria-label", `${ariaLabel} +1`);
+    increaseButton.innerHTML = `<span class="vditor-link-popover__size-step-icon">${codicon("add")}</span>`;
+
+    const stepValue = (delta: number) => {
+        const current = Number(input.value);
+        const base = Number.isFinite(current) ? current : 0;
+        const next = String(Math.round(base + delta));
+        input.value = next;
+        onInput(next);
+    };
+    decreaseButton.onclick = () => {
+        stepValue(-1);
+    };
+    increaseButton.onclick = () => {
+        stepValue(1);
+    };
+
+    stepper.append(decreaseButton, input, increaseButton);
+    field.append(prefix, stepper);
+    return { fieldLabel: field, input, decreaseButton, increaseButton };
 };
 
 const bindLockedImagePopoverControl = (
@@ -761,25 +828,32 @@ export const genImagePopoverForElement = (vditor: IVditor, imgElement: HTMLImage
     if (!popover) {
         return;
     }
-    (popover as { _sourceElement?: HTMLElement })._sourceElement = imgElement;
+    const imageWrapper = findImageHtmlBlock(imgElement);
+    if (imageWrapper?.getAttribute("data-type") === "html-block") {
+        ensureImageHtmlBlockMarked(imageWrapper);
+    }
+    let activeImg = imgElement;
+    const refreshActiveImg = (img: HTMLImageElement) => {
+        activeImg = img;
+        (popover as { _sourceElement?: HTMLElement })._sourceElement = img;
+        return img;
+    };
+    refreshActiveImg(imgElement);
     popover.innerHTML = "";
 
     const updateAlt = () => {
-        imgElement.setAttribute("alt", altInput.value);
+        activeImg.setAttribute("alt", altInput.value);
+        refreshActiveImg(syncImageHtmlBlockIfWrapped(activeImg));
         afterRenderEvent(vditor);
     };
 
     const updateSrc = () => {
-        imgElement.setAttribute("src", normalizeLinkDestInput(srcInput.value));
+        activeImg.setAttribute("src", normalizeLinkDestInput(srcInput.value));
+        refreshActiveImg(syncImageHtmlBlockIfWrapped(activeImg));
         afterRenderEvent(vditor);
     };
 
-    const getRenderedDimensions = () => {
-        const rect = imgElement.getBoundingClientRect();
-        const width = Math.max(IMAGE_RESIZE_MIN_DIMENSION, Math.round(rect.width || imgElement.width || imgElement.naturalWidth || IMAGE_RESIZE_MIN_DIMENSION));
-        const height = Math.max(IMAGE_RESIZE_MIN_DIMENSION, Math.round(rect.height || imgElement.height || imgElement.naturalHeight || IMAGE_RESIZE_MIN_DIMENSION));
-        return { width, height };
-    };
+    const getRenderedDimensions = () => getImageDisplayDimensions(activeImg);
 
     const syncSizeInputs = () => {
         const { width, height } = getRenderedDimensions();
@@ -788,22 +862,11 @@ export const genImagePopoverForElement = (vditor: IVditor, imgElement: HTMLImage
     };
 
     const updateDimension = (attribute: "width" | "height", rawValue: string) => {
-        const value = rawValue.trim();
-        if (value === "") {
-            imgElement.removeAttribute(attribute);
-        } else {
-            const nextValue = Number(value);
-            if (!Number.isFinite(nextValue)) {
-                return;
-            }
-            imgElement.setAttribute(attribute, String(Math.max(
-                IMAGE_RESIZE_MIN_DIMENSION,
-                Math.round(nextValue),
-            )));
-        }
-        afterRenderEvent(vditor);
+        vditor.undo.addToUndoStack(vditor);
+        refreshActiveImg(applyImageDimensionChange(vditor, activeImg, attribute, rawValue));
+        afterRenderEvent(vditor, { enableAddUndoStack: false });
         syncSizeInputs();
-        setPopoverPosition(vditor, imgElement, "image");
+        setPopoverPosition(vditor, activeImg, "image");
     };
 
     const copySrc = async (): Promise<boolean> => {
@@ -829,9 +892,10 @@ export const genImagePopoverForElement = (vditor: IVditor, imgElement: HTMLImage
 
     const removeImage = () => {
         const range = getEditorRange(vditor);
-        range.setStartBefore(imgElement);
+        const removeTarget = findImageHtmlBlock(activeImg) ?? activeImg;
+        range.setStartBefore(removeTarget);
         range.collapse(true);
-        imgElement.remove();
+        removeTarget.remove();
         setSelectionFocus(range);
         clearTimeout(vditor.wysiwyg.afterRenderTimeoutId);
         vditor.undo.addToUndoStack(vditor);
@@ -852,7 +916,7 @@ export const genImagePopoverForElement = (vditor: IVditor, imgElement: HTMLImage
     const altInput = document.createElement("input");
     altInput.className = "vditor-link-popover__text vditor-input";
     altInput.setAttribute("placeholder", window.VditorI18n.alternateText);
-    altInput.value = imgElement.getAttribute("alt") || "";
+    altInput.value = activeImg.getAttribute("alt") || "";
     altInput.oninput = () => {
         updateAlt();
     };
@@ -860,13 +924,13 @@ export const genImagePopoverForElement = (vditor: IVditor, imgElement: HTMLImage
         if (removeBlockElement(vditor, elementEvent)) {
             return;
         }
-        linkHotkey(vditor, imgElement, elementEvent, srcInput);
+        linkHotkey(vditor, activeImg, elementEvent, srcInput);
     };
 
     const srcInput = document.createElement("input");
     srcInput.className = "vditor-link-popover__href vditor-input";
     srcInput.setAttribute("placeholder", window.VditorI18n.imageURL);
-    srcInput.value = imgElement.getAttribute("src") || "";
+    srcInput.value = activeImg.getAttribute("src") || "";
     srcInput.oninput = () => {
         updateSrc();
     };
@@ -874,61 +938,90 @@ export const genImagePopoverForElement = (vditor: IVditor, imgElement: HTMLImage
         if (removeBlockElement(vditor, elementEvent)) {
             return;
         }
-        linkHotkey(vditor, imgElement, elementEvent, altInput);
+        linkHotkey(vditor, activeImg, elementEvent, altInput);
     };
 
     const sizeControls = document.createElement("span");
     sizeControls.className = "vditor-link-popover__image-size";
 
-    const widthLabel = document.createElement("label");
-    widthLabel.className = "vditor-link-popover__field";
-    widthLabel.innerHTML = `<span class="vditor-link-popover__field-label">W</span>`;
-    const widthInput = document.createElement("input");
-    widthInput.type = "number";
-    widthInput.min = String(IMAGE_RESIZE_MIN_DIMENSION);
-    widthInput.step = "1";
-    widthInput.className = "vditor-link-popover__size-input vditor-input";
-    widthInput.placeholder = "px";
-    widthInput.setAttribute("aria-label", window.VditorI18n.imageWidth || "Image width");
-    widthLabel.appendChild(widthInput);
+    const { fieldLabel: widthLabel, input: widthInput, decreaseButton: widthDecreaseButton, increaseButton: widthIncreaseButton } =
+        createImageSizeField(
+            "W",
+            window.VditorI18n.imageWidth || "Image width",
+            (value) => {
+                updateDimension("width", value);
+            },
+            (elementEvent) => {
+                if (removeBlockElement(vditor, elementEvent)) {
+                    return;
+                }
+                linkHotkey(vditor, activeImg, elementEvent, heightInput);
+            },
+        );
 
-    const heightLabel = document.createElement("label");
-    heightLabel.className = "vditor-link-popover__field";
-    heightLabel.innerHTML = `<span class="vditor-link-popover__field-label">H</span>`;
-    const heightInput = document.createElement("input");
-    heightInput.type = "number";
-    heightInput.min = String(IMAGE_RESIZE_MIN_DIMENSION);
-    heightInput.step = "1";
-    heightInput.className = "vditor-link-popover__size-input vditor-input";
-    heightInput.placeholder = "px";
-    heightInput.setAttribute("aria-label", window.VditorI18n.imageHeight || "Image height");
-    heightLabel.appendChild(heightInput);
+    const { fieldLabel: heightLabel, input: heightInput, decreaseButton: heightDecreaseButton, increaseButton: heightIncreaseButton } =
+        createImageSizeField(
+            "H",
+            window.VditorI18n.imageHeight || "Image height",
+            (value) => {
+                updateDimension("height", value);
+            },
+            (elementEvent) => {
+                if (removeBlockElement(vditor, elementEvent)) {
+                    return;
+                }
+                linkHotkey(vditor, activeImg, elementEvent, altInput);
+            },
+        );
 
-    widthInput.oninput = () => {
-        updateDimension("width", widthInput.value);
+    let aspectRatioLocked = isImageAspectRatioLocked(activeImg);
+    const aspectLockGroup = document.createElement("div");
+    aspectLockGroup.className = "vditor-link-popover__aspect-lock";
+
+    const aspectLockLabel = document.createElement("span");
+    aspectLockLabel.className = "vditor-link-popover__aspect-lock-label";
+    aspectLockLabel.textContent = window.VditorI18n.imageAspectRatioLabel || "Aspect ratio";
+    aspectLockLabel.setAttribute("aria-hidden", "true");
+
+    const aspectLockButton = document.createElement("button");
+    aspectLockButton.type = "button";
+    aspectLockButton.className = "vditor-link-popover__button vditor-link-popover__button--aspect-lock";
+    const syncAspectLockButton = () => {
+        aspectLockButton.classList.toggle("vditor-link-popover__button--aspect-lock-active", aspectRatioLocked);
+        aspectLockButton.setAttribute("aria-pressed", String(aspectRatioLocked));
+        aspectLockButton.setAttribute("aria-label", aspectRatioLocked
+            ? (window.VditorI18n.imageAspectRatioUnlock || "Unlock aspect ratio")
+            : (window.VditorI18n.imageAspectRatioLock || "Lock aspect ratio"));
+        aspectLockButton.innerHTML =
+            `<span class="vditor-link-popover__button-icon">${codicon(aspectRatioLocked ? "lock" : "unlock")}</span>`;
     };
-    heightInput.oninput = () => {
-        updateDimension("height", heightInput.value);
-    };
-    widthInput.onkeydown = (elementEvent) => {
-        if (removeBlockElement(vditor, elementEvent)) {
-            return;
+    syncAspectLockButton();
+    aspectLockButton.onclick = () => {
+        aspectRatioLocked = !aspectRatioLocked;
+        setImageAspectRatioLocked(activeImg, aspectRatioLocked);
+        syncAspectLockButton();
+        if (aspectRatioLocked) {
+            syncLockedImageDimensions(activeImg);
         }
-        linkHotkey(vditor, imgElement, elementEvent, heightInput);
+        vditor.undo.addToUndoStack(vditor);
+        refreshActiveImg(syncImageHtmlBlockIfWrapped(activeImg));
+        afterRenderEvent(vditor, { enableAddUndoStack: false });
+        syncSizeInputs();
     };
-    heightInput.onkeydown = (elementEvent) => {
-        if (removeBlockElement(vditor, elementEvent)) {
-            return;
-        }
-        linkHotkey(vditor, imgElement, elementEvent, altInput);
-    };
-    sizeControls.append(widthLabel, heightLabel);
+    aspectLockGroup.append(aspectLockLabel, aspectLockButton);
+    sizeControls.append(widthLabel, heightLabel, aspectLockGroup);
 
     if (!vditor.options.isPro) {
         widthInput.disabled = true;
         heightInput.disabled = true;
+        widthDecreaseButton.disabled = true;
+        widthIncreaseButton.disabled = true;
+        heightDecreaseButton.disabled = true;
+        heightIncreaseButton.disabled = true;
+        aspectLockButton.disabled = true;
         bindLockedImagePopoverControl(vditor, widthLabel, "image-resize");
         bindLockedImagePopoverControl(vditor, heightLabel, "image-resize");
+        bindLockedImagePopoverControl(vditor, aspectLockGroup, "image-resize");
     }
     syncSizeInputs();
 
@@ -953,7 +1046,7 @@ export const genImagePopoverForElement = (vditor: IVditor, imgElement: HTMLImage
     primaryRow.append(altInput, srcInput, copy, remove, createLinkPopoverExitHint());
     view.append(sizeControls, primaryRow);
     popover.insertAdjacentElement("beforeend", view);
-    setPopoverPosition(vditor, imgElement, "image");
+    setPopoverPosition(vditor, activeImg, "image");
 };
 
 export const genImagePopover = (event: Event, vditor: IVditor) => {

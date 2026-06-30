@@ -96,8 +96,15 @@
     img {
       max-width: var(--vditor-image-max-width, 100%);
       max-height: var(--vditor-image-max-height, 70vh);
-      height: auto;
       object-fit: contain;
+
+      &:not([data-aspect-ratio-lock="false"][width][height]) {
+        height: auto;
+      }
+
+      &[data-aspect-ratio-lock="false"][width][height] {
+        object-fit: fill;
+      }
 
       &[data-loading] {
         min-width: 60px;

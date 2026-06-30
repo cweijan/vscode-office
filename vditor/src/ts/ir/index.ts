@@ -38,6 +38,11 @@ import { expandMarkerWithMathSync } from "./expandMarkerSync";
 import { handleHtmlEditorClick } from "../htmlInline/htmlInlineEditor";
 import { handleFrontMatterEditorClick } from "../codeBlock/frontMatterEditor";
 import { linkClickEvent } from "../util/linkClick";
+import {
+    genImagePopoverForElement,
+    genLinkRefPopover,
+} from "../wysiwyg/highlightToolbarWYSIWYG";
+import { isPlantumlRenderImage } from "../codeBlock/codeMirrorManager";
 import { highlightToolbarIR } from "./highlightToolbarIR";
 import { input } from "./input";
 import { processAfterRender, processHint } from "./process";
@@ -195,6 +200,18 @@ class IR {
                 }
                 this.preventInput = true;
                 processAfterRender(vditor);
+                return;
+            }
+
+            if (event.target.tagName === "IMG" &&
+                !isPlantumlRenderImage(event.target) &&
+                !event.target.parentElement?.classList.contains("vditor-ir__preview")) {
+                if (event.target.getAttribute("data-type") === "link-ref") {
+                    genLinkRefPopover(vditor, event.target);
+                } else {
+                    genImagePopoverForElement(vditor, event.target as HTMLImageElement);
+                }
+                clickToc(event, vditor);
                 return;
             }
 

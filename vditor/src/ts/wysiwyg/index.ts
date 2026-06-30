@@ -31,7 +31,7 @@ import { clickToc, renderToc } from "../util/toc";
 import { afterRenderEvent } from "./afterRenderEvent";
 import {
     genAPopover,
-    genImagePopover,
+    genImagePopoverForElement,
     genLinkRefPopover,
     getPopoverSourceElement,
     highlightToolbarWYSIWYG,
@@ -373,6 +373,18 @@ class WYSIWYG {
                 return;
             }
 
+            if (event.target.tagName === "IMG" &&
+                !isPlantumlRenderImage(event.target) &&
+                !event.target.parentElement?.classList.contains("vditor-wysiwyg__preview")) {
+                if (event.target.getAttribute("data-type") === "link-ref") {
+                    genLinkRefPopover(vditor, event.target);
+                } else {
+                    genImagePopoverForElement(vditor, event.target as HTMLImageElement);
+                }
+                clickToc(event, vditor);
+                return;
+            }
+
             if (handleHtmlEditorClick(vditor, event)) {
                 clickToc(event, vditor);
                 return;
@@ -380,17 +392,6 @@ class WYSIWYG {
 
             if (handleFrontMatterEditorClick(vditor, event)) {
                 clickToc(event, vditor);
-                return;
-            }
-
-            if (event.target.tagName === "IMG" &&
-                !isPlantumlRenderImage(event.target) &&
-                !event.target.parentElement.classList.contains("vditor-wysiwyg__preview")) {
-                if (event.target.getAttribute("data-type") === "link-ref") {
-                    genLinkRefPopover(vditor, event.target);
-                } else {
-                    genImagePopover(event, vditor);
-                }
                 return;
             }
 

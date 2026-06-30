@@ -20,6 +20,7 @@ import { afterRenderEvent } from "../wysiwyg/afterRenderEvent";
 import { processAfterRender } from "../ir/process";
 import { telemetry } from "../util/telemetry";
 import { renderHtmlInlineFromMd } from "./renderHtmlInline";
+import { renderHtmlBlockFromMd } from "./renderHtmlBlock";
 
 const HTML_EDITOR_POPOVER_CLASS = "vditor-popover--html-inline";
 const HTML_EDITOR_PANEL_CLASS = "vditor-panel--html-inline";
@@ -340,20 +341,6 @@ const notifyAfterHtmlEditorChange = (vditor: IVditor) => {
         return;
     }
     afterRenderEvent(vditor);
-};
-
-const renderHtmlBlockFromMd = (vditor: IVditor, md: string): string => {
-    const trimmed = md.trim();
-    if (!trimmed) {
-        return "";
-    }
-    const html = vditor.currentMode === "ir"
-        ? vditor.lute.Md2VditorIRDOM(trimmed)
-        : vditor.lute.Md2VditorDOM(trimmed);
-    const temp = document.createElement("div");
-    temp.innerHTML = html;
-    const node = temp.querySelector('[data-type="html-block"]') as HTMLElement | null;
-    return node?.outerHTML ?? "";
 };
 
 const getHtmlBlockSource = (blockElement: HTMLElement): string => {
