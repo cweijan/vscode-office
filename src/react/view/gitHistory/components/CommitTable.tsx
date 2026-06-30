@@ -1,7 +1,8 @@
-import type { MouseEvent, ReactNode } from 'react';
+import { useMemo, type MouseEvent, type ReactNode } from 'react';
 import { Typography } from 'antd';
 import type { GitCommit, GitCommitRemote } from '../types';
 import type { GraphConfig } from '../graph/layoutEngine';
+import { computeGraphLayout } from '../graph/layoutEngine';
 import {
     getCheckedOutBranchLabel,
     isActiveBranchRef,
@@ -58,6 +59,7 @@ function RefLabel({
     remoteNames,
     active,
     className,
+    branchColor,
     onContextMenu,
     onRemoteContextMenu,
 }: {
@@ -66,19 +68,26 @@ function RefLabel({
     remoteNames?: string[];
     active?: boolean;
     className: string;
+    branchColor?: string;
     onContextMenu: (event: MouseEvent) => void;
     onRemoteContextMenu?: (event: MouseEvent, remoteName: string) => void;
 }) {
     const Icon = kind === 'tag' ? TagRefIcon : kind === 'stash' ? StashRefIcon : BranchRefIcon;
+    const branchIconColor = branchColor && (kind === 'remote' || kind === 'head') ? branchColor : undefined;
+    const activeBranchStyle = active && branchColor && kind === 'head' ? branchColor : undefined;
+    const iconStyle = branchIconColor ? { backgroundColor: branchIconColor } : undefined;
+    const nameStyle = activeBranchStyle ? { color: activeBranchStyle } : undefined;
+    const borderStyle = activeBranchStyle ? { borderColor: activeBranchStyle } : undefined;
     return (
         <span
             className={`git-graph-ref ${className}${active ? ' active' : ''}`}
+            style={borderStyle}
             onContextMenu={onContextMenu}
         >
-            <span className="git-graph-ref-icon" aria-hidden>
+            <span className="git-graph-ref-icon" style={iconStyle} aria-hidden>
                 <Icon />
             </span>
-            <span className="git-graph-ref-name">{name}</span>
+            <span className="git-graph-ref-name" style={nameStyle}>{name}</span>
             {remoteNames?.map((remoteName) => (
                 <span
                     key={remoteName}
@@ -101,11 +110,13 @@ function RefTags({
     commit,
     branchHead,
     commitHead,
+    branchColor,
     onRefContextMenu,
 }: {
     commit: GitCommit;
     branchHead: string | null;
     commitHead: string | null;
+    branchColor?: string;
     onRefContextMenu: CommitTableProps['onRefContextMenu'];
 }) {
     const tags: ReactNode[] = [];
@@ -123,6 +134,7 @@ function RefTags({
                 remoteNames={branch.remotes.length > 0 ? branch.remotes : undefined}
                 active={isActive}
                 className="git-graph-ref-head"
+                branchColor={branchColor}
                 onContextMenu={(e) => stopContextMenu(e, () => onRefContextMenu(e, commit, 'head', branch.name))}
                 onRemoteContextMenu={(e, remoteName) => stopContextMenu(e, () => {
                     const remoteRef = commit.remotes.find((item) => item.name === `${remoteName}/${branch.name}`);
@@ -169,6 +181,7 @@ function RefTags({
                 kind="remote"
                 name={remote.name}
                 className="git-graph-ref-remote"
+                branchColor={branchColor}
                 onContextMenu={(e) => stopContextMenu(e, () => onRefContextMenu(e, commit, 'remote', remote.name, remote))}
             />
         );
@@ -191,10 +204,12 @@ function CommitHeadDot({
     commit,
     branchHead,
     commitHead,
+    branchColor,
 }: {
     commit: GitCommit;
     branchHead: string | null;
     commitHead: string | null;
+    branchColor?: string;
 }) {
     if (commitHead === null || commit.hash !== commitHead) {
         return null;
@@ -203,7 +218,8 @@ function CommitHeadDot({
     const title = checkedOutBranch !== null
         ? `The branch "${checkedOutBranch}" is currently checked out at this commit.`
         : 'This commit is currently checked out.';
-    return <span className="git-graph-commit-head-dot" title={title} />;
+    const style = branchColor ? { borderColor: branchColor } : undefined;
+    return <span className="git-graph-commit-head-dot" style={style} title={title} />;
 }
 
 export default function CommitTable({
@@ -211,18 +227,25 @@ export default function CommitTable({
     fileHistoryMode = false, onSelect, onRowContextMenu, onRefContextMenu,
 }: CommitTableProps) {
     const multiSelect = selectedIndices.size > 1;
+    const { layout, branchColors } = useMemo(() => {
+        const layout = computeGraphLayout(
+            commits, commitHead, rowHeight, graphConfig, false, fileHistoryMode,
+        );
+        const branchColors = layout.vertexColors.map(
+            (ci) => graphConfig.colours[ci % graphConfig.colours.length],
+        );
+        return { layout, branchColors };
+    }, [commits, commitHead, rowHeight, graphConfig, fileHistoryMode]);
+
     return (
         <div className="git-graph-table-wrapper">
             <div className="git-graph-graph-col">
                 <div className="git-graph-graph-header">Graph</div>
                 <GraphSvg
                     commits={commits}
-                    commitHead={commitHead}
-                    rowHeight={rowHeight}
                     selectedIndices={selectedIndices}
                     focusIndex={focusIndex}
-                    graphConfig={graphConfig}
-                    linearFileHistory={fileHistoryMode}
+                    layout={layout}
                     onSelect={onSelect}
                 />
             </div>
@@ -236,6 +259,7 @@ export default function CommitTable({
                 <div className="git-graph-table-body">
                     {commits.map((commit, index) => {
                         const isSelected = selectedIndices.has(index);
+                        const branchColor = branchColors[index];
                         const rowClass = [
                             'git-graph-row',
                             isSelected && multiSelect ? 'multi-selected' : '',
@@ -264,11 +288,13 @@ export default function CommitTable({
                                     commit={commit}
                                     branchHead={branchHead}
                                     commitHead={commitHead}
+                                    branchColor={branchColor}
                                 />
                                 <RefTags
                                     commit={commit}
                                     branchHead={branchHead}
                                     commitHead={commitHead}
+                                    branchColor={branchColor}
                                     onRefContextMenu={onRefContextMenu}
                                 />
                                 <Text ellipsis className={`git-graph-message${commit.hash === UNCOMMITTED ? ' git-graph-message-uncommitted' : ''}`}>{commit.message}</Text>

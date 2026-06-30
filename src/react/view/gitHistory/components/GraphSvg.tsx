@@ -1,7 +1,5 @@
-import { useMemo } from 'react';
 import type { MouseEvent } from 'react';
-import type { GraphConfig, GraphLayout } from '../graph/layoutEngine';
-import { computeGraphLayout } from '../graph/layoutEngine';
+import type { GraphLayout } from '../graph/layoutEngine';
 
 interface GitCommitInput {
     hash: string;
@@ -11,23 +9,16 @@ interface GitCommitInput {
 
 interface GraphSvgProps {
     commits: ReadonlyArray<GitCommitInput>;
-    commitHead: string | null;
-    rowHeight: number;
     selectedIndices: ReadonlySet<number>;
     focusIndex: number | null;
-    graphConfig: GraphConfig;
-    linearFileHistory?: boolean;
+    layout: GraphLayout;
     onSelect: (index: number, event?: MouseEvent) => void;
 }
 
 export default function GraphSvg({
-    commits, commitHead, rowHeight, selectedIndices, focusIndex, graphConfig, linearFileHistory = false, onSelect,
+    commits, selectedIndices, focusIndex, layout, onSelect,
 }: GraphSvgProps) {
     const multiSelect = selectedIndices.size > 1;
-    const layout: GraphLayout = useMemo(
-        () => computeGraphLayout(commits, commitHead, rowHeight, graphConfig, false, linearFileHistory),
-        [commits, commitHead, rowHeight, graphConfig, linearFileHistory],
-    );
 
     if (commits.length === 0) return null;
 
