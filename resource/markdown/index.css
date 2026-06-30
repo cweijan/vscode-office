@@ -347,6 +347,10 @@ html[data-editor-theme]:not([data-editor-theme="Auto"]) {
     display: none !important;
 }
 
+.vditor-pdf-export-row[hidden] {
+    display: none !important;
+}
+
 .vditor-pdf-export-row--format {
     padding-bottom: 10px;
 }

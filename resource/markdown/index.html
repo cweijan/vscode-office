@@ -120,12 +120,12 @@
                             <span class="vditor-export-format-option__label">PDF</span>
                         </label>
                         <label class="vditor-export-format-option">
-                            <input type="radio" name="export-format" value="docx" data-export-option="type">
-                            <span class="vditor-export-format-option__label">DOCX</span>
-                        </label>
-                        <label class="vditor-export-format-option">
                             <input type="radio" name="export-format" value="html" data-export-option="type">
                             <span class="vditor-export-format-option__label">HTML</span>
+                        </label>
+                        <label class="vditor-export-format-option">
+                            <input type="radio" name="export-format" value="docx" data-export-option="type">
+                            <span class="vditor-export-format-option__label">DOCX</span>
                         </label>
                     </div>
                 </div>
@@ -154,7 +154,7 @@
                         </label>
                     </div>
                 </div>
-                <div class="vditor-pdf-export-dialog__section vditor-export-pro-section" data-export-section="pro">
+                <div class="vditor-pdf-export-dialog__section vditor-export-pro-section" data-export-section="pro-pdf">
                     <div class="vditor-export-pro-header">
                         <span class="vditor-export-pro-header__title">Pro Features</span>
                     </div>
@@ -183,10 +183,10 @@
                         </div>
                         <div class="vditor-pdf-export-row vditor-pdf-export-row--select" data-export-section="pdf-page-size">
                             <div class="vditor-pdf-export-row__text">
-                                <span class="vditor-pdf-export-row__label">Page Size</span>
+                                <span class="vditor-pdf-export-row__label">Paper Size</span>
                             </div>
                             <div class="vditor-pdf-export-select-wrap vditor-pdf-export-select-wrap--fixed">
-                                <select class="vditor-pdf-export-select" data-export-option="pageFormat" aria-label="Page size">
+                                <select class="vditor-pdf-export-select" data-export-option="pageFormat" aria-label="Paper size">
                                     <option value="A4">A4</option>
                                     <option value="Letter">Letter</option>
                                     <option value="Legal">Legal</option>
@@ -209,6 +209,29 @@
                                 <span class="vditor-pdf-export-row__label">Font Size</span>
                                 <div class="vditor-pdf-export-select-wrap vditor-pdf-export-select-wrap--fixed">
                                     <select class="vditor-pdf-export-select" data-export-option="fontSize" aria-label="Font size"></select>
+                                    <span class="codicon codicon-chevron-down vditor-pdf-export-select__chevron" aria-hidden="true"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="vditor-pdf-export-dialog__section vditor-export-pro-section" data-export-section="pro-docx" hidden>
+                    <div class="vditor-export-pro-header">
+                        <span class="vditor-export-pro-header__title">Pro Features</span>
+                    </div>
+                    <div class="vditor-export-pro-body" data-export-pro-body>
+                        <div class="vditor-pdf-export-row vditor-pdf-export-row--select vditor-pdf-export-row--split">
+                            <div class="vditor-pdf-export-row-half">
+                                <span class="vditor-pdf-export-row__label">Font</span>
+                                <div class="vditor-pdf-export-select-wrap">
+                                    <select class="vditor-pdf-export-select" data-export-option="docxFontFamily" aria-label="Font family"></select>
+                                    <span class="codicon codicon-chevron-down vditor-pdf-export-select__chevron" aria-hidden="true"></span>
+                                </div>
+                            </div>
+                            <div class="vditor-pdf-export-row-half vditor-pdf-export-row-half--font-size">
+                                <span class="vditor-pdf-export-row__label">Font Size</span>
+                                <div class="vditor-pdf-export-select-wrap vditor-pdf-export-select-wrap--fixed">
+                                    <select class="vditor-pdf-export-select" data-export-option="docxFontSize" aria-label="Font size"></select>
                                     <span class="codicon codicon-chevron-down vditor-pdf-export-select__chevron" aria-hidden="true"></span>
                                 </div>
                             </div>
