@@ -363,6 +363,7 @@
   }
 
   &__confirm {
+    position: relative;
     flex-shrink: 0;
     min-width: 52px;
     height: 28px;
@@ -387,6 +388,36 @@
     &:disabled {
       cursor: not-allowed;
       opacity: 0.45;
+    }
+
+    &.vditor-pro-locked {
+      overflow: visible;
+
+      .vditor-pro-locked__badge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 20px;
+        height: 14px;
+        padding: 0 5px;
+        margin: 0;
+        border-radius: 999px;
+        background: #ffb020;
+        color: #161616;
+        font-size: 9px;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: none;
+        z-index: 1;
+        box-sizing: border-box;
+      }
     }
   }
 

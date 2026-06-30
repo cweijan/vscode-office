@@ -37,23 +37,7 @@ export class BackgroundColor extends MenuItem {
         panelElement.innerHTML = buildBackgroundColorPanelHTML();
         this.element.appendChild(panelElement);
 
-        if (!vditor.options.isPro) {
-            actionBtn.classList.add("vditor-pro-locked");
-            actionBtn.insertAdjacentHTML("beforeend",
-                `<span class="vditor-pro-locked__badge" aria-hidden="true">PRO</span>`
-                + `<span class="vditor-pro-locked__tooltip" aria-hidden="true">`
-                + `<span class="vditor-pro-locked__tooltip-text">Set background color</span>`
-                + `</span>`);
-        }
-
         actionBtn.addEventListener(getEventName(), (event) => {
-            if (!vditor.options.isPro) {
-                event.preventDefault();
-                event.stopPropagation();
-                telemetry(vditor, "markdown.proRequired", { feature: "background-color" });
-                vditor.options.onRequirePro?.("background-color");
-                return;
-            }
             if (!hasTextSelection(vditor)) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -86,6 +70,13 @@ export class BackgroundColor extends MenuItem {
                     event.stopPropagation();
                     return;
                 }
+                if (!vditor.options.isPro) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    telemetry(vditor, "markdown.proRequired", { feature: "background-color" });
+                    vditor.options.onRequirePro?.("background-color");
+                    return;
+                }
                 const colorInput = panelElement.querySelector("[data-custom-color]") as HTMLInputElement | null;
                 if (colorInput) {
                     applyCustomBackgroundColor(vditor, panelElement, colorInput.value);
@@ -96,6 +87,12 @@ export class BackgroundColor extends MenuItem {
         });
 
         const colorInput = panelElement.querySelector("[data-custom-color]") as HTMLInputElement | null;
+        const confirmButton = panelElement.querySelector("[data-custom-confirm]") as HTMLButtonElement | null;
+        if (confirmButton && !vditor.options.isPro) {
+            confirmButton.classList.add("vditor-pro-locked");
+            confirmButton.insertAdjacentHTML("beforeend",
+                `<span class="vditor-pro-locked__badge" aria-hidden="true">PRO</span>`);
+        }
         if (colorInput) {
             syncPreviewText(vditor, panelElement);
             updateBackgroundColorPreview(panelElement, colorInput.value);

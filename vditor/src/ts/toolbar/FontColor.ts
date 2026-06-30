@@ -37,23 +37,7 @@ export class FontColor extends MenuItem {
         panelElement.innerHTML = buildFontColorPanelHTML();
         this.element.appendChild(panelElement);
 
-        if (!vditor.options.isPro) {
-            actionBtn.classList.add("vditor-pro-locked");
-            actionBtn.insertAdjacentHTML("beforeend",
-                `<span class="vditor-pro-locked__badge" aria-hidden="true">PRO</span>`
-                + `<span class="vditor-pro-locked__tooltip" aria-hidden="true">`
-                + `<span class="vditor-pro-locked__tooltip-text">Set font color</span>`
-                + `</span>`);
-        }
-
         actionBtn.addEventListener(getEventName(), (event) => {
-            if (!vditor.options.isPro) {
-                event.preventDefault();
-                event.stopPropagation();
-                telemetry(vditor, "markdown.proRequired", { feature: "font-color" });
-                vditor.options.onRequirePro?.("font-color");
-                return;
-            }
             if (!hasTextSelection(vditor)) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -86,6 +70,13 @@ export class FontColor extends MenuItem {
                     event.stopPropagation();
                     return;
                 }
+                if (!vditor.options.isPro) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    telemetry(vditor, "markdown.proRequired", { feature: "font-color" });
+                    vditor.options.onRequirePro?.("font-color");
+                    return;
+                }
                 const colorInput = panelElement.querySelector("[data-custom-color]") as HTMLInputElement | null;
                 if (colorInput) {
                     applyCustomFontColor(vditor, panelElement, colorInput.value);
@@ -96,6 +87,12 @@ export class FontColor extends MenuItem {
         });
 
         const colorInput = panelElement.querySelector("[data-custom-color]") as HTMLInputElement | null;
+        const confirmButton = panelElement.querySelector("[data-custom-confirm]") as HTMLButtonElement | null;
+        if (confirmButton && !vditor.options.isPro) {
+            confirmButton.classList.add("vditor-pro-locked");
+            confirmButton.insertAdjacentHTML("beforeend",
+                `<span class="vditor-pro-locked__badge" aria-hidden="true">PRO</span>`);
+        }
         if (colorInput) {
             syncPreviewText(vditor, panelElement);
             updateFontColorPreview(panelElement, colorInput.value);
