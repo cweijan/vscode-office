@@ -8,6 +8,7 @@ import {
     focusEvent,
     hotkeyEvent,
     selectEvent,
+    wheelZoomFontSizeEvent,
 } from "../util/editorCommonEvent";
 import { paste } from "../util/fixBrowserBehavior";
 import { insertPastedCode } from "../util/processCode";
@@ -70,6 +71,7 @@ class IR {
         dblclickEvent(vditor, this.element);
         blurEvent(vditor, this.element);
         hotkeyEvent(vditor, this.element);
+        wheelZoomFontSizeEvent(vditor, this.element);
         selectEvent(vditor, this.element);
         dropEvent(vditor, this.element);
         copyEvent(vditor, this.element, this.copy);

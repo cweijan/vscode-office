@@ -1,7 +1,10 @@
-const { build } = require("esbuild")
-const { resolve } = require("path")
-const { existsSync } = require("fs")
-const { copy } = require("esbuild-plugin-copy")
+import { existsSync, readFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { build, context } from 'esbuild'
+import { copy } from 'esbuild-plugin-copy'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const isProd = process.argv.indexOf('--mode=production') >= 0;
 const devExtensionTarget = process.env.OFFICE_EXTENSION_TARGET;
@@ -13,31 +16,25 @@ const buildWeb = isProd || devExtensionTarget === 'web';
 const dependencies = ['vscode-html-to-docx', 'highlight.js', 'pdf-lib', 'cheerio', 'katex', 'mustache', 'puppeteer-core']
 const nodeBuiltinStubs = ['fs', 'child_process', 'os', 'crypto', 'stream', 'https', 'http', 'net', 'tls', 'zlib', 'events', 'util', 'buffer', 'module', 'url', 'assert', 'string_decoder']
 
-function createDesktopAssetCopyPlugins() {
+function createDesktopAssetCopyPlugins(shouldWatch: boolean) {
     return [
         copy({
             resolveFrom: 'out',
-            assets: {
-                from: ['./template/**/*'],
-                to: ['./'],
-                keepStructure: true
-            },
-        }),
-        copy({
-            resolveFrom: 'out',
-            assets: {
-                from: ['./node_modules/node-unrar-js/dist/js/unrar.wasm'],
-                to: ['./'],
-                keepStructure: true
-            },
-        }),
-        copy({
-            resolveFrom: 'out',
-            assets: {
-                from: ['./node_modules/7z-wasm/7zz.wasm'],
-                to: ['./'],
-                keepStructure: true
-            },
+            watch: shouldWatch,
+            assets: [
+                {
+                    from: ['./template/**/*'],
+                    to: ['./'],
+                },
+                {
+                    from: ['./node_modules/node-unrar-js/dist/js/unrar.wasm'],
+                    to: ['./'],
+                },
+                {
+                    from: ['./node_modules/7z-wasm/7zz.wasm'],
+                    to: ['./'],
+                },
+            ],
         }),
     ];
 }
@@ -102,8 +99,18 @@ function createBuildNoticePlugin() {
     };
 }
 
+async function runBuild(shouldWatch, options) {
+    if (shouldWatch) {
+        const ctx = await context(options);
+        await ctx.watch();
+        return ctx;
+    }
+    return build(options);
+}
+
 function buildDesktopExtension() {
-    return build({
+    const shouldWatch = !isProd && devExtensionTarget !== 'web';
+    return runBuild(shouldWatch, {
         entryPoints: ['./src/extension.ts'],
         bundle: true,
         outfile: "out/extension.js",
@@ -111,21 +118,21 @@ function buildDesktopExtension() {
         format: 'cjs',
         platform: 'node',
         minify: isProd,
-        watch: !isProd && devExtensionTarget !== 'web',
         sourcemap: !isProd,
         logOverride: {
             'duplicate-object-key': "silent",
             'suspicious-boolean-not': "silent",
         },
         plugins: [
-            ...createDesktopAssetCopyPlugins(),
+            ...createDesktopAssetCopyPlugins(shouldWatch),
             createBuildNoticePlugin(),
         ],
     })
 }
 
 function buildWebExtension() {
-    return build({
+    const shouldWatch = !isProd && devExtensionTarget === 'web';
+    return runBuild(shouldWatch, {
         entryPoints: ['./src/extension.web.ts'],
         bundle: true,
         outfile: "out/extension.web.js",
@@ -134,7 +141,6 @@ function buildWebExtension() {
         platform: 'browser',
         target: ['es2021'],
         minify: isProd,
-        watch: !isProd && devExtensionTarget === 'web',
         sourcemap: !isProd,
         logOverride: {
             'duplicate-object-key': "silent",
@@ -150,19 +156,20 @@ function buildWebExtension() {
     })
 }
 
-function createLib() {
+async function createLib() {
     if (!buildDesktop) {
         return;
     }
     const points = dependencies.reduce((point, dependency) => {
-        const main = require(`./node_modules/${dependency}/package.json`).main ?? "index.js";
+        const pkgPath = resolve(`./node_modules/${dependency}/package.json`);
+        const main = JSON.parse(readFileSync(pkgPath, 'utf-8')).main ?? "index.js";
         const mainAbsPath = resolve(`./node_modules/${dependency}`, main);
         if (existsSync(mainAbsPath)) {
             point[dependency] = mainAbsPath;
         }
         return point;
     }, {})
-    build({
+    await build({
         entryPoints: points,
         bundle: true,
         outdir: "out/node_modules",
@@ -174,10 +181,16 @@ function createLib() {
     })
 }
 
-if (buildDesktop) {
-    createLib();
-    buildDesktopExtension();
-}
-if (buildWeb) {
-    buildWebExtension();
-}
+(async () => {
+    try {
+        if (buildDesktop) {
+            await createLib();
+            await buildDesktopExtension();
+        }
+        if (buildWeb) {
+            await buildWebExtension();
+        }
+    } catch {
+        process.exit(1);
+    }
+})();

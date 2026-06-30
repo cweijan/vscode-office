@@ -534,6 +534,10 @@ interface IOptions {
     editorTheme?: IEditorTheme | string;
     /** 最后一次选择的非 Auto Markdown 编辑器主题。默认值: 'Light' */
     lastNonAutoEditorTheme?: IEditorTheme | string;
+    /** 最后一次选择的亮色 Markdown 编辑器主题。默认值: 'Light' */
+    lastLightEditorTheme?: IEditorTheme | string;
+    /** 最后一次选择的暗色 Markdown 编辑器主题。默认值: 'One Dark' */
+    lastDarkEditorTheme?: IEditorTheme | string;
     /** CodeMirror 代码块主题。默认值跟随预览代码主题 */
     codeMirrorTheme?: ICodeMirrorTheme | string;
     /** Mermaid 图表主题。默认值: 'Auto' */

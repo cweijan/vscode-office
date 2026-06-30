@@ -314,7 +314,7 @@
   height: 28px;
   padding: 0 10px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--vditor-popover-radius, 6px);
   background: var(--cm-lang-trigger-bg, var(--second-bg-color, color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 18%, var(--bg-color, var(--panel-background-color)))));
   color: var(--cm-fg-color, var(--toolbar-icon-color));
   font-size: 12px;
@@ -350,7 +350,7 @@
   height: 28px;
   padding: 0 10px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--vditor-popover-radius, 6px);
   background: var(--cm-lang-trigger-bg, var(--second-bg-color, color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 18%, var(--bg-color, var(--panel-background-color)))));
   color: var(--cm-fg-color, var(--toolbar-icon-color));
   line-height: 1;
@@ -395,7 +395,7 @@
   height: 28px;
   padding: 0 10px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--vditor-popover-radius, 6px);
   background: var(--cm-lang-trigger-bg, var(--second-bg-color, color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 18%, var(--bg-color, var(--panel-background-color)))));
   color: var(--cm-fg-color, var(--toolbar-icon-color));
   line-height: 1;
@@ -443,7 +443,7 @@
   overflow-x: hidden;
   padding: 4px;
   border: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 14%, transparent);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--cm-bg-color, var(--panel-background-color));
   color: var(--cm-fg-color, var(--toolbar-icon-color));
   box-shadow:
@@ -488,7 +488,7 @@
     padding: 4px 10px;
     margin: 1px 4px;
     border: 0;
-    border-radius: 5px;
+    border-radius: var(--vditor-popover-radius, 6px);
     line-height: 18px;
     width: calc(100% - 8px);
     box-sizing: border-box;
@@ -526,7 +526,7 @@
   height: 28px;
   padding: 15px 12px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--vditor-popover-radius, 6px);
   background: var(--cm-lang-trigger-bg, var(--second-bg-color, color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 18%, var(--bg-color, var(--panel-background-color)))));
   color: var(--cm-fg-color, var(--toolbar-icon-color));
   font-size: 12px;
@@ -559,7 +559,7 @@
   width: min(280px, calc(100vw - 32px));
   padding: 10px;
   border: 1px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 14%, transparent);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--cm-bg-color, var(--panel-background-color));
   box-shadow: 0 4px 16px color-mix(in srgb, var(--cm-fg-color, #000) 12%, transparent);
   pointer-events: auto;
@@ -581,7 +581,7 @@
   margin-bottom: 8px;
   padding: 0 12px;
   border: 2px solid color-mix(in srgb, var(--cm-fg-color, var(--toolbar-icon-color)) 14%, transparent);
-  border-radius: 6px;
+  border-radius: var(--vditor-popover-radius, 6px);
   background: color-mix(in srgb, var(--cm-bg-color, var(--panel-background-color)) 96%, transparent);
   color: var(--cm-fg-color, var(--toolbar-icon-color));
   font-size: 13px;
@@ -615,7 +615,7 @@
   width: 100%;
   padding: 6px 8px;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   background: transparent;
   color: var(--cm-fg-color, var(--toolbar-icon-color));
   font-size: 12px;

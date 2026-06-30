@@ -65,6 +65,20 @@
   }
 }
 
+.vditor-popover-field() {
+  border: 1.5px solid transparent;
+  box-shadow: none;
+  outline: none;
+  transition:
+    background-color 0.22s var(--vditor-popover-ease),
+    border-color 0.22s var(--vditor-popover-ease);
+
+  &:focus {
+    background-color: var(--panel-background-color);
+    border-color: color-mix(in srgb, var(--list-hover-color, var(--link-color, #007aff)) 45%, transparent);
+  }
+}
+
 .vditor {
   --ui-font-size: 13px;
   --editor-font-size: var(--vscode-editor-font-size, 16px);
@@ -72,12 +86,25 @@
   --editor-font-family: inherit;
   --code-font-family: var(--editor-font-family, var(--vscode-editor-font-family, @font-family-code));
   --bold-color: var(--textarea-text-color, inherit);
+  --italic-color: var(--textarea-text-color, inherit);
   --wikilink-color: #7c3aed;
   --border-color: #d1d5da;
   --second-color: rgba(88, 96, 105, 0.36);
 
   --panel-background-color: var(--bg-color, #fff);
-  --panel-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --panel-shadow:
+    0 6px 18px color-mix(in srgb, #000 14%, transparent),
+    0 2px 6px color-mix(in srgb, #000 6%, transparent);
+  --panel-shadow-hairline: 0 0 0 0.5px color-mix(in srgb, var(--toolbar-icon-color) 6%, transparent);
+  --panel-shadow-elevated: var(--panel-shadow), var(--panel-shadow-hairline);
+
+  --vditor-popover-primary-btn-bg: #007aff;
+  --vditor-popover-primary-btn-bg-hover: #0066d6;
+  --vditor-popover-primary-btn-fg: #fff;
+  --vditor-popover-secondary-btn-bg: color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
+  --vditor-popover-secondary-btn-bg-hover: color-mix(in srgb, var(--toolbar-icon-color) 13%, transparent);
+  --vditor-popover-radius: 6px;
+  --vditor-popover-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
 
   --toolbar-background-color: var(--bg-color, #f6f8fa);
   --toolbar-icon-color: var(--front-color, #586069);
@@ -133,12 +160,17 @@
   --chart-foreground: var(--front-color, #24292e);
 
   &--dark {
-    --bold-color: color-mix(in srgb, var(--link-color, #4a78c8) 50%, var(--front-color, #586069));
+    --bold-color: color-mix(in srgb, var(--front-color, #b9b9b9) 80%, var(--chart-yellow, #9a6700) 20%);
+    --italic-color: color-mix(in srgb, var(--front-color, #b9b9b9) 76%, var(--wikilink-color, #7c3aed) 24%);
     --border-color: #141414;
     --second-color: rgba(185, 185, 185, 0.36);
 
     --panel-background-color: var(--bg-color, #24292e);
-    --panel-shadow: 0 1px 2px rgba(255, 255, 255, 0.2);
+    --panel-shadow:
+      0 8px 24px color-mix(in srgb, #000 42%, transparent),
+      0 2px 8px color-mix(in srgb, #000 24%, transparent);
+    --panel-shadow-hairline: 0 0 0 0.5px color-mix(in srgb, var(--toolbar-icon-color) 10%, transparent);
+    --panel-shadow-elevated: var(--panel-shadow), var(--panel-shadow-hairline);
 
     --toolbar-background-color: var(--bg-color, #1d2125);
     --toolbar-icon-color: var(--front-color, #b9b9b9);

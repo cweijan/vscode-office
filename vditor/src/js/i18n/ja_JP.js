@@ -1,5 +1,5 @@
 window.VditorI18n = {
-  'codeBlockHeight': 'コードブロックの高さ',
+  'codeBlockHeight': '最大高さ',
   'expandCode': '展開',
   'collapseCode': '折りたたむ',
   'alignCenter': '中央',

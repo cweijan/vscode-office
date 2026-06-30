@@ -1,10 +1,37 @@
 .vditor-hint:has(.vditor-settings-panel) {
   min-width: min(300px, calc(100vw - 32px));
   max-width: min(300px, calc(100vw - 32px));
+  padding: 6px 0;
+  margin-top: 6px;
+  border: none;
+  border-radius: 12px;
+  box-shadow:
+    0 8px 24px color-mix(in srgb, #000 14%, transparent),
+    0 2px 6px color-mix(in srgb, #000 6%, transparent),
+    0 0 0 0.5px color-mix(in srgb, var(--toolbar-icon-color) 6%, transparent);
+  overflow: hidden;
+  line-height: normal;
+  .vditor-scrollbar(var(--panel-background-color));
+
+  &.vditor-panel--arrow:before {
+    left: var(--settings-panel-arrow-left, calc(50% - 7px));
+    right: auto;
+    border-bottom-color: color-mix(in srgb, var(--toolbar-icon-color) 12%, var(--panel-background-color));
+  }
 }
 
 .vditor-settings-panel {
   --settings-accent: var(--list-hover-color, var(--link-color, #4285f4));
+  --settings-accent-hover: color-mix(in srgb, var(--settings-accent) 85%, #000);
+  --settings-fill: color-mix(in srgb, var(--toolbar-icon-color) 7%, var(--panel-background-color, #fff));
+  --settings-fill-elevated: var(--panel-background-color, #fff);
+  --settings-separator: color-mix(in srgb, var(--toolbar-icon-color) 9%, transparent);
+  --settings-label-secondary: color-mix(in srgb, var(--toolbar-icon-color) 52%, transparent);
+  --settings-radius-group: 10px;
+  --settings-radius-control: 5px;
+  --settings-radius-button: 6px;
+  --settings-row-min-height: 36px;
+  --settings-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
   --vditor-popover-primary-btn-bg: #007aff;
   --vditor-popover-primary-btn-bg-hover: #0066d6;
   --vditor-popover-primary-btn-fg: #fff;
@@ -12,63 +39,71 @@
   --vditor-popover-secondary-btn-bg-hover: color-mix(in srgb, var(--textarea-text-color) 16%, transparent);
 
   width: min(300px, calc(100vw - 32px));
-  padding: 12px;
+  padding: 10px 12px 12px;
   box-sizing: border-box;
+  font-feature-settings: "kern" 1, "liga" 1;
 
   &__ai-hint {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 7px 9px;
-    margin-bottom: 12px;
-    border-radius: 6px;
-    background: color-mix(in srgb, var(--link-color, #4285f4) 10%, transparent);
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    border-radius: var(--settings-radius-control);
+    background: color-mix(in srgb, var(--settings-accent) 9%, var(--panel-background-color, #fff));
+    border: 0.5px solid color-mix(in srgb, var(--settings-accent) 18%, transparent);
     font-size: 12px;
-    color: color-mix(in srgb, var(--textarea-text-color) 80%, transparent);
+    line-height: 1.45;
+    color: var(--settings-label-secondary);
 
     .codicon {
       flex-shrink: 0;
-      color: var(--link-color, #4285f4);
+      margin-top: 1px;
+      color: var(--settings-accent);
     }
 
     b {
       font-weight: 600;
-      color: var(--textarea-text-color);
+      color: var(--toolbar-icon-color);
     }
   }
 
   &__section {
     & + & {
-      margin-top: 14px;
+      margin-top: 18px;
     }
   }
 
   &__title {
-    padding: 0 2px 6px;
-    font-size: 10.5px;
-    font-weight: 600;
+    padding: 0 4px 5px;
+    font-size: 11px;
+    font-weight: 500;
     line-height: 14px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: color-mix(in srgb, var(--toolbar-icon-color) 45%, transparent);
+    letter-spacing: -0.01em;
+    text-transform: none;
+    color: var(--settings-label-secondary);
     user-select: none;
     cursor: default;
   }
 
   &__segmented {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    padding: 2px;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--toolbar-icon-color) 9%, transparent);
+    box-shadow: inset 0 0.5px 1px color-mix(in srgb, #000 5%, transparent);
   }
 
   &__segment {
     min-width: 0;
-    height: 30px;
+    flex: 1;
+    height: 28px;
     padding: 0 10px;
     border: none;
-    border-radius: 0;
-    font-size: var(--ui-font-size);
+    border-radius: var(--settings-radius-button);
+    font-size: 12.5px;
     font-weight: 500;
-    line-height: 30px;
+    line-height: 28px;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
@@ -76,57 +111,67 @@
     cursor: pointer;
     display: block;
     width: 100%;
-    color: color-mix(in srgb, var(--toolbar-icon-color) 55%, transparent);
-    background-color: var(--toolbar-background-color);
-    transition: background-color 0.15s ease, color 0.15s ease;
+    color: var(--settings-label-secondary);
+    background-color: transparent;
+    transition:
+      background-color 0.22s var(--settings-ease),
+      color 0.22s var(--settings-ease),
+      box-shadow 0.22s var(--settings-ease),
+      transform 0.12s var(--settings-ease);
 
-    &:first-child {
-      border-radius: 9px 0 0 9px;
-    }
-
-    &:last-child {
-      border-radius: 0 9px 9px 0;
-    }
-
-    &:hover {
-      background-color: color-mix(in srgb, var(--toolbar-icon-color) 10%, var(--toolbar-background-color));
+    &:hover:not(&--current) {
       color: var(--toolbar-icon-color);
     }
 
+    &:active:not(&--current) {
+      transform: scale(0.98);
+    }
+
     &--current {
-      background-color: color-mix(in srgb, var(--toolbar-icon-color) 18%, var(--toolbar-background-color));
-      color: var(--toolbar-icon-hover-color, var(--toolbar-icon-color));
+      color: var(--link-color, var(--list-hover-color, var(--settings-accent)));
+      background-color: var(--settings-fill-elevated);
+      box-shadow:
+        0 1px 3px color-mix(in srgb, #000 10%, transparent),
+        0 0 0 0.5px color-mix(in srgb, #000 4%, transparent);
 
       &:hover {
-        background-color: color-mix(in srgb, var(--toolbar-icon-color) 22%, var(--toolbar-background-color));
-        color: var(--toolbar-icon-hover-color, var(--toolbar-icon-color));
+        color: var(--link-color, var(--list-hover-color, var(--settings-accent)));
+        background-color: var(--settings-fill-elevated);
       }
     }
   }
 
   &__group {
-    border-radius: 10px;
-    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 11%, transparent);
+    border-radius: var(--settings-radius-group);
+    border: 0.5px solid color-mix(in srgb, var(--toolbar-icon-color) 10%, transparent);
     overflow: hidden;
-    background-color: color-mix(in srgb, var(--toolbar-icon-color) 3%, transparent);
+    background-color: var(--settings-fill);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--settings-fill-elevated) 40%, transparent);
   }
 
   &__stepper-row {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 4px 10px;
-    min-height: 30px;
-    border-top: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
+    padding: 0 12px;
+    min-height: var(--settings-row-min-height);
     box-sizing: border-box;
 
-    &:first-child {
-      border-top: none;
+    &:not(:first-child)::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 12px;
+      right: 0;
+      height: 0.5px;
+      background: var(--settings-separator);
     }
   }
 
   &__stepper-label {
-    font-size: var(--ui-font-size);
+    font-size: 13px;
+    font-weight: 400;
     color: var(--toolbar-icon-color);
     user-select: none;
   }
@@ -134,39 +179,78 @@
   &__stepper {
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 4px;
   }
 
-  &__stepper-btn {
+  &__stepper-btn,
+  &__ai-prompt-edit,
+  &__ai-prompt-del {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
     padding: 0;
-    border-radius: 5px;
-    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 20%, transparent);
-    background: color-mix(in srgb, var(--toolbar-icon-color) 5%, transparent);
-    color: var(--toolbar-icon-color);
-    font-size: 14px;
+    border-radius: var(--settings-radius-button);
+    border: none;
+    background: color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
+    font-size: 15px;
+    font-weight: 400;
     line-height: 1;
     cursor: pointer;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
     user-select: none;
-    transition: background-color 0.1s ease;
+    flex-shrink: 0;
+    transition:
+      background-color 0.18s var(--settings-ease),
+      transform 0.12s var(--settings-ease);
 
     &:hover {
-      background: color-mix(in srgb, var(--toolbar-icon-color) 12%, transparent);
+      background: color-mix(in srgb, var(--toolbar-icon-color) 14%, transparent);
+    }
+
+    &:active {
+      transform: scale(0.92);
+      background: color-mix(in srgb, var(--toolbar-icon-color) 18%, transparent);
+    }
+  }
+
+  &__stepper-btn {
+    color: var(--toolbar-icon-color);
+
+    &:hover {
       color: var(--toolbar-icon-color);
     }
   }
 
+  &__ai-prompt-edit,
+  &__ai-prompt-del {
+    .codicon { font-size: 14px; }
+  }
+
+  &__ai-prompt-edit {
+    color: var(--settings-accent);
+
+    &:hover {
+      color: var(--settings-accent);
+    }
+  }
+
+  &__ai-prompt-del {
+    color: var(--error-color, #ff3b30);
+
+    &:hover {
+      color: var(--error-color, #ff3b30);
+    }
+  }
+
   &__stepper-value {
-    font-size: 12px;
-    color: var(--toolbar-icon-color);
-    min-width: 36px;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: var(--settings-label-secondary);
+    min-width: 40px;
     text-align: center;
     user-select: none;
   }
@@ -174,39 +258,40 @@
   &__stepper-input {
     width: 80px;
     text-align: center;
-    font-size: 12px;
+    font-size: 13px;
     color: var(--textarea-text-color);
     -webkit-text-fill-color: var(--textarea-text-color);
-    background: var(--textarea-background-color);
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    padding: 3px 8px;
-    outline: none;
+    background: var(--settings-fill-elevated);
+    border-radius: var(--settings-radius-control);
+    padding: 5px 8px;
     box-sizing: border-box;
-    transition: border-color 0.15s;
-
-    &:focus {
-      border-color: var(--link-color, var(--list-hover-color));
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--link-color, var(--list-hover-color)) 20%, transparent);
-    }
+    .vditor-popover-field();
   }
 
   &__dropdown-row {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 5px 10px;
-    min-height: 32px;
-    border-top: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
+    gap: 12px;
+    padding: 0 12px;
+    min-height: var(--settings-row-min-height);
     box-sizing: border-box;
 
-    &:first-child {
-      border-top: none;
+    &:not(:first-child)::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 12px;
+      right: 0;
+      height: 0.5px;
+      background: var(--settings-separator);
     }
   }
 
   &__dropdown-label {
-    font-size: var(--ui-font-size);
+    font-size: 13px;
+    font-weight: 400;
     color: var(--toolbar-icon-color);
     user-select: none;
     flex-shrink: 0;
@@ -215,24 +300,27 @@
   &__dropdown-trigger {
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 3px 8px;
-    border-radius: 6px;
-    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 18%, transparent);
-    background: color-mix(in srgb, var(--toolbar-icon-color) 5%, transparent);
-    color: var(--toolbar-icon-color);
-    font-size: 12px;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: var(--settings-radius-control);
+    border: 0.5px solid color-mix(in srgb, var(--toolbar-icon-color) 12%, transparent);
+    background: var(--settings-fill-elevated);
+    color: var(--settings-label-secondary);
+    font-size: 13px;
     cursor: pointer;
     width: 130px;
     text-align: left;
     white-space: nowrap;
     overflow: hidden;
-    transition: border-color 0.1s ease, background 0.1s ease;
+    transition:
+      border-color 0.2s var(--settings-ease),
+      background 0.2s var(--settings-ease),
+      color 0.2s var(--settings-ease);
 
     &:hover,
     &--open {
-      background: color-mix(in srgb, var(--toolbar-icon-color) 10%, transparent);
-      border-color: color-mix(in srgb, var(--toolbar-icon-color) 28%, transparent);
+      background: var(--settings-fill-elevated);
+      border-color: color-mix(in srgb, var(--toolbar-icon-color) 22%, transparent);
       color: var(--toolbar-icon-color);
     }
   }
@@ -246,10 +334,10 @@
   }
 
   &__dropdown-chevron {
-    font-size: 12px;
+    font-size: 11px;
     flex-shrink: 0;
-    color: color-mix(in srgb, var(--toolbar-icon-color) 50%, transparent);
-    transition: transform 0.15s ease;
+    color: color-mix(in srgb, var(--toolbar-icon-color) 42%, transparent);
+    transition: transform 0.22s var(--settings-ease);
   }
 
   &__dropdown-trigger--open &__dropdown-chevron {
@@ -257,21 +345,28 @@
   }
 
   &__toggle-row {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 4px 10px;
-    min-height: 30px;
-    border-top: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
+    padding: 0 12px;
+    min-height: var(--settings-row-min-height);
     box-sizing: border-box;
 
-    &:first-child {
-      border-top: none;
+    &:not(:first-child)::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 12px;
+      right: 0;
+      height: 0.5px;
+      background: var(--settings-separator);
     }
   }
 
   &__toggle-label {
-    font-size: var(--ui-font-size);
+    font-size: 13px;
+    font-weight: 400;
     color: var(--toolbar-icon-color);
     user-select: none;
   }
@@ -279,68 +374,71 @@
   &__toggle {
     position: relative;
     display: block;
-    width: 32px;
-    height: 18px;
+    width: 40px;
+    height: 24px;
     padding: 0;
-    border-radius: 9px;
+    border-radius: 12px;
     border: none;
-    background: color-mix(in srgb, var(--toolbar-icon-color) 22%, transparent);
+    background: color-mix(in srgb, var(--toolbar-icon-color) 20%, transparent);
     cursor: pointer;
     white-space: normal;
     overflow: visible;
     flex-shrink: 0;
-    transition: background 0.18s ease;
+    transition: background 0.28s var(--settings-ease);
 
     &::after {
       content: "";
       position: absolute;
       top: 2px;
       left: 2px;
-      width: 14px;
-      height: 14px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
-      background: var(--panel-background-color, #fff);
-      transition: transform 0.18s ease;
-      box-shadow: 0 1px 3px color-mix(in srgb, #000 20%, transparent);
+      background: #fff;
+      transition: transform 0.28s var(--settings-ease);
+      box-shadow:
+        0 2px 4px color-mix(in srgb, #000 18%, transparent),
+        0 0 0 0.5px color-mix(in srgb, #000 4%, transparent);
     }
 
-    &:hover {
-      background: color-mix(in srgb, var(--toolbar-icon-color) 30%, transparent);
-      color: inherit;
+    &:hover:not(&--on) {
+      background: color-mix(in srgb, var(--toolbar-icon-color) 26%, transparent);
     }
 
     &--on {
       background: var(--settings-accent);
 
       &::after {
-        transform: translateX(14px);
+        transform: translateX(16px);
       }
 
       &:hover {
-        background: color-mix(in srgb, var(--settings-accent) 85%, #000);
+        background: var(--settings-accent-hover);
       }
     }
   }
 
   &__ai-prompts {
-    border-radius: 10px;
-    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 11%, transparent);
-    background-color: color-mix(in srgb, var(--toolbar-icon-color) 3%, transparent);
+    border-radius: var(--settings-radius-group);
+    border: 0.5px solid color-mix(in srgb, var(--toolbar-icon-color) 10%, transparent);
+    background-color: var(--settings-fill);
     overflow: hidden;
   }
 
   &__ai-prompt-empty {
-    padding: 8px 10px;
-    font-size: var(--ui-font-size, 13px);
-    color: color-mix(in srgb, var(--toolbar-icon-color) 45%, transparent);
+    padding: 12px;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--settings-label-secondary);
     user-select: none;
+    text-align: center;
   }
 
   &__provider-icon {
     flex-shrink: 0;
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -354,85 +452,61 @@
   }
 
   &__ai-prompt-row {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 6px 4px 10px;
-    min-height: 30px;
-    border-top: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
+    gap: 8px;
+    padding: 0 8px 0 12px;
+    min-height: var(--settings-row-min-height);
     box-sizing: border-box;
-    &:first-child { border-top: none; }
+
+    &:not(:first-child)::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 12px;
+      right: 0;
+      height: 0.5px;
+      background: var(--settings-separator);
+    }
   }
 
   &__ai-prompt-name {
     flex: 1;
-    font-size: var(--ui-font-size, 13px);
+    font-size: 13px;
     color: var(--toolbar-icon-color);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  &__ai-prompt-edit,
-  &__ai-prompt-del {
-    flex-shrink: 0;
-    width: 22px;
-    height: 22px;
-    padding: 0;
-    border: none;
-    border-radius: 4px;
-    background: transparent;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.1s, background 0.1s;
-    .codicon { font-size: 13px; }
-  }
-
-  &__ai-prompt-edit {
-    color: color-mix(in srgb, var(--link-color, #4a78c8) 65%, transparent);
-    &:hover {
-      color: var(--link-color, #4a78c8);
-      background: color-mix(in srgb, var(--link-color, #4a78c8) 12%, transparent);
-    }
-  }
-
-  &__ai-prompt-del {
-    color: color-mix(in srgb, var(--error-color, #cf222e) 65%, transparent);
-    &:hover {
-      color: var(--error-color, #cf222e);
-      background: color-mix(in srgb, var(--error-color, #cf222e) 12%, transparent);
-    }
-  }
 
   &__ai-prompt-add-row {
-    padding: 8px 10px;
+    padding: 10px 12px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    border-top: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
+    gap: 8px;
+    border-top: 0.5px solid var(--settings-separator);
   }
 
   &__ai-prompt-input,
   &__ai-prompt-textarea {
     width: 100%;
     box-sizing: border-box;
-    padding: 4px 8px;
-    font-size: var(--ui-font-size, 13px);
-    border: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 20%, transparent);
-    border-radius: 5px;
-    background: var(--panel-background-color, #fff);
+    padding: 8px 10px;
+    font-size: 13px;
+    border-radius: var(--settings-radius-control);
+    background: var(--settings-fill-elevated);
     color: var(--toolbar-icon-color);
-    outline: none;
     font-family: inherit;
-    &:focus { border-color: var(--settings-accent); }
+    .vditor-popover-field();
   }
 
   &__ai-prompt-textarea {
     resize: vertical;
-    min-height: 60px;
+    min-height: 64px;
     max-height: 120px;
+    line-height: 1.45;
   }
 
   &__ai-prompt-add-actions {
@@ -441,96 +515,146 @@
     justify-content: flex-end;
   }
 
-  &__ai-prompt-btn {
-    padding: 5px 14px;
-    font-size: 12px;
-    border-radius: 7px;
+  &__ai-add-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    width: calc(100% - 20px);
+    margin: 18px 10px 10px;
+    padding: 6px 12px;
+    box-sizing: border-box;
     border: none;
-    background: var(--vditor-popover-primary-btn-bg);
-    color: var(--vditor-popover-primary-btn-fg);
+    border-radius: var(--settings-radius-button);
+    background: color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
+    color: var(--settings-accent);
+    font-size: 13px;
+    font-weight: 400;
+    cursor: pointer;
+    transition:
+      background-color 0.18s var(--settings-ease),
+      transform 0.12s var(--settings-ease);
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: -9px;
+      left: -10px;
+      right: -10px;
+      height: 0.5px;
+      background: var(--settings-separator);
+    }
+
+    .codicon { font-size: 14px; }
+
+    &:hover {
+      background: color-mix(in srgb, var(--toolbar-icon-color) 14%, transparent);
+      color: var(--settings-accent);
+    }
+
+    &:active {
+      transform: scale(0.98);
+      background: color-mix(in srgb, var(--toolbar-icon-color) 18%, transparent);
+    }
+  }
+
+  &__ai-prompt-btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: var(--settings-radius-button);
+    font-size: 13px;
+    font-family: inherit;
     cursor: pointer;
     font-weight: 500;
-    transition: background 0.12s ease, opacity 0.12s ease, box-shadow 0.12s ease;
-    &:hover { background: var(--vditor-popover-primary-btn-bg-hover); }
+    background: var(--vditor-popover-primary-btn-bg);
+    color: var(--vditor-popover-primary-btn-fg);
+    transition:
+      background 0.12s ease,
+      opacity 0.12s ease,
+      box-shadow 0.12s ease,
+      transform 0.12s var(--settings-ease);
+
+    &:hover {
+      background: var(--vditor-popover-primary-btn-bg-hover);
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+
     &:focus-visible {
       box-shadow: 0 0 0 3px color-mix(in srgb, var(--vditor-popover-primary-btn-bg) 35%, transparent);
     }
+
     &--cancel {
       background: var(--vditor-popover-secondary-btn-bg);
       color: inherit;
       font-weight: 400;
-      &:hover { background: var(--vditor-popover-secondary-btn-bg-hover); }
-    }
-  }
 
-  &__ai-add-btn {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    width: 100%;
-    padding: 6px 10px;
-    border: none;
-    border-top: 1px solid color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
-    background: transparent;
-    color: color-mix(in srgb, var(--toolbar-icon-color) 55%, transparent);
-    font-size: var(--ui-font-size, 13px);
-    cursor: pointer;
-    transition: color 0.1s, background 0.1s;
-    .codicon { font-size: 13px; }
-    &:hover {
-      color: var(--settings-accent);
-      background: color-mix(in srgb, var(--settings-accent) 6%, transparent);
+      &:hover {
+        background: var(--vditor-popover-secondary-btn-bg-hover);
+      }
+
+      &:focus-visible {
+        box-shadow: none;
+      }
     }
   }
 
   &__footer {
-    padding: 12px 10px 4px;
-    margin-top: 6px;
+    padding: 14px 4px 2px;
+    margin-top: 4px;
     display: flex;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
   }
 
   &__footer-btn {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    font-size: 12px;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: 500;
     color: inherit;
     background: var(--vditor-popover-secondary-btn-bg);
     border: none;
-    border-radius: 7px;
+    border-radius: var(--settings-radius-button);
     width: auto;
     text-align: center;
-    padding: 6px 16px;
+    padding: 7px 18px;
     cursor: pointer;
-    transition: color 0.1s ease, background 0.1s ease, box-shadow 0.12s ease;
+    transition:
+      color 0.18s var(--settings-ease),
+      background 0.18s var(--settings-ease),
+      box-shadow 0.18s var(--settings-ease),
+      transform 0.12s var(--settings-ease);
 
     > span:not(.codicon) {
-      color: var(--textarea-text-color, var(--toolbar-icon-color));
+      color: var(--toolbar-icon-color);
     }
 
     .codicon {
-      font-size: 12px;
-      transition: color 0.1s ease;
+      font-size: 13px;
+      transition: color 0.18s var(--settings-ease);
+    }
+
+    &:active {
+      transform: scale(0.97);
     }
 
     &--edit {
       .codicon {
-        color: color-mix(in srgb, var(--settings-accent) 80%, transparent);
+        color: var(--settings-accent);
       }
 
       &:hover {
         background: var(--vditor-popover-secondary-btn-bg-hover);
-
-        .codicon {
-          color: var(--settings-accent);
-        }
       }
     }
 
     &--reset {
-      background: var(--error-color, #cf222e);
+      background: var(--error-color, #ff3b30);
 
       > span:not(.codicon) {
         color: #fff;
@@ -541,32 +665,31 @@
       }
 
       &:hover {
-        background: color-mix(in srgb, var(--error-color, #cf222e) 85%, #000);
-
-        .codicon {
-          color: #fff;
-        }
+        background: color-mix(in srgb, var(--error-color, #ff3b30) 88%, #000);
       }
 
       &:focus-visible {
-        box-shadow: 0 0 0 3px color-mix(in srgb, var(--error-color, #cf222e) 35%, transparent);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--error-color, #ff3b30) 30%, transparent);
       }
     }
   }
 }
 
 .vditor-settings-panel__floating-menu {
+  --settings-radius-button: 6px;
+  --settings-accent: var(--list-hover-color, var(--link-color, #4285f4));
   position: fixed;
   z-index: 9999;
-  min-width: 120px;
-  max-height: 240px;
+  min-width: 140px;
+  max-height: 260px;
   overflow-y: auto;
   background: var(--panel-background-color, #fff);
-  border: 1px solid color-mix(in srgb, var(--toolbar-icon-color, #586069) 14%, transparent);
-  border-radius: 8px;
+  border: 0.5px solid color-mix(in srgb, var(--toolbar-icon-color, #586069) 12%, transparent);
+  border-radius: 10px;
   box-shadow:
-    0 6px 18px color-mix(in srgb, #000 16%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--toolbar-icon-color, #586069) 5%, transparent);
+    0 10px 28px color-mix(in srgb, #000 16%, transparent),
+    0 2px 8px color-mix(in srgb, #000 6%, transparent),
+    0 0 0 0.5px color-mix(in srgb, var(--toolbar-icon-color, #586069) 5%, transparent);
   padding: 4px;
   box-sizing: border-box;
   .vditor-scrollbar(var(--panel-background-color, #fff));
@@ -578,10 +701,10 @@
   button {
     color: var(--toolbar-icon-color);
     display: block;
-    padding: 4px 10px;
-    margin: 1px 0;
+    padding: 6px 10px;
+    margin: 2px 0;
     border: 0;
-    border-radius: 5px;
+    border-radius: var(--settings-radius-button);
     line-height: 18px;
     width: 100%;
     box-sizing: border-box;
@@ -591,17 +714,19 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    font-size: var(--ui-font-size, 13px);
-    transition: background-color 0.1s ease;
+    font-size: 13px;
+    transition:
+      background-color 0.18s cubic-bezier(0.25, 0.1, 0.25, 1),
+      color 0.18s cubic-bezier(0.25, 0.1, 0.25, 1);
 
     &:hover {
       background-color: color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
     }
 
     &.vditor-settings-panel__dropdown-option--current {
-      background-color: color-mix(in srgb, var(--link-color, var(--list-hover-color, var(--toolbar-icon-hover-color))) 15%, transparent);
-      color: var(--link-color, var(--list-hover-color, var(--toolbar-icon-hover-color)));
-      font-weight: 600;
+      background-color: color-mix(in srgb, var(--settings-accent) 8%, var(--panel-background-color, #fff));
+      color: var(--settings-accent);
+      font-weight: 500;
 
       &::after {
         content: "\eab2";
@@ -609,11 +734,12 @@
         font-size: 14px;
         float: right;
         line-height: inherit;
-        color: var(--link-color, var(--list-hover-color, var(--toolbar-icon-hover-color)));
+        color: color-mix(in srgb, var(--settings-accent) 72%, transparent);
       }
 
       &:hover {
-        background-color: color-mix(in srgb, var(--link-color, var(--list-hover-color, var(--toolbar-icon-hover-color))) 20%, transparent);
+        background-color: color-mix(in srgb, var(--settings-accent) 12%, var(--panel-background-color, #fff));
+        color: var(--settings-accent);
       }
     }
   }

@@ -92,6 +92,8 @@ export class Options {
         width: "auto",
         editorTheme: "Auto",
         lastNonAutoEditorTheme: "Light",
+        lastLightEditorTheme: "Light",
+        lastDarkEditorTheme: "One Dark",
         mermaidTheme: "Auto",
         onSponsorLogoClick: undefined,
         onSponsorSiteClick: undefined,

@@ -57,6 +57,8 @@ export const CODE_FONT_FAMILY_KEY = "codeFontFamily";
 export const BOLD_COLOR_KEY = "boldColor";
 export const HTML_EDITOR_LINE_WRAP_KEY = "htmlEditorLineWrap";
 export const LAST_NON_AUTO_EDITOR_THEME_KEY = "lastNonAutoEditorTheme";
+export const LAST_LIGHT_EDITOR_THEME_KEY = "lastLightEditorTheme";
+export const LAST_DARK_EDITOR_THEME_KEY = "lastDarkEditorTheme";
 
 export const LINE_HEIGHT_MIN = 1.0;
 export const LINE_HEIGHT_MAX = 3.0;
@@ -73,7 +75,7 @@ export const FONT_FAMILY_OPTIONS = [
     { label: "Narrow", value: "'Arial Narrow', 'Liberation Sans Narrow', sans-serif" },
 ] as const;
 
-export const BOLD_COLOR_DEFAULT = "color-mix(in srgb, var(--link-color, #4a78c8) 50%, var(--front-color, #586069))";
+export const BOLD_COLOR_DEFAULT = "color-mix(in srgb, var(--front-color, #b9b9b9) 80%, var(--chart-yellow, #9a6700) 20%)";
 export const BOLD_COLOR_DEFAULT_OPTION = "default";
 export const BOLD_COLOR_PLAIN = "plain";
 
@@ -134,10 +136,10 @@ export const CODE_BLOCK_MAX_HEIGHT_KEY = "codeBlockMaxHeight";
 export const CODE_BLOCK_MAX_HEIGHT_DEFAULT = "400px";
 
 export const CODE_BLOCK_MAX_HEIGHT_OPTIONS = [
-    { label: "Compact (300px)", value: "300px" },
-    { label: "Default (400px)", value: "400px" },
-    { label: "Tall (600px)", value: "600px" },
-    { label: "Taller (800px)", value: "800px" },
+    { label: "300px", value: "300px" },
+    { label: "Default", value: "400px" },
+    { label: "600px", value: "600px" },
+    { label: "800px", value: "800px" },
     { label: "Unlimited", value: "none" },
 ] as const;
 
