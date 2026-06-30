@@ -101,6 +101,14 @@ class SelectorElement {
   hideClipboard() {
     this.clipboardEl.hide();
   }
+
+  hideArea() {
+    this.areaEl.hide();
+  }
+
+  showArea() {
+    this.areaEl.show();
+  }
 }
 
 function calBRAreaOffset(offset) {
@@ -414,6 +422,18 @@ export default class Selector {
   hideClipboard() {
     ['br', 'l', 't', 'tl'].forEach((property) => {
       this[property].hideClipboard();
+    });
+  }
+
+  hideArea() {
+    ['br', 'l', 't', 'tl'].forEach((property) => {
+      this[property].hideArea();
+    });
+  }
+
+  showArea() {
+    ['br', 'l', 't', 'tl'].forEach((property) => {
+      this[property].showArea();
     });
   }
 }

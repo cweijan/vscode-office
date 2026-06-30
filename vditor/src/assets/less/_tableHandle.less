@@ -8,13 +8,21 @@
   &__axis {
     position: absolute;
     display: none;
-    padding: 8px;
+    padding: 6px;
     border: 0;
     background: transparent;
     box-shadow: none;
+    border-radius: var(--vditor-popover-radius, 6px);
     cursor: pointer;
     pointer-events: auto;
     transform: translate(-50%, -50%);
+    transition: background-color 0.18s var(--vditor-popover-ease, ease-in-out);
+
+    &:hover,
+    &--drag,
+    &--menu {
+      background: color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
+    }
 
     &:hover,
     &:focus-visible {
@@ -23,8 +31,9 @@
 
     &-mark {
       display: block;
-      border-radius: 1px;
+      border-radius: 2px;
       background: var(--table-axis-color);
+      transition: background-color 0.18s var(--vditor-popover-ease, ease-in-out);
     }
 
     &--row &-mark {
@@ -41,8 +50,9 @@
       display: none;
       width: 8px;
       height: 14px;
-      background: radial-gradient(circle at center, var(--table-axis-color) 1.25px, transparent 1.25px);
+      background: radial-gradient(circle at center, var(--toolbar-icon-color) 1.25px, transparent 1.25px);
       background-size: 4px 4px;
+      opacity: 0.88;
 
       &--col {
         width: 14px;
@@ -74,7 +84,7 @@
   &__menu {
     position: absolute;
     z-index: 7;
-    min-width: 132px;
+    min-width: 140px;
     pointer-events: auto;
 
     &--portal {
@@ -82,11 +92,26 @@
       z-index: 10000;
     }
 
+    &.vditor-hint {
+      padding: 4px;
+    }
+
     button {
       display: flex;
       align-items: center;
       gap: 6px;
+      margin: 2px 0;
+      padding: 6px 10px;
+      border: 0;
+      border-radius: var(--vditor-popover-radius, 6px);
+      background-color: transparent;
       color: var(--toolbar-icon-color);
+      font-size: var(--ui-font-size, 13px);
+      line-height: 18px;
+      cursor: pointer;
+      transition:
+        background-color 0.18s var(--vditor-popover-ease, ease-in-out),
+        color 0.18s var(--vditor-popover-ease, ease-in-out);
 
       .codicon {
         font-size: 12px;
@@ -96,8 +121,9 @@
 
       &:not(:disabled):hover,
       &:not(:disabled):focus-visible {
-        background-color: var(--dropdown-hover-background, var(--second-bg-color, var(--toolbar-background-color)));
-        color: var(--toolbar-icon-hover-color, var(--toolbar-icon-color));
+        background-color: color-mix(in srgb, var(--toolbar-icon-color) 8%, transparent);
+        color: var(--toolbar-icon-color);
+        outline: none;
       }
     }
 
@@ -118,14 +144,22 @@
 
     &-divider {
       margin: 4px 0;
-      border-top: 1px solid var(--border-color);
+      border-top: 0.5px solid color-mix(in srgb, var(--toolbar-icon-color) 9%, transparent);
     }
 
     button.vditor-table-handle__menu-item--current {
-      color: var(--list-hover-color, @blurColor);
+      background-color: color-mix(in srgb, var(--link-color, var(--list-hover-color, @blurColor)) 8%, var(--panel-background-color));
+      color: var(--link-color, var(--list-hover-color, @blurColor));
+      font-weight: 500;
 
       .codicon {
-        color: var(--list-hover-color, @blurColor);
+        color: var(--link-color, var(--list-hover-color, @blurColor));
+      }
+
+      &:not(:disabled):hover,
+      &:not(:disabled):focus-visible {
+        background-color: color-mix(in srgb, var(--link-color, var(--list-hover-color, @blurColor)) 12%, var(--panel-background-color));
+        color: var(--link-color, var(--list-hover-color, @blurColor));
       }
     }
   }
@@ -136,6 +170,7 @@
     display: none;
     border-radius: 1px;
     background: var(--list-hover-color, @blurColor);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--list-hover-color, @blurColor) 18%, transparent);
     pointer-events: none;
   }
 

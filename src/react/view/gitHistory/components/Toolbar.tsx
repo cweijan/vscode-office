@@ -109,6 +109,12 @@ export default function Toolbar({
                     disabled={refreshing}
                     className={refreshing ? ' spinning' : ''}
                 />
+                <FetchIcon
+                    title="Fetch from remote(s)"
+                    onClick={onFetch}
+                    disabled={fetching || pushing || syncing || pulling || !repo}
+                    className={fetching ? 'running' : undefined}
+                />
                 <PullIcon
                     title="Pull current branch from remote"
                     onClick={onPull}
@@ -125,12 +131,6 @@ export default function Toolbar({
                     title={hasRemoteUrl ? 'Open remote repository' : 'No remote URL configured'}
                     onClick={onOpenRemote}
                     disabled={!repo || !hasRemoteUrl}
-                />
-                <FetchIcon
-                    title="Fetch from remote(s)"
-                    onClick={onFetch}
-                    disabled={fetching || pushing || syncing || pulling || !repo}
-                    className={fetching ? 'running' : undefined}
                 />
             </div>
 

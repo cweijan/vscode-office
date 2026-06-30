@@ -438,10 +438,11 @@ body {
     position: absolute;
     text-align: left;
     border: 2px solid rgb(33, 186, 69);
+    box-sizing: border-box;
     line-height: 0;
     z-index: 100;
     pointer-events: auto;
-    padding:3px 9px;
+    padding: 0 8px;
     background-color: white;
 
     textarea {
@@ -452,6 +453,7 @@ body {
       resize: none;
       text-align: start;
       overflow-y: auto;
+      display: block;
       color: black;
       white-space: normal;
       word-wrap: break-word;
@@ -1110,11 +1112,6 @@ form fieldset {
   padding: .75em 1em;
 }
 
-@media screen and (min-width: 320px) and (max-width: 480px) {
-  .@{css-prefix}-toolbar {
-    display: none;
-  }
-}
 
 .@{css-prefix}-icon {
   width: 18px;

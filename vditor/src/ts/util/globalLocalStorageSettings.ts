@@ -53,6 +53,7 @@ export const FONT_SIZE_MAX = 24;
 
 export const LINE_HEIGHT_KEY = "editorLineHeight";
 export const FONT_FAMILY_KEY = "editorFontFamily";
+export const CODE_FONT_FAMILY_KEY = "codeFontFamily";
 export const BOLD_COLOR_KEY = "boldColor";
 export const HTML_EDITOR_LINE_WRAP_KEY = "htmlEditorLineWrap";
 export const LAST_NON_AUTO_EDITOR_THEME_KEY = "lastNonAutoEditorTheme";
@@ -136,10 +137,10 @@ export const CODE_BLOCK_MAX_HEIGHT_KEY = "codeBlockMaxHeight";
 export const CODE_BLOCK_MAX_HEIGHT_DEFAULT = "400px";
 
 export const CODE_BLOCK_MAX_HEIGHT_OPTIONS = [
-    { label: "Compact (300px)", value: "300px" },
-    { label: "Default (400px)", value: "400px" },
-    { label: "Tall (600px)", value: "600px" },
-    { label: "Taller (800px)", value: "800px" },
+    { label: "300px", value: "300px" },
+    { label: "Default", value: "400px" },
+    { label: "600px", value: "600px" },
+    { label: "800px", value: "800px" },
     { label: "Unlimited", value: "none" },
 ] as const;
 
@@ -327,6 +328,7 @@ export const applyEditorSettings = (vditorElement: HTMLElement) => {
     const editorSize = getGlobalLocalStorageSetting<number>(EDITOR_FONT_SIZE_KEY);
     const lineHeight = getGlobalLocalStorageSetting<number>(LINE_HEIGHT_KEY);
     const fontFamily = getGlobalLocalStorageSetting<string>(FONT_FAMILY_KEY);
+    const codeFontFamily = getGlobalLocalStorageSetting<string>(CODE_FONT_FAMILY_KEY);
     const boldColor = getGlobalLocalStorageSetting<string>(BOLD_COLOR_KEY);
     const pageWidth = getGlobalLocalStorageSetting<string>(PAGE_WIDTH_KEY);
     const imgMaxWidth = getGlobalLocalStorageSetting<number>(IMAGE_MAX_WIDTH_KEY);
@@ -335,6 +337,11 @@ export const applyEditorSettings = (vditorElement: HTMLElement) => {
     if (editorSize !== undefined) vditorElement.style.setProperty("--editor-font-size", `${editorSize}px`);
     if (lineHeight !== undefined) vditorElement.style.setProperty("--editor-line-height", String(lineHeight));
     if (fontFamily !== undefined) vditorElement.style.setProperty("--editor-font-family", fontFamily);
+    if (codeFontFamily !== undefined && codeFontFamily !== "inherit") {
+        vditorElement.style.setProperty("--code-font-family", codeFontFamily);
+    } else if (codeFontFamily === "inherit") {
+        vditorElement.style.removeProperty("--code-font-family");
+    }
     applyBoldColorSetting(vditorElement, boldColor);
     if (pageWidth !== undefined && pageWidth !== PAGE_WIDTH_DEFAULT) {
         vditorElement.style.setProperty("--vditor-page-width", pageWidth);

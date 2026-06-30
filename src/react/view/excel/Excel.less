@@ -15,8 +15,17 @@ body:has(.excel-app) .ant-message:has(.excel-save-success-message) {
     transform: translateX(-50%) !important;
 }
 
+body:has(.excel-app) {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
 .excel-viewer {
+    width: 100vw;
+    height: 100vh;
     min-height: 100vh;
+    overflow: hidden;
     background-color: white;
     font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
     font-size: var(--vscode-font-size, 13px);
@@ -362,13 +371,13 @@ body:has(.excel-app) .ant-message:has(.excel-save-success-message) {
     }
 
     .dark-mode-toggle {
+        width: 28px;
+        height: 28px;
         flex-shrink: 0;
-        width: 32px;
-        height: 32px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 1px solid rgba(128, 128, 128, 0.4);
+        border: 1px solid rgba(128, 128, 128, 0.35);
         border-radius: 6px;
         background-color: rgba(255, 255, 255, 0.85);
         color: #2c3e50;
@@ -377,6 +386,14 @@ body:has(.excel-app) .ant-message:has(.excel-save-success-message) {
         &:hover {
             background-color: rgba(0, 0, 0, 0.06);
         }
+    }
+
+    .excel-footer-actions .dark-mode-toggle {
+        position: fixed;
+        top: 7px;
+        right: 10px;
+        bottom: auto;
+        z-index: 1001;
     }
 
     .excel-load-error {
@@ -1057,7 +1074,7 @@ body.office-dark .excel-viewer {
     }
 
     .dark-mode-toggle {
-        background-color: var(--vscode-editorWidget-background, #252526);
+        background-color: var(--vscode-editorGroupHeader-tabsBackground, var(--vscode-sideBarSectionHeader-background, #252526));
         color: var(--vscode-editor-foreground, #cccccc);
         border-color: var(--vscode-editorWidget-border, rgba(128, 128, 128, 0.45));
 

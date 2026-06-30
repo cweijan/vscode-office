@@ -28,7 +28,7 @@ function CodiconButton({ icon, title, className, variant, onClick, disabled }: C
 }
 
 export function FetchIcon(props: Omit<CodiconButtonProps, 'icon' | 'variant'>) {
-    return <CodiconButton icon="repo-fetch" variant="fetch" {...props} />;
+    return <CodiconButton icon="git-fetch" variant="fetch" {...props} />;
 }
 
 export function PullIcon(props: Omit<CodiconButtonProps, 'icon' | 'variant'>) {
