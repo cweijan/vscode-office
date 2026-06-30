@@ -36,6 +36,7 @@ const EXPORT_CSS_VARS = [
     "--editor-font-family",
     "--code-font-family",
     "--bold-color",
+    "--italic-color",
     "--vditor-page-width",
     "--vditor-image-max-width",
     "--vditor-image-max-height",

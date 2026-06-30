@@ -86,6 +86,7 @@
   --editor-font-family: inherit;
   --code-font-family: var(--editor-font-family, var(--vscode-editor-font-family, @font-family-code));
   --bold-color: var(--textarea-text-color, inherit);
+  --italic-color: var(--textarea-text-color, inherit);
   --wikilink-color: #7c3aed;
   --border-color: #d1d5da;
   --second-color: rgba(88, 96, 105, 0.36);
@@ -159,7 +160,8 @@
   --chart-foreground: var(--front-color, #24292e);
 
   &--dark {
-    --bold-color: color-mix(in srgb, var(--link-color, #4a78c8) 50%, var(--front-color, #586069));
+    --bold-color: color-mix(in srgb, var(--front-color, #b9b9b9) 80%, var(--chart-yellow, #9a6700) 20%);
+    --italic-color: color-mix(in srgb, var(--front-color, #b9b9b9) 76%, var(--wikilink-color, #7c3aed) 24%);
     --border-color: #141414;
     --second-color: rgba(185, 185, 185, 0.36);
 

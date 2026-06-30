@@ -28,6 +28,9 @@ export const EDITOR_DARK_THEMES = new Set([
     "Dracula",
 ]);
 
+export const DEFAULT_LIGHT_EDITOR_THEME = "Light";
+export const DEFAULT_DARK_EDITOR_THEME = "One Dark";
+
 export const EDITOR_THEME_TOGGLE_NAMES = ["Auto", "Light"];
 
 export const resolveEditorTheme = (theme?: string) => {
