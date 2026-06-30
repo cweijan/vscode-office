@@ -4,21 +4,22 @@ import { getConfigs } from '../../util/vscodeConfig';
 import './ProView.css';
 
 const FREE_FEATURES = [
-    'Word & Excel editor',
-    'WYSIWYG Markdown editor',
-    'PowerPoint, PDF & eBook viewer',
-    'Archive explorer (zip, rar, 7z…)',
-    'Design file viewer (PSD, SVG, HEIC…)',
-    'Git history browser',
+    'Git History Browser',
+    'WYSIWYG Markdown Editor',
+    'Excel Editor (xls, xlsx, csv, ods)',
+    'Archive Explorer (Zip, Rar, 7z…)',
+    'Design File Viewer (PSD, SVG, HEIC…)',
+    'Word, PowerPoint, PDF & eBook Viewer',
+    'Community Support (GitHub Issues)',
 ];
 
 const PRO_FEATURES = [
     { text: 'Everything in Free', bold: false, muted: true },
-    { text: 'Remove Sponsor banner from viewer', bold: true },
-    { text: 'Adjust image width & height', bold: true },
-    { text: 'Custom font color & background color', bold: true },
-    { text: 'Beautiful PDF / DOCX / HTML export', bold: true },
-    { text: 'Lifetime license — pay once, use forever', bold: false },
+    { text: 'Remove Sponsor Element', bold: true },
+    { text: 'Beautiful PDF / HTML Export', bold: true },
+    { text: 'Adjust Image Width & Height', bold: true },
+    { text: 'Custom Font Color & Background Color', bold: true },
+    { text: 'Lifetime License — Pay Once, Use Forever', bold: false },
 ];
 
 export default function ProView() {
@@ -84,7 +85,7 @@ export default function ProView() {
                 <div className="pro-letter">
                     {isChinese ? (
                         <>
-                            <p>你好，</p>
+                            <p className="pro-letter-greeting">你好，</p>
                             <p>
                                 我是 Office Viewer 的开发者。最近我重新恢复对这个项目的持续维护，
                                 包括修复问题、提升兼容性，以及持续加入一些新功能。
@@ -94,11 +95,11 @@ export default function ProView() {
                                 <strong> 之前免费的功能依然保持免费，并且继续开源。</strong>
                                 Pro 功能是在原有免费能力之上的新增扩展。
                             </p>
-                            <p>— Weijan Chen</p>
+                            <p className="pro-letter-signature">— Weijan Chen</p>
                         </>
                     ) : (
                         <>
-                            <p>Hi there,</p>
+                            <p className="pro-letter-greeting">Hi there,</p>
                             <p>
                                 I'm the developer of Office Viewer. I've recently resumed active maintenance — fixing bugs,
                                 improving compatibility, and shipping new features.
@@ -108,7 +109,7 @@ export default function ProView() {
                                 <strong>Everything that was free before remains free and open source.</strong> The Pro features are new
                                 additions on top of the free core.
                             </p>
-                            <p>— Weijan Chen</p>
+                            <p className="pro-letter-signature">— Weijan Chen</p>
                         </>
                     )}
                 </div>
@@ -132,12 +133,13 @@ export default function ProView() {
                         <div className="pro-plan-divider" />
                         <ul className="pro-plan-features">
                             {FREE_FEATURES.map(f => (
-                                <li key={f}>{codicon('check')} {f}</li>
+                                <li key={f}>{codicon('check')}<span className="pro-plan-feature-text">{f}</span></li>
                             ))}
                         </ul>
                     </div>
 
                     <div className="pro-plan-card pro-plan-card--pro">
+                        <span className="pro-plan-badge">Recommended</span>
                         <div className="pro-plan-title pro-plan-title--pro">
                             {logoSrc && <img src={logoSrc} className="pro-card-logo" alt="" />}
                             Lifetime License
@@ -159,7 +161,7 @@ export default function ProView() {
                         <ul className="pro-plan-features">
                             {PRO_FEATURES.map(f => (
                                 <li key={f.text} className={[f.muted ? 'muted' : '', f.bold ? 'bold' : ''].join(' ').trim()}>
-                                    {codicon('verified')} {f.text}
+                                    {codicon('verified')}<span className="pro-plan-feature-text">{f.text}</span>
                                 </li>
                             ))}
                         </ul>
@@ -190,25 +192,27 @@ export default function ProView() {
                             <span className="pro-modal-title">{codicon('key')} Activate License</span>
                             <button className="pro-modal-close" onClick={closeModal}>{codicon('close')}</button>
                         </div>
-                        <p className="pro-modal-desc">
-                            Enter your license key to unlock Pro features. You can find it in your purchase confirmation email.
-                        </p>
-                        <div className="pro-modal-row">
-                            <input
-                                className="pro-modal-input"
-                                placeholder="XXXXX-XXXXX-XXXXX-XXXXX"
-                                value={licenseKey}
-                                onChange={e => { setLicenseKey(e.target.value); setStatus(null); }}
-                                onKeyDown={e => e.key === 'Enter' && activate()}
-                                autoFocus
-                            />
-                        </div>
-                        {status && (
-                            <div className={`pro-modal-status pro-modal-status--${status.type}`}>
-                                {codicon(status.type === 'success' ? 'check-all' : 'error')} {status.msg}
+                        <div className="pro-modal-body">
+                            <p className="pro-modal-desc">
+                                Enter your license key to unlock Pro features. You can find it in your purchase confirmation email.
+                            </p>
+                            <div className="pro-modal-row">
+                                <input
+                                    className="pro-modal-input"
+                                    placeholder="XXXXX-XXXXX-XXXXX-XXXXX"
+                                    value={licenseKey}
+                                    onChange={e => { setLicenseKey(e.target.value); setStatus(null); }}
+                                    onKeyDown={e => e.key === 'Enter' && activate()}
+                                    autoFocus
+                                />
                             </div>
-                        )}
-                        <div className="pro-modal-actions">
+                            {status && (
+                                <div className={`pro-modal-status pro-modal-status--${status.type}`}>
+                                    {codicon(status.type === 'success' ? 'check-all' : 'error')} {status.msg}
+                                </div>
+                            )}
+                        </div>
+                        <div className="pro-modal-footer">
                             <button className="pro-modal-btn-cancel" onClick={closeModal}>{activationSucceeded ? 'Close' : 'Cancel'}</button>
                             <button
                                 className="pro-modal-btn-confirm"
