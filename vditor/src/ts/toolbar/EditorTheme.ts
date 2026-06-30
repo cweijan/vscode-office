@@ -7,7 +7,7 @@ import {setEditorTheme} from "../ui/setEditorTheme";
 import {getEventName} from "../util/compatibility";
 import {MenuItem} from "./MenuItem";
 import {toggleSubMenu} from "./setToolbar";
-import {telemetryToolbar} from "../util/telemetry";
+import {telemetryToolbarClickOnly} from "../util/telemetry";
 
 export class EditorTheme extends MenuItem {
     public element: HTMLElement;
@@ -39,11 +39,11 @@ export class EditorTheme extends MenuItem {
         const tip = window.VditorI18n["editor-theme-tip"] || menuItem.tip || "Select Theme";
         actionBtn.setAttribute("aria-label", tip);
 
-        actionBtn.addEventListener(getEventName(), () => {
+        actionBtn.addEventListener(getEventName(), (event: Event) => {
             const willOpen = panelElement.style.display !== "block";
             refreshEditorThemePanel(panelElement, vditor.options.editorTheme || "Auto");
             if (willOpen) {
-                telemetryToolbar(vditor, "editor-theme");
+                telemetryToolbarClickOnly(vditor, event, "editor-theme");
             }
         }, true);
 

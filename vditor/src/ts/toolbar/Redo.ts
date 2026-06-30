@@ -2,7 +2,7 @@ import {Constants} from "../constants";
 import {getEventName} from "../util/compatibility";
 import {MenuItem} from "./MenuItem";
 import {disableToolbar} from "./setToolbar";
-import {telemetryToolbar} from "../util/telemetry";
+import {telemetryToolbarClickOnly} from "../util/telemetry";
 
 export class Redo extends MenuItem {
     constructor(vditor: IVditor, menuItem: IMenuItem) {
@@ -13,7 +13,7 @@ export class Redo extends MenuItem {
             if (this.element.firstElementChild.classList.contains(Constants.CLASS_MENU_DISABLED)) {
                 return;
             }
-            telemetryToolbar(vditor, "redo");
+            telemetryToolbarClickOnly(vditor, event, "redo");
             vditor.undo.redo(vditor);
         });
     }
