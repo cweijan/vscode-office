@@ -13,7 +13,7 @@ if (isProdBuild) {
 }
 
 if (argv.join(',').includes('mode')) {
-  require('./build')
+  void import('./build')
 }
 
 // https://vitejs.dev/config/
