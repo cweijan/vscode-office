@@ -27,7 +27,7 @@ export default function GraphSvg({
             {layout.paths.map((path, i) => (
                 <path
                     key={`path-${i}`}
-                    className="git-graph-line"
+                    className={`git-graph-line${path.dimmed ? ' git-graph-line-dimmed' : ''}`}
                     d={path.d}
                     fill="none"
                     stroke={path.color}
@@ -40,6 +40,7 @@ export default function GraphSvg({
                 const dotClass = [
                     'git-graph-vertex-dot',
                     v.isCurrent ? 'current' : '',
+                    v.onCurrentBranch ? '' : 'dimmed',
                     isSelected && !multiSelect ? 'active' : '',
                     isSelected && multiSelect ? 'multi-active' : '',
                     isSelected && multiSelect && focusIndex === v.id ? 'selection-focus' : '',
@@ -48,7 +49,7 @@ export default function GraphSvg({
                 <g key={v.id} onClick={(e) => onSelect(v.id, e)} className="git-graph-vertex">
                     {v.isStash && !v.isCurrent && (
                         <circle
-                            className="git-graph-vertex-stash-ring"
+                            className={`git-graph-vertex-stash-ring${v.onCurrentBranch ? '' : ' dimmed'}`}
                             cx={v.cx}
                             cy={v.cy}
                             r={5}

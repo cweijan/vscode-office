@@ -4,6 +4,16 @@ const DATE_LOCALE = 'en-US';
 
 const relativeTimeFormatter = new Intl.RelativeTimeFormat(DATE_LOCALE, { numeric: 'auto' });
 
+const absoluteDateFormatter = new Intl.DateTimeFormat(undefined, {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+});
+
+const absoluteDateCache = new Map<number, string>();
+
 function formatRelativeAgo(timestampSec: number, nowMs: number): string {
     const thenMs = timestampSec * 1000;
     const diffSec = Math.round((thenMs - nowMs) / 1000);
@@ -30,11 +40,12 @@ export function formatCommitDate(timestampSec: number, nowMs: number = Date.now(
         return formatRelativeAgo(timestampSec, nowMs);
     }
 
-    return new Date(thenMs).toLocaleString(undefined, {
-        year: 'numeric',
-        month: 'numeric',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-    });
+    const cached = absoluteDateCache.get(timestampSec);
+    if (cached !== undefined) {
+        return cached;
+    }
+
+    const formatted = absoluteDateFormatter.format(thenMs);
+    absoluteDateCache.set(timestampSec, formatted);
+    return formatted;
 }

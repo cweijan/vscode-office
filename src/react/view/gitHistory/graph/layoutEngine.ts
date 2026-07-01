@@ -9,6 +9,7 @@ export interface GraphPath {
     d: string;
     color: string;
     dashed: boolean;
+    dimmed?: boolean;
 }
 
 export interface GraphVertex {
@@ -19,6 +20,7 @@ export interface GraphVertex {
     isCurrent: boolean;
     isStash: boolean;
     isCommitted: boolean;
+    onCurrentBranch: boolean;
 }
 
 export interface GraphLayout {
@@ -51,6 +53,7 @@ interface GitCommitInput {
     hash: string;
     parents: ReadonlyArray<string>;
     stash: unknown | null;
+    onCurrentBranch?: boolean;
 }
 
 interface Line {
@@ -64,6 +67,7 @@ interface PlacedLine {
     p2: { x: number; y: number };
     isCommitted: boolean;
     lockedFirst: boolean;
+    dimmed: boolean;
 }
 
 interface UnavailablePoint {
@@ -93,11 +97,23 @@ class Branch {
     getEnd() { return this.end; }
     setEnd(end: number) { this.end = end; }
 
-    toPaths(config: GraphConfig): GraphPath[] {
+    toPaths(config: GraphConfig, onCurrentBranch?: ReadonlyArray<boolean>): GraphPath[] {
         const colour = config.colours[this.colour % config.colours.length];
         const d = config.grid.y * (config.style === 'angular' ? 0.38 : 0.8);
         const paths: GraphPath[] = [];
         const lines: PlacedLine[] = [];
+
+        const lineDimmed = (v1: number, v2: number): boolean => {
+            if (!onCurrentBranch) {
+                return false;
+            }
+            const offBranch = (index: number) => (
+                index >= 0
+                && index < onCurrentBranch.length
+                && onCurrentBranch[index] === false
+            );
+            return offBranch(v1) || offBranch(v2);
+        };
 
         for (let li = 0; li < this.lines.length; li++) {
             const line = this.lines[li];
@@ -112,6 +128,7 @@ class Branch {
                 },
                 isCommitted: li >= this.numUncommitted,
                 lockedFirst: line.lockedFirst,
+                dimmed: lineDimmed(line.p1.y, line.p2.y),
             });
         }
 
@@ -122,6 +139,7 @@ class Branch {
             if (line.p1.x === line.p2.x && line.p2.x === next.p1.x && next.p1.x === next.p2.x
                 && line.p2.y === next.p1.y && line.isCommitted === next.isCommitted) {
                 line.p2.y = next.p2.y;
+                line.dimmed = line.dimmed || next.dimmed;
                 lines.splice(i + 1, 1);
             } else {
                 i++;
@@ -130,13 +148,28 @@ class Branch {
 
         let curPath = '';
         let curCommitted = true;
+        let curDimmed = false;
         for (i = 0; i < lines.length; i++) {
             const line = lines[i];
             const { p1: { x: x1, y: y1 }, p2: { x: x2, y: y2 } } = line;
 
-            if (curPath !== '' && i > 0 && line.isCommitted !== lines[i - 1].isCommitted) {
-                paths.push({ d: curPath, color: colour, dashed: !lines[i - 1].isCommitted });
+            if (curPath !== '' && i > 0 && (
+                line.isCommitted !== lines[i - 1].isCommitted
+                || line.dimmed !== lines[i - 1].dimmed
+            )) {
+                paths.push({
+                    d: curPath,
+                    color: colour,
+                    dashed: !lines[i - 1].isCommitted,
+                    dimmed: curDimmed,
+                });
                 curPath = '';
+            }
+
+            if (curPath === '') {
+                curDimmed = line.dimmed;
+            } else {
+                curDimmed = curDimmed || line.dimmed;
             }
 
             if (curPath === '' || (i > 0 && (x1 !== lines[i - 1].p2.x || y1 !== lines[i - 1].p2.y))) {
@@ -153,7 +186,7 @@ class Branch {
             curCommitted = line.isCommitted;
         }
         if (curPath !== '') {
-            paths.push({ d: curPath, color: colour, dashed: !curCommitted });
+            paths.push({ d: curPath, color: colour, dashed: !curCommitted, dimmed: curDimmed });
         }
         return paths;
     }
@@ -212,11 +245,12 @@ class Vertex {
     setNotCommitted() { this.isCommitted = false; }
     setCurrent() { this.isCurrent = true; }
 
-    toRenderData(config: GraphConfig): GraphVertex | null {
+    toRenderData(config: GraphConfig, onCurrentBranch?: ReadonlyArray<boolean>): GraphVertex | null {
         if (this.onBranch === null) return null;
         const colour = this.isCommitted
             ? config.colours[this.onBranch.getColour() % config.colours.length]
             : config.uncommittedColour;
+        const onBranch = onCurrentBranch === undefined || onCurrentBranch[this.id] !== false;
         return {
             id: this.id,
             cx: this.x * config.grid.x + config.grid.offsetX,
@@ -225,6 +259,7 @@ class Vertex {
             isCurrent: this.isCurrent,
             isStash: this.isStash,
             isCommitted: this.isCommitted,
+            onCurrentBranch: onBranch,
         };
     }
 }
@@ -233,6 +268,7 @@ class GraphEngine {
     private vertices: Vertex[] = [];
     private branches: Branch[] = [];
     private availableColours: number[] = [];
+    private onCurrentBranch: ReadonlyArray<boolean> = [];
 
     compute(
         commits: ReadonlyArray<GitCommitInput>,
@@ -240,10 +276,14 @@ class GraphEngine {
         config: GraphConfig,
         onlyFollowFirstParent = false,
         linearFileHistory = false,
+        dimOffCurrentBranch = false,
     ): GraphLayout {
         this.vertices = [];
         this.branches = [];
         this.availableColours = [];
+        this.onCurrentBranch = dimOffCurrentBranch
+            ? commits.map((commit) => commit.onCurrentBranch !== false)
+            : commits.map(() => true);
 
         if (commits.length === 0) {
             return { width: 0, height: 0, paths: [], vertices: [], rowWidths: [], vertexColors: [] };
@@ -299,7 +339,7 @@ class GraphEngine {
 
         const paths: GraphPath[] = [];
         for (const branch of this.branches) {
-            paths.push(...branch.toPaths(config));
+            paths.push(...branch.toPaths(config, this.onCurrentBranch));
         }
 
         const vertices: GraphVertex[] = [];
@@ -307,7 +347,7 @@ class GraphEngine {
         const vertexColors: number[] = [];
 
         for (let vi = 0; vi < this.vertices.length; vi++) {
-            const v = this.vertices[vi].toRenderData(config);
+            const v = this.vertices[vi].toRenderData(config, this.onCurrentBranch);
             if (v) vertices.push(v);
             vertexColors[vi] = this.vertices[vi].getColour() % config.colours.length;
             rowWidths[vi] = config.grid.offsetX + this.vertices[vi].getNextPoint().x * config.grid.x - 2;
@@ -398,6 +438,7 @@ export function computeGraphLayout(
     config: GraphConfig,
     onlyFollowFirstParent = false,
     linearFileHistory = false,
+    dimOffCurrentBranch = false,
 ): GraphLayout {
     const gridConfig = {
         ...config,
@@ -409,5 +450,6 @@ export function computeGraphLayout(
         gridConfig,
         onlyFollowFirstParent,
         linearFileHistory,
+        dimOffCurrentBranch,
     );
 }

@@ -31,6 +31,7 @@ interface CommitTableProps {
     rowHeight: number;
     graphConfig: GraphConfig;
     fileHistoryMode?: boolean;
+    dimOffCurrentBranch?: boolean;
     onSelect: (index: number, event?: MouseEvent) => void;
     onRowContextMenu: (event: MouseEvent, commit: GitCommit, index: number) => void;
     onRefContextMenu: (
@@ -208,12 +209,28 @@ function CommitHeadDot({
 
 export default function CommitTable({
     commits, branchHead, commitHead, selectedIndices, focusIndex, findMatchIndex, rowHeight, graphConfig,
-    fileHistoryMode = false, onSelect, onRowContextMenu, onRefContextMenu,
+    fileHistoryMode = false, dimOffCurrentBranch = false, onSelect, onRowContextMenu, onRefContextMenu,
 }: CommitTableProps) {
     const multiSelect = selectedIndices.size > 1;
+    const formattedDates = useMemo(() => {
+        const now = Date.now();
+        const dates: string[] = [];
+        for (let i = 0; i < commits.length; i++) {
+            dates.push(formatCommitDate(commits[i].date, now));
+        }
+        return dates;
+    }, [commits]);
     const layout = useMemo(
-        () => computeGraphLayout(commits, commitHead, rowHeight, graphConfig, false, fileHistoryMode),
-        [commits, commitHead, rowHeight, graphConfig, fileHistoryMode],
+        () => computeGraphLayout(
+            commits,
+            commitHead,
+            rowHeight,
+            graphConfig,
+            false,
+            fileHistoryMode,
+            dimOffCurrentBranch,
+        ),
+        [commits, commitHead, rowHeight, graphConfig, fileHistoryMode, dimOffCurrentBranch],
     );
 
     return (
@@ -245,6 +262,7 @@ export default function CommitTable({
                             findMatchIndex === index ? 'find-match' : '',
                             commitHead !== null && commit.hash === commitHead ? 'current-head' : '',
                             commit.hash === UNCOMMITTED ? 'uncommitted' : '',
+                            commit.onCurrentBranch === false && dimOffCurrentBranch ? 'off-current-branch' : '',
                         ].filter(Boolean).join(' ');
                         const rowStyle = {
                             height: rowHeight,
@@ -280,13 +298,13 @@ export default function CommitTable({
                                 <Text ellipsis className={`git-graph-message${commit.hash === UNCOMMITTED ? ' git-graph-message-uncommitted' : ''}`}>{commit.message}</Text>
                             </span>
                             <span className="col-date">
-                                <Text ellipsis className="git-graph-muted">{formatCommitDate(commit.date)}</Text>
+                                <Text ellipsis className="git-graph-muted">{formattedDates[index]}</Text>
                             </span>
                             <span className="col-author">
                                 <Text ellipsis className="git-graph-muted">{commit.author}</Text>
                             </span>
                             <span className="col-hash">
-                                <Text ellipsis className="git-graph-hash">{abbrevHash(commit.hash)}</Text>
+                                <code className="git-graph-hash">{abbrevHash(commit.hash)}</code>
                             </span>
                         </div>
                         );
