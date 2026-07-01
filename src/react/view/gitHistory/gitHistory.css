@@ -916,7 +916,7 @@
 }
 
 .git-graph-ref.active.git-graph-ref-tag {
-    border-color: var(--git-graph-ref-tag);
+    border-color: var(--git-graph-color, var(--git-graph-ref-tag));
 }
 
 .git-graph-ref-name {
@@ -938,7 +938,7 @@
 }
 
 .git-graph-ref.active.git-graph-ref-tag .git-graph-ref-name {
-    color: var(--git-graph-ref-tag);
+    color: var(--git-graph-color, var(--git-graph-ref-tag));
     font-weight: 700;
 }
 
@@ -966,6 +966,10 @@
 
 .git-graph-ref-head .git-graph-ref-icon {
     background-color: var(--git-graph-color, var(--git-graph-ref-head));
+}
+
+.git-graph-ref-tag .git-graph-ref-icon {
+    background-color: var(--git-graph-color, var(--git-graph-ref-tag));
 }
 
 .git-graph-ref-remote .git-graph-ref-icon {
@@ -1001,7 +1005,7 @@
 }
 
 .git-graph-row.selected .git-graph-ref.active.git-graph-ref-tag .git-graph-ref-name {
-    color: var(--git-graph-ref-tag);
+    color: var(--git-graph-color, var(--git-graph-ref-tag));
     font-weight: 700;
 }
 
@@ -1015,7 +1019,7 @@
 }
 
 .git-graph-row.selected .git-graph-ref.active.git-graph-ref-tag {
-    border-color: var(--git-graph-ref-tag);
+    border-color: var(--git-graph-color, var(--git-graph-ref-tag));
 }
 
 .git-graph-row.selected .git-graph-ref-remote-name {
@@ -1028,7 +1032,7 @@
 }
 
 .git-graph-row.selected .git-graph-ref-tag .git-graph-ref-icon {
-    background-color: var(--git-graph-ref-tag);
+    background-color: var(--git-graph-color, var(--git-graph-ref-tag));
     color: var(--git-graph-bg);
 }
 
