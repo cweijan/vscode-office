@@ -31,6 +31,7 @@ interface CommitTableProps {
     rowHeight: number;
     graphConfig: GraphConfig;
     fileHistoryMode?: boolean;
+    dimOffCurrentBranch?: boolean;
     onSelect: (index: number, event?: MouseEvent) => void;
     onRowContextMenu: (event: MouseEvent, commit: GitCommit, index: number) => void;
     onRefContextMenu: (
@@ -208,12 +209,20 @@ function CommitHeadDot({
 
 export default function CommitTable({
     commits, branchHead, commitHead, selectedIndices, focusIndex, findMatchIndex, rowHeight, graphConfig,
-    fileHistoryMode = false, onSelect, onRowContextMenu, onRefContextMenu,
+    fileHistoryMode = false, dimOffCurrentBranch = false, onSelect, onRowContextMenu, onRefContextMenu,
 }: CommitTableProps) {
     const multiSelect = selectedIndices.size > 1;
     const layout = useMemo(
-        () => computeGraphLayout(commits, commitHead, rowHeight, graphConfig, false, fileHistoryMode),
-        [commits, commitHead, rowHeight, graphConfig, fileHistoryMode],
+        () => computeGraphLayout(
+            commits,
+            commitHead,
+            rowHeight,
+            graphConfig,
+            false,
+            fileHistoryMode,
+            dimOffCurrentBranch,
+        ),
+        [commits, commitHead, rowHeight, graphConfig, fileHistoryMode, dimOffCurrentBranch],
     );
 
     return (
@@ -245,6 +254,7 @@ export default function CommitTable({
                             findMatchIndex === index ? 'find-match' : '',
                             commitHead !== null && commit.hash === commitHead ? 'current-head' : '',
                             commit.hash === UNCOMMITTED ? 'uncommitted' : '',
+                            commit.onCurrentBranch === false && dimOffCurrentBranch ? 'off-current-branch' : '',
                         ].filter(Boolean).join(' ');
                         const rowStyle = {
                             height: rowHeight,

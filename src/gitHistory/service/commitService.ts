@@ -94,6 +94,7 @@ export class CommitService {
                 remotes,
                 maxCommits,
                 showTags,
+                markOffCurrentBranch: branches === null || branches.length === 0,
             })
         ).catch((errorMessage: string) => ({
             commits: [],
@@ -132,6 +133,7 @@ export class CommitService {
                     remotes,
                     maxCommits,
                     showTags,
+                    markOffCurrentBranch: branches === null || branches.length === 0,
                 }).then((commitData) => ({
                     repoInfo: {
                         branches: branchData.branches.map((branch) => normalizeGitBranchListName(branch, remotes)),
@@ -175,8 +177,18 @@ export class CommitService {
         remotes: ReadonlyArray<string>;
         maxCommits: number;
         showTags: boolean;
+        markOffCurrentBranch?: boolean;
     }): Promise<GitCommitData> {
-        const { repo, rawCommits, refDataOrError, stashes, remotes, maxCommits, showTags } = params;
+        const {
+            repo,
+            rawCommits,
+            refDataOrError,
+            stashes,
+            remotes,
+            maxCommits,
+            showTags,
+            markOffCurrentBranch = false,
+        } = params;
         let commits = rawCommits;
         let moreCommitsAvailable = commits.length === maxCommits + 1;
         if (moreCommitsAvailable) {
@@ -285,7 +297,7 @@ export class CommitService {
             }
         }
 
-        const finish = (numUncommitted: number): GitCommitData => {
+        const finish = (numUncommitted: number): Promise<GitCommitData> => {
             if (numUncommitted > 0 && refData.head !== null) {
                 commitNodes.unshift({
                     hash: UNCOMMITTED,
@@ -298,21 +310,61 @@ export class CommitService {
                     tags: [],
                     remotes: [],
                     stash: null,
+                    onCurrentBranch: true,
                 });
             }
-            return {
+            const markMembership = markOffCurrentBranch
+                ? this.applyOnCurrentBranchMembership(commitNodes, refData.head, repo)
+                : Promise.resolve();
+            return markMembership.then(() => ({
                 commits: commitNodes,
                 head: refData.head,
                 tags: [...new Set(refData.tags.map((t) => t.name))],
                 moreCommitsAvailable,
                 error: null,
-            };
+            }));
         };
 
         if (uncommittedPromise) {
             return uncommittedPromise.then((numUncommitted) => finish(numUncommitted));
         }
-        return Promise.resolve(finish(0));
+        return finish(0);
+    }
+
+    private getAncestorHashes(repo: string, head: string | null): Promise<Set<string>> {
+        if (!head) {
+            return Promise.resolve(new Set<string>());
+        }
+        return this.executor.spawn(['rev-list', head], repo, (stdout) => {
+            const ancestors = new Set<string>();
+            const lines = stdout.split(EOL_REGEX);
+            for (let i = 0; i < lines.length - 1; i++) {
+                const hash = lines[i].trim();
+                if (hash) {
+                    ancestors.add(hash);
+                }
+            }
+            return ancestors;
+        }).catch(() => new Set<string>());
+    }
+
+    private applyOnCurrentBranchMembership(
+        commits: GitCommit[],
+        head: string | null,
+        repo: string,
+    ): Promise<void> {
+        return this.getAncestorHashes(repo, head).then((ancestors) => {
+            for (let i = 0; i < commits.length; i++) {
+                const commit = commits[i];
+                if (commit.hash === UNCOMMITTED || commit.stash !== null) {
+                    commits[i].onCurrentBranch = true;
+                } else if (!head) {
+                    commits[i].onCurrentBranch = true;
+                } else {
+                    commits[i].onCurrentBranch = ancestors.has(commit.hash);
+                }
+            }
+        });
     }
 
     getCommitDetails(repo: string, commitHash: string, hasParents: boolean): Promise<GitCommitDetailsData> {

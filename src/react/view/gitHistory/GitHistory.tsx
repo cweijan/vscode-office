@@ -824,9 +824,8 @@ function GitHistoryView({
                         branchesRef.current = checkoutUpdate.branches;
                         clearBranchFilterIfMissing(checkoutUpdate.branches);
                     }
-                    if (checkoutUpdate.commits) {
-                        setCommits(checkoutUpdate.commits);
-                        commitsRef.current = checkoutUpdate.commits;
+                    if (repoRef.current) {
+                        loadRepositoryRef.current(repoRef.current);
                     }
                     return;
                 }
@@ -1607,6 +1606,7 @@ function GitHistoryView({
                                 rowHeight={ROW_HEIGHT}
                                 graphConfig={graphConfig}
                                 fileHistoryMode={Boolean(relPath) || Boolean(searchValue.trim())}
+                                dimOffCurrentBranch={selectedBranch === null}
                                 onSelect={handleSelectCommit}
                                 onRowContextMenu={handleRowContextMenu}
                                 onRefContextMenu={handleRefContextMenu}

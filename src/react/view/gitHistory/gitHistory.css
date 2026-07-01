@@ -1074,6 +1074,24 @@
     opacity: 0.9;
 }
 
+.git-graph-line-dimmed {
+    opacity: 0.28;
+}
+
+.git-graph-vertex-dot.dimmed,
+.git-graph-vertex-stash-ring.dimmed {
+    opacity: 0.28;
+}
+
+.git-graph-row.off-current-branch {
+    opacity: 0.38;
+}
+
+.git-graph-row.off-current-branch.selected,
+.git-graph-row.off-current-branch.multi-selected {
+    opacity: 0.55;
+}
+
 .git-graph-vertex {
     cursor: pointer;
 }
