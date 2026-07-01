@@ -212,6 +212,14 @@ export default function CommitTable({
     fileHistoryMode = false, dimOffCurrentBranch = false, onSelect, onRowContextMenu, onRefContextMenu,
 }: CommitTableProps) {
     const multiSelect = selectedIndices.size > 1;
+    const formattedDates = useMemo(() => {
+        const now = Date.now();
+        const dates: string[] = [];
+        for (let i = 0; i < commits.length; i++) {
+            dates.push(formatCommitDate(commits[i].date, now));
+        }
+        return dates;
+    }, [commits]);
     const layout = useMemo(
         () => computeGraphLayout(
             commits,
@@ -290,13 +298,13 @@ export default function CommitTable({
                                 <Text ellipsis className={`git-graph-message${commit.hash === UNCOMMITTED ? ' git-graph-message-uncommitted' : ''}`}>{commit.message}</Text>
                             </span>
                             <span className="col-date">
-                                <Text ellipsis className="git-graph-muted">{formatCommitDate(commit.date)}</Text>
+                                <Text ellipsis className="git-graph-muted">{formattedDates[index]}</Text>
                             </span>
                             <span className="col-author">
                                 <Text ellipsis className="git-graph-muted">{commit.author}</Text>
                             </span>
                             <span className="col-hash">
-                                <Text ellipsis className="git-graph-hash">{abbrevHash(commit.hash)}</Text>
+                                <code className="git-graph-hash">{abbrevHash(commit.hash)}</code>
                             </span>
                         </div>
                         );
