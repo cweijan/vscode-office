@@ -191,4 +191,15 @@ export default {
         commit: '提交',
         branch: '分支',
     },
+    parquet: {
+        schema: 'Schema',
+        rows: '行数',
+        columnsLabel: '列数',
+        createdBy: '创建者',
+        loading: '正在加载 Parquet…',
+        totalRows: '共 {count} 行',
+        save: '保存',
+        saveSuccess: 'Parquet 文件已保存',
+        unsaved: '有未保存的更改',
+    },
 };

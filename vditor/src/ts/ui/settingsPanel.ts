@@ -36,7 +36,7 @@ export const SETTINGS_PANEL_CLASS = "vditor-settings-panel";
 
 const EDIT_MODES = [
     { id: "wysiwyg", label: "Visual" },
-    { id: "ir", label: "Markdown" },
+    { id: "ir", label: "Source" },
 ] as const;
 
 const buildEditModeSegmentedHTML = (currentMode: string) => {

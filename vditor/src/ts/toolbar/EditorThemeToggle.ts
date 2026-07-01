@@ -1,6 +1,5 @@
 import {registerThemeToggleCallback} from "../ui/editorThemeToggle";
-import {resolveEditorTheme} from "../ui/setEditorTheme";
-import {setEditorTheme} from "../ui/setEditorTheme";
+import {resolvePreferredManualEditorTheme, setEditorTheme} from "../ui/setEditorTheme";
 import {getEventName} from "../util/compatibility";
 import {MenuItem} from "./MenuItem";
 
@@ -18,7 +17,7 @@ export class EditorThemeToggle extends MenuItem {
             event.preventDefault();
             const theme = btn.dataset.theme || "Auto";
             const nextTheme = theme === "Auto"
-                ? resolveEditorTheme(vditor.options.lastNonAutoEditorTheme || "Light")
+                ? resolvePreferredManualEditorTheme(vditor, !vditor.element.classList.contains("vditor--dark"))
                 : "Auto";
             setEditorTheme(vditor, nextTheme, true, "toggle");
         });

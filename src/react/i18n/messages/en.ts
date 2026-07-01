@@ -191,4 +191,15 @@ export default {
         commit: 'commit',
         branch: 'branch',
     },
+    parquet: {
+        schema: 'Schema',
+        rows: 'Rows',
+        columnsLabel: 'Columns',
+        createdBy: 'Created by',
+        loading: 'Loading Parquet…',
+        totalRows: '{count} rows',
+        save: 'Save',
+        saveSuccess: 'Parquet file saved',
+        unsaved: 'Unsaved changes',
+    },
 };

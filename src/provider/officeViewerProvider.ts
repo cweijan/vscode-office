@@ -22,6 +22,7 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 			vscode.window.registerCustomEditorProvider('cweijan.officeViewer', this, viewOption),
 			vscode.window.registerCustomEditorProvider('cweijan.htmlViewer', this, viewOption),
 			vscode.window.registerCustomEditorProvider('cweijan.imageViewer', this, viewOption),
+			vscode.window.registerCustomEditorProvider('cweijan.parquetViewer', this, viewOption),
 		];
 	}
 
@@ -87,6 +88,9 @@ export class OfficeViewerProvider implements vscode.CustomReadonlyEditorProvider
 				break;
 			case '.xmind':
 				route = 'xmind';
+				break;
+			case '.parquet':
+				route = 'parquet';
 				break;
 			case '.htm':
 			case '.html':

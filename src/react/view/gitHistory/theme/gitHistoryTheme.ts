@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, createElement, type ReactNode, type CSSProperties } from 'react';
 import { theme, type ThemeConfig } from 'antd';
 import { getVscodeThemeColor, isVscodeDarkTheme, observeVscodeThemeChange } from '../../../util/vscodeTheme';
+import { adjustBranchColoursForLightBackground } from '../util/graphColours';
 import type { GraphConfig } from '../graph/layoutEngine';
 import type { GitHistoryColorMode } from '../util/gitHistoryState';
 
@@ -29,8 +30,8 @@ export function useGitHistoryColorMode(): GitHistoryColorMode {
 }
 
 const GRAPH_COLOUR_VARS = [
-    '--vscode-gitDecoration-modifiedResourceForeground',
     '--vscode-textLink-foreground',
+    '--vscode-gitDecoration-modifiedResourceForeground',
     '--vscode-gitDecoration-addedResourceForeground',
     '--vscode-gitDecoration-renamedResourceForeground',
     '--vscode-terminal-ansiMagenta',
@@ -42,7 +43,7 @@ const GRAPH_COLOUR_VARS = [
 ] as const;
 
 const GRAPH_COLOUR_FALLBACKS = [
-    '#e2c08d', '#3794ff', '#73c991', '#73c991', '#bc05bc',
+    '#3794ff', '#e2c08d', '#73c991', '#73c991', '#bc05bc',
     '#c74e39', '#0598bc', '#73c991', '#cdcd22', '#e51400',
 ];
 
@@ -59,15 +60,23 @@ function uniqueColours(colours: string[]): string[] {
     return result;
 }
 
-export function getGraphBranchColours(): string[] {
+function resolveGraphBranchColours(background: string, forceLight = false): string[] {
     const colours: string[] = [];
     for (let i = 0; i < GRAPH_COLOUR_VARS.length; i++) {
         colours.push(getVscodeThemeColor(GRAPH_COLOUR_VARS[i], GRAPH_COLOUR_FALLBACKS[i]));
     }
-    return uniqueColours(colours);
+    const unique = uniqueColours(colours);
+    const useLightAlgorithm = forceLight || !isVscodeDarkTheme();
+    if (!useLightAlgorithm) {
+        return unique;
+    }
+    return uniqueColours(adjustBranchColoursForLightBackground(unique, background));
 }
 
-const LIGHT_BRANCH_COLOURS = uniqueColours([...GRAPH_COLOUR_FALLBACKS]);
+export function getGraphBranchColours(background?: string): string[] {
+    const bg = background ?? getVscodeThemeColor('--vscode-editor-background', '#ffffff');
+    return resolveGraphBranchColours(bg);
+}
 
 function buildAntTheme(cssVars: Record<string, string>, dark: boolean): ThemeConfig {
     return {
@@ -131,11 +140,12 @@ function applyBranchColourVars(cssVars: Record<string, string>, branchColours: s
 
 function buildAdaptiveGitHistoryTheme(): GitHistoryTheme {
     const dark = isVscodeDarkTheme();
-    const branchColours = getGraphBranchColours();
+    const background = getVscodeThemeColor('--vscode-editor-background', dark ? '#1e1e1e' : '#ffffff');
+    const branchColours = resolveGraphBranchColours(background);
     const uncommittedColour = getVscodeThemeColor('--vscode-descriptionForeground', '#808080');
 
     const cssVars: Record<string, string> = {
-        '--git-graph-bg': getVscodeThemeColor('--vscode-editor-background', dark ? '#1e1e1e' : '#ffffff'),
+        '--git-graph-bg': background,
         '--git-graph-fg': getVscodeThemeColor('--vscode-editor-foreground', dark ? '#cccccc' : '#333333'),
         '--git-graph-muted': getVscodeThemeColor('--vscode-descriptionForeground', dark ? '#999999' : '#666666'),
         '--git-graph-border': getVscodeThemeColor(
@@ -192,7 +202,8 @@ function buildAdaptiveGitHistoryTheme(): GitHistoryTheme {
 }
 
 function buildLightGitHistoryTheme(): GitHistoryTheme {
-    const branchColours = LIGHT_BRANCH_COLOURS;
+    const background = '#ffffff';
+    const branchColours = resolveGraphBranchColours(background, true);
     const uncommittedColour = '#808080';
     const cssVars: Record<string, string> = {
         '--git-graph-bg': '#ffffff',

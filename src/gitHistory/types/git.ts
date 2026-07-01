@@ -27,6 +27,8 @@ export interface GitCommit {
     readonly tags: ReadonlyArray<GitCommitTag>;
     readonly remotes: ReadonlyArray<GitCommitRemote>;
     readonly stash: GitCommitStash | null;
+    /** Whether the commit is reachable from the current HEAD (ancestor). */
+    readonly onCurrentBranch?: boolean;
 }
 
 export type GitFileStatus = 'A' | 'M' | 'D' | 'R' | 'U';

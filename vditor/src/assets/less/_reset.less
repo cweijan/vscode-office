@@ -38,12 +38,23 @@
       color: var(--bold-color);
     }
 
+    em,
+    i {
+      color: var(--italic-color);
+    }
+
     mark[data-marker="=="],
     mark[data-newline="1"] {
       background-color: color-mix(in srgb, #ffeb3b 50%, transparent);
-      color: color-mix(in srgb, var(--front-color, #586069) 25%, #ffffff);
       border-radius: 2px;
       padding: 0 2px;
+    }
+
+    #vditor.vditor--dark & {
+      mark[data-marker="=="],
+      mark[data-newline="1"] {
+        color: color-mix(in srgb, var(--front-color, #586069) 25%, #ffffff);
+      }
     }
 
     ul ul ul {

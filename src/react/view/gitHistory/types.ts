@@ -25,6 +25,8 @@ export interface GitCommit {
     tags: GitCommitTag[];
     remotes: GitCommitRemote[];
     stash: GitCommitStash | null;
+    /** Whether the commit is reachable from the current HEAD (ancestor). */
+    onCurrentBranch?: boolean;
 }
 
 export interface GitStash {

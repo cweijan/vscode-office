@@ -1,35 +1,21 @@
-import { useMemo } from 'react';
 import type { MouseEvent } from 'react';
-import type { GraphConfig, GraphLayout } from '../graph/layoutEngine';
-import { computeGraphLayout } from '../graph/layoutEngine';
-
-interface GitCommitInput {
-    hash: string;
-    parents: ReadonlyArray<string>;
-    stash: unknown | null;
-}
+import type { GraphLayout } from '../graph/layoutEngine';
 
 interface GraphSvgProps {
-    commits: ReadonlyArray<GitCommitInput>;
-    commitHead: string | null;
-    rowHeight: number;
+    layout: GraphLayout;
     selectedIndices: ReadonlySet<number>;
     focusIndex: number | null;
-    graphConfig: GraphConfig;
-    linearFileHistory?: boolean;
     onSelect: (index: number, event?: MouseEvent) => void;
 }
 
 export default function GraphSvg({
-    commits, commitHead, rowHeight, selectedIndices, focusIndex, graphConfig, linearFileHistory = false, onSelect,
+    layout, selectedIndices, focusIndex, onSelect,
 }: GraphSvgProps) {
     const multiSelect = selectedIndices.size > 1;
-    const layout: GraphLayout = useMemo(
-        () => computeGraphLayout(commits, commitHead, rowHeight, graphConfig, false, linearFileHistory),
-        [commits, commitHead, rowHeight, graphConfig, linearFileHistory],
-    );
 
-    if (commits.length === 0) return null;
+    if (layout.vertices.length === 0 && layout.paths.length === 0) {
+        return null;
+    }
 
     return (
         <svg
@@ -41,7 +27,7 @@ export default function GraphSvg({
             {layout.paths.map((path, i) => (
                 <path
                     key={`path-${i}`}
-                    className="git-graph-line"
+                    className={`git-graph-line${path.dimmed ? ' git-graph-line-dimmed' : ''}`}
                     d={path.d}
                     fill="none"
                     stroke={path.color}
@@ -54,6 +40,7 @@ export default function GraphSvg({
                 const dotClass = [
                     'git-graph-vertex-dot',
                     v.isCurrent ? 'current' : '',
+                    v.onCurrentBranch ? '' : 'dimmed',
                     isSelected && !multiSelect ? 'active' : '',
                     isSelected && multiSelect ? 'multi-active' : '',
                     isSelected && multiSelect && focusIndex === v.id ? 'selection-focus' : '',
@@ -62,7 +49,7 @@ export default function GraphSvg({
                 <g key={v.id} onClick={(e) => onSelect(v.id, e)} className="git-graph-vertex">
                     {v.isStash && !v.isCurrent && (
                         <circle
-                            className="git-graph-vertex-stash-ring"
+                            className={`git-graph-vertex-stash-ring${v.onCurrentBranch ? '' : ' dimmed'}`}
                             cx={v.cx}
                             cy={v.cy}
                             r={5}

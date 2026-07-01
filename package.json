@@ -2,7 +2,7 @@
 	"name": "vscode-office",
 	"displayName": "Office Viewer",
 	"description": "View word, excel, powerpoint files and using WYSIWYG editor for markdown.",
-	"version": "4.0.9",
+	"version": "4.1.0",
 	"publisher": "cweijan",
 	"icon": "image/logo.png",
 	"engines": {
@@ -23,6 +23,7 @@
 		"svg",
 		"psd",
 		"xmind",
+		"parquet",
 		"zip",
 		"archive",
 		"font",
@@ -233,8 +234,8 @@
 			},
 			{
 				"command": "office.gitHistory.viewFileHistory",
-				"title": "View File History",
-				"icon": "$(history)",
+				"title": "Git: View File History",
+				"icon": "$(git-commit)",
 				"enablement": "!office.extensionHost.web"
 			}
 		],
@@ -540,6 +541,16 @@
 				]
 			},
 			{
+				"viewType": "cweijan.parquetViewer",
+				"displayName": "Parquet Viewer",
+				"priority": "option",
+				"selector": [
+					{
+						"filenamePattern": "*.parquet"
+					}
+				]
+			},
+			{
 				"viewType": "cweijan.classViewer",
 				"displayName": "Java Decompiler",
 				"selector": [
@@ -813,6 +824,8 @@
 		"file-type": "^19.6.0",
 		"heic2any": "^0.0.4",
 		"highlight.js": "^11.10.0",
+		"hyparquet": "^1.26.1",
+		"hyparquet-writer": "^0.15.7",
 		"iconv-lite": "^0.6.3",
 		"jszip": "^3.10.1",
 		"katex": "^0.16.2",

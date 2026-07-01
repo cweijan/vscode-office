@@ -274,7 +274,6 @@ export const bindShortcut = (handler, editor) => {
         if (isCompose(e)) {
             switch (e.code) {
                 case 'KeyS':
-                    handler.emit('telemetry', { event: 'markdown.save', properties: { source: 'shortcut' } });
                     vscodeEvent.emit("doSave", editor.getValue());
                     editor.markSaved();
                     e.stopPropagation();

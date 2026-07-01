@@ -4,6 +4,7 @@ import type { FormField, PromptStep, PromptSubmitValue } from '../util/gitAction
 import type { PopupAnchor } from '../util/commitDetailPopup';
 import { AnchoredDialog, AnchoredDialogActions } from './AnchoredDialog';
 import DialogOverlay from './DialogOverlay';
+import ToolbarTooltip from './ToolbarTooltip';
 
 interface ActionDialogProps {
     step: PromptStep;
@@ -39,15 +40,27 @@ function buildInitialFormValues(fields: FormField[]): Record<string, string> {
     return initial;
 }
 
-function renderFieldInfo(info?: string) {
+function FieldInfo({ info }: { info?: string }) {
     if (!info) {
         return null;
     }
     return (
-        <span className="git-graph-anchored-dialog-info" title={info}>
-            <span className="codicon codicon-info" aria-hidden />
-        </span>
+        <ToolbarTooltip content={info} wrap pinOnClick>
+            <span
+                className="git-graph-anchored-dialog-info"
+                onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }}
+            >
+                <span className="codicon codicon-info" aria-hidden />
+            </span>
+        </ToolbarTooltip>
     );
+}
+
+function renderFieldInfo(info?: string) {
+    return <FieldInfo info={info} />;
 }
 
 function renderAnchoredFormFields(
@@ -202,9 +215,10 @@ function renderAnchoredCheckboxList(
     formValues: Record<string, string>,
     onFormValuesChange: (values: Record<string, string>) => void,
     centered = false,
+    listClass?: string,
 ) {
     return (
-        <div className={`git-graph-anchored-dialog-checkbox-list${centered ? ' centered' : ''}`}>
+        <div className={`git-graph-anchored-dialog-checkbox-list${centered ? ' centered' : ''}${listClass ? ` ${listClass}` : ''}`}>
             {fields.map((field) => {
                 if (field.type !== 'checkbox') {
                     return null;
@@ -213,6 +227,7 @@ function renderAnchoredCheckboxList(
                     <label key={field.id} className="git-graph-anchored-dialog-checkbox-item">
                         <input
                             type="checkbox"
+                            className={listClass ? 'git-graph-anchored-dialog-checkbox-input' : undefined}
                             checked={formValues[field.id] === 'yes'}
                             onChange={(e) => {
                                 onFormValuesChange({
@@ -489,7 +504,13 @@ export default function ActionDialog({
                         ?
                     </>
                 );
-                body = renderAnchoredCheckboxList(step.fields, formValues, setFormValues);
+                body = renderAnchoredCheckboxList(
+                    step.fields,
+                    formValues,
+                    setFormValues,
+                    false,
+                    'git-graph-anchored-dialog-checkbox-list--styled',
+                );
             } else if (step.variant === 'cherryPick') {
                 message = (
                     <>
@@ -534,7 +555,13 @@ export default function ActionDialog({
                                 </tbody>
                             </table>
                         )}
-                        {renderAnchoredCheckboxList(step.fields, formValues, setFormValues)}
+                        {renderAnchoredCheckboxList(
+                            step.fields,
+                            formValues,
+                            setFormValues,
+                            false,
+                            'git-graph-anchored-dialog-checkbox-list--styled',
+                        )}
                     </>
                 );
             } else if ((step.variant as string) === 'pushBranch' || (step.variant as string) === 'pushTag') {
@@ -763,6 +790,7 @@ export default function ActionDialog({
                     anchor={anchor}
                     ariaLabel={step.title}
                     repositionDeps={repositionDeps}
+                    positionVariant={step.kind === 'form' && step.variant === 'merge' ? 'merge' : 'default'}
                     compact={compact}
                 >
                     {message && (

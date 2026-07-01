@@ -16,3 +16,15 @@ export const telemetryToolbar = (
 ) => {
     telemetry(vditor, `markdown.toolbar.${action}`, properties);
 };
+
+export const telemetryToolbarClickOnly = (
+    vditor: IVditor,
+    event: Event,
+    action: string,
+    properties?: Record<string, string | number | boolean>,
+) => {
+    if (event instanceof CustomEvent) {
+        return;
+    }
+    telemetryToolbar(vditor, action, properties);
+};
