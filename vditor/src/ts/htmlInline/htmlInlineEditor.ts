@@ -21,6 +21,8 @@ import { processAfterRender } from "../ir/process";
 import { telemetry } from "../util/telemetry";
 import { renderHtmlInlineFromMd } from "./renderHtmlInline";
 import { renderHtmlBlockFromMd } from "./renderHtmlBlock";
+import { FONT_COLOR_PALETTE, isValidFontColor } from "../ui/fontColorPanel";
+import { isValidBackgroundColor } from "../ui/backgroundColorPanel";
 
 const HTML_EDITOR_POPOVER_CLASS = "vditor-popover--html-inline";
 const HTML_EDITOR_PANEL_CLASS = "vditor-panel--html-inline";
@@ -30,6 +32,7 @@ const MD_SOURCE_ESC_NEWLINE = "_esc_newline_";
 const FALLBACK_FONT_COLOR = "#000000";
 const FALLBACK_BACKGROUND_COLOR = "#fff2cc";
 const FALLBACK_FONT_SIZE = 16;
+const HTML_INLINE_PREVIEW_TEXT = "Preview";
 
 const decodeMdSourceAttr = (raw: string | null): string => {
     if (!raw) {
@@ -54,6 +57,28 @@ const extractSpanInnerText = (source: string): string => {
     return temp.querySelector("span")?.textContent ?? "";
 };
 
+const normalizeCssColorToHex = (value: string): string | null => {
+    const raw = value.trim().toLowerCase();
+    if (!raw) {
+        return null;
+    }
+    if (/^#([0-9a-f]{6})$/.test(raw)) {
+        return raw;
+    }
+    if (/^#([0-9a-f]{3})$/.test(raw)) {
+        return `#${raw[1]}${raw[1]}${raw[2]}${raw[2]}${raw[3]}${raw[3]}`;
+    }
+    const rgbMatch = raw.match(/^rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+    if (!rgbMatch) {
+        return null;
+    }
+    const channels = rgbMatch.slice(1, 4).map((item) => Number(item));
+    if (channels.some((channel) => !Number.isInteger(channel) || channel < 0 || channel > 255)) {
+        return null;
+    }
+    return `#${channels.map((channel) => channel.toString(16).padStart(2, "0")).join("")}`;
+};
+
 const readSpanStyleColor = (
     source: string,
     property: "color" | "backgroundColor",
@@ -64,8 +89,27 @@ const readSpanStyleColor = (
     if (!span) {
         return null;
     }
-    const raw = span.style[property]?.trim();
-    return /^#([0-9a-fA-F]{6})$/.test(raw) ? raw.toLowerCase() : null;
+    const inlineRaw = span.style[property]?.trim();
+    if (inlineRaw) {
+        const normalized = normalizeCssColorToHex(inlineRaw);
+        if (normalized) {
+            return normalized;
+        }
+    }
+    const styleAttr = span.getAttribute("style") || "";
+    const cssProperty = property === "backgroundColor" ? "background-color" : "color";
+    const declarations = styleAttr.split(";")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    const declaration = declarations.find((item) => {
+        const [name] = item.split(":");
+        return name?.trim().toLowerCase() === cssProperty;
+    });
+    if (!declaration) {
+        return null;
+    }
+    const value = declaration.slice(declaration.indexOf(":") + 1);
+    return normalizeCssColorToHex(value);
 };
 
 const readSpanStyleFontSize = (source: string): number | null => {
@@ -113,6 +157,29 @@ const updateSpanStyleFontSize = (source: string, value: number): string => {
     return span.outerHTML;
 };
 
+const getPreviewForegroundColor = (color: string): string => {
+    const normalized = color.length === 4
+        ? `#${color[1]}${color[1]}${color[2]}${color[2]}${color[3]}${color[3]}`
+        : color;
+    const red = Number.parseInt(normalized.slice(1, 3), 16);
+    const green = Number.parseInt(normalized.slice(3, 5), 16);
+    const blue = Number.parseInt(normalized.slice(5, 7), 16);
+    const luminance = (red * 299 + green * 587 + blue * 114) / 1000;
+    return luminance >= 160 ? "#111111" : "#ffffff";
+};
+
+const getHtmlEditorThemeColors = (vditor: IVditor, anchorElement: HTMLElement) => {
+    const editorElement = getModeEditorElement(vditor);
+    const source = editorElement || anchorElement.closest(".vditor") as HTMLElement | null || anchorElement;
+    const computed = window.getComputedStyle(source);
+    const textColor = normalizeCssColorToHex(computed.color) ?? FALLBACK_FONT_COLOR;
+    const backgroundColor = normalizeCssColorToHex(computed.backgroundColor)
+        ?? normalizeCssColorToHex(computed.getPropertyValue("--textarea-background-color"))
+        ?? normalizeCssColorToHex(computed.getPropertyValue("--panel-background-color"))
+        ?? FALLBACK_BACKGROUND_COLOR;
+    return { textColor, backgroundColor };
+};
+
 const clearSpanHtmlInline = (vditor: IVditor, target: HtmlEditTarget, mdSource: string) => {
     const plainText = extractSpanInnerText(mdSource);
     const element = target.focusElement;
@@ -138,7 +205,11 @@ type HtmlEditorPopoverBinding = {
     lineWrapEnabled: boolean;
 };
 
+type HtmlColorFeature = "font-color" | "background-color";
+
 let activeHtmlEditorPopover: HtmlEditorPopoverBinding | null = null;
+let activeHtmlColorConfigPopover: HTMLElement | null = null;
+let activeHtmlColorConfigDismiss: ((event: MouseEvent) => void) | null = null;
 let positionAnchor: HTMLElement | null = null;
 let positionVditor: IVditor | null = null;
 let scrollRepositionHandler: (() => void) | null = null;
@@ -161,6 +232,17 @@ const detachPopoverReposition = () => {
     scrollRepositionHandler = null;
     positionAnchor = null;
     positionVditor = null;
+};
+
+const hideHtmlColorConfigPopover = () => {
+    if (activeHtmlColorConfigDismiss) {
+        document.removeEventListener("mousedown", activeHtmlColorConfigDismiss, true);
+        activeHtmlColorConfigDismiss = null;
+    }
+    if (activeHtmlColorConfigPopover) {
+        activeHtmlColorConfigPopover.remove();
+        activeHtmlColorConfigPopover = null;
+    }
 };
 
 const getPopoverContainer = (editorElement: HTMLElement) => editorElement.parentElement as HTMLElement;
@@ -268,6 +350,7 @@ const hideHtmlEditorPopover = (vditor: IVditor) => {
     if (!popover) {
         return;
     }
+    hideHtmlColorConfigPopover();
     detachPopoverReposition();
     destroyHtmlEditorCodeMirror();
     popover.style.position = "";
@@ -531,17 +614,86 @@ const updateHtmlEditorSource = (nextSource: string) => {
 
 const bindLockedPopoverControl = (
     vditor: IVditor,
-    control: HTMLElement,
     feature: "html-inline-font-color" | "html-inline-background-color" | "html-inline-font-size",
 ) => {
-    control.classList.add("vditor-pro-locked", "vditor-html-inline-popover__color-control--locked");
-    control.insertAdjacentHTML("beforeend",
-        `<span class="vditor-pro-locked__badge" aria-hidden="true">PRO</span>`);
-    control.addEventListener("click", (event) => {
+    return (event: Event) => {
         event.preventDefault();
         event.stopPropagation();
         telemetry(vditor, "markdown.proRequired", { feature });
         vditor.options.onRequirePro?.(feature);
+    };
+};
+
+const updateColorPreview = (
+    preview: HTMLElement,
+    text: string,
+    color: string | null,
+    backgroundColor: string | null,
+) => {
+    preview.textContent = text || HTML_INLINE_PREVIEW_TEXT;
+    preview.style.color = color || "";
+    preview.style.backgroundColor = backgroundColor || "";
+    if (!color && backgroundColor) {
+        preview.style.color = getPreviewForegroundColor(backgroundColor);
+    }
+};
+
+const createColorPaletteButtons = (
+    selectedClass: string,
+    selectedColor: string,
+) => FONT_COLOR_PALETTE.map((color) => {
+    const currentClass = color === selectedColor ? ` ${selectedClass}` : "";
+    return `<button type="button" class="vditor-html-inline-color-config-popover__swatch${currentClass}" data-color="${color}" `
+        + `style="background-color:${color}" aria-label="${color}" title="${color}"></button>`;
+}).join("");
+
+const updateColorConfigCurrentSwatch = (grid: HTMLElement, color: string) => {
+    grid.querySelectorAll("button[data-color]").forEach((button) => {
+        button.classList.toggle("vditor-html-inline-color-config-popover__swatch--current",
+            (button as HTMLElement).getAttribute("data-color") === color);
+    });
+};
+
+const positionHtmlColorConfigPopover = (popover: HTMLElement, anchorElement: HTMLElement) => {
+    const rect = anchorElement.getBoundingClientRect();
+    const margin = 12;
+    const inset = 8;
+    let top = rect.bottom + inset;
+    let left = rect.left;
+    const width = popover.offsetWidth;
+    const height = popover.offsetHeight;
+    if (left + width > window.innerWidth - margin) {
+        left = window.innerWidth - width - margin;
+    }
+    if (left < margin) {
+        left = margin;
+    }
+    if (top + height > window.innerHeight - margin) {
+        const above = rect.top - height - inset;
+        top = above >= margin ? above : Math.max(margin, window.innerHeight - height - margin);
+    }
+    popover.style.left = `${Math.round(left)}px`;
+    popover.style.top = `${Math.round(top)}px`;
+};
+
+const applyHtmlColorConfigThemeVars = (popover: HTMLElement, anchorElement: HTMLElement) => {
+    const root = anchorElement.closest(".vditor") as HTMLElement | null;
+    const source = root || anchorElement;
+    const computed = window.getComputedStyle(source);
+    [
+        "--panel-background-color",
+        "--textarea-background-color",
+        "--textarea-text-color",
+        "--toolbar-icon-color",
+        "--link-color",
+        "--vditor-popover-primary-btn-bg",
+        "--vditor-popover-primary-btn-bg-hover",
+        "--vditor-popover-primary-btn-fg",
+    ].forEach((name) => {
+        const value = computed.getPropertyValue(name).trim();
+        if (value) {
+            popover.style.setProperty(name, value);
+        }
     });
 };
 
@@ -630,25 +782,123 @@ export const showHtmlEditorPopover = (vditor: IVditor, target: HtmlEditTarget) =
     actionsLeft.appendChild(wrapButton);
 
     if (isSpanHtmlInlineSource(initialSource)) {
+        const previewText = extractSpanInnerText(initialSource).replace(/\s+/g, " ").trim();
+        const themeColors = getHtmlEditorThemeColors(vditor, target.anchorElement);
+        const initialFontColor = readSpanStyleColor(initialSource, "color");
+        const initialBackgroundColor = readSpanStyleColor(initialSource, "backgroundColor");
+        let currentFontColor = initialFontColor ?? themeColors.textColor;
+        let currentBackgroundColor = initialBackgroundColor ?? themeColors.backgroundColor;
+        let currentPreviewText = previewText;
+        const openColorConfig = (
+            feature: HtmlColorFeature,
+            anchorElement: HTMLElement,
+            syncInput: (color: string) => void,
+        ) => {
+            hideHtmlColorConfigPopover();
+            const popover = document.createElement("div");
+            popover.className = "vditor-html-inline-color-config-popover";
+            const preview = document.createElement("div");
+            preview.className = "vditor-html-inline-color-config-popover__preview";
+            updateColorPreview(preview, currentPreviewText, currentFontColor, currentBackgroundColor);
+            const grid = document.createElement("div");
+            grid.className = "vditor-html-inline-color-config-popover__grid";
+            const currentColor = feature === "font-color"
+                ? currentFontColor
+                : currentBackgroundColor;
+            grid.innerHTML = createColorPaletteButtons("vditor-html-inline-color-config-popover__swatch--current", currentColor);
+            const actions = document.createElement("div");
+            actions.className = "vditor-html-inline-color-config-popover__actions";
+            const label = document.createElement("span");
+            label.className = "vditor-html-inline-color-config-popover__label";
+            label.textContent = "Color";
+            const input = document.createElement("input");
+            input.type = "color";
+            input.className = "vditor-html-inline-color-config-popover__input";
+            input.value = currentColor;
+            const confirm = document.createElement("button");
+            confirm.type = "button";
+            confirm.className = "vditor-html-inline-color-config-popover__confirm";
+            confirm.textContent = window.VditorI18n.confirm || "Confirm";
+            if (!vditor.options.isPro) {
+                confirm.insertAdjacentHTML("beforeend", `<span class="vditor-pro-locked__badge" aria-hidden="true">PRO</span>`);
+                confirm.classList.add("vditor-pro-locked");
+            }
+            const syncPendingColor = (color: string) => {
+                if (feature === "font-color") {
+                    if (!isValidFontColor(color)) {
+                        return;
+                    }
+                    currentFontColor = color;
+                } else {
+                    if (!isValidBackgroundColor(color)) {
+                        return;
+                    }
+                    currentBackgroundColor = color;
+                }
+                input.value = color;
+                updateColorConfigCurrentSwatch(grid, color);
+                updateColorPreview(preview, currentPreviewText, currentFontColor, currentBackgroundColor);
+            };
+            grid.addEventListener("click", (event) => {
+                const swatch = (event.target as HTMLElement).closest("button[data-color]") as HTMLButtonElement | null;
+                if (!swatch) {
+                    return;
+                }
+                event.preventDefault();
+                event.stopPropagation();
+                syncPendingColor(swatch.getAttribute("data-color") || "");
+            });
+            input.addEventListener("input", () => syncPendingColor(input.value));
+            confirm.addEventListener("click", !vditor.options.isPro
+                ? bindLockedPopoverControl(vditor, feature === "font-color" ? "html-inline-font-color" : "html-inline-background-color")
+                : () => {
+                    const currentSource = activeHtmlEditorPopover?.view.state.doc.toString() ?? initialSource;
+                    const nextSource = feature === "font-color"
+                        ? updateSpanStyleColor(currentSource, "color", input.value)
+                        : updateSpanStyleColor(currentSource, "backgroundColor", input.value);
+                    updateHtmlEditorSource(nextSource);
+                    syncInput(input.value);
+                    hideHtmlColorConfigPopover();
+                });
+            actions.appendChild(label);
+            actions.appendChild(input);
+            actions.appendChild(confirm);
+            popover.appendChild(preview);
+            popover.appendChild(grid);
+            popover.appendChild(actions);
+            applyHtmlColorConfigThemeVars(popover, anchorElement);
+            document.body.appendChild(popover);
+            positionHtmlColorConfigPopover(popover, anchorElement);
+            activeHtmlColorConfigPopover = popover;
+            activeHtmlColorConfigDismiss = (event: MouseEvent) => {
+                const target = event.target as Node | null;
+                if (target && (popover.contains(target) || anchorElement.contains(target))) {
+                    return;
+                }
+                hideHtmlColorConfigPopover();
+            };
+            document.addEventListener("mousedown", activeHtmlColorConfigDismiss, true);
+        };
+
         const fontColorLabel = document.createElement("label");
         fontColorLabel.className = "vditor-html-inline-popover__color-control";
         fontColorLabel.innerHTML = `<span class="vditor-html-inline-popover__color-label">${window.VditorI18n?.["font-color"] || "Font color"}</span>`;
         const fontColorInput = document.createElement("input");
         fontColorInput.type = "color";
         fontColorInput.className = "vditor-html-inline-popover__color-input";
-        fontColorInput.value = readSpanStyleColor(initialSource, "color") ?? FALLBACK_FONT_COLOR;
-        if (!vditor.options.isPro) {
-            fontColorInput.disabled = true;
-            bindLockedPopoverControl(vditor, fontColorLabel, "html-inline-font-color");
-        } else {
-            fontColorInput.addEventListener("input", () => {
-                updateHtmlEditorSource(updateSpanStyleColor(
-                    activeHtmlEditorPopover?.view.state.doc.toString() ?? initialSource,
-                    "color",
-                    fontColorInput.value,
-                ));
-            });
-        }
+        fontColorInput.value = currentFontColor;
+        const syncFontInput = (color: string) => {
+            currentFontColor = color;
+            fontColorInput.value = color;
+            currentPreviewText = extractSpanInnerText(activeHtmlEditorPopover?.view.state.doc.toString() ?? initialSource).replace(/\s+/g, " ").trim();
+        };
+        const openFontColorConfig = (event: Event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            openColorConfig("font-color", fontColorInput, syncFontInput);
+        };
+        fontColorInput.addEventListener("click", openFontColorConfig);
+        fontColorLabel.addEventListener("click", openFontColorConfig);
         fontColorLabel.appendChild(fontColorInput);
 
         const backgroundColorLabel = document.createElement("label");
@@ -657,20 +907,22 @@ export const showHtmlEditorPopover = (vditor: IVditor, target: HtmlEditTarget) =
         const backgroundColorInput = document.createElement("input");
         backgroundColorInput.type = "color";
         backgroundColorInput.className = "vditor-html-inline-popover__color-input";
-        backgroundColorInput.value = readSpanStyleColor(initialSource, "backgroundColor") ?? FALLBACK_BACKGROUND_COLOR;
-        if (!vditor.options.isPro) {
-            backgroundColorInput.disabled = true;
-            bindLockedPopoverControl(vditor, backgroundColorLabel, "html-inline-background-color");
-        } else {
-            backgroundColorInput.addEventListener("input", () => {
-                updateHtmlEditorSource(updateSpanStyleColor(
-                    activeHtmlEditorPopover?.view.state.doc.toString() ?? initialSource,
-                    "backgroundColor",
-                    backgroundColorInput.value,
-                ));
-            });
-        }
+        backgroundColorInput.value = currentBackgroundColor;
+        const syncBackgroundInput = (color: string) => {
+            currentBackgroundColor = color;
+            backgroundColorInput.value = color;
+            currentPreviewText = extractSpanInnerText(activeHtmlEditorPopover?.view.state.doc.toString() ?? initialSource).replace(/\s+/g, " ").trim();
+        };
+        const openBackgroundColorConfig = (event: Event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            openColorConfig("background-color", backgroundColorInput, syncBackgroundInput);
+        };
+        backgroundColorInput.addEventListener("click", openBackgroundColorConfig);
+        backgroundColorLabel.addEventListener("click", openBackgroundColorConfig);
         backgroundColorLabel.appendChild(backgroundColorInput);
+        spanColorControls.appendChild(fontColorLabel);
+        spanColorControls.appendChild(backgroundColorLabel);
 
         const fontSizeLabel = document.createElement("label");
         fontSizeLabel.className = "vditor-html-inline-popover__color-control";
@@ -684,7 +936,9 @@ export const showHtmlEditorPopover = (vditor: IVditor, target: HtmlEditTarget) =
         fontSizeInput.value = String(readSpanStyleFontSize(initialSource) ?? FALLBACK_FONT_SIZE);
         if (!vditor.options.isPro) {
             fontSizeInput.disabled = true;
-            bindLockedPopoverControl(vditor, fontSizeLabel, "html-inline-font-size");
+            fontSizeLabel.classList.add("vditor-pro-locked", "vditor-html-inline-popover__color-control--locked");
+            fontSizeLabel.insertAdjacentHTML("beforeend", `<span class="vditor-pro-locked__badge" aria-hidden="true">PRO</span>`);
+            fontSizeLabel.addEventListener("click", bindLockedPopoverControl(vditor, "html-inline-font-size"));
         } else {
             fontSizeInput.addEventListener("input", () => {
                 const nextValue = Number(fontSizeInput.value);
@@ -698,9 +952,6 @@ export const showHtmlEditorPopover = (vditor: IVditor, target: HtmlEditTarget) =
             });
         }
         fontSizeLabel.appendChild(fontSizeInput);
-
-        spanColorControls.appendChild(fontColorLabel);
-        spanColorControls.appendChild(backgroundColorLabel);
         spanColorControls.appendChild(fontSizeLabel);
     }
 
