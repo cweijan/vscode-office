@@ -862,6 +862,11 @@ export const genImagePopoverForElement = (vditor: IVditor, imgElement: HTMLImage
     };
 
     const updateDimension = (attribute: "width" | "height", rawValue: string) => {
+        const telemetryState = vditor as IVditor & { _imageResizeTelemetrySent?: boolean };
+        if (!telemetryState._imageResizeTelemetrySent) {
+            telemetry(vditor, "markdown.image.resize", { source: "popover", attribute });
+            telemetryState._imageResizeTelemetrySent = true;
+        }
         vditor.undo.addToUndoStack(vditor);
         refreshActiveImg(applyImageDimensionChange(vditor, activeImg, attribute, rawValue));
         afterRenderEvent(vditor, { enableAddUndoStack: false });
