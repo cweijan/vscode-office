@@ -1,5 +1,33 @@
 # Change log
 
+# 4.1.0 2026-7-1
+
+New: Add Parquet file format support.
+
+Markdown Editor:
+
+- Improve visual design.
+- Update keyboard shortcuts.
+- Support code block font configuration.
+- Improve light/dark mode switching logic.
+- Fix failure to open relative path files in IR mode.
+- Support font size adjustment via scroll wheel in the editor.
+
+Pro:
+
+- Introduce Pro license activation.
+- Remove Sponsor banner after Pro activation.
+- Support custom font color and background color editing.
+- Support adjusting image width and height in the Markdown editor.
+- Support beautiful PDF / HTML / DOCX export with theme, font, and font-size options.
+
+Git History:
+
+- Improve visual design.
+- Adjust Git branch colors for better visibility in light mode.
+- Gray out non-current commits while loading Git history view.
+- Fix color inconsistency between graph lines and branches in Git history view.
+
 # 4.0.9 2026-6-29
 
 Update:
@@ -13,6 +41,7 @@ Update:
 Markdown editor:
 
 Update:
+
 - Add image preview.
 - Beautify CodeMirror toolbar.
 - Disable latex syntax validation.
