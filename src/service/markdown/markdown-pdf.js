@@ -9,6 +9,11 @@ const markdownItMermaid = require("./ext/markdown-it-mermaid").default;
 const markdownItPlantuml = require("markdown-it-plantuml")
 const markdownItToc = require("markdown-it-toc-done-right")
 const markdownItAnchor = require("markdown-it-anchor")
+const markdownItObsidianCallouts = require("markdown-it-obsidian-callouts")
+const markdownItMark = require("markdown-it-mark")
+const markdownItObsidian = require("./ext/markdown-it-obsidian")
+const markdownItFrontMatterExport = require("./ext/markdown-it-front-matter")
+const { parse } = require("node-html-parser")
 const { exportByType } = require('./html-export')
 
 async function convertMarkdown(inputMarkdownFile, config) {
@@ -20,18 +25,18 @@ async function convertMarkdown(inputMarkdownFile, config) {
   const html = mergeHtml(content, uri, type)
 
   // insert mermaid script
-  const $ = require("cheerio").load(html);
-  const containsMermaid = $('.mermaid').length > 0;
+  let outputHtml = html
+  const root = parse(html)
+  const containsMermaid = root.querySelector('.mermaid') != null;
   if (containsMermaid) {
     const mermaidScript = `
     <script src="${getMermaidScriptSrc(type)}"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     `;
-
-    $('body').append(mermaidScript);
+    outputHtml = appendHtmlToBody(outputHtml, mermaidScript);
   }
 
-  await exportByType(inputMarkdownFile, $.html(), type, config)
+  await exportByType(inputMarkdownFile, outputHtml, type, config)
 }
 
 function getMermaidScriptSrc(type) {
@@ -47,7 +52,14 @@ function getMermaidScriptSrc(type) {
  */
 function addTocToContent(text, config) {
   const needOutline = !text.match(/\[toc\]/i) && !config.withoutOutline;
-  return needOutline ? `[toc]\n${text}` : text;
+  if (!needOutline) {
+    return text
+  }
+  const frontMatterMatch = text.match(/^---[\s\S]*?\n---\s*\n?/)
+  if (frontMatterMatch) {
+    return frontMatterMatch[0] + '[toc]\n' + text.slice(frontMatterMatch[0].length)
+  }
+  return `[toc]\n${text}`;
 }
 
 /*
@@ -105,17 +117,21 @@ function convertMarkdownToHtml(filename, type, text, config) {
       // convert the img src of the html
       md.renderer.rules.html_block = function (tokens, idx) {
         let html = tokens[idx].content
-        let $ = require("cheerio").load(html)
-        $("img").each(function () {
-          let src = $(this).attr("src")
+        const root = parse(html)
+        root.querySelectorAll("img").forEach((img) => {
+          let src = img.getAttribute("src")
           let href = convertImgPath(src, filename)
-          $(this).attr("src", href)
+          img.setAttribute("src", href)
         })
-        return $.html()
+        return root.toString()
       }
     }
 
-    md.use(markdownItCheckbox)
+    md.use(markdownItFrontMatterExport)
+      .use(markdownItObsidian)
+      .use(markdownItObsidianCallouts)
+      .use(markdownItMark)
+      .use(markdownItCheckbox)
       .use(markdownItAnchor)
       .use(markdownItToc)
       .use(markdownItKatex)
@@ -143,6 +159,13 @@ function mergeHtml(content, uri, type) {
   } catch (error) {
     showErrorMessage("makeHtml()", error)
   }
+}
+
+function appendHtmlToBody(html, fragment) {
+  if (html.includes("</body>")) {
+    return html.replace("</body>", `${fragment}</body>`)
+  }
+  return `${html}${fragment}`
 }
 
 function isExistsPath(path) {

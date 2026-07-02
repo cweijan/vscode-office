@@ -36,3 +36,258 @@ blockquote {
 .table-of-contents li{
 	list-style-type: initial;
 }
+
+/* Obsidian syntax (callout / wikilink / highlight / tag) */
+.callout {
+	--callout-accent: #0969da;
+	margin: 12px 0;
+	border-radius: 6px;
+	border-left: 4px solid var(--callout-accent);
+	background: color-mix(in srgb, var(--callout-accent) 10%, #fff);
+	overflow: hidden;
+}
+
+.callout[data-callout="note" i],
+.callout[data-callout="abstract" i],
+.callout[data-callout="info" i],
+.callout[data-callout="todo" i],
+.callout[data-subtype="note" i],
+.callout[data-subtype="abstract" i],
+.callout[data-subtype="info" i],
+.callout[data-subtype="todo" i] {
+	--callout-accent: #0969da;
+}
+
+.callout[data-callout="tip" i],
+.callout[data-callout="hint" i],
+.callout[data-subtype="tip" i],
+.callout[data-subtype="hint" i] {
+	--callout-accent: #116329;
+}
+
+.callout[data-callout="important" i],
+.callout[data-subtype="important" i] {
+	--callout-accent: #8250df;
+}
+
+.callout[data-callout="warning" i],
+.callout[data-subtype="warning" i] {
+	--callout-accent: #bc4c00;
+}
+
+.callout[data-callout="caution" i],
+.callout[data-callout="danger" i],
+.callout[data-callout="error" i],
+.callout[data-callout="bug" i],
+.callout[data-callout="fail" i],
+.callout[data-subtype="caution" i],
+.callout[data-subtype="danger" i],
+.callout[data-subtype="error" i],
+.callout[data-subtype="bug" i],
+.callout[data-subtype="fail" i] {
+	--callout-accent: #cf222e;
+}
+
+.callout[data-callout="question" i],
+.callout[data-callout="help" i],
+.callout[data-callout="faq" i],
+.callout[data-subtype="question" i],
+.callout[data-subtype="help" i],
+.callout[data-subtype="faq" i] {
+	--callout-accent: #9a6700;
+}
+
+.callout .callout-title,
+.callout .callout-info {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 14px 0;
+	margin-bottom: 10px;
+	color: var(--callout-accent);
+}
+
+.callout .callout-title-icon,
+.callout .callout-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	flex-shrink: 0;
+	color: var(--callout-accent);
+}
+
+.callout .callout-title-icon svg {
+	width: 16px;
+	height: 16px;
+}
+
+.callout .callout-title-inner,
+.callout .callout-info > .callout-title {
+	font-weight: 700;
+	font-size: 0.95em;
+	line-height: 1.35;
+	color: var(--callout-accent);
+}
+
+.callout .callout-content {
+	padding: 6px 14px 12px;
+}
+
+.callout .callout-content > :first-child {
+	margin-top: 0;
+}
+
+.callout .callout-content > :last-child {
+	margin-bottom: 0;
+}
+
+.obsidian-wikilink {
+	color: var(--wikilink-color, #7c3aed);
+	text-decoration: underline;
+}
+
+.obsidian-wikilink-embed {
+	display: inline-block;
+	padding: 2px 8px;
+	border: 1px dashed var(--border-color, #d0d7de);
+	border-radius: 4px;
+	color: var(--wikilink-color, #7c3aed);
+}
+
+.obsidian-tag {
+	color: var(--link-color, #7c3aed);
+	background: color-mix(in srgb, var(--link-color, #7c3aed) 12%, transparent);
+	border-radius: 4px;
+	padding: 0 4px;
+}
+
+mark {
+	background: color-mix(in srgb, var(--chart-yellow, #9a6700) 35%, transparent);
+	color: inherit;
+	padding: 0 2px;
+	border-radius: 2px;
+}
+
+/* YAML front matter / properties panel */
+[data-type="yaml-front-matter"] {
+	margin: 0 0 16px;
+}
+
+.vditor-properties {
+	border: 1px solid color-mix(in srgb, var(--border-color, #d0d7de) 85%, transparent);
+	border-radius: 8px;
+	background: color-mix(in srgb, var(--panel-background-color, #fff) 94%, var(--second-bg-color, #f6f8fa));
+	overflow: hidden;
+}
+
+.vditor-properties__heading {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 12px;
+	border-bottom: 1px solid color-mix(in srgb, var(--border-color, #d0d7de) 70%, transparent);
+	background: color-mix(in srgb, var(--second-bg-color, #f3f4f6) 60%, transparent);
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: var(--second-color, #6b7280);
+}
+
+.vditor-properties__heading-icon::before {
+	content: "☰";
+	opacity: 0.75;
+}
+
+.vditor-properties__table {
+	display: flex;
+	flex-direction: column;
+}
+
+.vditor-properties__row {
+	display: grid;
+	grid-template-columns: minmax(120px, 34%) 1fr;
+	gap: 8px 12px;
+	align-items: start;
+	padding: 8px 12px;
+	border-top: 1px solid color-mix(in srgb, var(--border-color, #d0d7de) 45%, transparent);
+}
+
+.vditor-properties__row:first-child {
+	border-top: none;
+}
+
+.vditor-properties__key {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	min-width: 0;
+	color: var(--second-color, #6b7280);
+	font-size: 0.85rem;
+}
+
+.vditor-properties__key-icon {
+	flex-shrink: 0;
+	width: 14px;
+	height: 14px;
+	opacity: 0.72;
+	text-align: center;
+}
+
+.vditor-properties__key-icon[data-icon="tag"]::before { content: "#"; }
+.vditor-properties__key-icon[data-icon="alias"]::before { content: "⛓"; }
+.vditor-properties__key-icon[data-icon="date"]::before { content: "📅"; }
+.vditor-properties__key-icon[data-icon="toggle"]::before { content: "◉"; }
+.vditor-properties__key-icon[data-icon="number"]::before { content: "#"; }
+.vditor-properties__key-icon[data-icon="list"]::before { content: "≡"; }
+.vditor-properties__key-icon[data-icon="text"]::before { content: "T"; }
+
+.vditor-properties__key-label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.vditor-properties__value {
+	min-width: 0;
+	font-size: 0.92rem;
+	color: var(--front-color, inherit);
+	word-break: break-word;
+}
+
+.vditor-properties__value--tags,
+.vditor-properties__value--aliases {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+
+.vditor-properties__value--aliases {
+	gap: 6px;
+}
+
+.vditor-properties__list {
+	margin: 0;
+	padding-left: 1.1rem;
+}
+
+.vditor-properties__checkbox {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	margin-right: 6px;
+	border: 1px solid var(--border-color, #d0d7de);
+	border-radius: 3px;
+	vertical-align: -2px;
+	background: var(--panel-background-color, #fff);
+}
+
+.vditor-properties__checkbox[is-checked="true"] {
+	background: var(--link-color, #7c3aed);
+	border-color: var(--link-color, #7c3aed);
+	box-shadow: inset 0 0 0 2px var(--panel-background-color, #fff);
+}
+
+.vditor-properties__empty {
+	opacity: 0.45;
+}

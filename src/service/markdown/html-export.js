@@ -13,7 +13,8 @@ export async function exportHtml(exportFilePath, data) {
 export async function exportDocx(exportFilePath, data, config) {
     console.log("[pretty-md-pdf] Exported to file: " + exportFilePath)
     const html = await replaceDynamicContentWithImages(data, config, exportFilePath)
-    const exportTask = await require("vscode-html-to-docx")(html, '', {}, '');
+    const htmlToDocx = require("vscode-html-to-docx");
+    const exportTask = await htmlToDocx(html, '', {}, '');
     const buffer = Buffer.from(await exportTask.arrayBuffer());
     fs.writeFileSync(exportFilePath, buffer)
 }

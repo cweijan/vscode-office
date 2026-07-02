@@ -2,13 +2,13 @@ export const createOutline = async (pdf, html) => {
 
     const { PDFDocument } = require("pdf-lib");
     const pdfDoc = await PDFDocument.load(pdf)
+    const { parse, HTMLElement } = require("node-html-parser");
+    const root = parse(html)
 
-    const $ = require("cheerio").load(html)
-
-    const array = $('.table-of-contents>ol>li');
+    const array = root.querySelectorAll('.table-of-contents > ol > li');
     if (array.length > 0) {
         const dict = extractDict(pdfDoc);
-        const dictArray = inflateDict(array, $, dict);
+        const dictArray = inflateDict(array, dict, HTMLElement);
         if (dictArray.length > 0) {
             creatOutlines(pdfDoc, dictArray)
         }
@@ -17,19 +17,20 @@ export const createOutline = async (pdf, html) => {
     return await pdfDoc.save()
 }
 
-function inflateDict(array, $, dict) {
+function inflateDict(array, dict, HTMLElement) {
     const dictArray = []
     for (let index = 0; index < array.length; index++) {
-        const li = $(array[index]);
-        const a = li.children('a');
+        const li = array[index];
+        const a = findDirectChildByTag(li, 'a', HTMLElement);
         if (!a) continue;
         const key = getKey(a);
         if (!dict[key]) { continue; }
-        dict[key].title = a.text();
+        dict[key].title = a.text.trim();
         dict[key].isLast = array.length == 1 || index == array.length - 1;
-        const childs = $(array[index]).children('ol').children('li');
+        const nestedList = findDirectChildByTag(li, 'ol', HTMLElement);
+        const childs = nestedList ? getDirectChildElementsByTag(nestedList, 'li', HTMLElement) : [];
         if (childs != null && childs.length > 0) {
-            dict[key].child = inflateDict(childs, $, dict)
+            dict[key].child = inflateDict(childs, dict, HTMLElement)
         }
         dictArray.push(dict[key])
     }
@@ -55,9 +56,21 @@ function extractDict(pdfDoc) {
 }
 
 function getKey(a) {
-    const href = a.attr("href") || "";
+    const href = a.getAttribute("href") || "";
     const anchor = decodeURIComponent(href.replace(/^#/, ""));
     return anchorToPdfDestKey(anchor);
+}
+
+function isElementNode(node, HTMLElement) {
+    return node instanceof HTMLElement;
+}
+
+function getDirectChildElementsByTag(element, tagName, HTMLElement) {
+    return element.childNodes.filter(node => isElementNode(node, HTMLElement)).filter(child => child.rawTagName === tagName);
+}
+
+function findDirectChildByTag(element, tagName, HTMLElement) {
+    return getDirectChildElementsByTag(element, tagName, HTMLElement)[0] ?? null;
 }
 
 function anchorToPdfDestKey(anchor) {
