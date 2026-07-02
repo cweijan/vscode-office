@@ -13,7 +13,7 @@ const devExtensionTarget = process.env.OFFICE_EXTENSION_TARGET;
 const buildDesktop = isProd || devExtensionTarget !== 'web';
 const buildWeb = isProd || devExtensionTarget === 'web';
 
-const dependencies = ['vscode-html-to-docx', 'highlight.js', 'pdf-lib', 'cheerio', 'katex', 'mustache', 'puppeteer-core']
+const dependencies = ['vscode-html-to-docx', 'highlight.js', 'pdf-lib', 'cheerio', 'katex', 'puppeteer-core']
 const nodeBuiltinStubs = ['fs', 'child_process', 'os', 'crypto', 'stream', 'https', 'http', 'net', 'tls', 'zlib', 'events', 'util', 'buffer', 'module', 'url', 'assert', 'string_decoder']
 
 function createDesktopAssetCopyPlugins(shouldWatch: boolean) {
