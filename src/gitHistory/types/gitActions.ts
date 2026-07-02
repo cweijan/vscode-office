@@ -34,5 +34,6 @@ export type GitActionPayload =
 
 export interface GitActionResult {
     error: string | null;
+    warning: string | null;
     refresh: boolean;
 }

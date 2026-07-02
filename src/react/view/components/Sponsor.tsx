@@ -11,23 +11,19 @@ interface SponsorProps {
 }
 
 function useSponsorDark(dark?: boolean): boolean {
-    const [resolved, setResolved] = useState(
-        () => dark ?? document.body.classList.contains('office-dark'),
-    );
+    const [resolved, setResolved] = useState(() => document.body.classList.contains('office-dark'));
 
     useEffect(() => {
         if (dark !== undefined) {
-            setResolved(dark);
             return;
         }
         const sync = () => setResolved(document.body.classList.contains('office-dark'));
-        sync();
         const observer = new MutationObserver(sync);
         observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
         return () => observer.disconnect();
     }, [dark]);
 
-    return resolved;
+    return dark ?? resolved;
 }
 
 export default function Sponsor({ dark, variant = 'fixed' }: SponsorProps) {

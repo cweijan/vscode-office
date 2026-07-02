@@ -2,7 +2,6 @@ import { App } from 'antd';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useWindowSize } from '../../util/reactUtils';
 import { handler } from '../../util/vscode';
-import { getConfigs } from '../../util/vscodeConfig';
 import { $t } from '../../i18n/i18nConfig';
 import SponsorBar from '../components/SponsorBar';
 import { VSCodeLogoSVG } from '../vscode';
@@ -91,7 +90,6 @@ function SvgViewerInner() {
     const lastSavedRef = useRef('');
     const dirtyRef = useRef(false);
     const filePathRef = useRef('');
-    const previewUrlRef = useRef('');
     const canvasWrapRef = useRef<HTMLDivElement>(null);
     const offsetRef = useRef({ x: 0, y: 0 });
     const dragRef = useRef<{ startX: number; startY: number; offsetX: number; offsetY: number } | null>(null);
@@ -111,43 +109,30 @@ function SvgViewerInner() {
     const lineWrapText = $t('svg.lineWrap');
 
     const colors = useMemo(() => parseSvgColors(content), [content]);
-    const [previewUrl, setPreviewUrl] = useState('');
     const [width] = useWindowSize();
     const effectiveWidth = width || window.innerWidth;
     const isNarrowWidth = effectiveWidth <= NARROW_WIDTH_BREAKPOINT;
     const previewOnly = isGitScheme || isNarrowWidth;
-
-    useEffect(() => {
+    const previewUrl = useMemo(() => {
         const trimmed = content.trim();
         if (!trimmed) {
-            setPreviewUrl('');
-            return;
+            return '';
         }
-
         const blob = new Blob([ensureSvgNamespace(trimmed)], { type: 'image/svg+xml;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        if (previewUrlRef.current) {
-            URL.revokeObjectURL(previewUrlRef.current);
-        }
-        previewUrlRef.current = url;
-        setPreviewUrl(url);
+        return URL.createObjectURL(blob);
+    }, [content]);
 
+    useEffect(() => {
         return () => {
-            URL.revokeObjectURL(url);
-            if (previewUrlRef.current === url) {
-                previewUrlRef.current = '';
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
             }
         };
-    }, [content]);
+    }, [previewUrl]);
 
     useEffect(() => {
         offsetRef.current = offset;
     }, [offset]);
-
-    useEffect(() => {
-        setOffset({ x: 0, y: 0 });
-        setZoom(1);
-    }, [previewUrl]);
 
     useEffect(() => {
         const el = canvasWrapRef.current;

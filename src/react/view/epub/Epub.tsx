@@ -113,7 +113,7 @@ export default function Epub() {
     const [error, setError] = useState<string | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [sidebarTab, setSidebarTab] = useState<SidebarTab>('toc');
-    const [settings, setSettings] = useState<EpubSettings>(settingsRef.current);
+    const [settings, setSettings] = useState<EpubSettings>(loadEpubSettings);
     const [meta, setMeta] = useState<BookMeta | null>(null);
     const [toc, setToc] = useState<NavItem[]>([]);
     const [tocPageByHref, setTocPageByHref] = useState<Record<string, number>>({});
@@ -126,6 +126,7 @@ export default function Epub() {
     const [searchQuery, setSearchQuery] = useState('');
     const [searching, setSearching] = useState(false);
     const [searchResults, setSearchResults] = useState<SearchHit[]>([]);
+    const [searchResultProgress, setSearchResultProgress] = useState<Record<string, string>>({});
     const [bookReady, setBookReady] = useState(false);
 
     const destroyBook = useCallback(() => {
@@ -145,6 +146,7 @@ export default function Epub() {
         setLocationTotal(0);
         setLocationDraft('');
         setSearchResults([]);
+        setSearchResultProgress({});
         setSearchQuery('');
     }, []);
 
@@ -382,12 +384,21 @@ export default function Epub() {
         const query = searchQuery.trim();
         if (!book || !query) {
             setSearchResults([]);
+            setSearchResultProgress({});
             return;
         }
         setSearching(true);
         try {
             const results = await searchEpubBook(book, query);
             setSearchResults(results);
+            setSearchResultProgress(
+                Object.fromEntries(
+                    results.map((result) => [
+                        result.cfi,
+                        `${(book.locations.percentageFromCfi(result.cfi) * 100).toFixed(1)}%`,
+                    ]),
+                ),
+            );
         } catch (e) {
             setError(e instanceof Error ? e.message : 'Search failed');
         } finally {
@@ -532,10 +543,7 @@ export default function Epub() {
                                 </div>
                                 <div className="search-results">
                                     {searchResults.map(result => {
-                                        const book = bookRef.current;
-                                        const width = book
-                                            ? `${(book.locations.percentageFromCfi(result.cfi) * 100).toFixed(1)}%`
-                                            : '0%';
+                                        const width = searchResultProgress[result.cfi] ?? '0%';
                                         return (
                                             <a
                                                 key={result.cfi}

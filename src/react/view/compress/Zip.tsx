@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { App } from 'antd';
 import { handler, loadDarkMode, applyDarkMode } from '../../util/vscode';
 import { $t } from '../../i18n/i18nConfig';
@@ -33,9 +33,9 @@ function ZipViewer() {
     const [archivePassword, setArchivePassword] = useState<string>()
     const [passwordAction, setPasswordAction] = useState<PasswordAction | null>(null)
     const [passwordError, setPasswordError] = useState('')
-    const archivePasswordRef = useRef<string>()
     const [tableItems, setTableItems] = useState([] as FileInfo[])
     const [info, setInfo] = useState({ files: [] } as CompressInfo)
+    const [loaded, setLoaded] = useState(false)
     const [dark, setDark] = useState(loadDarkMode)
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
     const [width] = useWindowSize()
@@ -49,8 +49,6 @@ function ZipViewer() {
         }
         setSidebarCollapsed((collapsed) => !collapsed);
     }, [isNarrowWidth]);
-
-    archivePasswordRef.current = archivePassword
 
     const changeFiles = (dirPath: string) => {
         setCurrentDir(dirPath)
@@ -69,13 +67,13 @@ function ZipViewer() {
     }, [encrypted])
 
     const withPassword = useCallback((label: string, required: boolean, run: (password?: string) => void) => {
-        if (required && !archivePasswordRef.current) {
+        if (required && !archivePassword) {
             setPasswordAction({ label, run })
             return
         }
         setPasswordError('')
-        run(archivePasswordRef.current)
-    }, [])
+        run(archivePassword)
+    }, [archivePassword])
 
     const handleExtract = useCallback(() => {
         withPassword('extract the archive', encrypted, (password) => {
@@ -85,13 +83,13 @@ function ZipViewer() {
 
     const handleOpenPath = useCallback((entry: FileInfo) => {
         if (entry.isDirectory) {
-            handler.emit('openPath', { entry, password: archivePasswordRef.current })
+            handler.emit('openPath', { entry, password: archivePassword })
             return
         }
         withPassword('open this file', needsPassword(entry), (password) => {
             handler.emit('openPath', { entry, password })
         })
-    }, [needsPassword, withPassword])
+    }, [archivePassword, needsPassword, withPassword])
 
     useEffect(() => {
         document.body.classList.toggle('office-dark', dark)
@@ -123,6 +121,7 @@ function ZipViewer() {
         })
         .on('data', (info: CompressInfo) => {
             setInfo(info)
+            setLoaded(true)
             setTableItems(info.files)
         })
         .on('openDir', changeFiles)
@@ -166,11 +165,12 @@ function ZipViewer() {
                     <Sponsor dark={dark} variant="sidebar" />
                 </aside>
                 <main className="zip-content">
-                    <FileItems items={tableItems} onOpenPath={handleOpenPath} />
+                    <FileItems items={tableItems} loaded={loaded} onOpenPath={handleOpenPath} />
                 </main>
             </div>
 
             <PasswordModal
+                key={passwordAction?.label ?? 'closed'}
                 open={passwordAction !== null}
                 action={passwordAction?.label ?? ''}
                 error={passwordError}

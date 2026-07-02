@@ -352,6 +352,7 @@
 
     .vditor-html-block__display {
       pointer-events: none;
+      white-space: normal;
 
       img {
         pointer-events: auto;
@@ -363,6 +364,11 @@
       outline: 1px dashed var(--border-color, #d0d7de);
       border-radius: 4px;
     }
+  }
+
+  .vditor-wysiwyg__block[data-type="html-block"][data-md-source="<br>"],
+  .vditor-ir__node[data-type="html-block"][data-md-source="<br>"] {
+    margin-bottom: 0;
   }
 
   .vditor-wysiwyg__block[data-type="html-block"]:not([contenteditable="false"]),

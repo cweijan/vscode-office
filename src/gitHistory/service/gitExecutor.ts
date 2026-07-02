@@ -24,17 +24,42 @@ function resolveSpawnOutput(
 
 function getErrorMessage(error: Error | null, stdout: Buffer, stderr: Buffer): string {
     if (error) return error.message;
-    const stderrStr = stderr.toString().trim();
-    if (stderrStr) return stderrStr.split(EOL_REGEX)[0];
-    const stdoutStr = stdout.toString().trim();
-    if (stdoutStr) return stdoutStr.split(EOL_REGEX)[0];
+    const stderrLines = stderr.toString().split(EOL_REGEX).map((line) => line.trim()).filter(Boolean);
+    const stdoutLines = stdout.toString().split(EOL_REGEX).map((line) => line.trim()).filter(Boolean);
+    const lines = [...stderrLines, ...stdoutLines];
+    const priorityLine = lines.find((line) =>
+        /fatal|error|conflict|failed|aborting|cannot|could not|already exists/i.test(line)
+    );
+    if (priorityLine) return priorityLine;
+    if (stderrLines.length > 0) return stderrLines[0];
+    if (stdoutLines.length > 0) return stdoutLines[stdoutLines.length - 1];
     return 'Git command failed';
+}
+
+function getWarningMessage(stderr: Buffer): string | null {
+    const stderrLines = stderr.toString().split(EOL_REGEX).map((line) => line.trim()).filter(Boolean);
+    if (stderrLines.length === 0) {
+        return null;
+    }
+    const priorityLine = stderrLines.find((line) =>
+        /warning|ambiguous|deprecated|detached head/i.test(line)
+    );
+    return priorityLine ?? stderrLines[0];
+}
+
+export interface GitSpawnResult<T> {
+    value: T;
+    warning: string | null;
 }
 
 export class GitExecutor {
     constructor(private readonly gitExecutable: GitExecutable) { }
 
     spawn<T>(args: string[], repo: string, resolveValue: (stdout: string) => T): Promise<T> {
+        return this.spawnWithWarning(args, repo, resolveValue).then((result) => result.value);
+    }
+
+    spawnWithWarning<T>(args: string[], repo: string, resolveValue: (stdout: string) => T): Promise<GitSpawnResult<T>> {
         return new Promise((resolve, reject) => {
             // Force UTF-8 output encoding for all git commands to ensure non-ASCII
             // characters (e.g. Chinese, Japanese, Korean) are not garbled on Windows
@@ -50,7 +75,10 @@ export class GitExecutor {
                     return reject(getErrorMessage(null, stdout, stderr));
                 }
                 try {
-                    resolve(resolveValue(stdout.toString()));
+                    resolve({
+                        value: resolveValue(stdout.toString()),
+                        warning: getWarningMessage(stderr),
+                    });
                 } catch (e) {
                     reject(e instanceof Error ? e.message : String(e));
                 }

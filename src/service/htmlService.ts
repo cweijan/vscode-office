@@ -1,5 +1,5 @@
 import { basename } from "path";
-import { Uri, ViewColumn, window, workspace, type ExtensionContext } from "vscode";
+import { Uri, ViewColumn, window, type ExtensionContext } from "vscode";
 import { Util } from "../common/util";
 import { extensionResource, getExtensionResourceRoots } from "../common/extensionResource";
 import { readUriText } from "../common/workspaceFs";

@@ -30,10 +30,10 @@ export default function SvgCodeEditor({ value, onChange, lineWrap = false }: Svg
     const viewRef = useRef<EditorView | null>(null);
     const onChangeRef = useRef(onChange);
     const lineWrapCompartmentRef = useRef(new Compartment());
-    const lineWrapRef = useRef(lineWrap);
 
-    onChangeRef.current = onChange;
-    lineWrapRef.current = lineWrap;
+    useEffect(() => {
+        onChangeRef.current = onChange;
+    }, [onChange]);
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -59,7 +59,7 @@ export default function SvgCodeEditor({ value, onChange, lineWrap = false }: Svg
                 xml(),
                 svgEditorTheme,
                 svgSyntaxHighlighting,
-                lineWrapCompartmentRef.current.of(lineWrapRef.current ? EditorView.lineWrapping : []),
+                lineWrapCompartmentRef.current.of(lineWrap ? EditorView.lineWrapping : []),
                 updateListener,
             ],
         });
@@ -71,7 +71,7 @@ export default function SvgCodeEditor({ value, onChange, lineWrap = false }: Svg
             view.destroy();
             viewRef.current = null;
         };
-    }, []);
+    }, [lineWrap, value]);
 
     useEffect(() => {
         const view = viewRef.current;

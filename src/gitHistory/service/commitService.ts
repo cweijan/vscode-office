@@ -9,6 +9,7 @@ import type {
     GitRefData,
     GitRepoInfo,
     GitStash,
+    LoadAuthorsRequest,
     LoadCommitsRequest,
     LoadRepositoryRequest,
     LoadRepositoryResult,
@@ -190,7 +191,7 @@ export class CommitService {
             markOffCurrentBranch = false,
         } = params;
         let commits = rawCommits;
-        let moreCommitsAvailable = commits.length === maxCommits + 1;
+        const moreCommitsAvailable = commits.length === maxCommits + 1;
         if (moreCommitsAvailable) {
             commits = commits.slice(0, maxCommits);
         }
@@ -410,28 +411,15 @@ export class CommitService {
         if (onlyFollowFirstParent) args.push('--first-parent');
         if (author) args.push('--author=' + author);
         if (searchValue) args.push('--grep=' + searchValue);
-
-        if (branches !== null) {
-            for (const branch of branches) args.push(branch);
-        } else {
-            args.push('--branches');
-            if (includeTags) args.push('--tags');
-            if (includeReflogs) args.push('--reflog');
-            if (includeRemotes) {
-                if (hideRemotes.length === 0) {
-                    args.push('--remotes');
-                } else {
-                    for (const remote of remotes) {
-                        if (!hideRemotes.includes(remote)) {
-                            args.push('--glob=refs/remotes/' + remote);
-                        }
-                    }
-                }
-            }
-            const stashBaseHashes = [...new Set(stashes.map((s) => s.baseHash))];
-            for (const hash of stashBaseHashes) args.push(hash);
-            args.push('HEAD');
-        }
+        args.push(...this.buildHistoryArgs(
+            branches,
+            includeTags,
+            includeRemotes,
+            includeReflogs,
+            remotes,
+            hideRemotes,
+            stashes,
+        ));
         args.push('--');
         if (relPath) {
             args.push('--follow', relPath);
@@ -530,23 +518,71 @@ export class CommitService {
         );
     }
 
-    getAuthors(repo: string): Promise<string[]> {
+    private buildHistoryArgs(
+        branches: ReadonlyArray<string> | null,
+        includeTags: boolean,
+        includeRemotes: boolean,
+        includeReflogs: boolean,
+        remotes: ReadonlyArray<string>,
+        hideRemotes: ReadonlyArray<string>,
+        stashes: ReadonlyArray<GitStash>,
+    ): string[] {
+        const args: string[] = [];
+        if (branches !== null) {
+            for (const branch of branches) args.push(branch);
+        } else {
+            args.push('--branches');
+            if (includeTags) args.push('--tags');
+            if (includeReflogs) args.push('--reflog');
+            if (includeRemotes) {
+                if (hideRemotes.length === 0) {
+                    args.push('--remotes');
+                } else {
+                    for (const remote of remotes) {
+                        if (!hideRemotes.includes(remote)) {
+                            args.push('--glob=refs/remotes/' + remote);
+                        }
+                    }
+                }
+            }
+            const stashBaseHashes = [...new Set(stashes.map((s) => s.baseHash))];
+            for (const hash of stashBaseHashes) args.push(hash);
+            args.push('HEAD');
+        }
+        return args;
+    }
+
+    getAuthors(request: LoadAuthorsRequest): Promise<string[]> {
+        const {
+            repo, branches, showTags, showRemoteBranches, includeCommitsMentionedByReflogs,
+            onlyFollowFirstParent, commitOrdering, remotes, hideRemotes, stashes, searchValue, relPath,
+        } = request;
         return this.executor.spawn(
-            ['shortlog', '-e', '-s', '-n', 'HEAD'],
+            [
+                '-c', 'log.showSignature=false', 'log',
+                '--format=%aN',
+                '--' + commitOrdering + '-order',
+                ...(onlyFollowFirstParent ? ['--first-parent'] : []),
+                ...(searchValue ? ['--grep=' + searchValue] : []),
+                ...this.buildHistoryArgs(
+                    branches,
+                    showTags,
+                    showRemoteBranches,
+                    includeCommitsMentionedByReflogs,
+                    remotes,
+                    hideRemotes,
+                    stashes,
+                ),
+                '--',
+                ...(relPath ? ['--follow', relPath] : []),
+            ],
             repo,
             (stdout) => {
                 const seen = new Set<string>();
                 const authors: string[] = [];
                 const lines = stdout.split(EOL_REGEX);
                 for (let i = 0; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (!line) continue;
-                    const tab = line.indexOf('\t');
-                    const authorLine = tab >= 0 ? line.substring(tab + 1).trim() : line;
-                    const emailStart = authorLine.indexOf('<');
-                    const name = emailStart >= 0
-                        ? authorLine.substring(0, emailStart).trim()
-                        : authorLine;
+                    const name = lines[i].trim();
                     if (!name || seen.has(name)) continue;
                     seen.add(name);
                     authors.push(name);
@@ -729,7 +765,7 @@ function parseStatusPorcelain(stdout: string): NameStatusRecord[] {
             continue;
         }
 
-        let filePath = line.substring(3);
+        const filePath = line.substring(3);
         let oldFilePath = filePath;
         let newFilePath = filePath;
         const arrowIndex = filePath.indexOf(' -> ');

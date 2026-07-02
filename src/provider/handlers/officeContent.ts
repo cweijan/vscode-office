@@ -9,6 +9,10 @@ export function isVirtualUri(uri: Uri): boolean {
     return uri.scheme !== 'file';
 }
 
+function getPayloadPath(uri: Uri): string {
+    return uri.toString();
+}
+
 /** 与 markdown documentCacheId 一致，用于 webview localStorage 键前缀 */
 export function buildDocumentCacheId(uri: Uri): string {
     return `${uri.scheme}:${uri.toString()}`;
@@ -160,7 +164,7 @@ export async function emitVirtualOfficeOpen(handler: Handler, uri: Uri): Promise
         const data = await readUriBytes(uri);
         const payload: Record<string, unknown> = {
             ext,
-            path: uri.fsPath,
+            path: getPayloadPath(uri),
             fileName: basename(uri.fsPath),
             scheme: uri.scheme,
             documentCacheId: buildDocumentCacheId(uri),
@@ -172,7 +176,7 @@ export async function emitVirtualOfficeOpen(handler: Handler, uri: Uri): Promise
     } catch (error) {
         handler.emit('open', {
             ext,
-            path: uri.fsPath,
+            path: getPayloadPath(uri),
             fileName: basename(uri.fsPath),
             scheme: uri.scheme,
             documentCacheId: buildDocumentCacheId(uri),

@@ -13,7 +13,6 @@ import type { LoadRepositoryRequest } from '../types/git';
 import { buildGitHistoryInitPayload } from '../util/gitHistoryInitPayload';
 import { GitActionHandler } from './gitActionHandler';
 import {
-    getFileHistorySplitLayout,
     setFileHistorySplitLayout,
     type FileHistorySplitLayout,
 } from '../util/gitHistoryPreferences';
@@ -25,6 +24,7 @@ export class MessageRouter {
     private loadCommitsId = 0;
     private loadRepoInfoId = 0;
     private loadRepositoryId = 0;
+    private loadRepoExtrasId = 0;
     private warmupPromise: ReturnType<CommitService['loadRepository']> | null = null;
     private warmupRepo: string | null = null;
     private warmupRelPath: string | undefined;
@@ -240,7 +240,20 @@ export class MessageRouter {
         });
         if (!result.repoInfo.error) {
             this.startWatchingRepo(payload.repo);
-            void this.loadRepoExtras(payload.repo, refreshId, result.repoInfo.remotes, 'repository');
+            void this.loadRepoExtras({
+                repo: payload.repo,
+                branches: request.branches,
+                showTags: request.showTags,
+                showRemoteBranches: request.showRemoteBranches,
+                includeCommitsMentionedByReflogs: request.includeCommitsMentionedByReflogs,
+                onlyFollowFirstParent: request.onlyFollowFirstParent,
+                commitOrdering: request.commitOrdering,
+                remotes: result.repoInfo.remotes,
+                hideRemotes: request.hideRemotes,
+                stashes: result.repoInfo.stashes,
+                searchValue: request.searchValue,
+                relPath,
+            }, result.repoInfo.remotes);
         }
     }
 
@@ -260,23 +273,31 @@ export class MessageRouter {
             return;
         }
         this.handler.emit('repoInfo', info);
-        void this.loadRepoExtras(payload.repo, refreshId, info.remotes, 'repoInfo');
+        void this.loadRepoExtras({
+            repo: payload.repo,
+            branches: null,
+            showTags: true,
+            showRemoteBranches: payload.showRemoteBranches,
+            includeCommitsMentionedByReflogs: false,
+            onlyFollowFirstParent: false,
+            commitOrdering: 'date',
+            remotes: info.remotes,
+            hideRemotes: [],
+            stashes: info.stashes,
+            relPath: this.resolveRelPath(payload.repo),
+        }, info.remotes);
     }
 
     private async loadRepoExtras(
-        repo: string,
-        refreshId: number,
+        request: Parameters<CommitService['getAuthors']>[0],
         remotes: ReadonlyArray<string>,
-        refreshKind: 'repoInfo' | 'repository' = 'repoInfo',
     ): Promise<void> {
+        const refreshId = ++this.loadRepoExtrasId;
         const [authors, remoteUrls] = await Promise.all([
-            this.commitService.getAuthors(repo),
-            this.gitActions.getRemoteWebUrls(repo, remotes),
+            this.commitService.getAuthors(request),
+            this.gitActions.getRemoteWebUrls(request.repo, remotes),
         ]);
-        const stale = refreshKind === 'repository'
-            ? refreshId !== this.loadRepositoryId
-            : refreshId !== this.loadRepoInfoId;
-        if (stale) {
+        if (refreshId !== this.loadRepoExtrasId) {
             return;
         }
         this.handler.emit('repoExtras', {
@@ -307,6 +328,20 @@ export class MessageRouter {
         });
         if (refreshId === this.loadCommitsId) {
             this.handler.emit('commits', { ...data, relPath: relPath ?? null });
+            void this.loadRepoExtras({
+                repo: payload.repo,
+                branches: payload.branches,
+                showTags: payload.showTags,
+                showRemoteBranches: payload.showRemoteBranches,
+                includeCommitsMentionedByReflogs: payload.includeCommitsMentionedByReflogs,
+                onlyFollowFirstParent: payload.onlyFollowFirstParent,
+                commitOrdering: payload.commitOrdering,
+                remotes: payload.remotes,
+                hideRemotes: payload.hideRemotes,
+                stashes: payload.stashes,
+                searchValue: payload.searchValue,
+                relPath,
+            }, payload.remotes);
         }
     }
 
@@ -424,7 +459,7 @@ export class MessageRouter {
     private async onGitAction(payload: GitActionPayload): Promise<void> {
         const result = await this.gitActionHandler.handle(payload);
         if (result.error) {
-            this.handler.emit('gitActionResult', { error: result.error, refresh: false });
+            this.handler.emit('gitActionResult', { error: result.error, warning: null, refresh: false });
             return;
         }
         this.handler.emit('gitActionResult', result);

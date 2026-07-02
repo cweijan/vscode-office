@@ -1,5 +1,5 @@
 import type { GitActionPayload, GitActionResult } from '../types/gitActions';
-import { GitRepoCommands } from '../service/gitRepoCommands';
+import { GitRepoCommands, type GitCommandResult } from '../service/gitRepoCommands';
 
 const MUTATING_ACTIONS = new Set([
     'checkoutBranch', 'checkoutCommit', 'createBranch', 'deleteBranch', 'renameBranch',
@@ -12,10 +12,11 @@ export class GitActionHandler {
     constructor(private readonly commands: GitRepoCommands) { }
 
     async handle(payload: GitActionPayload): Promise<GitActionResult> {
-        const error = await this.dispatch(payload);
+        const result = await this.dispatch(payload);
         return {
-            error,
-            refresh: error === null && this.shouldRefresh(payload),
+            error: result.error,
+            warning: result.warning,
+            refresh: result.error === null && this.shouldRefresh(payload),
         };
     }
 
@@ -32,11 +33,11 @@ export class GitActionHandler {
         return true;
     }
 
-    private async dispatch(payload: GitActionPayload): Promise<string | null> {
+    private async dispatch(payload: GitActionPayload): Promise<GitCommandResult> {
         switch (payload.action) {
             case 'copyToClipboard':
                 this.commands.copyToClipboard(payload.text);
-                return null;
+                return { error: null, warning: null };
             case 'checkoutBranch':
                 return this.commands.checkoutBranch(payload.repo, payload.branch, payload.remoteTracking);
             case 'checkoutCommit':
@@ -66,11 +67,13 @@ export class GitActionHandler {
                 );
             case 'pushBranch': {
                 const targets = payload.remotes?.length ? payload.remotes : (payload.remote ? [payload.remote] : []);
+                let warning: string | null = null;
                 for (const remote of targets) {
-                    const err = await this.commands.pushBranch(payload.repo, remote, payload.branch, true, payload.force);
-                    if (err) return err;
+                    const result = await this.commands.pushBranch(payload.repo, remote, payload.branch, true, payload.force);
+                    if (result.error) return result;
+                    warning ??= result.warning;
                 }
-                return null;
+                return { error: null, warning };
             }
             case 'merge':
                 return this.commands.merge(
@@ -95,37 +98,45 @@ export class GitActionHandler {
             case 'resetToCommit':
                 return this.commands.resetToCommit(payload.repo, payload.hash, payload.mode);
             case 'addTag': {
-                const addError = await this.commands.addTag(
+                const addResult = await this.commands.addTag(
                     payload.repo,
                     payload.tagName,
                     payload.hash,
                     payload.annotated,
                     payload.message,
                 );
-                if (addError) {
-                    return addError;
+                if (addResult.error) {
+                    return addResult;
                 }
                 if (payload.pushToRemote) {
-                    return this.commands.pushTag(payload.repo, payload.tagName, payload.pushToRemote);
+                    const pushResult = await this.commands.pushTag(payload.repo, payload.tagName, payload.pushToRemote);
+                    return {
+                        error: pushResult.error,
+                        warning: addResult.warning ?? pushResult.warning,
+                    };
                 }
-                return null;
+                return addResult;
             }
             case 'deleteTag': {
-                const deleteErr = await this.commands.deleteTag(payload.repo, payload.tag);
-                if (deleteErr) return deleteErr;
+                const deleteResult = await this.commands.deleteTag(payload.repo, payload.tag);
+                if (deleteResult.error) return deleteResult;
+                let warning = deleteResult.warning;
                 for (const remote of (payload.deleteFromRemotes ?? [])) {
-                    const err = await this.commands.pushTag(payload.repo, `:refs/tags/${payload.tag}`, remote);
-                    if (err) return err;
+                    const result = await this.commands.pushTag(payload.repo, `:refs/tags/${payload.tag}`, remote);
+                    if (result.error) return result;
+                    warning ??= result.warning;
                 }
-                return null;
+                return { error: null, warning };
             }
             case 'pushTag': {
                 const targets = payload.remotes?.length ? payload.remotes : (payload.remote ? [payload.remote] : []);
+                let warning: string | null = null;
                 for (const remote of targets) {
-                    const err = await this.commands.pushTag(payload.repo, payload.tag, remote);
-                    if (err) return err;
+                    const result = await this.commands.pushTag(payload.repo, payload.tag, remote);
+                    if (result.error) return result;
+                    warning ??= result.warning;
                 }
-                return null;
+                return { error: null, warning };
             }
             case 'applyStash':
                 return this.commands.applyStash(payload.repo, payload.selector);
@@ -168,7 +179,7 @@ export class GitActionHandler {
             case 'copyFilePath':
                 return this.commands.copyFilePath(payload.repo, payload.filePath, payload.absolute);
             default:
-                return 'Unknown action';
+                return { error: 'Unknown action', warning: null };
         }
     }
 }

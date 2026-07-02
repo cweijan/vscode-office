@@ -11,6 +11,7 @@ type SortDirection = 'asc' | 'desc';
 
 interface FileItemsProps {
     items: FileInfo[];
+    loaded: boolean;
     onOpenPath: (entry: FileInfo) => void;
 }
 
@@ -76,14 +77,12 @@ function hasTextSelection() {
     return !!sel && sel.toString().length > 0;
 }
 
-export default function FileItems({ items, onOpenPath }: FileItemsProps) {
-    const loading = useRef(true);
+export default function FileItems({ items, loaded, onOpenPath }: FileItemsProps) {
     const pointerDown = useRef<{ x: number; y: number } | null>(null);
     const pointerMoved = useRef(false);
     const [sortField, setSortField] = useState<SortField>('name');
     const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
-
-    if (items.length) loading.current = false;
+    const loading = !loaded;
 
     const sortedItems = useMemo(() => {
         let parentEntry: FileInfo | undefined;
@@ -134,7 +133,7 @@ export default function FileItems({ items, onOpenPath }: FileItemsProps) {
 
     return (
         <div className="zip-file-list">
-            {loading.current ? (
+            {loading ? (
                 <div className="zip-loading">
                     <div className="zip-spinner" />
                     <span>Loading archive...</span>
@@ -202,7 +201,7 @@ export default function FileItems({ items, onOpenPath }: FileItemsProps) {
                 </tbody>
             </table>
 
-            {!loading.current && sortedItems.length === 0 ? (
+            {!loading && sortedItems.length === 0 ? (
                 <div className="zip-empty">This folder is empty.</div>
             ) : null}
         </div>

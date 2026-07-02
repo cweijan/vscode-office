@@ -55,6 +55,14 @@ export default function Image() {
         handler.on('images', info => {
             setInfo(info);
             setZoom(1);
+            const hasResolvable = info.images.some((image: ImageSource) =>
+                needsConversion(image) || !!image.buffer?.length
+            );
+            setLoading(hasResolvable);
+            if (!info.images.length) {
+                setResolvedImages([]);
+                setLoading(false);
+            }
         }).emit('images');
     }, []);
 
@@ -66,16 +74,7 @@ export default function Image() {
         objectUrlsRef.current = [];
 
         if (!info.images.length) {
-            setResolvedImages([]);
-            setLoading(false);
             return;
-        }
-
-        const hasResolvable = info.images.some((image: ImageSource) =>
-            needsConversion(image) || !!image.buffer?.length
-        );
-        if (hasResolvable) {
-            setLoading(true);
         }
 
         (async () => {

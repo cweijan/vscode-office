@@ -20,11 +20,11 @@ export default function FindWidget({
     const [text, setText] = useState('');
     const [caseSensitive, setCaseSensitive] = useState(false);
     const [useRegex, setUseRegex] = useState(false);
-    const [position, setPosition] = useState(-1);
-    const [regexError, setRegexError] = useState<string | null>(null);
-    const lastAutoQueryKeyRef = useRef('');
     const onNavigateRef = useRef(onNavigate);
-    onNavigateRef.current = onNavigate;
+
+    useEffect(() => {
+        onNavigateRef.current = onNavigate;
+    }, [onNavigate]);
 
     const matches = useMemo(() => {
         const result = findCommitMatches(commits, text, caseSensitive, useRegex);
@@ -34,70 +34,31 @@ export default function FindWidget({
         return { indices: result.indices, error: null };
     }, [commits, text, caseSensitive, useRegex]);
 
-    const queryKey = buildQueryKey(text, caseSensitive, useRegex);
-
-    useEffect(() => {
-        if (!open) {
-            setText('');
-            setCaseSensitive(false);
-            setUseRegex(false);
-            setPosition(-1);
-            setRegexError(null);
-            lastAutoQueryKeyRef.current = '';
-        }
-    }, [open]);
-
-    useEffect(() => {
-        setRegexError(matches.error);
-    }, [matches.error]);
-
-    useEffect(() => {
-        if (!open) {
-            return;
-        }
-        if (!text.trim() || matches.indices.length === 0) {
-            setPosition(-1);
-            if (lastAutoQueryKeyRef.current !== queryKey) {
-                lastAutoQueryKeyRef.current = queryKey;
-                onNavigateRef.current(null);
-            }
-            return;
-        }
-        if (lastAutoQueryKeyRef.current === queryKey) {
-            return;
-        }
-        lastAutoQueryKeyRef.current = queryKey;
-        setPosition(0);
-        onNavigateRef.current(matches.indices[0]);
-    }, [open, queryKey, text, matches.indices]);
-
-    useEffect(() => {
-        if (!open || position < 0 || matches.indices.length === 0) {
-            return;
-        }
-        if (currentIndex !== null && matches.indices.includes(currentIndex)) {
-            const nextPosition = matches.indices.indexOf(currentIndex);
-            if (nextPosition !== position) {
-                setPosition(nextPosition);
-            }
-        }
-    }, [open, currentIndex, matches.indices, position]);
+    const regexError = matches.error;
 
     if (!open) return null;
+
+    const updateSearch = (nextText: string, nextCaseSensitive: boolean, nextUseRegex: boolean) => {
+        const result = findCommitMatches(commits, nextText, nextCaseSensitive, nextUseRegex);
+        if (!nextText.trim() || result.error || result.indices.length === 0) {
+            onNavigateRef.current(null);
+            return;
+        }
+        onNavigateRef.current(result.indices[0]);
+    };
 
     const go = (direction: 1 | -1) => {
         if (matches.indices.length === 0) return;
         const currentPos = currentIndex !== null && matches.indices.includes(currentIndex)
             ? matches.indices.indexOf(currentIndex)
-            : position >= 0 ? position : 0;
+            : 0;
         const nextPos = ((currentPos + direction) % matches.indices.length + matches.indices.length) % matches.indices.length;
-        setPosition(nextPos);
         onNavigate(matches.indices[nextPos]);
     };
 
     const activePosition = currentIndex !== null && matches.indices.includes(currentIndex)
         ? matches.indices.indexOf(currentIndex)
-        : position;
+        : matches.indices.length > 0 ? 0 : -1;
 
     const noResults = !regexError && text.trim() !== '' && matches.indices.length === 0;
     const positionLabel = regexError
@@ -115,7 +76,11 @@ export default function FindWidget({
                     placeholder="Find"
                     value={text}
                     autoFocus
-                    onChange={(e) => setText(e.target.value)}
+                    onChange={(e) => {
+                        const nextText = e.target.value;
+                        setText(nextText);
+                        updateSearch(nextText, caseSensitive, useRegex);
+                    }}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                             e.preventDefault();
@@ -131,7 +96,11 @@ export default function FindWidget({
                         type="button"
                         className={`git-graph-find-modifier${caseSensitive ? ' active' : ''}`}
                         title="Match Case"
-                        onClick={() => setCaseSensitive((v) => !v)}
+                        onClick={() => {
+                            const next = !caseSensitive;
+                            setCaseSensitive(next);
+                            updateSearch(text, next, useRegex);
+                        }}
                     >
                         Aa
                     </button>
@@ -139,7 +108,11 @@ export default function FindWidget({
                         type="button"
                         className={`git-graph-find-modifier${useRegex ? ' active' : ''}`}
                         title="Use Regular Expression"
-                        onClick={() => setUseRegex((v) => !v)}
+                        onClick={() => {
+                            const next = !useRegex;
+                            setUseRegex(next);
+                            updateSearch(text, caseSensitive, next);
+                        }}
                     >
                         .*
                     </button>

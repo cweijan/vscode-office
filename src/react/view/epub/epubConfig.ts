@@ -360,7 +360,7 @@ function buildSpineFirstLocationMap(book: Book): Map<number, number> {
 }
 
 function locationFromHref(book: Book, cfi: string): number {
-    let location = book.locations.locationFromCfi(cfi);
+    const location = book.locations.locationFromCfi(cfi);
     if (location >= 0) {
         return location;
     }

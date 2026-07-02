@@ -18,7 +18,8 @@ import SelectionActionBar from './components/SelectionActionBar';
 import { UNCOMMITTED } from './graph/layoutEngine';
 import CommitDetailPopup from './components/CommitDetailPopup';
 import { anchorFromElement, anchorFromMouseEvent, type PopupAnchor } from './util/commitDetailPopup';
-import { ContextMenu, useContextMenu } from './components/ContextMenu';
+import { ContextMenu } from './components/ContextMenu';
+import { useContextMenu } from './components/useContextMenu';
 import {
     buildBranchContextMenu,
     buildCommitContextMenu,
@@ -63,6 +64,7 @@ const TABLE_HEADER_HEIGHT = 28;
 const INITIAL_MAX_COMMITS = 300;
 const LOAD_MORE_COMMITS = 100;
 const QUICK_SYNC_DEFAULT_MESSAGE = () => $t('git.quickSync');
+const WARNING_ACTIONS = new Set(['merge']);
 
 function countRealCommits(commits: ReadonlyArray<GitCommit>): number {
     let count = 0;
@@ -152,6 +154,7 @@ function GitHistoryView({
     const [hasRemoteUrl, setHasRemoteUrl] = useState(false);
     const [remoteWebUrls, setRemoteWebUrls] = useState<{ name: string; url: string }[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [warning, setWarning] = useState<string | null>(null);
     const [isExecutingAction, setIsExecutingAction] = useState(false);
     const [moreAvailable, setMoreAvailable] = useState(false);
     const [maxCommits, setMaxCommits] = useState(INITIAL_MAX_COMMITS);
@@ -178,7 +181,6 @@ function GitHistoryView({
     const contentRef = useRef<HTMLDivElement>(null);
     const viewRef = useRef<HTMLDivElement>(null);
     const settingsOpenRef = useRef(settingsOpen);
-    settingsOpenRef.current = settingsOpen;
     const { menu, showMenu, closeMenu } = useContextMenu();
     const menuContextRef = useRef<MenuContext | null>(null);
     const menuMetaRef = useRef<Record<string, MenuPayloadMeta>>({});
@@ -188,7 +190,15 @@ function GitHistoryView({
     const selectedIndicesRef = useRef(selectedIndices);
     const batchQueueRef = useRef<GitActionRequest[]>([]);
     const batchModeRef = useRef<'cherryPick' | 'revert' | null>(null);
-    selectedIndicesRef.current = selectedIndices;
+    const pendingGitActionRef = useRef<GitActionRequest | null>(null);
+
+    useEffect(() => {
+        settingsOpenRef.current = settingsOpen;
+    }, [settingsOpen]);
+
+    useEffect(() => {
+        selectedIndicesRef.current = selectedIndices;
+    }, [selectedIndices]);
 
     const clearSelection = useCallback(() => {
         setSelectedIndices(new Set());
@@ -199,6 +209,7 @@ function GitHistoryView({
     const executeGitAction = useCallback((action: GitActionRequest) => {
         pendingGitActionRef.current = action;
         setIsExecutingAction(true);
+        setWarning(null);
         handler.emit('gitAction', action);
     }, []);
 
@@ -228,7 +239,9 @@ function GitHistoryView({
         emit: (action) => requestActionFromMenu(action),
     }), [repo, branchHead, remotes, branches, relPath, pullDefaults, requestActionFromMenu]);
 
-    menuContextRef.current = menuContext;
+    useEffect(() => {
+        menuContextRef.current = menuContext;
+    }, [menuContext]);
 
     const openContextMenu = useCallback((
         event: MouseEvent,
@@ -384,12 +397,12 @@ function GitHistoryView({
     }, [handleMultiSelectAction]);
 
     const initialized = useRef(false);
+    const [hasInitialized, setHasInitialized] = useState(false);
     const repoRef = useRef(repo);
     const selectedBranchRef = useRef<string | null>(null);
     const selectedAuthorRef = useRef<string | undefined>(undefined);
     const searchValueRef = useRef('');
     const pendingCommitHashRef = useRef<string | null>(null);
-    const pendingGitActionRef = useRef<GitActionRequest | null>(null);
     const loadRepositoryRef = useRef<(targetRepo: string) => void>(() => {});
     const commitsRef = useRef(commits);
     const branchesRef = useRef(branches);
@@ -400,17 +413,21 @@ function GitHistoryView({
     const maxCommitsRef = useRef(INITIAL_MAX_COMMITS);
     const loadingMoreRef = useRef(false);
 
-    repoRef.current = repo;
-    selectedBranchRef.current = selectedBranch;
-    selectedAuthorRef.current = selectedAuthor;
-    searchValueRef.current = searchValue;
-    stashesRef.current = stashes;
-    remotesRef.current = remotes;
-    commitsRef.current = commits;
-    branchesRef.current = branches;
-    filePathRef.current = filePath;
-    relPathRef.current = relPath;
-    maxCommitsRef.current = maxCommits;
+    /* eslint-disable react-hooks/immutability */
+    useEffect(() => {
+        repoRef.current = repo;
+        selectedBranchRef.current = selectedBranch;
+        selectedAuthorRef.current = selectedAuthor;
+        searchValueRef.current = searchValue;
+        stashesRef.current = stashes;
+        remotesRef.current = remotes;
+        commitsRef.current = commits;
+        branchesRef.current = branches;
+        filePathRef.current = filePath;
+        relPathRef.current = relPath;
+        maxCommitsRef.current = maxCommits;
+    }, [repo, selectedBranch, selectedAuthor, searchValue, stashes, remotes, commits, branches, filePath, relPath, maxCommits]);
+    /* eslint-enable react-hooks/immutability */
 
     const clearBranchFilterIfMissing = (branchList: ReadonlyArray<string>): boolean => {
         const current = selectedBranchRef.current;
@@ -555,9 +572,13 @@ function GitHistoryView({
     const loadCommitsRef = useRef(loadCommits);
     const requestCommitDetailsRef = useRef(requestCommitDetails);
     const openRemoteForRepoRef = useRef<(targetRepo: string, urls: ReadonlyArray<{ name: string; url: string }>) => void>(() => {});
-    loadRepositoryRef.current = loadRepository;
-    loadCommitsRef.current = loadCommits;
-    requestCommitDetailsRef.current = requestCommitDetails;
+    /* eslint-disable react-hooks/immutability */
+    useEffect(() => {
+        loadRepositoryRef.current = loadRepository;
+        loadCommitsRef.current = loadCommits;
+        requestCommitDetailsRef.current = requestCommitDetails;
+    }, [loadRepository, loadCommits, requestCommitDetails]);
+    /* eslint-enable react-hooks/immutability */
 
     const applyCommitsData = useCallback((data: GitCommitData) => {
         setLoading(false);
@@ -651,6 +672,7 @@ function GitHistoryView({
                 setLoading(false);
             }
             initialized.current = true;
+            setHasInitialized(true);
             return targetRepo;
         };
 
@@ -786,7 +808,7 @@ function GitHistoryView({
             .on('error', (message: string) => {
                 setError(message);
             })
-            .on('gitActionResult', (result: { error: string | null; refresh: boolean }) => {
+            .on('gitActionResult', (result: { error: string | null; warning: string | null; refresh: boolean }) => {
                 if (batchModeRef.current) {
                     pendingGitActionRef.current = null;
                     if (result.error) {
@@ -807,6 +829,11 @@ function GitHistoryView({
                     setError(result.error);
                     return;
                 }
+                setWarning(
+                    result.warning && pendingAction && WARNING_ACTIONS.has(pendingAction.action)
+                        ? result.warning
+                        : null
+                );
                 const checkoutUpdate = pendingAction
                     ? buildCheckoutStateUpdate(
                         pendingAction,
@@ -844,7 +871,7 @@ function GitHistoryView({
         if (initialRepo) {
             loadRepositoryRef.current(initialRepo);
         }
-    }, [applyCommitsData, runNextBatchAction]);
+    }, [applyCommitsData, clearCommitList, completeExecution, runNextBatchAction, syncRelPath]);
 
     useEffect(() => {
         if (!repo) return;
@@ -864,17 +891,13 @@ function GitHistoryView({
         });
     }, [repo, selectedBranch, selectedAuthor, searchValue, focusIndex, selectedIndices, commits, filePath]);
 
-    const handleRepoChange = (newRepo: string) => {
+    const handleRepoChange = useCallback((newRepo: string) => {
         setRepo(newRepo);
-        repoRef.current = newRepo;
         setBranchHead(null);
         setCommitHead(null);
         setSelectedBranch(null);
-        selectedBranchRef.current = null;
         setSelectedAuthor(undefined);
-        selectedAuthorRef.current = undefined;
         setSearchValue('');
-        searchValueRef.current = '';
         pendingCommitHashRef.current = null;
         if (filePathRef.current) {
             syncRelPath(newRepo, filePathRef.current);
@@ -882,8 +905,10 @@ function GitHistoryView({
         setPullDefaults(getPullDefaults(newRepo));
         clearCommitList();
         loadRepository(newRepo);
-    };
-    handleRepoChangeRef.current = handleRepoChange;
+    }, [clearCommitList, loadRepository, syncRelPath]);
+    useEffect(() => {
+        handleRepoChangeRef.current = handleRepoChange;
+    }, [handleRepoChange]);
 
     const handleSelectCommit = (index: number, event?: MouseEvent) => {
         const commit = commits[index];
@@ -943,6 +968,7 @@ function GitHistoryView({
         if (!repo || refreshing) {
             return;
         }
+        setWarning(null);
         setRefreshing(true);
         handler.emit('refresh');
         clearCommitList();
@@ -1103,7 +1129,9 @@ function GitHistoryView({
         setToolbarPromptAnchor(null);
         handler.emit('openRemote', { url: urls[0].url });
     }, []);
-    openRemoteForRepoRef.current = openRemoteForRepo;
+    useEffect(() => {
+        openRemoteForRepoRef.current = openRemoteForRepo;
+    }, [openRemoteForRepo]);
 
     const handleOpenRemote = (event: MouseEvent<HTMLButtonElement>) => {
         const anchor = anchorFromMouseEvent(event, true, true);
@@ -1271,7 +1299,9 @@ function GitHistoryView({
     }, []);
 
     const handleToggleFindRef = useRef(handleToggleFind);
-    handleToggleFindRef.current = handleToggleFind;
+    useEffect(() => {
+        handleToggleFindRef.current = handleToggleFind;
+    }, [handleToggleFind]);
 
     useEffect(() => {
         const onKeyDown = (e: KeyboardEvent) => {
@@ -1494,7 +1524,7 @@ function GitHistoryView({
         return () => content.removeEventListener('scroll', onScroll);
     }, [moreAvailable, loading, refreshing, loadMoreCommits]);
 
-    if (!initialized.current && loading && repos.length === 0) {
+    if (!hasInitialized && loading && repos.length === 0) {
         return (
             <ConfigProvider theme={antTheme}>
                 <div className="git-graph git-graph-loading" style={themeStyle(cssVars)}>
@@ -1590,6 +1620,7 @@ function GitHistoryView({
                         onNavigate={handleFindNavigate}
                     />
                     {error && <Alert type="error" message={error} closable style={{ margin: '8px 12px' }} />}
+                    {!error && warning && <Alert type="warning" message={warning} closable style={{ margin: '8px 12px' }} />}
                     <div className="git-graph-content" ref={contentRef}>
                         {loading && commits.length === 0 ? (
                             <div className="git-graph-content-loading">
@@ -1605,7 +1636,7 @@ function GitHistoryView({
                                 findMatchIndex={findMatchIndex}
                                 rowHeight={ROW_HEIGHT}
                                 graphConfig={graphConfig}
-                                fileHistoryMode={Boolean(relPath) || Boolean(searchValue.trim())}
+                                fileHistoryMode={Boolean(relPath) || Boolean(searchValue.trim()) || Boolean(selectedAuthor)}
                                 dimOffCurrentBranch={selectedBranch === null}
                                 onSelect={handleSelectCommit}
                                 onRowContextMenu={handleRowContextMenu}
@@ -1652,6 +1683,7 @@ function GitHistoryView({
             </div>
             {actionPromptStep && (
                 <ActionDialog
+                    key={`action-${actionPromptStep.id}`}
                     step={actionPromptStep}
                     anchored
                     anchor={actionPromptAnchor}
@@ -1662,6 +1694,7 @@ function GitHistoryView({
             )}
             {toolbarPrompt && (
                 <ActionDialog
+                    key={`toolbar-${toolbarPrompt.id}`}
                     step={toolbarPrompt}
                     anchored={toolbarPromptKind === 'push' || toolbarPromptKind === 'pull' || toolbarPromptKind === 'openRemote'}
                     anchor={toolbarPromptAnchor}
@@ -1679,6 +1712,7 @@ function GitHistoryView({
             )}
             {remoteDeleteName && (
                 <ActionDialog
+                    key={`remote-delete-${remoteDeleteName}`}
                     step={{
                         kind: 'confirm',
                         id: 'confirm',
@@ -1693,6 +1727,7 @@ function GitHistoryView({
             )}
             {batchConfirm && (
                 <ActionDialog
+                    key={`batch-${batchConfirm.kind}-${batchConfirm.commits.map(commit => commit.hash).join(',')}`}
                     step={{
                         kind: 'confirm',
                         id: 'confirm',

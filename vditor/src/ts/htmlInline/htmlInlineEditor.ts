@@ -389,6 +389,9 @@ const restoreFocusAfterHtmlRemove = (
 };
 
 const restoreFocusToHtmlElement = (vditor: IVditor, element: HTMLElement | null) => {
+    if (element?.tagName === "DIV") {
+        return;
+    }
     const editorElement = getModeEditorElement(vditor);
     if (!editorElement) {
         return;

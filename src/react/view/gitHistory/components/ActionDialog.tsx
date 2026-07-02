@@ -296,28 +296,20 @@ function renderAnchoredOptionList(
 export default function ActionDialog({
     step, anchored = false, anchor, onCancel, onSubmit, isExecuting = false,
 }: ActionDialogProps) {
-    const [inputValue, setInputValue] = useState('');
-    const [pickValue, setPickValue] = useState('');
-    const [formValues, setFormValues] = useState<Record<string, string>>({});
-
-    useEffect(() => {
-        if (step.kind === 'input') {
-            setInputValue(step.defaultValue ?? '');
-        } else if (step.kind === 'pick') {
-            setPickValue(step.options[0]?.value ?? '');
-            if (step.fields) {
-                setFormValues(buildInitialFormValues(step.fields));
-            } else {
-                setFormValues({});
-            }
-        } else if (step.kind === 'form') {
-            setFormValues(buildInitialFormValues(step.fields));
-        } else if (step.kind === 'confirm' && step.fields) {
-            setFormValues(buildInitialFormValues(step.fields));
-        } else {
-            setFormValues({});
+    const [inputValue, setInputValue] = useState(() => step.kind === 'input' ? (step.defaultValue ?? '') : '');
+    const [pickValue, setPickValue] = useState(() => step.kind === 'pick' ? (step.options[0]?.value ?? '') : '');
+    const [formValues, setFormValues] = useState<Record<string, string>>(() => {
+        if (step.kind === 'pick' && step.fields) {
+            return buildInitialFormValues(step.fields);
         }
-    }, [step]);
+        if (step.kind === 'form') {
+            return buildInitialFormValues(step.fields);
+        }
+        if (step.kind === 'confirm' && step.fields) {
+            return buildInitialFormValues(step.fields);
+        }
+        return {};
+    });
 
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {

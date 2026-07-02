@@ -237,7 +237,7 @@ export default function PowerPoint() {
         } finally {
             setThumbsLoading(false);
         }
-    }, []);
+    }, [resetView]);
 
     useEffect(() => {
         handler.on('open', (payload) => {

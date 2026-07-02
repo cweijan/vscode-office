@@ -29,6 +29,8 @@ export default defineConfig(({ command, mode }) => ({
   resolve: {
     alias: {
       buffer: 'buffer',
+      stream: resolve(cwd, 'src/react/shims/nodeStream.ts'),
+      util: resolve(cwd, 'src/react/shims/nodeUtil.ts'),
     },
   },
   optimizeDeps: {

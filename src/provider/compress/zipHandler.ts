@@ -23,7 +23,8 @@ export async function handleZip(uri: Uri, handler: Handler) {
     handler.on('init', async () => {
         const data = (await workspace.fs.readFile(uri)) as Buffer;
         const opened = await ZipArchive.open(data);
-        let { archive, files, folderMap, fileMap, encrypted, encoding } = opened;
+        let { files, folderMap, fileMap } = opened;
+        const { archive, encrypted, encoding } = opened;
         filenameEncoding = encoding;
 
         handler.emit('encrypted', encrypted);
