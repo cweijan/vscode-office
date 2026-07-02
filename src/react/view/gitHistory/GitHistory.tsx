@@ -1289,7 +1289,6 @@ function GitHistoryView({
     const handleToggleFind = useCallback(() => {
         setFindOpen((open) => {
             if (!open) {
-                handler.emit('trackEvent', { event: 'gitHistory.toolbar.find' });
             } else {
                 setFindMatchIndex(null);
             }

@@ -17,7 +17,6 @@ import {ensureEditorBoundaryParagraphs, renderDomByMd} from "../wysiwyg/renderDo
 import {renderCodeBlocks} from "../codeBlock/codeMirrorManager";
 import {MenuItem} from "./MenuItem";
 import {refreshSettingsToolbarPanel} from "../ui/settingsPanel";
-import {telemetry} from "../util/telemetry";
 import {
     disableToolbar,
     enableToolbar,
@@ -143,7 +142,6 @@ export const setEditMode = (
         if (vditor.options.changeEditMode) {
             vditor.options.changeEditMode(vditor.currentMode);
         }
-        telemetry(vditor, "markdown.editMode", { mode: vditor.currentMode });
     }
 
     refreshEditModePanel(vditor);

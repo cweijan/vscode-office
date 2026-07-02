@@ -154,7 +154,6 @@ function ExcelViewer() {
                                 type="primary"
                                 style={{ padding: '3px 12px', height: 'auto' }}
                                 onClick={() => {
-                                    handler.emit('telemetry', { event: 'excel.saveAs', properties: { format: 'xlsx' } });
                                     void (async () => {
                                         try {
                                             dialog.destroy();
@@ -187,7 +186,6 @@ function ExcelViewer() {
         const spreadSheet = spreadSheetRef.current;
         if (!spreadSheet) return;
         setSaveAsVisible(false);
-        handler.emit('telemetry', { event: 'excel.saveAs', properties: { format: fmt } });
         try {
             await exportSaveAs(spreadSheet, fmt, csvEncodingRef.current, csvDelimiterRef.current);
             if (!readOnlyRef.current) {

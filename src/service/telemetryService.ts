@@ -6,11 +6,11 @@ import { fileTypeFromPath, resolveOfficeViewType } from './officeViewType';
  * Application Insights connection string.
  * See docs/telemetry.md for Azure setup steps.
  */
-const TELEMETRY_CONNECTION_STRING = 'InstrumentationKey=596d6b52-80df-4535-9724-a5ad85d41241;IngestionEndpoint=https://eastasia-0.in.applicationinsights.azure.com/;LiveEndpoint=https://eastasia.livediagnostics.monitor.azure.com/;ApplicationId=dedb7f90-910e-4ddc-b2d0-9f7df880dc5a';
+const TELEMETRY_CONNECTION_STRING = 'InstrumentationKey=49047faa-e1fe-4428-90b7-d4a3730299d8;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/;ApplicationId=3b475201-7779-41cb-bce0-8a05b81e3c21';
 
 export class TelemetryService {
     private static instance: TelemetryService | undefined;
-    private static readonly VIEW_OPEN_INTERVAL_MS = 60 * 60 * 1000;
+    private static readonly VIEW_OPEN_INTERVAL_MS = 180 * 60 * 1000;
     private reporter: TelemetryReporter | undefined;
     private viewOpenLastSentByFileType = new Map<string, number>();
 
@@ -66,53 +66,11 @@ export class TelemetryService {
         this.trackViewOpen(viewType, fileType || fileTypeFromPath(fsPath));
     }
 
-    trackGitHistoryView(mode: 'repo' | 'file'): void {
-        if (!this.enabled()) {
-            return;
-        }
-        this.reporter!.sendTelemetryEvent('gitHistory.view', { mode });
-    }
-
-    trackMarkdownExport(type: 'pdf' | 'html' | 'docx'): void {
-        if (!this.enabled()) {
-            return;
-        }
-        this.reporter!.sendTelemetryEvent('markdown.export', { type });
-    }
-
-    trackMarkdownSponsorOpen(): void {
-        if (!this.enabled()) {
-            return;
-        }
-        this.reporter!.sendTelemetryEvent('markdown.sponsor.open');
-    }
-
-    trackMarkdownSponsorClick(action: 'logo' | 'site'): void {
-        if (!this.enabled()) {
-            return;
-        }
-        this.reporter!.sendTelemetryEvent('markdown.sponsor.click', { action });
-    }
-
-    trackPreviewSponsorClick(
-        action: 'logo' | 'site',
-        context?: { component?: string; placement?: string; variant?: string },
-    ): void {
-        if (!this.enabled()) {
-            return;
-        }
-        this.reporter!.sendTelemetryEvent('preview.sponsor.click', {
-            action,
-            ...(context?.component ? { component: context.component } : {}),
-            ...(context?.placement ? { placement: context.placement } : {}),
-            ...(context?.variant ? { variant: context.variant } : {}),
-        });
-    }
-
     trackEvent(event: string, properties?: Record<string, string>): void {
         if (!this.enabled()) {
             return;
         }
         this.reporter!.sendTelemetryEvent(event, properties);
     }
+
 }

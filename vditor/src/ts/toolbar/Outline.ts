@@ -1,7 +1,6 @@
 import {Constants} from "../constants";
 import {getEventName} from "../util/compatibility";
 import {MenuItem} from "./MenuItem";
-import {telemetryToolbarClickOnly} from "../util/telemetry";
 
 export class Outline extends MenuItem {
     constructor(vditor: IVditor, menuItem: IMenuItem) {
@@ -13,7 +12,6 @@ export class Outline extends MenuItem {
                 return;
             }
             const show = !this.element.firstElementChild.classList.contains("vditor-menu--current");
-            telemetryToolbarClickOnly(vditor, event, "outline", { show: show ? "true" : "false" });
             vditor.outline.toggle(vditor, show);
         });
     }

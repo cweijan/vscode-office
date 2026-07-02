@@ -9,7 +9,6 @@ import {
 import {resolveMermaidTheme} from "./setMermaidTheme";
 import {updateEditorThemeToggle} from "./editorThemeToggle";
 import {initMobileOutlineMenu, prepareEditorThemeMobileOutline} from "./mobileOutlineMenu";
-import {telemetry} from "../util/telemetry";
 import {
     getGlobalLocalStorageSetting,
     LAST_DARK_EDITOR_THEME_KEY,
@@ -115,12 +114,6 @@ export const setEditorTheme = (
     }
 
     if (notify) {
-        if (resolved !== previous) {
-            const event = telemetryKind === "toggle"
-                ? "markdown.theme.toggle"
-                : "markdown.theme.editor";
-            telemetry(vditor, event, { theme: resolved });
-        }
         if (vditor.options.changeEditorTheme) {
             vditor.options.changeEditorTheme(resolved);
         }

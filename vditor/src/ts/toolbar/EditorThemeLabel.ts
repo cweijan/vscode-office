@@ -1,6 +1,5 @@
 import {openEditorThemePanel} from "../ui/editorThemeToolbar";
 import {getEventName} from "../util/compatibility";
-import {telemetryToolbarClickOnly} from "../util/telemetry";
 import {MenuItem} from "./MenuItem";
 
 export class EditorThemeLabel extends MenuItem {
@@ -19,12 +18,7 @@ export class EditorThemeLabel extends MenuItem {
         actionBtn.addEventListener(getEventName(), (event) => {
             event.preventDefault();
             event.stopPropagation();
-            const panelHost = vditor.toolbar.elements["editor-theme"]?.querySelector(".vditor-hint") as HTMLElement | null;
-            const willOpen = panelHost?.style.display !== "block";
             openEditorThemePanel(vditor, actionBtn);
-            if (willOpen) {
-                telemetryToolbarClickOnly(vditor, event, "editor-theme-label");
-            }
         });
     }
 }

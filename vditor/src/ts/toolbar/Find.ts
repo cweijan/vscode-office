@@ -1,6 +1,5 @@
 import {getEventName} from "../util/compatibility";
 import {FindBar} from "../ui/FindBar";
-import {telemetry} from "../util/telemetry";
 import {MenuItem} from "./MenuItem";
 
 export class Find extends MenuItem {
@@ -27,11 +26,7 @@ export class Find extends MenuItem {
         btn.addEventListener(getEventName(), (e) => {
             e.preventDefault();
             const bar = getOrCreateBar();
-            const willOpen = !bar.isVisible();
             bar.toggle();
-            if (willOpen) {
-                telemetry(vditor, "markdown.find.open", { source: "toolbar" });
-            }
         });
 
         document.addEventListener("keydown", (e) => {
@@ -42,7 +37,6 @@ export class Find extends MenuItem {
                     bar.focusInput();
                 } else {
                     bar.show();
-                    telemetry(vditor, "markdown.find.open", { source: "shortcut" });
                 }
             }
         });

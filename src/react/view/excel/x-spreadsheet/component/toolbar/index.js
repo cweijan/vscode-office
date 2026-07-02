@@ -26,7 +26,6 @@ import Save from './save';
 import SaveAs from './saveas';
 import Find from './find';
 import Item from './item';
-import { emitExcelToolbarTelemetry } from './item';
 
 import { h } from '../element';
 import { cssPrefix } from '../../config';
@@ -87,7 +86,6 @@ function moreResize() {
 function genBtn(it) {
   const btn = new Item();
   btn.el.on('click', () => {
-    emitExcelToolbarTelemetry(it.telemetryEvent || it.tag || it.tip || 'custom');
     if (it.onClick) it.onClick(this.data.getData(), this.data);
   });
   btn.tip = it.tip || '';

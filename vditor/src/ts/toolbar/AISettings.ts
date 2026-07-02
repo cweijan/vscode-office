@@ -7,8 +7,6 @@ import {
     getAIModels, setAIModels,
 } from "../util/globalLocalStorageSettings";
 import { showConfirm } from "../util/confirm";
-import { telemetry, telemetryToolbarClickOnly } from "../util/telemetry";
-
 export class AISettings extends MenuItem {
     public element: HTMLElement;
     private vditor: IVditor;
@@ -23,12 +21,8 @@ export class AISettings extends MenuItem {
         panelElement.innerHTML = this.buildPanelHTML();
         this.element.appendChild(panelElement);
 
-        actionBtn.addEventListener(getEventName(), (event: Event) => {
-            const willOpen = panelElement.style.display !== "block";
+        actionBtn.addEventListener(getEventName(), (_event: Event) => {
             panelElement.innerHTML = this.buildPanelHTML();
-            if (willOpen) {
-                telemetryToolbarClickOnly(this.vditor, event, "ai-settings");
-            }
         }, true);
 
         panelElement.addEventListener(getEventName(), (event: MouseEvent & { target: HTMLElement }) => {
@@ -58,7 +52,6 @@ export class AISettings extends MenuItem {
                         delete panelElement.dataset.editingPromptId;
                     } else {
                         prompts.push({ id: Date.now().toString(), name, content });
-                        telemetry(this.vditor, "markdown.ai.addPrompt", { source: "settings" });
                     }
                     setAIPrompts(prompts);
                     panelElement.querySelector("[data-ai-prompts]")!.outerHTML = buildAIPromptsHTML();
@@ -124,7 +117,6 @@ export class AISettings extends MenuItem {
                         delete panelElement.dataset.editingModelId;
                     } else {
                         models.push({ id: Date.now().toString(), name, url, key, model, format });
-                        telemetry(this.vditor, "markdown.ai.addModel", { source: "settings" });
                     }
                     setAIModels(models);
                     panelElement.querySelector("[data-ai-models]")!.outerHTML = buildAIModelsHTML();

@@ -16,7 +16,6 @@ import {
     setFileHistorySplitLayout,
     type FileHistorySplitLayout,
 } from '../util/gitHistoryPreferences';
-import { TelemetryService } from '@/service/telemetryService';
 
 const DEFAULT_MAX_COMMITS = 300;
 
@@ -98,14 +97,6 @@ export class MessageRouter {
                 this.onGitAction(content as GitActionPayload)))
             .on('saveFileHistorySplitLayout', this.wrapHandler((content) =>
                 this.onSaveFileHistorySplitLayout(content as { layout: FileHistorySplitLayout })))
-            .on('trackEvent', this.wrapHandler((content) => {
-                const payload = content as { event: string; properties?: Record<string, string> };
-                TelemetryService.get()?.trackEvent(payload.event, payload.properties);
-            }))
-            .on('sponsorClick', this.wrapHandler((content) => {
-                const payload = content as { action: 'logo' | 'site'; component?: string; placement?: string; variant?: string };
-                TelemetryService.get()?.trackPreviewSponsorClick(payload.action, payload);
-            }))
             .on('openSponsor', this.wrapHandler(() => {
                 void vscode.commands.executeCommand(
                     'workbench.extensions.action.showExtensionsWithIds',
@@ -361,7 +352,6 @@ export class MessageRouter {
     }
 
     private async onFetch(repo: string): Promise<void> {
-        TelemetryService.get()?.trackEvent('gitHistory.toolbar.fetch');
         const error = await this.gitActions.fetchFromRemotes(repo);
         this.handler.emit('fetch', { error });
     }
@@ -373,7 +363,6 @@ export class MessageRouter {
         noFastForward?: boolean;
         squash?: boolean;
     }): Promise<void> {
-        TelemetryService.get()?.trackEvent('gitHistory.toolbar.pull');
         const error = await this.gitActions.pullCurrentBranch(
             payload.repo,
             payload.branch,
@@ -387,7 +376,6 @@ export class MessageRouter {
     }
 
     private async onPush(payload: { repo: string; branch: string; remote: string; remotes?: string[]; force?: boolean }): Promise<void> {
-        TelemetryService.get()?.trackEvent('gitHistory.toolbar.push', { force: String(!!payload.force) });
         const targets = payload.remotes?.length ? payload.remotes : (payload.remote ? [payload.remote] : []);
         for (const remote of targets) {
             const error = await this.gitActions.pushCurrentBranch(
@@ -444,7 +432,6 @@ export class MessageRouter {
     }
 
     private async onOpenRemote(payload: { url: string }): Promise<void> {
-        TelemetryService.get()?.trackEvent('gitHistory.toolbar.openRemote');
         const error = await this.gitActions.openRemoteUrl(payload.url);
         if (error) {
             this.handler.emit('error', error);

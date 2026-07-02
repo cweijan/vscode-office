@@ -1,6 +1,5 @@
 import {Constants} from "../constants";
 import {CM_THEME_ATTR, CM_THEME_AUTO} from "./codeMirrorColorThemes";
-import {telemetry} from "../util/telemetry";
 
 const resolveRoot = (root?: HTMLElement): HTMLElement | null => {
     if (root) {
@@ -40,13 +39,9 @@ export const setCodeTheme = (codeTheme: string, root?: HTMLElement) => {
 };
 
 export const applyCodeMirrorTheme = (vditor: IVditor, theme: string) => {
-    const previous = resolveCodeMirrorTheme(vditor.options);
     const resolved = normalizeCodeMirrorThemeId(theme);
     vditor.options.codeMirrorTheme = resolved;
     setCodeTheme(resolved, vditor.element);
-    if (resolved !== previous) {
-        telemetry(vditor, "markdown.theme.code", { theme: resolved });
-    }
     if (vditor.options.changeCodeTheme) {
         vditor.options.changeCodeTheme(resolved);
     }

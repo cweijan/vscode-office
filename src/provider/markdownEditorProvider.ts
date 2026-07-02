@@ -286,7 +286,6 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             vscode.env.clipboard.writeText(`![${fileName}](${adjustRelPath})`);
             vscode.commands.executeCommand("editor.action.clipboardPasteAction");
         }).on("editInVSCode", (full: boolean) => {
-            TelemetryService.get()?.trackEvent('markdown.editInVSCode', { full: full ? 'true' : 'false' });
             const side = full ? vscode.ViewColumn.Active : vscode.ViewColumn.Beside;
             vscode.commands.executeCommand('vscode.openWith', uri, "default", side);
         }).on("showInFolder", () => {
@@ -309,18 +308,13 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         }).on('developerTool', () => {
             vscode.commands.executeCommand('workbench.action.toggleDevTools')
         }).on('openAbout', () => {
-            TelemetryService.get()?.trackMarkdownSponsorOpen();
         }).on('openSponsor', () => {
-            TelemetryService.get()?.trackMarkdownSponsorClick('logo');
             vscode.commands.executeCommand(
                 'workbench.extensions.action.showExtensionsWithIds',
                 ['cweijan.vscode-database-client2'],
             );
         }).on('openExternal', (url: string) => {
             if (url) {
-                if (url.includes('database-client.com')) {
-                    TelemetryService.get()?.trackMarkdownSponsorClick('site');
-                }
                 vscode.env.openExternal(vscode.Uri.parse(url));
             }
         }).on('queryAIAvailable', () => {

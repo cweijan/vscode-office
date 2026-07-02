@@ -4,7 +4,6 @@ import { Handler } from "@/common/handler";
 import { isUriReadOnly } from '@/common/fileReadOnly';
 import { Uri, workspace } from 'vscode';
 import { emitFileOfficeOpen, emitVirtualOfficeOpen, isVirtualUri } from '@/provider/handlers/officeContent';
-import { TelemetryService } from '@/service/telemetryService';
 
 const fileSaveTimes: Record<string, number> = {};
 
@@ -98,9 +97,7 @@ export function handleCommonEvent(uri: Uri, handler: Handler, options?: { skipOp
             await vscode.commands.executeCommand('vscode.openWith', target, 'cweijan.officeViewer');
         })
         .on('developerTool', () => vscode.commands.executeCommand('workbench.action.toggleDevTools'))
-        .on('sponsorClick', (payload: { action: 'logo' | 'site'; component?: string; placement?: string; variant?: string }) => {
-            TelemetryService.get()?.trackPreviewSponsorClick(payload.action, payload);
-        })
+        .on('sponsorClick', () => { })
         .on('openSponsor', () => {
             vscode.commands.executeCommand(
                 'workbench.extensions.action.showExtensionsWithIds',
@@ -111,12 +108,6 @@ export function handleCommonEvent(uri: Uri, handler: Handler, options?: { skipOp
             if (url) {
                 vscode.env.openExternal(vscode.Uri.parse(url));
             }
-        })
-        .on('telemetry', (payload: { event: string; properties?: Record<string, string | number | boolean> }) => {
-            const properties = Object.fromEntries(
-                Object.entries(payload.properties ?? {}).map(([key, value]) => [key, String(value)]),
-            );
-            TelemetryService.get()?.trackEvent(payload.event, properties);
         })
         .on('dispose', () => {
             delete fileSaveTimes[uri.toString()];

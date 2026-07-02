@@ -64,13 +64,13 @@ Microsoft documents the connection string as **not sensitive**; it is commonly c
    yarn package
    ```
 
-4. Install the `.vsix` locally and open a supported file (e.g. `.xlsx`) or Git History once
+4. Install the `.vsix` locally and open a supported file (e.g. `.xlsx`) once
 5. In Azure Portal → your Application Insights → **Logs**, run:
 
    ```kusto
    customEvents
    | where timestamp > ago(30m)
-   | where name in ("view.open", "gitHistory.view", "markdown.export")
+   | where name == "view.open"
    | project timestamp, name, customDimensions
    | order by timestamp desc
    ```
@@ -90,33 +90,13 @@ customEvents
 | order by count_ desc
 ```
 
-### Git History usage
-
-```kusto
-customEvents
-| where name == "gitHistory.view"
-| extend mode = tostring(customDimensions.mode)
-| summarize count() by mode, bin(timestamp, 1d)
-| order by timestamp desc
-```
-
-### Markdown exports
-
-```kusto
-customEvents
-| where name == "markdown.export"
-| extend type = tostring(customDimensions.type)
-| summarize count() by type, bin(timestamp, 1d)
-| order by timestamp desc
-```
-
 ### Daily active users (DAU)
 
 Uses Application Insights anonymous `user_Id` (not PII).
 
 ```kusto
 customEvents
-| where name in ("view.open", "gitHistory.view", "markdown.export")
+| where name == "view.open"
 | summarize DAU = dcount(user_Id) by bin(timestamp, 1d)
 | order by timestamp desc
 ```
@@ -170,6 +150,4 @@ If `telemetry.json` is packaged with the extension, Office Viewer events appear 
 - `src/service/telemetryService.ts` — reporter and event API
 - `src/service/officeViewType.ts` — `viewType` / `fileType` mapping
 - `src/provider/officeViewerProvider.ts` — office preview events
-- `src/provider/markdownEditorProvider.ts` — markdown events
-- `src/gitHistory/provider/index.ts` — git command events
 - `telemetry.json` — event metadata for transparency
