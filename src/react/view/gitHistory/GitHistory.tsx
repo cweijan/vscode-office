@@ -1626,7 +1626,7 @@ function GitHistoryView({
                                 findMatchIndex={findMatchIndex}
                                 rowHeight={ROW_HEIGHT}
                                 graphConfig={graphConfig}
-                                fileHistoryMode={Boolean(relPath) || Boolean(searchValue.trim())}
+                                fileHistoryMode={Boolean(relPath) || Boolean(searchValue.trim()) || Boolean(selectedAuthor)}
                                 dimOffCurrentBranch={selectedBranch === null}
                                 onSelect={handleSelectCommit}
                                 onRowContextMenu={handleRowContextMenu}
