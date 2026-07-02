@@ -248,7 +248,6 @@ body.office-dark .ppt-thumb img {
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.72);
     backdrop-filter: blur(20px) saturate(1.8);
-    -webkit-backdrop-filter: blur(20px) saturate(1.8);
     color: #3c3c43;
     cursor: pointer;
     font-size: 13px;
