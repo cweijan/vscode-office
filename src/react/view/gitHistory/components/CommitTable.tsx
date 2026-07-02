@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { MouseEvent, ReactNode, CSSProperties } from 'react';
 import { Typography } from 'antd';
 import type { GitCommit, GitCommitRemote } from '../types';
@@ -212,14 +212,14 @@ export default function CommitTable({
     fileHistoryMode = false, dimOffCurrentBranch = false, onSelect, onRowContextMenu, onRefContextMenu,
 }: CommitTableProps) {
     const multiSelect = selectedIndices.size > 1;
+    const [renderTime] = useState(() => Date.now());
     const formattedDates = useMemo(() => {
-        const now = Date.now();
         const dates: string[] = [];
         for (let i = 0; i < commits.length; i++) {
-            dates.push(formatCommitDate(commits[i].date, now));
+            dates.push(formatCommitDate(commits[i].date, renderTime));
         }
         return dates;
-    }, [commits]);
+    }, [commits, renderTime]);
     const layout = useMemo(
         () => computeGraphLayout(
             commits,

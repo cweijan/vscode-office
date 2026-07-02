@@ -25,45 +25,48 @@ const WebUnsupported = lazy(() => import('./view/WebUnsupported.tsx'))
 document.getElementById('_defaultStyles')?.parentNode?.removeChild(document.getElementById('_defaultStyles'))
 const configs = getConfigs();
 initI18n(configs?.language);
+
+export default function App() {
+  const route = configs?.route
+  switch (route) {
+    case 'image':
+      return <Image />
+    case 'svg':
+      return <SvgViewer />
+    case 'excel':
+      return <Excel />
+    case 'zip':
+      return <Zip />
+    case 'word':
+      return <Word />
+    case 'ppt':
+      return <PowerPoint />
+    case 'font':
+      return <FontViewer />
+    case 'epub':
+      return <Epub />
+    case 'icns':
+      return <IcnsViewer />
+    case 'psd':
+      return <PsdViewer />
+    case 'xmind':
+      return <XmindViewer />
+    case 'parquet':
+      return <Parquet />
+    case 'gitHistory':
+      return <GitHistory />
+    case 'webUnsupported':
+      return <WebUnsupported />
+    default:
+      return <>{$t('common.officeViewer')}</>
+  }
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <ConfigProvider
     componentSize='small'
     theme={antThemeConfig}
   >
-    {(() => {
-      const route = configs?.route
-      switch (route) {
-        case 'image':
-          return <Image />
-        case 'svg':
-          return <SvgViewer />
-        case 'excel':
-          return <Excel />
-        case 'zip':
-          return <Zip />
-        case 'word':
-          return <Word />
-        case 'ppt':
-          return <PowerPoint />
-        case 'font':
-          return <FontViewer />
-        case 'epub':
-          return <Epub />
-        case 'icns':
-          return <IcnsViewer />
-        case 'psd':
-          return <PsdViewer />
-        case 'xmind':
-          return <XmindViewer />
-        case 'parquet':
-          return <Parquet />
-        case 'gitHistory':
-          return <GitHistory />
-        case 'webUnsupported':
-          return <WebUnsupported />
-        default:
-          return <>{$t('common.officeViewer')}</>
-      }
-    })()}
+    <App />
   </ConfigProvider>
 )

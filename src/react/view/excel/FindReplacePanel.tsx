@@ -11,6 +11,19 @@ export interface FindReplacePanelProps {
     onChanged?: () => void;
 }
 
+function OptionChip({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+    return (
+        <button
+            type="button"
+            className={`frp-chip${checked ? ' frp-chip-active' : ''}`}
+            onClick={() => onChange(!checked)}
+            title={label}
+        >
+            {label}
+        </button>
+    );
+}
+
 export default function FindReplacePanel({
     spreadSheet,
     mode,
@@ -86,17 +99,6 @@ export default function FindReplacePanel({
     }, [spreadSheet, findText, replaceText, buildOptions, onChanged]);
 
     const showReplace = mode === 'replace' && !readOnly;
-
-    const OptionChip = ({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) => (
-        <button
-            type="button"
-            className={`frp-chip${checked ? ' frp-chip-active' : ''}`}
-            onClick={() => onChange(!checked)}
-            title={label}
-        >
-            {label}
-        </button>
-    );
 
     return (
         <div className="frp-panel" ref={panelRef}>

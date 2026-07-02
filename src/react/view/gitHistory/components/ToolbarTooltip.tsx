@@ -21,7 +21,6 @@ interface ToolbarTooltipProps {
 
 export default function ToolbarTooltip({ content, children, wrap = false, pinOnClick = false }: ToolbarTooltipProps) {
     const [visible, setVisible] = useState(false);
-    const [positioned, setPositioned] = useState(false);
     const [pinned, setPinned] = useState(false);
     const [position, setPosition] = useState({ top: 0, left: 0 });
     const anchorRef = useRef<HTMLSpanElement | null>(null);
@@ -41,7 +40,6 @@ export default function ToolbarTooltip({ content, children, wrap = false, pinOnC
         }
         clearShowTimer();
         setVisible(false);
-        setPositioned(false);
         if (force) {
             setPinned(false);
         }
@@ -81,7 +79,6 @@ export default function ToolbarTooltip({ content, children, wrap = false, pinOnC
             return;
         }
         updatePosition();
-        setPositioned(true);
     }, [visible, content, updatePosition]);
 
     useEffect(() => {
@@ -140,7 +137,6 @@ export default function ToolbarTooltip({ content, children, wrap = false, pinOnC
                         if (prev) {
                             clearShowTimer();
                             setVisible(false);
-                            setPositioned(false);
                             return false;
                         }
                         clearShowTimer();
@@ -157,7 +153,7 @@ export default function ToolbarTooltip({ content, children, wrap = false, pinOnC
             {visible && content && createPortal(
                 <div
                     ref={tooltipRef}
-                    className={`git-graph-toolbar-tooltip${wrap ? ' wrap' : ''}${positioned ? ' is-visible' : ''}`}
+                    className={`git-graph-toolbar-tooltip${wrap ? ' wrap' : ''} is-visible`}
                     role="tooltip"
                     style={{ top: position.top, left: position.left }}
                 >

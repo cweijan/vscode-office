@@ -67,6 +67,7 @@ function ExcelViewer() {
     const [loadError, setLoadError] = useState<string | null>(null)
     const [saveAsVisible, setSaveAsVisible] = useState(false)
     const [saveAsFormat, setSaveAsFormat] = useState('xlsx')
+    const [activeSpreadsheet, setActiveSpreadsheet] = useState<Spreadsheet | null>(null)
     const extRef = useRef('')
     const documentCacheIdRef = useRef('')
     const readOnlyRef = useRef(false)
@@ -245,6 +246,7 @@ function ExcelViewer() {
                 view: { height: () => window.innerHeight - 2 },
             });
             spreadSheetRef.current = spreadSheet;
+            setActiveSpreadsheet(spreadSheet);
             setLoading(false);
             spreadSheet.loadData(sheets);
             if (!fileReadOnly) {
@@ -318,6 +320,8 @@ function ExcelViewer() {
         themeObserver.observe(document.head, { childList: true, subtree: true });
 
         return () => {
+            spreadSheetRef.current = null;
+            setActiveSpreadsheet(null);
             themeObserver.disconnect();
             clearTimeout(themeTimer);
         };
@@ -346,7 +350,7 @@ function ExcelViewer() {
             )}
             {findPanel && !loading && !loadError && (
                 <FindReplacePanel
-                    spreadSheet={spreadSheetRef.current}
+                    spreadSheet={activeSpreadsheet}
                     mode={findPanel}
                     onClose={() => setFindPanel(null)}
                     readOnly={readOnly}

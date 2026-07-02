@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { MouseEvent } from 'react';
 import type { GitFileChange } from '../types';
 import { fileTouchesPath } from '../util/repoPath';
@@ -244,22 +244,36 @@ export default function CommitDetailFileView({
 }: CommitDetailFileViewProps) {
     const tree = useMemo(() => buildFileTree(fileChanges), [fileChanges]);
     const flatChanges = useMemo(() => sortFlatFileChanges(fileChanges), [fileChanges]);
-    const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
-
-    useEffect(() => {
-        setExpanded(new Set(collectFolderPaths(tree)));
-    }, [tree]);
+    const defaultExpanded = useMemo(() => new Set(collectFolderPaths(tree)), [tree]);
+    const [userExpanded, setUserExpanded] = useState<Set<string>>(() => new Set());
+    const [userCollapsed, setUserCollapsed] = useState<Set<string>>(() => new Set());
+    const expanded = useMemo(() => {
+        const next = new Set(defaultExpanded);
+        for (const path of userExpanded) {
+            next.add(path);
+        }
+        for (const path of userCollapsed) {
+            next.delete(path);
+        }
+        return next;
+    }, [defaultExpanded, userCollapsed, userExpanded]);
 
     const toggleFolder = (path: string) => {
-        setExpanded((prev) => {
-            const next = new Set(prev);
-            if (next.has(path)) {
+        if (expanded.has(path)) {
+            setUserExpanded((prev) => {
+                const next = new Set(prev);
                 next.delete(path);
-            } else {
-                next.add(path);
-            }
+                return next;
+            });
+            setUserCollapsed((prev) => new Set(prev).add(path));
+            return;
+        }
+        setUserCollapsed((prev) => {
+            const next = new Set(prev);
+            next.delete(path);
             return next;
         });
+        setUserExpanded((prev) => new Set(prev).add(path));
     };
 
     if (viewMode === 'flat') {

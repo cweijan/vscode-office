@@ -763,7 +763,7 @@
 	"scripts": {
 		"dev": "vite --mode=development",
 		"dev:web": "OFFICE_EXTENSION_TARGET=web vite --mode=development",
-		"lint:fix": "eslint \"src/**/*.ts\" --fix",
+		"lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
 		"build": "vite build --mode=production",
 		"package": "vsce package --no-dependencies",
 		"publish": "vsce publish --no-dependencies && ovsx publish --no-dependencies",

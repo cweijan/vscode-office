@@ -16,12 +16,9 @@ export default function PasswordModal({ open, action, error, onSubmit, onCancel 
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        if (!open) {
-            setPassword('');
-            setShowPassword(false);
-            return;
+        if (open) {
+            inputRef.current?.focus();
         }
-        inputRef.current?.focus();
     }, [open]);
 
     if (!open) return null;

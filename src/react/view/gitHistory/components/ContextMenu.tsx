@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import type { MenuPayloadMeta } from '../contextMenu/buildContextMenu';
 import { getContextMenuIcon, getContextMenuIconColor } from '../contextMenu/contextMenuIcons';
@@ -88,22 +88,4 @@ export function ContextMenu({ menu, onClose, onSelect }: ContextMenuProps) {
         </ul>,
         document.body
     );
-}
-
-export function useContextMenu() {
-    const [menu, setMenu] = useState<ContextMenuState | null>(null);
-
-    const showMenu = useCallback((
-        items: ContextMenuItem[],
-        metaById: Record<string, MenuPayloadMeta>,
-        x: number,
-        y: number,
-    ) => {
-        if (items.length === 0) return;
-        setMenu({ items, metaById, x, y });
-    }, []);
-
-    const closeMenu = useCallback(() => setMenu(null), []);
-
-    return { menu, showMenu, closeMenu };
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import type { GitPullDefaults, FileHistorySplitLayout } from '../util/gitHistoryState';
 import type { GitRemoteDetail } from '../types';
 
@@ -28,16 +28,6 @@ export default function SettingsWidget({
     onPullDefaultsChange, onFileHistorySplitLayoutChange, onAddRemote, onEditRemote, onDeleteRemote,
     canQuickSync, syncing, fetching, pulling, pushing, onQuickSync,
 }: SettingsWidgetProps) {
-    const [localPull, setLocalPull] = useState(pullDefaults);
-    const [localSplitLayout, setLocalSplitLayout] = useState(fileHistorySplitLayout);
-
-    useEffect(() => {
-        if (open) {
-            setLocalPull(pullDefaults);
-            setLocalSplitLayout(fileHistorySplitLayout);
-        }
-    }, [open, pullDefaults, fileHistorySplitLayout]);
-
     useEffect(() => {
         if (!open) return;
         const onKey = (e: KeyboardEvent) => {
@@ -71,11 +61,8 @@ export default function SettingsWidget({
                                 <input
                                     type="radio"
                                     name="file-history-split"
-                                    checked={localSplitLayout === 'vertical'}
-                                    onChange={() => {
-                                        setLocalSplitLayout('vertical');
-                                        onFileHistorySplitLayoutChange('vertical');
-                                    }}
+                                    checked={fileHistorySplitLayout === 'vertical'}
+                                    onChange={() => onFileHistorySplitLayoutChange('vertical')}
                                 />
                                 <span>Vertical (stacked)</span>
                             </label>
@@ -83,11 +70,8 @@ export default function SettingsWidget({
                                 <input
                                     type="radio"
                                     name="file-history-split"
-                                    checked={localSplitLayout === 'horizontal'}
-                                    onChange={() => {
-                                        setLocalSplitLayout('horizontal');
-                                        onFileHistorySplitLayoutChange('horizontal');
-                                    }}
+                                    checked={fileHistorySplitLayout === 'horizontal'}
+                                    onChange={() => onFileHistorySplitLayoutChange('horizontal')}
                                 />
                                 <span>Horizontal (side by side)</span>
                             </label>
@@ -180,10 +164,9 @@ export default function SettingsWidget({
                             <label className="git-graph-settings-checkbox">
                                 <input
                                     type="checkbox"
-                                    checked={localPull.noFastForward}
+                                    checked={pullDefaults.noFastForward}
                                     onChange={(e) => {
-                                        const next = { ...localPull, noFastForward: e.target.checked };
-                                        setLocalPull(next);
+                                        const next = { ...pullDefaults, noFastForward: e.target.checked };
                                         onPullDefaultsChange(next);
                                     }}
                                 />
@@ -192,10 +175,9 @@ export default function SettingsWidget({
                             <label className="git-graph-settings-checkbox">
                                 <input
                                     type="checkbox"
-                                    checked={localPull.squash}
+                                    checked={pullDefaults.squash}
                                     onChange={(e) => {
-                                        const next = { ...localPull, squash: e.target.checked };
-                                        setLocalPull(next);
+                                        const next = { ...pullDefaults, squash: e.target.checked };
                                         onPullDefaultsChange(next);
                                     }}
                                 />

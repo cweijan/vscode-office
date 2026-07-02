@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type MouseEvent, type ReactNode } from 'react';
+import { useMemo, useState, type MouseEvent, type ReactNode } from 'react';
 import { IconArchive, IconChevronDown, IconChevronRight } from '../icons';
 import { FileTypeIcon } from './FileTypeIcon';
 import { FileInfo } from '../zipTypes';
@@ -157,36 +157,27 @@ function FolderNodes({
     return <>{nodes}</>;
 }
 
+const ROOT_KEY = 'zip_sidebar_root';
+
 export default function Sidebar({ name = '', folderMap, rootFiles, currentDir, onClickFolder }: SidebarProps) {
-    const rootKey = useRef('zip_sidebar_root');
     const folderTree = useMemo(() => buildFolderTree(folderMap ?? {}), [folderMap]);
     const hasFolders = folderTree.length > 0;
     const autoExpandKey = useMemo(
         () => getSingleExpandableFolderKey(rootFiles ?? [], folderTree),
         [rootFiles, folderTree],
     );
-    const [expandedKeys, setExpandedKeys] = useState<Set<string>>(() => new Set());
+    const [userExpandedKeys, setUserExpandedKeys] = useState<Set<string>>(() => new Set());
+    const [userCollapsedKeys, setUserCollapsedKeys] = useState<Set<string>>(() => new Set());
 
-    useEffect(() => {
+    const expandedKeys = useMemo(() => {
         if (!hasFolders) {
-            setExpandedKeys(new Set());
-            return;
+            return new Set<string>();
         }
-        setExpandedKeys(keys => {
-            const next = new Set(keys);
-            next.add(rootKey.current);
-            if (autoExpandKey) {
-                next.add(autoExpandKey);
-            }
-            return next;
-        });
-    }, [hasFolders, autoExpandKey]);
-
-    useEffect(() => {
-        if (!currentDir || !hasFolders) return;
-        setExpandedKeys(keys => {
-            const next = new Set(keys);
-            next.add(rootKey.current);
+        const next = new Set<string>([ROOT_KEY]);
+        if (autoExpandKey) {
+            next.add(autoExpandKey);
+        }
+        if (currentDir) {
             next.add(currentDir);
             const parts = currentDir.split('/');
             let acc = '';
@@ -194,26 +185,46 @@ export default function Sidebar({ name = '', folderMap, rootFiles, currentDir, o
                 acc = acc ? `${acc}/${part}` : part;
                 next.add(acc);
             }
-            return next;
-        });
-    }, [currentDir, hasFolders]);
+        }
+        for (const key of userExpandedKeys) {
+            next.add(key);
+        }
+        for (const key of userCollapsedKeys) {
+            if (!next.has(key) || key === ROOT_KEY) {
+                continue;
+            }
+            if (key !== currentDir) {
+                next.delete(key);
+            }
+        }
+        return next;
+    }, [autoExpandKey, currentDir, hasFolders, userCollapsedKeys, userExpandedKeys]);
 
     const toggleKey = (key: string) => {
-        setExpandedKeys(keys => {
+        if (expandedKeys.has(key)) {
+            setUserExpandedKeys(keys => {
+                const next = new Set(keys);
+                next.delete(key);
+                return next;
+            });
+            setUserCollapsedKeys(keys => new Set(keys).add(key));
+            return;
+        }
+        setUserCollapsedKeys(keys => {
             const next = new Set(keys);
-            if (next.has(key)) next.delete(key);
-            else next.add(key);
+            next.delete(key);
             return next;
         });
+        setUserExpandedKeys(keys => new Set(keys).add(key));
     };
 
     const expandKey = (key: string) => {
-        setExpandedKeys(keys => {
-            if (keys.has(key)) return keys;
+        setUserCollapsedKeys(keys => {
             const next = new Set(keys);
-            next.add(key);
+            next.delete(key);
             return next;
         });
+        setUserExpandedKeys(keys => new Set(keys).add(key));
     };
 
     return (
@@ -221,12 +232,12 @@ export default function Sidebar({ name = '', folderMap, rootFiles, currentDir, o
             {hasFolders ? (
                 <TreeNode
                     selected={!currentDir}
-                    expanded={expandedKeys.has(rootKey.current)}
+                    expanded={expandedKeys.has(ROOT_KEY)}
                     hasChildren
                     depth={0}
                     onToggle={(e) => {
                         e.stopPropagation();
-                        toggleKey(rootKey.current);
+                        toggleKey(ROOT_KEY);
                     }}
                     onSelect={() => onClickFolder(null)}
                     label={<><IconArchive size={14} /><span className="zip-sidebar-root-name">{name}</span></>}
