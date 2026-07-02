@@ -228,9 +228,9 @@ export default function CommitTable({
             graphConfig,
             false,
             fileHistoryMode,
-            dimOffCurrentBranch,
+            false,
         ),
-        [commits, commitHead, rowHeight, graphConfig, fileHistoryMode, dimOffCurrentBranch],
+        [commits, commitHead, rowHeight, graphConfig, fileHistoryMode],
     );
 
     return (
