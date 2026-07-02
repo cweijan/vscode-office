@@ -289,7 +289,6 @@ html[data-editor-theme]:not([data-editor-theme="Auto"]) {
     box-sizing: border-box;
     background: color-mix(in srgb, var(--front-color) 35%, transparent);
     backdrop-filter: blur(12px) saturate(140%);
-    -webkit-backdrop-filter: blur(12px) saturate(140%);
     animation: pdf-export-overlay-in 0.22s ease;
 }
 

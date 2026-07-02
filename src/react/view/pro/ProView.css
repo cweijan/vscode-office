@@ -78,7 +78,6 @@
     margin-bottom: 36px;
     background: color-mix(in srgb, var(--viewer-sider-bg) 50%, var(--viewer-bg));
     backdrop-filter: blur(20px) saturate(160%);
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
     box-shadow: var(--pro-shadow-sm);
     line-height: 1.65;
     font-size: 14px;
@@ -426,7 +425,6 @@
     justify-content: center;
     z-index: 100;
     backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
     animation: pro-overlay-in 0.25s var(--pro-ease);
 }
 
@@ -440,7 +438,6 @@
     max-width: min(440px, calc(100vw - 48px));
     background: color-mix(in srgb, var(--viewer-bg) 88%, transparent);
     backdrop-filter: blur(40px) saturate(180%);
-    -webkit-backdrop-filter: blur(40px) saturate(180%);
     border: 1px solid color-mix(in srgb, var(--viewer-border) 65%, transparent);
     border-radius: var(--pro-radius-lg);
     overflow: hidden;
