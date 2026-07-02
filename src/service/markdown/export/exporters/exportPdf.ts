@@ -45,16 +45,9 @@ export async function exportPdfFromHtml(markdownFilePath: string, html: string, 
             await page.setContent(htmlForPdf, { waitUntil: 'load', timeout: 60000 });
         });
 
-        const margin = config.margin || {};
         const pdf = await page.pdf({
             format: (config.format || 'A4') as 'A4',
             printBackground: config.printBackground ?? true,
-            margin: {
-                top: margin.top != null ? `${margin.top}px` : undefined,
-                right: margin.right != null ? `${margin.right}px` : undefined,
-                bottom: margin.bottom != null ? `${margin.bottom}px` : undefined,
-                left: margin.left != null ? `${margin.left}px` : undefined,
-            },
         }).catch(error => {
             logExportError('page.pdf()', error);
             throw error;

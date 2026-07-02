@@ -15,7 +15,7 @@ const PRINT_TOC_HIDE_STYLE = `<style>
 </style>`;
 
 function buildHtmlTopMarginStyle(type: ExportType, config: ExportConfig): string {
-    if (type !== 'html') {
+    if (type !== 'html' && type !== 'pdf') {
         return '';
     }
     const top = config.margin?.top;
