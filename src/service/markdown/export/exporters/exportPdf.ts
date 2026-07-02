@@ -1,7 +1,6 @@
 import { readFileSync, unlink, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
-import puppeteer from 'puppeteer-core';
 import { pathToFileURL } from 'url';
 import { createOutline, injectHeadingLinksFromToc } from '../pdf/outline';
 import { writeHtmlFile } from './writeHtml';
@@ -24,6 +23,7 @@ export async function exportPdfFromHtml(markdownFilePath: string, html: string, 
         throw new Error(`Temporary HTML file not found: ${tmpHtmlPath}`);
     }
 
+    const puppeteer = require('puppeteer-core');
     const browser = await puppeteer.launch({
         headless: true,
         executablePath: config.executablePath || undefined,

@@ -1,7 +1,7 @@
 import { unlink } from 'fs';
 import os from 'os';
 import path from 'path';
-import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer-core';
+import type { Browser, ElementHandle, Page } from 'puppeteer-core';
 import { pathToFileURL } from 'url';
 import { writeHtmlFile } from './writeHtml';
 import { logExportError } from '../log';
@@ -29,6 +29,7 @@ export async function rasterizeDynamicContentForDocx(html: string, config: Expor
         tmpHtmlPath = path.resolve(tmpDir, `${tmpBaseName}_math_tmp.html`);
         writeHtmlFile(tmpHtmlPath, html);
 
+        const puppeteer = require('puppeteer-core');
         browser = await puppeteer.launch({
             headless: true,
             executablePath: config.executablePath || undefined,
