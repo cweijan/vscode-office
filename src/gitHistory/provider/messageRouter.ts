@@ -459,7 +459,7 @@ export class MessageRouter {
     private async onGitAction(payload: GitActionPayload): Promise<void> {
         const result = await this.gitActionHandler.handle(payload);
         if (result.error) {
-            this.handler.emit('gitActionResult', { error: result.error, refresh: false });
+            this.handler.emit('gitActionResult', { error: result.error, warning: null, refresh: false });
             return;
         }
         this.handler.emit('gitActionResult', result);

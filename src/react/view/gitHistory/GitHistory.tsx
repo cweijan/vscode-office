@@ -64,6 +64,7 @@ const TABLE_HEADER_HEIGHT = 28;
 const INITIAL_MAX_COMMITS = 300;
 const LOAD_MORE_COMMITS = 100;
 const QUICK_SYNC_DEFAULT_MESSAGE = () => $t('git.quickSync');
+const WARNING_ACTIONS = new Set(['merge']);
 
 function countRealCommits(commits: ReadonlyArray<GitCommit>): number {
     let count = 0;
@@ -153,6 +154,7 @@ function GitHistoryView({
     const [hasRemoteUrl, setHasRemoteUrl] = useState(false);
     const [remoteWebUrls, setRemoteWebUrls] = useState<{ name: string; url: string }[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [warning, setWarning] = useState<string | null>(null);
     const [isExecutingAction, setIsExecutingAction] = useState(false);
     const [moreAvailable, setMoreAvailable] = useState(false);
     const [maxCommits, setMaxCommits] = useState(INITIAL_MAX_COMMITS);
@@ -207,6 +209,7 @@ function GitHistoryView({
     const executeGitAction = useCallback((action: GitActionRequest) => {
         pendingGitActionRef.current = action;
         setIsExecutingAction(true);
+        setWarning(null);
         handler.emit('gitAction', action);
     }, []);
 
@@ -805,7 +808,7 @@ function GitHistoryView({
             .on('error', (message: string) => {
                 setError(message);
             })
-            .on('gitActionResult', (result: { error: string | null; refresh: boolean }) => {
+            .on('gitActionResult', (result: { error: string | null; warning: string | null; refresh: boolean }) => {
                 if (batchModeRef.current) {
                     pendingGitActionRef.current = null;
                     if (result.error) {
@@ -826,6 +829,11 @@ function GitHistoryView({
                     setError(result.error);
                     return;
                 }
+                setWarning(
+                    result.warning && pendingAction && WARNING_ACTIONS.has(pendingAction.action)
+                        ? result.warning
+                        : null
+                );
                 const checkoutUpdate = pendingAction
                     ? buildCheckoutStateUpdate(
                         pendingAction,
@@ -960,6 +968,7 @@ function GitHistoryView({
         if (!repo || refreshing) {
             return;
         }
+        setWarning(null);
         setRefreshing(true);
         handler.emit('refresh');
         clearCommitList();
@@ -1611,6 +1620,7 @@ function GitHistoryView({
                         onNavigate={handleFindNavigate}
                     />
                     {error && <Alert type="error" message={error} closable style={{ margin: '8px 12px' }} />}
+                    {!error && warning && <Alert type="warning" message={warning} closable style={{ margin: '8px 12px' }} />}
                     <div className="git-graph-content" ref={contentRef}>
                         {loading && commits.length === 0 ? (
                             <div className="git-graph-content-loading">
