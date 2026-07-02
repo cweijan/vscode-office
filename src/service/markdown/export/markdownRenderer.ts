@@ -6,7 +6,6 @@ import markdownItToc from 'markdown-it-toc-done-right';
 import markdownItAnchor from 'markdown-it-anchor';
 import markdownItObsidianCallouts from 'markdown-it-obsidian-callouts';
 import markdownItMark from 'markdown-it-mark';
-import hljs from 'highlight.js';
 import markdownItKatex from '../ext/markdown-it-katex';
 import markdownItMermaid from '../ext/markdown-it-mermaid';
 import markdownItObsidian from '../ext/markdown-it-obsidian';
@@ -46,6 +45,7 @@ export function renderMarkdownToHtml(markdownFilePath: string, type: ExportType,
     }
 
     try {
+        const hljs = require('highlight.js');
         logExportInfo('Rendering markdown to HTML ...');
         const md = new MarkdownIt({
             html: true,

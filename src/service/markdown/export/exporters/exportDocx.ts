@@ -1,6 +1,5 @@
 import { writeFileSync } from 'fs';
 import path from 'path';
-import htmlToDocx from 'vscode-html-to-docx';
 import { buildDocxDocumentOptions } from '../docx/documentOptions';
 import { rasterizeDynamicContentForDocx } from './rasterizeForDocx';
 import { logExportInfo } from '../log';
@@ -12,6 +11,7 @@ export async function exportDocxFromHtml(markdownFilePath: string, html: string,
 
     const preparedHtml = await rasterizeDynamicContentForDocx(html, config, targetFilePath);
     const documentOptions = buildDocxDocumentOptions(config.exportTheme);
+    const htmlToDocx = require('vscode-html-to-docx');
     const exportTask = await htmlToDocx(preparedHtml, '', documentOptions, '');
     const buffer = Buffer.from(await exportTask.arrayBuffer());
     writeFileSync(targetFilePath, buffer);
