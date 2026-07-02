@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import path from 'path';
-import { load as loadCheerio } from 'cheerio';
+import { parse } from 'node-html-parser';
 import { Uri } from 'vscode';
 import { exportDocument } from './exporters';
 import { buildHtmlDocumentFromUri } from './htmlDocument';
@@ -22,8 +22,7 @@ function resolveMermaidTheme(config: ExportConfig) {
 }
 
 function appendMermaidBootstrap(html: string, config: ExportConfig): string {
-    const $ = loadCheerio(html);
-    if ($('.mermaid').length === 0) {
+    if (!parse(html).querySelector('.mermaid')) {
         return html;
     }
 
@@ -38,8 +37,10 @@ function appendMermaidBootstrap(html: string, config: ExportConfig): string {
     <script>mermaid.initialize({startOnLoad:true});</script>
     `;
 
-    $('body').append(mermaidScript);
-    return $.html();
+    if (html.includes('</body>')) {
+        return html.replace('</body>', `${mermaidScript}</body>`);
+    }
+    return `${html}${mermaidScript}`;
 }
 
 export async function runExportPipeline(markdownFilePath: string, config: ExportConfig): Promise<string> {

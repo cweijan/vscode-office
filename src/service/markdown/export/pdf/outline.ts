@@ -1,4 +1,4 @@
-import { load as loadCheerio, type Cheerio, type CheerioAPI } from 'cheerio';
+import { parse, HTMLElement, Node } from 'node-html-parser';
 
 const PDF_OUTLINE_ANCHOR_STYLE = `<style id="pdf-outline-anchor-style">
 a.pdf-outline-anchor {
@@ -15,70 +15,66 @@ a.pdf-outline-anchor {
 
 /** When TOC is auto-inserted and hidden on print, inject tiny (not hidden) anchor links at body end so PDF destinations exist. */
 export function injectHeadingLinksFromToc(html: string): string {
-    const $ = loadCheerio(html);
-    const tocItems = $('.table-of-contents>ol>li');
+    const root = parse(html);
+    const tocItems = root.querySelectorAll('.table-of-contents > ol > li');
     if (tocItems.length === 0) {
         return html;
     }
 
     const hrefs = new Set<string>();
-    collectTocHrefs(tocItems, $, hrefs);
-    appendOutlineAnchorsToBody($, hrefs);
-    return $.html();
+    collectTocHrefs(tocItems, hrefs);
+    return appendOutlineAnchorsToHtml(root.toString(), hrefs);
 }
 
-function collectTocHrefs(items: Cheerio<any>, $: CheerioAPI, hrefs: Set<string>): void {
-    for (let index = 0; index < items.length; index++) {
-        const li = $(items[index]);
-        const anchor = li.children('a').first();
-        if (anchor.length > 0) {
-            const href = anchor.attr('href') || '';
+function collectTocHrefs(items: HTMLElement[], hrefs: Set<string>): void {
+    for (const li of items) {
+        const anchor = findDirectChildByTag(li, 'a');
+        if (anchor) {
+            const href = anchor.getAttribute('href') || '';
             if (href.startsWith('#')) {
                 hrefs.add(href);
             }
         }
 
-        const children = li.children('ol').children('li');
+        const nestedList = findDirectChildByTag(li, 'ol');
+        const children = nestedList ? getDirectChildElementsByTag(nestedList, 'li') : [];
         if (children.length > 0) {
-            collectTocHrefs(children, $, hrefs);
+            collectTocHrefs(children, hrefs);
         }
     }
 }
 
-function appendOutlineAnchorsToBody($: CheerioAPI, hrefs: Set<string>): void {
+function appendOutlineAnchorsToHtml(html: string, hrefs: Set<string>): string {
     if (hrefs.size === 0) {
-        return;
+        return html;
     }
-    const body = $('body').first();
-    if (!body.length) {
-        return;
-    }
-
-    if (!$('style#pdf-outline-anchor-style').length) {
-        body.append(PDF_OUTLINE_ANCHOR_STYLE);
+    if (html.includes('id="pdf-outline-anchors"')) {
+        return html;
     }
 
-    if ($('#pdf-outline-anchors').length) {
-        return;
+    let suffix = '';
+    if (!html.includes('id="pdf-outline-anchor-style"')) {
+        suffix += PDF_OUTLINE_ANCHOR_STYLE;
     }
-
     const links = Array.from(hrefs)
         .map(href => `<a class="pdf-outline-anchor" href="${href}" aria-hidden="true">.</a>`)
         .join('');
-    body.append(`<div id="pdf-outline-anchors" aria-hidden="true">${links}</div>`);
+    suffix += `<div id="pdf-outline-anchors" aria-hidden="true">${links}</div>`;
+
+    if (html.includes('</body>')) {
+        return html.replace('</body>', `${suffix}</body>`);
+    }
+    return `${html}${suffix}`;
 }
 
 export const createOutline = async (pdf, html) => {
-
     const { PDFDocument } = require("pdf-lib");
     const pdfDoc = await PDFDocument.load(pdf)
-
-    const $ = require("cheerio").load(html)
-
-    const array = $('.table-of-contents>ol>li');
-    if (array.length > 0) {
+    const root = parse(html);
+    const items = root.querySelectorAll('.table-of-contents > ol > li');
+    if (items.length > 0) {
         const dict = extractDict(pdfDoc);
-        const dictArray = inflateDict(array, $, dict);
+        const dictArray = inflateDict(items, dict);
         if (dictArray.length > 0) {
             creatOutlines(pdfDoc, dictArray)
         }
@@ -87,19 +83,20 @@ export const createOutline = async (pdf, html) => {
     return await pdfDoc.save()
 }
 
-function inflateDict(array, $, dict) {
+function inflateDict(items: HTMLElement[], dict) {
     const dictArray = []
-    for (let index = 0; index < array.length; index++) {
-        const li = $(array[index]);
-        const a = li.children('a');
-        if (!a) continue;
-        const key = getKey(a);
+    for (let index = 0; index < items.length; index++) {
+        const li = items[index];
+        const anchor = findDirectChildByTag(li, 'a');
+        if (!anchor) continue;
+        const key = getKey(anchor);
         if (!dict[key]) { continue; }
-        dict[key].title = a.text();
-        dict[key].isLast = array.length == 1 || index == array.length - 1;
-        const childs = $(array[index]).children('ol').children('li');
-        if (childs != null && childs.length > 0) {
-            dict[key].child = inflateDict(childs, $, dict)
+        dict[key].title = anchor.text.trim();
+        dict[key].isLast = items.length == 1 || index == items.length - 1;
+        const nestedList = findDirectChildByTag(li, 'ol');
+        const children = nestedList ? getDirectChildElementsByTag(nestedList, 'li') : [];
+        if (children.length > 0) {
+            dict[key].child = inflateDict(children, dict)
         }
         dictArray.push(dict[key])
     }
@@ -124,10 +121,22 @@ function extractDict(pdfDoc) {
     return dict;
 }
 
-function getKey(a) {
-    const href = a.attr("href") || "";
-    const anchor = decodeURIComponent(href.replace(/^#/, ""));
-    return anchorToPdfDestKey(anchor);
+function getKey(anchor: HTMLElement) {
+    const href = anchor.getAttribute("href") || "";
+    const target = decodeURIComponent(href.replace(/^#/, ""));
+    return anchorToPdfDestKey(target);
+}
+
+function isElementNode(node: Node): node is HTMLElement {
+    return node instanceof HTMLElement;
+}
+
+function getDirectChildElementsByTag(element: HTMLElement, tagName: string): HTMLElement[] {
+    return element.childNodes.filter(isElementNode).filter(child => child.rawTagName === tagName);
+}
+
+function findDirectChildByTag(element: HTMLElement, tagName: string): HTMLElement | null {
+    return getDirectChildElementsByTag(element, tagName)[0] ?? null;
 }
 
 function anchorToPdfDestKey(anchor) {

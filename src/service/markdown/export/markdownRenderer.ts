@@ -1,5 +1,5 @@
-import { load as loadCheerio } from 'cheerio';
 import MarkdownIt from 'markdown-it';
+import { parse, HTMLElement } from 'node-html-parser';
 import markdownItCheckbox from 'markdown-it-checkbox';
 import markdownItPlantuml from 'markdown-it-plantuml';
 import markdownItToc from 'markdown-it-toc-done-right';
@@ -79,18 +79,18 @@ export function renderMarkdownToHtml(markdownFilePath: string, type: ExportType,
         if (type !== 'html') {
             md.renderer.rules.html_block = (tokens, idx) => {
                 const html = tokens[idx].content;
-                const $ = loadCheerio(html);
-                $('img').each((_i, element) => {
-                    const src = $(element).attr('src');
+                const root = parse(html);
+                root.querySelectorAll('img').forEach((element: HTMLElement) => {
+                    const src = element.getAttribute('src');
                     if (!src) {
                         return;
                     }
                     const href = convertImagePath(src, markdownFilePath);
                     if (href) {
-                        $(element).attr('src', href);
+                        element.setAttribute('src', href);
                     }
                 });
-                return $.html();
+                return root.toString();
             };
         }
 
