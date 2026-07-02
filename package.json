@@ -781,7 +781,7 @@
 		"chokidar": "^5.0.0",
 		"esbuild": "^0.28.1",
 		"esbuild-plugin-copy": "2.1.1",
-		"eslint": "^10.6.0",
+		"eslint": "^9.39.4",
 		"eslint-plugin-import-x": "^4.16.2",
 		"eslint-plugin-react": "^7.37.5",
 		"eslint-plugin-react-hooks": "^7.1.1",
