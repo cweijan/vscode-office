@@ -97,7 +97,7 @@ export default function XmindViewer() {
         setDark(prev => !prev);
     }, []);
 
-    const loadXmind = useCallback(async (payload: { path?: string; buffer?: number[]; error?: string }) => {
+    const loadXmind = useCallback(async (payload: { path?: string; buffer?: number[]; error?: string; fileName?: string }) => {
         setLoading(true);
         setError(null);
         setSheets([]);
@@ -109,7 +109,7 @@ export default function XmindViewer() {
 
         try {
             const buffer = await loadOfficeBuffer(payload);
-            const fileName = payload.path?.split('/').pop() ?? 'document.xmind';
+            const fileName = payload.fileName ?? payload.path?.split('/').pop() ?? 'document.xmind';
             const parsed = await parseXmind(buffer, fileName);
             if (!parsed.sheets.length) {
                 throw new Error('No sheets found in XMind file');
