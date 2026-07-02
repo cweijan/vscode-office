@@ -1,6 +1,16 @@
-import mermaid from 'mermaid'
+let mermaidInstance
+
+function getMermaid() {
+  if (mermaidInstance) {
+    return mermaidInstance
+  }
+  const mod = require('mermaid')
+  mermaidInstance = mod.default || mod.mermaid || mod
+  return mermaidInstance
+}
 
 const mermaidChart = (code) => {
+  const mermaid = getMermaid()
   try {
     mermaid.parse(code)
     return `<div class="mermaid">${code}</div>`
@@ -10,6 +20,7 @@ const mermaidChart = (code) => {
 }
 
 const MermaidPlugin = (md) => {
+  const mermaid = getMermaid()
   md.mermaid = mermaid
   mermaid.loadPreferences = (preferenceStore) => {
     let mermaidTheme = preferenceStore.get('mermaid-theme')

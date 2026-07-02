@@ -13,8 +13,15 @@ const devExtensionTarget = process.env.OFFICE_EXTENSION_TARGET;
 const buildDesktop = isProd || devExtensionTarget !== 'web';
 const buildWeb = isProd || devExtensionTarget === 'web';
 
-const dependencies = ['vscode-html-to-docx', 'highlight.js', 'pdf-lib', 'katex', 'puppeteer-core']
+const dependencies = ['vscode-html-to-docx', 'highlight.js', 'pdf-lib', 'katex', 'puppeteer-core', 'mermaid']
 const nodeBuiltinStubs = ['fs', 'child_process', 'os', 'crypto', 'stream', 'https', 'http', 'net', 'tls', 'zlib', 'events', 'util', 'buffer', 'module', 'url', 'assert', 'string_decoder']
+
+function resolvePackageEntry(packageName: string) {
+    const pkgPath = resolve(`./node_modules/${packageName}/package.json`);
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
+    const entry = pkg.main ?? pkg.module ?? pkg.exports?.['.']?.default ?? pkg.exports?.['.']?.import ?? 'index.js';
+    return resolve(`./node_modules/${packageName}`, entry);
+}
 
 function createDesktopAssetCopyPlugins(shouldWatch: boolean) {
     return [
@@ -161,9 +168,7 @@ async function createLib() {
         return;
     }
     const points = dependencies.reduce((point, dependency) => {
-        const pkgPath = resolve(`./node_modules/${dependency}/package.json`);
-        const main = JSON.parse(readFileSync(pkgPath, 'utf-8')).main ?? "index.js";
-        const mainAbsPath = resolve(`./node_modules/${dependency}`, main);
+        const mainAbsPath = resolvePackageEntry(dependency);
         if (existsSync(mainAbsPath)) {
             point[dependency] = mainAbsPath;
         }
