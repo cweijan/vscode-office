@@ -190,7 +190,7 @@ export class CommitService {
             markOffCurrentBranch = false,
         } = params;
         let commits = rawCommits;
-        let moreCommitsAvailable = commits.length === maxCommits + 1;
+        const moreCommitsAvailable = commits.length === maxCommits + 1;
         if (moreCommitsAvailable) {
             commits = commits.slice(0, maxCommits);
         }
@@ -729,7 +729,7 @@ function parseStatusPorcelain(stdout: string): NameStatusRecord[] {
             continue;
         }
 
-        let filePath = line.substring(3);
+        const filePath = line.substring(3);
         let oldFilePath = filePath;
         let newFilePath = filePath;
         const arrowIndex = filePath.indexOf(' -> ');

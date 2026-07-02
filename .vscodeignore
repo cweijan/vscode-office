@@ -20,5 +20,8 @@ public/
 lib.js
 vite/
 backlog.md
+bun.lock
 yarn.lock
+pnpm-lock.yaml
+pnpm-workspace.yaml
 !package.nls*.json

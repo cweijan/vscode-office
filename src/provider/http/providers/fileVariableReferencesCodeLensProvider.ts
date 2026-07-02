@@ -16,7 +16,8 @@ export class FileVariableReferencesCodeLensProvider implements CodeLensProvider 
         const lines: string[] = document.getText().split(Constants.LineSplitterRegex);
         const requestRanges: [number, number][] = Selector.getRequestRanges(lines, { ignoreFileVariableDefinitionLine: false });
 
-        for (let [blockStart, blockEnd] of requestRanges) {
+        for (const [start, blockEnd] of requestRanges) {
+            let blockStart = start;
             for (; blockStart <= blockEnd; blockStart++) {
                 const line = lines[blockStart];
                 if (Selector.isCommentLine(line)) {

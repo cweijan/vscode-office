@@ -14,7 +14,8 @@ export class HttpDocumentSymbolProvider implements DocumentSymbolProvider {
             lines,
             { ignoreCommentLine: false , ignoreFileVariableDefinitionLine: false });
 
-        for (let [blockStart, blockEnd] of requestRange) {
+        for (const [start, blockEnd] of requestRange) {
+            let blockStart = start;
             // get real start for current requestRange
             let requestName: string | undefined;
             while (blockStart <= blockEnd) {

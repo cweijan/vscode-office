@@ -130,7 +130,9 @@ export function adjustColourForLightBackground(colour: string, background: strin
         return colour;
     }
 
-    let [hue, saturation, lightness] = rgbToHsl(...source);
+    const [hue, initialSaturation, initialLightness] = rgbToHsl(...source);
+    let saturation = initialSaturation;
+    let lightness = initialLightness;
     saturation = clamp(Math.max(saturation * 1.15, LIGHT_BG_MIN_SATURATION), 0, 0.98);
 
     lightness = lightness * (1 - LIGHT_BG_LIGHTNESS_BLEND)

@@ -1,5 +1,5 @@
 import { adjustImgPath, getWorkspacePath } from '@/common/fileUtil';
-import { basename, isAbsolute, parse, resolve } from 'path';
+import { isAbsolute, parse, resolve } from 'path';
 import * as vscode from 'vscode';
 import { extensionResource, getExtensionResourceRoots, readExtensionText } from '@/common/extensionResource';
 import { ensureParentDirectory } from '@/common/workspaceFs';

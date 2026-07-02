@@ -1,4 +1,4 @@
-import { dirname, parse } from 'path';
+import { parse } from 'path';
 import * as vscode from 'vscode';
 import { ensureParentDirectory } from './workspaceFs';
 import { Global } from './global';

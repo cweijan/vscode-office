@@ -13,7 +13,6 @@ import type { LoadRepositoryRequest } from '../types/git';
 import { buildGitHistoryInitPayload } from '../util/gitHistoryInitPayload';
 import { GitActionHandler } from './gitActionHandler';
 import {
-    getFileHistorySplitLayout,
     setFileHistorySplitLayout,
     type FileHistorySplitLayout,
 } from '../util/gitHistoryPreferences';

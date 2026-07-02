@@ -5,7 +5,7 @@ import { buildFileTree } from '@/service/compress/fileTree';
 import prettyBytes from '@/service/zip/pretty-bytes';
 import iconv from 'iconv-lite';
 import { mkdirSync } from 'fs';
-import { basename, dirname, join, parse, relative, resolve, sep } from 'path';
+import { basename, dirname, parse, relative, sep } from 'path';
 import SevenZip from '7z-wasm';
 import { i18n } from '@/common/global';
 import { Uri, commands, window, workspace } from 'vscode';
