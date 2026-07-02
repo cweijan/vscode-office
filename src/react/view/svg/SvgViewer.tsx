@@ -2,7 +2,6 @@ import { App } from 'antd';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useWindowSize } from '../../util/reactUtils';
 import { handler } from '../../util/vscode';
-import { getConfigs } from '../../util/vscodeConfig';
 import { $t } from '../../i18n/i18nConfig';
 import SponsorBar from '../components/SponsorBar';
 import { VSCodeLogoSVG } from '../vscode';

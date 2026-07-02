@@ -44,8 +44,7 @@ export default [
 			"@typescript-eslint/no-empty-function": "off",
 			"@typescript-eslint/no-explicit-any": "off",
 			"@typescript-eslint/no-empty-object-type": "off",
-			"@typescript-eslint/no-this-alias": "off",
-			"prefer-const": "error",
+			"@typescript-eslint/no-this-alias": "off"
 		},
 	},
 	scopeConfig(reactPlugin.configs.flat.recommended, reactFiles),
@@ -60,6 +59,7 @@ export default [
 			},
 		},
 		rules: {
+			"unused-imports/no-unused-imports": "error",
 			"react/jsx-no-target-blank": "off",
 			"react-refresh/only-export-components": [
 				"warn",

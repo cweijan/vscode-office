@@ -1,5 +1,5 @@
 import Icon from "@ant-design/icons/lib/components/Icon";
-import { CSSProperties, MouseEventHandler } from "react";
+import { CSSProperties } from "react";
 import { handler } from "../util/vscode";
 
 export function VSCodeLogoSVG() {
