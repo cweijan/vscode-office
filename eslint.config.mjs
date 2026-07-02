@@ -1,6 +1,6 @@
 import tseslint from "@typescript-eslint/eslint-plugin";
 import globals from "globals";
-import importPlugin from "eslint-plugin-import";
+import { importX } from "eslint-plugin-import-x";
 import reactPlugin from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefreshModule from "eslint-plugin-react-refresh";
@@ -31,11 +31,11 @@ export default [
 			},
 		},
 		plugins: {
-			import: importPlugin,
+			"import-x": importX,
 			"unused-imports": unusedImports,
 		},
 		settings: {
-			...importPlugin.flatConfigs.typescript.settings,
+			...importX.flatConfigs.typescript.settings,
 		},
 		rules: {
 			"unused-imports/no-unused-imports": "error",
