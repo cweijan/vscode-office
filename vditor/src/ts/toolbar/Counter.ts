@@ -11,7 +11,9 @@ export class Counter {
 
     public render(vditor: IVditor, mdText: string) {
         let length = mdText.endsWith("\n") ? mdText.length - 1 : mdText.length;
-        if (vditor.options.counter.type === "text" && vditor[vditor.currentMode]) {
+        if (vditor.currentMode === "raw" && vditor.options.counter.type === "text") {
+            length = vditor.raw.element.value.length;
+        } else if (vditor.options.counter.type === "text" && vditor[vditor.currentMode]) {
             const tempElement = vditor[vditor.currentMode].element.cloneNode(true) as HTMLElement;
             tempElement.querySelectorAll(".vditor-wysiwyg__preview").forEach((item) => {
                 item.remove();

@@ -35,15 +35,17 @@ import { getCodeFontFamilyOptions } from "../util/fontFamilyOptions";
 export const SETTINGS_PANEL_CLASS = "vditor-settings-panel";
 
 const EDIT_MODES = [
-    { id: "wysiwyg", label: "Visual" },
-    { id: "ir", label: "Source" },
+    { id: "wysiwyg", labelKey: "edit-mode-visual-label", fallback: "Visual" },
+    { id: "ir", labelKey: "edit-mode-source-label", fallback: "Source" },
+    { id: "raw", labelKey: "raw", fallback: "Raw" },
 ] as const;
 
 const buildEditModeSegmentedHTML = (currentMode: string) => {
     let html = `<div class="${SETTINGS_PANEL_CLASS}__segmented" role="group">`;
     for (const mode of EDIT_MODES) {
         const isCurrent = mode.id === currentMode;
-        html += `<button type="button" class="${SETTINGS_PANEL_CLASS}__segment${isCurrent ? ` ${SETTINGS_PANEL_CLASS}__segment--current` : ""}" data-mode="${mode.id}" aria-pressed="${isCurrent}">${mode.label}</button>`;
+        const label = window.VditorI18n[mode.labelKey] || mode.fallback;
+        html += `<button type="button" class="${SETTINGS_PANEL_CLASS}__segment${isCurrent ? ` ${SETTINGS_PANEL_CLASS}__segment--current` : ""}" data-mode="${mode.id}" aria-pressed="${isCurrent}">${label}</button>`;
     }
     html += "</div>";
     return html;
@@ -117,6 +119,7 @@ const resolveDisplayedFontSize = (vditor: IVditor, key: string, fallback: number
     }
 
     const content = vditor.element.querySelector<HTMLElement>(".vditor-ir")
+        || vditor.element.querySelector<HTMLElement>(".vditor-raw")
         || vditor.element.querySelector<HTMLElement>(".vditor-wysiwyg")
         || vditor.element;
     return parsePxValue(getComputedStyle(vditor.element).getPropertyValue("--editor-font-size"))
@@ -297,7 +300,7 @@ export const buildSettingsPanelHTML = (vditor: IVditor) => {
     const codeBlockMaxHeight = getGlobalLocalStorageSetting<string>(CODE_BLOCK_MAX_HEIGHT_KEY, CODE_BLOCK_MAX_HEIGHT_DEFAULT) ?? CODE_BLOCK_MAX_HEIGHT_DEFAULT;
     return `<div class="${SETTINGS_PANEL_CLASS}">
         <div class="${SETTINGS_PANEL_CLASS}__section">
-            <div class="${SETTINGS_PANEL_CLASS}__title">Edit Mode</div>
+            <div class="${SETTINGS_PANEL_CLASS}__title">${i18n["edit-mode-label"]}</div>
             ${buildEditModeSegmentedHTML(vditor.currentMode)}
         </div>
         <div class="${SETTINGS_PANEL_CLASS}__section">

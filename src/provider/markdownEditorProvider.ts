@@ -252,7 +252,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                 Global.updateConfig("mermaidTheme", theme);
             }
         }).on("editMode", (mode: string) => {
-            if (mode === "wysiwyg" || mode === "ir") {
+            if (mode === "wysiwyg" || mode === "ir" || mode === "raw") {
                 Global.updateConfig("editMode", mode);
             }
         }).on("img", async (payload) => {

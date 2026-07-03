@@ -49,6 +49,8 @@ import { afterRenderEvent } from "./ts/wysiwyg/afterRenderEvent";
 import { renderToc } from "./ts/util/toc";
 import { scrollToBlock as scrollToBlockUtil } from "./ts/util/scrollToBlock";
 import { isDocumentDirty, markDocumentSaved, updateSaveToolbarState } from "./ts/util/saveToolbarState";
+import { Raw } from "./ts/raw/index";
+import { insertRawMarkdown } from "./ts/raw/toolbar";
 import {
     applyEditorSettings,
     enableViewerSettingsSync,
@@ -68,6 +70,8 @@ import { WYSIWYG } from "./ts/wysiwyg/index";
 import { input } from "./ts/wysiwyg/input";
 import { ensureEditorBoundaryParagraphs, renderDomByMd } from "./ts/wysiwyg/renderDomByMd";
 
+type TextSelection = { start: number, end: number };
+
 class Vditor {
     public static adapterRender = adapterRender;
     public static previewImage = previewImage;
@@ -84,6 +88,7 @@ class Vditor {
     public vditor: IVditor;
     private aiDialog: AIDialog | null = null;
     private aiSelectionRange: Range | null = null;
+    private aiRawSelection: TextSelection | null = null;
     private aiReviewPanel: AIReviewPanel = new AIReviewPanel();
     private aiReplaceAll = false;
 
@@ -160,7 +165,7 @@ class Vditor {
     }
 
     /** 切换编辑模式（不触发 changeEditMode 回调） */
-    public switchEditMode(mode: "wysiwyg" | "ir") {
+    public switchEditMode(mode: IEditMode) {
         if (this.vditor.currentMode === mode) {
             return;
         }
@@ -193,6 +198,8 @@ class Vditor {
             this.vditor.wysiwyg.element.focus();
         } else if (this.vditor.currentMode === "ir") {
             this.vditor.ir.element.focus();
+        } else if (this.vditor.currentMode === "raw") {
+            this.vditor.raw.element.focus();
         }
     }
 
@@ -202,6 +209,8 @@ class Vditor {
             this.vditor.wysiwyg.element.blur();
         } else if (this.vditor.currentMode === "ir") {
             this.vditor.ir.element.blur();
+        } else if (this.vditor.currentMode === "raw") {
+            this.vditor.raw.element.blur();
         }
     }
 
@@ -212,10 +221,14 @@ class Vditor {
             this.vditor.toolbar.elements,
             Constants.EDIT_TOOLBARS.concat(["undo", "redo", "edit-mode"]),
         );
-        this.vditor[this.vditor.currentMode].element.setAttribute(
-            "contenteditable",
-            "false",
-        );
+        if (this.vditor.currentMode === "raw") {
+            this.vditor.raw.element.disabled = true;
+        } else {
+            this.vditor[this.vditor.currentMode].element.setAttribute(
+                "contenteditable",
+                "false",
+            );
+        }
     }
 
     /** 解除编辑器禁用 */
@@ -225,7 +238,11 @@ class Vditor {
             Constants.EDIT_TOOLBARS.concat(["undo", "redo", "edit-mode"]),
         );
         this.vditor.undo.resetIcon(this.vditor);
-        this.vditor[this.vditor.currentMode].element.setAttribute("contenteditable", "true");
+        if (this.vditor.currentMode === "raw") {
+            this.vditor.raw.element.disabled = false;
+        } else {
+            this.vditor[this.vditor.currentMode].element.setAttribute("contenteditable", "true");
+        }
     }
 
     /** 返回选中的字符串 */
@@ -236,10 +253,19 @@ class Vditor {
         if (this.vditor.currentMode === "ir") {
             return getSelectText(this.vditor.ir.element);
         }
+        if (this.vditor.currentMode === "raw") {
+            return this.vditor.raw.element.value.substring(
+                this.vditor.raw.element.selectionStart,
+                this.vditor.raw.element.selectionEnd,
+            );
+        }
     }
 
     /** 获取焦点位置 */
     public getCursorPosition() {
+        if (this.vditor.currentMode === "raw") {
+            return this.getRawCursorPosition();
+        }
         return getCursorPosition(this.vditor[this.vditor.currentMode].element);
     }
 
@@ -317,6 +343,17 @@ class Vditor {
 
     /** 删除选中内容 */
     public deleteValue() {
+        if (this.vditor.currentMode === "raw") {
+            const textarea = this.vditor.raw.element;
+            if (textarea.selectionStart === textarea.selectionEnd) {
+                return;
+            }
+            insertRawMarkdown(this.vditor, "", {
+                end: textarea.selectionEnd,
+                start: textarea.selectionStart,
+            });
+            return;
+        }
         if (window.getSelection().isCollapsed) {
             return;
         }
@@ -325,11 +362,19 @@ class Vditor {
 
     /** 更新选中内容 */
     public updateValue(value: string) {
+        if (this.vditor.currentMode === "raw") {
+            insertRawMarkdown(this.vditor, value);
+            return;
+        }
         document.execCommand("insertHTML", false, value);
     }
 
     /** 在焦点处插入内容，并默认进行 Markdown 渲染 */
     public insertValue(value: string, render = true) {
+        if (this.vditor.currentMode === "raw") {
+            insertRawMarkdown(this.vditor, value);
+            return;
+        }
         const range = getEditorRange(this.vditor);
         range.collapse(true);
         const tmpElement = document.createElement("template");
@@ -356,7 +401,7 @@ class Vditor {
                 enableHint: false,
                 enableInput: false,
             });
-        } else {
+        } else if (this.vditor.currentMode === "ir") {
             this.vditor.ir.element.innerHTML = this.vditor.lute.Md2VditorIRDOM(markdown);
             this.vditor.ir.element
                 .querySelectorAll(".vditor-ir__preview[data-render='2']")
@@ -369,6 +414,10 @@ class Vditor {
                 enableHint: false,
                 enableInput: false,
             });
+        } else {
+            this.vditor.raw.element.value = markdown;
+            this.vditor.raw.record(this.vditor, false, false);
+            this.vditor.undo.addToUndoStack(this.vditor);
         }
 
         renderToc(this.vditor);
@@ -433,11 +482,79 @@ class Vditor {
         refreshAISettingsToolbarPanel(this.vditor);
     }
 
+    private getRawCursorPosition() {
+        const textarea = this.vditor.raw.element;
+        const parentElement = textarea.parentElement;
+        if (!parentElement) {
+            return {
+                left: 0,
+                top: 0,
+            };
+        }
+
+        const style = window.getComputedStyle(textarea);
+        const fontSize = parseFloat(style.fontSize) || 14;
+        const lineHeight = parseFloat(style.lineHeight) || fontSize * 1.5;
+        const paddingLeft = parseFloat(style.paddingLeft) || 0;
+        const paddingTop = parseFloat(style.paddingTop) || 0;
+        const textBeforeCaret = textarea.value.slice(0, textarea.selectionStart);
+        const lines = textBeforeCaret.split("\n");
+        const lineIndex = lines.length - 1;
+        const lineText = lines[lineIndex] || "";
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        let textWidth = lineText.length * fontSize * 0.6;
+        if (context) {
+            context.font = [
+                style.fontStyle,
+                style.fontVariant,
+                style.fontWeight,
+                style.fontSize,
+                style.fontFamily,
+            ].filter(Boolean).join(" ");
+            textWidth = context.measureText(lineText).width;
+        }
+
+        const textareaRect = textarea.getBoundingClientRect();
+        const parentRect = parentElement.getBoundingClientRect();
+        return {
+            left: textareaRect.left - parentRect.left + paddingLeft + textWidth - textarea.scrollLeft,
+            top: textareaRect.top - parentRect.top + paddingTop + lineIndex * lineHeight - textarea.scrollTop,
+        };
+    }
+
+    private captureRawSelection(): TextSelection | null {
+        if (this.vditor.currentMode !== "raw") {
+            return null;
+        }
+        const textarea = this.vditor.raw.element;
+        if (textarea.selectionStart === textarea.selectionEnd) {
+            return null;
+        }
+        return {
+            end: textarea.selectionEnd,
+            start: textarea.selectionStart,
+        };
+    }
+
+    private restoreRawSelection(selection: TextSelection | null) {
+        if (this.vditor.currentMode !== "raw" || !selection) {
+            this.focus();
+            return;
+        }
+        const textarea = this.vditor.raw.element;
+        const start = Math.min(Math.max(0, selection.start), textarea.value.length);
+        const end = Math.min(Math.max(start, selection.end), textarea.value.length);
+        textarea.focus({preventScroll: true});
+        textarea.setSelectionRange(start, end);
+    }
+
     /** 打开 AI 润色弹窗，由外部（右键菜单等）调用 */
     public openAIPolishDialog() {
         if (!this.aiDialog) { return; }
         const sel = this.getSelection();
-        this.aiSelectionRange = captureEditorSelection(this.vditor);
+        this.aiRawSelection = this.captureRawSelection();
+        this.aiSelectionRange = this.aiRawSelection ? null : captureEditorSelection(this.vditor);
         if (this.aiSelectionRange) {
             showFrozenSelection(this.vditor, this.aiSelectionRange);
         }
@@ -448,6 +565,9 @@ class Vditor {
     public triggerAIPolish(options?: IAIPolishOptions, capturedMarkdown?: string, isSelection?: boolean) {
         const onPolish = this.vditor.options.ai?.onPolish;
         if (!onPolish) { return; }
+        if (this.vditor.currentMode === "raw" && isSelection && !this.aiRawSelection) {
+            this.aiRawSelection = this.captureRawSelection();
+        }
         const replaceAll = isSelection !== undefined ? !isSelection : !this.getSelection();
         this.aiReplaceAll = replaceAll;
         const markdown = capturedMarkdown ?? (this.getSelection() || this.getValue());
@@ -455,17 +575,23 @@ class Vditor {
         if (this.aiSelectionRange) {
             showFrozenSelection(this.vditor, this.aiSelectionRange);
         }
-        const finishReview = (cancel = false) => {
+        const finishReview = (cancel = false, keepSelectionForApply = false) => {
             const range = this.aiSelectionRange;
-            const hadSelection = !!range && !this.aiReplaceAll;
+            const rawSelection = this.aiRawSelection;
+            const hadSelection = (!!range || !!rawSelection) && !this.aiReplaceAll;
             this.enable();
             hideFrozenSelection(this.vditor);
-            this.aiSelectionRange = null;
             this.aiReviewPanel.close();
-            if (hadSelection) {
+            if (rawSelection && hadSelection) {
+                this.restoreRawSelection(rawSelection);
+            } else if (range && hadSelection) {
                 restoreEditorSelection(this.vditor, range);
             } else {
                 this.focus();
+            }
+            this.aiSelectionRange = null;
+            if (!keepSelectionForApply) {
+                this.aiRawSelection = null;
             }
             if (cancel) {
                 this.vditor.options.ai?.onCancelPolish?.();
@@ -475,7 +601,7 @@ class Vditor {
             markdown,
             {
                 onAccept: (result) => {
-                    finishReview(false);
+                    finishReview(false, true);
                     this.applyAIResult(result, this.aiReplaceAll);
                 },
                 onReject: () => finishReview(false),
@@ -503,12 +629,27 @@ class Vditor {
     public applyAIResult(markdown: string, replaceAll = false) {
         this.enable();
         hideFrozenSelection(this.vditor);
+        if (this.vditor.currentMode === "raw") {
+            if (replaceAll) {
+                this.aiSelectionRange = null;
+                this.aiRawSelection = null;
+                this.setValue(markdown);
+                return;
+            }
+            const rawSelection = this.aiRawSelection;
+            this.aiSelectionRange = null;
+            this.aiRawSelection = null;
+            insertRawMarkdown(this.vditor, markdown, rawSelection || undefined);
+            return;
+        }
         if (replaceAll) {
             this.aiSelectionRange = null;
+            this.aiRawSelection = null;
             this.setValue(markdown);
         } else {
             restoreEditorSelection(this.vditor, this.aiSelectionRange);
             this.aiSelectionRange = null;
+            this.aiRawSelection = null;
             document.execCommand("delete", false);
             const html = this.vditor.lute.Md2HTML(markdown);
             document.execCommand("insertHTML", false, html);
@@ -540,6 +681,7 @@ class Vditor {
         this.vditor.undo = new Undo();
         this.vditor.wysiwyg = new WYSIWYG(this.vditor);
         this.vditor.ir = new IR(this.vditor);
+        this.vditor.raw = new Raw(this.vditor);
         this.vditor.toolbar = new Toolbar(this.vditor);
 
         if (typeof mergedOptions.onSettingsChange === "function") {
@@ -585,6 +727,7 @@ class Vditor {
                     if (reason !== "submit") {
                         hideFrozenSelection(this.vditor);
                         this.aiSelectionRange = null;
+                        this.aiRawSelection = null;
                     }
                 });
             }

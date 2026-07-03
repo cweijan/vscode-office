@@ -1,4 +1,5 @@
 import {Constants} from "../constants";
+import {processRawToolbar} from "../raw/toolbar";
 import {getEventName} from "../util/compatibility";
 import {listIndent} from "../util/fixBrowserBehavior";
 import {hasClosestByMatchTag} from "../util/hasClosest";
@@ -12,6 +13,10 @@ export class Indent extends MenuItem {
         this.element.children[0].addEventListener(getEventName(), (event) => {
             event.preventDefault();
             if (this.element.firstElementChild.classList.contains(Constants.CLASS_MENU_DISABLED)) {
+                return;
+            }
+            if (vditor.currentMode === "raw") {
+                processRawToolbar(vditor, this.element.children[0]);
                 return;
             }
             const range = getEditorRange(vditor);

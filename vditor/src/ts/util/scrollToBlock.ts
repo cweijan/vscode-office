@@ -85,7 +85,69 @@ const findBlockElement = (editorElement: HTMLElement, fragment: string): HTMLEle
     return null;
 };
 
+const getDecodedFragmentText = (normalized: string) => decodeURIComponent(normalized.replace(/\+/g, " "));
+
+const findRawHeading = (vditor: IVditor, fragment: string): HTMLElement | null => {
+    const normalized = normalizeFragment(fragment);
+    if (!normalized) {
+        return null;
+    }
+
+    const headingText = getDecodedFragmentText(normalized);
+    const headings = Array.from(vditor.raw.outlineElement.querySelectorAll("h1,h2,h3,h4,h5,h6"));
+    for (const [index, heading] of headings.entries()) {
+        if (!(heading instanceof HTMLElement)) {
+            continue;
+        }
+        const text = heading.textContent?.trim() || "";
+        if (
+            heading.id === normalized ||
+            text === headingText ||
+            slugifyHeading(text) === headingText ||
+            slugifyHeading(text) === normalized
+        ) {
+            if (!heading.id) {
+                heading.id = `vditor-raw-outline-target_${index}`;
+            }
+            return heading;
+        }
+    }
+
+    return null;
+};
+
+const findRawBlockLine = (vditor: IVditor, fragment: string): number | null => {
+    const normalized = normalizeFragment(fragment);
+    if (!normalized || !normalized.startsWith("^")) {
+        return null;
+    }
+
+    const lines = vditor.raw.element.value.split("\n");
+    const lineIndex = lines.findIndex((line) => line.includes(normalized));
+    return lineIndex === -1 ? null : lineIndex + 1;
+};
+
+const scrollToRawBlock = (vditor: IVditor, fragment: string): boolean => {
+    vditor.raw.syncOutline();
+
+    const heading = findRawHeading(vditor, fragment);
+    if (heading) {
+        const targetId = heading.id;
+        if (targetId) {
+            pinOutlineActive(vditor, targetId);
+        }
+        return vditor.raw.scrollToLine(Number(heading.dataset.line));
+    }
+
+    const line = findRawBlockLine(vditor, fragment);
+    return line === null ? false : vditor.raw.scrollToLine(line);
+};
+
 export const scrollToBlock = (vditor: IVditor, fragment: string): boolean => {
+    if (vditor.currentMode === "raw") {
+        return scrollToRawBlock(vditor, fragment);
+    }
+
     const blockElement = findBlockElement(vditor[vditor.currentMode].element, fragment);
     if (!blockElement) {
         return false;

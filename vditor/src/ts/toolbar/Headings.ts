@@ -1,5 +1,6 @@
 import {Constants} from "../constants";
 import {processHeading} from "../ir/process";
+import {setRawHeading} from "../raw/toolbar";
 import {getEventName, updateHotkeyTip} from "../util/compatibility";
 import {afterRenderEvent} from "../wysiwyg/afterRenderEvent";
 import {removeHeading, setHeading} from "../wysiwyg/setHeading";
@@ -40,6 +41,8 @@ export class Headings extends MenuItem {
                     afterRenderEvent(vditor);
                 } else if (vditor.currentMode === "ir") {
                     processHeading(vditor, "");
+                } else if (vditor.currentMode === "raw") {
+                    setRawHeading(vditor, "");
                 }
                 actionBtn.classList.remove("vditor-menu--current");
             } else {
@@ -58,6 +61,9 @@ export class Headings extends MenuItem {
                     actionBtn.classList.add("vditor-menu--current");
                 } else if (vditor.currentMode === "ir") {
                     processHeading(vditor, (event.target as HTMLElement).getAttribute("data-value"));
+                    actionBtn.classList.add("vditor-menu--current");
+                } else if (vditor.currentMode === "raw") {
+                    setRawHeading(vditor, (event.target as HTMLElement).getAttribute("data-value") || "");
                     actionBtn.classList.add("vditor-menu--current");
                 }
                 panelElement.style.display = "none";

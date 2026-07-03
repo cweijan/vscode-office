@@ -2,6 +2,7 @@ import {Constants} from "../constants";
 import {processAfterRender} from "../ir/process";
 import {getMarkdown} from "../markdown/getMarkdown";
 import {mathRender} from "../markdown/mathRender";
+import {deactivateAllCodeMirrors} from "../codeBlock/codeMirrorManager";
 import {
     buildEditModePickerPanelHTML,
     queryEditModePickerPanel,
@@ -59,6 +60,9 @@ export const setEditMode = (
     if (vditor.currentMode === type && typeof event !== "string") {
         return;
     }
+    if (vditor.currentMode === "raw" && type !== "raw") {
+        vditor.raw.flushPendingRecord(vditor);
+    }
 
     enableToolbar(vditor.toolbar.elements, Constants.EDIT_TOOLBARS);
     removeCurrentToolbar(vditor.toolbar.elements, Constants.EDIT_TOOLBARS);
@@ -68,6 +72,7 @@ export const setEditMode = (
         showToolbar(vditor.toolbar.elements, ["outdent", "indent", "outline", "insert-before", "insert-after"]);
         vditor.wysiwyg.element.parentElement.style.display = "none";
         vditor.ir.element.parentElement.style.display = "block";
+        vditor.raw.element.parentElement.style.display = "none";
 
         vditor.lute.SetVditorIR(true);
         vditor.lute.SetVditorWYSIWYG(false);
@@ -98,6 +103,7 @@ export const setEditMode = (
         showToolbar(vditor.toolbar.elements, ["outdent", "indent", "outline", "insert-before", "insert-after"]);
         vditor.wysiwyg.element.parentElement.style.display = "block";
         vditor.ir.element.parentElement.style.display = "none";
+        vditor.raw.element.parentElement.style.display = "none";
 
         vditor.lute.SetVditorIR(false);
         vditor.lute.SetVditorWYSIWYG(true);
@@ -116,6 +122,23 @@ export const setEditMode = (
             });
         });
         vditor.wysiwyg.popover.style.display = "none";
+    } else if (type === "raw") {
+        vditor.wysiwyg.element.parentElement.style.display = "none";
+        vditor.ir.element.parentElement.style.display = "none";
+        vditor.raw.element.parentElement.style.display = "block";
+        showToolbar(vditor.toolbar.elements, ["outline"]);
+        enableToolbar(vditor.toolbar.elements, Constants.EDIT_TOOLBARS);
+
+        deactivateAllCodeMirrors(vditor);
+        vditor.lute.SetVditorIR(false);
+        vditor.lute.SetVditorWYSIWYG(false);
+
+        vditor.currentMode = "raw";
+        vditor.raw.element.value = markdownText;
+        vditor.raw.record(vditor, false, false);
+        vditor.undo.addToUndoStack(vditor);
+        vditor.wysiwyg.popover.style.display = "none";
+        vditor.ir.popover.style.display = "none";
     }
     vditor.undo.resetIcon(vditor);
     if (typeof event !== "string") {

@@ -68,6 +68,9 @@ const getEditorElement = (vditor: IVditor): HTMLElement | null => {
     if (mode === "ir" || mode === "wysiwyg") {
         return vditor[mode].element;
     }
+    if (mode === "raw") {
+        return vditor.raw.element;
+    }
     return null;
 };
 
@@ -167,7 +170,7 @@ const bindEditorScrollListeners = (vditor: IVditor) => {
     if (session.scrollBound) {
         return;
     }
-    const selectors = [".vditor-wysiwyg .vditor-reset", ".vditor-ir .vditor-reset"];
+    const selectors = [".vditor-wysiwyg .vditor-reset", ".vditor-ir .vditor-reset", ".vditor-raw__textarea"];
     for (let i = 0; i < selectors.length; i++) {
         const editorEl = vditor.element.querySelector(selectors[i]) as HTMLElement | null;
         if (editorEl) {

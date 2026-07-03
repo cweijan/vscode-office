@@ -620,7 +620,8 @@
 						"type": "string",
 						"enum": [
 							"wysiwyg",
-							"ir"
+							"ir",
+							"raw"
 						],
 						"default": "wysiwyg",
 						"markdownDescription": "Default edit mode for the Markdown editor."

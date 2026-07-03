@@ -1,11 +1,16 @@
 import {getEditorRange, setSelectionFocus} from "../util/selection";
+import {insertRawMarkdown} from "../raw/toolbar";
+import {Constants} from "../constants";
 import {getElement} from "./getElement";
 import {setHeaders} from "./setHeaders";
+import {disableToolbar, enableToolbar, hidePanel} from "../toolbar/setToolbar";
 
 class Upload {
     public element: HTMLElement;
     public isUploading: boolean;
     public range: Range;
+    public rawSelection?: { start: number, end: number };
+    public mode?: IEditMode;
 
     constructor() {
         this.isUploading = false;
@@ -72,9 +77,7 @@ const validateFile = (vditor: IVditor, files: File[]) => {
     return uploadFileList;
 };
 
-const genUploadedLabel = (responseText: string, vditor: IVditor) => {
-    const editorElement = getElement(vditor);
-    editorElement.focus();
+const genUploadedLabel = (responseText: string, vditor: IVditor, uploadMode = vditor.currentMode) => {
     const response = JSON.parse(responseText);
     let errorTip = "";
 
@@ -106,10 +109,10 @@ const genUploadedLabel = (responseText: string, vditor: IVditor) => {
         const filename = vditor.options.upload.filename(key.substr(0, lastIndex)) + type;
         type = type.toLowerCase();
         if (type.indexOf(".wav") === 0 || type.indexOf(".mp3") === 0 || type.indexOf(".ogg") === 0) {
-            if (vditor.currentMode === "wysiwyg") {
+            if (uploadMode === "wysiwyg") {
                 succFileText += `<div class="vditor-wysiwyg__block" data-type="html-block"
  data-block="0"><pre><code>&lt;audio controls="controls" src="${path}"&gt;&lt;/audio&gt;</code></pre><pre class="vditor-wysiwyg__preview" data-render="1"><audio controls="controls" src="${path}"></audio></pre></div>\n`;
-            } else if (vditor.currentMode === "ir") {
+            } else if (uploadMode === "ir") {
                 succFileText += `<audio controls="controls" src="${path}"></audio>\n`;
             } else {
                 succFileText += `[${filename}](${path})\n`;
@@ -122,19 +125,25 @@ const genUploadedLabel = (responseText: string, vditor: IVditor) => {
             || type.indexOf(".png") === 0
             || type.indexOf(".svg") === 0
             || type.indexOf(".webp") === 0) {
-            if (vditor.currentMode === "wysiwyg") {
+            if (uploadMode === "wysiwyg") {
                 succFileText += `<img alt="${filename}" src="${path}">\n`;
             } else {
                 succFileText += `![${filename}](${path})\n`;
             }
         } else {
-            if (vditor.currentMode === "wysiwyg") {
+            if (uploadMode === "wysiwyg") {
                 succFileText += `<a href="${path}">${filename}</a>\n`;
             } else {
                 succFileText += `[${filename}](${path})\n`;
             }
         }
     });
+    if (uploadMode === "raw") {
+        insertRawMarkdown(vditor, succFileText, vditor.upload.rawSelection);
+        vditor.upload.rawSelection = undefined;
+        return;
+    }
+
     setSelectionFocus(vditor.upload.range);
     document.execCommand("insertHTML", false, succFileText);
     vditor.upload.range = getSelection().getRangeAt(0).cloneRange();
@@ -185,11 +194,25 @@ const uploadFiles =
             }
         }
         const editorElement = getElement(vditor);
+        const uploadMode = vditor.currentMode;
+        const editModeButton = vditor.toolbar.elements["edit-mode"]?.children[0] as HTMLElement | undefined;
+        const restoreEditModeToolbar = editModeButton &&
+            !editModeButton.classList.contains(Constants.CLASS_MENU_DISABLED);
+        vditor.upload.mode = uploadMode;
 
-        vditor.upload.range = getEditorRange(vditor);
+        if (uploadMode === "raw") {
+            vditor.upload.rawSelection = {
+                end: vditor.raw.element.selectionEnd,
+                start: vditor.raw.element.selectionStart,
+            };
+        } else {
+            vditor.upload.range = getEditorRange(vditor);
+        }
 
         const validateResult = validateFile(vditor, fileList);
         if (validateResult.length === 0) {
+            vditor.upload.mode = undefined;
+            vditor.upload.rawSelection = undefined;
             if (element) {
                 element.value = "";
             }
@@ -217,11 +240,24 @@ const uploadFiles =
         }
         setHeaders(vditor, xhr);
         vditor.upload.isUploading = true;
-        editorElement.setAttribute("contenteditable", "false");
+        hidePanel(vditor, ["subToolbar", "hint"]);
+        disableToolbar(vditor.toolbar.elements, ["edit-mode"]);
+        if (editorElement instanceof HTMLTextAreaElement) {
+            (editorElement as HTMLTextAreaElement).disabled = true;
+        } else {
+            editorElement.setAttribute("contenteditable", "false");
+        }
         xhr.onreadystatechange = () => {
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 vditor.upload.isUploading = false;
-                editorElement.setAttribute("contenteditable", "true");
+                if (editorElement instanceof HTMLTextAreaElement) {
+                    (editorElement as HTMLTextAreaElement).disabled = false;
+                } else {
+                    editorElement.setAttribute("contenteditable", "true");
+                }
+                if (restoreEditModeToolbar) {
+                    enableToolbar(vditor.toolbar.elements, ["edit-mode"]);
+                }
                 if (xhr.status >= 200 && xhr.status < 300) {
                     if (vditor.options.upload.success) {
                         vditor.options.upload.success(editorElement, xhr.responseText);
@@ -230,7 +266,7 @@ const uploadFiles =
                         if (vditor.options.upload.format) {
                             responseText = vditor.options.upload.format(files as File [], xhr.responseText);
                         }
-                        genUploadedLabel(responseText, vditor);
+                        genUploadedLabel(responseText, vditor, uploadMode);
                     }
                 } else {
                     if (vditor.options.upload.error) {
@@ -242,6 +278,8 @@ const uploadFiles =
                 if (element) {
                     element.value = "";
                 }
+                vditor.upload.mode = undefined;
+                vditor.upload.rawSelection = undefined;
                 vditor.upload.element.style.display = "none";
             }
         };

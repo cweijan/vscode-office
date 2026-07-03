@@ -76,6 +76,10 @@ const getCodeBlockIndex = (editor: HTMLElement, block: HTMLElement) => {
     return blockIndex;
 };
 
+const clampRawOffset = (textarea: HTMLTextAreaElement, offset: number) => {
+    return Math.min(Math.max(0, offset), textarea.value.length);
+};
+
 const persistFocusState = (vditor: IVditor, state: CacheFocusState) => {
     sessionFocusMap.set(vditor, state);
     focusSavedMap.set(vditor, true);
@@ -126,6 +130,10 @@ const getCodeMirrorCaretViewportMetrics = (editor: HTMLElement, block: HTMLEleme
 };
 
 const getActiveCaretViewportMetrics = (vditor: IVditor, editor: HTMLElement): CaretViewportMetrics | null => {
+    if (vditor.currentMode === "raw") {
+        return null;
+    }
+
     const activeElement = document.activeElement;
     if (isInsideCodeMirror(activeElement)) {
         const block = activeElement?.closest("[data-type='code-block']") as HTMLElement | null;
@@ -146,6 +154,10 @@ const getActiveCaretViewportMetrics = (vditor: IVditor, editor: HTMLElement): Ca
 };
 
 const getCaretViewportMetricsAfterRestore = (vditor: IVditor, state: CacheFocusState): CaretViewportMetrics | null => {
+    if (vditor.currentMode === "raw") {
+        return null;
+    }
+
     const editor = vditor[vditor.currentMode].element;
 
     if (state.type === "cm" && state.blockIndex != null && state.blockIndex >= 0) {
@@ -192,6 +204,16 @@ const finalizeFocusState = (vditor: IVditor, state: CacheFocusState): CacheFocus
 const buildFocusStateFromCurrentSelection = (vditor: IVditor): CacheFocusState | null => {
     const editor = vditor[vditor.currentMode].element;
     const activeElement = document.activeElement;
+
+    if (vditor.currentMode === "raw") {
+        const textarea = vditor.raw.element;
+        return {
+            end: textarea.selectionEnd,
+            mode: vditor.currentMode,
+            start: textarea.selectionStart,
+            type: "editor",
+        };
+    }
 
     if (isInsideCodeMirror(activeElement)) {
         const block = activeElement?.closest("[data-type='code-block']") as HTMLElement | null;
@@ -345,6 +367,15 @@ const canRestoreFocus = (vditor: IVditor, onLoad: boolean) => {
 const applyFocusState = (vditor: IVditor, state: CacheFocusState) => {
     const editor = vditor[vditor.currentMode].element;
 
+    if (vditor.currentMode === "raw") {
+        const textarea = vditor.raw.element;
+        const start = clampRawOffset(textarea, state.start);
+        const end = clampRawOffset(textarea, Math.max(start, state.end));
+        textarea.focus({preventScroll: true});
+        textarea.setSelectionRange(start, end);
+        return;
+    }
+
     if (state.type === "cm" && state.blockIndex != null && state.blockIndex >= 0) {
         const blocks = editor.querySelectorAll("[data-type='code-block']");
         const block = blocks[state.blockIndex] as HTMLElement | undefined;
@@ -390,6 +421,17 @@ const scheduleOutlineSyncOnLoad = (vditor: IVditor) => {
 export const saveCacheFocus = (vditor: IVditor) => {
     const editor = vditor[vditor.currentMode].element;
     const activeElement = document.activeElement;
+
+    if (vditor.currentMode === "raw") {
+        const textarea = vditor.raw.element;
+        persistFocusState(vditor, finalizeFocusState(vditor, {
+            end: textarea.selectionEnd,
+            mode: vditor.currentMode,
+            start: textarea.selectionStart,
+            type: "editor",
+        }));
+        return;
+    }
 
     if (isInsideCodeMirror(activeElement)) {
         const block = activeElement?.closest("[data-type='code-block']") as HTMLElement | null;

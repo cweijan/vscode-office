@@ -2,6 +2,10 @@ import {buildEditorHtmlForMarkdown} from "../codeBlock/codeMirrorManager";
 import {formatMs, logPerf} from "../util/log";
 
 export const getMarkdown = (vditor: IVditor) => {
+    if (vditor.currentMode === "raw") {
+        return vditor.raw.element.value;
+    }
+
     const debug = vditor.options.debugger;
     const totalStart = debug ? performance.now() : 0;
 

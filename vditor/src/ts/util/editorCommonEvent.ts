@@ -4,6 +4,7 @@ import { processHeading } from "../ir/process";
 import { processKeydown as irProcessKeydown } from "../ir/processKeydown";
 import { getMarkdown } from "../markdown/getMarkdown";
 import { previewImage } from "../preview/image";
+import { setRawHeading } from "../raw/toolbar";
 import { setEditMode } from "../toolbar/EditMode";
 import { hidePanel } from "../toolbar/setToolbar";
 import { afterRenderEvent, handlerHistoryEvent } from "../wysiwyg/afterRenderEvent";
@@ -301,17 +302,21 @@ export const hotkeyEvent = (vditor: IVditor, editorElement: HTMLElement) => {
                 afterRenderEvent(vditor);
             } else if (vditor.currentMode === "ir") {
                 processHeading(vditor, "#".repeat(parseInt(event.code.replace("Digit", ""), 10)) + " ");
+            } else if (vditor.currentMode === "raw") {
+                setRawHeading(vditor, "#".repeat(parseInt(event.code.replace("Digit", ""), 10)) + " ");
             }
             event.preventDefault();
             return true;
         }
 
         // toggle edit mode
-        if (isCtrl(event) && event.altKey && !event.shiftKey && /^Digit[7-8]$/.test(event.code)) {
+        if (isCtrl(event) && event.altKey && !event.shiftKey && /^Digit[7-9]$/.test(event.code)) {
             if (event.code === "Digit7") {
                 setEditMode(vditor, "wysiwyg", event);
             } else if (event.code === "Digit8") {
                 setEditMode(vditor, "ir", event);
+            } else if (event.code === "Digit9") {
+                setEditMode(vditor, "raw", event);
             }
             return true;
         }
@@ -346,6 +351,27 @@ export const hotkeyEvent = (vditor: IVditor, editorElement: HTMLElement) => {
 };
 
 export const selectEvent = (vditor: IVditor, editorElement: HTMLElement) => {
+    if (editorElement instanceof HTMLTextAreaElement) {
+        const emitSelection = () => {
+            const selectText = editorElement.value.substring(editorElement.selectionStart, editorElement.selectionEnd);
+            if (selectText.trim() && vditor.options.select) {
+                vditor.options.select(selectText);
+            }
+        };
+        editorElement.addEventListener("select", () => {
+            setTimeout(emitSelection);
+        });
+        editorElement.addEventListener("mouseup", () => {
+            setTimeout(emitSelection);
+        });
+        editorElement.addEventListener("keyup", (event: KeyboardEvent) => {
+            if (event.shiftKey) {
+                setTimeout(emitSelection);
+            }
+        });
+        return;
+    }
+
     editorElement.addEventListener("selectstart", (event: Event & { target: HTMLElement }) => {
         if (isInsideCodeMirror(event.target) || isInsideCodeBlockChrome(event.target)) {
             return;

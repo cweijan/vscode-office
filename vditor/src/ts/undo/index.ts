@@ -19,9 +19,15 @@ import {formatMs, logPerf} from "../util/log";
 
 interface IUndo {
     hasUndo: boolean;
+    lastCaret?: number;
     lastText: string;
-    redoStack: patch_obj[][];
-    undoStack: patch_obj[][];
+    redoStack: IUndoRecord[];
+    undoStack: IUndoRecord[];
+}
+
+interface IUndoRecord {
+    caret?: number;
+    patches: patch_obj[];
 }
 
 class Undo {
@@ -29,6 +35,7 @@ class Undo {
     private dmp: diff_match_patch;
     private wysiwyg: IUndo;
     private ir: IUndo;
+    private raw: IUndo;
 
     constructor() {
         this.resetStack();
@@ -44,14 +51,15 @@ class Undo {
         if (!vditor.toolbar) {
             return;
         }
-
-        if (this[vditor.currentMode].undoStack.length > 1 || canUndoActiveCodeMirror()) {
+        if (this[vditor.currentMode].undoStack.length > 1 ||
+            (vditor.currentMode !== "raw" && canUndoActiveCodeMirror())) {
             enableToolbar(vditor.toolbar.elements, ["undo"]);
         } else {
             disableToolbar(vditor.toolbar.elements, ["undo"]);
         }
 
-        if (this[vditor.currentMode].redoStack.length !== 0 || canRedoActiveCodeMirror()) {
+        if (this[vditor.currentMode].redoStack.length !== 0 ||
+            (vditor.currentMode !== "raw" && canRedoActiveCodeMirror())) {
             enableToolbar(vditor.toolbar.elements, ["redo"]);
         } else {
             disableToolbar(vditor.toolbar.elements, ["redo"]);
@@ -59,10 +67,17 @@ class Undo {
     }
 
     public undo(vditor: IVditor) {
-        if (vditor[vditor.currentMode].element.getAttribute("contenteditable") === "false") {
+        if (vditor.currentMode === "raw" && vditor.raw.element.disabled) {
             return;
         }
-        if (isInsideCodeMirror(document.activeElement)) {
+        if (vditor.currentMode === "raw") {
+            vditor.raw.flushPendingRecord(vditor);
+        }
+        if (vditor.currentMode !== "raw" &&
+            vditor[vditor.currentMode].element.getAttribute("contenteditable") === "false") {
+            return;
+        }
+        if (vditor.currentMode !== "raw" && isInsideCodeMirror(document.activeElement)) {
             undoActiveCodeMirror();
             this.resetIcon(vditor);
             return;
@@ -75,17 +90,25 @@ class Undo {
             return;
         }
         this[vditor.currentMode].redoStack.push(state);
-        this.renderDiff(state, vditor);
+        const targetState = this[vditor.currentMode].undoStack[this[vditor.currentMode].undoStack.length - 1];
+        this.renderDiff(state, vditor, false, targetState);
         this[vditor.currentMode].hasUndo = true;
         // undo 操作后，需要关闭 hint
         hidePanel(vditor, ["hint"]);
     }
 
     public redo(vditor: IVditor) {
-        if (vditor[vditor.currentMode].element.getAttribute("contenteditable") === "false") {
+        if (vditor.currentMode === "raw" && vditor.raw.element.disabled) {
             return;
         }
-        if (isInsideCodeMirror(document.activeElement)) {
+        if (vditor.currentMode === "raw") {
+            vditor.raw.flushPendingRecord(vditor);
+        }
+        if (vditor.currentMode !== "raw" &&
+            vditor[vditor.currentMode].element.getAttribute("contenteditable") === "false") {
+            return;
+        }
+        if (vditor.currentMode !== "raw" && isInsideCodeMirror(document.activeElement)) {
             redoActiveCodeMirror();
             this.resetIcon(vditor);
             return;
@@ -95,14 +118,15 @@ class Undo {
             return;
         }
         this[vditor.currentMode].undoStack.push(state);
-        this.renderDiff(state, vditor, true);
+        this.renderDiff(state, vditor, true, state);
     }
 
     public recordFirstPosition(vditor: IVditor, event: KeyboardEvent) {
-        if (getSelection().rangeCount === 0) {
+        if (vditor.currentMode === "raw" || getSelection().rangeCount === 0) {
             return;
         }
-        if (this[vditor.currentMode].undoStack.length !== 1 || this[vditor.currentMode].undoStack[0].length === 0 ||
+        if (this[vditor.currentMode].undoStack.length !== 1 ||
+            this[vditor.currentMode].undoStack[0].patches.length === 0 ||
             this[vditor.currentMode].redoStack.length > 0) {
             return;
         }
@@ -116,11 +140,11 @@ class Undo {
         }
         const text = this.addCaret(vditor);
         if (text.replace("<wbr>", "").replace(" vditor-ir__node--expand", "")
-            !== this[vditor.currentMode].undoStack[0][0].diffs[0][1].replace("<wbr>", "")) {
+            !== this[vditor.currentMode].undoStack[0].patches[0].diffs[0][1].replace("<wbr>", "")) {
             // 当还不没有存入 undo 栈时，按下 ctrl 后会覆盖 lastText
             return;
         }
-        this[vditor.currentMode].undoStack[0][0].diffs[0][1] = text;
+        this[vditor.currentMode].undoStack[0].patches[0].diffs[0][1] = text;
         this[vditor.currentMode].lastText = text;
         // 不能添加 setSelectionFocus(cloneRange); 否则 windows chrome 首次输入会烂
     }
@@ -132,6 +156,7 @@ class Undo {
 
         let stepStart = debug ? performance.now() : 0;
         const text = this.addCaret(vditor, true);
+        const caret = vditor.currentMode === "raw" ? this.getRawCaret(vditor) : undefined;
         const addCaretMs = debug ? performance.now() - stepStart : 0;
 
         stepStart = debug ? performance.now() : 0;
@@ -143,6 +168,10 @@ class Undo {
         const patchMakeMs = debug ? performance.now() - stepStart : 0;
 
         if (patchList.length === 0 && this[vditor.currentMode].undoStack.length > 0) {
+            if (vditor.currentMode === "raw") {
+                this.raw.lastCaret = caret;
+                this.raw.undoStack[this.raw.undoStack.length - 1].caret = caret;
+            }
             logPerf(debug, "[vditor undo] addToUndoStack skipped (no diff)", {
                 addCaretMs: formatMs(addCaretMs),
                 diffMainMs: formatMs(diffMainMs),
@@ -154,7 +183,13 @@ class Undo {
 
         stepStart = debug ? performance.now() : 0;
         this[vditor.currentMode].lastText = text;
-        this[vditor.currentMode].undoStack.push(patchList);
+        if (vditor.currentMode === "raw") {
+            this.raw.lastCaret = caret;
+        }
+        this[vditor.currentMode].undoStack.push({
+            caret,
+            patches: patchList,
+        });
         if (this[vditor.currentMode].undoStack.length > this.stackSize) {
             this[vditor.currentMode].undoStack.shift();
         }
@@ -178,10 +213,15 @@ class Undo {
         });
     }
 
-    private renderDiff(state: patch_obj[], vditor: IVditor, isRedo: boolean = false) {
+    private renderDiff(
+        state: IUndoRecord,
+        vditor: IVditor,
+        isRedo: boolean = false,
+        targetState?: IUndoRecord,
+    ) {
         let text;
         if (isRedo) {
-            const redoPatchList = this.dmp.patch_deepCopy(state).reverse();
+            const redoPatchList = this.dmp.patch_deepCopy(state.patches).reverse();
             redoPatchList.forEach((patch) => {
                 patch.diffs.forEach((diff) => {
                     diff[0] = -diff[0];
@@ -189,12 +229,16 @@ class Undo {
             });
             text = this.dmp.patch_apply(redoPatchList, this[vditor.currentMode].lastText)[0];
         } else {
-            text = this.dmp.patch_apply(state, this[vditor.currentMode].lastText)[0];
+            text = this.dmp.patch_apply(state.patches, this[vditor.currentMode].lastText)[0];
         }
 
         this[vditor.currentMode].lastText = text;
         if (vditor.currentMode === "wysiwyg" || vditor.currentMode === "ir") {
             deactivateAllCodeMirrors(vditor);
+        }
+        if (vditor.currentMode === "raw") {
+            this.renderRawText(text, vditor, targetState?.caret);
+            return;
         }
         vditor[vditor.currentMode].element.innerHTML = text;
         if (vditor.currentMode === "wysiwyg" || vditor.currentMode === "ir") {
@@ -235,12 +279,21 @@ class Undo {
     private resetStack() {
         this.ir = {
             hasUndo: false,
+            lastCaret: undefined,
+            lastText: "",
+            redoStack: [],
+            undoStack: [],
+        };
+        this.raw = {
+            hasUndo: false,
+            lastCaret: undefined,
             lastText: "",
             redoStack: [],
             undoStack: [],
         };
         this.wysiwyg = {
             hasUndo: false,
+            lastCaret: undefined,
             lastText: "",
             redoStack: [],
             undoStack: [],
@@ -248,6 +301,10 @@ class Undo {
     }
 
     private addCaret(vditor: IVditor, setFocus = false) {
+        if (vditor.currentMode === "raw") {
+            return vditor.raw.element.value;
+        }
+
         let cloneRange: Range;
         if (getSelection().rangeCount !== 0 && !vditor[vditor.currentMode].element.querySelector("wbr")) {
             const range = getSelection().getRangeAt(0);
@@ -286,6 +343,23 @@ class Undo {
             setSelectionFocus(cloneRange);
         }
         return text.replace('<span class="vditor-wbr"></span>', "<wbr>");
+    }
+
+    private getRawCaret(vditor: IVditor) {
+        return vditor.raw.element.selectionStart ?? vditor.raw.element.value.length;
+    }
+
+    private renderRawText(text: string, vditor: IVditor, caret = text.length) {
+        const nextCaret = Math.max(0, Math.min(caret, text.length));
+        this.raw.lastText = text;
+        this.raw.lastCaret = nextCaret;
+        vditor.raw.element.value = text;
+        vditor.raw.record(vditor, true, false);
+        vditor.raw.element.focus();
+        vditor.raw.element.setSelectionRange(nextCaret, nextCaret);
+
+        hidePanel(vditor, ["hint"]);
+        this.resetIcon(vditor);
     }
 }
 

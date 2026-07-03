@@ -11,7 +11,7 @@ interface IObject {
 }
 
 type ITheme = "classic" | "dark";
-type IEditMode = "wysiwyg" | "ir";
+type IEditMode = "wysiwyg" | "ir" | "raw";
 type IEditorTheme =
     "Auto" |
     "Light" |
@@ -308,7 +308,7 @@ interface IUpload {
     setHeaders?(): IObject;
 
     /** 上传成功回调 */
-    success?(editor: HTMLPreElement, msg: string): void;
+    success?(editor: HTMLPreElement | HTMLTextAreaElement, msg: string): void;
 
     /** 上传失败回调 */
     error?(msg: string): void;
@@ -671,7 +671,9 @@ interface IVditor {
     upload?: {
         element: HTMLElement
         isUploading: boolean
+        mode?: IEditMode,
         range: Range,
+        rawSelection?: { start: number, end: number },
     };
     undo?: {
         clearStack(vditor: IVditor): void,
@@ -702,5 +704,22 @@ interface IVditor {
         processTimeoutId: number,
         afterRenderLastAt: number,
         hlToolbarTimeoutId: number,
+    };
+    raw?: {
+        element: HTMLTextAreaElement,
+        outlineElement: HTMLElement,
+        inputTimeoutId: number,
+        afterRenderLastAt: number,
+        copyCurrentLines(vditor: IVditor, direction: "up" | "down"): boolean,
+        deleteCurrentLines(vditor: IVditor): boolean,
+        flushPendingRecord(vditor: IVditor): void,
+        getActiveHeadingId(): string | null,
+        insertEmptyLine(vditor: IVditor, position: "before" | "after"): boolean,
+        moveCurrentLines(vditor: IVditor, direction: "up" | "down"): boolean,
+        record(vditor: IVditor, enableInput?: boolean, enableAddUndoStack?: boolean): void,
+        scrollToHeading(targetId: string): boolean,
+        scrollToLine(line: number): boolean,
+        selectCurrentLines(): boolean,
+        syncOutline(): boolean,
     };
 }

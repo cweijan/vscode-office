@@ -3,6 +3,7 @@ export const EDIT_MODE_PANEL_CLASS = "vditor-edit-mode-panel";
 const EDIT_MODES = [
     {id: "wysiwyg", labelKey: "wysiwyg", descKey: "edit-mode-wysiwyg-desc"},
     {id: "ir", labelKey: "instantRendering", descKey: "edit-mode-ir-desc"},
+    {id: "raw", labelKey: "raw", descKey: "edit-mode-raw-desc"},
 ] as const;
 
 export const buildEditModePickerPanelHTML = (currentMode: string) => {

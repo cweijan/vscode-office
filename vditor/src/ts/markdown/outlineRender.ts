@@ -31,6 +31,38 @@ const getOutlineHeadingHTML = (item: HTMLElement, vditor?: IVditor) => {
     return clone.outerHTML;
 };
 
+const findOutlineTargetSpan = (target: HTMLElement, root: Element) => {
+    let item = target;
+    while (item && !item.isEqualNode(root)) {
+        if (item.classList.contains("vditor-outline__action")) {
+            return null;
+        }
+        if (item.getAttribute("data-target-id")) {
+            return item;
+        }
+        item = item.parentElement;
+    }
+    return null;
+};
+
+const navigateRawOutline = (event: Event, vditor: IVditor, root: Element) => {
+    if (vditor.currentMode !== "raw") {
+        return false;
+    }
+    const targetSpan = findOutlineTargetSpan(event.target as HTMLElement, root);
+    const targetId = targetSpan?.getAttribute("data-target-id");
+    if (!targetId) {
+        return false;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    pinOutlineActive(vditor, targetId);
+    if (vditor.raw.scrollToHeading(targetId) && isEditorThemeMobileLayout(vditor)) {
+        closeMobileOutline(vditor);
+    }
+    return true;
+};
+
 export const OUTLINE_SCROLL_OFFSET = 15;
 const OUTLINE_ACTIVE_MAX_OFFSET = 120;
 const OUTLINE_ACTIVE_VIEWPORT_RATIO = 0.25;
@@ -162,7 +194,16 @@ export const outlineRender = (contentElement: HTMLElement, targetElement: Elemen
         });
     }
 
+    targetElement.firstElementChild?.addEventListener("pointerdown", (event: Event) => {
+        if (vditor) {
+            navigateRawOutline(event, vditor, targetElement);
+        }
+    });
+
     targetElement.firstElementChild?.addEventListener("click", (event: Event) => {
+        if (vditor && navigateRawOutline(event, vditor, targetElement)) {
+            return;
+        }
         let target = event.target as HTMLElement;
         while (target && !target.isEqualNode(targetElement)) {
             if (target.classList.contains("vditor-outline__action")) {
@@ -181,6 +222,13 @@ export const outlineRender = (contentElement: HTMLElement, targetElement: Elemen
                 event.preventDefault();
                 event.stopPropagation();
                 const targetId = target.getAttribute("data-target-id");
+                if (vditor?.currentMode === "raw" && targetId) {
+                    pinOutlineActive(vditor, targetId);
+                    if (vditor.raw.scrollToHeading(targetId) && isEditorThemeMobileLayout(vditor)) {
+                        closeMobileOutline(vditor);
+                    }
+                    break;
+                }
                 const idElement = document.getElementById(targetId);
                 if (!idElement) {
                     return;

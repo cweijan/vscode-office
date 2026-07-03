@@ -132,7 +132,10 @@ export class Outline {
     }
 
     public render(vditor: IVditor) {
-        const tocHTML = outlineRender(vditor[vditor.currentMode].element, this.contentElement, vditor);
+        const contentElement = vditor.currentMode === "raw"
+            ? vditor.raw.outlineElement
+            : vditor[vditor.currentMode].element;
+        const tocHTML = outlineRender(contentElement, this.contentElement, vditor);
         if (isEditorThemeMobileLayout(vditor) || this.element.style.display !== "none") {
             restoreOutlineActive(vditor);
         }

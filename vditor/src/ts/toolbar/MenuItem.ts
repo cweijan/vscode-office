@@ -1,5 +1,6 @@
 import {Constants} from "../constants";
 import {processToolbar} from "../ir/process";
+import {processRawToolbar} from "../raw/toolbar";
 import {getEventName} from "../util/compatibility";
 import {updateHotkeyTip} from "../util/compatibility";
 import {toolbarEvent} from "../wysiwyg/toolbarEvent";
@@ -49,6 +50,9 @@ export class MenuItem {
                 toolbarEvent(vditor, this.element.children[0], event);
             } else if (vditor.currentMode === "ir") {
                 processToolbar(vditor, this.element.children[0],
+                    menuItem.prefix || "", menuItem.suffix || "");
+            } else if (vditor.currentMode === "raw") {
+                processRawToolbar(vditor, this.element.children[0],
                     menuItem.prefix || "", menuItem.suffix || "");
             }
         });

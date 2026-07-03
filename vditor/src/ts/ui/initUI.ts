@@ -52,6 +52,8 @@ export const initUI = (vditor: IVditor) => {
 
   contentElement.appendChild(vditor.ir.element.parentElement);
 
+  contentElement.appendChild(vditor.raw.element.parentElement);
+
   if (vditor.options.outline.position === "right") {
     vditor.outline.element.classList.add("vditor-outline--right");
     contentElement.appendChild(vditor.outline.element);

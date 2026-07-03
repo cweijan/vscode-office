@@ -1,3 +1,4 @@
+import {Constants} from "../constants";
 import {getMarkdown} from "../markdown/getMarkdown";
 import {fireContentInput} from "../util/saveToolbarState";
 import {removeCurrentToolbar} from "../toolbar/setToolbar";
@@ -86,16 +87,135 @@ export const processHeading = (vditor: IVditor, value: string) => {
     }
 };
 
+const getInlineTypeByCommand = (commandName: string | null) => {
+    if (commandName === "italic") {
+        return "em";
+    }
+    if (commandName === "bold") {
+        return "strong";
+    }
+    if (commandName === "strike") {
+        return "s";
+    }
+    if (commandName === "inline-code") {
+        return "code";
+    }
+    return "";
+};
+
+const getInlineElementFromNode = (node: Node | null, type: string) => {
+    if (!node) {
+        return false;
+    }
+    return hasClosestByAttribute(node, "data-type", type) as HTMLElement | false;
+};
+
+const isIgnorableCaretText = (node: Node) => {
+    return node.nodeType === 3 && (node.textContent || "").replace(Constants.ZWSP, "").trim() === "";
+};
+
+const getInlineElementBesideNode = (node: Node | null, type: string, previous: boolean) => {
+    let currentNode = node;
+    while (currentNode) {
+        const inlineElement = getInlineElementFromNode(currentNode, type);
+        if (inlineElement) {
+            return inlineElement;
+        }
+        if (!isIgnorableCaretText(currentNode)) {
+            return false;
+        }
+        currentNode = previous ? currentNode.previousSibling : currentNode.nextSibling;
+    }
+    return false;
+};
+
+const getInlineElementAtOffset = (container: Node, offset: number, type: string, previous: boolean) => {
+    if (container.nodeType !== 1) {
+        return false;
+    }
+    return getInlineElementBesideNode(container.childNodes[offset], type, previous);
+};
+
+const getInlineElementNearText = (range: Range, type: string) => {
+    if (range.startContainer.nodeType !== 3) {
+        return false;
+    }
+    const textNode = range.startContainer;
+    const textLength = textNode.textContent?.length || 0;
+    if (range.startOffset === 0 || isIgnorableCaretText(textNode)) {
+        const previousInline = getInlineElementBesideNode(textNode.previousSibling, type, true);
+        if (previousInline) {
+            return previousInline;
+        }
+    }
+    if (range.startOffset === textLength || isIgnorableCaretText(textNode)) {
+        return getInlineElementBesideNode(textNode.nextSibling, type, false);
+    }
+    return false;
+};
+
+const getInlineElementNearRange = (range: Range, type: string) => {
+    const startInline = getInlineElementFromNode(range.startContainer, type);
+    if (startInline) {
+        return startInline;
+    }
+
+    const endInline = getInlineElementFromNode(range.endContainer, type);
+    if (endInline) {
+        return endInline;
+    }
+
+    if (range.collapsed) {
+        const previousInline = getInlineElementAtOffset(range.startContainer, range.startOffset - 1, type, true) ||
+            getInlineElementNearText(range, type);
+        if (previousInline) {
+            return previousInline;
+        }
+        return getInlineElementAtOffset(range.startContainer, range.startOffset, type, false);
+    }
+
+    return getInlineElementAtOffset(range.startContainer, range.startOffset, type, false) ||
+        getInlineElementAtOffset(range.endContainer, range.endOffset - 1, type, true);
+};
+
+const rangeSelectsInlineElement = (range: Range, inlineElement: HTMLElement) => {
+    const parentNode = inlineElement.parentNode;
+    if (!parentNode || range.startContainer !== parentNode || range.endContainer !== parentNode) {
+        return false;
+    }
+    const elementIndex = Array.prototype.indexOf.call(parentNode.childNodes, inlineElement);
+    return range.startOffset === elementIndex && range.endOffset === elementIndex + 1;
+};
+
+const shouldToggleInlineElement = (range: Range, inlineElement: HTMLElement, toolbarIsCurrent: boolean) => {
+    return toolbarIsCurrent || range.collapsed ||
+        (inlineElement.contains(range.startContainer) && inlineElement.contains(range.endContainer)) ||
+        rangeSelectsInlineElement(range, inlineElement);
+};
+
+const unwrapInlineElement = (range: Range, vditor: IVditor, inlineElement: HTMLElement) => {
+    const firstElement = inlineElement.firstElementChild;
+    const lastElement = inlineElement.lastElementChild;
+    if (firstElement) {
+        firstElement.remove();
+    }
+    if (lastElement && !lastElement.isSameNode(firstElement)) {
+        lastElement.remove();
+    }
+    range.insertNode(document.createElement("wbr"));
+    const tempElement = document.createElement("div");
+    tempElement.innerHTML = vditor.lute.SpinVditorIRDOM(inlineElement.outerHTML);
+    inlineElement.outerHTML = tempElement.firstElementChild ?
+        tempElement.firstElementChild.innerHTML.trim() : tempElement.innerHTML.trim();
+};
+
 const removeInline = (range: Range, vditor: IVditor, type: string) => {
     const inlineElement = hasClosestByAttribute(range.startContainer, "data-type", type) as HTMLElement;
     if (inlineElement) {
-        inlineElement.firstElementChild.remove();
-        inlineElement.lastElementChild.remove();
-        range.insertNode(document.createElement("wbr"));
-        const tempElement = document.createElement("div");
-        tempElement.innerHTML = vditor.lute.SpinVditorIRDOM(inlineElement.outerHTML);
-        inlineElement.outerHTML = tempElement.firstElementChild.innerHTML.trim();
+        unwrapInlineElement(range, vditor, inlineElement);
+        return true;
     }
+    return false;
 };
 
 export const processToolbar = (vditor: IVditor, actionBtn: Element, prefix: string, suffix: string) => {
@@ -106,6 +226,21 @@ export const processToolbar = (vditor: IVditor, actionBtn: Element, prefix: stri
         typeElement = typeElement.parentElement;
     }
     let useHighlight = true;
+    const inlineType = getInlineTypeByCommand(commandName);
+    if (inlineType) {
+        const inlineElement = getInlineElementNearRange(range, inlineType);
+        if (inlineElement && shouldToggleInlineElement(
+            range,
+            inlineElement,
+            actionBtn.classList.contains("vditor-menu--current"),
+        )) {
+            unwrapInlineElement(range, vditor, inlineElement);
+            setRangeByWbr(vditor.ir.element, range);
+            processAfterRender(vditor);
+            highlightToolbarIR(vditor);
+            return;
+        }
+    }
     // 移除
     if (actionBtn.classList.contains("vditor-menu--current")) {
         if (commandName === "quote") {

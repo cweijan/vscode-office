@@ -5,4 +5,7 @@ export const getHTML = (vditor: IVditor) => {
     if (vditor.currentMode === "ir") {
         return vditor.lute.VditorIRDOM2HTML(vditor.ir.element.innerHTML);
     }
+    if (vditor.currentMode === "raw") {
+        return vditor.lute.Md2HTML(vditor.raw.element.value);
+    }
 };

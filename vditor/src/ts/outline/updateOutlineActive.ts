@@ -42,6 +42,9 @@ const getOutlineTargetElements = (contentElement: HTMLElement) => {
 };
 
 const getActiveTargetId = (vditor: IVditor) => {
+    if (vditor.currentMode === "raw") {
+        return vditor.raw.getActiveHeadingId();
+    }
     const contentElement = vditor[vditor.currentMode].element;
     const targets = getOutlineTargetElements(contentElement);
     if (targets.length === 0) {

@@ -161,6 +161,53 @@ const selectBlock = (range: Range, vditor: IVditor) => {
     return true;
 };
 
+const preventHandledShortcut = (event: KeyboardEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    return true;
+};
+
+const handleRawVscodeShortcut = (vditor: IVditor, event: KeyboardEvent): boolean => {
+    if (!isCtrl(event) && event.shiftKey && event.altKey &&
+        (event.key === "ArrowUp" || event.key === "ArrowDown")) {
+        if (!vditor.raw.copyCurrentLines(vditor, event.key === "ArrowUp" ? "up" : "down")) {
+            return false;
+        }
+        return preventHandledShortcut(event);
+    }
+
+    if (isCtrl(event) && !event.shiftKey && !event.altKey &&
+        (event.key === "l" || event.key === "L")) {
+        if (!vditor.raw.selectCurrentLines()) {
+            return false;
+        }
+        return preventHandledShortcut(event);
+    }
+
+    if (isCtrl(event) && event.shiftKey && !event.altKey &&
+        (event.key === "k" || event.key === "K")) {
+        if (!vditor.raw.deleteCurrentLines(vditor)) {
+            return false;
+        }
+        return preventHandledShortcut(event);
+    }
+
+    if (!isCtrl(event) && !event.shiftKey && event.altKey &&
+        (event.key === "ArrowUp" || event.key === "ArrowDown")) {
+        if (!vditor.raw.moveCurrentLines(vditor, event.key === "ArrowUp" ? "up" : "down")) {
+            return false;
+        }
+        return preventHandledShortcut(event);
+    }
+
+    if (isCtrl(event) && event.key === "Enter") {
+        vditor.raw.insertEmptyLine(vditor, event.shiftKey ? "before" : "after");
+        return preventHandledShortcut(event);
+    }
+
+    return false;
+};
+
 /** VS Code 快捷键：Alt+↑/↓ 移动行，Shift+Alt+↑/↓ 复制行，Shift+Ctrl+K 删除行，Ctrl+L 选中行，Ctrl+Enter 插入空行 */
 export const handleVscodeShortcut = (vditor: IVditor, event: KeyboardEvent): boolean => {
     if (event.isComposing) {
@@ -169,6 +216,10 @@ export const handleVscodeShortcut = (vditor: IVditor, event: KeyboardEvent): boo
 
     if (isInsideCodeMirror(event.target)) {
         return false;
+    }
+
+    if (vditor.currentMode === "raw") {
+        return handleRawVscodeShortcut(vditor, event);
     }
 
     if (vditor.currentMode !== "wysiwyg" && vditor.currentMode !== "ir") {
@@ -183,9 +234,7 @@ export const handleVscodeShortcut = (vditor: IVditor, event: KeyboardEvent): boo
         if (!copied) {
             return false;
         }
-        event.preventDefault();
-        event.stopPropagation();
-        return true;
+        return preventHandledShortcut(event);
     }
 
     if (isCtrl(event) && !event.shiftKey && !event.altKey &&
@@ -193,9 +242,7 @@ export const handleVscodeShortcut = (vditor: IVditor, event: KeyboardEvent): boo
         if (!selectBlock(range, vditor)) {
             return false;
         }
-        event.preventDefault();
-        event.stopPropagation();
-        return true;
+        return preventHandledShortcut(event);
     }
 
     if (isCtrl(event) && event.shiftKey && !event.altKey &&
@@ -203,9 +250,7 @@ export const handleVscodeShortcut = (vditor: IVditor, event: KeyboardEvent): boo
         if (!deleteBlock(vditor, range)) {
             return false;
         }
-        event.preventDefault();
-        event.stopPropagation();
-        return true;
+        return preventHandledShortcut(event);
     }
 
     if (!isCtrl(event) && !event.shiftKey && event.altKey &&
@@ -219,16 +264,12 @@ export const handleVscodeShortcut = (vditor: IVditor, event: KeyboardEvent): boo
         } else if (!moveIrBlock(range, vditor, event.key === "ArrowUp" ? "up" : "down")) {
             return false;
         }
-        event.preventDefault();
-        event.stopPropagation();
-        return true;
+        return preventHandledShortcut(event);
     }
 
     if (isCtrl(event) && event.key === "Enter") {
         insertEmptyBlock(vditor, event.shiftKey ? "beforebegin" : "afterend");
-        event.preventDefault();
-        event.stopPropagation();
-        return true;
+        return preventHandledShortcut(event);
     }
 
     return false;
