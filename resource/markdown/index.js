@@ -20,7 +20,7 @@ handler.on("open", async (md) => {
     cache: {
       enable: false,
       id: documentCacheId,
-      focusHost: 'vscode',
+      focusHost: 'browser',
     },
     mode: editMode,
     editorTheme,
