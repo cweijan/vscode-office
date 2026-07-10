@@ -1,3 +1,5 @@
+import {enableLatexDelimiterSupport} from "./latexDelimiters";
+
 export const setLute = (options: ILuteOptions) => {
     const lute: Lute = Lute.New();
     lute.SetHeadingAnchor(options.headingAnchor);
@@ -24,5 +26,5 @@ export const setLute = (options: ILuteOptions) => {
     if (options.lazyLoadImage) {
         lute.SetImageLazyLoading(options.lazyLoadImage);
     }
-    return lute;
+    return enableLatexDelimiterSupport(lute);
 };

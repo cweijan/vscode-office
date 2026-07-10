@@ -16,6 +16,7 @@ import {
 } from "../codeBlock/codeMirrorManager";
 import { getEditorRange, setRangeByWbr } from "../util/selection";
 import { expandMarker } from "../ir/expandMarker";
+import {focusCreatedInlineMathAfterSpin} from "../math/inlineMathCodeMirror";
 import { scheduleRenderToc } from "../util/toc";
 import { afterRenderEvent } from "./afterRenderEvent";
 import { ensureEditorBoundaryParagraphs } from "./renderDomByMd";
@@ -313,6 +314,8 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
         markPostProcessStep("focus code block at cursor");
         focusEmptyMathBlockAfterSpin(vditor, vditor.wysiwyg.element, activeRange, oldHtml);
         markPostProcessStep("focus empty math block");
+        focusCreatedInlineMathAfterSpin(vditor, vditor.wysiwyg.element);
+        markPostProcessStep("focus inline math");
 
         remountScope.querySelectorAll(".vditor-wysiwyg__preview[data-render='2']")
             .forEach((item: HTMLElement) => {

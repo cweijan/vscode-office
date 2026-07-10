@@ -21,6 +21,7 @@ import {expandMarker} from "./expandMarker";
 import {scheduleRenderToc} from "../util/toc";
 import {processAfterRender} from "./process";
 import {getMarkdown} from "../markdown/getMarkdown";
+import {focusCreatedInlineMathAfterSpin} from "../math/inlineMathCodeMirror";
 import {fireContentInput} from "../util/saveToolbarState";
 
 export const input = (vditor: IVditor, range: Range, ignoreSpace = false, event?: InputEvent) => {
@@ -253,6 +254,7 @@ export const input = (vditor: IVditor, range: Range, ignoreSpace = false, event?
         focusCmBlockAtCursor(vditor, vditor.ir.element);
     }
     focusEmptyMathBlockAfterSpin(vditor, vditor.ir.element, activeRange, spinBeforeHtml);
+    focusCreatedInlineMathAfterSpin(vditor, vditor.ir.element);
 
     vditor.ir.element.querySelectorAll(".vditor-ir__preview[data-render='2']").forEach((item: HTMLElement) => {
         if (isCmCodeBlock(item.parentElement as HTMLElement)) {

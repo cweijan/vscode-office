@@ -4,6 +4,7 @@ import { latex } from "codemirror-lang-latex";
 
 import { stopHandledCodeMirrorKeymap, vditorCodeMirrorSetup } from "../codeBlock/codeMirrorSetup";
 import { Constants } from "../constants";
+import {LIVE_MATH_TRIGGER_ATTR} from "../markdown/latexDelimiters";
 import { mathRender } from "../markdown/mathRender";
 import { setSelectionFocus } from "../util/selection";
 
@@ -297,6 +298,26 @@ export const enterInlineMathEdit = (vditor: IVditor, fromEl: HTMLElement, focusA
     focusInlineMathView(view);
     const pos = focusAtStart ? 0 : view.state.doc.length;
     view.dispatch({ selection: { anchor: pos, head: pos }, scrollIntoView: false });
+    return true;
+};
+
+/** Spin 将 \( 转成数学节点后，直接进入行内数学 CodeMirror。 */
+export const focusCreatedInlineMathAfterSpin = (vditor: IVditor, root: ParentNode) => {
+    const container = root.querySelector(
+        `[${LIVE_MATH_TRIGGER_ATTR}='paren']`,
+    ) as HTMLElement | null;
+    if (!container) {
+        return false;
+    }
+    container.removeAttribute(LIVE_MATH_TRIGGER_ATTR);
+
+    const focus = () => {
+        if (container.isConnected && !container.classList.contains("vditor-math-inline--editing")) {
+            enterInlineMathEdit(vditor, container, true);
+        }
+    };
+    focus();
+    window.setTimeout(focus, 0);
     return true;
 };
 
