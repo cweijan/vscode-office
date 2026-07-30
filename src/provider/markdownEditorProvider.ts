@@ -197,11 +197,15 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         });
         handler.on("init", async () => {
             const viewerSettings = await ViewerSettingsService.loadForWebview();
+            const workspaceRootPath = getWorkspacePath(folderPath);
+            const workspaceRootUri = webview.asWebviewUri(vscode.Uri.file(workspaceRootPath)).toString()
+                .replace(/\?.+$/, '').replace('https://git', 'https://file');
             handler.emit("open", {
                 content, rootPath,
                 documentCacheId: `${uri.scheme}:${uri.toString()}`,
                 pendingFragment: consumePendingBlockScroll(uri),
                 config: this.getMarkdownWebviewConfig(config),
+                workspaceRootUri,
                 viewerSettings,
             })
             this.updateCount(content)
@@ -471,6 +475,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             editorTheme: configuration.get<string>("editorTheme", "Auto"),
             codeMirrorTheme: configuration.get<string>("codeMirrorTheme", "Auto"),
             mermaidTheme: configuration.get<string>("mermaidTheme", "Auto"),
+            leadingSlashAsWorkspaceRoot: configuration.get<boolean>("leadingSlashAsWorkspaceRoot", false),
             markdown: {
                 math: {
                     macros: markdownConfiguration.get<Record<string, string>>("math.macros", {}),

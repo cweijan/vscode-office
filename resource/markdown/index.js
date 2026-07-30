@@ -2,10 +2,10 @@ import { getToolbar, bindShortcut, createContextMenu, setAIAvailable } from "./u
 import { mapVscodeLanguageToVditorLang } from "./lang.js";
 
 handler.on("open", async (md) => {
-  const { content, rootPath, documentCacheId, pendingFragment, config } = md;
+  const { content, rootPath, documentCacheId, pendingFragment, config, workspaceRootUri } = md;
   const {
     language, isWeb, isDev, markdown,
-    editMode, editorTheme, codeMirrorTheme, mermaidTheme
+    editMode, editorTheme, codeMirrorTheme, mermaidTheme, leadingSlashAsWorkspaceRoot
   } = config;
   if (isWeb) {
     document.body.classList.add('is-web')
@@ -121,6 +121,37 @@ handler.on("open", async (md) => {
           editor.applyViewerSettings(viewerSettings.settings);
         }
       }
+
+      // Fix absolute image paths: rewrite /images/foo.png to workspace root
+      if (leadingSlashAsWorkspaceRoot && workspaceRootUri) {
+        const fixImageSrc = (img) => {
+          const attrSrc = img.getAttribute('src');
+          if (attrSrc && attrSrc.startsWith('/') && !attrSrc.startsWith('//')) {
+            // Set the .src property (not attribute) so the browser loads from the workspace root URI.
+            // The attribute stays as /images/foo.png for markdown conversion to preserve original source.
+            img.src = workspaceRootUri.replace(/\/$/, '') + attrSrc;
+          }
+        };
+
+        // Fix existing images
+        document.querySelectorAll('img[src^="/"]').forEach(fixImageSrc);
+
+        // Watch for dynamically added images
+        const imgObserver = new MutationObserver((mutations) => {
+          for (const mutation of mutations) {
+            for (const node of mutation.addedNodes) {
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                if (node.tagName === 'IMG') {
+                  fixImageSrc(node);
+                }
+                node.querySelectorAll?.('img[src^="/"]').forEach(fixImageSrc);
+              }
+            }
+          }
+        });
+        imgObserver.observe(document.body, { childList: true, subtree: true });
+      }
+
       handler.on('viewerSettingsSync', ({ enabled }) => {
         editor.setViewerSettingsSyncEnabled(!!enabled);
       });
