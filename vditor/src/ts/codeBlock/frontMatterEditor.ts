@@ -11,6 +11,8 @@ import { afterRenderEvent } from "../wysiwyg/afterRenderEvent";
 
 const FRONT_MATTER_POPOVER_CLASS = "vditor-popover--front-matter";
 const FRONT_MATTER_PANEL_CLASS = "vditor-panel--front-matter";
+const FRONT_MATTER_VALUE_SELECTOR = "[data-type='yaml-front-matter'] .vditor-properties__value";
+const FRONT_MATTER_WIKILINK_PATTERN = /\[\[([^\[\]\n]+?)\]\]/g;
 const POPOVER_INSET = 8;
 const VIEWPORT_MARGIN = 12;
 
@@ -33,6 +35,74 @@ const getModeEditor = (vditor: IVditor) => {
         return vditor.ir.element;
     }
     return null;
+};
+
+const parseFrontMatterWikiLink = (raw: string) => {
+    const pipeIndex = raw.indexOf("|");
+    const href = (pipeIndex < 0 ? raw : raw.slice(0, pipeIndex)).trim();
+    const alias = pipeIndex < 0 ? "" : raw.slice(pipeIndex + 1).trim();
+    if (!href) {
+        return null;
+    }
+    return { href, text: alias || href };
+};
+
+const renderWikiLinksInTextNode = (textNode: Text) => {
+    const source = textNode.nodeValue || "";
+    FRONT_MATTER_WIKILINK_PATTERN.lastIndex = 0;
+    if (!FRONT_MATTER_WIKILINK_PATTERN.test(source)) {
+        return;
+    }
+
+    FRONT_MATTER_WIKILINK_PATTERN.lastIndex = 0;
+    const fragment = document.createDocumentFragment();
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+    while ((match = FRONT_MATTER_WIKILINK_PATTERN.exec(source)) !== null) {
+        if (match.index > lastIndex) {
+            fragment.appendChild(document.createTextNode(source.slice(lastIndex, match.index)));
+        }
+        const parsed = parseFrontMatterWikiLink(match[1]);
+        if (!parsed) {
+            fragment.appendChild(document.createTextNode(match[0]));
+        } else {
+            const link = document.createElement("a");
+            link.className = "obsidian-wikilink";
+            link.dataset.href = parsed.href;
+            link.href = "#";
+            link.textContent = parsed.text;
+            fragment.appendChild(link);
+        }
+        lastIndex = match.index + match[0].length;
+    }
+    if (lastIndex < source.length) {
+        fragment.appendChild(document.createTextNode(source.slice(lastIndex)));
+    }
+    textNode.replaceWith(fragment);
+};
+
+export const renderFrontMatterWikiLinksInScope = (scope: HTMLElement) => {
+    const valueElements: HTMLElement[] = [];
+    if (scope.matches(FRONT_MATTER_VALUE_SELECTOR)) {
+        valueElements.push(scope);
+    }
+    scope.querySelectorAll(FRONT_MATTER_VALUE_SELECTOR).forEach((element) => {
+        valueElements.push(element as HTMLElement);
+    });
+
+    for (const valueElement of valueElements) {
+        const textNodes: Text[] = [];
+        const walker = document.createTreeWalker(valueElement, NodeFilter.SHOW_TEXT);
+        let node = walker.nextNode();
+        while (node) {
+            const parent = node.parentElement;
+            if (parent && !parent.closest(".obsidian-wikilink, .obsidian-wikilink-embed")) {
+                textNodes.push(node as Text);
+            }
+            node = walker.nextNode();
+        }
+        textNodes.forEach(renderWikiLinksInTextNode);
+    }
 };
 
 const getYamlSourceFromBlock = (blockElement: HTMLElement) => {

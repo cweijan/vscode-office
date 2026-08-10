@@ -33,6 +33,7 @@ import {
 } from "../math/inlineMathCodeMirror";
 import {
     flushFrontMatterYamlToSyncCode,
+    renderFrontMatterWikiLinksInScope,
 } from "./frontMatterEditor";
 
 export { focusCodeBlockChromeLanguage, isInsideCodeBlockChrome } from "./codeBlockChrome";
@@ -1395,6 +1396,7 @@ export const deactivateCodeMirrorsInScope = (vditor: IVditor, scope: HTMLElement
 
 /** Spin 后仅重建作用域内需要编辑的 CodeMirror */
 export const renderCodeBlocksInScope = (vditor: IVditor, scope: HTMLElement) => {
+    renderFrontMatterWikiLinksInScope(scope);
     for (const blockElement of collectCodeBlocksInScope(vditor, scope)) {
         scheduleLazyCodeBlock(vditor, blockElement);
     }
@@ -1654,6 +1656,7 @@ export const renderCodeBlocks = (vditor: IVditor) => {
     if (!editor) {
         return;
     }
+    renderFrontMatterWikiLinksInScope(editor);
     for (const block of editor.querySelectorAll(getCodeBlockSelector(vditor.currentMode))) {
         scheduleLazyCodeBlock(vditor, block as HTMLElement);
     }
