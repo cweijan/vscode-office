@@ -260,8 +260,8 @@ class Vditor {
     }
 
     /** 恢复滚动与焦点；onLoad 用于页面首次加载 */
-    public restoreDocumentSession(onLoad = false) {
-        restoreCacheFocus(this.vditor, { onLoad });
+    public restoreDocumentSession(onLoad = false, restoreCaret = true) {
+        restoreCacheFocus(this.vditor, { onLoad, restoreCaret });
     }
 
     /** 滚动到块引用或标题 fragment（如 ^block-id 或标题 slug） */

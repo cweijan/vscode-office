@@ -3,7 +3,8 @@ import { observeWorkspaceAbsoluteImages, createMarkdownValueReader, restoreWorks
 import { mapVscodeLanguageToVditorLang } from "./lang.js";
 
 handler.on("open", async (md) => {
-  const { content, rootPath, workspaceBaseUrl, documentCacheId, pendingFragment, config } = md;
+  const { content, rootPath, workspaceBaseUrl, documentCacheId, pendingFragment, shouldRestoreFocus, config, fileName } = md;
+  window.__officeMarkdownFileName = fileName || 'Note';
   const {
     language, isWeb, isDev, markdown,
     editMode, editorTheme, codeMirrorTheme, mermaidTheme
@@ -179,7 +180,7 @@ handler.on("open", async (md) => {
       handler.on('aiPolishEnd', () => {
         editor.endAIStream()
       })
-      editor.restoreDocumentSession(true)
+      editor.restoreDocumentSession(true, !!shouldRestoreFocus)
       if (pendingFragment) {
         editor.scrollToBlock(pendingFragment);
       }

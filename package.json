@@ -664,6 +664,11 @@
 						"default": "wysiwyg",
 						"markdownDescription": "Default edit mode for the Markdown editor."
 					},
+					"vscode-office.restoreViewState": {
+						"type": "boolean",
+						"default": true,
+						"markdownDescription": "Restore caret focus when opening a Markdown file. Scroll position is always restored."
+					},
 					"vscode-office.workspacePathAsImageBasePath": {
 						"type": "boolean",
 						"default": false,

@@ -30,6 +30,8 @@ type CacheFocusState = {
 type RestoreFocusOptions = {
     /** 页面/文档首次加载时恢复（读取持久化焦点，不依赖本次会话是否失焦过） */
     onLoad?: boolean;
+    /** 是否恢复光标并 focus；默认 true。false 时仍恢复滚动 */
+    restoreCaret?: boolean;
 };
 
 type CaretViewportMetrics = {
@@ -426,6 +428,7 @@ export const saveCacheFocus = (vditor: IVditor) => {
 
 export const restoreCacheFocus = (vditor: IVditor, options?: RestoreFocusOptions) => {
     const onLoad = options?.onLoad === true;
+    const restoreCaret = options?.restoreCaret !== false;
     if (!canRestoreFocus(vditor, onLoad)) {
         return;
     }
@@ -442,16 +445,22 @@ export const restoreCacheFocus = (vditor: IVditor, options?: RestoreFocusOptions
         return;
     }
 
-    if (onLoad || focusSavedMap.get(vditor) === true) {
+    if (restoreCaret && (onLoad || focusSavedMap.get(vditor) === true)) {
         focusSavedMap.set(vditor, true);
     }
 
     const apply = () => {
-        applyFocusState(vditor, state);
+        if (restoreCaret) {
+            applyFocusState(vditor, state);
+        }
         if (!onLoad) {
             return;
         }
-        finishDocumentLoadScroll(vditor, state);
+        if (restoreCaret) {
+            finishDocumentLoadScroll(vditor, state);
+        } else {
+            restoreDocumentScrollOnLoad(vditor, state);
+        }
         scheduleOutlineSyncOnLoad(vditor);
     };
 
