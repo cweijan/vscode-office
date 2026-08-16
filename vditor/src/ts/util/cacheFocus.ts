@@ -470,28 +470,14 @@ export const restoreCacheFocus = (vditor: IVditor, options?: RestoreFocusOptions
 };
 
 export const bindCacheFocusPersistence = (vditor: IVditor) => {
+    if (!isVscodeFocusHost(vditor)) return;
     const persistFocus = () => saveCacheFocus(vditor);
-    const tryRestoreFocus = () => {
+    window.addEventListener("pagehide", persistFocus);
+    window.addEventListener("blur", persistFocus);
+    window.addEventListener("focus", () => {
         if (hasOpenEditorOverlay(vditor) || isEditorFocused(vditor)) {
             return;
         }
         restoreCacheFocus(vditor);
-    };
-
-    window.addEventListener("pagehide", persistFocus);
-    window.addEventListener("beforeunload", persistFocus);
-
-    if (!isVscodeFocusHost(vditor)) {
-        return;
-    }
-
-    window.addEventListener("blur", persistFocus);
-    window.addEventListener("focus", tryRestoreFocus);
-    document.addEventListener("visibilitychange", () => {
-        if (document.hidden) {
-            persistFocus();
-            return;
-        }
-        tryRestoreFocus();
     });
 };
