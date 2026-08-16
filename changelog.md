@@ -1,5 +1,28 @@
 # Change log
 
+# 4.2.0 2026-8-16
+
+Markdown Editor:
+
+- Support configuring automatic focus restoration.
+- Reduce redundant focus restoration when switching tabs.
+- Fix Shift+Enter not working in IR mode.
+- Fix Markmap and heading anchor jumps in IR mode.
+
+PDF:
+
+- Update PDF.js to v3.1.
+- Remove the extra green indicator on the bookmark sidebar.
+
+XMind:
+
+- Fix inability to drag the canvas.
+
+Git History:
+
+- Improve reset button hover color.
+- Improve toolbar button placement.
+
 # 4.1.9 2026-8-13
 
 Markdown Editor:
