@@ -2,7 +2,7 @@
 	"name": "vscode-office",
 	"displayName": "Office Viewer",
 	"description": "View word, excel, powerpoint files and using WYSIWYG editor for markdown.",
-	"version": "4.1.9",
+	"version": "4.2.0",
 	"publisher": "cweijan",
 	"icon": "image/logo.png",
 	"engines": {
@@ -664,6 +664,11 @@
 						"default": "wysiwyg",
 						"markdownDescription": "Default edit mode for the Markdown editor."
 					},
+					"vscode-office.restoreViewState": {
+						"type": "boolean",
+						"default": true,
+						"markdownDescription": "Restore caret focus when opening a Markdown file. Scroll position is always restored."
+					},
 					"vscode-office.workspacePathAsImageBasePath": {
 						"type": "boolean",
 						"default": false,
@@ -846,7 +851,7 @@
 		"@codemirror/language-data": "^6.5.2",
 		"@codemirror/state": "^6.6.0",
 		"@codemirror/view": "^6.43.1",
-		"@cweijan/exceljs": "^5.0.0",
+		"@cweijan/exceljs": "^5.0.2",
 		"@eigenpal/docx-editor-react": "^1.9.0",
 		"@lezer/highlight": "^1.2.3",
 		"@mind-elixir/import-xmind": "^1.0.8",

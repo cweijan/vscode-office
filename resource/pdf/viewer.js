@@ -1058,7 +1058,7 @@ const PDFViewerApplication = {
     const openActionPromise = pdfDocument.getOpenAction().catch(function () {});
     this.toolbar.setPagesCount(pdfDocument.numPages, false);
     this.secondaryToolbar.setPagesCount(pdfDocument.numPages);
-    const store = this.store = new _view_history.ViewHistory(pdfDocument.fingerprint);
+    const store = this.store = new _view_history.ViewHistory(pdfDocument.fingerprints && pdfDocument.fingerprints[0] || pdfDocument.fingerprint);
     let baseDocumentUrl;
     baseDocumentUrl = null;
     this.pdfLinkService.setDocument(pdfDocument, baseDocumentUrl);
@@ -1097,7 +1097,7 @@ const PDFViewerApplication = {
         const viewOnLoad = _app_options.AppOptions.get("viewOnLoad");
 
         this._initializePdfHistory({
-          fingerprint: pdfDocument.fingerprint,
+          fingerprint: pdfDocument.fingerprints && pdfDocument.fingerprints[0] || pdfDocument.fingerprint,
           viewOnLoad,
           initialDest: openAction && openAction.dest
         });
@@ -1261,7 +1261,7 @@ const PDFViewerApplication = {
       this.documentInfo = info;
       this.metadata = metadata;
       this.contentDispositionFilename = contentDispositionFilename;
-      console.log("PDF " + pdfDocument.fingerprint + " [" + info.PDFFormatVersion + " " + (info.Producer || "-").trim() + " / " + (info.Creator || "-").trim() + "]" + " (PDF.js: " + (_pdfjsLib.version || "-") + (_app_options.AppOptions.get("enableWebGL") ? " [WebGL]" : "") + ")");
+      console.log("PDF " + (pdfDocument.fingerprints && pdfDocument.fingerprints[0] || pdfDocument.fingerprint) + " [" + info.PDFFormatVersion + " " + (info.Producer || "-").trim() + " / " + (info.Creator || "-").trim() + "]" + " (PDF.js: " + (_pdfjsLib.version || "-") + (_app_options.AppOptions.get("enableWebGL") ? " [WebGL]" : "") + ")");
       let pdfTitle;
       const infoTitle = info && info["Title"];
 
@@ -1906,12 +1906,14 @@ function webViewerPageRendered(evt) {
     type: "pageInfo",
     timestamp: evt.timestamp
   });
-  PDFViewerApplication.pdfDocument.getStats().then(function (stats) {
-    PDFViewerApplication.externalServices.reportTelemetry({
-      type: "documentStats",
-      stats
+  if (typeof PDFViewerApplication.pdfDocument.getStats === "function") {
+    PDFViewerApplication.pdfDocument.getStats().then(function (stats) {
+      PDFViewerApplication.externalServices.reportTelemetry({
+        type: "documentStats",
+        stats
+      });
     });
-  });
+  }
 }
 
 function webViewerPageMode({
@@ -3584,7 +3586,7 @@ const defaultOptions = {
     kind: OptionKind.API
   },
   cMapUrl: {
-    value: "https://unpkg.com/pdfjs-dist@2.7.570/cmaps/",
+    value: "cmaps/",
     kind: OptionKind.API
   },
   disableAutoFetch: {
@@ -3593,7 +3595,11 @@ const defaultOptions = {
   },
   disableCreateObjectURL: {
     value: false,
-    compatibility: _pdfjsLib.apiCompatibilityParams.disableCreateObjectURL,
+    compatibility: _pdfjsLib.apiCompatibilityParams && _pdfjsLib.apiCompatibilityParams.disableCreateObjectURL,
+    kind: OptionKind.VIEWER
+  },
+  standardFontDataUrl: {
+    value: "standard_fonts/",
     kind: OptionKind.API
   },
   disableFontFace: {
@@ -3633,7 +3639,7 @@ const defaultOptions = {
     kind: OptionKind.WORKER
   },
   workerSrc: {
-    value: "../build/pdf.worker.js",
+    value: "pdf.worker.js",
     kind: OptionKind.WORKER
   }
 };
@@ -3732,7 +3738,116 @@ if (typeof window !== "undefined" && window["pdfjs-dist/build/pdf"]) {
   pdfjsLib = require("../build/pdf.js");
 }
 
+patchPdfJsLibForViewer(pdfjsLib);
+
 module.exports = pdfjsLib;
+
+function patchPdfJsLibForViewer(lib) {
+  if (!lib) {
+    return;
+  }
+
+  if (!lib.apiCompatibilityParams) {
+    lib.apiCompatibilityParams = Object.create(null);
+  }
+
+  if (!lib.LinkTarget) {
+    lib.LinkTarget = {
+      NONE: 0,
+      SELF: 1,
+      BLANK: 2,
+      PARENT: 3,
+      TOP: 4
+    };
+  }
+
+  if (!lib.createObjectURL) {
+    lib.createObjectURL = function (data, contentType = "", forceDataSchema = false) {
+      if (URL.createObjectURL && typeof Blob !== "undefined" && !forceDataSchema) {
+        return URL.createObjectURL(new Blob([data], {
+          type: contentType
+        }));
+      }
+
+      const digits = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+      let buffer = `data:${contentType};base64,`;
+
+      for (let i = 0, ii = data.length; i < ii; i += 3) {
+        const b1 = data[i] & 0xff;
+        const b2 = data[i + 1] & 0xff;
+        const b3 = data[i + 2] & 0xff;
+        const d1 = b1 >> 2,
+          d2 = (b1 & 3) << 4 | b2 >> 4;
+        const d3 = i + 1 < ii ? (b2 & 0xf) << 2 | b3 >> 6 : 64;
+        const d4 = i + 2 < ii ? b3 & 0x3f : 64;
+        buffer += digits[d1] + digits[d2] + digits[d3] + digits[d4];
+      }
+
+      return buffer;
+    };
+  }
+
+  if (!lib.removeNullCharacters) {
+    lib.removeNullCharacters = function (str, replaceInvisible = false) {
+      if (typeof str !== "string") {
+        return str;
+      }
+
+      if (replaceInvisible) {
+        return str.replace(/[\x00-\x09\x0b\x0c\x0e-\x1f\x7f]/g, "");
+      }
+
+      return str.replace(/\x00/g, "");
+    };
+  }
+
+  if (!lib.addLinkAttributes) {
+    const DEFAULT_LINK_REL = "noopener noreferrer nofollow";
+    lib.addLinkAttributes = function (link, {
+      url,
+      target,
+      rel,
+      enabled = true
+    } = {}) {
+      if (!url || enabled === false) {
+        delete link.href;
+        link.onclick = () => false;
+      } else {
+        link.href = encodeURI(url);
+      }
+
+      const targetStr = typeof target === "string" ? target : ["", "_self", "_blank", "_parent", "_top"][target];
+
+      if (targetStr) {
+        link.target = targetStr;
+      } else {
+        link.removeAttribute("target");
+      }
+
+      const relStr = typeof rel === "string" ? rel : DEFAULT_LINK_REL;
+      link.rel = relStr;
+    };
+  }
+
+  if (lib.PDFWorker && !lib.PDFWorker.getWorkerSrc) {
+    lib.PDFWorker.getWorkerSrc = function () {
+      return lib.PDFWorker.workerSrc;
+    };
+  }
+
+  const annotationLayer = lib.AnnotationLayer;
+
+  if (annotationLayer && typeof annotationLayer.render === "function") {
+    const originalRender = annotationLayer.render.bind(annotationLayer);
+    annotationLayer.render = function (parameters) {
+      if (parameters && parameters.renderForms === undefined && parameters.renderInteractiveForms !== undefined) {
+        parameters.renderForms = parameters.renderInteractiveForms;
+      }
+
+      return originalRender(parameters);
+    };
+  }
+}
 
 /***/ }),
 /* 5 */
@@ -11967,7 +12082,7 @@ exports.DownloadManager = void 0;
 var _pdfjsLib = __webpack_require__(4);
 
 ;
-const DISABLE_CREATE_OBJECT_URL = _pdfjsLib.apiCompatibilityParams.disableCreateObjectURL || false;
+const DISABLE_CREATE_OBJECT_URL = _pdfjsLib.apiCompatibilityParams && _pdfjsLib.apiCompatibilityParams.disableCreateObjectURL || false;
 
 function download(blobUrl, filename) {
   const a = document.createElement("a");

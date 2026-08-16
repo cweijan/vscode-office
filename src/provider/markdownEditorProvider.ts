@@ -211,6 +211,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                 workspaceBaseUrl: workspaceUri ? webview.asWebviewUri(workspaceUri).toString().replace(/\?.+$/, '') : '',
                 documentCacheId: `${uri.scheme}:${uri.toString()}`,
                 pendingFragment: consumePendingBlockScroll(uri),
+                shouldRestoreFocus: config.get<boolean>("restoreViewState", false),
                 config: this.getMarkdownWebviewConfig(config),
                 viewerSettings,
             })

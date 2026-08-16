@@ -210,6 +210,20 @@ export const processKeydown = (vditor: IVditor, event: KeyboardEvent) => {
             return true;
         }
     }
+
+    // shift+enter：段落内硬换行（\n + ZWSP）；table 由上方 fixTable 处理
+    // 段末仅插 \n 时 pre-wrap 下光标不换行，需 ZWSP 占位 https://github.com/Vanessa219/vditor/issues/170
+    if (!isCtrl(event) && event.shiftKey && !event.altKey && event.key === "Enter" && !headingElement) {
+        const textNode = document.createTextNode("\n" + Constants.ZWSP);
+        range.insertNode(textNode);
+        range.setStart(textNode, 1);
+        range.collapse(true);
+        setSelectionFocus(range);
+        processAfterRender(vditor);
+        event.preventDefault();
+        return true;
+    }
+
     const blockElement = hasClosestBlock(startContainer);
     if (event.key === "Backspace" && !isCtrl(event) && !event.shiftKey && !event.altKey && range.toString() === "") {
         if (fixDelete(vditor, range, event, pElement)) {
