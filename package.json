@@ -810,6 +810,7 @@
 		]
 	},
 	"scripts": {
+		"test:word-save": "node --test test/word_save.test.cjs",
 		"dev": "vite --mode=development",
 		"dev:web": "OFFICE_EXTENSION_TARGET=web vite --mode=development",
 		"lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
@@ -819,6 +820,7 @@
 		"vscode:prepublish": "npm run build"
 	},
 	"devDependencies": {
+		"jsdom": "^26.1.0",
 		"@types/diff-match-patch": "1.0.32",
 		"@types/node": "^26.1.0",
 		"@types/react": "^19.2.17",
