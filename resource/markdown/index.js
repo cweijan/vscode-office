@@ -119,6 +119,7 @@ handler.on("open", async (md) => {
     },
     after() {
       const { viewerSettings } = md;
+      ListMarkerLive.install(editor);
       observeWorkspaceAbsoluteImages(document.getElementById('vditor'), workspaceBaseUrl);
       if (viewerSettings?.enabled) {
         editor.setViewerSettingsSyncEnabled(true);

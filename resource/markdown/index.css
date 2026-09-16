@@ -237,3 +237,57 @@ body.is-web .vditor-context-menu__item--desktop-only:focus-visible {
 .vditor-help-sponsor-text a:hover {
     text-decoration: underline;
 }
+
+/* ── Live list markers (see list-marker.js) ─────────────────────────────
+   vditor renders list markers natively (browser ol/ul numbering), which
+   leaves them unreachable for the caret — you cannot edit "1." into "5.".
+   list-marker.js hides the native marker on the editing surface and shows
+   the li's data-marker via ::before instead; when the caret enters the
+   line, a real text span (span.vmd-li-marker) takes over so the marker
+   becomes editable, and the ::before is suppressed for that line.
+
+   Scoped to ol/ul[data-block]: only Lute-produced editing-surface lists
+   carry data-block, so lists inside rendered preview blocks, the outline
+   panel and the hint list keep their native markers. Task-list items
+   (li.vditor-task, which also carry data-marker) are excluded
+   via :not(.vditor-task) — their marker spot is occupied by the checkbox.
+   The negative margin pulls
+   the ::before into the ol/ul padding gutter, mirroring how vditor
+   positions its task checkbox (-1.6em). */
+.vditor-wysiwyg ol[data-block],
+.vditor-wysiwyg ul[data-block] {
+    list-style: none;
+}
+
+.vditor-wysiwyg [data-block] > li[data-marker]:not(.vditor-task)::before {
+    content: attr(data-marker) ' ';
+    display: inline-block;
+    min-width: 1.5em;
+    margin-left: -1.8em;
+    text-align: right;
+    white-space: pre;
+}
+
+/* Caret's line: the real span takes over from the CSS marker. The
+   !important is required — plain specificity cannot beat the
+   [data-block] attribute selector above. */
+.vditor-wysiwyg li.vmd-marker-live::before {
+    content: none !important;
+}
+
+.vditor-wysiwyg .vmd-li-marker {
+    display: inline-block;
+    min-width: 1.5em;
+    margin-left: -1.8em;
+    text-align: right;
+    white-space: pre;
+    /* 与 ::before 的 marker 色一致：聚焦瞬间只换文本，不变颜色 */
+    color: var(--list-marker-color, var(--vscode-descriptionForeground, rgba(127, 127, 127, 0.6)));
+}
+
+/* Marker color follows --list-marker-color (the same variable the native
+   ::marker rendering used, defined on .vditor-reset), with a VS Code theme
+   fallback for contexts where the variable is not in scope. */
+.vditor-wysiwyg [data-block] > li[data-marker]:not(.vditor-task)::before {
+    color: var(--list-marker-color, var(--vscode-descriptionForeground, rgba(127, 127, 127, 0.6)));
+}
