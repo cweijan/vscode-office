@@ -22,6 +22,7 @@ import { ViewerSettingsService } from '@/service/viewerSettingsService';
 import { fileTypeFromPath } from '@/service/officeViewType';
 import { parseWebviewResourceUri } from '@/common/webviewUri';
 import { MarkdownDocumentSync } from '@/service/markdown/documentSync';
+import { openLinkedFile } from '@/service/markdown/linkedFile';
 
 function getRuntimePlatform(): string {
     if (typeof process !== 'undefined' && process.platform) {
@@ -230,12 +231,14 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             vscode.commands.executeCommand(command)
         }).on("openLink", async (linkUri: string) => {
             if (linkUri.startsWith('wiki:')) {
-                await openWikiLink(uri, linkUri);
+                const error = await openWikiLink(uri, linkUri);
+                if (error) handler.emit('openLinkError', error);
                 return;
             }
             const localUri = parseWebviewResourceUri(linkUri, uri, this.getWorkspaceUriByFileUtil(uri));
             if (localUri) {
-                vscode.commands.executeCommand('vscode.open', localUri, { preview: false });
+                const error = await openLinkedFile(localUri);
+                if (error) handler.emit('openLinkError', error);
             } else {
                 vscode.env.openExternal(vscode.Uri.parse(linkUri));
             }

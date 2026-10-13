@@ -17,6 +17,8 @@
 	"ext.markdown.noPasteDirectory": "Вставка каталогов не поддерживается.",
 	"ext.markdown.installXclip": "Сначала необходимо установить команду xclip.",
 	"ext.markdown.wikilinkNotFound": "Цель викиссылки не найдена: $1",
+	"ext.markdown.linkFileNotFound": "Файл не найден: $1",
+	"ext.markdown.linkOpenFailed": "Не удалось открыть файл $1: $2",
 	"ext.markdown.aiRequiresVscode": "Для функций ИИ требуется VS Code 1.90+ с установленным расширением языковой модели.",
 	"ext.markdown.noAiModel": "Нет доступной языковой модели ИИ. Установите расширение языковой модели (например, GitHub Copilot).",
 	"ext.markdown.aiPolishFailed": "Ошибка ИИ-редактирования: $1",

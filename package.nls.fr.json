@@ -17,6 +17,8 @@
 	"ext.markdown.noPasteDirectory": "Le collage de répertoires n'est pas pris en charge.",
 	"ext.markdown.installXclip": "Vous devez d'abord installer la commande xclip.",
 	"ext.markdown.wikilinkNotFound": "Cible du wikilink introuvable : $1",
+	"ext.markdown.linkFileNotFound": "Fichier introuvable : $1",
+	"ext.markdown.linkOpenFailed": "Impossible d’ouvrir le fichier $1 : $2",
 	"ext.markdown.aiRequiresVscode": "Les fonctionnalités IA nécessitent VS Code 1.90+ avec une extension de modèle de langage installée.",
 	"ext.markdown.noAiModel": "Aucun modèle de langage IA disponible. Veuillez installer une extension de modèle de langage (par ex. GitHub Copilot).",
 	"ext.markdown.aiPolishFailed": "Échec de la correction IA : $1",

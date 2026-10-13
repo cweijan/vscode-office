@@ -18,6 +18,7 @@ import { getMarkdown } from "./ts/markdown/getMarkdown";
 import { setLute } from "./ts/markdown/setLute";
 import { Outline } from "./ts/outline/index";
 import { Tip } from "./ts/tip/index";
+import { showToast } from "./ts/ui/toast";
 import { Toolbar } from "./ts/toolbar/index";
 import { disableToolbar, hidePanel } from "./ts/toolbar/setToolbar";
 import { enableToolbar } from "./ts/toolbar/setToolbar";
@@ -319,6 +320,10 @@ class Vditor {
     /** 消息提示。time 为 0 将一直显示 */
     public tip(text: string, time?: number) {
         this.vditor.tip.show(text, time);
+    }
+
+    public toast(text: string, time = 4000, type: "success" | "error" = "success", position: "top-right" | "bottom-right" = "top-right") {
+        showToast(this.vditor, text, time, type, position);
     }
 
     /** 删除选中内容 */

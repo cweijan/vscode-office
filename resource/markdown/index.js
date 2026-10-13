@@ -1,6 +1,7 @@
 import { getToolbar, bindShortcut, createContextMenu, setAIAvailable, } from "./util.js";
 import { observeWorkspaceAbsoluteImages, createMarkdownValueReader, restoreWorkspaceBaseUrls, } from "./imagePath.js";
 import { mapVscodeLanguageToVditorLang } from "./lang.js";
+import { bindLinkErrors } from "./linkError.js";
 
 handler.on("open", async (md) => {
   const { content, rootPath, workspaceBaseUrl, documentCacheId, pendingFragment, shouldRestoreFocus, config, fileName } = md;
@@ -119,6 +120,7 @@ handler.on("open", async (md) => {
       },
     },
     after() {
+      bindLinkErrors(handler, editor);
       const { viewerSettings } = md;
       observeWorkspaceAbsoluteImages(document.getElementById('vditor'), workspaceBaseUrl);
       if (viewerSettings?.enabled) {

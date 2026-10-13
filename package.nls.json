@@ -17,6 +17,8 @@
 	"ext.markdown.noPasteDirectory": "Not support paste directory.",
 	"ext.markdown.installXclip": "You need to install xclip command first.",
 	"ext.markdown.wikilinkNotFound": "Wikilink target not found: $1",
+	"ext.markdown.linkFileNotFound": "File not found: $1",
+	"ext.markdown.linkOpenFailed": "Could not open file $1: $2",
 	"ext.markdown.aiRequiresVscode": "AI features require VS Code 1.90+ with a language model extension installed.",
 	"ext.markdown.noAiModel": "No AI language model available. Please install a language model extension (e.g. GitHub Copilot).",
 	"ext.markdown.aiPolishFailed": "AI Polish failed: $1",
