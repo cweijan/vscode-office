@@ -11,6 +11,7 @@ import {
     setTableAlign,
 } from "../util/fixBrowserBehavior";
 import { codicon, TABLE_CODICONS } from "../util/codicon";
+import { removeTextCutBlock } from "../util/cutEmptySelection";
 import { hasClosestByMatchTag } from "../util/hasClosest";
 import { getEditorRange, setSelectionFocus } from "../util/selection";
 
@@ -54,6 +55,7 @@ interface ITableHandleState {
     dropLine: HTMLElement;
     rowAxisControl: HTMLButtonElement;
     colAxisControl: HTMLButtonElement;
+    deleteControl: HTMLButtonElement;
     wrapper: HTMLElement;
     editorElement: HTMLElement;
     hoveredTable: HTMLTableElement | null;
@@ -204,6 +206,7 @@ const hideAll = (state: ITableHandleState) => {
     state.colAxisControl.classList.remove(AXIS_DRAG_CLASS, AXIS_MENU_CLASS);
     state.rowAxisControl.style.display = "none";
     state.colAxisControl.style.display = "none";
+    state.deleteControl.style.display = "none";
     hideDropLine(state);
     hideAxisMenu(state);
     document.body.style.userSelect = "";
@@ -369,12 +372,26 @@ const updateDragDropLine = (state: ITableHandleState) => {
     }
 };
 
+const positionDeleteControl = (state: ITableHandleState, contentRect: ITableContentRect) => {
+    if (!state.hoveredTable || state.hoveredTable !== state.activeTable) {
+        state.deleteControl.style.display = "none";
+        return;
+    }
+    const wrapperRect = state.wrapper.getBoundingClientRect();
+    state.deleteControl.style.display = "flex";
+    state.deleteControl.style.left = `${contentRect.right - wrapperRect.left}px`;
+    state.deleteControl.style.top = `${contentRect.top - wrapperRect.top}px`;
+};
+
 const repositionControls = (state: ITableHandleState) => {
-    if (!state.activeTable || !state.focusedCell) {
+    if (!state.activeTable) {
         return;
     }
     const contentRect = getTableContentRect(state.activeTable);
-    positionAxisControls(state, contentRect, state.focusedCell);
+    positionDeleteControl(state, contentRect);
+    if (state.focusedCell) {
+        positionAxisControls(state, contentRect, state.focusedCell);
+    }
     if (state.menuMode && state.menu.style.display === "block") {
         const control = state.menuMode === "row" ? state.rowAxisControl : state.colAxisControl;
         positionAxisMenu(state, control);
@@ -644,6 +661,7 @@ const refresh = (vditor: IVditor, state: ITableHandleState) => {
 
     observeActiveTable(state, activeTable);
     state.root.classList.add(`${ROOT_CLASS}--visible`);
+    positionDeleteControl(state, getTableContentRect(activeTable));
 
     if (state.focusedCell) {
         repositionControls(state);
@@ -861,6 +879,16 @@ export const initTableHandle = (vditor: IVditor, wrapper: HTMLElement, editorEle
     const rowAxisControl = createAxisControl(AXIS_ROW_CLASS);
     const colAxisControl = createAxisControl(AXIS_COL_CLASS, true);
 
+    const deleteControl = document.createElement("button");
+    deleteControl.type = "button";
+    deleteControl.className = `${ROOT_CLASS}__delete`;
+    const deleteLabel = `${window.VditorI18n.remove || "Remove"} ${window.VditorI18n.table || "table"}`;
+    deleteControl.title = deleteLabel;
+    deleteControl.setAttribute("aria-label", deleteLabel);
+    deleteControl.innerHTML = codicon("trash");
+    deleteControl.addEventListener("mousedown", (event) => event.preventDefault());
+
+    root.appendChild(deleteControl);
     root.appendChild(rowAxisControl);
     root.appendChild(colAxisControl);
     root.appendChild(menu);
@@ -874,6 +902,7 @@ export const initTableHandle = (vditor: IVditor, wrapper: HTMLElement, editorEle
         dropLine,
         rowAxisControl,
         colAxisControl,
+        deleteControl,
         wrapper,
         editorElement,
         hoveredTable: null,
@@ -888,6 +917,20 @@ export const initTableHandle = (vditor: IVditor, wrapper: HTMLElement, editorEle
         dragClientY: 0,
     };
     handleMap.set(editorElement, state);
+
+    deleteControl.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const table = state.activeTable;
+        if (!table || !editorElement.contains(table)
+            || !shouldShowHandle(vditor, editorElement, event.target) || state.dragging) {
+            return;
+        }
+        state.hoveredTable = null;
+        hideAll(state);
+        removeTextCutBlock(vditor, table);
+        refresh(vditor, state);
+    });
 
     bindAxisControl(state, rowAxisControl, "row");
     bindAxisControl(state, colAxisControl, "col");
