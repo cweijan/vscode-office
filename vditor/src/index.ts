@@ -2,7 +2,7 @@ import "./assets/less/index.less";
 import * as adapterRender from "./ts/markdown/adapterRender";
 import { codeRender } from "./ts/markdown/codeRender";
 import { codeMirrorPreviewRender } from "./ts/codeBlock/codeMirrorPreviewRender";
-import { renderCodeBlocks } from "./ts/codeBlock/codeMirrorManager";
+import { deactivateCodeMirrorsInScope, renderCodeBlocks } from "./ts/codeBlock/codeMirrorManager";
 import { mathRender } from "./ts/markdown/mathRender";
 import { mermaidRender } from "./ts/markdown/mermaidRender";
 import { outlineRender } from "./ts/markdown/outlineRender";
@@ -379,12 +379,14 @@ class Vditor {
                 enableInput: false,
             });
         } else {
+            deactivateCodeMirrorsInScope(this.vditor, this.vditor.ir.element);
             this.vditor.ir.element.innerHTML = this.vditor.lute.Md2VditorIRDOM(markdown);
             this.vditor.ir.element
                 .querySelectorAll(".vditor-ir__preview[data-render='2']")
                 .forEach((item: HTMLElement) => {
                     processCodeRender(item, this.vditor);
                 });
+            renderCodeBlocks(this.vditor);
             ensureEditorBoundaryParagraphs(this.vditor.ir.element);
             processAfterRender(this.vditor, {
                 enableAddUndoStack: true,
