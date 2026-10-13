@@ -217,15 +217,9 @@ const convertExcelJsWorksheet = (worksheet: ExcelJS.Worksheet, workbook: ExcelJS
 
             const styleIndex = styleRegistry.add(cellStyle);
             const cellData: CellData = { text };
-            if (cell.formula && cell.result != null) {
-                cellData.formulaCache = {
-                    text,
-                    result: cell.result instanceof Date
-                        ? cell.result.toISOString().slice(0, 10)
-                        : cell.result as NonNullable<CellData['formulaCache']>['result'],
-                    numFmt: cell.numFmt,
-                    format: cellStyle?.format,
-                };
+            if (cell.numFmt) {
+                cellData.numFmt = cell.numFmt;
+                cellData.numFmtFormat = cellStyle?.format;
             }
             if (styleIndex != null) cellData.style = styleIndex;
             if (editable !== undefined) cellData.editable = editable;

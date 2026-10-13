@@ -1,8 +1,6 @@
 import { stringAt } from '../core/alphabet';
 import { getFontSizePxByPt } from '../core/font';
-import _cell from '../core/cell';
-import { formulam } from '../core/formula';
-import { formatm } from '../core/format';
+import { displayCellText } from '../../excel_cell_display';
 
 import {
   Draw, DrawBox, thinLineWidth, npx,
@@ -93,19 +91,7 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
   }
   draw.rect(dbox, () => {
     // render text
-    let cellText = '';
-    if (!data.settings.evalPaused) {
-      cellText = _cell.render(cell.text || '', formulam, (y, x) => {
-        const refCell = data.rows.getCell(x, y);
-        return (refCell && refCell.text) ? refCell.text : '';
-      });
-    } else {
-      cellText = cell.text || '';
-    }
-    const formatter = style.format ? formatm[style.format] : undefined;
-    if (formatter) {
-      cellText = formatter.render(cellText);
-    }
+    const cellText = displayCellText(cell, style, (x, y) => data.rows.getCell(y, x), data.settings.evalPaused);
     const font = Object.assign({}, style.font);
     if (!font.name) {
       font.name = (defaultStyle.font && defaultStyle.font.name) || 'Arial';
