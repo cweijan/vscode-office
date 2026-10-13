@@ -182,6 +182,9 @@ function overlayerMousezoom(evt) {
   if (!data.setZoomScale(nextZoom)) return;
 
   editor.clear();
+  // Row and column headers scale too, so move the overlays to the new grid origin.
+  this.overlayerCEl.offset(this.getTableOffset());
+  editor.setFreezeLengths(data.freezeTotalWidth(), data.freezeTotalHeight());
   verticalScrollbarSet.call(this);
   horizontalScrollbarSet.call(this);
   const ratio = data.getZoomScale() / oldScale;
