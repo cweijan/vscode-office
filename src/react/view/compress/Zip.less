@@ -675,3 +675,93 @@ body.office-dark {
     justify-content: flex-end;
     gap: 8px;
 }
+
+.zip-toast {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    width: 360px;
+    max-width: calc(100vw - 16px);
+    gap: 8px;
+    padding: 10px 9px;
+    border: 1px solid var(--zip-border);
+    border-radius: 3px;
+    background: var(--zip-sider-bg);
+    color: var(--zip-fg);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12), 0 6px 18px rgba(0, 0, 0, 0.1);
+    font-size: var(--vscode-font-size, 13px);
+    line-height: 22px;
+    cursor: pointer;
+    animation: zip-toast-slide-in 0.3s ease-out;
+    transition: background-color 0.12s ease;
+
+    &:hover {
+        background: color-mix(in srgb, var(--zip-sider-bg) 92%, var(--zip-fg) 8%);
+    }
+
+    * { cursor: inherit; }
+}
+
+.zip-toast__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 16px;
+    height: 22px;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--zip-accent);
+
+    svg { display: block; }
+}
+
+.zip-toast--success .zip-toast__icon { color: var(--zip-success); }
+.zip-toast--error .zip-toast__icon { color: var(--zip-danger); }
+
+.zip-toast__message {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    user-select: text;
+}
+
+.zip-toast__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    padding: 3px;
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+    color: var(--zip-muted);
+    opacity: 0.7;
+    cursor: pointer;
+
+    &:hover {
+        background: var(--zip-hover);
+        color: var(--zip-fg);
+        opacity: 1;
+    }
+
+    &:focus-visible {
+        outline: 1px solid var(--zip-accent);
+        outline-offset: -1px;
+    }
+}
+
+@keyframes zip-toast-slide-in {
+    from { opacity: 0; transform: translate3d(0, 100%, 0); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .zip-toast { animation-duration: 0s; }
+}

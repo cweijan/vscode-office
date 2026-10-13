@@ -89,33 +89,33 @@ export async function handleZip(uri: Uri, handler: Handler) {
                 if (isZipPasswordError(err)) {
                     archivePassword = undefined;
                     handler.emit('passwordError');
-                    window.showErrorMessage(i18n('ext.compress.wrongPassword'));
+                    handler.emit('extractToast', { type: 'error', message: i18n('ext.compress.wrongPassword') });
                 } else {
-                    window.showErrorMessage((err as Error).message);
+                    handler.emit('extractToast', { type: 'error', message: (err as Error).message });
                 }
             }
         }).on('autoExtract', async (inputPassword?: string) => {
             archivePassword = applyPassword(archivePassword, inputPassword);
             if (encrypted && !archivePassword) return;
 
-            window.showInformationMessage(i18n('ext.compress.startExtract'));
-            const plan = planExtractTarget(uri.fsPath, files.length);
-            if (plan.createSubfolder) {
-                mkdirSync(plan.targetDir, { recursive: true });
-            }
+            handler.emit('extractToast', { type: 'loading', message: i18n('ext.compress.startExtract') });
             try {
+                const plan = planExtractTarget(uri.fsPath, files.length);
+                if (plan.createSubfolder) {
+                    mkdirSync(plan.targetDir, { recursive: true });
+                }
                 const filePaths = Object.keys(fileMap);
                 await archive.extractAllTo(plan.targetDir, archivePassword, fileMap);
-                window.showInformationMessage(i18n('ext.compress.extractSuccess'));
+                handler.emit('extractToast', { type: 'success', message: i18n('ext.compress.extractSuccess') });
                 await revealExtractResult(plan, filePaths);
             } catch (err) {
                 Output.debug(err);
                 if (isZipPasswordError(err)) {
                     archivePassword = undefined;
                     handler.emit('passwordError');
-                    window.showErrorMessage(i18n('ext.compress.wrongPassword'));
+                    handler.emit('extractToast', { type: 'error', message: i18n('ext.compress.wrongPassword') });
                 } else {
-                    window.showErrorMessage((err as Error).message);
+                    handler.emit('extractToast', { type: 'error', message: (err as Error).message });
                 }
             }
         }).on('addFile', async (currentDir = '') => {
