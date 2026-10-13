@@ -35,6 +35,7 @@ export interface MarkdownEditorProviderOptions {
 }
 
 const MARKDOWN_SYNC_CONFIG_KEYS = [
+    'preventMacOptionKey',
     'editMode',
     'editorTheme',
     'codeMirrorTheme',
@@ -481,6 +482,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             editorTheme: configuration.get<string>("editorTheme", "Auto"),
             codeMirrorTheme: configuration.get<string>("codeMirrorTheme", "Auto"),
             mermaidTheme: configuration.get<string>("mermaidTheme", "Auto"),
+            preventMacOptionKey: configuration.get<boolean>("preventMacOptionKey", true),
             markdown: {
                 math: {
                     macros: markdownConfiguration.get<Record<string, string>>("math.macros", {}),

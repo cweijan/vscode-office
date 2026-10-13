@@ -17,6 +17,7 @@ handler.on("open", async (md) => {
   editor = new Vditor('vditor', {
     value: content,
     cdn: rootPath,
+    preventMacOptionKey: config.preventMacOptionKey !== false,
     height: '100%',
     outline: {
       position: 'left',
@@ -133,6 +134,9 @@ handler.on("open", async (md) => {
         editor.applyViewerSettings(settings);
       });
       handler.on('markdownConfig', (update) => {
+        if (Object.prototype.hasOwnProperty.call(update, 'preventMacOptionKey')) {
+          editor.vditor.options.preventMacOptionKey = update.preventMacOptionKey !== false;
+        }
         if (update.editorTheme !== undefined) {
           editor.setEditorTheme(update.editorTheme);
         }
