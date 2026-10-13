@@ -88,6 +88,9 @@ export interface ColProperties {
 
 export interface CellData {
     text: string;
+    /** Imported numeric format and its corresponding viewer format. */
+    numFmt?: string;
+    numFmtFormat?: string;
     style?: number;
     merge?: CellMerge;
     /** false 表示不可编辑（对应 Excel 锁定单元格） */

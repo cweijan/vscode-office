@@ -7,9 +7,9 @@ import {
 import { WIKI_URI_PREFIX } from './constants';
 import { parseWikiLinkUri } from './parse';
 import { resolveWikiLinkFile } from './resolve';
-import { i18n } from '@/common/global';
+import { checkLinkedFile, linkedFileNotFound, LinkOpenError } from '../linkedFile';
 
-export async function openWikiLink(currentUri: vscode.Uri, wikiUri: string): Promise<void> {
+export async function openWikiLink(currentUri: vscode.Uri, wikiUri: string): Promise<LinkOpenError | undefined> {
     const target = parseWikiLinkUri(wikiUri);
     if (!target) {
         return;
@@ -18,11 +18,12 @@ export async function openWikiLink(currentUri: vscode.Uri, wikiUri: string): Pro
     const fileUri = await resolveWikiLinkFile(currentUri, target.page);
     if (!fileUri) {
         const label = target.page || wikiUri.slice(WIKI_URI_PREFIX.length);
-        void vscode.window.showWarningMessage(i18n('ext.markdown.wikilinkNotFound', label));
-        return;
+        return linkedFileNotFound(label);
     }
 
     const baseUri = fileUri.with({ query: '', fragment: '' });
+    const error = await checkLinkedFile(baseUri);
+    if (error) return error;
     const hasExistingWebview = !!getMarkdownWebviewHandler(baseUri);
 
     if (target.fragment && !hasExistingWebview) {

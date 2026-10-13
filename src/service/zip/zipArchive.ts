@@ -41,7 +41,8 @@ function normalizePath(path: string): string {
 }
 
 function getReaderOptions(encoding?: string) {
-    if (!encoding || encoding === 'utf8') return {};
+    // Unflagged filenames default to CP437 in zip.js, so UTF-8 must be explicit.
+    if (!encoding || encoding === 'utf8') return { filenameEncoding: 'utf-8' };
     return {
         filenameEncoding: encoding,
         decodeText: (value: Uint8Array) => iconv.decode(Buffer.from(value), encoding),
@@ -214,7 +215,7 @@ export class ZipArchive {
         return { archive, encoding, ...parsed };
     }
 
-    async parse(encoding?: string): Promise<ZipParseResult> {
+    async parse(encoding: string = this.encoding): Promise<ZipParseResult> {
         const reader = new ZipReader(new BlobReader(new Blob([this.data])), getReaderOptions(encoding));
         const entries = await reader.getEntries();
         await reader.close();

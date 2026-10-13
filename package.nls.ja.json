@@ -17,6 +17,8 @@
 	"ext.markdown.noPasteDirectory": "ディレクトリの貼り付けはサポートされていません。",
 	"ext.markdown.installXclip": "先に xclip コマンドをインストールしてください。",
 	"ext.markdown.wikilinkNotFound": "ウィキリンクのターゲットが見つかりません: $1",
+	"ext.markdown.linkFileNotFound": "ファイルが見つかりません: $1",
+	"ext.markdown.linkOpenFailed": "ファイル $1 を開けません: $2",
 	"ext.markdown.aiRequiresVscode": "AI 機能には VS Code 1.90 以降と言語モデル拡張機能が必要です。",
 	"ext.markdown.noAiModel": "利用可能な AI 言語モデルがありません。言語モデル拡張機能（例: GitHub Copilot）をインストールしてください。",
 	"ext.markdown.aiPolishFailed": "AI 校正に失敗しました: $1",

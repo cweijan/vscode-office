@@ -1,7 +1,7 @@
 import ExcelJS from '@cweijan/exceljs';
 import JSZip from 'jszip';
 import * as XLSX from 'xlsx';
-import { inferSchema, initParser } from 'udsv';
+import { parseCsv } from './csvParser';
 import { decodeCsvBuffer } from './csvEncoding';
 import { DEFAULT_ROW_HEIGHT_PX, excelFreezeToExpr, excelRowHeightToPx, readAutofilterRef } from './excel_meta';
 import { readWorksheetSortStateXml } from './excel_sort_state';
@@ -217,6 +217,10 @@ const convertExcelJsWorksheet = (worksheet: ExcelJS.Worksheet, workbook: ExcelJS
 
             const styleIndex = styleRegistry.add(cellStyle);
             const cellData: CellData = { text };
+            if (cell.numFmt) {
+                cellData.numFmt = cell.numFmt;
+                cellData.numFmtFormat = cellStyle?.format;
+            }
             if (styleIndex != null) cellData.style = styleIndex;
             if (editable !== undefined) cellData.editable = editable;
             cells[ci] = cellData;
@@ -411,63 +415,36 @@ const loadWithSheetJs = (buffer: ArrayBuffer): ExcelData => {
     return convertSheetJsWorkbook(workbook);
 };
 
-const loadCsv = (buffer: ArrayBuffer): ExcelData => {
+const loadCsv = (buffer: ArrayBuffer, delimiter?: string): ExcelData => {
     let maxCols = 26;
     const emptySheet = { maxCols, sheets: [{ name: 'Sheet1', rows: { len: 0 } }] };
-    let csvStr = decodeCsvBuffer(buffer);
+    const csvStr = decodeCsvBuffer(buffer);
     if (!csvStr) return emptySheet;
 
-    try {
-        const leadingEmptyRows = csvStr.match(/^(?:\r\n|\n|\r)+/)?.[0].match(/\r\n|\n|\r/g)?.length ?? 0;
-        const csvToParse = leadingEmptyRows > 0 ? csvStr.replace(/^(?:\r\n|\n|\r)+/, '') : csvStr;
-        if (!csvToParse) {
-            return {
-                maxCols,
-                maxLength: leadingEmptyRows,
-                sheets: [{
-                    name: 'Sheet1',
-                    rows: { len: leadingEmptyRows },
-                }],
-            };
-        }
-        let parseInput = csvToParse;
-        if (!parseInput.includes('\n')) parseInput += '\n';
-        const schema = inferSchema(parseInput, { header: () => [] });
-        const rows = initParser(schema).stringArrs(parseInput);
-        const colCount = rows.reduce((max, row) => Math.max(max, row.length), 0);
+    const { rows, delimiter: csvDelimiter } = parseCsv(csvStr, delimiter);
+    const colCount = rows.reduce((max, row) => Math.max(max, row.length), 0);
 
-        const processedRows: RowMap = {};
-        for (let i = 0; i < leadingEmptyRows; i += 1) {
-            processedRows[i] = { cells: {} };
+    const processedRows: RowMap = {};
+    for (let i = 0; i < rows.length; i += 1) {
+        const row = rows[i];
+        const cells: Record<number, CellData> = {};
+        for (let j = 0; j < row.length; j += 1) {
+            cells[j] = { text: row[j] == null ? '' : String(row[j]) };
+            if (j + 1 > maxCols) maxCols = j + 1;
         }
-        for (let i = 0; i < rows.length; i += 1) {
-            const row = rows[i];
-            const cells: Record<number, CellData> = {};
-            for (let j = 0; j < row.length; j += 1) {
-                cells[j] = { text: row[j] == null ? '' : String(row[j]) };
-                if (j + 1 > maxCols) maxCols = j + 1;
-            }
-            processedRows[i + leadingEmptyRows] = { cells };
-        }
-        const csvRows = [
-            ...Array.from({ length: leadingEmptyRows }, () => [] as string[]),
-            ...rows,
-        ];
-
-        return {
-            maxCols,
-            maxLength: csvRows.length,
-            csvDelimiter: schema.col,
-            sheets: [{
-                name: 'Sheet1',
-                rows: { len: csvRows.length, ...processedRows },
-                cols: { len: colCount, ...buildCsvCols(csvRows, colCount) },
-            }],
-        };
-    } catch (error) {
-        console.error(error);
-        return { maxCols, sheets: [{ name: 'Sheet1', rows: { len: 1, 0: { cells: { 0: { text: error.message } } } } }] };
+        processedRows[i] = { cells };
     }
+
+    return {
+        maxCols,
+        maxLength: rows.length,
+        csvDelimiter,
+        sheets: [{
+            name: 'Sheet1',
+            rows: { len: rows.length, ...processedRows },
+            cols: { len: colCount, ...buildCsvCols(rows, colCount) },
+        }],
+    };
 };
 
 const isCsvExt = (ext: string) => /csv|tsv/.test(ext.toLowerCase());
@@ -476,7 +453,7 @@ const isXlsExt = (ext: string) => ext.toLowerCase().replace(/^\./, '') === 'xls'
 
 export async function loadSheets(buffer: ArrayBuffer, ext: string): Promise<ExcelData> {
     if (isCsvExt(ext)) {
-        return loadCsv(buffer);
+        return loadCsv(buffer, ext.toLowerCase().replace(/^\./, '') === 'tsv' ? '\t' : undefined);
     }
     if (isXlsExt(ext) || isOdsExt(ext)) {
         return loadWithSheetJs(buffer);

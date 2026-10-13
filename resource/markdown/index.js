@@ -1,6 +1,7 @@
 import { getToolbar, bindShortcut, createContextMenu, setAIAvailable, } from "./util.js";
 import { observeWorkspaceAbsoluteImages, createMarkdownValueReader, restoreWorkspaceBaseUrls, } from "./imagePath.js";
 import { mapVscodeLanguageToVditorLang } from "./lang.js";
+import { bindLinkErrors } from "./linkError.js";
 
 handler.on("open", async (md) => {
   const { content, rootPath, workspaceBaseUrl, documentCacheId, pendingFragment, shouldRestoreFocus, config, fileName } = md;
@@ -17,6 +18,7 @@ handler.on("open", async (md) => {
   editor = new Vditor('vditor', {
     value: content,
     cdn: rootPath,
+    preventMacOptionKey: config.preventMacOptionKey !== false,
     height: '100%',
     outline: {
       position: 'left',
@@ -118,6 +120,7 @@ handler.on("open", async (md) => {
       },
     },
     after() {
+      bindLinkErrors(handler, editor);
       const { viewerSettings } = md;
       observeWorkspaceAbsoluteImages(document.getElementById('vditor'), workspaceBaseUrl);
       if (viewerSettings?.enabled) {
@@ -133,6 +136,9 @@ handler.on("open", async (md) => {
         editor.applyViewerSettings(settings);
       });
       handler.on('markdownConfig', (update) => {
+        if (Object.prototype.hasOwnProperty.call(update, 'preventMacOptionKey')) {
+          editor.vditor.options.preventMacOptionKey = update.preventMacOptionKey !== false;
+        }
         if (update.editorTheme !== undefined) {
           editor.setEditorTheme(update.editorTheme);
         }

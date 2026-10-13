@@ -44,22 +44,16 @@ async function loadVirtualImage(uri: vscode.Uri): Promise<{ images: { title: str
 async function loadFolderImages(uri: vscode.Uri, webview: vscode.Webview) {
     const folderPath = vscode.Uri.joinPath(uri, '..');
     const entries = await vscode.workspace.fs.readDirectory(folderPath);
-    let current = 0;
     const currentFile = basename(uri.fsPath);
-    const images: { src: string; title: string }[] = [];
-    let index = 0;
-    for (const [name, fileType] of entries) {
-        if (fileType !== vscode.FileType.File || !isImage(name)) {
-            continue;
-        }
-        if (currentFile === name) {
-            current = index;
-        }
-        const resUri = vscode.Uri.joinPath(folderPath, name);
-        const resource = webview.asWebviewUri(resUri).with({ query: `nonce=${Date.now().toString()}` }).toString();
-        images.push({ src: resource, title: name });
-        index++;
-    }
+    const files = entries.filter(([name, fileType]) =>
+        fileType === vscode.FileType.File && isImage(name));
+    const current = Math.max(0, files.findIndex(([name]) => name === currentFile));
+    const nonce = Date.now().toString();
+    const images = files.map(([name]) => ({
+        src: webview.asWebviewUri(vscode.Uri.joinPath(folderPath, name))
+            .with({ query: `nonce=${nonce}` }).toString(),
+        title: name,
+    }));
     return { images, current };
 }
 

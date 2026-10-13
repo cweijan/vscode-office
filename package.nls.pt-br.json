@@ -17,6 +17,8 @@
 	"ext.markdown.noPasteDirectory": "Não é suportado colar diretórios.",
 	"ext.markdown.installXclip": "Você precisa instalar o comando xclip primeiro.",
 	"ext.markdown.wikilinkNotFound": "Destino do wikilink não encontrado: $1",
+	"ext.markdown.linkFileNotFound": "Arquivo não encontrado: $1",
+	"ext.markdown.linkOpenFailed": "Não foi possível abrir o arquivo $1: $2",
 	"ext.markdown.aiRequiresVscode": "Recursos de IA requerem VS Code 1.90+ com uma extensão de modelo de linguagem instalada.",
 	"ext.markdown.noAiModel": "Nenhum modelo de linguagem de IA disponível. Instale uma extensão de modelo de linguagem (ex.: GitHub Copilot).",
 	"ext.markdown.aiPolishFailed": "Falha no polimento com IA: $1",

@@ -45,7 +45,7 @@ const baseFormats = [
     title: tf('format.percent'),
     type: 'number',
     label: '10.12%',
-    render: v => `${v}%`,
+    render: v => (v !== '' && Number.isFinite(Number(v)) ? `${(Number(v) * 100).toFixed(2)}%` : v),
   },
   {
     key: 'rmb',

@@ -17,6 +17,8 @@
 	"ext.markdown.noPasteDirectory": "Einfügen von Verzeichnissen wird nicht unterstützt.",
 	"ext.markdown.installXclip": "Sie müssen zuerst den Befehl xclip installieren.",
 	"ext.markdown.wikilinkNotFound": "Wikilink-Ziel nicht gefunden: $1",
+	"ext.markdown.linkFileNotFound": "Datei nicht gefunden: $1",
+	"ext.markdown.linkOpenFailed": "Datei $1 konnte nicht geöffnet werden: $2",
 	"ext.markdown.aiRequiresVscode": "AI-Funktionen erfordern VS Code 1.90+ mit installierter Sprachmodell-Erweiterung.",
 	"ext.markdown.noAiModel": "Kein AI-Sprachmodell verfügbar. Bitte installieren Sie eine Sprachmodell-Erweiterung (z. B. GitHub Copilot).",
 	"ext.markdown.aiPolishFailed": "AI-Korrektur fehlgeschlagen: $1",

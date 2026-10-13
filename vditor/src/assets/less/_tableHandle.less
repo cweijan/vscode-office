@@ -5,6 +5,37 @@
   pointer-events: none;
   overflow: visible;
 
+  &__delete {
+    position: absolute;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--error-color, @errorColor) 10%, var(--panel-background-color));
+    color: color-mix(in srgb, var(--error-color, @errorColor) 75%, var(--toolbar-icon-color));
+    cursor: pointer;
+    pointer-events: auto;
+    transform: translate(-50%, -50%);
+
+    .codicon {
+      font-size: 13px;
+    }
+
+    &:hover,
+    &:focus-visible {
+      background: color-mix(in srgb, var(--error-color, @errorColor) 18%, var(--panel-background-color));
+      color: var(--error-color, @errorColor);
+    }
+
+    &:focus-visible {
+      outline: 1px solid var(--error-color, @errorColor);
+    }
+  }
+
   &__axis {
     position: absolute;
     display: none;
@@ -175,6 +206,7 @@
   }
 
   &--dragging {
+    .vditor-table-handle__delete,
     .vditor-panel,
     .vditor-table-handle__menu {
       display: none !important;

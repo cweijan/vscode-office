@@ -17,6 +17,8 @@
 	"ext.markdown.noPasteDirectory": "不支援貼上目錄。",
 	"ext.markdown.installXclip": "請先安裝 xclip 命令。",
 	"ext.markdown.wikilinkNotFound": "找不到雙鏈目標：$1",
+	"ext.markdown.linkFileNotFound": "檔案不存在：$1",
+	"ext.markdown.linkOpenFailed": "無法開啟檔案 $1：$2",
 	"ext.markdown.aiRequiresVscode": "AI 功能需要 VS Code 1.90+ 並安裝語言模型擴充功能。",
 	"ext.markdown.noAiModel": "沒有可用的 AI 語言模型。請安裝語言模型擴充功能（如 GitHub Copilot）。",
 	"ext.markdown.aiPolishFailed": "AI 潤色失敗：$1",

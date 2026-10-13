@@ -208,6 +208,9 @@ export const cutEvent =
 
 export const macOptionSymbolEvent = (vditor: IVditor) => {
     vditor.element.addEventListener("keydown", (event: KeyboardEvent) => {
+        if (vditor.options.preventMacOptionKey === false) {
+            return;
+        }
         if (!shouldBlockMacOptionSymbol(event)) {
             return;
         }

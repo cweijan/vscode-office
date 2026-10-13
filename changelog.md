@@ -1,5 +1,48 @@
 # Change log
 
+# 4.2.1 2026-10-14
+
+Markdown Editor:
+
+- Add text-to-speech support (Pro).
+- Support configuring keyboard shortcuts(Pro).
+- Add a quick delete button for tables.
+- Show a notification when navigation to an internal file fails.
+- Disable single-tilde strikethrough.
+- Restore the `preventMacOptionKey` config.
+- Fix text numbers being lost when applying a heading.
+- Fix unexpected scrolling to the top while editing.
+- Fix handling of external code block updates in IR mode.
+- Fix spaces being removed before inline elements in table cells when saving in WYSIWYG or IR mode.
+
+Excel and CSV:
+
+- Support rendering nested formulas.
+- Support parsing CSV files with comments.
+- Fix selection border misalignment after zooming.
+
+PDF:
+
+- Fix PDF link navigation.
+- Automatically switch between light and dark themes when toggling high-contrast colors.
+
+Archives:
+
+- Use UTF-8 as the default ZIP view encoding.
+- Display extraction notifications in the viewer UI.
+
+Images:
+
+- Improve image loading performance.
+
+Git History:
+
+- Deduplicate repository paths on Windows.
+
+General:
+
+- Support opening Markdown, CSV, and DOCX files in Live Share sessions.
+
 # 4.2.0 2026-8-16
 
 Markdown Editor:

@@ -126,11 +126,12 @@
     let enabled = false;
     try { enabled = localStorage.getItem(STORAGE_KEY) === '1'; } catch (e) { }
     apply(enabled);
-    const toggle = () => {
-      enabled = !enabled;
+    const setEnabled = (on) => {
+      enabled = on;
       try { localStorage.setItem(STORAGE_KEY, enabled ? '1' : '0'); } catch (e) { }
       apply(enabled);
     };
+    const toggle = () => setEnabled(!enabled);
     const btn = document.getElementById('themeAdaptToggle');
     if (btn) btn.addEventListener('click', toggle);
     window.addEventListener('keydown', (e) => {
@@ -139,11 +140,15 @@
         toggle();
       }
     });
+    return setEnabled;
   }
 
-  function setupDarkMode() {
+  function setupDarkMode(setThemeAdaptEnabled) {
     const STORAGE_KEY = 'office-pdf-dark-mode';
     const apply = (on) => {
+      if (on) {
+        setThemeAdaptEnabled(true);
+      }
       document.body.classList.toggle('office-dark', on);
       const btn = document.getElementById('darkModeToggle');
       if (btn) {
@@ -159,6 +164,7 @@
     const toggle = () => {
       enabled = !enabled;
       try { localStorage.setItem(STORAGE_KEY, enabled ? '1' : '0'); } catch (e) { }
+      setThemeAdaptEnabled(enabled);
       apply(enabled);
     };
     const btn = document.getElementById('darkModeToggle');
@@ -461,8 +467,8 @@
   }
 
   window.addEventListener('load', function () {
-    setupThemeAdapt();
-    setupDarkMode();
+    const setThemeAdaptEnabled = setupThemeAdapt();
+    setupDarkMode(setThemeAdaptEnabled);
     setupCustomScaleSelect();
     PDFViewerApplication.initializedPromise.then(() => {
       initSidebarResize();
