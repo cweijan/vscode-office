@@ -2,14 +2,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import ImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/css/image-gallery.css";
 import { handler } from '../../util/vscode';
-import { type ImageSource, needsConversion, resolveImageSrc, revokeObjectUrl } from './convertImage';
+import { type ImageSource, resolveImageSrc, revokeObjectUrl } from './convertImage';
 import './Image.less';
+import { createBrowseWheelHandler } from './browseWheel';
 import SponsorBar from '../components/SponsorBar';
 
 type WheelMode = 'navigate' | 'zoom';
 
 const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 5;
+const MAX_LOADED_THUMBNAILS = 30;
+const PLACEHOLDER = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="82" height="82"/%3E';
 
 function ZoomIcon() {
     return (
@@ -32,13 +35,17 @@ function BrowseIcon() {
 }
 
 export default function Image() {
-    const gallery = useRef(null)
     const [info, setInfo] = useState({ images: [], current: 0 } as any);
-    const [resolvedImages, setResolvedImages] = useState<{ original: string; thumbnail: string }[]>([]);
+    const [resolvedImages, setResolvedImages] = useState<Record<number, string>>({});
+    const [activeIndex, setActiveIndex] = useState(0);
     const [loading, setLoading] = useState(false);
     const [wheelMode, setWheelMode] = useState<WheelMode>('zoom');
     const [zoom, setZoom] = useState(1);
-    const objectUrlsRef = useRef<string[]>([]);
+    const conversionQueue = useRef(Promise.resolve());
+    const imageCache = useRef(new Map<number, string>());
+    const browseWheel = useRef(createBrowseWheelHandler());
+    const previewStart = Math.max(0, Math.min(activeIndex - Math.floor(MAX_LOADED_THUMBNAILS / 2),
+        info.images.length - MAX_LOADED_THUMBNAILS));
 
     const applyZoom = useCallback((scale: number) => {
         const img = document.querySelector('.image-gallery-slide.image-gallery-center .image-gallery-image') as HTMLElement | null;
@@ -54,65 +61,81 @@ export default function Image() {
         handler.on('images', info => {
             setInfo(info);
             setZoom(1);
-            const hasResolvable = info.images.some((image: ImageSource) =>
-                needsConversion(image) || !!image.buffer?.length
-            );
-            setLoading(hasResolvable);
-            if (!info.images.length) {
-                setResolvedImages([]);
-                setLoading(false);
-            }
+            setActiveIndex(info.current);
+            setResolvedImages({});
         }).emit('images');
     }, []);
 
     useEffect(() => {
-        let cancelled = false;
-        for (const url of objectUrlsRef.current) {
-            revokeObjectUrl(url);
-        }
-        objectUrlsRef.current = [];
-
-        if (!info.images.length) {
-            return;
-        }
-
-        (async () => {
-            const resolved: { original: string; thumbnail: string }[] = [];
-            for (const image of info.images) {
-                if (cancelled) return;
-                try {
-                    const src = await resolveImageSrc(image);
-                    if (src.startsWith('blob:')) {
-                        objectUrlsRef.current.push(src);
-                    }
-                    resolved.push({ original: src, thumbnail: src });
-                } catch {
-                    resolved.push({ original: image.src ?? '', thumbnail: image.src ?? '' });
-                }
-            }
-            if (!cancelled) {
-                setResolvedImages(resolved);
-                setLoading(false);
-            }
-        })();
-
+        const cache = imageCache.current;
         return () => {
-            cancelled = true;
-            for (const url of objectUrlsRef.current) {
-                revokeObjectUrl(url);
-            }
-            objectUrlsRef.current = [];
+            cache.forEach(revokeObjectUrl);
+            cache.clear();
         };
     }, [info.images]);
 
     useEffect(() => {
-        let previous = 0;
+        let cancelled = false;
+        const cache = imageCache.current;
+        for (const [index, src] of cache) {
+            if (index < previewStart || index >= previewStart + MAX_LOADED_THUMBNAILS) {
+                revokeObjectUrl(src);
+                cache.delete(index);
+            }
+        }
+        setResolvedImages(Object.fromEntries(cache));
+        setLoading(info.images.length > 0 && !cache.has(activeIndex));
+
+        // Serialize conversions, including work left over from a rapid slide change.
+        conversionQueue.current = conversionQueue.current.then(async () => {
+            const count = info.images.length;
+            const indices = Array.from({ length: Math.min(count, MAX_LOADED_THUMBNAILS) },
+                (_, offset) => previewStart + offset)
+                .sort((a, b) => Math.abs(a - activeIndex) - Math.abs(b - activeIndex));
+            for (const index of indices) {
+                if (cancelled || !count) return;
+                if (cache.has(index)) continue;
+                try {
+                    const src = await resolveImageSrc(info.images[index]);
+                    if (cancelled) {
+                        revokeObjectUrl(src);
+                        return;
+                    }
+                    cache.set(index, src);
+                    setResolvedImages(previous => ({ ...previous, [index]: src }));
+                } catch {
+                    if (!cancelled) {
+                        const src = info.images[index].src ?? PLACEHOLDER;
+                        cache.set(index, src);
+                        setResolvedImages(previous => ({ ...previous, [index]: src }));
+                    }
+                } finally {
+                    if (!cancelled && index === activeIndex) setLoading(false);
+                }
+            }
+        });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [info.images, activeIndex, previewStart]);
+
+    const selectImage = useCallback((index: number) => {
+        const count = info.images.length;
+        if (!count) return;
+        const next = (index + count) % count;
+        setZoom(1);
+        setActiveIndex(next);
+        const title = info.images[next]?.title;
+        if (title) handler.emit('slideTitle', title);
+    }, [info.images]);
+
+    useEffect(() => {
         const onWheel = (e: WheelEvent) => {
             if (wheelMode === 'navigate') {
-                if (Date.now() - previous < 300) return;
-                previous = Date.now();
-                const current = gallery.current.getCurrentIndex();
-                gallery.current.slideToIndex(current + (e.deltaY > 0 ? 1 : -1));
+                e.preventDefault();
+                const direction = browseWheel.current(e, Date.now());
+                if (direction) selectImage(activeIndex + direction);
                 return;
             }
             e.preventDefault();
@@ -121,16 +144,26 @@ export default function Image() {
         };
         addEventListener('wheel', onWheel, { passive: false });
         return () => removeEventListener('wheel', onWheel);
-    }, [wheelMode]);
+    }, [wheelMode, activeIndex, selectImage]);
 
-    const images = resolvedImages.length ? resolvedImages : info.images.map((image: { src: string }) => ({
-        original: image.src,
-        thumbnail: image.src
-    }));
+    // Keep every entry selectable; only thirty nearby entries receive real image URLs.
+    const images = info.images.map((image: ImageSource, index: number) => {
+        const inPreview = index >= previewStart && index < previewStart + MAX_LOADED_THUMBNAILS;
+        const src = inPreview ? resolvedImages[index] : undefined;
+        return {
+            original: src ?? PLACEHOLDER,
+            thumbnail: src ?? PLACEHOLDER,
+            originalAlt: image.title,
+            thumbnailLabel: src ? undefined : String(index + 1),
+            thumbnailTitle: image.title,
+            loading: 'lazy',
+            thumbnailLoading: 'lazy',
+        };
+    });
 
     return (
         <div className="image-viewer">
-            {loading && <div className="image-viewer__loading">Converting image…</div>}
+            {loading && <div className="image-viewer__loading">Loading image…</div>}
             <div className="image-wheel-toolbar" role="toolbar" aria-label="Wheel mode">
                 <button
                     type="button"
@@ -154,13 +187,9 @@ export default function Image() {
                     <span className="image-wheel-toolbar__label">Browse</span>
                 </button>
             </div>
-            <ImageGallery ref={gallery} items={images} startIndex={info.current} lazyLoad={true}
+            <ImageGallery items={images} startIndex={activeIndex} lazyLoad={true}
                 slideDuration={0} showIndex={true} showFullscreenButton={false} showPlayButton={false}
-                onSlide={(index) => {
-                    setZoom(1);
-                    const title = info.images[index]?.title;
-                    if (title) handler.emit('slideTitle', title);
-                }}
+                onSlide={selectImage}
             />
             <SponsorBar placement="center" />
         </div>
