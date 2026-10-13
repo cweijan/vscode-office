@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { normalizeRepoPath } from '../util/repoPath';
+import { normalizeRepoPath, repoPathKey } from '../util/repoPath';
 import type { GitExecutor } from './gitExecutor';
 
 const DEFAULT_MAX_DEPTH = 2;
@@ -85,7 +85,7 @@ async function searchReposInFolder(
 }
 
 function addRepo(found: Map<string, string>, repoPath: string): void {
-    const key = normalizeRepoPath(repoPath);
+    const key = repoPathKey(repoPath);
     if (!found.has(key)) {
         found.set(key, repoPath);
     }
@@ -167,11 +167,11 @@ export class RepoDiscovery {
     }
 
     getRepoForFile(filePath: string): string | null {
-        const normalized = normalizeRepoPath(filePath);
+        const normalized = repoPathKey(filePath);
         let best: string | null = null;
         let bestLength = -1;
         for (const repo of this.repos) {
-            const repoNorm = normalizeRepoPath(repo);
+            const repoNorm = repoPathKey(repo);
             if (normalized === repoNorm || normalized.startsWith(`${repoNorm}/`)) {
                 if (repoNorm.length > bestLength) {
                     best = repo;
@@ -183,9 +183,9 @@ export class RepoDiscovery {
     }
 
     resolveRepo(repoPath: string): string | null {
-        const key = normalizeRepoPath(repoPath);
+        const key = repoPathKey(repoPath);
         for (const repo of this.repos) {
-            if (normalizeRepoPath(repo) === key) {
+            if (repoPathKey(repo) === key) {
                 return repo;
             }
         }
