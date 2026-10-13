@@ -6906,6 +6906,8 @@ exports.SimpleLinkService = exports.PDFLinkService = void 0;
 
 var _ui_utils = __webpack_require__(2);
 
+var _pdfjsLib = __webpack_require__(4);
+
 class PDFLinkService {
   constructor({
     eventBus,
@@ -6958,6 +6960,19 @@ class PDFLinkService {
 
   set rotation(value) {
     this.pdfViewer.pagesRotation = value;
+  }
+
+  addLinkAttributes(link, url, newWindow = false) {
+    _pdfjsLib.addLinkAttributes(link, {
+      url,
+      target: newWindow ? _pdfjsLib.LinkTarget.BLANK : this.externalLinkTarget,
+      rel: this.externalLinkRel,
+      enabled: this.externalLinkEnabled
+    });
+  }
+
+  goToDestination(dest) {
+    return this.navigateTo(dest);
   }
 
   navigateTo(dest) {
@@ -7307,6 +7322,17 @@ class SimpleLinkService {
   }
 
   set rotation(value) {}
+
+  addLinkAttributes(link, url, newWindow = false) {
+    _pdfjsLib.addLinkAttributes(link, {
+      url,
+      target: newWindow ? _pdfjsLib.LinkTarget.BLANK : this.externalLinkTarget,
+      rel: this.externalLinkRel,
+      enabled: this.externalLinkEnabled
+    });
+  }
+
+  goToDestination(dest) {}
 
   navigateTo(dest) {}
 
