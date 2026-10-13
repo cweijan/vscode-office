@@ -21,6 +21,7 @@ import {
 import { ViewerSettingsService } from '@/service/viewerSettingsService';
 import { fileTypeFromPath } from '@/service/officeViewType';
 import { parseWebviewResourceUri } from '@/common/webviewUri';
+import { MarkdownDocumentSync } from '@/service/markdown/documentSync';
 
 function getRuntimePlatform(): string {
     if (typeof process !== 'undefined' && process.platform) {
@@ -170,7 +171,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             }
         });
 
-        let lastManualSaveTime: number;
+        const documentSync = new MarkdownDocumentSync(nextContent => this.updateTextDocument(document, nextContent));
         let documentSyncTimer: ReturnType<typeof setTimeout> | undefined;
         let pendingDocumentSync: string | undefined;
         const flushDocumentSync = async () => {
@@ -183,8 +184,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             }
             const nextContent = pendingDocumentSync;
             pendingDocumentSync = undefined;
-            content = nextContent;
-            await this.updateTextDocument(document, nextContent);
+            await documentSync.update(nextContent);
         };
         const scheduleDocumentSync = (newContent: string) => {
             pendingDocumentSync = newContent;
@@ -218,9 +218,10 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             this.updateCount(content)
             this.countStatus.show()
         }).on("externalUpdate", e => {
-            if (lastManualSaveTime && Date.now() - lastManualSaveTime < 800) return;
             const updatedText = e.document.getText()?.replace(/\r/g, '');
-            if (content == updatedText) return;
+            // A delayed writeback can arrive after the webview has already sent newer edits.
+            // Echoing it back would replace the editor DOM and reset the cursor.
+            if (documentSync.isWriteback(updatedText) || content == updatedText) return;
             content = updatedText;
             this.updateCount(content)
             handler.emit("update", updatedText)
@@ -295,10 +296,8 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                 vscode.commands.executeCommand('revealFileInOS', uri);
             }
         }).on("save", (newContent) => {
-            if (lastManualSaveTime && Date.now() - lastManualSaveTime < 800) return;
             scheduleDocumentSync(newContent);
         }).on("doSave", async (saveContent) => {
-            lastManualSaveTime = Date.now();
             pendingDocumentSync = saveContent;
             content = saveContent;
             await flushDocumentSync();
