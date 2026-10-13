@@ -11,6 +11,7 @@ import {getHistoryMaxWaitFactor, getHistoryRecordWait} from "../util/historySche
 import {scheduleRenderToc} from "../util/toc";
 import {highlightToolbarIR} from "./highlightToolbarIR";
 import {input} from "./input";
+import {setListHeading} from "../util/listHeading";
 
 export const processHint = (vditor: IVditor) => {
     vditor.hint.render(vditor);
@@ -75,6 +76,11 @@ export const processAfterRender = (vditor: IVditor, options = {
 
 export const processHeading = (vditor: IVditor, value: string) => {
     const range = getEditorRange(vditor);
+    if (setListHeading(vditor, range, value)) {
+        input(vditor, range.cloneRange());
+        highlightToolbarIR(vditor);
+        return;
+    }
     const headingElement = hasClosestBlock(range.startContainer) || range.startContainer as HTMLElement;
     if (headingElement) {
         const headingMarkerElement = headingElement.querySelector(".vditor-ir__marker--heading");

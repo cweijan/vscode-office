@@ -1,9 +1,14 @@
 import {hasClosestBlock} from "../util/hasClosest";
 import {getEditorRange, setRangeByWbr} from "../util/selection";
 import {renderTocNow} from "../util/toc";
+import {setListHeading} from "../util/listHeading";
 
 export const setHeading = (vditor: IVditor, tagName: string) => {
     const range = getEditorRange(vditor);
+    if (setListHeading(vditor, range, "#".repeat(Number(tagName.slice(1))) + " ")) {
+        renderTocNow(vditor);
+        return;
+    }
     let blockElement = hasClosestBlock(range.startContainer);
     if (!blockElement) {
         blockElement = range.startContainer.childNodes[range.startOffset] as HTMLElement;
