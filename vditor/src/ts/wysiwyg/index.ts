@@ -1,3 +1,4 @@
+import { bindWikilinkBoundary } from "../util/wikilinkBoundary";
 import { Constants } from "../constants";
 import { hidePanel } from "../toolbar/setToolbar";
 import { isCtrl, isFirefox } from "../util/compatibility";
@@ -84,6 +85,7 @@ class WYSIWYG {
         this.element = divElement.firstElementChild as HTMLPreElement;
         this.popover = divElement.lastElementChild as HTMLDivElement;
 
+        bindWikilinkBoundary(this.element);
         this.bindEvent(vditor);
 
         initBlockHandle(vditor, divElement, this.element);

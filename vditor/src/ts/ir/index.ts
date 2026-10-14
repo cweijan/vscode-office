@@ -1,3 +1,4 @@
+import { bindWikilinkBoundary } from "../util/wikilinkBoundary";
 import { Constants } from "../constants";
 import { isCtrl, isFirefox } from "../util/compatibility";
 import {
@@ -68,6 +69,7 @@ class IR {
         this.element = divElement.firstElementChild as HTMLPreElement;
         this.popover = divElement.firstElementChild.nextElementSibling as HTMLDivElement;
 
+        bindWikilinkBoundary(this.element);
         this.bindEvent(vditor);
 
         initBlockHandle(vditor, divElement, this.element);
