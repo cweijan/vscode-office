@@ -152,8 +152,13 @@ export const expandMarker = (range: Range, root: HTMLElement) => {
         return;
     }
 
+    // Adjacent text belongs outside a wikilink; only direct clicks enter its source.
+    const isWikilink = (node: HTMLElement) => {
+        const type = node.getAttribute("data-type");
+        return type === "wikilink" || type === "wikilink-embed";
+    };
     const nextNode = nextIsNode(range);
-    if (nextNode && nextNode !== collapsedExpandedWikilink) {
+    if (nextNode && !isWikilink(nextNode) && nextNode !== collapsedExpandedWikilink) {
         if (nextNode.getAttribute("contenteditable") === "false") {
             return;
         }
@@ -164,7 +169,7 @@ export const expandMarker = (range: Range, root: HTMLElement) => {
     }
 
     const previousNode = previousIsNode(range);
-    if (previousNode && previousNode !== collapsedExpandedWikilink) {
+    if (previousNode && !isWikilink(previousNode) && previousNode !== collapsedExpandedWikilink) {
         if (previousNode.getAttribute("contenteditable") === "false") {
             return;
         }

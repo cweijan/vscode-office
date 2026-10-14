@@ -235,7 +235,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                 if (error) handler.emit('openLinkError', error);
                 return;
             }
-            const localUri = parseWebviewResourceUri(linkUri, uri, this.getWorkspaceUriByFileUtil(uri));
+            const localUri = parseWebviewResourceUri(linkUri, uri);
             if (localUri) {
                 const error = await openLinkedFile(localUri);
                 if (error) handler.emit('openLinkError', error);

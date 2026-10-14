@@ -1,3 +1,5 @@
+import { cloneWikilinkCopyContents } from "../util/wikilinkCopy";
+import { bindWikilinkBoundary } from "../util/wikilinkBoundary";
 import { Constants } from "../constants";
 import { hidePanel } from "../toolbar/setToolbar";
 import { isCtrl, isFirefox } from "../util/compatibility";
@@ -84,6 +86,7 @@ class WYSIWYG {
         this.element = divElement.firstElementChild as HTMLPreElement;
         this.popover = divElement.lastElementChild as HTMLDivElement;
 
+        bindWikilinkBoundary(this.element);
         this.bindEvent(vditor);
 
         initBlockHandle(vditor, divElement, this.element);
@@ -180,7 +183,7 @@ class WYSIWYG {
         }
 
         const tempElement = document.createElement("div");
-        tempElement.appendChild(range.cloneContents());
+        tempElement.appendChild(cloneWikilinkCopyContents(range, vditor.wysiwyg.element));
         sanitizeCodeBlocksInCopyFragment(tempElement, vditor.wysiwyg.element, range);
 
         event.clipboardData.setData("text/plain", vditor.lute.VditorDOM2Md(tempElement.innerHTML).trim());

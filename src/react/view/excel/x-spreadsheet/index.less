@@ -320,8 +320,25 @@ body {
   }
 }
 
+// Keep overlays at the viewport origin while native scrolling drives the canvas.
+.@{css-prefix}-scroll-content {
+  position: relative;
+}
+.@{css-prefix}-scroll-viewport {
+  position: sticky;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+}
+
 /* @{css-prefix}-overlayer */
 .@{css-prefix}-overlayer {
+  overflow: scroll;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
   position: absolute;
   left: 0;
   top: 0;

@@ -726,6 +726,7 @@ export const genImagePopoverForElement = (vditor: IVditor, imgElement: HTMLImage
     };
 
     const updateSrc = () => {
+        delete imgElement.dataset.workspaceAbsoluteSrc;
         imgElement.setAttribute("src", normalizeLinkDestInput(srcInput.value));
         afterRenderEvent(vditor);
     };
@@ -787,7 +788,7 @@ export const genImagePopoverForElement = (vditor: IVditor, imgElement: HTMLImage
     const srcInput = document.createElement("input");
     srcInput.className = "vditor-link-popover__href vditor-input";
     srcInput.setAttribute("placeholder", window.VditorI18n.imageURL);
-    srcInput.value = imgElement.getAttribute("src") || "";
+    srcInput.value = imgElement.dataset.workspaceAbsoluteSrc || imgElement.getAttribute("src") || "";
     srcInput.oninput = () => {
         updateSrc();
     };

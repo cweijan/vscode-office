@@ -793,6 +793,19 @@ export const insertHTML = (html: string, vditor: IVditor) => {
     const pasteElement = document.createElement("div");
     pasteElement.innerHTML = html;
 
+    // A trailing wikilink ends in hidden markers. Give the caret a visible editing
+    // position outside it instead of letting Chromium choose a hidden descendant.
+    let tail = pasteElement.lastChild;
+    while (tail instanceof HTMLElement && tail.getAttribute("data-block") === "0") {
+        tail = tail.lastChild;
+    }
+    const trailingWikilink = tail instanceof HTMLElement
+        && (tail.getAttribute("data-type") === "wikilink" || tail.getAttribute("data-type") === "wikilink-embed");
+    if (trailingWikilink) {
+        tail.parentNode.appendChild(document.createTextNode(Constants.ZWSP));
+        html = pasteElement.innerHTML;
+    }
+
     const range = getEditorRange(vditor);
     if (range.toString() !== "") {
         vditor[vditor.currentMode].preventInput = true;
@@ -813,10 +826,18 @@ export const insertHTML = (html: string, vditor: IVditor) => {
     } else {
         const pasteTemplate = document.createElement("template");
         pasteTemplate.innerHTML = html;
-        range.insertNode(pasteTemplate.content.cloneNode(true));
-        range.collapse(false);
+        const fragment = pasteTemplate.content.cloneNode(true) as DocumentFragment;
+        const lastNode = fragment.lastChild;
+        range.insertNode(fragment);
+        if (trailingWikilink && lastNode?.nodeType === Node.TEXT_NODE) {
+            range.setStart(lastNode, lastNode.textContent.length);
+            range.collapse(true);
+        } else {
+            range.collapse(false);
+        }
         setSelectionFocus(range);
     }
+    vditor[vditor.currentMode].range = range;
 };
 
 const getCaretRangeFromPoint = (doc: Document, x: number, y: number): Range | null => {

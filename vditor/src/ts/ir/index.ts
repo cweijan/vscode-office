@@ -1,3 +1,5 @@
+import { cloneWikilinkCopyContents } from "../util/wikilinkCopy";
+import { bindWikilinkBoundary } from "../util/wikilinkBoundary";
 import { Constants } from "../constants";
 import { isCtrl, isFirefox } from "../util/compatibility";
 import {
@@ -68,6 +70,7 @@ class IR {
         this.element = divElement.firstElementChild as HTMLPreElement;
         this.popover = divElement.firstElementChild.nextElementSibling as HTMLDivElement;
 
+        bindWikilinkBoundary(this.element);
         this.bindEvent(vditor);
 
         initBlockHandle(vditor, divElement, this.element);
@@ -114,7 +117,7 @@ class IR {
         event.preventDefault();
 
         const tempElement = document.createElement("div");
-        tempElement.appendChild(range.cloneContents());
+        tempElement.appendChild(cloneWikilinkCopyContents(range, vditor.ir.element));
         sanitizeCodeBlocksInCopyFragment(tempElement, vditor.ir.element, range);
 
         event.clipboardData.setData("text/plain", vditor.lute.VditorIRDOM2Md(tempElement.innerHTML).trim());

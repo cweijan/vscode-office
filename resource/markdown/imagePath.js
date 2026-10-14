@@ -16,6 +16,9 @@ function rewriteWorkspaceAbsoluteImages(root, workspaceBaseUrl) {
         if (isWorkspaceAbsoluteImagePath(src)) {
             img.dataset.workspaceAbsoluteSrc = src;
             img.setAttribute('src', resolveWorkspaceImagePath(src, workspaceBaseUrl));
+        } else if (img.dataset.workspaceAbsoluteSrc &&
+            src !== resolveWorkspaceImagePath(img.dataset.workspaceAbsoluteSrc, workspaceBaseUrl)) {
+            delete img.dataset.workspaceAbsoluteSrc;
         }
     };
     if (root instanceof HTMLImageElement) {

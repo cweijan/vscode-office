@@ -33,27 +33,22 @@ function isLocalRelativePath(linkUri: string): boolean {
     return true;
 }
 
-function isWorkspaceAbsolutePath(linkUri: string): boolean {
+function isLocalAbsolutePath(linkUri: string): boolean {
     const { path } = splitPathQueryFragment(linkUri);
-    return path.startsWith('/') && !path.startsWith('//');
+    return (path.startsWith('/') && !path.startsWith('//')) || /^[a-zA-Z]:[\\/]/.test(path);
 }
 
-function resolveWorkspaceAbsoluteUri(linkUri: string, workspaceUri: vscode.Uri): vscode.Uri | undefined {
+function resolveAbsoluteUri(linkUri: string, baseUri?: vscode.Uri): vscode.Uri {
     const { path, query, fragment } = splitPathQueryFragment(linkUri);
-    const segments = path.split(/[/\\]+/).filter(Boolean);
-    let resolved = workspaceUri.with({ query: '', fragment: '' });
-    for (const segment of segments) {
-        if (segment === '.') {
-            continue;
-        }
-        if (segment === '..') {
-            resolved = vscode.Uri.joinPath(resolved, '..');
-            continue;
-        }
-        resolved = vscode.Uri.joinPath(resolved, segment);
+    const normalizedPath = path.replace(/\\/g, '/');
+    if (baseUri && baseUri.scheme !== 'file') {
+        return baseUri.with({
+            path: normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`,
+            query,
+            fragment,
+        });
     }
-
-    return resolved.with({ query, fragment });
+    return vscode.Uri.file(normalizedPath).with({ query, fragment });
 }
 
 function resolveRelativeUri(linkUri: string, baseUri: vscode.Uri): vscode.Uri | undefined {
@@ -119,12 +114,12 @@ function parseWebviewCdnUri(linkUri: string): vscode.Uri | undefined {
  *
  * When `baseUri` is provided, local relative paths such as `./file.md` or `../images/a.png`
  * are resolved against the parent directory of `baseUri`.
- * When `workspaceUri` is provided, paths beginning with `/` are resolved from that workspace root.
+ * Bare absolute paths are filesystem paths, using the scheme and authority of `baseUri`
+ * for remote resources. They are never prefixed with the workspace directory.
  */
 export function parseWebviewResourceUri(
     linkUri: string,
     baseUri?: vscode.Uri,
-    workspaceUri?: vscode.Uri,
 ): vscode.Uri | undefined {
     const fromWebview = parseWebviewCdnUri(linkUri);
     if (fromWebview) {
@@ -139,8 +134,8 @@ export function parseWebviewResourceUri(
         }
     }
 
-    if (workspaceUri && isWorkspaceAbsolutePath(linkUri) && !SCHEME_PREFIX_REG.test(linkUri)) {
-        return resolveWorkspaceAbsoluteUri(linkUri, workspaceUri);
+    if (isLocalAbsolutePath(linkUri)) {
+        return resolveAbsoluteUri(linkUri, baseUri);
     }
 
     if (!baseUri || !isLocalRelativePath(linkUri) || SCHEME_PREFIX_REG.test(linkUri)) {
