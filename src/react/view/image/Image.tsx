@@ -9,6 +9,16 @@ import SponsorBar from '../components/SponsorBar';
 
 type WheelMode = 'navigate' | 'zoom';
 
+const WHEEL_MODE_KEY = 'office-image-wheel-mode';
+
+function loadWheelMode(): WheelMode {
+    try {
+        return localStorage.getItem(WHEEL_MODE_KEY) === 'navigate' ? 'navigate' : 'zoom';
+    } catch {
+        return 'zoom';
+    }
+}
+
 const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 5;
 const MAX_LOADED_THUMBNAILS = 30;
@@ -39,13 +49,19 @@ export default function Image() {
     const [resolvedImages, setResolvedImages] = useState<Record<number, string>>({});
     const [activeIndex, setActiveIndex] = useState(0);
     const [loading, setLoading] = useState(false);
-    const [wheelMode, setWheelMode] = useState<WheelMode>('zoom');
+    const [wheelMode, setWheelMode] = useState<WheelMode>(loadWheelMode);
     const [zoom, setZoom] = useState(1);
     const conversionQueue = useRef(Promise.resolve());
     const imageCache = useRef(new Map<number, string>());
     const browseWheel = useRef(createBrowseWheelHandler());
     const previewStart = Math.max(0, Math.min(activeIndex - Math.floor(MAX_LOADED_THUMBNAILS / 2),
         info.images.length - MAX_LOADED_THUMBNAILS));
+
+    useEffect(() => {
+        try {
+            localStorage.setItem(WHEEL_MODE_KEY, wheelMode);
+        } catch { }
+    }, [wheelMode]);
 
     const applyZoom = useCallback((scale: number) => {
         const img = document.querySelector('.image-gallery-slide.image-gallery-center .image-gallery-image') as HTMLElement | null;
