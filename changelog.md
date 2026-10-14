@@ -1,5 +1,22 @@
 # Change log
 
+# 4.2.2 2026-10-15
+
+Markdown Editor:
+
+- Fix unexpected WikiLink editing and copy behavior.
+- Fix text-to-speech not working by upgrading `msedge-tts`.
+- Preserve original image paths when editing images in visual mode.
+- Fix absolute file paths being incorrectly resolved relative to the workspace.
+
+Excel and CSV:
+
+- Improve smooth scrolling.
+
+Images:
+
+- Remember the mouse wheel mode selection.
+
 # 4.2.1 2026-10-14
 
 Markdown Editor:
