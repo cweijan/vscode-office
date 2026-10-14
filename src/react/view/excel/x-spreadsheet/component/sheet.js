@@ -3,7 +3,6 @@ import { h } from './element';
 import {
   bind,
   mouseMoveUp,
-  bindTouch,
   createEventEmitter,
 } from './event';
 import Resizer from './resizer';
@@ -30,7 +29,6 @@ const HYPERLINK_CLICK_THRESHOLD = 5;
 const VIEW_EXPAND_COOLDOWN_MS = 250;
 const WHEEL_ZOOM_STEP = 0.1;
 const WHEEL_ZOOM_THROTTLE_MS = 300;
-const WHEEL_SCROLL_THROTTLE_MS = 48;
 
 function tryExpandRows(sheet, data) {
   const now = Date.now();
@@ -106,66 +104,38 @@ function checkAndExpandViewRows(sheet, scrollDy = 0) {
   return expanded;
 }
 
-let wheelPendingDy = 0;
-let wheelPendingDx = 0;
-let wheelRafId = 0;
-let wheelSheetRef = null;
-let wheelLastFlushAt = 0;
-
-function flushWheelPixelScroll() {
-  wheelRafId = 0;
-  const sheet = wheelSheetRef;
-  if (!sheet) {
-    return;
-  }
-  const now = Date.now();
-  const elapsed = now - wheelLastFlushAt;
-  if (elapsed < WHEEL_SCROLL_THROTTLE_MS) {
-    wheelRafId = requestAnimationFrame(flushWheelPixelScroll);
-    return;
-  }
-  wheelLastFlushAt = now;
-
-  const dy = wheelPendingDy;
-  const dx = wheelPendingDx;
-  wheelPendingDy = 0;
-  wheelPendingDx = 0;
-  wheelSheetRef = null;
-
-  const { verticalScrollbar, horizontalScrollbar } = sheet;
-  const absY = Math.abs(dy);
-  const absX = Math.abs(dx);
-  if (absX > absY && absX > 0) {
-    const { left } = horizontalScrollbar.scroll();
-    horizontalScrollbar.move({ left: left + dx });
-    return;
-  }
-  if (absY > 0) {
-    const { top } = verticalScrollbar.scroll();
-    verticalScrollbar.move({ top: top + dy });
-    checkAndExpandViewRows(sheet, dy);
-  }
+// Wheel deltas and momentum belong to the browser. Only zoom cancels wheel events.
+function overlayerMousescroll(evt) {
+  if (evt.ctrlKey || evt.metaKey) overlayerMousezoom.call(this, evt);
 }
 
-function overlayerMousescroll(evt) {
-  if (document.activeElement?.tagName === 'TEXTAREA') {
-    return;
-  }
-  if (evt.ctrlKey || evt.metaKey) {
-    overlayerMousezoom.call(this, evt);
-    return;
-  }
-  evt.preventDefault();
+function nativeScrollSet() {
+  const { data } = this;
+  const { width, height } = this.getRect();
+  const contentHeight = data.rows.totalHeight() - data.exceptRowTotalHeight(0, -1);
+  this.scrollContentEl.offset({
+    width: width + Math.max(0, data.cols.totalWidth() - data.contentViewWidth()),
+    height: height + Math.max(0, contentHeight - data.contentViewHeight()),
+  });
+  this.scrollViewportEl.offset({ width, height });
+  this.overlayerEl.scroll({ left: data.scroll.x, top: data.scroll.y });
+}
 
-  wheelSheetRef = this;
-  wheelPendingDy += evt.deltaY;
-  wheelPendingDx += evt.deltaX;
-  if (/Firefox/i.test(window.navigator.userAgent) && evt.detail) {
-    wheelPendingDy += evt.detail * 40;
-  }
-
-  if (!wheelRafId) {
-    wheelRafId = requestAnimationFrame(flushWheelPixelScroll);
+function nativeScrollMove() {
+  const { data, table, selector, overlayerEl } = this;
+  const { left, top } = overlayerEl.scroll();
+  let changed = false;
+  const markChanged = () => { changed = true; };
+  data.scrollx(left, markChanged);
+  data.scrolly(top, markChanged);
+  this.horizontalScrollbar.move({ left: data.scroll.x });
+  this.verticalScrollbar.move({ top: data.scroll.y });
+  if (changed) {
+    selector.resetAreaOffset();
+    editorSetOffset.call(this);
+    table.render();
+    sheetImagesUpdate.call(this);
+    checkAndExpandViewRows(this);
   }
 }
 
@@ -530,24 +500,13 @@ function overlayerMousemove(evt) {
   }
 }
 
-function overlayerTouch(direction, distance) {
-  const { verticalScrollbar, horizontalScrollbar } = this;
-  const { top } = verticalScrollbar.scroll();
-  const { left } = horizontalScrollbar.scroll();
-
-  if (direction === 'left' || direction === 'right') {
-    horizontalScrollbar.move({ left: left - distance });
-  } else if (direction === 'up' || direction === 'down') {
-    verticalScrollbar.move({ top: top - distance });
-  }
-}
-
 function verticalScrollbarSet() {
   const { data, verticalScrollbar } = this;
   const { height } = this.getTableOffset();
   const erth = data.exceptRowTotalHeight(0, -1);
   // console.log('erth:', erth);
   verticalScrollbar.set(height, data.rows.totalHeight() - erth);
+  nativeScrollSet.call(this);
 }
 
 function horizontalScrollbarSet() {
@@ -555,6 +514,7 @@ function horizontalScrollbarSet() {
   const { width } = this.getTableOffset();
   if (data) {
     horizontalScrollbar.set(width, data.cols.totalWidth());
+    nativeScrollSet.call(this);
   }
 }
 
@@ -953,6 +913,7 @@ function editorSet() {
 }
 
 function verticalScrollbarMove(distance) {
+  this.overlayerEl.scroll({ top: distance });
   const { data, table, selector, verticalScrollbar } = this;
   data.scrolly(distance, () => {
     selector.resetBRLAreaOffset();
@@ -967,6 +928,7 @@ function verticalScrollbarMove(distance) {
 }
 
 function horizontalScrollbarMove(distance) {
+  this.overlayerEl.scroll({ left: distance });
   const { data, table, selector, horizontalScrollbar } = this;
   data.scrollx(distance, () => {
     selector.resetBRTAreaOffset();
@@ -1234,7 +1196,7 @@ function sheetInitEvents() {
         overlayerMousedown.call(this, evt);
       }
     })
-    .on('mousewheel.stop', (evt) => {
+    .on('wheel', (evt) => {
       overlayerMousescroll.call(this, evt);
     })
     .on('mouseout', (evt) => {
@@ -1248,12 +1210,7 @@ function sheetInitEvents() {
     editorSet.call(this);
   };
 
-  // slide on mobile
-  bindTouch(overlayerEl.el, {
-    move: (direction, d) => {
-      overlayerTouch.call(this, direction, d);
-    },
-  });
+  overlayerEl.on('scroll.stop', () => nativeScrollMove.call(this));
 
   // toolbar change
   toolbar.change = (type, value) => toolbarChange.call(this, type, value);
@@ -1552,8 +1509,12 @@ export default class Sheet {
         this.editor.el,
         this.selector.el,
       );
-    this.overlayerEl = h('div', `${cssPrefix}-overlayer`)
+    this.scrollViewportEl = h('div', `${cssPrefix}-scroll-viewport`)
       .children(this.overlayerCEl, this.headerDropEl = h('div', `${cssPrefix}-header-drop-indicator`).hide());
+    this.scrollContentEl = h('div', `${cssPrefix}-scroll-content`)
+      .child(this.scrollViewportEl);
+    this.overlayerEl = h('div', `${cssPrefix}-overlayer`)
+      .child(this.scrollContentEl);
     // sortFilter
     this.sortFilter = new SortFilter();
     // root element
