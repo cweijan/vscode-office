@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { handler, vscodeApi } from "../../util/vscode";
 import { loadOfficeBuffer } from "../../util/loadOfficeContent";
 import SponsorBar from "../components/SponsorBar";
+import { prepareWordSave } from "./prepareWordSave";
 import "./Word.css";
 
 type WordColorMode = "light" | "adaptive";
@@ -49,9 +50,12 @@ interface WordOpenPayload {
 export default function Word() {
     const editorRef = useRef<DocxEditorRef>(null);
     const readOnlyRef = useRef(false);
+    const originalBufferRef = useRef<ArrayBuffer | undefined>(undefined);
+    const saveRequestRef = useRef(0);
     const [colorMode, setColorMode] = useState<WordColorMode>(loadWordColorMode);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [saveError, setSaveError] = useState<string | null>(null);
     const [readOnly, setReadOnly] = useState(false);
     const [documentBuffer, setDocumentBuffer] = useState<ArrayBuffer | undefined>(undefined);
     const [documentKey, setDocumentKey] = useState("");
@@ -69,26 +73,46 @@ export default function Word() {
         });
     };
 
-    const emitSave = useCallback((buffer: ArrayBuffer) => {
-        const bytes = new Uint8Array(buffer);
-        const content: number[] = new Array(bytes.length);
-        for (let i = 0; i < bytes.length; i++) {
-            content[i] = bytes[i];
-        }
-        handler.emit("save", content);
-    }, []);
-
-    const handleSave = useCallback(async () => {
-        const buffer = await editorRef.current?.save();
-        if (!buffer) {
+    const emitSave = useCallback(async (buffer: ArrayBuffer) => {
+        const originalBuffer = documentBuffer;
+        if (!originalBuffer || originalBuffer !== originalBufferRef.current) {
             return;
         }
-        emitSave(buffer);
-    }, [emitSave]);
+        const request = ++saveRequestRef.current;
+        try {
+            const prepared = await prepareWordSave(originalBuffer, buffer);
+            if (request !== saveRequestRef.current) {
+                return;
+            }
+            const bytes = new Uint8Array(prepared);
+            const content: number[] = new Array(bytes.length);
+            for (let i = 0; i < bytes.length; i++) {
+                content[i] = bytes[i];
+            }
+            handler.emit("save", content);
+            setSaveError(null);
+        } catch (e) {
+            if (request === saveRequestRef.current) {
+                setSaveError(e instanceof Error ? e.message : "Failed to save document");
+            }
+        }
+    }, [documentBuffer]);
+
+    const handleSave = useCallback(async () => {
+        try {
+            // save() also invokes onSave; emitting its return value would save twice.
+            await editorRef.current?.save();
+        } catch (e) {
+            setSaveError(e instanceof Error ? e.message : "Failed to save document");
+        }
+    }, []);
 
     const loadDocument = useCallback(async (payload: WordOpenPayload) => {
         setLoading(true);
         setError(null);
+        setSaveError(null);
+        originalBufferRef.current = undefined;
+        ++saveRequestRef.current;
         setDocumentBuffer(undefined);
 
         try {
@@ -100,6 +124,7 @@ export default function Word() {
             skipCommentsAutoOpenRef.current = true;
             setCommentsSidebarOpen(false);
             const buffer = await loadOfficeBuffer(payload);
+            originalBufferRef.current = buffer;
             setDocumentBuffer(buffer);
         } catch (e) {
             setError(e instanceof Error ? e.message : "Failed to load document");
@@ -140,6 +165,7 @@ export default function Word() {
             </button>
             <Spin spinning={loading} fullscreen />
             {error && <Alert type="error" message={error} showIcon style={{ margin: 16 }} />}
+            {saveError && <Alert type="error" message={saveError} showIcon style={{ margin: 16 }} />}
             {readOnly && !loading && !error && documentBuffer && (
                 <div className="word-readonly-banner">Read-only — edits will be saved to a new file</div>
             )}
@@ -171,6 +197,7 @@ export default function Word() {
                             }
                         }}
                         onSave={emitSave}
+                        onError={(e) => setSaveError(e.message)}
                     />
                     <footer className="word-sponsor-footer">
                         <SponsorBar placement="right" />
