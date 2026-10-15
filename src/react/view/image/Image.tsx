@@ -142,9 +142,12 @@ export default function Image() {
         const next = (index + count) % count;
         setZoom(1);
         setActiveIndex(next);
-        const title = info.images[next]?.title;
-        if (title) handler.emit('slideTitle', title);
     }, [info.images]);
+
+    useEffect(() => {
+        const title = info.images[activeIndex]?.title;
+        if (title) handler.emit('slideTitle', title);
+    }, [info.images, activeIndex]);
 
     useEffect(() => {
         const onWheel = (e: WheelEvent) => {
