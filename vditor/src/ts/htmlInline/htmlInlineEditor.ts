@@ -571,6 +571,12 @@ export const handleHtmlEditorClick = (
     vditor: IVditor,
     event: MouseEvent & { target: HTMLElement },
 ): boolean => {
+    // Keep clicks on the frame itself out of the HTML source editor.
+    // Events inside its document do not bubble to this handler.
+    if (event.target.tagName === "IFRAME") {
+        return false;
+    }
+
     const htmlInline = hasClosestByAttribute(event.target, "data-type", "html-inline") as HTMLElement | false;
     if (htmlInline && htmlInline.getAttribute("contenteditable") === "false") {
         event.preventDefault();
