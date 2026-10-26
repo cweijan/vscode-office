@@ -1,5 +1,20 @@
 # Change log
 
+# 4.2.3 2026-10-26
+
+Markdown Editor:
+
+- Add high-contrast light and dark editor themes.
+- Support larger font sizes up to 96px when exporting PDF.
+- Remove the Pro requirement for text-to-speech.
+- Allow interaction with embedded iframes without opening the HTML source editor.
+- Support sending selected Markdown to Codex, Claude Code, and GitHub Copilot Chat from the context menu.
+- Fix tags incorrectly triggering block navigation or opening files when clicked.
+
+Images:
+
+- Keep the editor title in sync with the active image when switching images.
+
 # 4.2.2 2026-10-15
 
 Markdown Editor:
