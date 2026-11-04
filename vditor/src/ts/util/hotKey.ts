@@ -1,5 +1,9 @@
 import { isCtrl, isFirefox } from "./compatibility";
 
+// Tab or Shift+Tab with no other modifiers; modified Tab (e.g. Ctrl+Tab) is left to the host
+export const isPlainTab = (event: KeyboardEvent) =>
+    event.key === "Tab" && !event.ctrlKey && !event.metaKey && !event.altKey;
+
 // 是否匹配 ⇧⌘[] / ⌘[] / ⌥[] / ⌥⌘[] / ⇧Tab / []
 export const matchHotKey = (hotKey: string, event: KeyboardEvent) => {
     if (hotKey === "") {
