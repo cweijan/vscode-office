@@ -18,7 +18,7 @@ import {
 import { getLastNode } from "./hasClosest";
 import { highlightToolbar } from "./highlightToolbar";
 import { clearPendingHistoryTimeout, recordHistoryChange, recordHistoryPosition } from "./instantHistory";
-import { matchHotKey } from "./hotKey";
+import { isPlainTab, matchHotKey } from "./hotKey";
 import { isPasteableUrl, linkifyPastePlainText } from "./linkifyPaste";
 import { routePasteClipboard } from "./pasteRouting";
 import { processCodeRender, processPasteCode } from "./processCode";
@@ -699,7 +699,7 @@ export const fixList = (range: Range, vditor: IVditor, pElement: HTMLElement | f
             return true;
         }
 
-        if (!isCtrl(event) && !event.altKey && event.key === "Tab") {
+        if (isPlainTab(event)) {
             // 光标位于第一/零字符时，tab 用于列表的缩进
             let isFirst = false;
             if (range.startOffset === 0
@@ -730,7 +730,7 @@ export const fixList = (range: Range, vditor: IVditor, pElement: HTMLElement | f
 
 // tab 处理: block code render, table, 列表第一个字符中的 tab 处理单独写在上面
 export const fixTab = (vditor: IVditor, range: Range, event: KeyboardEvent) => {
-    if (vditor.options.tab && event.key === "Tab") {
+    if (vditor.options.tab && isPlainTab(event)) {
         if (event.shiftKey) {
             removePreviousTab(range, vditor.options.tab);
         } else {
@@ -987,7 +987,7 @@ export const fixTable = (vditor: IVditor, event: KeyboardEvent, range: Range) =>
         }
 
         // tab：光标移向下一个 cell
-        if (event.key === "Tab") {
+        if (isPlainTab(event)) {
             if (event.shiftKey) {
                 // shift + tab 光标移动到前一个 cell
                 goPreviousCell(cellElement, range);
@@ -1211,7 +1211,7 @@ export const fixCodeBlock = (vditor: IVditor, event: KeyboardEvent, codeRenderEl
 
     // tab
     // TODO shift and 选中文字
-    if (vditor.options.tab && event.key === "Tab" && range.toString() === "") {
+    if (vditor.options.tab && isPlainTab(event) && range.toString() === "") {
         if (event.shiftKey) {
             removePreviousTab(range, vditor.options.tab);
         } else {

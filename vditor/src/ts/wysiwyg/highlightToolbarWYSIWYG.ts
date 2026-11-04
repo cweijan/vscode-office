@@ -4,6 +4,7 @@ import {enableToolbar} from "../toolbar/setToolbar";
 import {removeCurrentToolbar} from "../toolbar/setToolbar";
 import {setCurrentToolbar} from "../toolbar/setToolbar";
 import {isCtrl, updateHotkeyTip, formatAltEnterHotkeyTip} from "../util/compatibility";
+import {isPlainTab} from "../util/hotKey";
 import {
     hasClosestByAttribute,
     hasClosestByClassName,
@@ -557,7 +558,7 @@ const linkHotkey = (
         event.stopPropagation();
         return;
     }
-    if (event.key === "Tab") {
+    if (isPlainTab(event)) {
         nextInputElement.focus();
         nextInputElement.select();
         event.preventDefault();
