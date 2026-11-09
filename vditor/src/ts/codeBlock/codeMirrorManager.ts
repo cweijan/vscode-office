@@ -1,3 +1,4 @@
+import { normalizeEmptyNestedLists } from "../util/normalizeNestedLists";
 import { indentLess, redo, redoDepth, undo, undoDepth } from "@codemirror/commands";
 import { LanguageSupport } from "@codemirror/language";
 import { Compartment, EditorSelection, Prec } from "@codemirror/state";
@@ -2196,6 +2197,9 @@ export const buildEditorHtmlForMarkdown = (vditor: IVditor) => {
             parts.code.removeAttribute("hidden");
             parts.code.style.display = "";
         }
+    }
+    if (vditor.currentMode === "wysiwyg") {
+        normalizeEmptyNestedLists(clone);
     }
     return clone.innerHTML;
 };

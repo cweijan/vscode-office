@@ -1,3 +1,4 @@
+import { normalizeEmptyNestedLists } from "../util/normalizeNestedLists";
 import {
     getTopList,
     hasClosestBlock, hasClosestByAttribute, hasTopClosestByTag,
@@ -123,6 +124,7 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
             }
             markPrepareStep("promote list or footnote scope");
 
+            normalizeEmptyNestedLists(blockElement);
             html = blockElement.outerHTML;
             markPrepareStep("serialize scoped outerHTML");
 
@@ -131,10 +133,12 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
                 const listPrevElement = blockElement.previousElementSibling;
                 const listNextElement = blockElement.nextElementSibling;
                 if (listPrevElement && (listPrevElement.tagName === "UL" || listPrevElement.tagName === "OL")) {
+                    normalizeEmptyNestedLists(listPrevElement as HTMLElement);
                     html = listPrevElement.outerHTML + html;
                     listPrevElement.remove();
                 }
                 if (listNextElement && (listNextElement.tagName === "UL" || listNextElement.tagName === "OL")) {
+                    normalizeEmptyNestedLists(listNextElement as HTMLElement);
                     html = html + listNextElement.outerHTML;
                     listNextElement.remove();
                 }
@@ -170,6 +174,7 @@ export const input = (vditor: IVditor, range: Range, event?: InputEvent) => {
             // 否则 Chrome toolbar / cm-editor DOM 会混入 html，Lute 无法正确解析代码内容
             deactivateCodeMirrorsInScope(vditor, vditor.wysiwyg.element);
             markPrepareStep("deactivate editor code mirrors");
+            normalizeEmptyNestedLists(blockElement);
             html = blockElement.innerHTML;
             markPrepareStep("serialize editor innerHTML");
         }

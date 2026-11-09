@@ -1,3 +1,4 @@
+import { normalizeEmptyNestedLists } from "./normalizeNestedLists";
 import { markOutlineEditing } from "../outline/updateOutlineActive";
 import { isCmCodeBlock, isInsideCodeMirror } from "../codeBlock/codeMirrorManager";
 import { input as IRInput } from "../ir/input";
@@ -148,11 +149,37 @@ const dedupeAdjacentEmptyParagraphs = (element: HTMLElement) => {
     }
 };
 
-const createParagraphFromListItem = (liElement: HTMLElement) => {
-    const paragraphElement = document.createElement("p");
-    paragraphElement.setAttribute("data-block", "0");
-    paragraphElement.innerHTML = `<wbr>${liElement.innerHTML}`;
-    return paragraphElement;
+// A list item can contain paragraphs and child lists, not just inline text.
+// Keep those blocks as siblings when removing a top-level list marker.
+const createBlocksFromListItem = (liElement: HTMLElement) => {
+    const fragment = document.createDocumentFragment();
+    let paragraph = document.createElement("p");
+    paragraph.setAttribute("data-block", "0");
+    const appendParagraph = () => {
+        if (paragraph.hasChildNodes()) {
+            fragment.appendChild(paragraph);
+        }
+        paragraph = document.createElement("p");
+        paragraph.setAttribute("data-block", "0");
+    };
+    Array.from(liElement.childNodes).forEach((node) => {
+        if (node.nodeType === Node.ELEMENT_NODE &&
+            /^(P|UL|OL|BLOCKQUOTE|PRE|DIV|TABLE|H[1-6]|HR)$/.test(node.nodeName)) {
+            appendParagraph();
+            fragment.appendChild(node);
+        } else if (node.nodeType !== Node.ELEMENT_NODE || node.nodeName !== "INPUT" ||
+            !liElement.classList.contains("vditor-task")) {
+            paragraph.appendChild(node);
+        }
+    });
+    appendParagraph();
+    if (!fragment.firstElementChild || fragment.firstElementChild.tagName !== "P") {
+        const firstParagraph = document.createElement("p");
+        firstParagraph.setAttribute("data-block", "0");
+        fragment.prepend(firstParagraph);
+    }
+    fragment.firstElementChild.prepend(document.createElement("wbr"));
+    return fragment;
 };
 
 const replaceListItemWithEmptyBlock = (liElement: HTMLElement) => {
@@ -401,6 +428,7 @@ export const listIndent = (vditor: IVditor, liElement: HTMLElement, range: Range
             `<${liParentElement.tagName} data-block="0">${liHTML}</${liParentElement.tagName}>`);
 
         if (vditor.currentMode === "wysiwyg") {
+            normalizeEmptyNestedLists(liParentElement);
             liParentElement.outerHTML = vditor.lute.SpinVditorDOM(liParentElement.outerHTML);
         } else {
             liParentElement.outerHTML = vditor.lute.SpinVditorIRDOM(liParentElement.outerHTML);
@@ -428,6 +456,7 @@ export const listIndent = (vditor: IVditor, liElement: HTMLElement, range: Range
 export const listOutdent = (vditor: IVditor, liElement: HTMLElement, range: Range, topListElement: HTMLElement) => {
     const liParentLiElement = hasClosestByMatchTag(liElement.parentElement, "LI");
     if (liParentLiElement) {
+        topListElement = getTopList(liElement) as HTMLElement;
         vditor[vditor.currentMode].element.querySelectorAll("wbr").forEach((wbr) => {
             wbr.remove();
         });
@@ -447,7 +476,7 @@ export const listOutdent = (vditor: IVditor, liElement: HTMLElement, range: Rang
         });
         let isMatch = false;
         let afterHTML = "";
-        liParentElement.querySelectorAll("li").forEach((item) => {
+        Array.from(liParentElement.children).forEach((item) => {
             if (isMatch) {
                 afterHTML += item.outerHTML;
                 if (!item.nextElementSibling && !item.previousElementSibling) {
@@ -465,12 +494,27 @@ export const listOutdent = (vditor: IVditor, liElement: HTMLElement, range: Rang
             liParentLiElement.insertAdjacentElement("afterend", item);
         });
 
+        if (!liParentElement.children.length) {
+            liParentElement.remove();
+        }
+
         if (afterHTML) {
             liParentAfterElement.innerHTML = afterHTML;
-            liElements[0].insertAdjacentElement("beforeend", liParentAfterElement);
+            const lastChild = liElements[0].lastElementChild;
+            if (lastChild && lastChild === liElements[0].lastChild &&
+                lastChild.tagName === liParentAfterElement.tagName &&
+                lastChild.getAttribute("data-marker") === liParentAfterElement.getAttribute("data-marker") &&
+                lastChild.getAttribute("data-tight") === liParentAfterElement.getAttribute("data-tight")) {
+                // Append sibling items to an existing child list without making
+                // two adjacent lists that the parser may turn into a loose list.
+                lastChild.append(...Array.from(liParentAfterElement.childNodes));
+            } else {
+                liElements[0].insertAdjacentElement("beforeend", liParentAfterElement);
+            }
         }
 
         if (vditor.currentMode === "wysiwyg") {
+            normalizeEmptyNestedLists(topListElement);
             topListElement.outerHTML = vditor.lute.SpinVditorDOM(topListElement.outerHTML);
         } else {
             topListElement.outerHTML = vditor.lute.SpinVditorIRDOM(topListElement.outerHTML);
@@ -668,16 +712,90 @@ export const fixList = (range: Range, vditor: IVditor, pElement: HTMLElement | f
             return true;
         }
 
+        if (vditor.currentMode === "wysiwyg" && !isCtrl(event) && !event.shiftKey && !event.altKey &&
+            event.key === "Backspace" && liElement.previousElementSibling?.tagName === "LI" &&
+            !liElement.classList.contains("vditor-task")) {
+            // History markers may split a text node and leave a zero-width
+            // non-collapsed range. Do not treat selected content as a caret.
+            const selected = range.cloneContents();
+            const previous = liElement.previousElementSibling as HTMLElement;
+            const childLists = Array.from(liElement.children).filter((child) =>
+                child.tagName === "UL" || child.tagName === "OL");
+            const ownNodes = Array.from(liElement.childNodes).filter((node) =>
+                node.nodeName !== "UL" && node.nodeName !== "OL");
+            const beforeCaret = range.cloneRange();
+            beforeCaret.selectNodeContents(liElement);
+            beforeCaret.setEnd(range.startContainer, range.startOffset);
+            // Only join the inline label split away from its children. Leave
+            // complex block merges and previous items with children to existing
+            // behavior; those are not the native Enter split handled here.
+            const hasOtherBlocks = ownNodes.filter((node) => node.nodeName === "P").length > 1 || ownNodes.some((node) => node.nodeType === Node.ELEMENT_NODE &&
+                /^(UL|OL|BLOCKQUOTE|PRE|DIV|TABLE|H[1-6]|HR)$/.test(node.nodeName));
+            const previousHasChildren = Array.from(previous.children).some((child) =>
+                /^(UL|OL|BLOCKQUOTE|PRE|DIV|TABLE|H[1-6]|HR)$/.test(child.tagName)) ||
+                previous.querySelectorAll(":scope > p").length > 1;
+            const childrenAtEnd = childLists.length > 0 &&
+                childLists[childLists.length - 1] === liElement.lastChild;
+            if (selected.childElementCount === 0 && selected.textContent === "" &&
+                !previous.classList.contains("vditor-task") &&
+                childrenAtEnd && !hasOtherBlocks && !previousHasChildren &&
+                !beforeCaret.cloneContents().querySelector("img,br,input,svg,video,audio,iframe,[data-type]") &&
+                beforeCaret.toString().replace(/\u200b/g, "") === "") {
+                // Native Backspace joins only the label and leaves a separate
+                // empty wrapper around its children, displaying two bullets.
+                recordHistoryPosition(vditor);
+                const topList = getTopList(liElement) as HTMLElement;
+                vditor.wysiwyg.element.querySelectorAll("wbr").forEach((marker) => marker.remove());
+                if (Array.from(previous.childNodes).every((node) =>
+                    node.nodeName === "BR" || (node.nodeType === Node.TEXT_NODE &&
+                        node.textContent.replace(/\u200b/g, "").trim() === ""))) {
+                    previous.replaceChildren();
+                }
+                const marker = document.createElement("wbr");
+                const last = previous.lastElementChild;
+                const target = last?.tagName === "P" && last === previous.lastChild ? last : previous;
+                target.appendChild(marker);
+                Array.from(liElement.childNodes).filter((node) =>
+                    node.nodeName !== "UL" && node.nodeName !== "OL").forEach((node) => {
+                    if ((node.nodeName === "BR" && ownNodes.length === 1) || (node.nodeType === Node.TEXT_NODE &&
+                        node.textContent.replace(/\u200b/g, "") === "")) {
+                        return;
+                    }
+                    if (node.nodeName === "P") {
+                        target.append(...Array.from(node.childNodes));
+                    } else {
+                        target.appendChild(node);
+                    }
+                });
+                childLists.forEach((list) => previous.appendChild(list));
+                liElement.remove();
+                normalizeEmptyNestedLists(topList);
+                topList.outerHTML = vditor.lute.SpinVditorDOM(topList.outerHTML);
+                setRangeByWbr(vditor.wysiwyg.element, range);
+                recordHistoryChange(vditor);
+                event.preventDefault();
+                return true;
+            }
+        }
+
         if (!isCtrl(event) && !event.shiftKey && !event.altKey && event.key === "Backspace" &&
             !liElement.previousElementSibling && range.toString() === "" &&
             getSelectPosition(liElement, vditor[vditor.currentMode].element, range).start === 0) {
             // 光标位于点和第一个字符中间时，无法删除 li 元素
-            const paragraphElement = createParagraphFromListItem(liElement);
+            if (hasClosestByMatchTag(liElement.parentElement, "LI")) {
+                // Removing a nested marker outdents one level; it must not wrap
+                // the item's child list inside a paragraph of its parent item.
+                listOutdent(vditor, liElement, range, getTopList(liElement) as HTMLElement);
+                event.preventDefault();
+                return true;
+            }
+            const blocks = createBlocksFromListItem(liElement);
+            const paragraphElement = blocks.firstElementChild as HTMLElement;
             if (liElement.nextElementSibling) {
-                liElement.parentElement.insertAdjacentElement("beforebegin", paragraphElement);
+                liElement.parentElement.before(blocks);
                 liElement.remove();
             } else {
-                liElement.parentElement.replaceWith(paragraphElement);
+                liElement.parentElement.replaceWith(blocks);
             }
             dedupeAdjacentEmptyParagraphs(paragraphElement);
             setRangeByWbr(vditor[vditor.currentMode].element, range);
