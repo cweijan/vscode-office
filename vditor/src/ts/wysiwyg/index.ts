@@ -1,3 +1,4 @@
+import { initFolding } from "./folding";
 import { cloneWikilinkCopyContents } from "../util/wikilinkCopy";
 import { bindWikilinkBoundary } from "../util/wikilinkBoundary";
 import { Constants } from "../constants";
@@ -74,6 +75,7 @@ class WYSIWYG {
     public composingLock = false;
     private scrollListener: () => void;
     private impreciseLineClickHandled = false;
+    private disposeFolding?: () => void;
 
     constructor(vditor: IVditor) {
         const divElement = document.createElement("div");
@@ -91,6 +93,7 @@ class WYSIWYG {
 
         initBlockHandle(vditor, divElement, this.element);
         initTableHandle(vditor, divElement, this.element);
+        this.disposeFolding = initFolding(divElement, this.element);
 
         linkClickEvent(vditor, divElement);
         focusEvent(vditor, this.element);
@@ -107,6 +110,8 @@ class WYSIWYG {
     }
 
     public unbindListener() {
+        this.disposeFolding?.();
+        this.disposeFolding = undefined;
         window.removeEventListener("scroll", this.scrollListener);
     }
 

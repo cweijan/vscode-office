@@ -222,3 +222,43 @@
     }
   }
 }
+
+
+.vditor-wysiwyg[data-folding] {
+  position: relative;
+
+  .vditor-folding {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .vditor-folding__toggle {
+    pointer-events: auto;
+    position: absolute;
+    z-index: 7;
+    width: 18px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 3px;
+    color: var(--second-color);
+    background: transparent;
+    cursor: pointer;
+    font: 16px/24px sans-serif;
+
+    &:hover, &:focus-visible {
+      color: var(--text-color);
+      background: var(--border-color);
+      outline: 1px solid currentColor;
+    }
+
+    &[hidden] { display: none; }
+  }
+}
+
+// Fixed-width pages normally remove the editor padding; retain a folding gutter.
+.vditor[data-page-width-mode="fixed"] .vditor-wysiwyg[data-folding] > pre.vditor-reset {
+  padding-left: 30px;
+}

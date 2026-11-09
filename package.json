@@ -815,6 +815,7 @@
 		]
 	},
 	"scripts": {
+		"test:folding": "node --test test/editor/folding.test.cjs",
 		"dev": "vite --mode=development",
 		"dev:web": "OFFICE_EXTENSION_TARGET=web vite --mode=development",
 		"lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
@@ -842,6 +843,7 @@
 		"eslint-plugin-react-refresh": "^0.5.3",
 		"eslint-plugin-unused-imports": "^4.4.1",
 		"globals": "^17.7.0",
+		"jsdom": "^26.1.0",
 		"less": "^4.2.0",
 		"node-unrar-js": "^2.0.2",
 		"vite": "^8.0.16",
