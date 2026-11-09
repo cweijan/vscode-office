@@ -437,7 +437,8 @@ const positionHandle = (state: IBlockHandleState, block: HTMLElement) => {
     const wrapperRect = state.wrapper.getBoundingClientRect();
     const lineHeight = parseFloat(getComputedStyle(block).lineHeight) || 24;
     const top = blockRect.top - wrapperRect.top + Math.max(0, Math.min(lineHeight / 2 - HANDLE_SIZE / 2, 6));
-    const left = blockRect.left - wrapperRect.left - (block.tagName === "LI" ? 40 : 28) - HANDLE_SIZE - HANDLE_GAP;
+    const left = blockRect.left - wrapperRect.left - (block.tagName === "LI" ? 40 : 28) - HANDLE_SIZE - HANDLE_GAP
+        - (state.wrapper.hasAttribute("data-folding") ? 24 : 0);
     syncBlockMarkerTop(block);
     state.root.style.top = `${top}px`;
     state.root.style.left = `${left}px`;
